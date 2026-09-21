@@ -1,0 +1,238 @@
+package com.example.report.conversation;
+
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
+import com.example.report.common.ApiException;
+import com.example.report.common.JsonUtil;
+import com.example.report.config.AgentProperties;
+import com.example.report.config.AsyncConfig;
+import com.example.report.entity.AgentConversation;
+import com.example.report.entity.AgentMessage;
+import com.example.report.mapper.AgentConversationMapper;
+import com.example.report.mapper.AgentMessageMapper;
+import com.example.report.permission.CurrentUser;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.ai.chat.metadata.Usage;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
+import org.springframework.stereotype.Service;
+
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+
+/**
+ * 对话日志（MySQL 长期保存）与会话管理。写入走单线程异步池，顺序有保证，失败只记日志。
+ */
+@Slf4j
+@Service
+public class ConversationService {
+
+    private final AgentConversationMapper conversationMapper;
+    private final AgentMessageMapper messageMapper;
+    private final AgentProperties props;
+    private final ThreadPoolTaskExecutor logExecutor;
+
+    public ConversationService(AgentConversationMapper conversationMapper,
+                               AgentMessageMapper messageMapper,
+                               AgentProperties props,
+                               @Qualifier(AsyncConfig.CONVERSATION_LOG_EXECUTOR) ThreadPoolTaskExecutor logExecutor) {
+        this.conversationMapper = conversationMapper;
+        this.messageMapper = messageMapper;
+        this.props = props;
+        this.logExecutor = logExecutor;
+    }
+
+    // ---------- 会话管理 ----------
+
+    public AgentConversation create(CurrentUser user, String model) {
+        LocalDateTime now = LocalDateTime.now();
+        AgentConversation c = new AgentConversation();
+        c.setId(JsonUtil.newId());
+        c.setUserId(user.userId());
+        c.setModel(model);
+        c.setMessageCount(0);
+        c.setStatus(AgentConversation.STATUS_ACTIVE);
+        c.setCreatedAt(now);
+        c.setUpdatedAt(now);
+        conversationMapper.insert(c);
+        return c;
+    }
+
+    /** 归属校验：不是当前用户的会话按不存在处理（404），不暴露是否存在 */
+    public AgentConversation getOwned(CurrentUser user, String conversationId) {
+        AgentConversation c = conversationId == null ? null : conversationMapper.selectById(conversationId);
+        if (c == null || !c.getUserId().equals(user.userId()) || !AgentConversation.STATUS_ACTIVE.equals(c.getStatus())) {
+            throw ApiException.notFound("会话不存在");
+        }
+        return c;
+    }
+
+    public List<AgentConversation> list(CurrentUser user, int page, int size) {
+        int offset = Math.max(page - 1, 0) * size;
+        return conversationMapper.selectList(new LambdaQueryWrapper<AgentConversation>()
+                .eq(AgentConversation::getUserId, user.userId())
+                .eq(AgentConversation::getStatus, AgentConversation.STATUS_ACTIVE)
+                .orderByDesc(AgentConversation::getLastMessageAt)
+                .orderByDesc(AgentConversation::getCreatedAt)
+                .last("LIMIT " + offset + ", " + size));
+    }
+
+    public void rename(CurrentUser user, String conversationId, String title) {
+        AgentConversation c = getOwned(user, conversationId);
+        if (title == null || title.isBlank()) {
+            throw new ApiException("标题不能为空");
+        }
+        c.setTitle(truncate(title.trim(), 64));
+        c.setUpdatedAt(LocalDateTime.now());
+        conversationMapper.updateById(c);
+    }
+
+    public void softDelete(CurrentUser user, String conversationId) {
+        AgentConversation c = getOwned(user, conversationId);
+        c.setStatus(AgentConversation.STATUS_DELETED);
+        c.setUpdatedAt(LocalDateTime.now());
+        conversationMapper.updateById(c);
+    }
+
+    /** 历史消息：向前翻页，只返回文本与卡片 */
+    public List<MessageView> messages(CurrentUser user, String conversationId, Long beforeId, int size) {
+        getOwned(user, conversationId);
+        List<AgentMessage> list = messageMapper.selectList(new LambdaQueryWrapper<AgentMessage>()
+                .eq(AgentMessage::getConversationId, conversationId)
+                .in(AgentMessage::getRole, AgentMessage.ROLE_USER, AgentMessage.ROLE_ASSISTANT, AgentMessage.ROLE_CARD)
+                .lt(beforeId != null, AgentMessage::getId, beforeId)
+                .orderByDesc(AgentMessage::getId)
+                .last("LIMIT " + size));
+        Collections.reverse(list);
+        List<MessageView> views = new ArrayList<>(list.size());
+        for (AgentMessage m : list) {
+            views.add(new MessageView(m.getId(), m.getRole(), m.getContent(), m.getCardType(),
+                    m.getPayload() == null ? null : JsonUtil.toMap(m.getPayload()),
+                    m.getPreviewId(), m.getPlanId(), m.getCreatedAt()));
+        }
+        return views;
+    }
+
+    /** 工作记忆回灌用：最近 N 条用户 / 助手文本消息（按时间正序） */
+    public List<AgentMessage> recentTextMessages(String conversationId, int limit) {
+        List<AgentMessage> list = messageMapper.selectList(new LambdaQueryWrapper<AgentMessage>()
+                .eq(AgentMessage::getConversationId, conversationId)
+                .in(AgentMessage::getRole, AgentMessage.ROLE_USER, AgentMessage.ROLE_ASSISTANT)
+                .orderByDesc(AgentMessage::getId)
+                .last("LIMIT " + limit));
+        Collections.reverse(list);
+        return list;
+    }
+
+    // ---------- 对话日志写入（异步） ----------
+
+    public void logUser(String conversationId, String userId, String text) {
+        AgentMessage m = base(conversationId, userId, AgentMessage.ROLE_USER);
+        m.setContent(text);
+        submit(m, true);
+    }
+
+    public void logAssistant(String conversationId, String userId, String text, String model, Usage usage, long latencyMs) {
+        AgentMessage m = base(conversationId, userId, AgentMessage.ROLE_ASSISTANT);
+        m.setContent(text);
+        m.setModel(model);
+        if (usage != null) {
+            m.setPromptTokens(usage.getPromptTokens());
+            m.setCompletionTokens(usage.getCompletionTokens());
+        }
+        m.setLatencyMs((int) Math.min(latencyMs, Integer.MAX_VALUE));
+        submit(m, false);
+    }
+
+    public void logToolCall(String conversationId, String userId, String toolName, Object args) {
+        AgentMessage m = base(conversationId, userId, AgentMessage.ROLE_TOOL_CALL);
+        m.setToolName(toolName);
+        m.setContent(JsonUtil.toJson(args));
+        submit(m, false);
+    }
+
+    public void logToolResult(String conversationId, String userId, String toolName, String summary, String previewId, String planId) {
+        AgentMessage m = base(conversationId, userId, AgentMessage.ROLE_TOOL_RESULT);
+        m.setToolName(toolName);
+        m.setContent(summary);
+        m.setPreviewId(previewId);
+        m.setPlanId(planId);
+        submit(m, false);
+    }
+
+    /** 结构化卡片：payload 全量持久化（行数超过上限时截断并标记） */
+    public void logCard(String conversationId, String userId, String cardType, Object payload, String previewId, String planId) {
+        AgentMessage m = base(conversationId, userId, AgentMessage.ROLE_CARD);
+        m.setCardType(cardType);
+        m.setPayload(JsonUtil.toJson(capPayload(payload)));
+        m.setPreviewId(previewId);
+        m.setPlanId(planId);
+        submit(m, false);
+    }
+
+    private Object capPayload(Object payload) {
+        int max = props.getConversation().getCardPayloadMaxRows();
+        Map<String, Object> map = JsonUtil.toMap(JsonUtil.toJson(payload));
+        Object records = map.get("records");
+        if (records instanceof List<?> list && list.size() > max) {
+            Map<String, Object> copy = new java.util.LinkedHashMap<>(map);
+            copy.put("records", list.subList(0, max));
+            copy.put("truncated", true);
+            copy.put("truncatedTotal", list.size());
+            return copy;
+        }
+        return map;
+    }
+
+    private AgentMessage base(String conversationId, String userId, String role) {
+        AgentMessage m = new AgentMessage();
+        m.setConversationId(conversationId);
+        m.setUserId(userId);
+        m.setRole(role);
+        m.setCreatedAt(LocalDateTime.now());
+        return m;
+    }
+
+    private void submit(AgentMessage m, boolean maybeTitle) {
+        if (m.getConversationId() == null) {
+            return;
+        }
+        logExecutor.execute(() -> {
+            try {
+                messageMapper.insert(m);
+                LambdaUpdateWrapper<AgentConversation> update = new LambdaUpdateWrapper<AgentConversation>()
+                        .eq(AgentConversation::getId, m.getConversationId())
+                        .setSql("message_count = message_count + 1")
+                        .set(AgentConversation::getLastMessageAt, m.getCreatedAt())
+                        .set(AgentConversation::getUpdatedAt, m.getCreatedAt());
+                if (maybeTitle) {
+                    // 首条用户消息作为默认标题
+                    update.isNull(AgentConversation::getTitle)
+                            .set(AgentConversation::getTitle, truncate(m.getContent(), props.getConversation().getTitleMaxLength()));
+                    if (conversationMapper.update(null, update) == 0) {
+                        conversationMapper.update(null, new LambdaUpdateWrapper<AgentConversation>()
+                                .eq(AgentConversation::getId, m.getConversationId())
+                                .setSql("message_count = message_count + 1")
+                                .set(AgentConversation::getLastMessageAt, m.getCreatedAt())
+                                .set(AgentConversation::getUpdatedAt, m.getCreatedAt()));
+                    }
+                } else {
+                    conversationMapper.update(null, update);
+                }
+            } catch (Exception e) {
+                log.error("对话日志写入失败 conversation={} role={}", m.getConversationId(), m.getRole(), e);
+            }
+        });
+    }
+
+    private static String truncate(String s, int max) {
+        if (s == null) {
+            return null;
+        }
+        String t = s.replaceAll("\\s+", " ").trim();
+        return t.length() <= max ? t : t.substring(0, max);
+    }
+}

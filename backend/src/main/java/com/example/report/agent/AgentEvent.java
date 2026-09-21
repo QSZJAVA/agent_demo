@@ -1,0 +1,15 @@
+package com.example.report.agent;
+
+/**
+ * 推给前端的 SSE 事件：type 即 SSE event 名，data 为 JSON 载荷
+ */
+public record AgentEvent(String type, Object data) {
+
+    public static final String TEXT = "text";
+    public static final String CONVERSATION = "conversation";
+    public static final String PREVIEW = "preview";
+    public static final String PLAN = "plan";
+    public static final String RESULT = "result";
+    public static final String ERROR = "error";
+    public static final String DONE = "done";
+}

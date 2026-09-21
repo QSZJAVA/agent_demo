@@ -1,0 +1,40 @@
+# ============================================================
+# 构建上下文排除项：减小上传体积、避免宿主产物污染镜像
+# ============================================================
+
+# 构建产物
+backend/target/
+frontend/dist/
+frontend/node_modules/
+
+# 日志
+*.log
+backend/run.log
+backend/run-real.log
+frontend/dev.log
+
+# 本地环境与私密配置
+.env
+.env.*
+!.env.example
+
+# 本地演示脚本与 Windows 版 Redis 二进制
+tools/
+
+# IDE / 版本控制
+.git/
+.gitignore
+.idea/
+.vscode/
+*.iml
+demo.code-workspace
+
+# 文档（镜像里不需要）
+docs/
+*.md
+
+# 容器相关自身文件（避免递归）
+docker-compose.yml
+Dockerfile
+deploy.sh
+.dockerignore

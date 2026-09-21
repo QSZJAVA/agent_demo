@@ -1,0 +1,87 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: report-demo
+
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    # createDatabaseIfNotExist=true 会自动创建 report_demo 库，无需手工建库
+    url: jdbc:mysql://${DB_HOST:localhost}:${DB_PORT:3306}/report_demo?createDatabaseIfNotExist=true&useUnicode=true&characterEncoding=utf8&serverTimezone=Asia/Shanghai&useSSL=false&allowPublicKeyRetrieval=true
+    username: ${DB_USERNAME:root}
+    # 本地密码通过环境变量或 tools/env.local.cmd 提供，切勿把真实密码写进本文件并提交
+    password: ${DB_PASSWORD:}
+
+  # 启动时执行建表与初始化脚本：报表表、规则表每次重建；会话、消息、审计表 IF NOT EXISTS 保留历史
+  sql:
+    init:
+      mode: always
+      schema-locations: classpath:sql/schema.sql
+      data-locations: classpath:sql/data.sql
+      encoding: UTF-8
+
+  data:
+    redis:
+      host: ${REDIS_HOST:localhost}
+      port: ${REDIS_PORT:6379}
+      # 无密码时留空；真实密码走环境变量，不要写进本文件
+      password: ${REDIS_PASSWORD:}
+
+  mvc:
+    async:
+      # SSE 对话最长等待时间（毫秒）
+      request-timeout: 300000
+
+  ai:
+    retry:
+      # 鉴权 / 参数错误不重试，避免 Key 配错时前端长时间等待
+      max-attempts: 3
+      exclude-on-http-codes: 400,401,403,404
+    openai:
+      # 自建 OpenAI 兼容站点默认值；直连 DeepSeek 官方改为 https://api.deepseek.com
+      # 换回阿里云百炼：https://dashscope.aliyuncs.com/compatible-mode，并把 extra-body 换成 enable_thinking: false
+      # base-url 不要带 /v1（completions-path 已含），否则会拼成 /v1/v1/... 报 404
+      base-url: ${LLM_BASE_URL:https://dashscope.aliyuncs.com/compatible-mode}
+      # 密钥只从环境变量读取，严禁把真实 Key 写进本文件并提交
+      api-key: ${LLM_API_KEY:}
+      chat:
+        completions-path: /v1/chat/completions
+        options:
+          # 可换站点上的其他模型名，只改这一行
+          model: ${LLM_MODEL:deepseek-v4.1-flash}
+          temperature: 0.1
+          stream-usage: true
+          extra-body:
+            thinking:
+              type: disabled
+
+mybatis-plus:
+  global-config:
+    banner: false
+    db-config:
+      id-type: auto
+  configuration:
+    map-underscore-to-camel-case: true
+
+agent:
+  llm:
+    # true 时使用本地关键词模拟模型（无需 API Key），配合 --spring.profiles.active=mock 使用
+    mock: false
+  dispatch:
+    require-confirm: true             # 派单前弹确认卡片；业务接受时可关闭
+  preview:
+    ttl-minutes: 30
+  plan:
+    ttl-minutes: 10
+  memory:
+    ttl-minutes: 30
+    window-size: 20                   # Redis 工作记忆窗口，过期后从消息表回灌
+  conversation:
+    retention-days: 365               # 对话日志保留期
+    card-payload-max-rows: 2000       # 卡片载荷持久化行数上限，超出只存摘要
+    title-max-length: 30              # 默认标题取首条用户消息前 N 字
+
+logging:
+  level:
+    com.example.report: debug
