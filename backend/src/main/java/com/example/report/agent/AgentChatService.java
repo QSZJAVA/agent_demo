@@ -1,5 +1,7 @@
 package com.example.report.agent;
 
+import com.example.report.catalog.ReportCatalogService;
+import com.example.report.common.TraceIds;
 import com.example.report.conversation.ConversationService;
 import com.example.report.entity.AgentConversation;
 import com.example.report.permission.CurrentUser;
@@ -30,15 +32,15 @@ public class AgentChatService {
     private final ChatClient chatClient;
     private final ConversationService conversationService;
     private final DispatchTools dispatchTools;
-    private final ChatMemory chatMemory;
+    private final ReportCatalogService catalogService;
     private final String modelName;
 
     public AgentChatService(ChatClient chatClient, ConversationService conversationService, ChatModel chatModel,
-                            DispatchTools dispatchTools, ChatMemory chatMemory) {
+                            DispatchTools dispatchTools, ReportCatalogService catalogService) {
         this.chatClient = chatClient;
         this.conversationService = conversationService;
         this.dispatchTools = dispatchTools;
-        this.chatMemory = chatMemory;
+        this.catalogService = catalogService;
         String name = null;
         try {
             name = chatModel.getDefaultOptions() == null ? null : chatModel.getDefaultOptions().getModel();
@@ -51,22 +53,35 @@ public class AgentChatService {
         return modelName;
     }
 
-    public Flux<ServerSentEvent<Object>> chat(CurrentUser user, String conversationId, String message, List<String> uiExcludes) {
+    /**
+     * @param uiExcludes  前端预览表格里取消勾选的单据号
+     * @param uiPreviewId 取消勾选发生在哪张预览卡片上；只有与本轮派单用的预览一致时勾选项才生效
+     */
+    public Flux<ServerSentEvent<Object>> chat(CurrentUser user, String conversationId, String message,
+                                              List<String> uiExcludes, String uiPreviewId) {
         AgentConversation conversation = (conversationId == null || conversationId.isBlank())
                 ? conversationService.create(user, modelName)
                 : conversationService.getOwned(user, conversationId);
         String convId = conversation.getId();
 
         AgentEventChannel channel = new AgentEventChannel();
-        var previewRequest = ReportPreviewRequest.resolve(message);
+        // 报表说法只在当前用户可派单的目录范围内识别，不可见报表的名称不会触发兜底查询
+        var previewIntent = PreviewIntentDetector.detect(message, catalogService.terms(), catalogService.dispatchableIds(user));
         Map<String, Object> toolContext = new HashMap<>();
         toolContext.put(ToolContextKeys.USER_ID, user.userId());
         toolContext.put(ToolContextKeys.CONVERSATION_ID, convId);
         toolContext.put(ToolContextKeys.UI_EXCLUDES, uiExcludes == null ? List.of() : List.copyOf(uiExcludes));
+        if (uiPreviewId != null && !uiPreviewId.isBlank()) {
+            toolContext.put(ToolContextKeys.UI_PREVIEW_ID, uiPreviewId);
+        }
+        String traceId = TraceIds.current();
+        if (traceId != null) {
+            toolContext.put(ToolContextKeys.TRACE_ID, traceId);
+        }
         toolContext.put(AgentEventChannel.CONTEXT_KEY, channel);
         // 服务端识别出的"追加 / 排除报表"语义一并注入，让模型发起的工具调用也带上精确范围；
         // 是否真的需要服务端兜底，则等本轮结束、确认模型没调工具之后再决定。
-        previewRequest.ifPresent(r -> {
+        previewIntent.ifPresent(r -> {
             toolContext.put(ToolContextKeys.PREVIEW_APPEND, r.append());
             toolContext.put(ToolContextKeys.PREVIEW_REMOVE, r.remove());
         });
@@ -97,7 +112,8 @@ public class AgentChatService {
 
         // 文本输出结束后执行，顺序很关键：
         // 1) 模型该刷新预览却没调工具时，服务端用已识别的范围补一次真实预览，保证卡片一定刷新；
-        // 2) 补不出来（或没识别出范围）而模型又声称已刷新 / 已生成清单时，补一句纠正；
+        // 2) 模型没调工具却给出了结论时补一句纠正：卡片已兜底补出，就指出文字里的条数不是本轮查的；
+        //    补不出来（或没识别出范围）而模型又声称已刷新 / 已生成清单，就说明卡片仍是旧的；
         // 3) 最后关闭事件通道，让上面的合并流收尾。
         Flux<AgentEvent> guard = Flux.defer(() -> {
             List<AgentEvent> hints = new java.util.ArrayList<>();
@@ -108,13 +124,22 @@ public class AgentChatService {
             }
             String text = reply.toString();
             boolean previewEmitted = channel.hasEmitted(AgentEvent.PREVIEW);
-            if (!previewEmitted && previewRequest.isPresent()
+            boolean fallbackEmitted = false;
+            // 模型调过预览工具（哪怕结果是歧义或没找到）就说明它处理了这个意图，服务端不再重复查询
+            if (!previewEmitted && previewIntent.isPresent() && !channel.toolCalled(DispatchTools.TOOL_PREVIEW)
+                    && !channel.hasEmitted(AgentEvent.CHOICE)
                     && !channel.hasEmitted(AgentEvent.PLAN) && !channel.hasEmitted(AgentEvent.RESULT)) {
-                fallbackPreview(convId, previewRequest.get(), toolContext);
+                fallbackPreview(convId, previewIntent.get(), toolContext);
                 previewEmitted = channel.hasEmitted(AgentEvent.PREVIEW);
+                fallbackEmitted = previewEmitted || channel.hasEmitted(AgentEvent.CHOICE);
+            }
+            Set<String> maskedIds = previewIdMask.maskedIds();
+            // 卡片是服务端兜底补查的：模型根本没调工具，它文字里的条数、"已重查"都不是本轮查出来的
+            if (fallbackEmitted && claimsQueryResult(text, maskedIds)) {
+                log.warn("模型未调用工具却给出了查询结论，卡片由服务端兜底生成，已追加纠正提示 conversation={}", convId);
+                hints.add(new AgentEvent(AgentEvent.TEXT, Map.of("delta", FALLBACK_RESULT_HINT)));
             }
             // 模型提到了预览编号，但本轮要么没有预览、要么该编号不是本轮生成的 → 一定是编的
-            Set<String> maskedIds = previewIdMask.maskedIds();
             boolean fabricatedPreviewId = !maskedIds.isEmpty()
                     && maskedIds.stream().anyMatch(id -> !channel.previewIds().contains(id));
             if (!previewEmitted && fabricatedPreviewId) {
@@ -154,15 +179,14 @@ public class AgentChatService {
 
     /**
      * 服务端兜底：模型该刷新预览却没调用 previewDispatchable 时，
-     * 用服务端已识别的报表范围补生成一次真实预览（会 emit PREVIEW 事件并落库）。
+     * 用服务端从报表目录识别出的范围补生成一次真实预览（会 emit PREVIEW / CHOICE 事件并落库）。
      */
-    private void fallbackPreview(String conversationId, ReportPreviewRequest request, Map<String, Object> toolContext) {
+    private void fallbackPreview(String conversationId, PreviewIntentDetector.PreviewIntent intent, Map<String, Object> toolContext) {
         try {
-            Object result = dispatchTools.previewDispatchable(String.join(",", request.reportTypes()),
-                    request.companyCode(), null, new ToolContext(toolContext));
-            if (result instanceof Map<?, ?> m && "ok".equals(m.get("status"))) {
-                log.info("模型未生成预览，服务端已按识别到的范围补生成 conversation={} reportTypes={}",
-                        conversationId, request.reportTypes());
+            Object result = dispatchTools.fallbackPreview(intent.reportQuery(), intent.companyCode(), new ToolContext(toolContext));
+            if (result instanceof Map<?, ?> m && ("ok".equals(m.get("status")) || "ambiguous".equals(m.get("status")))) {
+                log.info("模型未生成预览，服务端已按识别到的范围补查 conversation={} reportQuery={} status={}",
+                        conversationId, intent.reportQuery(), m.get("status"));
             } else {
                 log.warn("服务端补生成预览失败 conversation={} result={}", conversationId, result);
             }
@@ -177,10 +201,15 @@ public class AgentChatService {
     /** 模型没调工具却声称预览已刷新时的兜底提示 */
     private static final String PREVIEW_CLAIM_HINT =
             "\n\n（系统提示：本轮没有生成新的预览，上方卡片仍是上一次查询的结果。"
-                    + "请重新说明要查询的报表范围（例如只看应收报表、加上费用报表的），或让我重新查询可派单记录。）";
+                    + "请重新说明要查询的报表范围（例如只看某张报表、再加上另一张报表），或让我重新查询可派单记录。）";
     /** 模型提到了本轮不存在的预览编号时的兜底提示 */
     private static final String PREVIEW_ID_HINT =
             "\n\n（系统提示：上一条回复提到的预览编号不是本轮生成的预览，请以界面上的预览卡片为准。）";
+    /** 服务端兜底补出了卡片、而模型没调工具却给出了查询结论时的提示 */
+    private static final String FALLBACK_RESULT_HINT =
+            "\n\n（系统提示：上面回复中的条数和结论不是本轮查询得到的，请以下方卡片为准。）";
+    /** 条数表述：0 条 / 共 4 条 */
+    private static final Pattern COUNT_CLAIM = Pattern.compile("\\d+\\s*条");
     private static final Pattern PLAN_CLAIM = Pattern.compile("已.{0,60}?(生成|发起|更新|创建|提交)");
     /** 完成态表述：已重查 / 已重新查询 / 已刷新… 用于识别"没调工具却宣称查过了" */
     private static final Pattern RECHECK_CLAIM =
@@ -188,9 +217,10 @@ public class AgentChatService {
     private static final Pattern PREVIEW_CLAIM =
             Pattern.compile("(?:已|重新|再次)(?:重新)?(?:生成|刷新|更新|载入|预览|查询)");
     private static final List<String> PLAN_CLAIM_NEGATIONS =
-            List.of("未生成", "没有生成", "无法生成", "未调用", "已过期", "已取消", "已执行");
+            List.of("未生成", "没有生成", "无法生成", "未调用", "已过期", "已取消", "已执行", "已失效", "已作废");
     private static final List<String> PREVIEW_CLAIM_NEGATIONS =
-            List.of("未生成", "没有生成", "无法生成", "未刷新", "不会生成", "不能生成", "已作废");
+            List.of("未生成", "没有生成", "无法生成", "未刷新", "不会生成", "不能生成", "已作废", "已失效", "已过期",
+                    "请重新查询", "需要重新查询");
 
     /**
      * 文本里是否声称"已经生成 / 更新了清单"。
@@ -244,6 +274,20 @@ public class AgentChatService {
             return false;
         }
         return RECHECK_CLAIM.matcher(text).find();
+    }
+
+    /**
+     * 文本里是否给出了查询结论：条数、"已重查 / 已刷新"之类的完成态，或提到了预览编号。
+     * 只在服务端兜底补出卡片时使用——那时模型没调工具，这些结论都不是本轮查出来的。
+     */
+    static boolean claimsQueryResult(String text, Set<String> maskedIds) {
+        if (!maskedIds.isEmpty()) {
+            return true;
+        }
+        if (text == null || text.isBlank()) {
+            return false;
+        }
+        return COUNT_CLAIM.matcher(text).find() || claimsRechecked(text) || claimsPreviewRefreshed(text);
     }
 
     private static String friendly(Throwable e) {

@@ -51,13 +51,17 @@ chmod +x deploy.sh
 脚本会自动完成：
 
 1. 检查 Docker / Compose 是否可用
-2. 从 `.env.example` 生成 `.env`，写入**随机 MySQL / Redis 密码**，并把 `SERVER_NAME` 自动设为服务器公网 IP
+2. 从 `.env.example` 生成 `.env`，写入**随机 MySQL / Redis 密码和网页访问口令**，并把 `SERVER_NAME` 自动设为服务器公网 IP
 3. 构建后端与前端镜像，拉起 MySQL、Redis，等它们 healthy 后再启动后端
 4. 等四个容器全部就绪，打印访问地址
 
-首次执行要下载 MySQL 镜像、Maven 依赖、npm 依赖，视网络情况约 5~15 分钟。脚本最后会打印出**随机生成的 MySQL 与 Redis 密码**，请记录下来（也在 `.env` 里）。
+首次执行要下载 MySQL 镜像、Maven 依赖、npm 依赖，视网络情况约 5~15 分钟。脚本最后会打印出**随机生成的 MySQL / Redis 密码与网页访问口令**，请记录下来（也在 `.env` 里）。
 
-启动完成后访问 `http://<服务器IP>/`。
+启动完成后访问 `http://<服务器IP>/`，浏览器会先弹出登录框，账号 `BASIC_AUTH_USER`（默认 `demo`），口令为 `.env` 里的 `BASIC_AUTH_PASSWORD`。
+
+> 为什么要这层口令：演示系统的"用户1 / 用户2 / 管理员"只是请求头 `X-User-Id` 模拟的身份，谁都能切成管理员。
+> 没有整站口令，任何能访问端口的人都可以改派单规则、执行派单。口令只挡住外人，不区分演示身份；
+> 正式使用前需要把 `PermissionService` 换成真实登录（Session / JWT）。旧版 `.env` 没有口令时，`deploy.sh` 会自动补一个随机口令。
 
 **云服务器记得放行安全组端口**（默认 80）。80 被占用时改 `.env` 里的 `HTTP_PORT=8000` 再 `./deploy.sh up`。
 

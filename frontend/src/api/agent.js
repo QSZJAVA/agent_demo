@@ -28,14 +28,19 @@ export function deleteConversation(conversationId) {
   return http.delete(`/agent/conversations/${conversationId}`)
 }
 
-/** 预览快照全量记录 */
-export function fetchPreview(previewId) {
-  return http.get(`/agent/previews/${previewId}`)
+/** 会话里全部预览 / 清单卡片的当前状态（以服务端为准，刷新页面、换设备后一致） */
+export function fetchCardStates(conversationId) {
+  return http.get(`/agent/conversations/${conversationId}/card-states`)
 }
 
-/** 确认执行待确认清单 */
-export function executePlan(planId) {
-  return http.post(`/dispatch/plans/${planId}/execute`)
+/** 在报表选择卡片上选定报表后创建预览（服务端重新按权限校验） */
+export function createPreview({ conversationId, reportIds, companyCode, excludeDocNos, scopeMode }) {
+  return http.post('/dispatch/previews', { conversationId, reportIds, companyCode, excludeDocNos, scopeMode })
+}
+
+/** 确认执行待确认清单；重复确认返回第一次的结果 */
+export function confirmPlan(planId) {
+  return http.post(`/dispatch/plans/${planId}/confirm`)
 }
 
 export function cancelPlan(planId) {
@@ -45,8 +50,9 @@ export function cancelPlan(planId) {
 /**
  * 对话（SSE over fetch）。axios 不支持流式响应，这里用原生 fetch 读 ReadableStream。
  * onEvent(type, data) 逐个事件回调；返回 abort 函数。
+ * excludeDocNos 是 previewId 那张预览卡片上取消勾选的单据号，服务端只在派单用的正是这张预览时才采用。
  */
-export function streamChat({ conversationId, message, excludeDocNos }, onEvent) {
+export function streamChat({ conversationId, message, excludeDocNos, previewId }, onEvent) {
   const controller = new AbortController()
   const run = async () => {
     const response = await fetch('/api/agent/chat', {
@@ -56,7 +62,7 @@ export function streamChat({ conversationId, message, excludeDocNos }, onEvent) 
         Accept: 'text/event-stream',
         'X-User-Id': getCurrentUserId()
       },
-      body: JSON.stringify({ conversationId, message, excludeDocNos }),
+      body: JSON.stringify({ conversationId, message, excludeDocNos, previewId }),
       signal: controller.signal
     })
     if (!response.ok) {

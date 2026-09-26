@@ -1,5 +1,8 @@
 package com.example.report.mock;
 
+import com.example.report.catalog.CatalogEntry;
+import com.example.report.catalog.ReportCatalog;
+import com.example.report.catalog.TextNormalizer;
 import com.example.report.common.JsonUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.ai.chat.messages.AssistantMessage;
@@ -24,16 +27,20 @@ import reactor.core.publisher.Flux;
 import reactor.core.scheduler.Schedulers;
 
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 /**
  * 本地演示用的关键词模拟模型（agent.llm.mock=true 时启用，配合 --spring.profiles.active=mock）。
  * 用与真实模型完全相同的工具调用协议驱动 DispatchTools，让前后端流程无需 API Key 即可跑通。
+ * 和真实模型一样只把用户对报表的原话交给 reportQuery，报表由服务端在目录内解析；
+ * 只在“删掉的是一张报表还是一条记录”这件事上查一下报表目录的说法索引（真实模型靠上下文理解做到这一点）。
  * 真实环境下不会加载。
  */
 @Slf4j
@@ -42,22 +49,27 @@ import java.util.regex.Pattern;
 @ConditionalOnProperty(prefix = "agent.llm", name = "mock", havingValue = "true")
 public class MockChatModel implements ChatModel {
 
-    private static final Pattern DOC_NO = Pattern.compile("(?i)(SO\\d{6,}|INV-\\d{4}-\\d{4}|EXP-\\d{4}-\\d{4})");
+    private static final Pattern DOC_NO = Pattern.compile("(?i)(SO\\d{6,}|INV-\\d{4}-\\d{4}|EXP-\\d{4}-\\d{4}|PO-\\d{4}-\\d{4})");
     private static final Pattern COMPANY = Pattern.compile("(?i)(?:我|我的)?([A-Z][A-Z0-9_-]{0,31})公司");
     /** 排除意图词 */
     private static final Pattern REMOVE_WORD = Pattern.compile("(?:删掉|删除|去掉|移除|排除|不要)");
-    /** 后置语序的报表排除：应收的也删掉 / 应收报表去掉 */
-    private static final Pattern REMOVE_REPORT_AFTER =
-            Pattern.compile("(销售|应收|费用)报表?(?:的)?(?:也|都)?(?:删掉|删除|去掉|移除|排除)");
-    /** 前置语序的报表排除：不要费用报表 / 排除应收报表 */
-    private static final Pattern REMOVE_REPORT_BEFORE =
-            Pattern.compile("(?:删掉|删除|去掉|移除|排除|不要)(销售|应收|费用)报表?");
-    /** "把云服务删掉" 里被删掉的对象，作为摘要关键词传给预览 */
-    private static final Pattern REMOVE_KEYWORD =
-            Pattern.compile("(?:把|将)([^,，。;；\\s]{1,12}?)(?:删掉|删除|去掉|移除|排除)");
+    /** “把云服务删掉”“把应收报表删掉”里被删掉的对象 */
+    private static final Pattern REMOVE_WITH_BA =
+            Pattern.compile("(?:把|将)([^,，。;；\\s]{1,12}?)(?:的)?(?:也|都)?(?:删掉|删除|去掉|移除|排除)");
+    /** 句首的对象：“应收的也删掉”“应收报表去掉” */
+    private static final Pattern REMOVE_LEADING =
+            Pattern.compile("^(?:那)?([^,，。;；\\s把将]{1,12}?)(?:的)?(?:也|都)?(?:删掉|删除|去掉|移除|排除)");
+    /** 前置语序：“不要费用报表”“排除应收报表” */
+    private static final Pattern REMOVE_TRAILING =
+            Pattern.compile("(?:删掉|删除|去掉|移除|排除|不要)([^,，。;；\\s]{1,12}?)(?:的)?(?:吧)?$");
 
     private final ToolCallingManager toolCallingManager = DefaultToolCallingManager.builder().build();
     private final ChatOptions defaultOptions = ToolCallingChatOptions.builder().model("mock-keyword-model").build();
+    private final ReportCatalog catalog;
+
+    public MockChatModel(ReportCatalog catalog) {
+        this.catalog = catalog;
+    }
 
     @Override
     public ChatOptions getDefaultOptions() {
@@ -129,87 +141,62 @@ public class MockChatModel implements ChatModel {
             return toolCall("dispatch", args);
         }
         if (wantsPreview || mentionsDispatch) {
-            Map<String, Object> args = new java.util.LinkedHashMap<>();
-            List<String> reportTypes = wantsRemove ? remainingReportTypes(messages, t) : mentionedReportTypes(t);
-            if (!reportTypes.isEmpty()) args.put("reportType", String.join(",", reportTypes));
+            Map<String, Object> args = new LinkedHashMap<>();
+            String withoutCompany = COMPANY.matcher(t).replaceAll("");
+            String removed = wantsRemove ? removedObject(withoutCompany) : null;
+            if (removed != null && mentionsReport(removed)) {
+                // 删掉的是一张报表：只传要去掉的报表并声明 scopeMode=remove，由服务端从上一轮预览范围中减去
+                args.put("reportQuery", removed);
+                args.put("scopeMode", "remove");
+            } else {
+                String rest = withoutCompany;
+                if (removed != null) {
+                    // 删掉的是一条记录：把描述作为摘要关键词传给预览，剩下的部分再看有没有说报表
+                    args.put("excludeDocNos", List.of(removed));
+                    rest = rest.replace(removed, "");
+                }
+                String reportQuery = reportQueryOf(rest);
+                if (reportQuery != null) {
+                    args.put("reportQuery", reportQuery);
+                }
+            }
             Matcher companyMatcher = COMPANY.matcher(t);
-            String companyCode = companyMatcher.find() ? companyMatcher.group(1).toUpperCase() : "";
-            if (!companyCode.isEmpty()) args.put("companyCode", companyCode);
-            List<String> keywords = removeKeywords(t);
-            if (!keywords.isEmpty()) args.put("excludeDocNos", keywords);
+            if (companyMatcher.find()) {
+                args.put("companyCode", companyMatcher.group(1).toUpperCase());
+            }
             return toolCall("previewDispatchable", args);
         }
         return text("我是派单助手（本地模拟模型）。你可以说：\"查一下我有哪些可以派单\"，或者\"我不想派 SO2026002，剩下的帮我派单吧\"。");
     }
 
-    /** 用户一句话里明确提到的报表类型 */
-    private static List<String> mentionedReportTypes(String t) {
-        List<String> reportTypes = new ArrayList<>();
-        if (t.contains("销售")) reportTypes.add("sales");
-        if (t.contains("应收")) reportTypes.add("receivable");
-        if (t.contains("费用")) reportTypes.add("expense");
-        return reportTypes;
+    /**
+     * 用户对报表的原话：句子里提到了目录中的报表说法就整句交给服务端解析；
+     * 没提到时去掉通用查询词，还剩内容（可能是错别字或目录里没有的报表）也交给服务端，什么都不剩就是泛问“全部报表”。
+     */
+    private String reportQueryOf(String text) {
+        if (mentionsReport(text)) {
+            return text;
+        }
+        String rest = TextNormalizer.meaningfulRemainder(text);
+        return rest.length() >= 2 ? rest : null;
     }
 
-    /** 排除场景：先按历史推断当前预览范围，再减去用户明确要删掉的报表 */
-    private static List<String> remainingReportTypes(List<Message> messages, String t) {
-        Set<String> scope = new LinkedHashSet<>();
-        for (Message m : messages) {
-            if (m.getMessageType() == MessageType.USER && m.getText() != null && t.equals(m.getText().trim())) {
-                break;
-            }
-            if (m.getMessageType() == MessageType.TOOL) {
-                continue;
-            }
-            String text = m.getText();
-            if (text == null) {
-                continue;
-            }
-            if (text.contains("销售")) scope.add("sales");
-            if (text.contains("应收")) scope.add("receivable");
-            if (text.contains("费用")) scope.add("expense");
-        }
-        scope.removeAll(excludedReportTypes(t));
-        return new ArrayList<>(scope);
+    private boolean mentionsReport(String text) {
+        Set<String> published = catalog.all().stream().filter(CatalogEntry::published).map(CatalogEntry::reportId)
+                .collect(Collectors.toSet());
+        return !catalog.terms().scan(TextNormalizer.normalize(text), published).isEmpty();
     }
 
-    /** 用户明确要删掉/排除的报表类型 */
-    private static List<String> excludedReportTypes(String t) {
-        List<String> excluded = new ArrayList<>();
-        Matcher after = REMOVE_REPORT_AFTER.matcher(t);
-        while (after.find()) {
-            String code = codeOf(after.group(1));
-            if (code != null && !excluded.contains(code)) {
-                excluded.add(code);
+    private static String removedObject(String t) {
+        for (Pattern p : List.of(REMOVE_WITH_BA, REMOVE_LEADING, REMOVE_TRAILING)) {
+            Matcher m = p.matcher(t);
+            if (m.find()) {
+                String key = m.group(1).trim();
+                if (!key.isEmpty()) {
+                    return key;
+                }
             }
         }
-        Matcher before = REMOVE_REPORT_BEFORE.matcher(t);
-        while (before.find()) {
-            String code = codeOf(before.group(1));
-            if (code != null && !excluded.contains(code)) {
-                excluded.add(code);
-            }
-        }
-        return excluded;
-    }
-
-    /** "把云服务删掉" 里被删掉的对象，作为摘要关键词传给预览 */
-    private static List<String> removeKeywords(String t) {
-        List<String> keys = new ArrayList<>();
-        Matcher m = REMOVE_KEYWORD.matcher(t);
-        while (m.find()) {
-            String key = m.group(1).trim();
-            if (!key.isEmpty()) {
-                keys.add(key);
-            }
-        }
-        return keys;
-    }
-
-    private static String codeOf(String word) {
-        if (word.startsWith("销售")) return "sales";
-        if (word.startsWith("应收")) return "receivable";
-        if (word.startsWith("费用")) return "expense";
         return null;
     }
 
@@ -240,6 +227,17 @@ public class MockChatModel implements ChatModel {
                 sb.append("操作没有完成：").append(data.get("message")).append('\n');
                 continue;
             }
+            if ("not_found".equals(status)) {
+                sb.append("没有找到匹配的报表，请补充完整的报表名称或业务域。\n");
+                continue;
+            }
+            if ("ambiguous".equals(status)) {
+                Object candidates = data.get("candidates");
+                String names = candidates instanceof List<?> list
+                        ? list.stream().map(String::valueOf).collect(Collectors.joining("、")) : "";
+                sb.append("找到多个相关报表：").append(names).append("，请在下方卡片中选择要查询的报表。\n");
+                continue;
+            }
             if ("previewDispatchable".equals(r.name())) {
                 sb.append("已按当前生效的派单规则查询完毕，共找到 ").append(data.get("total")).append(" 条应派单记录：\n");
                 Object byReport = data.get("byReport");
@@ -253,7 +251,11 @@ public class MockChatModel implements ChatModel {
                         sb.append('\n');
                     }
                 }
-                sb.append("完整清单见上方表格。你可以说\"剩下的帮我派单吧\"，或先告诉我不想派哪些单据。");
+                String note = String.valueOf(data.getOrDefault("note", ""));
+                if (note.contains("最接近")) {
+                    sb.append("你说的报表没有精确匹配，已按最接近的报表查询，请确认是否正确。\n");
+                }
+                sb.append("完整清单见下方表格。你可以说\"剩下的帮我派单吧\"，或先告诉我不想派哪些单据。");
             } else if ("dispatch".equals(r.name())) {
                 if ("pending_confirm".equals(status)) {
                     sb.append("已生成待确认的派单清单，共 ").append(data.get("count")).append(" 条");
@@ -261,7 +263,7 @@ public class MockChatModel implements ChatModel {
                     if (excluded instanceof List<?> ex && !ex.isEmpty()) {
                         sb.append("，已排除：").append(String.join("、", ex.stream().map(String::valueOf).toList()));
                     }
-                    sb.append("。请在上方确认卡片点击\"确认派单\"后才会真正执行。");
+                    sb.append("。请在下方确认卡片点击\"确认派单\"后才会真正执行。");
                 } else {
                     sb.append("派单已执行：成功 ").append(data.get("successCount")).append(" 条，失败 ").append(data.get("failedCount")).append(" 条。");
                 }

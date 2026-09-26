@@ -1,41 +1,39 @@
 package com.example.report.agent;
 
+import com.example.report.catalog.MatchType;
+import com.example.report.catalog.ReportCatalogService;
+import com.example.report.catalog.ReportRef;
+import com.example.report.catalog.ResolveResult;
 import com.example.report.common.ApiException;
 import com.example.report.config.AgentProperties;
 import com.example.report.conversation.ConversationService;
-import com.example.report.dispatch.DispatchPlan;
 import com.example.report.dispatch.DispatchResultPayload;
 import com.example.report.dispatch.DispatchService;
-import com.example.report.dispatch.PlanStore;
-import com.example.report.dispatch.PreviewStore;
-import com.example.report.dispatch.Snapshot;
+import com.example.report.dispatch.PlanService;
+import com.example.report.dispatch.PlanSnapshot;
+import com.example.report.dispatch.PreviewCommand;
+import com.example.report.dispatch.PreviewOutcome;
+import com.example.report.dispatch.PreviewService;
 import com.example.report.permission.CurrentUser;
 import com.example.report.permission.PermissionService;
-import com.example.report.report.ReportType;
 import com.example.report.rule.Candidate;
-import com.example.report.rule.DispatchCandidateService;
-import com.example.report.rule.RuleCache;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.ai.chat.model.ToolContext;
 import org.springframework.ai.tool.annotation.Tool;
 import org.springframework.ai.tool.annotation.ToolParam;
 import org.springframework.stereotype.Component;
 
-import java.math.BigDecimal;
 import java.util.ArrayList;
-import java.util.EnumSet;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
-import java.util.Optional;
 import java.util.Set;
 
 /**
- * Agent 的两个工具。用户身份从 ToolContext 取；报表和公司范围都由服务端再次校验。
- * 预览生成快照，执行只对快照内的记录生效；模型永远不需要自己罗列记录 ID。
+ * Agent 的两个工具。用户身份从 ToolContext 取；报表由服务端在用户有权限的目录内解析，公司范围由服务端校验。
+ * 模型只能给出“用户对报表的说法”和白名单筛选条件，给不出表名、报表 ID 或 SQL；预览生成快照，执行只对快照内的记录生效。
  */
 @Slf4j
 @Component
@@ -43,191 +41,135 @@ public class DispatchTools {
 
     public static final String TOOL_PREVIEW = "previewDispatchable";
     public static final String TOOL_DISPATCH = "dispatch";
+    public static final String SOURCE_AGENT = "agent";
+    public static final String SOURCE_FALLBACK = "fallback";
     private static final int MAX_RECORDS_PER_REPORT_FOR_MODEL = 50;
 
     private final PermissionService permissionService;
-    private final DispatchCandidateService candidateService;
-    private final RuleCache ruleCache;
-    private final PreviewStore previewStore;
-    private final PlanStore planStore;
+    private final PreviewService previewService;
+    private final PlanService planService;
     private final DispatchService dispatchService;
+    private final ReportCatalogService catalogService;
     private final ConversationService conversationService;
     private final AgentProperties props;
 
-    public DispatchTools(PermissionService permissionService, DispatchCandidateService candidateService, RuleCache ruleCache,
-                         PreviewStore previewStore, PlanStore planStore, DispatchService dispatchService,
+    public DispatchTools(PermissionService permissionService, PreviewService previewService, PlanService planService,
+                         DispatchService dispatchService, ReportCatalogService catalogService,
                          ConversationService conversationService, AgentProperties props) {
         this.permissionService = permissionService;
-        this.candidateService = candidateService;
-        this.ruleCache = ruleCache;
-        this.previewStore = previewStore;
-        this.planStore = planStore;
+        this.previewService = previewService;
+        this.planService = planService;
         this.dispatchService = dispatchService;
+        this.catalogService = catalogService;
         this.conversationService = conversationService;
         this.props = props;
     }
 
     @Tool(name = TOOL_PREVIEW, description = """
-            查询当前用户可见范围内、按各报表当前生效的派单规则应当派单的记录，生成预览快照。
-            返回预览编号、总条数、各报表的条数、规则说明和记录清单（单据号、摘要、公司、金额）。
+            查询当前用户有权限的报表中、按各报表当前生效的派单规则应当派单的记录，生成预览快照并以卡片展示给用户。
             用户问"有哪些可以派单 / 待派单 / 需要派单 / 帮我看看派单"时调用；不要自己判断哪些记录该派单。
-            reportType 允许用英文逗号同时指定多张报表，例如 receivable,expense。
-            excludeDocNos 用于用户想在预览里排除某些记录时（例如"把云服务删掉"），可传单据号，也可传用户描述的摘要关键词。""")
+            reportQuery 传用户对报表的原话（正式名称、简称、别名都可以，多张报表可以一起说），由系统在用户有权限的报表目录内解析；
+            不要自己把说法翻译成编码，也不要编造报表名称。用户没有指定报表时不传，表示用户有权限的全部可派单报表。
+            scopeMode 说明 reportQuery 的含义：replace（默认）= 就查这些报表；append = 在上一轮预览范围上追加这些报表；remove = 从上一轮预览范围中去掉这些报表。
+            excludeDocNos 用于用户想在预览里排除某些记录时（例如"把云服务删掉"），可传单据号，也可传用户描述的摘要关键词。
+            返回 status：ok 已生成预览；ambiguous 命中多张报表，界面已展示选择卡片，请用户在卡片上选择，不要自行猜测；
+            not_found 没有匹配的报表，请用户补充完整的报表名称或业务域；error 失败，按 message 向用户说明。""")
     public Object previewDispatchable(
-            @ToolParam(required = false, description = "报表类型：sales（销售）/ receivable（应收）/ expense（费用）；多张报表用英文逗号连接，例如 receivable,expense；不填或填 all 表示全部报表")
-            String reportType,
+            @ToolParam(required = false, description = "用户对报表的原话，例如 销售台账 / 应收和费用 / 客户对账；不填表示用户有权限的全部可派单报表")
+            String reportQuery,
             @ToolParam(required = false, description = "用户明确指定的公司代码，例如 B；不填表示当前用户默认可见公司范围")
             String companyCode,
             @ToolParam(required = false, description = "本次预览要排除的记录：可传单据号（如 SO2026007），也可传用户说出的摘要关键词（如 云服务），工具会先按单据号精确匹配，未命中再按摘要模糊匹配")
             List<String> excludeDocNos,
+            @ToolParam(required = false, description = "reportQuery 的含义：replace（默认，就查这些报表）/ append（在上一轮预览范围上追加这些报表）/ remove（从上一轮预览范围中去掉这些报表）")
+            String scopeMode,
             ToolContext ctx) {
+        AgentEventChannel channel = ToolContextKeys.channel(ctx);
+        if (channel != null) {
+            channel.markToolCalled(TOOL_PREVIEW);
+        }
+        return preview(reportQuery, companyCode, excludeDocNos, scopeMode, SOURCE_AGENT, ctx);
+    }
+
+    /** 服务端兜底预览用：模型该刷新预览却没调用工具时，按服务端识别出的范围补查一次 */
+    public Object fallbackPreview(String reportQuery, String companyCode, ToolContext ctx) {
+        return preview(reportQuery, companyCode, null, null, SOURCE_FALLBACK, ctx);
+    }
+
+    private Object preview(String reportQuery, String companyCode, List<String> excludeDocNos, String scopeMode,
+                           String source, ToolContext ctx) {
         String userId = ToolContextKeys.userId(ctx);
         String conversationId = ToolContextKeys.conversationId(ctx);
-        conversationService.logToolCall(conversationId, userId, TOOL_PREVIEW, Map.of(
-                "reportType", reportType == null ? "" : reportType,
-                "companyCode", companyCode == null ? "" : companyCode,
-                "excludeDocNos", excludeDocNos == null ? List.of() : excludeDocNos));
+        Map<String, Object> args = new LinkedHashMap<>();
+        args.put("reportQuery", reportQuery == null ? "" : reportQuery);
+        args.put("companyCode", companyCode == null ? "" : companyCode);
+        args.put("excludeDocNos", excludeDocNos == null ? List.of() : excludeDocNos);
+        args.put("scopeMode", scopeMode == null ? "" : scopeMode);
+        args.put("source", source);
+        conversationService.logToolCall(conversationId, userId, TOOL_PREVIEW, args);
         try {
             CurrentUser user = permissionService.resolve(userId);
-            Set<ReportType> filter = parseReportTypes(reportType);
-            if (ToolContextKeys.previewAppend(ctx) && !filter.isEmpty()) {
-                // 用户是在当前范围上追加报表：与上一轮预览的范围合并，避免只查到新增的那张报表
-                filter = appendToPrevious(userId, conversationId, filter);
-            } else if (ToolContextKeys.previewRemove(ctx) && !filter.isEmpty()) {
-                // 用户是在当前范围上排除报表：从上一轮预览的范围中减去
-                filter = removeFromPrevious(userId, conversationId, filter);
-            }
-            Set<String> companies = resolveCompanies(user, companyCode);
-            List<Candidate> candidates = applyExcludes(findCandidates(companies, filter), excludeDocNos);
-            List<String> scope = filter.stream().map(ReportType::code).toList();
-            Snapshot snapshot = previewStore.save(userId, conversationId, candidates, ruleCache.fingerprint(), scope);
-            planStore.supersedeLatest(userId, conversationId);
-
-            PreviewPayload payload = buildPayload(snapshot);
+            PreviewCommand command = new PreviewCommand(PreviewCommand.OPERATION_PREVIEW, source, reportQuery, null,
+                    new PreviewCommand.Filters(companyCode), excludeDocNos, resolveScopeMode(scopeMode, ctx));
+            PreviewOutcome outcome = previewService.preview(user, conversationId, command);
             AgentEventChannel channel = ToolContextKeys.channel(ctx);
-            if (channel != null) {
-                channel.emit(AgentEvent.PREVIEW, payload);
-            }
-            conversationService.logCard(conversationId, userId, "preview", payload, snapshot.id(), null);
-
-            Map<String, Object> summary = buildModelSummary(snapshot, filter, scope);
-            conversationService.logToolResult(conversationId, userId, TOOL_PREVIEW,
-                    "previewId=" + snapshot.id() + " total=" + candidates.size(), snapshot.id(), null);
-            return summary;
+            return switch (outcome.status()) {
+                case NOT_FOUND -> {
+                    String message = outcome.resolution().noAccessibleReports()
+                            ? "当前账号没有可访问的可派单报表"
+                            : "没有找到匹配的报表，请补充完整的报表名称或业务域";
+                    conversationService.logToolResult(conversationId, userId, TOOL_PREVIEW, "not_found", null, null);
+                    Map<String, Object> result = new LinkedHashMap<>();
+                    result.put("status", "not_found");
+                    result.put("message", message + "。不要编造报表或结论，也不要改查其他报表。");
+                    yield result;
+                }
+                case AMBIGUOUS -> {
+                    ResolveResult r = outcome.resolution();
+                    ReportChoicePayload payload = new ReportChoicePayload(reportQuery, r.candidates(), r.preselected(),
+                            companyCode, excludeDocNos == null ? List.of() : excludeDocNos, command.scopeMode());
+                    if (channel != null) {
+                        channel.emit(AgentEvent.CHOICE, payload);
+                    }
+                    conversationService.logCard(conversationId, userId, "choice", payload, null, null);
+                    conversationService.logToolResult(conversationId, userId, TOOL_PREVIEW,
+                            "ambiguous candidates=" + r.candidates().size(), null, null);
+                    Map<String, Object> result = new LinkedHashMap<>();
+                    result.put("status", "ambiguous");
+                    result.put("candidates", r.candidates().stream().map(ReportRef::reportName).toList());
+                    result.put("message", "找到多个相关报表，界面已展示报表选择卡片。请提示用户在卡片上选择要查询的报表，不要自行挑选或猜测。");
+                    yield result;
+                }
+                case OK -> {
+                    PreviewPayload payload = PreviewPayload.of(outcome.snapshot(), catalogService);
+                    if (channel != null) {
+                        channel.emit(AgentEvent.PREVIEW, payload);
+                    }
+                    conversationService.logCard(conversationId, userId, "preview", payload, payload.previewId(), null);
+                    conversationService.logToolResult(conversationId, userId, TOOL_PREVIEW,
+                            "previewId=" + payload.previewId() + " total=" + payload.total(), payload.previewId(), null);
+                    yield modelSummary(payload, outcome.resolution());
+                }
+            };
         } catch (ApiException e) {
             conversationService.logToolResult(conversationId, userId, TOOL_PREVIEW, "error: " + e.getMessage(), null, null);
             return error(e.getMessage());
         }
     }
 
-    /** 保持 Java 调用方兼容；模型工具调用使用带公司/排除参数的重载。 */
-    public Object previewDispatchable(String reportType, ToolContext ctx) {
-        return previewDispatchable(reportType, null, null, ctx);
-    }
-
-    /** 解析报表类型参数：空 / all 表示全部报表；多张报表用逗号等分隔；未知类型仍然报错 */
-    private static Set<ReportType> parseReportTypes(String reportType) {
-        Set<ReportType> types = EnumSet.noneOf(ReportType.class);
-        if (reportType == null || reportType.isBlank()) {
-            return types;
-        }
-        for (String part : reportType.split("[,，、+/\\s]+")) {
-            String code = part.trim();
-            if (code.isEmpty()) {
-                continue;
-            }
-            if ("all".equalsIgnoreCase(code)) {
-                return EnumSet.noneOf(ReportType.class);
-            }
-            types.add(ReportType.fromCode(code));
-        }
-        return types;
-    }
-
-    /** 追加范围：与上一轮预览的范围合并；上一轮是全部报表时合并后仍是全部报表 */
-    private Set<ReportType> appendToPrevious(String userId, String conversationId, Set<ReportType> requested) {
-        if (conversationId == null) {
-            return requested;
-        }
-        Optional<Snapshot> latest = previewStore.loadLatest(userId, conversationId);
-        if (latest.isEmpty() || latest.get().reportTypes() == null) {
-            // 没有可参考的上一轮范围（快照过期或升级前的旧快照），只按本次请求的类型查询
-            return requested;
-        }
-        List<String> previous = latest.get().reportTypes();
-        if (previous.isEmpty()) {
-            return EnumSet.noneOf(ReportType.class);
-        }
-        Set<ReportType> merged = EnumSet.copyOf(requested);
-        previous.stream().map(ReportType::fromCodeOrNull).filter(Objects::nonNull).forEach(merged::add);
-        return merged;
-    }
-
     /**
-     * 排除范围：从上一轮预览的范围中减去本次指定的报表。
-     * 没有任何可参考的上一轮范围（新会话、快照过期或升级前的旧快照）时，按"全部报表减去指定"处理；
-     * 绝不能返回 requested，否则"不要 X 报表"会被理解成"只查 X 报表"，语义刚好相反。
+     * reportQuery 的含义。模型显式传了 scopeMode 就以它为准：它和 reportQuery 是模型同一次填写的，含义一定一致；
+     * 没传时才退回服务端识别出的追加 / 排除语义。只靠服务端识别会出错：用户换个说法没识别出"排除"，
+     * 模型按提示只传了要排除的报表，结果就成了"只查这张报表"，语义刚好相反。
      */
-    private Set<ReportType> removeFromPrevious(String userId, String conversationId, Set<ReportType> requested) {
-        Set<ReportType> remaining = EnumSet.allOf(ReportType.class);
-        if (conversationId != null) {
-            Optional<Snapshot> latest = previewStore.loadLatest(userId, conversationId);
-            if (latest.isPresent() && latest.get().reportTypes() != null && !latest.get().reportTypes().isEmpty()) {
-                remaining = EnumSet.noneOf(ReportType.class);
-                latest.get().reportTypes().stream()
-                        .map(ReportType::fromCodeOrNull).filter(Objects::nonNull).forEach(remaining::add);
-            }
+    private static String resolveScopeMode(String scopeMode, ToolContext ctx) {
+        if (scopeMode != null && !scopeMode.isBlank()) {
+            return scopeMode;
         }
-        remaining.removeAll(requested);
-        if (remaining.isEmpty()) {
-            throw new ApiException("排除之后没有可查询的报表，请确认要保留的报表范围");
+        if (ToolContextKeys.previewAppend(ctx)) {
+            return PreviewService.SCOPE_APPEND;
         }
-        return remaining;
-    }
-
-    /** 预览阶段的排除项：优先按单据号精确匹配，未命中再按摘要关键词模糊匹配（用户常只说"云服务"这类描述） */
-    private static List<Candidate> applyExcludes(List<Candidate> candidates, List<String> excludeDocNos) {
-        if (candidates == null || candidates.isEmpty() || excludeDocNos == null || excludeDocNos.isEmpty()) {
-            return candidates;
-        }
-        List<String> keys = excludeDocNos.stream().filter(Objects::nonNull).map(String::trim).filter(s -> !s.isEmpty()).toList();
-        if (keys.isEmpty()) {
-            return candidates;
-        }
-        Set<String> docNos = new LinkedHashSet<>();
-        keys.forEach(k -> docNos.add(k.toUpperCase(Locale.ROOT)));
-        return candidates.stream().filter(c -> {
-            if (docNos.contains(c.docNo().toUpperCase(Locale.ROOT))) {
-                return false;
-            }
-            String label = c.label() == null ? "" : c.label();
-            return keys.stream().noneMatch(label::contains);
-        }).toList();
-    }
-
-    /** 空 filter 表示全部报表；指定报表时按枚举顺序逐张查询，保证记录顺序与"全部报表"一致 */
-    private List<Candidate> findCandidates(Set<String> companies, Set<ReportType> filter) {
-        if (filter.isEmpty()) {
-            return candidateService.findCandidates(companies, null);
-        }
-        List<Candidate> result = new ArrayList<>();
-        for (ReportType type : ReportType.values()) {
-            if (filter.contains(type)) {
-                result.addAll(candidateService.findCandidates(companies, type));
-            }
-        }
-        return result;
-    }
-
-    private static Set<String> resolveCompanies(CurrentUser user, String companyCode) {
-        if (companyCode == null || companyCode.isBlank()) {
-            return user.companies();
-        }
-        String requested = companyCode.trim().toUpperCase(Locale.ROOT);
-        if (!user.companies().contains(requested)) {
-            throw new ApiException("当前账号无权查看 " + requested + " 公司，未返回其他公司的派单记录");
-        }
-        return Set.of(requested);
+        return ToolContextKeys.previewRemove(ctx) ? PreviewService.SCOPE_REMOVE : PreviewService.SCOPE_REPLACE;
     }
 
     @Tool(name = TOOL_DISPATCH, description = """
@@ -244,7 +186,10 @@ public class DispatchTools {
         String userId = ToolContextKeys.userId(ctx);
         String conversationId = ToolContextKeys.conversationId(ctx);
         AgentEventChannel channel = ToolContextKeys.channel(ctx);
-        // 本轮重新预览后，客户端带来的勾选项属于旧卡片，不能污染新范围。
+        if (channel != null) {
+            channel.markToolCalled(TOOL_DISPATCH);
+        }
+        // 本轮重新预览后，客户端带来的勾选项属于旧卡片，不能污染新范围
         List<String> uiExcludes = channel != null && channel.hasEmitted(AgentEvent.PREVIEW)
                 ? List.of() : ToolContextKeys.uiExcludes(ctx);
         conversationService.logToolCall(conversationId, userId, TOOL_DISPATCH,
@@ -253,86 +198,64 @@ public class DispatchTools {
                         "uiExcludes", uiExcludes));
         try {
             CurrentUser user = permissionService.resolve(userId);
-            Optional<Snapshot> loaded = (previewId == null || previewId.isBlank())
-                    ? previewStore.loadLatest(userId, conversationId)
-                    : previewStore.load(userId, previewId);
-            if (loaded.isEmpty()) {
-                return fail(conversationId, userId, "没有可用的预览快照（不存在或已过期），请先重新查询可派单记录");
+            String targetPreviewId = previewId == null || previewId.isBlank() ? null : previewId.trim();
+            // 勾选项只属于它所在的那张卡片：与本次派单用的预览不一致时忽略
+            String uiPreviewId = ToolContextKeys.uiPreviewId(ctx);
+            if (!uiExcludes.isEmpty() && uiPreviewId != null) {
+                String effective = targetPreviewId != null ? targetPreviewId
+                        : previewService.latest(user, conversationId).map(p -> p.getId()).orElse(null);
+                if (!uiPreviewId.equals(effective)) {
+                    log.info("忽略旧卡片上的勾选项 conversation={} uiPreview={} preview={}", conversationId, uiPreviewId, effective);
+                    uiExcludes = List.of();
+                }
             }
-            Snapshot snapshot = loaded.get();
-            if (conversationId != null && (!Objects.equals(conversationId, snapshot.conversationId())
-                    || previewStore.loadLatest(userId, conversationId).filter(s -> s.id().equals(snapshot.id())).isEmpty())) {
-                return fail(conversationId, userId, "该预览已作废，请使用本会话最新的预览卡片");
-            }
-            if (!Objects.equals(snapshot.rulesFingerprint(), ruleCache.fingerprint())) {
-                previewStore.delete(userId, snapshot.id());
-                return fail(conversationId, userId, "预览之后派单规则已变更，请重新查询可派单记录后再派单");
-            }
-
             // 合并模型给的排除项与前端取消勾选的排除项；单据号不区分大小写
             Set<String> excludes = new LinkedHashSet<>();
             if (excludeDocNos != null) {
                 excludeDocNos.stream().filter(Objects::nonNull).map(String::trim).filter(s -> !s.isEmpty()).forEach(excludes::add);
             }
             uiExcludes.stream().filter(Objects::nonNull).map(String::trim).filter(s -> !s.isEmpty()).forEach(excludes::add);
-            Map<String, Candidate> byDocNo = new LinkedHashMap<>();
-            snapshot.candidates().forEach(c -> byDocNo.put(c.docNo().toUpperCase(Locale.ROOT), c));
-            List<String> unmatched = excludes.stream().filter(e -> !byDocNo.containsKey(e.toUpperCase(Locale.ROOT))).toList();
-            if (!unmatched.isEmpty()) {
-                return fail(conversationId, userId, "以下单据号不在预览结果中，请确认：" + String.join("、", unmatched));
-            }
-            Set<String> excludedUpper = new LinkedHashSet<>();
-            excludes.forEach(e -> excludedUpper.add(e.toUpperCase(Locale.ROOT)));
-            List<Candidate> remaining = snapshot.candidates().stream()
-                    .filter(c -> !excludedUpper.contains(c.docNo().toUpperCase(Locale.ROOT)))
-                    .toList();
-            List<String> excludedList = new ArrayList<>();
-            excludedUpper.forEach(u -> excludedList.add(byDocNo.get(u).docNo()));
-            if (remaining.isEmpty()) {
-                return fail(conversationId, userId, "排除之后没有需要派单的记录");
-            }
 
-            DispatchPlan plan = planStore.save(snapshot, remaining, excludedList);
+            PlanSnapshot plan = planService.create(user, conversationId, targetPreviewId, new ArrayList<>(excludes), null);
+            List<String> excluded = plan.excluded();
             if (props.getDispatch().isRequireConfirm()) {
-                PlanPayload payload = new PlanPayload(plan.id(), snapshot.id(), remaining.size(), excludedList, remaining);
+                PlanPayload payload = PlanPayload.of(plan);
                 if (channel != null) {
                     channel.emit(AgentEvent.PLAN, payload);
                 }
-                conversationService.logCard(conversationId, userId, "plan", payload, snapshot.id(), plan.id());
+                conversationService.logCard(conversationId, userId, "plan", payload, plan.plan().getPreviewId(), plan.plan().getId());
                 Map<String, Object> result = new LinkedHashMap<>();
                 result.put("status", "pending_confirm");
-                result.put("planId", plan.id());
-                result.put("count", remaining.size());
-                result.put("excluded", excludedList);
-                result.put("message", "已生成待确认的派单清单，共 " + remaining.size() + " 条。请提示用户在界面的确认卡片上点击\"确认派单\"后才会真正执行。");
+                result.put("planId", plan.plan().getId());
+                result.put("count", plan.items().size());
+                result.put("excluded", excluded);
+                result.put("message", "已生成待确认的派单清单，共 " + plan.items().size() + " 条。请提示用户在界面的确认卡片上点击\"确认派单\"后才会真正执行。");
                 conversationService.logToolResult(conversationId, userId, TOOL_DISPATCH,
-                        "pending_confirm planId=" + plan.id() + " count=" + remaining.size(), snapshot.id(), plan.id());
+                        "pending_confirm planId=" + plan.plan().getId() + " count=" + plan.items().size(),
+                        plan.plan().getPreviewId(), plan.plan().getId());
                 return result;
             }
 
-            DispatchResultPayload executed = dispatchService.executePlan(user, plan.id());
+            DispatchResultPayload executed = dispatchService.confirm(user, plan.plan().getId(), ToolContextKeys.traceId(ctx));
             if (channel != null) {
                 channel.emit(AgentEvent.RESULT, executed);
             }
             Map<String, Object> result = new LinkedHashMap<>();
             result.put("status", "done");
-            result.put("planId", plan.id());
+            result.put("planId", plan.plan().getId());
             result.put("successCount", executed.successCount());
             result.put("failedCount", executed.failedCount());
             result.put("successDocNos", executed.success().stream().map(Candidate::docNo).toList());
             result.put("failed", executed.failed());
-            result.put("excluded", excludedList);
+            result.put("excluded", excluded);
             conversationService.logToolResult(conversationId, userId, TOOL_DISPATCH,
-                    "done success=" + executed.successCount() + " failed=" + executed.failedCount(), snapshot.id(), plan.id());
+                    "done success=" + executed.successCount() + " failed=" + executed.failedCount(),
+                    plan.plan().getPreviewId(), plan.plan().getId());
             return result;
         } catch (ApiException e) {
-            return fail(conversationId, userId, e.getMessage());
+            conversationService.logToolResult(conversationId, userId, TOOL_DISPATCH, "error: " + e.getMessage(), null, null);
+            return error(e.getMessage());
         }
-    }
-
-    private Map<String, Object> fail(String conversationId, String userId, String message) {
-        conversationService.logToolResult(conversationId, userId, TOOL_DISPATCH, "error: " + message, null, null);
-        return error(message);
     }
 
     private static Map<String, Object> error(String message) {
@@ -342,38 +265,15 @@ public class DispatchTools {
         return m;
     }
 
-    /** 给前端的全量载荷（AgentController 读取快照时也用它） */
-    public static PreviewPayload buildPayloadPublic(Snapshot snapshot) {
-        return buildPayload(snapshot);
-    }
-
-    static PreviewPayload buildPayload(Snapshot snapshot) {
-        Map<String, PreviewPayload.ReportCount> counts = new LinkedHashMap<>();
-        Map<String, String> rules = new LinkedHashMap<>();
-        for (ReportType type : ReportType.values()) {
-            List<Candidate> list = snapshot.candidates().stream().filter(c -> c.reportType().equals(type.code())).toList();
-            BigDecimal sum = list.stream().map(Candidate::amount).filter(Objects::nonNull).reduce(BigDecimal.ZERO, BigDecimal::add);
-            counts.put(type.code(), new PreviewPayload.ReportCount(type.code(), type.label(), list.size(), sum));
-            list.stream().map(Candidate::ruleDescription).filter(Objects::nonNull).findFirst()
-                    .ifPresent(d -> rules.put(type.code(), d));
-        }
-        return new PreviewPayload(snapshot.id(), snapshot.candidates().size(), new ArrayList<>(counts.values()),
-                snapshot.candidates(), rules);
-    }
-
-    /** 给模型的精简摘要：每张报表最多 50 条，全量数据不经过模型 */
-    private static Map<String, Object> buildModelSummary(Snapshot snapshot, Set<ReportType> filter, List<String> scope) {
+    /** 给模型的精简摘要：每张报表最多 50 条，全量数据不经过模型，也不含报表 ID、预览编号以外的内部标识 */
+    private static Map<String, Object> modelSummary(PreviewPayload payload, ResolveResult resolution) {
         List<Map<String, Object>> byReport = new ArrayList<>();
-        for (ReportType type : ReportType.values()) {
-            if (!filter.isEmpty() && !filter.contains(type)) {
-                continue;
-            }
-            List<Candidate> list = snapshot.candidates().stream().filter(c -> c.reportType().equals(type.code())).toList();
+        for (PreviewPayload.ReportCount count : payload.byReport()) {
+            List<Candidate> list = payload.records().stream().filter(c -> c.reportId().equals(count.reportId())).toList();
             Map<String, Object> r = new LinkedHashMap<>();
-            r.put("reportType", type.code());
-            r.put("reportName", type.label());
-            r.put("count", list.size());
-            r.put("ruleDescription", list.isEmpty() ? null : list.get(0).ruleDescription());
+            r.put("reportName", count.reportName());
+            r.put("count", count.count());
+            r.put("ruleDescription", payload.ruleDescriptions().get(count.reportId()));
             List<Map<String, Object>> records = new ArrayList<>();
             for (Candidate c : list.stream().limit(MAX_RECORDS_PER_REPORT_FOR_MODEL).toList()) {
                 Map<String, Object> rec = new LinkedHashMap<>();
@@ -391,11 +291,22 @@ public class DispatchTools {
         }
         Map<String, Object> summary = new LinkedHashMap<>();
         summary.put("status", "ok");
-        summary.put("previewId", snapshot.id());
-        summary.put("total", snapshot.candidates().size());
-        summary.put("reportTypes", scope);
+        summary.put("previewId", payload.previewId());
+        summary.put("total", payload.total());
+        summary.put("reports", payload.byReport().stream().map(PreviewPayload.ReportCount::reportName).toList());
         summary.put("byReport", byReport);
-        summary.put("note", "完整清单已以表格形式展示给用户，回复时按报表汇总条数并简述规则，不要逐条复述全部记录。");
+        List<String> notes = new ArrayList<>();
+        notes.add("完整清单已以表格形式展示给用户，回复时按报表汇总条数并简述规则，不要逐条复述全部记录。");
+        if (resolution.matchType() == MatchType.FUZZY) {
+            String names = String.join("、", payload.byReport().stream().map(PreviewPayload.ReportCount::reportName).toList());
+            notes.add("用户说的“" + resolution.query() + "”没有精确对应的报表，已按最接近的“" + names
+                    + "”查询，回复时请向用户说明并请其确认。");
+        }
+        if (!resolution.unrecognized().isEmpty()) {
+            notes.add("以下说法在用户可访问的报表中没有对应：" + String.join("、", resolution.unrecognized())
+                    + "，回复时请提示用户补充完整名称，不要替用户猜测。");
+        }
+        summary.put("note", String.join(" ", notes));
         return summary;
     }
 }

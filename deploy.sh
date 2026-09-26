@@ -71,16 +71,19 @@ detect_server_name() {
 ensure_env() {
   if [ -f "$ENV_FILE" ]; then
     c_info "沿用已有的 .env 配置。"
+    ensure_basic_auth
     return
   fi
 
-  local mysql_pwd redis_pwd server_name
+  local mysql_pwd redis_pwd web_pwd server_name
   mysql_pwd="$(random_secret)"
   redis_pwd="$(random_secret)"
+  web_pwd="$(random_secret)"
   server_name="$(detect_server_name)"
 
   sed -e "s|^MYSQL_ROOT_PASSWORD=.*|MYSQL_ROOT_PASSWORD=${mysql_pwd}|" \
       -e "s|^REDIS_PASSWORD=.*|REDIS_PASSWORD=${redis_pwd}|" \
+      -e "s|^BASIC_AUTH_PASSWORD=.*|BASIC_AUTH_PASSWORD=${web_pwd}|" \
       -e "s|^SERVER_NAME=.*|SERVER_NAME=${server_name}|" \
       "$ROOT_DIR/.env.example" > "$ENV_FILE"
 
@@ -88,6 +91,22 @@ ensure_env() {
   c_info "已按本机情况生成 .env（随机密码，请留存）"
   c_warn "MySQL root 密码：${mysql_pwd}"
   c_warn "Redis 密码：${redis_pwd}"
+  c_warn "网页访问口令：$(env_get BASIC_AUTH_USER demo) / ${web_pwd}"
+}
+
+# 旧版 .env 没有网页访问口令时补一个随机口令；仍是示例值时拒绝启动，避免带着公开口令上线
+ensure_basic_auth() {
+  local web_pwd
+  web_pwd="$(env_get BASIC_AUTH_PASSWORD)"
+  if [ -z "$web_pwd" ]; then
+    web_pwd="$(random_secret)"
+    set_env BASIC_AUTH_USER "$(env_get BASIC_AUTH_USER demo)"
+    set_env BASIC_AUTH_PASSWORD "$web_pwd"
+    c_warn "已为 .env 补充网页访问口令：$(env_get BASIC_AUTH_USER demo) / ${web_pwd}"
+  elif [ "$web_pwd" = "change-me-web" ]; then
+    c_error ".env 里的 BASIC_AUTH_PASSWORD 仍是示例值 change-me-web，请改成自己的口令后再执行。"
+    exit 1
+  fi
 }
 
 compose() {
@@ -128,6 +147,7 @@ print_access() {
     echo "        http://${server}:${port}/"
   fi
   echo
+  echo "  · 打开页面会先弹出登录框：账号 $(env_get BASIC_AUTH_USER demo)，口令见 .env 的 BASIC_AUTH_PASSWORD"
   echo "  · 演示身份在页面右上角切换：用户1 / 用户2 / 管理员"
   echo "  · 浏览器请用服务器 IP 或域名访问，不要用 localhost"
   echo "  · 云服务器记得放行 ${port} 端口（安全组 / 防火墙）"

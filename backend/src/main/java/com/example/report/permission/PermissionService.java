@@ -6,24 +6,31 @@ import org.springframework.stereotype.Service;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 
 /**
  * 现有权限接口的模拟实现：真实系统替换这一层即可。
- * demo 用户：user1 只看 A 公司，user2 只看 B 公司，admin 看 A/B/C 且可管理规则。
+ * demo 用户都属于租户 T001：user1 只看 A 公司，user2 只看 B 公司，user3 看 B 公司但没有应收报表权限，
+ * admin 看 A/B/C 公司、拥有全部报表权限，并可维护规则与报表目录。
  * 用户身份由请求头 X-User-Id 模拟登录态。
  */
 @Service
 public class PermissionService {
 
     public static final String USER_HEADER = "X-User-Id";
+    public static final String DEMO_TENANT = "T001";
 
+    private static final Set<String> ALL_DEMO_REPORTS = Set.of("report:sales", "report:receivable", "report:expense");
     private static final Map<String, CurrentUser> USERS = new LinkedHashMap<>();
 
     static {
-        USERS.put("user1", new CurrentUser("user1", "用户1（A 公司）", Set.of("A"), false));
-        USERS.put("user2", new CurrentUser("user2", "用户2（B 公司）", Set.of("B"), false));
-        USERS.put("admin", new CurrentUser("admin", "管理员（A/B/C 公司，可改规则）", Set.of("A", "B", "C"), true));
+        USERS.put("user1", new CurrentUser(DEMO_TENANT, "user1", "用户1（A 公司）", Set.of("A"), ALL_DEMO_REPORTS, false));
+        USERS.put("user2", new CurrentUser(DEMO_TENANT, "user2", "用户2（B 公司）", Set.of("B"), ALL_DEMO_REPORTS, false));
+        USERS.put("user3", new CurrentUser(DEMO_TENANT, "user3", "用户3（B 公司，无应收报表权限）", Set.of("B"),
+                Set.of("report:sales", "report:expense"), false));
+        USERS.put("admin", new CurrentUser(DEMO_TENANT, "admin", "管理员（A/B/C 公司，可改规则与报表目录）", Set.of("A", "B", "C"),
+                Set.of(CurrentUser.ALL), true));
     }
 
     public CurrentUser resolve(String userId) {
@@ -43,7 +50,14 @@ public class PermissionService {
 
     public void requireAdmin(CurrentUser user) {
         if (!user.admin()) {
-            throw ApiException.forbidden("只有管理员可以维护派单规则");
+            throw ApiException.forbidden("只有管理员可以执行该操作");
         }
+    }
+
+    /**
+     * 业务记录的归属校验：租户和用户都必须一致。不归属当前用户的记录按不存在处理（404），不暴露是否存在。
+     */
+    public static boolean owns(CurrentUser user, String tenantId, String userId) {
+        return user != null && Objects.equals(user.tenantId(), tenantId) && Objects.equals(user.userId(), userId);
     }
 }

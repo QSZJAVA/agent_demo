@@ -43,10 +43,12 @@ services:
       - "yes"
     environment:
       TZ: Asia/Shanghai
+      # 仅供健康检查的 redis-cli 使用；用 REDISCLI_AUTH 而不是 -a，避免密码出现在进程参数里
+      REDISCLI_AUTH: ${REDIS_PASSWORD}
     volumes:
       - redis-data:/data
     healthcheck:
-      test: ["CMD-SHELL", "redis-cli -a $$REDIS_PASSWORD ping | grep -q PONG"]
+      test: ["CMD-SHELL", "redis-cli ping | grep -q PONG"]
       interval: 10s
       timeout: 5s
       retries: 10
@@ -76,7 +78,8 @@ services:
       REDIS_PASSWORD: ${REDIS_PASSWORD}
       # 默认 --spring.profiles.active=mock：走本地关键词模拟模型，不需要 API Key（演示最省事）
       # 接真实大模型时把 SPRING_ARGS 改成空串，并填 LLM_* 三项
-      SPRING_ARGS: "${SPRING_ARGS:---spring.profiles.active=mock}"
+      # 这里必须用 "-" 而不是 ":-"：":-" 会把空串也当成未设置而回落到 mock，deploy.sh start-real 就切不过去
+      SPRING_ARGS: "${SPRING_ARGS---spring.profiles.active=mock}"
       # 留空时后端会用 application.yml 里的默认值（自建 OpenAI 兼容站点）
       # 这里不要写 ${VAR:-}，空值会让后端 base-url 解析失败
       LLM_BASE_URL: ${LLM_BASE_URL:-https://dashscope.aliyuncs.com/compatible-mode}
@@ -99,12 +102,20 @@ services:
     environment:
       TZ: Asia/Shanghai
       SERVER_NAME: ${SERVER_NAME:-_}
-    # 启动时用环境变量渲染 Nginx 配置，避免把服务器 IP 写死在镜像里
+      # 整站 Basic Auth：演示身份只靠请求头，不能不设防地暴露在公网
+      BASIC_AUTH_USER: ${BASIC_AUTH_USER:-demo}
+      BASIC_AUTH_PASSWORD: ${BASIC_AUTH_PASSWORD:?请先在 .env 中设置 BASIC_AUTH_PASSWORD}
+    # 启动时用环境变量渲染 Nginx 配置与口令文件，避免把服务器 IP、口令写死在镜像里
+    # 口令文件只存在于容器内，nginx 的 {PLAIN} 格式无需额外安装 htpasswd/openssl
     entrypoint:
       - /bin/sh
       - -c
       - |
+        set -e
         envsubst '$$SERVER_NAME' < /etc/nginx/nginx-site.conf.template > /etc/nginx/conf.d/default.conf
+        umask 077
+        printf '%s:{PLAIN}%s\n' "$$BASIC_AUTH_USER" "$$BASIC_AUTH_PASSWORD" > /etc/nginx/.htpasswd
+        chown nginx /etc/nginx/.htpasswd
         exec nginx -g 'daemon off;'
     volumes:
       - ./frontend/nginx.conf.template:/etc/nginx/nginx-site.conf.template:ro

@@ -13,13 +13,13 @@ spring:
     # 本地密码通过环境变量或 tools/env.local.cmd 提供，切勿把真实密码写进本文件并提交
     password: ${DB_PASSWORD:}
 
-  # 启动时执行建表与初始化脚本：报表表、规则表每次重建；会话、消息、审计表 IF NOT EXISTS 保留历史
-  sql:
-    init:
-      mode: always
-      schema-locations: classpath:sql/schema.sql
-      data-locations: classpath:sql/data.sql
-      encoding: UTF-8
+  # 表结构由 Flyway 版本化迁移维护（classpath:db/migration）。已有库第一次接入时以版本 0 建立基线，
+  # V1 全部 IF NOT EXISTS 只补缺失的表，之后 V2+ 把规则、审计迁移到报表目录 / report_id 模型
+  flyway:
+    enabled: true
+    locations: classpath:db/migration
+    baseline-on-migrate: true
+    baseline-version: 0
 
   data:
     redis:
@@ -34,6 +34,14 @@ spring:
       request-timeout: 300000
 
   ai:
+    model:
+      # 只用对话模型；其余 OpenAI 模型不装配，否则它们在启动时也会强制要求 API Key
+      embedding: none
+      image: none
+      moderation: none
+      audio:
+        speech: none
+        transcription: none
     retry:
       # 鉴权 / 参数错误不重试，避免 Key 配错时前端长时间等待
       max-attempts: 3
@@ -56,6 +64,16 @@ spring:
             thinking:
               type: disabled
 
+web:
+  # 允许跨域访问 /api 的来源，逗号分隔，例如 https://demo.example.com。
+  # 开发（Vite 代理）与 Docker（Nginx 反代）都是同源访问，默认留空即不开放跨域
+  cors-allowed-origins: ${CORS_ALLOWED_ORIGINS:}
+
+demo:
+  # 每次启动把报表演示数据、报表目录、派单规则恢复为示例状态（db/demo/demo-data.sql），便于反复演示和跑集成测试。
+  # 生产环境必须设为 false：报表业务表属于业务系统，目录和规则由管理员维护，不能在重启时被覆盖
+  reset-on-startup: ${DEMO_RESET_ON_STARTUP:true}
+
 mybatis-plus:
   global-config:
     banner: false
@@ -72,8 +90,12 @@ agent:
     require-confirm: true             # 派单前弹确认卡片；业务接受时可关闭
   preview:
     ttl-minutes: 30
+    max-items: 5000                   # 单次预览记录上限；超出时要求缩小范围（分页在 P1 实现），不静默截断
   plan:
     ttl-minutes: 10
+  resolver:
+    fuzzy-threshold: 0.6              # 模糊匹配最低得分（0~1）
+    ambiguity-margin: 0.15            # 第一名领先第二名不足该分差时视为歧义，让用户选择
   memory:
     ttl-minutes: 30
     window-size: 20                   # Redis 工作记忆窗口，过期后从消息表回灌
@@ -83,5 +105,8 @@ agent:
     title-max-length: 30              # 默认标题取首条用户消息前 N 字
 
 logging:
+  pattern:
+    # 日志带请求链路号，审计记录里的 trace_id 可以直接反查当次请求的日志
+    level: "%5p [%X{traceId:-}]"
   level:
     com.example.report: debug

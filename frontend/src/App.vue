@@ -9,15 +9,15 @@
         text-color="#bfcbd9"
         active-text-color="#409eff"
       >
-        <el-menu-item index="/sales">
+        <el-menu-item v-if="canSee('sales')" index="/sales">
           <i class="el-icon-s-data"></i>
           <span slot="title">销售报表</span>
         </el-menu-item>
-        <el-menu-item index="/receivable">
+        <el-menu-item v-if="canSee('receivable')" index="/receivable">
           <i class="el-icon-money"></i>
           <span slot="title">应收报表</span>
         </el-menu-item>
-        <el-menu-item index="/expense">
+        <el-menu-item v-if="canSee('expense')" index="/expense">
           <i class="el-icon-wallet"></i>
           <span slot="title">费用报表</span>
         </el-menu-item>
@@ -52,6 +52,7 @@
 <script>
 import AgentChat from './components/agent/AgentChat.vue'
 import { fetchUsers } from './api/agent'
+import { fetchCatalog } from './api/catalog'
 import { getCurrentUserId, setCurrentUserId } from './auth'
 
 export default {
@@ -62,7 +63,9 @@ export default {
       users: [],
       currentUserId: getCurrentUserId(),
       chatVisible: false,
-      refreshSeq: 0
+      refreshSeq: 0,
+      // 当前用户有权限的报表编码（来自报表目录）；null 表示尚未加载，先全部显示
+      visibleCodes: null
     }
   },
   computed: {
@@ -78,6 +81,7 @@ export default {
     }
   },
   async created() {
+    this.loadCatalog()
     try {
       this.users = await fetchUsers()
     } catch (e) {
@@ -85,10 +89,22 @@ export default {
     }
   },
   methods: {
+    /** 报表菜单按报表目录的权限显示：没有权限的报表不出现在菜单里 */
+    async loadCatalog() {
+      try {
+        this.visibleCodes = (await fetchCatalog()).map((r) => r.reportCode)
+      } catch (e) {
+        this.visibleCodes = null
+      }
+    },
+    canSee(reportCode) {
+      return !this.visibleCodes || this.visibleCodes.includes(reportCode)
+    },
     switchUser(userId) {
       setCurrentUserId(userId)
       this.chatVisible = false
       this.refreshSeq++
+      this.loadCatalog()
     },
     onDispatched() {
       this.refreshSeq++

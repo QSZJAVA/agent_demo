@@ -16,6 +16,7 @@ public class AgentProperties {
     private Dispatch dispatch = new Dispatch();
     private Preview preview = new Preview();
     private Plan plan = new Plan();
+    private Resolver resolver = new Resolver();
     private Memory memory = new Memory();
     private Conversation conversation = new Conversation();
 
@@ -34,11 +35,21 @@ public class AgentProperties {
     @Data
     public static class Preview {
         private int ttlMinutes = 30;
+        /** 单次预览记录上限：超出时要求用户缩小范围，不静默截断 */
+        private int maxItems = 5000;
     }
 
     @Data
     public static class Plan {
         private int ttlMinutes = 10;
+    }
+
+    @Data
+    public static class Resolver {
+        /** 模糊匹配最低得分 */
+        private double fuzzyThreshold = 0.6;
+        /** 第一名领先不足该分差时视为歧义 */
+        private double ambiguityMargin = 0.15;
     }
 
     @Data

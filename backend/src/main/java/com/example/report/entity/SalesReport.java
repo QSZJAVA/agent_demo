@@ -16,6 +16,8 @@ import java.time.LocalDateTime;
 @TableName("report_sales")
 public class SalesReport {
 
+    private String tenantId;
+
     @TableId(type = IdType.AUTO)
     private Long id;
     private String companyCode;

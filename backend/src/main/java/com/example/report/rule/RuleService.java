@@ -1,14 +1,15 @@
 package com.example.report.rule;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.example.report.catalog.CatalogEntry;
+import com.example.report.catalog.ReportCatalogService;
+import com.example.report.catalog.query.FieldInfo;
 import com.example.report.common.ApiException;
 import com.example.report.entity.DispatchRule;
 import com.example.report.entity.DispatchRuleHistory;
 import com.example.report.mapper.DispatchRuleHistoryMapper;
 import com.example.report.mapper.DispatchRuleMapper;
 import com.example.report.permission.CurrentUser;
-import com.example.report.report.ReportType;
-import com.example.report.rule.fact.FieldInfo;
 import lombok.Data;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -19,7 +20,8 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
- * 规则管理：草稿 → 试算 → 发布（旧版本自动停用）→ 回滚；每次动作落历史并广播刷新缓存
+ * 规则管理：草稿 → 试算 → 发布（旧版本自动停用）→ 回滚；每次动作落历史并广播刷新缓存。
+ * 规则按 report_id 归属到报表目录；非管理员只能看到自己有权访问的报表的规则。
  */
 @Service
 public class RuleService {
@@ -29,40 +31,57 @@ public class RuleService {
     private final RuleEngine ruleEngine;
     private final RuleCache ruleCache;
     private final DispatchCandidateService candidateService;
+    private final ReportCatalogService catalogService;
 
     public RuleService(DispatchRuleMapper ruleMapper, DispatchRuleHistoryMapper historyMapper, RuleEngine ruleEngine,
-                       RuleCache ruleCache, DispatchCandidateService candidateService) {
+                       RuleCache ruleCache, DispatchCandidateService candidateService, ReportCatalogService catalogService) {
         this.ruleMapper = ruleMapper;
         this.historyMapper = historyMapper;
         this.ruleEngine = ruleEngine;
         this.ruleCache = ruleCache;
         this.candidateService = candidateService;
+        this.catalogService = catalogService;
     }
 
-    public List<DispatchRule> list() {
+    public List<DispatchRule> list(CurrentUser user) {
+        Set<String> visible = visibleReportIds(user);
         return ruleMapper.selectList(new LambdaQueryWrapper<DispatchRule>()
-                .orderByAsc(DispatchRule::getReportType)
-                .orderByAsc(DispatchRule::getCompanyCode)
-                .orderByDesc(DispatchRule::getVersion));
+                        .eq(DispatchRule::getTenantId, user.tenantId())
+                        .orderByAsc(DispatchRule::getReportId)
+                        .orderByAsc(DispatchRule::getCompanyCode)
+                        .orderByDesc(DispatchRule::getVersion))
+                .stream().filter(r -> visible == null || visible.contains(r.getReportId()))
+                .filter(r -> inCompanyScope(user, r.getCompanyCode())).toList();
     }
 
-    public List<DispatchRuleHistory> history(String reportType, String companyCode) {
+    public List<DispatchRuleHistory> history(CurrentUser user, String reportId, String companyCode) {
+        Set<String> visible = visibleReportIds(user);
+        if (visible != null && visible.isEmpty()) {
+            return List.of();
+        }
         return historyMapper.selectList(new LambdaQueryWrapper<DispatchRuleHistory>()
-                .eq(reportType != null && !reportType.isBlank(), DispatchRuleHistory::getReportType, reportType)
-                .eq(companyCode != null && !companyCode.isBlank(), DispatchRuleHistory::getCompanyCode, companyCode)
-                .orderByDesc(DispatchRuleHistory::getId)
-                .last("LIMIT 200"));
+                        .eq(DispatchRuleHistory::getTenantId, user.tenantId())
+                        .eq(reportId != null && !reportId.isBlank(), DispatchRuleHistory::getReportId, reportId)
+                        .eq(companyCode != null && !companyCode.isBlank(), DispatchRuleHistory::getCompanyCode, companyCode)
+                        .in(visible != null, DispatchRuleHistory::getReportId, visible)
+                        .and(q -> q.eq(DispatchRuleHistory::getCompanyCode, DispatchRule.ANY_COMPANY)
+                                .or().in(!user.companies().isEmpty(), DispatchRuleHistory::getCompanyCode, user.companies()))
+                        .orderByDesc(DispatchRuleHistory::getId)
+                        .last("LIMIT 200"));
     }
 
-    public List<FieldInfo> fields(String reportType) {
-        return candidateService.fields(ReportType.fromCode(reportType));
+    public List<FieldInfo> fields(CurrentUser user, String reportId) {
+        return candidateService.fields(report(user, reportId));
     }
 
     /** 语法校验 + 变量必须是事实模型里的字段 */
-    public Set<String> validate(String reportType, String expression) {
-        ReportType type = ReportType.fromCode(reportType);
+    public Set<String> validate(CurrentUser user, String reportId, String expression) {
+        return validate(report(user, reportId), expression);
+    }
+
+    private Set<String> validate(CatalogEntry report, String expression) {
         Set<String> vars = ruleEngine.variables(expression);
-        Set<String> known = candidateService.fields(type).stream().map(FieldInfo::name).collect(Collectors.toSet());
+        Set<String> known = report.fields().stream().map(FieldInfo::name).collect(Collectors.toSet());
         List<String> unknown = vars.stream().filter(v -> !known.contains(v)).toList();
         if (!unknown.isEmpty()) {
             throw new ApiException("表达式引用了事实模型中不存在的字段：" + String.join("、", unknown));
@@ -70,39 +89,41 @@ public class RuleService {
         return vars;
     }
 
-    public DispatchCandidateService.DryRunResult dryRun(CurrentUser user, String reportType, String companyCode, String expression) {
-        validate(reportType, expression);
+    public DispatchCandidateService.DryRunResult dryRun(CurrentUser user, String reportId, String companyCode, String expression) {
+        CatalogEntry report = report(user, reportId);
+        validate(report, expression);
         String company = normalizeCompany(companyCode);
-        if (!DispatchRule.ANY_COMPANY.equals(company) && !user.companies().contains(company)) {
-            throw ApiException.forbidden("公司 " + company + " 不在您的可见范围内");
-        }
-        return candidateService.dryRun(ReportType.fromCode(reportType), company, expression, user.companies());
+        requireCompanyScope(user, company);
+        return candidateService.dryRun(user.tenantId(), report, company, expression, user.companies());
     }
 
     /** 新建或修改草稿；已发布的规则不能直接改，只能新建版本 */
     @Transactional
     public DispatchRule saveDraft(CurrentUser user, RuleForm form) {
-        validate(form.getReportType(), form.getExpression());
+        CatalogEntry report = report(user, form.getReportId());
+        validate(report, form.getExpression());
         String company = normalizeCompany(form.getCompanyCode());
+        requireCompanyScope(user, company);
         LocalDateTime now = LocalDateTime.now();
         DispatchRule rule;
         if (form.getId() != null) {
-            rule = ruleMapper.selectById(form.getId());
-            if (rule == null) {
-                throw ApiException.notFound("规则不存在");
-            }
+            rule = requireRule(user, form.getId());
             if (!DispatchRule.STATUS_DRAFT.equals(rule.getStatus())) {
                 throw new ApiException("只有草稿可以修改，已发布的规则请新建版本");
             }
+            if (!rule.getReportId().equals(report.reportId())) {
+                throw new ApiException("草稿所属报表不能修改，请新建草稿");
+            }
         } else {
             rule = new DispatchRule();
-            rule.setReportType(ReportType.fromCode(form.getReportType()).code());
+            rule.setTenantId(user.tenantId());
+            rule.setReportId(report.reportId());
             rule.setCompanyCode(company);
-            rule.setVersion(nextVersion(rule.getReportType(), company));
+            rule.setVersion(nextVersion(user.tenantId(), rule.getReportId(), company));
             rule.setStatus(DispatchRule.STATUS_DRAFT);
             rule.setCreatedAt(now);
         }
-        rule.setName(form.getName() == null || form.getName().isBlank() ? defaultName(rule) : form.getName().trim());
+        rule.setName(form.getName() == null || form.getName().isBlank() ? defaultName(report, rule) : form.getName().trim());
         rule.setDescription(form.getDescription());
         rule.setExpression(form.getExpression().trim());
         rule.setEffectiveFrom(form.getEffectiveFrom());
@@ -120,26 +141,13 @@ public class RuleService {
     /** 发布草稿：同范围之前已发布的版本自动停用 */
     @Transactional
     public DispatchRule publish(CurrentUser user, Long id) {
-        DispatchRule rule = ruleMapper.selectById(id);
-        if (rule == null) {
-            throw ApiException.notFound("规则不存在");
-        }
+        DispatchRule rule = requireRule(user, id);
         if (!DispatchRule.STATUS_DRAFT.equals(rule.getStatus())) {
             throw new ApiException("只有草稿可以发布");
         }
-        validate(rule.getReportType(), rule.getExpression());
+        validate(report(user, rule.getReportId()), rule.getExpression());
         LocalDateTime now = LocalDateTime.now();
-        List<DispatchRule> published = ruleMapper.selectList(new LambdaQueryWrapper<DispatchRule>()
-                .eq(DispatchRule::getReportType, rule.getReportType())
-                .eq(DispatchRule::getCompanyCode, rule.getCompanyCode())
-                .eq(DispatchRule::getStatus, DispatchRule.STATUS_PUBLISHED));
-        for (DispatchRule old : published) {
-            old.setStatus(DispatchRule.STATUS_DISABLED);
-            old.setUpdatedBy(user.userId());
-            old.setUpdatedAt(now);
-            ruleMapper.updateById(old);
-            history(old, "disable", user.userId(), now);
-        }
+        disablePublished(user, rule.getReportId(), rule.getCompanyCode(), now);
         rule.setStatus(DispatchRule.STATUS_PUBLISHED);
         rule.setUpdatedBy(user.userId());
         rule.setUpdatedAt(now);
@@ -151,10 +159,7 @@ public class RuleService {
 
     @Transactional
     public DispatchRule disable(CurrentUser user, Long id) {
-        DispatchRule rule = ruleMapper.selectById(id);
-        if (rule == null) {
-            throw ApiException.notFound("规则不存在");
-        }
+        DispatchRule rule = requireRule(user, id);
         if (!DispatchRule.STATUS_PUBLISHED.equals(rule.getStatus())) {
             throw new ApiException("只有已发布的规则可以停用");
         }
@@ -171,32 +176,21 @@ public class RuleService {
     /** 回滚到某个历史版本：复制其表达式为新版本并直接发布 */
     @Transactional
     public DispatchRule rollback(CurrentUser user, Long id) {
-        DispatchRule target = ruleMapper.selectById(id);
-        if (target == null) {
-            throw ApiException.notFound("规则不存在");
-        }
+        DispatchRule target = requireRule(user, id);
         if (DispatchRule.STATUS_PUBLISHED.equals(target.getStatus())) {
             throw new ApiException("该版本已经是当前生效版本");
         }
+        validate(report(user, target.getReportId()), target.getExpression());
         LocalDateTime now = LocalDateTime.now();
-        List<DispatchRule> published = ruleMapper.selectList(new LambdaQueryWrapper<DispatchRule>()
-                .eq(DispatchRule::getReportType, target.getReportType())
-                .eq(DispatchRule::getCompanyCode, target.getCompanyCode())
-                .eq(DispatchRule::getStatus, DispatchRule.STATUS_PUBLISHED));
-        for (DispatchRule old : published) {
-            old.setStatus(DispatchRule.STATUS_DISABLED);
-            old.setUpdatedBy(user.userId());
-            old.setUpdatedAt(now);
-            ruleMapper.updateById(old);
-            history(old, "disable", user.userId(), now);
-        }
+        disablePublished(user, target.getReportId(), target.getCompanyCode(), now);
         DispatchRule rule = new DispatchRule();
-        rule.setReportType(target.getReportType());
+        rule.setTenantId(user.tenantId());
+        rule.setReportId(target.getReportId());
         rule.setCompanyCode(target.getCompanyCode());
         rule.setName(target.getName());
         rule.setDescription(target.getDescription());
         rule.setExpression(target.getExpression());
-        rule.setVersion(nextVersion(target.getReportType(), target.getCompanyCode()));
+        rule.setVersion(nextVersion(user.tenantId(), target.getReportId(), target.getCompanyCode()));
         rule.setStatus(DispatchRule.STATUS_PUBLISHED);
         rule.setCreatedAt(now);
         rule.setUpdatedBy(user.userId());
@@ -208,20 +202,83 @@ public class RuleService {
     }
 
     @Transactional
-    public void deleteDraft(Long id) {
-        DispatchRule rule = ruleMapper.selectById(id);
-        if (rule == null) {
-            throw ApiException.notFound("规则不存在");
-        }
+    public void deleteDraft(CurrentUser user, Long id) {
+        DispatchRule rule = requireRule(user, id);
         if (!DispatchRule.STATUS_DRAFT.equals(rule.getStatus())) {
             throw new ApiException("只有草稿可以删除");
         }
         ruleMapper.deleteById(id);
     }
 
-    private int nextVersion(String reportType, String companyCode) {
+    private void disablePublished(CurrentUser user, String reportId, String companyCode, LocalDateTime now) {
+        List<DispatchRule> published = ruleMapper.selectList(new LambdaQueryWrapper<DispatchRule>()
+                        .eq(DispatchRule::getTenantId, user.tenantId())
+                .eq(DispatchRule::getReportId, reportId)
+                .eq(DispatchRule::getCompanyCode, companyCode)
+                .eq(DispatchRule::getStatus, DispatchRule.STATUS_PUBLISHED));
+        for (DispatchRule old : published) {
+            old.setStatus(DispatchRule.STATUS_DISABLED);
+            old.setUpdatedBy(user.userId());
+            old.setUpdatedAt(now);
+            ruleMapper.updateById(old);
+            history(old, "disable", user.userId(), now);
+        }
+    }
+
+    /**
+     * 按 ID 操作规则时的归属校验：规则所属报表对当前用户可见（管理员为目录内任意报表），且公司在其数据范围内。
+     * 不满足时按不存在处理，不暴露其他范围的规则。
+     */
+    private DispatchRule requireRule(CurrentUser user, Long id) {
+        DispatchRule rule = id == null ? null : ruleMapper.selectById(id);
+        if (rule == null || !java.util.Objects.equals(user.tenantId(), rule.getTenantId()) || !inCompanyScope(user, rule.getCompanyCode())) {
+            throw ApiException.notFound("规则不存在");
+        }
+        try {
+            report(user, rule.getReportId());
+        } catch (ApiException e) {
+            throw ApiException.notFound("规则不存在");
+        }
+        return rule;
+    }
+
+    /** 通配规则（*）对所有公司生效，任何能访问该报表的用户都在范围内；具体公司的规则要求公司在用户数据范围内 */
+    private static boolean inCompanyScope(CurrentUser user, String companyCode) {
+        if (DispatchRule.ANY_COMPANY.equals(companyCode)) {
+            return true;
+        }
+        return companyCode != null && user.companies().contains(companyCode);
+    }
+
+    private static void requireCompanyScope(CurrentUser user, String company) {
+        if (!inCompanyScope(user, company)) {
+            throw ApiException.forbidden("公司 " + company + " 不在您的可见范围内");
+        }
+    }
+
+    /** 管理员可以为目录中任意报表（含草稿）维护规则；其他人只能访问可见报表 */
+    private CatalogEntry report(CurrentUser user, String reportId) {
+        if (reportId == null || reportId.isBlank()) {
+            throw new ApiException("请指定报表");
+        }
+        if (user.admin()) {
+            return catalogService.find(reportId.trim()).filter(e -> user.tenantId().equals(e.tenantId())).orElseThrow(() -> ApiException.notFound(ReportCatalogService.NOT_FOUND));
+        }
+        return catalogService.requireVisible(user, reportId.trim());
+    }
+
+    /** null 表示不过滤（管理员） */
+    private Set<String> visibleReportIds(CurrentUser user) {
+        if (user.admin()) {
+            return null;
+        }
+        return catalogService.visibleReports(user).stream().map(CatalogEntry::reportId).collect(Collectors.toSet());
+    }
+
+    private int nextVersion(String tenantId, String reportId, String companyCode) {
         List<DispatchRule> all = ruleMapper.selectList(new LambdaQueryWrapper<DispatchRule>()
-                .eq(DispatchRule::getReportType, reportType)
+                        .eq(DispatchRule::getTenantId, tenantId)
+                .eq(DispatchRule::getReportId, reportId)
                 .eq(DispatchRule::getCompanyCode, companyCode)
                 .orderByDesc(DispatchRule::getVersion)
                 .last("LIMIT 1"));
@@ -231,7 +288,9 @@ public class RuleService {
     private void history(DispatchRule rule, String action, String operator, LocalDateTime at) {
         DispatchRuleHistory h = new DispatchRuleHistory();
         h.setRuleId(rule.getId());
-        h.setReportType(rule.getReportType());
+        h.setTenantId(rule.getTenantId());
+        h.setReportId(rule.getReportId());
+        h.setLegacyReportType(rule.getLegacyReportType());
         h.setCompanyCode(rule.getCompanyCode());
         h.setVersion(rule.getVersion());
         h.setName(rule.getName());
@@ -250,15 +309,16 @@ public class RuleService {
         return companyCode.trim().toUpperCase();
     }
 
-    private static String defaultName(DispatchRule rule) {
+    private static String defaultName(CatalogEntry report, DispatchRule rule) {
         String scope = DispatchRule.ANY_COMPANY.equals(rule.getCompanyCode()) ? "默认" : rule.getCompanyCode() + " 公司";
-        return ReportType.fromCode(rule.getReportType()).label() + scope + "规则 v" + rule.getVersion();
+        return report.reportName() + scope + "规则 v" + rule.getVersion();
     }
 
     @Data
     public static class RuleForm {
         private Long id;
-        private String reportType;
+        /** 报表目录中的稳定标识 */
+        private String reportId;
         private String companyCode;
         private String name;
         private String description;

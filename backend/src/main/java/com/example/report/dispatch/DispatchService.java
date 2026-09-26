@@ -1,30 +1,38 @@
 package com.example.report.dispatch;
 
+import com.example.report.catalog.CatalogEntry;
+import com.example.report.catalog.ReportCatalogService;
+import com.example.report.catalog.query.FactRow;
 import com.example.report.common.ApiException;
+import com.example.report.common.JsonUtil;
+import com.example.report.common.TraceIds;
 import com.example.report.conversation.ConversationService;
-import com.example.report.entity.ExpenseReport;
-import com.example.report.entity.ReceivableReport;
-import com.example.report.entity.SalesReport;
-import com.example.report.mapper.ExpenseReportMapper;
-import com.example.report.mapper.ReceivableReportMapper;
-import com.example.report.mapper.SalesReportMapper;
+import com.example.report.dispatch.store.PlanRepository;
+import com.example.report.entity.DispatchAudit;
+import com.example.report.entity.DispatchPlan;
+import com.example.report.entity.DispatchPlanItem;
+import com.example.report.entity.DispatchPreview;
 import com.example.report.permission.CurrentUser;
-import com.example.report.report.ReportType;
 import com.example.report.rule.Candidate;
-import com.example.report.rule.RuleCache;
+import com.example.report.rule.DispatchCandidateService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.ai.chat.memory.ChatMemory;
 import org.springframework.ai.chat.messages.AssistantMessage;
-import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 
-import java.time.Duration;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
- * 派单执行：幂等锁 → 校验清单归属与规则版本 → 逐条调现有派单接口 → 审计 → 结果卡片
+ * 派单执行：归属 → 状态 → 版本 → 认领（CAS，只执行一次）→ 按当前数据复核 → 逐条调派单接口 → 逐条状态与审计 → 结果卡片。
+ * 重复确认同一份已执行的清单返回第一次的结果，不会再次调用派单接口。
  */
 @Slf4j
 @Service
@@ -32,134 +40,275 @@ public class DispatchService {
 
     public static final String SOURCE_AGENT = "agent";
     public static final String SOURCE_MANUAL = "manual";
+    private static final String RECORD_CHANGED = "预览之后记录已变化（已派单、不再满足规则或不在您的可见范围），未派单";
 
-    private final PlanStore planStore;
-    private final PreviewStore previewStore;
-    private final RuleCache ruleCache;
+    private final PlanService planService;
+    private final PreviewService previewService;
+    private final PlanRepository plans;
+    private final ReportCatalogService catalogService;
+    private final DispatchCandidateService candidateService;
+    private final DispatchVersionService versions;
     private final DispatchGateway gateway;
     private final AuditService auditService;
     private final ConversationService conversationService;
     private final ChatMemory chatMemory;
-    private final StringRedisTemplate redis;
-    private final SalesReportMapper salesMapper;
-    private final ReceivableReportMapper receivableMapper;
-    private final ExpenseReportMapper expenseMapper;
 
-    public DispatchService(PlanStore planStore, PreviewStore previewStore, RuleCache ruleCache, DispatchGateway gateway,
-                           AuditService auditService, ConversationService conversationService, ChatMemory chatMemory,
-                           StringRedisTemplate redis, SalesReportMapper salesMapper,
-                           ReceivableReportMapper receivableMapper, ExpenseReportMapper expenseMapper) {
-        this.planStore = planStore;
-        this.previewStore = previewStore;
-        this.ruleCache = ruleCache;
+    public DispatchService(PlanService planService, PreviewService previewService, PlanRepository plans,
+                           ReportCatalogService catalogService, DispatchCandidateService candidateService,
+                           DispatchVersionService versions, DispatchGateway gateway, AuditService auditService,
+                           ConversationService conversationService, ChatMemory chatMemory) {
+        this.planService = planService;
+        this.previewService = previewService;
+        this.plans = plans;
+        this.catalogService = catalogService;
+        this.candidateService = candidateService;
+        this.versions = versions;
         this.gateway = gateway;
         this.auditService = auditService;
         this.conversationService = conversationService;
         this.chatMemory = chatMemory;
-        this.redis = redis;
-        this.salesMapper = salesMapper;
-        this.receivableMapper = receivableMapper;
-        this.expenseMapper = expenseMapper;
     }
 
-    /** 执行一份待确认清单（前端确认按钮，或 require-confirm=false 时由工具直接调用） */
-    public DispatchResultPayload executePlan(CurrentUser user, String planId) {
-        String lockKey = "agent:dispatch:lock:" + planId;
-        Boolean locked = redis.opsForValue().setIfAbsent(lockKey, user.userId(), Duration.ofMinutes(2));
-        if (!Boolean.TRUE.equals(locked)) {
-            throw new ApiException(409, "该派单清单正在执行中，请勿重复提交");
+    public DispatchResultPayload confirm(CurrentUser user, String planId) {
+        return confirm(user, planId, TraceIds.current());
+    }
+
+    /** 确认执行一份待确认清单（前端确认按钮，或 require-confirm=false 时由工具直接调用） */
+    public DispatchResultPayload confirm(CurrentUser user, String planId, String traceId) {
+        PlanSnapshot snapshot = planService.getOwned(user, planId);
+        DispatchPlan plan = snapshot.plan();
+        if (DispatchPlan.EXECUTED.equals(plan.getStatus())) {
+            return replay(snapshot);
         }
+        if (!DispatchPlan.PENDING.equals(plan.getStatus())) {
+            throw statusError(plan);
+        }
+        DispatchPreview preview = previewService.findOwned(user, plan.getPreviewId())
+                .orElseThrow(() -> ApiException.notFound("待确认清单对应的预览不存在，请重新预览"));
+        LocalDateTime now = LocalDateTime.now();
+        // 认领前再校验一次版本，缩小“校验通过”与“开始执行”之间的窗口
+        String reason = versions.verify(user, preview);
+        if (reason != null) {
+            previewService.expire(preview, reason, now);
+            planService.expire(plan, reason, now);
+            throw new ApiException("该清单已失效：" + StateReason.message(reason));
+        }
+        // 认领：PENDING 且未过期 → EXECUTING，并发确认只有一个请求能成功
+        if (!plans.claim(plan.getId(), user.userId(), now)) {
+            DispatchPlan latest = plans.find(plan.getId()).orElse(plan);
+            if (DispatchPlan.EXECUTED.equals(latest.getStatus())) {
+                return replay(new PlanSnapshot(latest, plans.items(latest.getId())));
+            }
+            if (DispatchPlan.PENDING.equals(latest.getStatus())) {
+                planService.expire(latest, StateReason.TTL, now);
+                throw new ApiException("该清单已失效：" + StateReason.message(StateReason.TTL));
+            }
+            throw statusError(latest);
+        }
+        DispatchResultPayload result;
         try {
-            DispatchPlan plan = planStore.load(user.userId(), planId)
-                    .orElseThrow(() -> ApiException.notFound("待确认清单不存在或已过期，请重新预览"));
-            if (!Objects.equals(plan.rulesFingerprint(), ruleCache.fingerprint())) {
-                planStore.delete(user.userId(), planId);
-                throw new ApiException("预览之后派单规则已变更，请重新预览再执行");
+            result = execute(user, plan, preview, snapshot.items(), traceId);
+        } catch (RuntimeException e) {
+            // 只有仍在执行中的异常才需要核对；网关调用前的查询失败会恢复为 PENDING。
+            boolean reviewRequired;
+            try {
+                reviewRequired = plans.transition(plan.getId(), DispatchPlan.EXECUTING, DispatchPlan.REVIEW_REQUIRED,
+                        StateReason.EXECUTION_INTERRUPTED, LocalDateTime.now());
+            } catch (RuntimeException persistenceError) {
+                log.error("清单执行中断且状态保存失败 plan={}", plan.getId(), persistenceError);
+                throw new ApiException(409, StateReason.message(StateReason.EXECUTION_INTERRUPTED));
             }
-            DispatchResultPayload result = run(user, SOURCE_AGENT, plan.conversationId(), plan.previewId(), plan.id(), plan.records());
-            planStore.delete(user.userId(), planId);
-            previewStore.delete(user.userId(), plan.previewId());
-            if (plan.conversationId() != null) {
-                conversationService.logCard(plan.conversationId(), user.userId(), "result", result, plan.previewId(), plan.id());
+            if (reviewRequired) {
+                log.error("清单执行中断，需核对 plan={}", plan.getId(), e);
+                throw new ApiException(409, StateReason.message(StateReason.EXECUTION_INTERRUPTED));
+            }
+            throw e;
+        }
+        // 派单已经发生，下面的收尾失败只记日志：不能让用户看到 500 以为没派，再去重复操作
+        try {
+            if (plan.getConversationId() != null) {
+                conversationService.logCard(plan.getConversationId(), user.userId(), "result", result, preview.getId(), plan.getId());
                 // 让模型知道这份清单已经执行过（工作记忆），后续对话不会再拿它说事
-                chatMemory.add(plan.conversationId(), new AssistantMessage(memoryNote(result)));
+                chatMemory.add(plan.getConversationId(), new AssistantMessage(memoryNote(result)));
             }
-            return result;
-        } finally {
-            redis.delete(lockKey);
+        } catch (RuntimeException e) {
+            log.error("派单清单 {} 已执行（成功 {} 失败 {}），收尾记录失败", plan.getId(), result.successCount(), result.failedCount(), e);
         }
+        return result;
     }
 
-    /** 执行清单但不抛业务异常：不存在 / 不归属当前用户返回 empty（测试与幂等场景用） */
-    public java.util.Optional<DispatchResultPayload> executePlanSafely(CurrentUser user, String planId) {
-        if (planStore.load(user.userId(), planId).isEmpty()) {
-            return java.util.Optional.empty();
+    /** 取消一份待确认清单；已取消、已失效的重复取消不报错 */
+    public DispatchPlan cancel(CurrentUser user, String planId) {
+        boolean wasPending = planService.findOwned(user, planId).map(p -> DispatchPlan.PENDING.equals(p.getStatus())).orElse(false);
+        DispatchPlan plan = planService.cancel(user, planId);
+        if (wasPending && DispatchPlan.CANCELLED.equals(plan.getStatus()) && plan.getConversationId() != null) {
+            try {
+                chatMemory.add(plan.getConversationId(), new AssistantMessage("（系统记录）用户取消了待确认的派单清单，未执行任何派单。"));
+            } catch (RuntimeException e) {
+                log.warn("取消清单 {} 的工作记忆写入失败", planId, e);
+            }
         }
-        return java.util.Optional.of(executePlan(user, planId));
+        return plan;
     }
 
-    /** 取消一份待确认清单 */
-    public void cancelPlan(CurrentUser user, String planId) {
-        DispatchPlan plan = planStore.load(user.userId(), planId)
-                .orElseThrow(() -> ApiException.notFound("待确认清单不存在或已过期"));
-        planStore.delete(user.userId(), planId);
-        if (plan.conversationId() != null) {
-            chatMemory.add(plan.conversationId(), new AssistantMessage("（系统记录）用户取消了待确认的派单清单，未执行任何派单。"));
-        }
-    }
-
-    /** 报表页手工派单：按记录 ID，只允许操作用户可见公司的记录 */
-    public DispatchResultPayload dispatchDirect(CurrentUser user, ReportType type, List<Long> ids) {
+    /** 报表页手工派单：按记录主键，只允许操作可见报表中、用户可见公司的记录 */
+    public DispatchResultPayload dispatchDirect(CurrentUser user, String reportIdOrLegacyCode, List<String> recordIds) {
+        CatalogEntry report = catalogService.requireVisibleByIdOrLegacyCode(user, reportIdOrLegacyCode);
+        report = catalogService.requireDispatchable(user, report.reportId());
+        List<String> ids = recordIds.stream().filter(Objects::nonNull).map(String::trim).filter(s -> !s.isEmpty()).distinct().toList();
+        Map<String, FactRow> rows = new LinkedHashMap<>();
+        report.adapter().rowsByIds(user.tenantId(), ids).forEach(r -> rows.put(r.recordId(), r));
         List<Candidate> records = new ArrayList<>();
-        for (Long id : ids) {
-            Candidate c = loadCandidate(type, id);
-            if (c == null || !user.companies().contains(c.companyCode())) {
+        for (String id : ids) {
+            FactRow row = rows.get(id);
+            if (row == null || !user.companies().contains(row.companyCode())) {
                 throw ApiException.forbidden("记录 " + id + " 不存在或不在您的可见范围内");
             }
-            records.add(c);
+            records.add(DispatchCandidateService.toCandidate(report, row, null, "手工派单", null, null));
         }
-        return run(user, SOURCE_MANUAL, null, null, null, records);
-    }
-
-    private DispatchResultPayload run(CurrentUser user, String source, String conversationId, String previewId, String planId,
-                                      List<Candidate> records) {
+        AuditService.Context ctx = new AuditService.Context(SOURCE_MANUAL, null, null, null, null,
+                user.permissionVersion(), TraceIds.current());
         List<Candidate> success = new ArrayList<>();
         List<DispatchResultPayload.FailedRecord> failed = new ArrayList<>();
         for (Candidate c : records) {
-            DispatchGateway.Outcome outcome;
-            try {
-                outcome = gateway.dispatch(c);
-            } catch (Exception e) {
-                log.warn("派单接口调用异常 {} {}", c.docNo(), e.getMessage());
-                outcome = DispatchGateway.Outcome.fail("派单接口异常：" + e.getMessage());
-            }
-            auditService.record(user.userId(), source, conversationId, previewId, planId, c, outcome);
+            String requestId = "manual-" + JsonUtil.newId();
+            DispatchGateway.Outcome outcome = callGateway(user, requestId, report, c);
+            String code = outcome.success() ? DispatchAudit.OUTCOME_SUCCESS : DispatchAudit.OUTCOME_FAILED;
+            recordAudit(user, ctx, c, null, requestId, code, outcome.errorCode(), outcome.message());
             if (outcome.success()) {
                 success.add(c);
             } else {
-                failed.add(new DispatchResultPayload.FailedRecord(c.reportType(), c.reportName(), c.docNo(), c.companyCode(), outcome.message()));
+                failed.add(failedRecord(c, code, outcome.errorCode(), outcome.message()));
             }
         }
-        return new DispatchResultPayload(planId, previewId, records.size(), success.size(), failed.size(), success, failed);
+        return new DispatchResultPayload(null, null, records.size(), success.size(), failed.size(), success, failed, false);
     }
 
-    private Candidate loadCandidate(ReportType type, Long id) {
-        return switch (type) {
-            case SALES -> {
-                SalesReport r = salesMapper.selectById(id);
-                yield r == null ? null : new Candidate(type.code(), type.label(), r.getId(), r.getOrderNo(), r.getCompanyCode(),
-                        r.getProductName(), r.getAmount(), r.getSaleDate(), "手工派单", null, null);
+    private DispatchResultPayload execute(CurrentUser user, DispatchPlan plan, DispatchPreview preview,
+                                          List<DispatchPlanItem> items, String traceId) {
+        AuditService.Context ctx = new AuditService.Context(SOURCE_AGENT, plan.getConversationId(), preview.getId(), plan.getId(),
+                preview.getRuleVersion(), preview.getPermissionVersion(), traceId);
+        Set<String> reportIds = items.stream().map(DispatchPlanItem::getReportId).collect(Collectors.toCollection(LinkedHashSet::new));
+        List<CatalogEntry> reports = catalogService.inCatalogOrder(reportIds);
+        Map<String, CatalogEntry> reportById = reports.stream().collect(Collectors.toMap(CatalogEntry::reportId, r -> r));
+        // 清单里的记录是预览时的快照，执行前按当前数据复核：记录仍未派单、仍满足当前规则、仍在预览时的公司范围内。
+        // 版本一致只能说明目录、规则、权限没变，预览之后记录本身被修改（例如金额改小、已被别人派掉）时快照仍会照旧派出去
+        Set<String> qualified;
+        try {
+            qualified = candidateService.findCandidates(user.tenantId(), DispatchVersionService.companies(preview), reports)
+                    .stream().map(Candidate::key).collect(Collectors.toSet());
+        } catch (RuntimeException e) {
+            // 尚未调用任何网关，恢复后可安全重试；下次确认仍会重验归属、预览及版本。
+            plans.transition(plan.getId(), DispatchPlan.EXECUTING, DispatchPlan.PENDING, null, LocalDateTime.now());
+            throw new ApiException(503, "执行前数据复核失败，尚未派单，请稍后重试");
+        }
+        String invalid = versions.verify(user, preview);
+        if (invalid != null) {
+            plans.transition(plan.getId(), DispatchPlan.EXECUTING, DispatchPlan.EXPIRED, invalid, LocalDateTime.now());
+            throw new ApiException("该清单已失效：" + StateReason.message(invalid));
+        }
+        List<Candidate> success = new ArrayList<>();
+        List<DispatchResultPayload.FailedRecord> failed = new ArrayList<>();
+        boolean itemPersistenceFailed = false;
+        for (DispatchPlanItem item : items) {
+            Candidate c = PlanSnapshot.toCandidate(item);
+            CatalogEntry report = reportById.get(item.getReportId());
+            String requestId = plan.getId() + "-" + item.getId();
+            boolean sent = report != null && qualified.contains(c.key());
+            String code;
+            String errorCode;
+            String message;
+            if (sent) {
+                DispatchGateway.Outcome outcome = callGateway(user, requestId, report, c);
+                code = outcome.success() ? DispatchPlanItem.SUCCESS : DispatchPlanItem.FAILED;
+                errorCode = outcome.errorCode();
+                message = outcome.message();
+            } else {
+                code = DispatchPlanItem.SKIPPED;
+                errorCode = "RECORD_CHANGED";
+                message = RECORD_CHANGED;
             }
-            case RECEIVABLE -> {
-                ReceivableReport r = receivableMapper.selectById(id);
-                yield r == null ? null : new Candidate(type.code(), type.label(), r.getId(), r.getInvoiceNo(), r.getCompanyCode(),
-                        r.getCustomerName(), r.getAmount(), r.getDueDate(), "手工派单", null, null);
+            item.setStatus(code);
+            item.setAttemptCount((item.getAttemptCount() == null ? 0 : item.getAttemptCount()) + (sent ? 1 : 0));
+            item.setExternalRequestId(sent ? requestId : null);
+            item.setErrorCode(errorCode);
+            item.setErrorMessage(DispatchPlanItem.SUCCESS.equals(code) ? null : message);
+            item.setUpdatedAt(LocalDateTime.now());
+            try {
+                plans.updateItem(item);
+            } catch (RuntimeException e) {
+                itemPersistenceFailed = true;
+                // 条目状态写失败不能中断整批：前面的记录已经派出，中断会让后面的记录静默丢失
+                log.error("清单条目状态写入失败 plan={} item={} {} status={}", plan.getId(), item.getId(), c.docNo(), code, e);
             }
-            case EXPENSE -> {
-                ExpenseReport r = expenseMapper.selectById(id);
-                yield r == null ? null : new Candidate(type.code(), type.label(), r.getId(), r.getExpenseNo(), r.getCompanyCode(),
-                        r.getExpenseType(), r.getAmount(), r.getExpenseDate(), "手工派单", null, null);
+            recordAudit(user, ctx, c, item.getId(), sent ? requestId : null, code, errorCode, message);
+            if (DispatchPlanItem.SUCCESS.equals(code)) {
+                success.add(c);
+            } else {
+                failed.add(failedRecord(c, code, errorCode, message));
             }
+        }
+        LocalDateTime finished = LocalDateTime.now();
+        previewService.consume(preview.getId(), finished);
+        if (itemPersistenceFailed) {
+            throw new IllegalStateException("部分派单结果未能持久化，必须核对后处理");
+        }
+        if (!plans.finish(plan.getId(), success.size(), failed.size(), finished)) {
+            throw new IllegalStateException("派单清单状态收尾失败：" + plan.getId());
+        }
+        return new DispatchResultPayload(plan.getId(), preview.getId(), items.size(), success.size(), failed.size(),
+                success, failed, false);
+    }
+
+    private DispatchGateway.Outcome callGateway(CurrentUser user, String requestId, CatalogEntry report, Candidate c) {
+        try {
+            return gateway.dispatch(new DispatchGateway.DispatchRequest(user.tenantId(), requestId, report, c));
+        } catch (Exception e) {
+            log.warn("派单接口调用异常 {} {} {}", report.reportId(), c.docNo(), e.getMessage());
+            return DispatchGateway.Outcome.fail("GATEWAY_ERROR", "派单接口异常：" + e.getMessage());
+        }
+    }
+
+    private void recordAudit(CurrentUser user, AuditService.Context ctx, Candidate c, Long itemId, String requestId,
+                             String outcome, String errorCode, String message) {
+        try {
+            auditService.record(user, ctx, c, itemId, requestId, outcome, errorCode, message);
+        } catch (RuntimeException e) {
+            // 审计失败不能中断整批。日志里留全派单结果，便于事后补审计
+            log.error("派单审计写入失败 user={} plan={} {} {}#{} outcome={} message={}", user.userId(), ctx.planId(),
+                    c.reportId(), c.docNo(), c.recordId(), outcome, message, e);
+        }
+    }
+
+    /** 已执行清单的结果：按条目状态还原，不调用派单接口 */
+    DispatchResultPayload replay(PlanSnapshot snapshot) {
+        List<Candidate> success = new ArrayList<>();
+        List<DispatchResultPayload.FailedRecord> failed = new ArrayList<>();
+        for (DispatchPlanItem item : snapshot.items()) {
+            Candidate c = PlanSnapshot.toCandidate(item);
+            if (DispatchPlanItem.SUCCESS.equals(item.getStatus())) {
+                success.add(c);
+            } else {
+                String message = item.getErrorMessage() == null ? "执行结果未知，请联系管理员核对" : item.getErrorMessage();
+                failed.add(failedRecord(c, item.getStatus(), item.getErrorCode(), message));
+            }
+        }
+        return new DispatchResultPayload(snapshot.plan().getId(), snapshot.plan().getPreviewId(), snapshot.items().size(),
+                success.size(), failed.size(), success, failed, true);
+    }
+
+    private static DispatchResultPayload.FailedRecord failedRecord(Candidate c, String outcome, String errorCode, String message) {
+        return new DispatchResultPayload.FailedRecord(c.reportId(), c.reportName(), c.docNo(), c.companyCode(), outcome,
+                errorCode, message);
+    }
+
+    private static ApiException statusError(DispatchPlan plan) {
+        return switch (plan.getStatus()) {
+            case DispatchPlan.EXECUTING -> new ApiException(409, "该清单正在执行，请稍后刷新查看结果");
+            case DispatchPlan.REVIEW_REQUIRED -> new ApiException(409, StateReason.message(StateReason.EXECUTION_INTERRUPTED));
+            case DispatchPlan.CANCELLED -> new ApiException("该清单已取消，如需派单请重新生成清单");
+            case DispatchPlan.EXPIRED -> new ApiException("该清单已失效：" + StateReason.message(plan.getStatusReason()));
+            default -> new ApiException("该清单当前状态为 " + plan.getStatus() + "，不能执行");
         };
     }
 

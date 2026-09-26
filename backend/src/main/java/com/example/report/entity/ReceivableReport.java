@@ -16,6 +16,8 @@ import java.time.LocalDateTime;
 @TableName("report_receivable")
 public class ReceivableReport {
 
+    private String tenantId;
+
     @TableId(type = IdType.AUTO)
     private Long id;
     private String companyCode;

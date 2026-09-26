@@ -49,7 +49,7 @@
             <el-tag v-for="q in quickQuestions" :key="q" class="quick" @click="send(q)">{{ q }}</el-tag>
           </div>
 
-          <div v-for="(m, idx) in messages" :key="m.key" :class="['msg', m.role]">
+          <div v-for="m in messages" :key="m.key" :class="['msg', m.role]">
             <template v-if="m.role === 'user'">
               <div class="bubble user">{{ m.content }}</div>
             </template>
@@ -64,18 +64,27 @@
             <template v-else-if="m.role === 'card' && m.cardType === 'preview'">
               <preview-card
                 :payload="m.payload"
-                :readonly="previewReadonly(m, idx)"
-                :busy="sending || !!executingPlanId"
-                :history="m.fromHistory"
-                @selection-change="onPreviewSelection(m, idx, $event)"
-                @dispatch-selected="dispatchSelected(m, idx)"
+                :status="m.status"
+                :status-message="m.statusMessage"
+                :busy="busy"
+                @selection-change="onPreviewSelection(m, $event)"
+                @dispatch-selected="dispatchSelected(m)"
+              />
+            </template>
+            <template v-else-if="m.role === 'card' && m.cardType === 'choice'">
+              <report-choice-card
+                :payload="m.payload"
+                :busy="busy"
+                :chosen="m.chosen"
+                @choose="chooseReports(m, $event)"
               />
             </template>
             <template v-else-if="m.role === 'card' && m.cardType === 'plan'">
               <plan-card
                 :payload="m.payload"
-                :state="planState(m, idx)"
-                :busy="sending || !!executingPlanId"
+                :status="m.status"
+                :status-message="m.statusMessage"
+                :busy="busy"
                 @confirm="confirmPlan(m)"
                 @cancel="cancelPlanCard(m)"
               />
@@ -113,11 +122,14 @@
 import PreviewCard from './PreviewCard.vue'
 import PlanCard from './PlanCard.vue'
 import ResultCard from './ResultCard.vue'
+import ReportChoiceCard from './ReportChoiceCard.vue'
 import { renderMarkdown } from '../../utils/markdown'
 import {
   cancelPlan,
+  confirmPlan,
+  createPreview,
   deleteConversation,
-  executePlan,
+  fetchCardStates,
   fetchConversations,
   fetchMessages,
   fetchModel,
@@ -129,7 +141,7 @@ let seq = 0
 
 export default {
   name: 'AgentChat',
-  components: { PreviewCard, PlanCard, ResultCard },
+  components: { PreviewCard, PlanCard, ResultCard, ReportChoiceCard },
   props: {
     visible: { type: Boolean, default: false }
   },
@@ -142,29 +154,17 @@ export default {
       messages: [],
       input: '',
       sending: false,
+      choosing: false,
+      // 预览表格里取消勾选的单据号，以及它们所在的那张预览卡片（服务端只对同一张预览生效）
       uiExcludes: [],
+      uiPreviewId: null,
       executingPlanId: null,
-      // 本次打开抽屉期间处理过的清单：planId -> 'executed' | 'cancelled'
-      handledPlans: {},
-      quickQuestions: ['查一下我有哪些可以派单', '查一下费用报表有哪些可以派单', '剩下的帮我派单吧']
+      quickQuestions: ['查一下我有哪些可以派单', '查一下费用报表有哪些可以派单', '查一下客户对账有哪些可以派单', '剩下的帮我派单吧']
     }
   },
   computed: {
-    latestPreviewIndex() {
-      for (let i = this.messages.length - 1; i >= 0; i--) {
-        const m = this.messages[i]
-        if (m.role === 'card' && m.cardType === 'preview') return i
-      }
-      return -1
-    },
-    executedPlanIds() {
-      const set = {}
-      this.messages.forEach((m) => {
-        if (m.role === 'card' && m.cardType === 'result' && m.payload && m.payload.planId) {
-          set[m.payload.planId] = true
-        }
-      })
-      return set
+    busy() {
+      return this.sending || this.choosing || !!this.executingPlanId
     }
   },
   watch: {
@@ -174,6 +174,7 @@ export default {
         if (!this.modelName) {
           fetchModel().then((d) => (this.modelName = d.model)).catch(() => (this.modelName = '未知'))
         }
+        this.refreshStates()
       }
     }
   },
@@ -188,17 +189,18 @@ export default {
       }
     },
     newConversation() {
-      if (this.sending || this.executingPlanId) return
+      if (this.busy) return
       this.activeId = null
       this.messages = []
-      this.uiExcludes = []
+      this.clearSelection()
       this.input = ''
     },
     async openConversation(id) {
-      if (this.sending || this.executingPlanId) return
+      if (this.busy) return
       this.activeId = id
-      this.uiExcludes = []
+      this.clearSelection()
       const list = await fetchMessages(id)
+      // 卡片状态由服务端随历史消息一起返回：刷新页面、换设备看到的都一样
       this.messages = this.textBeforeCards(list).map((m) => ({
         key: `h-${m.id}`,
         id: m.id,
@@ -208,7 +210,9 @@ export default {
         payload: m.payload,
         previewId: m.previewId,
         planId: m.planId,
-        fromHistory: true
+        status: m.status,
+        statusMessage: m.statusMessage,
+        chosen: ''
       }))
       this.scrollToBottom()
     },
@@ -230,6 +234,39 @@ export default {
       await deleteConversation(c.id)
       if (this.activeId === c.id) this.newConversation()
       this.loadConversations()
+    },
+
+    // ---------- 卡片状态 ----------
+    /**
+     * 以服务端为准刷新本会话全部预览 / 清单卡片的状态。每轮对话结束、每次确认 / 取消 / 选择报表之后调用；
+     * 新预览作废旧卡片、规则变化导致失效、超时过期，都在这里体现，前端不再按消息先后自行推导。
+     */
+    async refreshStates() {
+      const id = this.activeId
+      if (!id) return
+      let states
+      try {
+        states = await fetchCardStates(id)
+      } catch (e) {
+        return
+      }
+      if (id !== this.activeId) return
+      this.messages.forEach((m) => {
+        if (m.role !== 'card' || !m.payload) return
+        let state = null
+        if (m.cardType === 'preview') state = states.previews[m.payload.previewId || m.previewId]
+        else if (m.cardType === 'plan') state = states.plans[m.payload.planId || m.planId]
+        if (state) {
+          this.$set(m, 'status', state.status)
+          this.$set(m, 'statusMessage', state.message)
+        }
+      })
+      const selected = this.uiPreviewId && states.previews[this.uiPreviewId]
+      if (this.uiPreviewId && (!selected || selected.status !== 'ACTIVE')) this.clearSelection()
+    },
+    clearSelection() {
+      this.uiExcludes = []
+      this.uiPreviewId = null
     },
 
     // ---------- 对话 ----------
@@ -268,22 +305,18 @@ export default {
       flush()
       return result
     },
-    previewReadonly(m, idx) {
-      return !!m.fromHistory || idx !== this.latestPreviewIndex || this.messages.some((message) =>
-        message.role === 'card' && message.cardType === 'result' &&
-        message.payload.previewId === m.payload.previewId)
-    },
-    onPreviewSelection(m, idx, unselectedDocNos) {
-      if (this.previewReadonly(m, idx)) return
+    onPreviewSelection(m, unselectedDocNos) {
+      if (m.status !== 'ACTIVE') return
       this.uiExcludes = unselectedDocNos
+      this.uiPreviewId = m.payload.previewId
     },
-    dispatchSelected(m, idx) {
-      if (this.previewReadonly(m, idx)) return
+    dispatchSelected(m) {
+      if (m.status !== 'ACTIVE') return
       this.send('把已勾选的记录帮我派单')
     },
     async send(text) {
       const message = (text || this.input || '').trim()
-      if (!message || this.sending || this.executingPlanId) return
+      if (!message || this.busy) return
       this.input = ''
       this.sending = true
       this.push({ role: 'user', content: message })
@@ -291,6 +324,7 @@ export default {
       // 否则卡片会插在回答中间，看起来"卡片比回答先到"
       const cards = []
       const excludeDocNos = this.uiExcludes.slice()
+      const previewId = this.uiPreviewId
       const assistant = this.push({ role: 'assistant', content: '', streaming: true, pending: true })
       const onEvent = (type, data) => {
         switch (type) {
@@ -305,14 +339,17 @@ export default {
             this.scrollToBottom()
             break
           case 'preview':
-            this.uiExcludes = []
-            cards.push({ role: 'card', cardType: 'preview', payload: data })
+            this.clearSelection()
+            cards.push({ role: 'card', cardType: 'preview', payload: data, status: data.status || 'ACTIVE', statusMessage: null })
+            break
+          case 'choice':
+            cards.push({ role: 'card', cardType: 'choice', payload: data, chosen: '' })
             break
           case 'plan':
-            cards.push({ role: 'card', cardType: 'plan', payload: data })
+            cards.push({ role: 'card', cardType: 'plan', payload: data, status: data.status || 'PENDING', statusMessage: null })
             break
           case 'result':
-            this.uiExcludes = []
+            this.clearSelection()
             cards.push({ role: 'card', cardType: 'result', payload: data })
             break
           case 'error':
@@ -327,7 +364,7 @@ export default {
         }
       }
       try {
-        const { promise } = streamChat({ conversationId: this.activeId, message, excludeDocNos }, onEvent)
+        const { promise } = streamChat({ conversationId: this.activeId, message, excludeDocNos, previewId }, onEvent)
         await promise
       } catch (e) {
         assistant.pending = false
@@ -344,50 +381,65 @@ export default {
         if (cards.some((card) => card.cardType === 'result')) this.$emit('dispatched')
         this.sending = false
         this.loadConversations()
+        this.refreshStates()
+      }
+    },
+
+    // ---------- 报表选择 ----------
+    /** 选择卡片上选定报表后由服务端直接生成预览（不经过模型，服务端重新按权限校验） */
+    async chooseReports(m, reportIds) {
+      if (this.busy || !reportIds.length) return
+      this.choosing = true
+      try {
+        const res = await createPreview({
+          conversationId: this.activeId,
+          reportIds,
+          companyCode: m.payload.companyCode,
+          excludeDocNos: m.payload.excludeDocNos,
+          scopeMode: m.payload.scopeMode
+        })
+        if (res.status === 'ok') {
+          const names = res.preview.byReport.map((b) => b.reportName).join('、')
+          this.$set(m, 'chosen', names)
+          this.push({ role: 'user', content: `（选择报表）${names}` })
+          this.clearSelection()
+          this.push({ role: 'card', cardType: 'preview', payload: res.preview, status: res.preview.status, statusMessage: null })
+        } else {
+          this.$message.warning(res.message || '没有找到可查询的报表')
+        }
+      } catch (e) {
+        /* 失败原因已由请求拦截器提示 */
+      } finally {
+        this.choosing = false
+        this.refreshStates()
       }
     },
 
     // ---------- 待确认清单 ----------
-    planState(m, idx) {
-      const planId = m.payload && m.payload.planId
-      if (this.executedPlanIds[planId]) return 'executed'
-      if (this.handledPlans[planId]) return this.handledPlans[planId]
-      if (m.fromHistory) return 'expired'
-      // 服务端生成新清单时会作废同会话的旧清单，旧卡片一律置为已过期，避免误派
-      if (typeof idx === 'number' && (idx < this.latestPlanIndex() || idx < this.latestPreviewIndex)) return 'expired'
-      return 'pending'
-    },
-    latestPlanIndex() {
-      for (let i = this.messages.length - 1; i >= 0; i--) {
-        const m = this.messages[i]
-        if (m.role === 'card' && m.cardType === 'plan') return i
-      }
-      return -1
-    },
     async confirmPlan(m) {
-      if (this.sending || this.executingPlanId || this.planState(m, this.messages.indexOf(m)) !== 'pending') return
+      if (this.busy || m.status !== 'PENDING') return
       const planId = m.payload.planId
       this.executingPlanId = planId
       try {
-        const result = await executePlan(planId)
-        this.$set(this.handledPlans, planId, 'executed')
+        const result = await confirmPlan(planId)
         this.push({ role: 'card', cardType: 'result', payload: result })
-        this.uiExcludes = []
+        this.clearSelection()
         this.$emit('dispatched')
       } catch (e) {
-        this.$set(this.handledPlans, planId, 'expired')
+        /* 失败原因已由请求拦截器提示；卡片状态以服务端为准 */
       } finally {
         this.executingPlanId = null
+        this.refreshStates()
       }
     },
     async cancelPlanCard(m) {
-      const planId = m.payload.planId
+      if (this.busy) return
       try {
-        await cancelPlan(planId)
+        await cancelPlan(m.payload.planId)
       } catch (e) {
-        /* 已过期也视为取消 */
+        /* 卡片状态以服务端为准 */
       }
-      this.$set(this.handledPlans, planId, 'cancelled')
+      this.refreshStates()
     },
 
     // ---------- 工具 ----------

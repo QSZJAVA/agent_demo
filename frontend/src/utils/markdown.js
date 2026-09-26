@@ -131,8 +131,9 @@ export function renderMarkdown(source) {
       continue
     }
 
-    // 段落：连续的非块级行合并，单个换行按 <br> 处理
-    const parts = []
+    // 段落：连续的非块级行合并，单个换行按 <br> 处理。
+    // 当前行无条件吃掉：它可能带着块级前缀却没被上面的规则接住（例如行内含 U+2028），不吃掉 i 就不前进，会死循环
+    const parts = [lines[i++]]
     while (i < lines.length && lines[i].trim() && !BLOCK_START.test(lines[i])) {
       parts.push(lines[i++])
     }

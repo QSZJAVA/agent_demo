@@ -4,14 +4,17 @@
       <span class="card-title">
         <i class="el-icon-view"></i> 可派单记录预览
         <el-tag size="mini" type="info">共 {{ payload.total }} 条</el-tag>
-        <el-tag v-if="history" size="mini">历史快照</el-tag>
-        <el-tag v-else-if="readonly" size="mini" type="info">已作废</el-tag>
+        <el-tag v-if="statusTag" size="mini" :type="statusTag.type">{{ statusTag.label }}</el-tag>
       </span>
       <span class="card-sub">
-        <span v-for="r in payload.byReport" :key="r.reportType" class="count">
+        <span v-for="r in payload.byReport" :key="r.reportId || r.reportType" class="count">
           {{ r.reportName }} {{ r.count }} 条
         </span>
       </span>
+    </div>
+
+    <div v-if="resolutionHint" class="resolution">
+      <i class="el-icon-info"></i> {{ resolutionHint }}
     </div>
 
     <el-table
@@ -37,12 +40,13 @@
 
     <div class="card-foot">
       <span class="rule-desc">
-        <template v-for="(desc, type) in payload.ruleDescriptions">
-          <span :key="type" class="rule">{{ desc }}</span>
+        <template v-for="(desc, key) in payload.ruleDescriptions">
+          <span :key="key" class="rule">{{ desc }}</span>
         </template>
+        <span v-if="payload.expiresAt && status === 'ACTIVE'" class="expiry">有效期至 {{ formatTime(payload.expiresAt) }}</span>
       </span>
-      <span v-if="readonly" class="expired-hint">{{ history ? '历史快照仅供查看，如需派单请重新查询。' : '该预览已作废，如需派单请使用最新预览。' }}</span>
-      <span v-if="!readonly" class="foot-actions">
+      <span v-if="readonly" class="expired-hint">{{ readonlyHint }}</span>
+      <span v-else class="foot-actions">
         <span class="sel-hint">已勾选 {{ selectedCount }} / {{ payload.records.length }} 条，取消勾选的记录派单时会排除</span>
         <el-button type="warning" size="mini" :disabled="selectedCount === 0 || busy" @click="$emit('dispatch-selected')">派单已勾选记录</el-button>
       </span>
@@ -51,19 +55,57 @@
 </template>
 
 <script>
+// 预览状态只由服务端给出：ACTIVE 有效 / SUPERSEDED 已作废 / EXPIRED 已失效 / CONSUMED 已据此派单
+const STATUS_TAGS = {
+  SUPERSEDED: { label: '已作废', type: 'info' },
+  EXPIRED: { label: '已失效', type: 'info' },
+  CONSUMED: { label: '已派单', type: 'success' },
+  LEGACY: { label: '历史快照', type: '' }
+}
+
 export default {
   name: 'PreviewCard',
   props: {
     payload: { type: Object, required: true },
-    // 非最新预览或历史快照时只读
-    readonly: { type: Boolean, default: false },
+    // 服务端状态；升级前的历史快照没有服务端状态，按只读处理
+    status: { type: String, default: null },
+    // 状态说明（失效原因等），由服务端给出
+    statusMessage: { type: String, default: null },
     // 正在发送消息时禁用按钮
-    busy: { type: Boolean, default: false },
-    history: { type: Boolean, default: false }
+    busy: { type: Boolean, default: false }
   },
   data() {
     return {
       selectedCount: 0
+    }
+  },
+  computed: {
+    effectiveStatus() {
+      return this.status || 'LEGACY'
+    },
+    readonly() {
+      return this.effectiveStatus !== 'ACTIVE'
+    },
+    statusTag() {
+      return STATUS_TAGS[this.effectiveStatus] || null
+    },
+    readonlyHint() {
+      if (this.effectiveStatus === 'LEGACY') return '历史快照仅供查看，如需派单请重新查询。'
+      if (this.statusMessage) return this.statusMessage
+      return '该预览已不可用，如需派单请重新查询。'
+    },
+    resolutionHint() {
+      const r = this.payload.resolution
+      if (!r) return ''
+      const names = (this.payload.byReport || []).map((b) => b.reportName).join('、')
+      const parts = []
+      if (r.matchType === 'FUZZY') {
+        parts.push(`“${r.query}”没有完全对应的报表，已按最接近的“${names}”查询，如不正确请重新说明报表名称。`)
+      }
+      if (r.unrecognized && r.unrecognized.length) {
+        parts.push(`没有找到与“${r.unrecognized.join('、')}”对应的报表。`)
+      }
+      return parts.join(' ')
     }
   },
   watch: {
@@ -79,7 +121,7 @@ export default {
       return !this.readonly && !this.busy
     },
     rowKey(row) {
-      return `${row.reportType}-${row.docNo}`
+      return `${row.reportId || row.reportType}-${row.recordId || row.docNo}`
     },
     selectAll() {
       this.$nextTick(() => {
@@ -100,6 +142,9 @@ export default {
       const num = Number(value)
       if (Number.isNaN(num)) return value
       return num.toLocaleString('zh-CN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
+    },
+    formatTime(t) {
+      return t ? String(t).replace('T', ' ').slice(11, 16) : ''
     }
   }
 }
@@ -150,6 +195,12 @@ export default {
   margin-left: 10px;
 }
 
+.resolution {
+  margin-bottom: 8px;
+  font-size: 12px;
+  color: #e6a23c;
+}
+
 .card-foot {
   margin-top: 8px;
   display: flex;
@@ -160,7 +211,8 @@ export default {
   font-size: 12px;
 }
 
-.rule-desc .rule {
+.rule-desc .rule,
+.rule-desc .expiry {
   color: #909399;
   margin-right: 10px;
 }

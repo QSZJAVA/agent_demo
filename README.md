@@ -40,7 +40,7 @@ demo
 chmod +x deploy.sh && ./deploy.sh up
 ```
 
-脚本自动生成随机数据库密码、构建镜像、等 MySQL/Redis 健康后启动后端，最后打印访问地址。
+脚本自动生成随机数据库密码与网页访问口令（整站 Basic Auth，演示身份只靠请求头，不能裸露在公网）、构建镜像、等 MySQL/Redis 健康后启动后端，最后打印访问地址。
 默认使用 mock 模拟模型（无需 API Key），接真实大模型改 `.env` 后执行 `./deploy.sh start-real`。
 完整说明见 [`docs/Docker部署指南.md`](docs/Docker部署指南.md)。
 

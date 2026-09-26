@@ -1,5 +1,6 @@
 package com.example.report.web;
 
+import com.example.report.catalog.query.FieldInfo;
 import com.example.report.common.Result;
 import com.example.report.entity.DispatchRule;
 import com.example.report.entity.DispatchRuleHistory;
@@ -7,7 +8,6 @@ import com.example.report.permission.CurrentUser;
 import com.example.report.permission.PermissionService;
 import com.example.report.rule.DispatchCandidateService;
 import com.example.report.rule.RuleService;
-import com.example.report.rule.fact.FieldInfo;
 import lombok.Data;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -24,7 +24,8 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- * 规则管理：查看对所有用户开放，修改 / 试算 / 发布 / 回滚仅管理员
+ * 规则管理：查看对有报表权限的用户开放（只能看到自己可访问报表的规则），修改 / 试算 / 发布 / 回滚仅管理员。
+ * 规则按 report_id 归属到报表目录。
  */
 @RestController
 @RequestMapping("/api/rules")
@@ -40,23 +41,23 @@ public class RuleAdminController {
 
     @GetMapping
     public Result<List<DispatchRule>> list(@RequestHeader(PermissionService.USER_HEADER) String userId) {
-        permissionService.resolve(userId);
-        return Result.ok(ruleService.list());
+        CurrentUser user = permissionService.resolve(userId);
+        return Result.ok(ruleService.list(user));
     }
 
     @GetMapping("/history")
     public Result<List<DispatchRuleHistory>> history(@RequestHeader(PermissionService.USER_HEADER) String userId,
-                                                     @RequestParam(required = false) String reportType,
+                                                     @RequestParam(required = false) String reportId,
                                                      @RequestParam(required = false) String companyCode) {
-        permissionService.resolve(userId);
-        return Result.ok(ruleService.history(reportType, companyCode));
+        CurrentUser user = permissionService.resolve(userId);
+        return Result.ok(ruleService.history(user, reportId, companyCode));
     }
 
     @GetMapping("/fields")
     public Result<List<FieldInfo>> fields(@RequestHeader(PermissionService.USER_HEADER) String userId,
-                                          @RequestParam String reportType) {
-        permissionService.resolve(userId);
-        return Result.ok(ruleService.fields(reportType));
+                                          @RequestParam String reportId) {
+        CurrentUser user = permissionService.resolve(userId);
+        return Result.ok(ruleService.fields(user, reportId));
     }
 
     @PostMapping("/validate")
@@ -64,7 +65,7 @@ public class RuleAdminController {
                                                 @RequestBody ExpressionRequest request) {
         CurrentUser user = permissionService.resolve(userId);
         permissionService.requireAdmin(user);
-        Set<String> vars = ruleService.validate(request.getReportType(), request.getExpression());
+        Set<String> vars = ruleService.validate(user, request.getReportId(), request.getExpression());
         return Result.ok(Map.of("valid", true, "variables", vars));
     }
 
@@ -73,7 +74,7 @@ public class RuleAdminController {
                                                                 @RequestBody ExpressionRequest request) {
         CurrentUser user = permissionService.resolve(userId);
         permissionService.requireAdmin(user);
-        return Result.ok(ruleService.dryRun(user, request.getReportType(), request.getCompanyCode(), request.getExpression()));
+        return Result.ok(ruleService.dryRun(user, request.getReportId(), request.getCompanyCode(), request.getExpression()));
     }
 
     @PostMapping("/drafts")
@@ -88,7 +89,7 @@ public class RuleAdminController {
     public Result<Void> deleteDraft(@RequestHeader(PermissionService.USER_HEADER) String userId, @PathVariable Long id) {
         CurrentUser user = permissionService.resolve(userId);
         permissionService.requireAdmin(user);
-        ruleService.deleteDraft(id);
+        ruleService.deleteDraft(user, id);
         return Result.ok(null);
     }
 
@@ -115,7 +116,8 @@ public class RuleAdminController {
 
     @Data
     public static class ExpressionRequest {
-        private String reportType;
+        /** 报表目录中的稳定标识 */
+        private String reportId;
         private String companyCode;
         private String expression;
     }

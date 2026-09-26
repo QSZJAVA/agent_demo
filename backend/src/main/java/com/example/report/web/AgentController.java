@@ -1,12 +1,11 @@
 package com.example.report.web;
 
 import com.example.report.agent.AgentChatService;
-import com.example.report.agent.DispatchTools;
 import com.example.report.agent.PreviewPayload;
+import com.example.report.catalog.ReportCatalogService;
 import com.example.report.common.ApiException;
 import com.example.report.common.Result;
-import com.example.report.dispatch.PreviewStore;
-import com.example.report.dispatch.Snapshot;
+import com.example.report.dispatch.PreviewService;
 import com.example.report.permission.CurrentUser;
 import com.example.report.permission.PermissionService;
 import lombok.Data;
@@ -33,17 +32,20 @@ public class AgentController {
 
     private final AgentChatService chatService;
     private final PermissionService permissionService;
-    private final PreviewStore previewStore;
+    private final PreviewService previewService;
+    private final ReportCatalogService catalogService;
 
-    public AgentController(AgentChatService chatService, PermissionService permissionService, PreviewStore previewStore) {
+    public AgentController(AgentChatService chatService, PermissionService permissionService, PreviewService previewService,
+                           ReportCatalogService catalogService) {
         this.chatService = chatService;
         this.permissionService = permissionService;
-        this.previewStore = previewStore;
+        this.previewService = previewService;
+        this.catalogService = catalogService;
     }
 
     /**
      * 对话：POST JSON，返回 text/event-stream。
-     * 事件：conversation / text / preview / plan / result / error / done
+     * 事件：conversation / text / preview / choice / plan / result / error / done
      */
     @PostMapping(value = "/chat", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
     public Flux<ServerSentEvent<Object>> chat(@RequestHeader(PermissionService.USER_HEADER) String userId,
@@ -52,17 +54,16 @@ public class AgentController {
         if (request.getMessage() == null || request.getMessage().isBlank()) {
             throw new ApiException("消息不能为空");
         }
-        return chatService.chat(user, request.getConversationId(), request.getMessage().trim(), request.getExcludeDocNos());
+        return chatService.chat(user, request.getConversationId(), request.getMessage().trim(), request.getExcludeDocNos(),
+                request.getPreviewId());
     }
 
-    /** 预览快照全量记录（前端按 previewId 拉取渲染表格） */
+    /** 预览快照全量记录与当前状态（前端按 previewId 拉取渲染表格） */
     @GetMapping("/previews/{previewId}")
     public Result<PreviewPayload> preview(@RequestHeader(PermissionService.USER_HEADER) String userId,
                                           @PathVariable String previewId) {
         CurrentUser user = permissionService.resolve(userId);
-        Snapshot snapshot = previewStore.load(user.userId(), previewId)
-                .orElseThrow(() -> ApiException.notFound("预览快照不存在或已过期"));
-        return Result.ok(DispatchTools.buildPayloadPublic(snapshot));
+        return Result.ok(PreviewPayload.of(previewService.getOwned(user, previewId), catalogService));
     }
 
     @GetMapping("/model")
@@ -76,5 +77,7 @@ public class AgentController {
         private String message;
         /** 前端预览表格中取消勾选的单据号 */
         private List<String> excludeDocNos;
+        /** 取消勾选所在的预览卡片；与本轮派单用的预览不一致时勾选项不生效 */
+        private String previewId;
     }
 }

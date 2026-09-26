@@ -2,11 +2,31 @@
 # 前端容器内的 Nginx 配置模板
 # ${SERVER_NAME} 由容器启动时的 envsubst 用环境变量替换成服务器 IP 或域名
 # backend 是 Docker 内部服务名，由内置 DNS 解析
+#
+# 演示系统的身份只是请求头 X-User-Id（页面右上角可切成管理员），
+# 所以整站必须挡一层 Basic Auth，否则任何能访问端口的人都能以管理员身份改规则、派单。
+# 口令文件由容器入口脚本按 .env 里的 BASIC_AUTH_USER / BASIC_AUTH_PASSWORD 生成。
 # ============================================================
 server {
     listen       80;
     server_name  ${SERVER_NAME};
     charset      utf-8;
+    server_tokens off;
+
+    auth_basic           "Report Dispatch Demo";
+    auth_basic_user_file /etc/nginx/.htpasswd;
+
+    add_header X-Content-Type-Options nosniff always;
+    add_header X-Frame-Options        DENY    always;
+    add_header Referrer-Policy        same-origin always;
+
+    # 容器健康检查用，不需要口令
+    location = /healthz {
+        auth_basic off;
+        access_log off;
+        default_type text/plain;
+        return 200 "ok";
+    }
 
     # 前端体积不大，日志保持精简
     access_log /var/log/nginx/access.log;
@@ -19,6 +39,10 @@ server {
     location /assets/ {
         expires 30d;
         add_header Cache-Control "public, immutable";
+        # location 里一旦有 add_header，server 级的就不再继承，安全头要在这里重复
+        add_header X-Content-Type-Options nosniff always;
+        add_header X-Frame-Options        DENY    always;
+        add_header Referrer-Policy        same-origin always;
         try_files $uri =404;
     }
 

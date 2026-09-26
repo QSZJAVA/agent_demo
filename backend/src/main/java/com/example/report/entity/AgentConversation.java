@@ -20,6 +20,7 @@ public class AgentConversation {
     /** 服务端生成的 32 位 ID */
     @TableId(type = IdType.INPUT)
     private String id;
+    private String tenantId;
     private String userId;
     private String title;
     private String model;

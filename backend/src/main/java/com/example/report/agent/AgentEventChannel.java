@@ -8,7 +8,7 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * 一次对话请求的结构化事件通道：工具在执行中把 preview / plan / result 事件推进来，
+ * 一次对话请求的结构化事件通道：工具在执行中把 preview / choice / plan / result 事件推进来，
  * AgentChatService 把它与模型文本流合并后作为 SSE 输出。
  */
 public class AgentEventChannel {
@@ -22,6 +22,9 @@ public class AgentEventChannel {
 
     /** 本轮真正生成过的预览编号，用来识别模型复述或编造的编号 */
     private final Set<String> previewIds = ConcurrentHashMap.newKeySet();
+
+    /** 本轮被调用过的工具（不论结果），模型已经处理过的意图服务端不再兜底 */
+    private final Set<String> calledTools = ConcurrentHashMap.newKeySet();
 
     public synchronized void emit(String type, Object data) {
         emittedTypes.add(type);
@@ -39,6 +42,14 @@ public class AgentEventChannel {
     /** 本轮真实生成过的预览编号（小写） */
     public Set<String> previewIds() {
         return Set.copyOf(previewIds);
+    }
+
+    public void markToolCalled(String toolName) {
+        calledTools.add(toolName);
+    }
+
+    public boolean toolCalled(String toolName) {
+        return calledTools.contains(toolName);
     }
 
     public synchronized void complete() {

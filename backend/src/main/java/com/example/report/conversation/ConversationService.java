@@ -11,6 +11,7 @@ import com.example.report.entity.AgentMessage;
 import com.example.report.mapper.AgentConversationMapper;
 import com.example.report.mapper.AgentMessageMapper;
 import com.example.report.permission.CurrentUser;
+import com.example.report.permission.PermissionService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.ai.chat.metadata.Usage;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -51,6 +52,7 @@ public class ConversationService {
         LocalDateTime now = LocalDateTime.now();
         AgentConversation c = new AgentConversation();
         c.setId(JsonUtil.newId());
+        c.setTenantId(user.tenantId());
         c.setUserId(user.userId());
         c.setModel(model);
         c.setMessageCount(0);
@@ -61,10 +63,11 @@ public class ConversationService {
         return c;
     }
 
-    /** 归属校验：不是当前用户的会话按不存在处理（404），不暴露是否存在 */
+    /** 归属校验：租户和用户都必须一致，不是当前用户的会话按不存在处理（404），不暴露是否存在 */
     public AgentConversation getOwned(CurrentUser user, String conversationId) {
         AgentConversation c = conversationId == null ? null : conversationMapper.selectById(conversationId);
-        if (c == null || !c.getUserId().equals(user.userId()) || !AgentConversation.STATUS_ACTIVE.equals(c.getStatus())) {
+        if (c == null || !PermissionService.owns(user, c.getTenantId(), c.getUserId())
+                || !AgentConversation.STATUS_ACTIVE.equals(c.getStatus())) {
             throw ApiException.notFound("会话不存在");
         }
         return c;
@@ -73,6 +76,7 @@ public class ConversationService {
     public List<AgentConversation> list(CurrentUser user, int page, int size) {
         int offset = Math.max(page - 1, 0) * size;
         return conversationMapper.selectList(new LambdaQueryWrapper<AgentConversation>()
+                .eq(AgentConversation::getTenantId, user.tenantId())
                 .eq(AgentConversation::getUserId, user.userId())
                 .eq(AgentConversation::getStatus, AgentConversation.STATUS_ACTIVE)
                 .orderByDesc(AgentConversation::getLastMessageAt)
@@ -101,6 +105,7 @@ public class ConversationService {
     public List<MessageView> messages(CurrentUser user, String conversationId, Long beforeId, int size) {
         getOwned(user, conversationId);
         List<AgentMessage> list = messageMapper.selectList(new LambdaQueryWrapper<AgentMessage>()
+                .eq(AgentMessage::getTenantId, conversationTenant(conversationId))
                 .eq(AgentMessage::getConversationId, conversationId)
                 .in(AgentMessage::getRole, AgentMessage.ROLE_USER, AgentMessage.ROLE_ASSISTANT, AgentMessage.ROLE_CARD)
                 .lt(beforeId != null, AgentMessage::getId, beforeId)
@@ -111,20 +116,51 @@ public class ConversationService {
         for (AgentMessage m : list) {
             views.add(new MessageView(m.getId(), m.getRole(), m.getContent(), m.getCardType(),
                     m.getPayload() == null ? null : JsonUtil.toMap(m.getPayload()),
-                    m.getPreviewId(), m.getPlanId(), m.getCreatedAt()));
+                    m.getPreviewId(), m.getPlanId(), m.getCreatedAt(), null, null));
         }
         return views;
+    }
+
+    /**
+     * 链路追溯：从触发预览的那条用户消息开始，到清单执行结束为止的全部消息（含工具调用与工具结果，不含卡片载荷）。
+     * 卡片是异步落库的，截止时间留几秒余量。
+     */
+    public List<TraceMessage> traceMessages(String conversationId, LocalDateTime from, LocalDateTime until) {
+        List<AgentMessage> trigger = messageMapper.selectList(new LambdaQueryWrapper<AgentMessage>()
+                .eq(AgentMessage::getTenantId, conversationTenant(conversationId))
+                .eq(AgentMessage::getConversationId, conversationId)
+                .eq(AgentMessage::getRole, AgentMessage.ROLE_USER)
+                .le(AgentMessage::getCreatedAt, from)
+                .orderByDesc(AgentMessage::getId)
+                .last("LIMIT 1"));
+        List<AgentMessage> list = messageMapper.selectList(new LambdaQueryWrapper<AgentMessage>()
+                .eq(AgentMessage::getTenantId, conversationTenant(conversationId))
+                .eq(AgentMessage::getConversationId, conversationId)
+                .ge(!trigger.isEmpty(), AgentMessage::getId, trigger.isEmpty() ? null : trigger.get(0).getId())
+                .ge(trigger.isEmpty(), AgentMessage::getCreatedAt, from)
+                .le(AgentMessage::getCreatedAt, until.plusSeconds(5))
+                .orderByAsc(AgentMessage::getId)
+                .last("LIMIT 500"));
+        return list.stream().map(m -> new TraceMessage(m.getId(), m.getRole(), m.getToolName(), truncate(m.getContent(), 2000),
+                m.getCardType(), m.getPreviewId(), m.getPlanId(), m.getCreatedAt())).toList();
     }
 
     /** 工作记忆回灌用：最近 N 条用户 / 助手文本消息（按时间正序） */
     public List<AgentMessage> recentTextMessages(String conversationId, int limit) {
         List<AgentMessage> list = messageMapper.selectList(new LambdaQueryWrapper<AgentMessage>()
+                .eq(AgentMessage::getTenantId, conversationTenant(conversationId))
                 .eq(AgentMessage::getConversationId, conversationId)
                 .in(AgentMessage::getRole, AgentMessage.ROLE_USER, AgentMessage.ROLE_ASSISTANT)
                 .orderByDesc(AgentMessage::getId)
                 .last("LIMIT " + limit));
         Collections.reverse(list);
         return list;
+    }
+
+    private String conversationTenant(String conversationId) {
+        AgentConversation owner = conversationMapper.selectById(conversationId);
+        if (owner == null) throw ApiException.notFound("会话不存在");
+        return owner.getTenantId();
     }
 
     // ---------- 对话日志写入（异步） ----------
@@ -190,6 +226,13 @@ public class ConversationService {
     private AgentMessage base(String conversationId, String userId, String role) {
         AgentMessage m = new AgentMessage();
         m.setConversationId(conversationId);
+        if (conversationId != null) {
+            AgentConversation owner = conversationMapper.selectById(conversationId);
+            if (owner == null || !java.util.Objects.equals(owner.getUserId(), userId)) {
+                throw ApiException.notFound("会话不存在");
+            }
+            m.setTenantId(owner.getTenantId());
+        }
         m.setUserId(userId);
         m.setRole(role);
         m.setCreatedAt(LocalDateTime.now());

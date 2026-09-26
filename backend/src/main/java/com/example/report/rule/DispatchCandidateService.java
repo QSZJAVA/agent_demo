@@ -1,79 +1,116 @@
 package com.example.report.rule;
 
+import com.example.report.catalog.CatalogEntry;
+import com.example.report.catalog.query.FactRow;
+import com.example.report.catalog.query.FieldInfo;
 import com.example.report.entity.DispatchRule;
-import com.example.report.report.ReportType;
-import com.example.report.rule.fact.FactAssembler;
-import com.example.report.rule.fact.FactRow;
-import com.example.report.rule.fact.FieldInfo;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
-import java.util.EnumMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
 /**
- * 候选记录查找：SQL 粗筛（装配器）→ 按当前生效规则逐行求值
+ * 候选记录查找：报表查询适配器粗筛（租户、公司范围、未派单）→ 按当前生效规则逐行求值。
+ * 报表来自目录，不再有按报表类型分支的代码。
  */
+@Slf4j
 @Service
 public class DispatchCandidateService {
 
-    private final Map<ReportType, FactAssembler> assemblers = new EnumMap<>(ReportType.class);
     private final RuleCache ruleCache;
     private final RuleEngine ruleEngine;
 
-    public DispatchCandidateService(List<FactAssembler> assemblerList, RuleCache ruleCache, RuleEngine ruleEngine) {
-        assemblerList.forEach(a -> assemblers.put(a.type(), a));
+    public DispatchCandidateService(RuleCache ruleCache, RuleEngine ruleEngine) {
         this.ruleCache = ruleCache;
         this.ruleEngine = ruleEngine;
     }
 
-    public List<FieldInfo> fields(ReportType type) {
-        return assemblers.get(type).fields();
+    public List<FieldInfo> fields(CatalogEntry report) {
+        return report.fields();
     }
 
-    /** 当前用户可见公司范围内、按各报表当前生效规则应派单的记录；filter 为 null 表示全部报表 */
-    public List<Candidate> findCandidates(Set<String> companies, ReportType filter) {
+    /** 指定报表范围、公司范围内按各报表当前生效规则应派单的记录；结果按传入的报表顺序排列 */
+    public List<Candidate> findCandidates(String tenantId, Set<String> companies, List<CatalogEntry> reports) {
         List<Candidate> result = new ArrayList<>();
-        for (ReportType type : ReportType.values()) {
-            if (filter != null && filter != type) {
+        EvalErrors errors = new EvalErrors();
+        for (CatalogEntry report : reports) {
+            if (!java.util.Objects.equals(tenantId, report.tenantId()) || !report.usable()) {
                 continue;
             }
-            for (FactRow row : assemblers.get(type).rows(companies)) {
-                Optional<DispatchRule> rule = ruleCache.find(type, row.companyCode());
+            for (FactRow row : report.adapter().pendingRows(tenantId, companies)) {
+                Optional<DispatchRule> rule = ruleCache.find(tenantId, report.reportId(), row.companyCode());
                 if (rule.isEmpty()) {
                     continue;
                 }
                 DispatchRule r = rule.get();
-                if (ruleEngine.matches(r.getExpression(), row.facts())) {
-                    result.add(toCandidate(type, row, r.getName(), r.getVersion(), r.getDescription()));
+                if (matchesSafely(r.getExpression(), row, r.getName(), errors)) {
+                    result.add(toCandidate(report, row, r.getId(), r.getName(), r.getVersion(), r.getDescription()));
                 }
             }
+        }
+        if (errors.count > 0) {
+            // 只汇总告警一次，避免逐行刷日志
+            log.warn("派单规则求值失败 {} 行，已按不命中处理，首条：{}", errors.count, errors.sample);
         }
         return result;
     }
 
     /** 试算：对某个范围（具体公司或通配 = 全部公司）的粗筛结果跑一个任意表达式 */
-    public DryRunResult dryRun(ReportType type, String companyCode, String expression, Set<String> allCompanies) {
+    public DryRunResult dryRun(String tenantId, CatalogEntry report, String companyCode, String expression, Set<String> allCompanies) {
+        if (!java.util.Objects.equals(tenantId, report.tenantId())) {
+            throw com.example.report.common.ApiException.notFound("报表不存在或无权访问");
+        }
         Set<String> scope = DispatchRule.ANY_COMPANY.equals(companyCode) ? allCompanies : Set.of(companyCode);
-        List<FactRow> rows = assemblers.get(type).rows(scope);
+        List<FactRow> rows = report.usable() ? report.adapter().pendingRows(tenantId, scope) : List.of();
         List<Candidate> hits = new ArrayList<>();
+        EvalErrors errors = new EvalErrors();
         for (FactRow row : rows) {
-            if (ruleEngine.matches(expression, row.facts())) {
-                hits.add(toCandidate(type, row, "试算", 0, null));
+            if (matchesSafely(expression, row, null, errors)) {
+                hits.add(toCandidate(report, row, null, "试算", 0, null));
             }
         }
-        return new DryRunResult(rows.size(), hits.size(), hits.stream().limit(20).toList());
+        return new DryRunResult(rows.size(), hits.size(), hits.stream().limit(20).toList(), errors.count, errors.sample);
     }
 
-    private static Candidate toCandidate(ReportType type, FactRow row, String ruleName, Integer ruleVersion, String description) {
-        return new Candidate(type.code(), type.label(), row.recordId(), row.docNo(), row.companyCode(),
-                row.label(), row.amount(), row.date(), ruleName, ruleVersion, description);
+    /** 单行求值出错按不命中处理：一行脏数据（例如空字段上调字符串函数）不能拖垮整次查询 */
+    private boolean matchesSafely(String expression, FactRow row, String ruleName, EvalErrors errors) {
+        try {
+            return ruleEngine.matches(expression, row.facts());
+        } catch (RuntimeException e) {
+            errors.add(ruleName, row.docNo(), e);
+            return false;
+        }
     }
 
-    /** 试算结果：范围内总条数、命中条数、样例 */
-    public record DryRunResult(int total, int hitCount, List<Candidate> samples) {
+    public static Candidate toCandidate(CatalogEntry report, FactRow row, Long ruleId, String ruleName, Integer ruleVersion,
+                                        String description) {
+        return new Candidate(report.reportId(), report.reportName(), row.recordId(), row.docNo(), row.companyCode(),
+                row.label(), row.amount(), row.date(), ruleId, ruleName, ruleVersion, description, report.catalogVersion());
+    }
+
+    /**
+     * 试算结果：范围内总条数、命中条数、样例；
+     * errorCount / errorSample 是求值出错（已按不命中处理）的行数与第一条的单据号和原因
+     */
+    public record DryRunResult(int total, int hitCount, List<Candidate> samples, int errorCount, String errorSample) {
+    }
+
+    /** 一次查询内的求值失败汇总：行数 + 第一条的位置与原因 */
+    private static final class EvalErrors {
+        private int count;
+        private String sample;
+
+        void add(String ruleName, String docNo, RuntimeException e) {
+            if (count++ > 0) {
+                return;
+            }
+            String reason = e instanceof NullPointerException
+                    ? "字段值为空（可先判断 字段 != nil 再调用函数）"
+                    : (e.getMessage() == null ? e.getClass().getSimpleName() : e.getMessage());
+            sample = (ruleName == null ? "" : ruleName + " / ") + docNo + "：" + reason;
+        }
     }
 }

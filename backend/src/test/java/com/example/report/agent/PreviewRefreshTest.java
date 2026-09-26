@@ -1,92 +1,84 @@
 package com.example.report.agent;
 
-import com.example.report.config.AgentProperties;
 import com.example.report.conversation.ConversationService;
 import com.example.report.dispatch.DispatchService;
-import com.example.report.dispatch.PlanStore;
-import com.example.report.dispatch.PreviewStore;
+import com.example.report.dispatch.DispatchVersionService;
 import com.example.report.entity.AgentConversation;
+import com.example.report.entity.DispatchPlan;
+import com.example.report.entity.DispatchPreview;
 import com.example.report.permission.CurrentUser;
 import com.example.report.permission.PermissionService;
-import com.example.report.report.ReportType;
 import com.example.report.rule.Candidate;
-import com.example.report.rule.DispatchCandidateService;
-import com.example.report.rule.RuleCache;
+import com.example.report.support.DispatchHarness;
+import com.example.report.support.TestCatalog;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.ai.chat.client.ChatClient;
-import org.springframework.ai.chat.memory.ChatMemory;
 import org.springframework.ai.chat.model.ChatModel;
 import org.springframework.ai.chat.model.ToolContext;
-import org.springframework.data.redis.core.StringRedisTemplate;
-import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.http.codec.ServerSentEvent;
 import reactor.core.publisher.Flux;
 
-import java.math.BigDecimal;
 import java.time.Duration;
-import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
+import static com.example.report.support.DispatchHarness.candidate;
+import static com.example.report.support.TestCatalog.EXPENSE;
+import static com.example.report.support.TestCatalog.RECEIVABLE;
+import static com.example.report.support.TestCatalog.SALES;
+import static com.example.report.support.TestCatalog.USER1;
+import static com.example.report.support.TestCatalog.USER3;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 
-/** 使用真实工具与快照存储逻辑、内存 Redis 替身，不访问演示库或真实模型。 */
+/**
+ * 对话链路场景测试：真实的工具、服务端兜底、报表解析、预览 / 清单状态机（内存存储），不访问数据库或真实模型。
+ */
 class PreviewRefreshTest {
 
-    private final CurrentUser user = new CurrentUser("user1", "用户1", Set.of("A"), false);
-    private final Candidate sale = candidate("sales", "SO2026001");
-    private final Candidate expense = candidate("expense", "EXP-2026-0001");
-    private PreviewStore previews;
-    private PlanStore plans;
+    private final Candidate sale = candidate(SALES, "1", "SO2026001", "A", "测试记录");
+    private final Candidate expense = candidate(EXPENSE, "1", "EXP-2026-0001", "A", "测试记录");
+    private DispatchHarness h;
     private DispatchTools tools;
     private AgentChatService chat;
     private ChatClient client;
-    private ChatMemory memory;
-    private ConversationService conversations;
-    private DispatchCandidateService candidates;
 
     @BeforeEach
     @SuppressWarnings("unchecked")
     void setUp() {
-        Map<String, String> storage = new HashMap<>();
-        StringRedisTemplate redis = mock(StringRedisTemplate.class);
-        ValueOperations<String, String> values = mock(ValueOperations.class);
-        when(redis.opsForValue()).thenReturn(values);
-        when(values.get(anyString())).thenAnswer(call -> storage.get(call.getArgument(0)));
-        doAnswer(call -> {
-            storage.put(call.getArgument(0), call.getArgument(1));
-            return null;
-        }).when(values).set(anyString(), anyString(), any(Duration.class));
-        when(redis.delete(anyString())).thenAnswer(call -> storage.remove(call.getArgument(0)) != null);
-        AgentProperties props = new AgentProperties();
-        previews = new PreviewStore(redis, props);
-        plans = new PlanStore(redis, props);
+        h = new DispatchHarness().put(SALES, sale).put(EXPENSE, expense);
         PermissionService permissions = mock(PermissionService.class);
-        when(permissions.resolve("user1")).thenReturn(user);
-        candidates = mock(DispatchCandidateService.class);
-        when(candidates.findCandidates(user.companies(), null)).thenReturn(List.of(sale, expense));
-        when(candidates.findCandidates(user.companies(), ReportType.SALES)).thenReturn(List.of(sale));
-        when(candidates.findCandidates(user.companies(), ReportType.RECEIVABLE)).thenReturn(List.of());
-        when(candidates.findCandidates(user.companies(), ReportType.EXPENSE)).thenReturn(List.of(expense));
-        RuleCache rules = mock(RuleCache.class);
-        when(rules.fingerprint()).thenReturn("rules-v1");
-        conversations = mock(ConversationService.class);
-        AgentConversation conversation = new AgentConversation();
-        conversation.setId("conversation-1");
-        when(conversations.getOwned(user, "conversation-1")).thenReturn(conversation);
-        // 方案 C 下所有消息都会先交给模型；这里让模型返回空文本，由服务端兜底补预览
-        client = mock(ChatClient.class, org.mockito.Answers.RETURNS_DEEP_STUBS);
-        when(client.prompt().user(anyString()).toolContext(any()).advisors(any(java.util.function.Consumer.class))
-                .stream().content()).thenReturn(Flux.just(""));
-        memory = mock(ChatMemory.class);
-        tools = new DispatchTools(permissions, candidates, rules, previews, plans,
-                mock(DispatchService.class), conversations, props);
-        chat = new AgentChatService(client, conversations, mock(ChatModel.class), tools, memory);
+        when(permissions.resolve("user1")).thenReturn(USER1);
+        when(permissions.resolve("user3")).thenReturn(USER3);
+        ConversationService conversations = mock(ConversationService.class);
+        for (String id : List.of("conversation-1", "conversation-2")) {
+            AgentConversation conversation = new AgentConversation();
+            conversation.setId(id);
+            when(conversations.getOwned(any(CurrentUser.class), eq(id))).thenReturn(conversation);
+        }
+        // 所有消息都会先交给模型；这里默认让模型返回空文本，由服务端兜底补预览。
+        // 模型回复统一由 reply 生成，它能拿到本轮真实的 ToolContext，用来模拟"模型在流式输出中调用了工具"
+        client = mock(ChatClient.class);
+        ChatClient.ChatClientRequestSpec spec = mock(ChatClient.ChatClientRequestSpec.class);
+        ChatClient.StreamResponseSpec stream = mock(ChatClient.StreamResponseSpec.class);
+        Map<String, Object> captured = new HashMap<>();
+        when(client.prompt()).thenReturn(spec);
+        when(spec.user(anyString())).thenReturn(spec);
+        when(spec.toolContext(any())).thenAnswer(inv -> {
+            captured.clear();
+            captured.putAll(inv.getArgument(0));
+            return spec;
+        });
+        when(spec.advisors(any(java.util.function.Consumer.class))).thenReturn(spec);
+        when(spec.stream()).thenReturn(stream);
+        when(stream.content()).thenAnswer(inv -> reply.apply(new ToolContext(new HashMap<>(captured))));
+        stubReply("");
+        tools = new DispatchTools(permissions, h.previews, h.plans, mock(DispatchService.class), h.catalogService,
+                conversations, h.props);
+        chat = new AgentChatService(client, conversations, mock(ChatModel.class), tools, h.catalogService);
     }
 
     @Test
@@ -94,7 +86,7 @@ class PreviewRefreshTest {
         PreviewPayload old = preview(chat("全部报表"));
         Map<String, Object> pending = map(tools.dispatch(old.previewId(), null, context("conversation-1")));
         String planId = (String) pending.get("planId");
-        assertTrue(plans.load(user.userId(), planId).isPresent());
+        assertEquals(DispatchPlan.PENDING, planStatus(planId));
 
         List<ServerSentEvent<Object>> events = chat("我说销售报表");
         PreviewPayload fresh = preview(events);
@@ -102,10 +94,10 @@ class PreviewRefreshTest {
         assertEquals(List.of(sale), fresh.records());
         // 本轮先交给模型（这里返回空文本），模型没调工具，服务端在文本流结束后兜底补发了预览卡片
         assertEquals(List.of("conversation", "preview", "done"), events.stream().map(ServerSentEvent::event).toList());
-        assertTrue(previews.load(user.userId(), old.previewId()).isEmpty());
-        assertTrue(plans.load(user.userId(), planId).isEmpty());
+        // 旧预览、旧清单由服务端置为失效，前端刷新后看到的也是这个状态
+        assertEquals(DispatchPreview.SUPERSEDED, previewStatus(old.previewId()));
+        assertEquals(DispatchPlan.EXPIRED, planStatus(planId));
         assertEquals("error", map(tools.dispatch(old.previewId(), null, context("conversation-1"))).get("status"));
-        assertEquals(fresh.previewId(), previews.loadLatest(user.userId(), "conversation-1").orElseThrow().id());
         assertEquals(1, map(tools.dispatch(null, null, context("conversation-1"))).get("count"));
     }
 
@@ -116,34 +108,29 @@ class PreviewRefreshTest {
         PreviewPayload fresh = preview(chat("只看应收报表"));
         assertEquals(0, fresh.total());
         assertTrue(fresh.records().isEmpty());
-        assertTrue(previews.load(user.userId(), old.previewId()).isEmpty());
-        assertTrue(plans.load(user.userId(), planId).isEmpty());
+        assertEquals(List.of("应收报表"), fresh.byReport().stream().map(PreviewPayload.ReportCount::reportName).toList(),
+                "0 条也要明确列出查询的报表");
+        assertEquals(DispatchPreview.SUPERSEDED, previewStatus(old.previewId()));
+        assertEquals(DispatchPlan.EXPIRED, planStatus(planId));
         assertEquals("error", map(tools.dispatch(null, null, context("conversation-1"))).get("status"));
     }
 
     @Test
     void appendScopeMergesWithPreviousPreviewScope() {
-        // "应收报表" → 范围 [receivable]
         assertTrue(preview(chat("应收报表")).records().isEmpty());
-        assertEquals(List.of("receivable"),
-                previews.loadLatest(user.userId(), "conversation-1").orElseThrow().reportTypes());
-
-        // "加上销售报表" → 与上一轮范围合并为 sales + receivable，而不是只查销售报表
+        assertEquals(List.of(RECEIVABLE), latestScope());
+        // "加上销售报表" → 与上一轮范围合并为 销售 + 应收，而不是只查销售报表
         PreviewPayload fresh = preview(chat("加上销售报表"));
         assertEquals(List.of(sale), fresh.records());
-        assertEquals(List.of("sales", "receivable"),
-                previews.loadLatest(user.userId(), "conversation-1").orElseThrow().reportTypes());
+        assertEquals(List.of(SALES, RECEIVABLE), latestScope());
     }
 
     @Test
     void followUpReportQuestionMergesWithPreviousPreviewScope() {
-        // 上一轮只看应收（0 条），追问"费用报表呢"应当合并成 应收 + 费用
         chat("应收报表");
         PreviewPayload fresh = preview(chat("费用报表呢"));
         assertEquals(List.of(expense), fresh.records());
-        assertEquals(1, fresh.total());
-        assertEquals(List.of("receivable", "expense"),
-                previews.loadLatest(user.userId(), "conversation-1").orElseThrow().reportTypes());
+        assertEquals(List.of(RECEIVABLE, EXPENSE), latestScope());
     }
 
     @Test
@@ -151,74 +138,123 @@ class PreviewRefreshTest {
         chat("应收报表");
         PreviewPayload fresh = preview(chat("只看费用报表呢"));
         assertEquals(List.of(expense), fresh.records());
-        assertEquals(List.of("expense"),
-                previews.loadLatest(user.userId(), "conversation-1").orElseThrow().reportTypes());
+        assertEquals(List.of(EXPENSE), latestScope());
     }
 
     @Test
-    void multipleReportTypesInOneRequest() {
+    void multipleReportsInOneRequest() {
         PreviewPayload fresh = preview(chat("销售报表和应收报表有哪些可以派单"));
         assertEquals(List.of(sale), fresh.records());
-        assertEquals(1, fresh.total());
-        assertEquals(List.of("sales", "receivable"),
-                previews.loadLatest(user.userId(), "conversation-1").orElseThrow().reportTypes());
+        assertEquals(List.of(SALES, RECEIVABLE), latestScope());
+    }
+
+    @Test
+    void aliasesResolveToTheSameReport() {
+        // 简称、历史名称、英文名都指向同一个 report_id（T-RESOLVE-02）
+        for (String query : List.of("销售台账", "订单销售表", "sales report")) {
+            Map<String, Object> result = map(tools.previewDispatchable(query, null, null, null, context("conversation-1")));
+            assertEquals("ok", result.get("status"), query);
+            assertEquals(List.of(SALES), latestScope(), query);
+        }
     }
 
     @Test
     void removeScopeSubtractsFromPreviousPreviewScope() {
-        // "销售报表和应收报表" → 范围 [sales, receivable]
         preview(chat("销售报表和应收报表有哪些可以派单"));
-        assertEquals(List.of("sales", "receivable"),
-                previews.loadLatest(user.userId(), "conversation-1").orElseThrow().reportTypes());
-
-        // "应收的也删掉" → 从上一轮范围中减去应收，只剩销售报表
         PreviewPayload fresh = preview(chat("应收的也删掉"));
         assertEquals(List.of(sale), fresh.records());
-        assertEquals(List.of("sales"),
-                previews.loadLatest(user.userId(), "conversation-1").orElseThrow().reportTypes());
+        assertEquals(List.of(SALES), latestScope());
     }
 
     @Test
     void removeScopeWithoutPreviousPreviewSubtractsFromAllReports() {
-        // 新会话直接说"不要应收报表和销售报表的" → 全部报表减去这两张 = 费用报表，
-        // 不能退化成"只查应收 + 销售报表"
+        // 新会话直接说"不要应收报表和销售报表的" → 全部报表减去这两张 = 费用报表，不能退化成"只查应收 + 销售报表"
         List<ServerSentEvent<Object>> events = chat("不要应收报表和销售报表的");
-        assertEquals(List.of("expense"),
-                previews.loadLatest(user.userId(), "conversation-1").orElseThrow().reportTypes());
+        assertEquals(List.of(EXPENSE), latestScope());
         assertEquals(List.of(expense), preview(events).records());
     }
 
     @Test
     void previewExcludesRecordsByDocNoOrLabelKeyword() {
-        AgentEventChannel channel = new AgentEventChannel();
-        Map<String, Object> data = new HashMap<>(context("conversation-1").getContext());
-        data.put(AgentEventChannel.CONTEXT_KEY, channel);
-        ToolContext ctx = new ToolContext(data);
-
-        // 按单据号排除销售 → 只剩费用
-        assertEquals(1, map(tools.previewDispatchable("all", null, List.of(sale.docNo()), ctx)).get("total"));
+        assertEquals(1, map(tools.previewDispatchable(null, null, List.of(sale.docNo()), null, context("conversation-1"))).get("total"));
         // 按摘要关键词排除（用户常只说"云服务"这类描述）→ 两条摘要都是"测试记录"，全部排除
-        assertEquals(0, map(tools.previewDispatchable("all", null, List.of("测试记录"), ctx)).get("total"));
+        assertEquals(0, map(tools.previewDispatchable(null, null, List.of("测试记录"), null, context("conversation-1"))).get("total"));
+    }
+
+    @Test
+    void ambiguousReportAsksTheUserToChooseInsteadOfGuessing() {
+        // “客户对账”同时是销售报表和应收报表的别名（T-RESOLVE-03）
+        List<ServerSentEvent<Object>> events = chat("查客户对账有哪些可以派单");
+        assertEquals(List.of("conversation", "choice", "done"), events.stream().map(ServerSentEvent::event).toList());
+        ReportChoicePayload choice = (ReportChoicePayload) events.get(1).data();
+        assertEquals(List.of("销售报表", "应收报表"), choice.candidates().stream().map(r -> r.reportName()).toList());
+        assertTrue(h.previews.latest(USER1, "conversation-1").isEmpty(), "歧义时不能生成预览");
+
+        Map<String, Object> result = map(tools.previewDispatchable("客户对账", null, null, null, context("conversation-1")));
+        assertEquals("ambiguous", result.get("status"));
+    }
+
+    @Test
+    void userCannotReachAReportWithoutPermissionByName() {
+        // user3 没有应收报表权限：报表名、别名都识别不到，也不会被服务端兜底查询（T-RESOLVE-04、P0-04）
+        List<ServerSentEvent<Object>> events = chat3("应收报表有哪些可以派单");
+        assertTrue(events.stream().noneMatch(e -> "preview".equals(e.event()) || "choice".equals(e.event())));
+        Map<String, Object> result = map(tools.previewDispatchable("应收", null, null, null, context3()));
+        assertEquals("not_found", result.get("status"));
+        assertFalse(String.valueOf(result.get("message")).contains("应收"), "不能泄露报表是否存在");
+        // “客户对账”对 user3 只剩销售报表一个候选，直接查销售
+        assertEquals("ok", map(tools.previewDispatchable("客户对账", null, null, null, context3())).get("status"));
+        assertEquals(List.of(SALES), scope(USER3, "conversation-3"));
+    }
+
+    @Test
+    void disabledReportIsNoLongerResolved() {
+        h.catalog.replace(TestCatalog.with(h.catalog.get(EXPENSE), 2, "DISABLED", true));
+        assertEquals("not_found", map(tools.previewDispatchable("费用报表", null, null, null, context("conversation-1"))).get("status"));
+        h.catalog.replace(TestCatalog.with(h.catalog.get(SALES), 2, "PUBLISHED", false));
+        assertEquals("not_found", map(tools.previewDispatchable("销售报表", null, null, null, context("conversation-1"))).get("status"),
+                "关闭派单的报表不能通过 Agent 派单");
+    }
+
+    @Test
+    void newReportIsRecognizedWithoutAnyCodeChange() {
+        // 新增报表只靠目录数据：正则、枚举、提示词都不用改（P0-01 验收）
+        CurrentUser buyer = new CurrentUser("T001", "user1", "用户1", USER1.companies(),
+                java.util.Set.of("report:sales", "report:receivable", "report:expense", "report:purchase"), false);
+        PermissionService permissions = mock(PermissionService.class);
+        when(permissions.resolve("user1")).thenReturn(buyer);
+        ConversationService conversations = mock(ConversationService.class);
+        AgentConversation conversation = new AgentConversation();
+        conversation.setId("conversation-1");
+        when(conversations.getOwned(any(CurrentUser.class), eq("conversation-1"))).thenReturn(conversation);
+        DispatchTools buyerTools = new DispatchTools(permissions, h.previews, h.plans, mock(DispatchService.class),
+                h.catalogService, conversations, h.props);
+        AgentChatService buyerChat = new AgentChatService(client, conversations, mock(ChatModel.class), buyerTools, h.catalogService);
+        h.catalog.add(TestCatalog.purchase());
+        Candidate po = candidate(TestCatalog.PURCHASE, "7", "PO-2026-0001", "A", "某某电子");
+        h.put(TestCatalog.PURCHASE, po);
+
+        preview(buyerChat.chat(buyer, "conversation-1", "应收报表", List.of(), null).collectList().block(Duration.ofSeconds(5)));
+        PreviewPayload fresh = preview(buyerChat.chat(buyer, "conversation-1", "加上采购报表", List.of(), null)
+                .collectList().block(Duration.ofSeconds(5)));
+        assertEquals(List.of(po), fresh.records());
+        assertEquals(List.of(RECEIVABLE, TestCatalog.PURCHASE), scope(buyer, "conversation-1"));
     }
 
     @Test
     void recognizesPreviewClaimsThatNeedALocalCorrection() {
-        // 模型没调工具却声称预览已刷新 → 需要追加纠正提示
         assertTrue(AgentChatService.claimsPreviewRefreshed("预览已重新生成，含应收 + 费用："));
         assertTrue(AgentChatService.claimsPreviewRefreshed("已经按新的范围重新查询。\n预览已刷新。"));
-        // 服务端强制预览路径的文案、以及否认句都不能误判
-        assertFalse(AgentChatService.claimsPreviewRefreshed(
-                "已重新查询应收报表，共 2 条可派单记录。最新预览见卡片。"));
+        assertFalse(AgentChatService.claimsPreviewRefreshed("已重新查询应收报表，共 2 条可派单记录。最新预览见卡片。"));
         assertFalse(AgentChatService.claimsPreviewRefreshed("本轮没有生成新的预览，上方卡片仍是上一次的结果。"));
+        // 工具报错原样转述时不是“声称已刷新”
+        assertFalse(AgentChatService.claimsPreviewRefreshed("操作没有完成：预览已失效：报表目录已变更，请重新查询"));
     }
 
     @Test
     void recognizesRecheckClaimsThatNeedALocalCorrection() {
-        // 线上实际漏检的场景："已重查…"与"预览编号…"被写成两句，按句判断会漏掉
-        assertTrue(AgentChatService.claimsRechecked(
-                "已重查应收报表：0 条可派单记录。预览编号 63c4f869bd97fa63adc47590d5ad3ae9。"));
+        assertTrue(AgentChatService.claimsRechecked("已重查应收报表：0 条可派单记录。预览编号 63c4f869bd97fa63adc47590d5ad3ae9。"));
         assertTrue(AgentChatService.claimsRechecked("已重新查询应收报表，共 4 条。"));
-        // 建议句、否认句都不能误判
         assertFalse(AgentChatService.claimsRechecked("我建议重新查询一次应收报表。"));
         assertFalse(AgentChatService.claimsRechecked("需要重新查询应收报表后再派单。"));
         assertFalse(AgentChatService.claimsRechecked("本轮没有生成新的预览。"));
@@ -226,23 +262,19 @@ class PreviewRefreshTest {
 
     @Test
     void hallucinatedPreviewIdNeverReachesTheUser() {
-        // 模型没调工具还编了个编号，服务端识别出范围后兜底补了真实预览
         stubReply("已重查应收报表：0 条可派单记录。预览编号 `63c4f869bd97fa63adc47590d5ad3ae9`。");
         List<ServerSentEvent<Object>> events = chat("应收报表再查下");
         String text = text(events);
         assertFalse(text.contains("63c4f869bd97fa63adc47590d5ad3ae9"), "编造的编号不能展示给用户");
         assertTrue(text.contains("（见下方卡片）"), "编号被替换成了指路文案");
         assertEquals(0, preview(events).total());
-        // 卡片是服务端兜底补出来的，模型文本里的条数依然不可信，必须给出提示
         assertTrue(text.contains("不是本轮查询得到的"));
         assertFalse(text.contains("本轮没有生成新的预览"), "卡片已经被兜底刷新，就不能再说卡片还是旧的");
     }
 
     @Test
     void modelClaimingZeroWhileFallbackFindsRecordsIsCorrected() {
-        // 线上场景：模型说"当前 0 条"，服务端兜底却查出了记录，卡片与文本自相矛盾
-        when(candidates.findCandidates(user.companies(), ReportType.RECEIVABLE))
-                .thenReturn(List.of(candidate("receivable", "INV-2026-0007")));
+        h.put(RECEIVABLE, candidate(RECEIVABLE, "7", "INV-2026-0007", "A", "天津某某"));
         stubReply("应收报表重查结果：当前 0 条可派单记录。上次预览的 4 条现在已经查不到了。");
         List<ServerSentEvent<Object>> events = chat("应收报表再查下");
         String text = text(events);
@@ -253,7 +285,6 @@ class PreviewRefreshTest {
 
     @Test
     void fabricatedPreviewIdGetsALocalCorrectionWhenNothingWasProduced() {
-        // 句子不匹配任何报表范围 → 服务端不会兜底，本轮一张卡都没刷新
         stubReply("已重查应收报表：0 条可派单记录。预览编号 `63c4f869bd97fa63adc47590d5ad3ae9`。两张报表现在都是空的。");
         String text = text(chat("你好"));
         assertFalse(text.contains("63c4f869bd97fa63adc47590d5ad3ae9"));
@@ -261,24 +292,13 @@ class PreviewRefreshTest {
         assertTrue(text.contains("本轮没有生成新的预览"), "必须告诉用户卡片仍是上一次的结果");
     }
 
-    private void stubReply(String reply) {
-        when(client.prompt().user(anyString()).toolContext(any()).advisors(any(java.util.function.Consumer.class))
-                .stream().content()).thenReturn(Flux.just(reply));
-    }
-
-    private static String text(List<ServerSentEvent<Object>> events) {
-        return events.stream().filter(e -> "text".equals(e.event()))
-                .map(e -> String.valueOf(((Map<?, ?>) e.data()).get("delta")))
-                .collect(java.util.stream.Collectors.joining());
-    }
-
     @Test
     void refreshDoesNotInvalidateAnotherConversation() {
-        String otherPreview = (String) map(tools.previewDispatchable("all", context("conversation-2"))).get("previewId");
+        String otherPreview = (String) map(tools.previewDispatchable(null, null, null, null, context("conversation-2"))).get("previewId");
         String otherPlan = (String) map(tools.dispatch(null, null, context("conversation-2"))).get("planId");
         chat("我说销售报表");
-        assertTrue(previews.load(user.userId(), otherPreview).isPresent());
-        assertTrue(plans.load(user.userId(), otherPlan).isPresent());
+        assertEquals(DispatchPreview.ACTIVE, previewStatus(otherPreview));
+        assertEquals(DispatchPlan.PENDING, planStatus(otherPlan));
         assertEquals("error", map(tools.dispatch(otherPreview, null, context("conversation-1"))).get("status"));
     }
 
@@ -289,7 +309,7 @@ class PreviewRefreshTest {
         data.put(AgentEventChannel.CONTEXT_KEY, channel);
         data.put(ToolContextKeys.UI_EXCLUDES, List.of(expense.docNo()));
         ToolContext ctx = new ToolContext(data);
-        tools.previewDispatchable("sales", ctx);
+        tools.previewDispatchable("销售报表", null, null, null, ctx);
         Map<String, Object> pending = map(tools.dispatch(null, null, ctx));
         assertEquals("pending_confirm", pending.get("status"));
         assertEquals(1, pending.get("count"));
@@ -298,28 +318,133 @@ class PreviewRefreshTest {
 
     @Test
     void currentCheckboxExclusionsAreStillApplied() {
-        chat("全部报表");
+        PreviewPayload current = preview(chat("全部报表"));
         Map<String, Object> data = new HashMap<>(context("conversation-1").getContext());
         data.put(ToolContextKeys.UI_EXCLUDES, List.of(expense.docNo()));
+        data.put(ToolContextKeys.UI_PREVIEW_ID, current.previewId());
         Map<String, Object> pending = map(tools.dispatch(null, null, new ToolContext(data)));
         assertEquals(1, pending.get("count"));
         assertEquals(List.of(expense.docNo()), pending.get("excluded"));
     }
 
     @Test
+    void checkboxExclusionsFromAnotherCardAreIgnored() {
+        PreviewPayload old = preview(chat("全部报表"));
+        preview(chat("全部报表"));
+        // 勾选发生在旧卡片上：不属于本次派单的预览，不能生效
+        Map<String, Object> data = new HashMap<>(context("conversation-1").getContext());
+        data.put(ToolContextKeys.UI_EXCLUDES, List.of(expense.docNo()));
+        data.put(ToolContextKeys.UI_PREVIEW_ID, old.previewId());
+        Map<String, Object> pending = map(tools.dispatch(null, null, new ToolContext(data)));
+        assertEquals(2, pending.get("count"));
+        assertEquals(List.of(), pending.get("excluded"));
+    }
+
+    @Test
+    void excludesMustComeFromThePreview() {
+        preview(chat("全部报表"));
+        Map<String, Object> result = map(tools.dispatch(null, List.of("NOPE-1"), context("conversation-1")));
+        assertEquals("error", result.get("status"));
+        assertTrue(String.valueOf(result.get("message")).contains("NOPE-1"));
+    }
+
+    @Test
     void unauthorizedExplicitCompanyDoesNotFallBackToDefaultCompanies() {
-        Map<String, Object> result = map(tools.previewDispatchable("all", "B", null, context("conversation-1")));
+        Map<String, Object> result = map(tools.previewDispatchable(null, "B", null, null, context("conversation-1")));
         assertEquals("error", result.get("status"));
         assertTrue(String.valueOf(result.get("message")).contains("无权查看 B 公司"));
-        verify(candidates, never()).findCandidates(anySet(), any());
+        verify(h.candidates, never()).findCandidates(any(), anySet(), anyList());
+    }
+
+    @Test
+    void rulePublishedWhilePreviewIsComputingInvalidatesThatPreview() {
+        // 预览求值期间有人发布了新规则：候选是按旧规则算的，快照必须带旧版本，派单时才会被拦下
+        when(h.candidates.findCandidates(anyString(), anySet(), anyList())).thenAnswer(call -> {
+            h.ruleVersion.set("rules-v2");
+            return List.of(sale);
+        });
+        tools.previewDispatchable("销售报表", null, null, null, context("conversation-1"));
+        Map<String, Object> result = map(tools.dispatch(null, null, context("conversation-1")));
+        assertEquals("error", result.get("status"));
+        assertTrue(String.valueOf(result.get("message")).contains("规则已更新"));
+    }
+
+    @Test
+    void explicitRemoveScopeSubtractsEvenWhenServerDidNotRecognizeRemoval() {
+        // "应收的那些也不要了" 服务端识别不出排除语义；模型按提示传 应收 + scopeMode=remove，仍然要从上一轮范围里减掉应收
+        tools.previewDispatchable("销售、应收、费用", null, null, null, context("conversation-1"));
+        Map<String, Object> result = map(tools.previewDispatchable("应收", null, null, "remove", context("conversation-1")));
+        assertEquals("ok", result.get("status"));
+        assertEquals(List.of(SALES, EXPENSE), latestScope());
+    }
+
+    @Test
+    void explicitReplaceScopeWinsOverServerRecognizedRemoval() {
+        tools.previewDispatchable("销售、应收、费用", null, null, null, context("conversation-1"));
+        Map<String, Object> data = new HashMap<>(context("conversation-1").getContext());
+        data.put(ToolContextKeys.PREVIEW_REMOVE, true);
+        tools.previewDispatchable("销售、费用", null, null, "replace", new ToolContext(data));
+        assertEquals(List.of(SALES, EXPENSE), latestScope());
+    }
+
+    @Test
+    void unknownScopeModeIsRejected() {
+        assertEquals("error", map(tools.previewDispatchable("销售报表", null, null, "minus", context("conversation-1"))).get("status"));
+    }
+
+    @Test
+    void modelThatAlreadyCalledTheToolIsNotSecondGuessedByTheFallback() {
+        // 模型调用了预览工具但得到 not_found：服务端不再按自己的识别再查一次
+        reply = ctx -> Flux.defer(() -> {
+            tools.previewDispatchable("不存在的报表", null, null, null, ctx);
+            return Flux.just("没有找到匹配的报表。");
+        });
+        List<ServerSentEvent<Object>> events = chat("销售报表");
+        assertTrue(events.stream().noneMatch(e -> "preview".equals(e.event())));
+    }
+
+    // ---------- 工具方法 ----------
+
+    /** 模型本轮的回复（入参是本轮真实的 ToolContext） */
+    private java.util.function.Function<ToolContext, Flux<String>> reply;
+
+    private void stubReply(String text) {
+        reply = ctx -> Flux.just(text);
+    }
+
+    private static String text(List<ServerSentEvent<Object>> events) {
+        return events.stream().filter(e -> "text".equals(e.event()))
+                .map(e -> String.valueOf(((Map<?, ?>) e.data()).get("delta")))
+                .collect(java.util.stream.Collectors.joining());
     }
 
     private List<ServerSentEvent<Object>> chat(String message) {
-        return chat.chat(user, "conversation-1", message, List.of()).collectList().block(Duration.ofSeconds(5));
+        return chat.chat(USER1, "conversation-1", message, List.of(), null).collectList().block(Duration.ofSeconds(5));
+    }
+
+    private List<ServerSentEvent<Object>> chat3(String message) {
+        return chat.chat(USER3, "conversation-1", message, List.of(), null).collectList().block(Duration.ofSeconds(5));
+    }
+
+    private List<String> latestScope() {
+        return scope(USER1, "conversation-1");
+    }
+
+    /** 本会话最近一次预览的报表范围 */
+    private List<String> scope(CurrentUser user, String conversationId) {
+        return DispatchVersionService.reportIds(h.previews.latest(user, conversationId).orElseThrow());
+    }
+
+    private String previewStatus(String previewId) {
+        return h.store.previews().find(previewId).orElseThrow().getStatus();
+    }
+
+    private String planStatus(String planId) {
+        return h.store.plans().find(planId).orElseThrow().getStatus();
     }
 
     private static PreviewPayload preview(List<ServerSentEvent<Object>> events) {
-        assertEquals(1, events.stream().filter(e -> "preview".equals(e.event())).count());
+        assertEquals(1, events.stream().filter(e -> "preview".equals(e.event())).count(), events.toString());
         return events.stream().filter(e -> "preview".equals(e.event())).map(e -> (PreviewPayload) e.data()).findFirst().orElseThrow();
     }
 
@@ -327,13 +452,13 @@ class PreviewRefreshTest {
         return new ToolContext(Map.of(ToolContextKeys.USER_ID, "user1", ToolContextKeys.CONVERSATION_ID, conversationId));
     }
 
+    private static ToolContext context3() {
+        return new ToolContext(Map.of(ToolContextKeys.USER_ID, "user3", ToolContextKeys.CONVERSATION_ID, "conversation-3"));
+    }
+
     @SuppressWarnings("unchecked")
     private static Map<String, Object> map(Object result) {
         return (Map<String, Object>) result;
     }
 
-    private static Candidate candidate(String type, String docNo) {
-        return new Candidate(type, ReportType.fromCode(type).label(), 1L, docNo, "A", "测试记录",
-                BigDecimal.valueOf(2000), LocalDate.of(2026, 1, 1), "测试规则", 1, "金额 > 20 元");
-    }
 }

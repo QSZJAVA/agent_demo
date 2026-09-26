@@ -1,5 +1,6 @@
 package com.example.report.dispatch;
 
+import com.example.report.catalog.CatalogEntry;
 import com.example.report.rule.Candidate;
 
 /**
@@ -7,15 +8,21 @@ import com.example.report.rule.Candidate;
  */
 public interface DispatchGateway {
 
-    Outcome dispatch(Candidate candidate);
+    Outcome dispatch(DispatchRequest request);
 
-    record Outcome(boolean success, String message) {
+    /**
+     * @param externalRequestId 幂等请求号：同一清单条目每次调用都一样，派单接口可据此去重
+     */
+    record DispatchRequest(String tenantId, String externalRequestId, CatalogEntry report, Candidate record) {
+    }
+
+    record Outcome(boolean success, String errorCode, String message) {
         public static Outcome ok() {
-            return new Outcome(true, "派单成功");
+            return new Outcome(true, null, "派单成功");
         }
 
-        public static Outcome fail(String message) {
-            return new Outcome(false, message);
+        public static Outcome fail(String errorCode, String message) {
+            return new Outcome(false, errorCode, message);
         }
     }
 }

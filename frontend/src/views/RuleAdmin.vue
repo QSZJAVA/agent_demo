@@ -14,8 +14,8 @@
       </div>
 
       <el-table v-loading="loading" :data="rules" border stripe size="small">
-        <el-table-column label="报表" width="100">
-          <template slot-scope="scope">{{ reportLabel(scope.row.reportType) }}</template>
+        <el-table-column label="报表" width="120">
+          <template slot-scope="scope">{{ reportLabel(scope.row.reportId) }}</template>
         </el-table-column>
         <el-table-column label="公司" width="80" align="center">
           <template slot-scope="scope">{{ scope.row.companyCode === '*' ? '通配' : scope.row.companyCode }}</template>
@@ -58,10 +58,8 @@
     <el-dialog :title="editor.id ? '编辑草稿' : '新建规则草稿'" :visible.sync="editor.visible" width="760px" :close-on-click-modal="false">
       <el-form :model="editor" label-width="90px" size="small">
         <el-form-item label="报表">
-          <el-select v-model="editor.reportType" :disabled="!!editor.id" @change="loadFields">
-            <el-option label="销售报表" value="sales" />
-            <el-option label="应收报表" value="receivable" />
-            <el-option label="费用报表" value="expense" />
+          <el-select v-model="editor.reportId" :disabled="!!editor.id" filterable @change="loadFields">
+            <el-option v-for="r in catalog" :key="r.reportId" :label="catalogOptionLabel(r)" :value="r.reportId" />
           </el-select>
         </el-form-item>
         <el-form-item label="公司">
@@ -89,6 +87,9 @@
           <span v-if="dryRun.result" class="dry-result">
             范围内 {{ dryRun.result.total }} 条未派单记录，命中 {{ dryRun.result.hitCount }} 条
           </span>
+          <div v-if="dryRun.result && dryRun.result.errorCount" class="dry-error">
+            {{ dryRun.result.errorCount }} 条记录求值出错，已按不命中处理。例如 {{ dryRun.result.errorSample }}
+          </div>
         </el-form-item>
         <el-table v-if="dryRun.result && dryRun.result.samples.length" :data="dryRun.result.samples" size="mini" border max-height="200">
           <el-table-column prop="docNo" label="单据号" width="130" />
@@ -137,9 +138,10 @@ import {
   saveDraft,
   validateRule
 } from '../api/rule'
+import { fetchCatalog } from '../api/catalog'
 import http from '../api/http'
 
-const REPORT_LABELS = { sales: '销售报表', receivable: '应收报表', expense: '费用报表' }
+const STATUS_LABELS = { DRAFT: '草稿', DISABLED: '已停用' }
 
 export default {
   name: 'RuleAdmin',
@@ -148,15 +150,22 @@ export default {
       loading: false,
       rules: [],
       isAdmin: false,
+      // 报表目录：报表名称、可选报表都来自目录，新增报表后这里自动出现，不需要改页面
+      catalog: [],
       fields: [],
-      editor: { visible: false, saving: false, id: null, reportType: 'sales', companyCode: '*', name: '', description: '', expression: '' },
+      editor: { visible: false, saving: false, id: null, reportId: '', companyCode: '*', name: '', description: '', expression: '' },
       dryRun: { loading: false, result: null },
       history: { visible: false, title: '', list: [] }
     }
   },
   created() {
     this.load()
-    http.get('/auth/me').then((me) => (this.isAdmin = !!me.admin)).catch(() => (this.isAdmin = false))
+    http.get('/auth/me')
+      .then((me) => {
+        this.isAdmin = !!me.admin
+        return this.loadCatalog()
+      })
+      .catch(() => (this.isAdmin = false))
   },
   methods: {
     async load() {
@@ -167,8 +176,20 @@ export default {
         this.loading = false
       }
     },
-    reportLabel(t) {
-      return REPORT_LABELS[t] || t
+    async loadCatalog() {
+      try {
+        this.catalog = await fetchCatalog(this.isAdmin)
+      } catch (e) {
+        this.catalog = []
+      }
+    },
+    reportLabel(reportId) {
+      const r = this.catalog.find((c) => c.reportId === reportId)
+      return r ? r.reportName : reportId
+    },
+    catalogOptionLabel(r) {
+      const status = STATUS_LABELS[r.status]
+      return status ? `${r.reportName}（${status}）` : r.reportName
     },
     statusType(s) {
       return { published: 'success', draft: 'warning', disabled: 'info' }[s] || 'info'
@@ -184,7 +205,7 @@ export default {
     },
     async loadFields() {
       try {
-        this.fields = await fetchRuleFields(this.editor.reportType)
+        this.fields = this.editor.reportId ? await fetchRuleFields(this.editor.reportId) : []
       } catch (e) {
         this.fields = []
       }
@@ -199,19 +220,20 @@ export default {
           visible: true,
           saving: false,
           id: asNewVersion ? null : row.id,
-          reportType: row.reportType,
+          reportId: row.reportId,
           companyCode: row.companyCode,
           name: asNewVersion ? '' : row.name,
           description: row.description,
           expression: row.expression
         }
       } else {
-        this.editor = { visible: true, saving: false, id: null, reportType: 'sales', companyCode: '*', name: '', description: '', expression: '' }
+        const first = this.catalog.find((c) => c.status !== 'DISABLED') || this.catalog[0]
+        this.editor = { visible: true, saving: false, id: null, reportId: first ? first.reportId : '', companyCode: '*', name: '', description: '', expression: '' }
       }
       this.loadFields()
     },
     payload() {
-      return { reportType: this.editor.reportType, companyCode: this.editor.companyCode, expression: this.editor.expression }
+      return { reportId: this.editor.reportId, companyCode: this.editor.companyCode, expression: this.editor.expression }
     },
     async validate() {
       const r = await validateRule(this.payload())
@@ -230,7 +252,7 @@ export default {
       try {
         await saveDraft({
           id: this.editor.id,
-          reportType: this.editor.reportType,
+          reportId: this.editor.reportId,
           companyCode: this.editor.companyCode,
           name: this.editor.name,
           description: this.editor.description,
@@ -282,8 +304,8 @@ export default {
       this.load()
     },
     async showHistory(row) {
-      this.history.title = `${this.reportLabel(row.reportType)} / ${row.companyCode === '*' ? '通配' : row.companyCode} 变更历史`
-      this.history.list = await fetchRuleHistory(row.reportType, row.companyCode)
+      this.history.title = `${this.reportLabel(row.reportId)} / ${row.companyCode === '*' ? '通配' : row.companyCode} 变更历史`
+      this.history.list = await fetchRuleHistory(row.reportId, row.companyCode)
       this.history.visible = true
     }
   }
@@ -364,5 +386,11 @@ code {
   margin-left: 12px;
   font-size: 12px;
   color: #e6a23c;
+}
+
+.dry-error {
+  font-size: 12px;
+  line-height: 1.6;
+  color: #f56c6c;
 }
 </style>

@@ -6,6 +6,7 @@
         <el-tag size="mini" type="success">成功 {{ payload.successCount }}</el-tag>
         <el-tag v-if="payload.failedCount" size="mini" type="danger">失败 {{ payload.failedCount }}</el-tag>
       </span>
+      <span v-if="payload.replayed" class="replayed">该清单已处理，以下为第一次执行的结果</span>
     </div>
 
     <div v-if="payload.success && payload.success.length" class="section">
@@ -15,7 +16,8 @@
     <div v-if="payload.failed && payload.failed.length" class="section">
       <div class="section-title">失败</div>
       <div v-for="f in payload.failed" :key="f.docNo" class="failed">
-        <el-tag size="mini" type="danger" class="doc">{{ f.docNo }}</el-tag>
+        <el-tag size="mini" :type="f.outcome === 'SKIPPED' ? 'info' : 'danger'" class="doc">{{ f.docNo }}</el-tag>
+        <span v-if="f.outcome === 'SKIPPED'" class="skipped">未派单</span>
         <span class="reason">{{ f.message }}</span>
       </div>
     </div>
@@ -44,6 +46,14 @@ export default {
   padding: 10px 14px;
 }
 
+.card-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
 .card-title {
   font-weight: 600;
   font-size: 13px;
@@ -51,6 +61,11 @@ export default {
 
 .card-title .el-tag {
   margin-left: 6px;
+}
+
+.replayed {
+  font-size: 12px;
+  color: #909399;
 }
 
 .section {
@@ -72,6 +87,10 @@ export default {
   align-items: center;
   gap: 6px;
   margin-bottom: 4px;
+}
+
+.skipped {
+  color: #909399;
 }
 
 .reason {

@@ -14,6 +14,8 @@ import java.time.LocalDateTime;
 @TableName("agent_message")
 public class AgentMessage {
 
+    private String tenantId;
+
     public static final String ROLE_USER = "user";
     public static final String ROLE_ASSISTANT = "assistant";
     public static final String ROLE_TOOL_CALL = "tool_call";

@@ -14,6 +14,8 @@ import java.time.LocalDateTime;
 @TableName("dispatch_rule")
 public class DispatchRule {
 
+    private String tenantId;
+
     public static final String STATUS_PUBLISHED = "published";
     public static final String STATUS_DISABLED = "disabled";
     public static final String STATUS_DRAFT = "draft";
@@ -21,8 +23,10 @@ public class DispatchRule {
 
     @TableId(type = IdType.AUTO)
     private Long id;
-    /** sales / receivable / expense */
-    private String reportType;
+    /** 报表目录中的稳定标识 */
+    private String reportId;
+    /** 迁移前的 reportType（sales / receivable / expense），仅用于追溯；新规则为空 */
+    private String legacyReportType;
     /** * 通配；具体公司的规则优先于通配 */
     private String companyCode;
     private String name;

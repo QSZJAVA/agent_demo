@@ -32,6 +32,7 @@ public class ReportService {
 
     public List<SalesReport> listSales(CurrentUser user) {
         return salesMapper.selectList(new LambdaQueryWrapper<SalesReport>()
+                .eq(SalesReport::getTenantId, user.tenantId())
                 .in(SalesReport::getCompanyCode, user.companies())
                 .orderByAsc(SalesReport::getCompanyCode)
                 .orderByAsc(SalesReport::getSaleDate));
@@ -39,6 +40,7 @@ public class ReportService {
 
     public List<ReceivableReport> listReceivable(CurrentUser user) {
         return receivableMapper.selectList(new LambdaQueryWrapper<ReceivableReport>()
+                .eq(ReceivableReport::getTenantId, user.tenantId())
                 .in(ReceivableReport::getCompanyCode, user.companies())
                 .orderByAsc(ReceivableReport::getCompanyCode)
                 .orderByAsc(ReceivableReport::getDueDate));
@@ -46,6 +48,7 @@ public class ReportService {
 
     public List<ExpenseReport> listExpense(CurrentUser user) {
         return expenseMapper.selectList(new LambdaQueryWrapper<ExpenseReport>()
+                .eq(ExpenseReport::getTenantId, user.tenantId())
                 .in(ExpenseReport::getCompanyCode, user.companies())
                 .orderByAsc(ExpenseReport::getCompanyCode)
                 .orderByAsc(ExpenseReport::getExpenseDate));

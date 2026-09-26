@@ -4,12 +4,12 @@ export function fetchRules() {
   return http.get('/rules')
 }
 
-export function fetchRuleHistory(reportType, companyCode) {
-  return http.get('/rules/history', { params: { reportType, companyCode } })
+export function fetchRuleHistory(reportId, companyCode) {
+  return http.get('/rules/history', { params: { reportId, companyCode } })
 }
 
-export function fetchRuleFields(reportType) {
-  return http.get('/rules/fields', { params: { reportType } })
+export function fetchRuleFields(reportId) {
+  return http.get('/rules/fields', { params: { reportId } })
 }
 
 export function validateRule(payload) {

@@ -4,9 +4,11 @@
       <span class="card-title">
         <i class="el-icon-warning-outline"></i> 待确认派单清单
         <el-tag size="mini" type="warning">{{ payload.count }} 条</el-tag>
-        <el-tag v-if="state === 'executed'" size="mini" type="success">已执行</el-tag>
+        <el-tag v-if="state === 'executing'" size="mini">执行中</el-tag>
+        <el-tag v-else-if="state === 'review'" size="mini" type="danger">结果待核对</el-tag>
+        <el-tag v-else-if="state === 'executed'" size="mini" type="success">已执行</el-tag>
         <el-tag v-else-if="state === 'cancelled'" size="mini" type="info">已取消</el-tag>
-        <el-tag v-else-if="state === 'expired'" size="mini" type="info">已过期</el-tag>
+        <el-tag v-else-if="state === 'expired'" size="mini" type="info">已失效</el-tag>
       </span>
       <span v-if="payload.excluded && payload.excluded.length" class="excluded">
         已排除：{{ payload.excluded.join('、') }}
@@ -25,25 +27,39 @@
 
     <div class="card-foot">
       <template v-if="state === 'pending'">
-        <span class="hint">派单不可撤销，请核对后确认。清单 10 分钟内有效。</span>
+        <span class="hint">派单不可撤销，请核对后确认。{{ expiryText }}</span>
         <span>
           <el-button size="mini" :disabled="busy" @click="$emit('cancel')">取消</el-button>
           <el-button type="danger" size="mini" :loading="busy" @click="$emit('confirm')">确认派单</el-button>
         </span>
       </template>
-      <span v-else-if="state === 'expired'" class="hint">该清单已过期，如需派单请重新预览。</span>
+      <span v-else-if="state === 'expired'" class="hint">{{ statusMessage || '该清单已失效' }}，如需派单请重新预览。</span>
+      <span v-else-if="statusMessage" class="hint">{{ statusMessage }}</span>
     </div>
   </el-card>
 </template>
 
 <script>
+// 清单状态只由服务端给出：PENDING / EXECUTING / EXECUTED / CANCELLED / EXPIRED；
+// 升级前的历史清单没有服务端状态，按已失效处理
+const STATES = { PENDING: 'pending', EXECUTING: 'executing', REVIEW_REQUIRED: 'review', EXECUTED: 'executed', CANCELLED: 'cancelled', EXPIRED: 'expired' }
+
 export default {
   name: 'PlanCard',
   props: {
     payload: { type: Object, required: true },
-    // pending / executed / cancelled / expired
-    state: { type: String, default: 'pending' },
+    status: { type: String, default: null },
+    statusMessage: { type: String, default: null },
     busy: { type: Boolean, default: false }
+  },
+  computed: {
+    state() {
+      return STATES[this.status] || 'expired'
+    },
+    expiryText() {
+      const t = this.payload.expiresAt
+      return t ? `清单 ${String(t).replace('T', ' ').slice(11, 16)} 前有效。` : ''
+    }
   },
   methods: {
     formatAmount(value) {

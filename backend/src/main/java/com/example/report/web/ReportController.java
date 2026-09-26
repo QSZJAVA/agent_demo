@@ -1,5 +1,6 @@
 package com.example.report.web;
 
+import com.example.report.catalog.ReportCatalogService;
 import com.example.report.common.Result;
 import com.example.report.entity.ExpenseReport;
 import com.example.report.entity.ReceivableReport;
@@ -15,7 +16,7 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.List;
 
 /**
- * 三张报表查询接口（接口路径不变，新增按用户可见公司过滤）
+ * 三张报表的查询页接口（接口路径不变）：先按报表目录校验报表权限（旧 reportType 经映射表找到目录），再按可见公司过滤
  */
 @RestController
 @RequestMapping("/api/report")
@@ -23,16 +24,19 @@ public class ReportController {
 
     private final ReportService reportService;
     private final PermissionService permissionService;
+    private final ReportCatalogService catalogService;
 
-    public ReportController(ReportService reportService, PermissionService permissionService) {
+    public ReportController(ReportService reportService, PermissionService permissionService, ReportCatalogService catalogService) {
         this.reportService = reportService;
         this.permissionService = permissionService;
+        this.catalogService = catalogService;
     }
 
     /** 报表一：销售报表 */
     @GetMapping("/sales")
     public Result<List<SalesReport>> sales(@RequestHeader(PermissionService.USER_HEADER) String userId) {
         CurrentUser user = permissionService.resolve(userId);
+        catalogService.requireVisibleByLegacyCode(user, "sales");
         return Result.ok(reportService.listSales(user));
     }
 
@@ -40,6 +44,7 @@ public class ReportController {
     @GetMapping("/receivable")
     public Result<List<ReceivableReport>> receivable(@RequestHeader(PermissionService.USER_HEADER) String userId) {
         CurrentUser user = permissionService.resolve(userId);
+        catalogService.requireVisibleByLegacyCode(user, "receivable");
         return Result.ok(reportService.listReceivable(user));
     }
 
@@ -47,6 +52,7 @@ public class ReportController {
     @GetMapping("/expense")
     public Result<List<ExpenseReport>> expense(@RequestHeader(PermissionService.USER_HEADER) String userId) {
         CurrentUser user = permissionService.resolve(userId);
+        catalogService.requireVisibleByLegacyCode(user, "expense");
         return Result.ok(reportService.listExpense(user));
     }
 }

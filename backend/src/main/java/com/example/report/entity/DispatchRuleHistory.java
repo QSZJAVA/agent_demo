@@ -14,10 +14,15 @@ import java.time.LocalDateTime;
 @TableName("dispatch_rule_history")
 public class DispatchRuleHistory {
 
+    private String tenantId;
+
     @TableId(type = IdType.AUTO)
     private Long id;
     private Long ruleId;
-    private String reportType;
+    /** 报表目录中的稳定标识 */
+    private String reportId;
+    /** 迁移前的 reportType，仅用于追溯；新记录为空 */
+    private String legacyReportType;
     private String companyCode;
     private Integer version;
     private String name;
