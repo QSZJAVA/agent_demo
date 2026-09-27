@@ -2,6 +2,7 @@ package com.example.report.agent;
 
 import com.example.report.catalog.ReportCatalogService;
 import com.example.report.common.TraceIds;
+import com.example.report.config.ResourceQuotaService;
 import com.example.report.conversation.ConversationService;
 import com.example.report.entity.AgentConversation;
 import com.example.report.permission.CurrentUser;
@@ -34,6 +35,10 @@ public class AgentChatService {
     private final DispatchTools dispatchTools;
     private final ReportCatalogService catalogService;
     private final String modelName;
+    @org.springframework.beans.factory.annotation.Autowired(required = false)
+    private ResourceQuotaService quotas;
+    @org.springframework.beans.factory.annotation.Autowired(required = false)
+    private com.example.report.dispatch.PreviewService previewService;
 
     public AgentChatService(ChatClient chatClient, ConversationService conversationService, ChatModel chatModel,
                             DispatchTools dispatchTools, ReportCatalogService catalogService) {
@@ -63,6 +68,7 @@ public class AgentChatService {
                 ? conversationService.create(user, modelName)
                 : conversationService.getOwned(user, conversationId);
         String convId = conversation.getId();
+        if (previewService != null) previewService.requireConversationReadable(user, convId);
 
         AgentEventChannel channel = new AgentEventChannel();
         // 报表说法只在当前用户可派单的目录范围内识别，不可见报表的名称不会触发兜底查询
@@ -123,19 +129,27 @@ public class AgentChatService {
                 hints.add(new AgentEvent(AgentEvent.TEXT, Map.of("delta", tail)));
             }
             String text = reply.toString();
-            boolean previewEmitted = channel.hasEmitted(AgentEvent.PREVIEW);
+            boolean previewEmitted = channel.hasEmitted(AgentEvent.PREVIEW)
+                    || channel.hasEmitted(AgentEvent.PREVIEW_JOB);
             boolean fallbackEmitted = false;
             // 模型调过预览工具（哪怕结果是歧义或没找到）就说明它处理了这个意图，服务端不再重复查询
             if (!previewEmitted && previewIntent.isPresent() && !channel.toolCalled(DispatchTools.TOOL_PREVIEW)
                     && !channel.hasEmitted(AgentEvent.CHOICE)
+                    && !channel.hasEmitted(AgentEvent.PREVIEW_JOB)
                     && !channel.hasEmitted(AgentEvent.PLAN) && !channel.hasEmitted(AgentEvent.RESULT)) {
                 fallbackPreview(convId, previewIntent.get(), toolContext);
-                previewEmitted = channel.hasEmitted(AgentEvent.PREVIEW);
+                previewEmitted = channel.hasEmitted(AgentEvent.PREVIEW)
+                        || channel.hasEmitted(AgentEvent.PREVIEW_JOB);
                 fallbackEmitted = previewEmitted || channel.hasEmitted(AgentEvent.CHOICE);
             }
             Set<String> maskedIds = previewIdMask.maskedIds();
+            if (channel.hasEmitted(AgentEvent.PREVIEW_JOB)
+                    && (claimsQueryResult(text, maskedIds) || claimsPreviewRefreshed(text))) {
+                hints.add(new AgentEvent(AgentEvent.TEXT, Map.of("delta", QUERY_PENDING_HINT)));
+            }
             // 卡片是服务端兜底补查的：模型根本没调工具，它文字里的条数、"已重查"都不是本轮查出来的
-            if (fallbackEmitted && claimsQueryResult(text, maskedIds)) {
+            if (fallbackEmitted && channel.hasEmitted(AgentEvent.PREVIEW)
+                    && claimsQueryResult(text, maskedIds)) {
                 log.warn("模型未调用工具却给出了查询结论，卡片由服务端兜底生成，已追加纠正提示 conversation={}", convId);
                 hints.add(new AgentEvent(AgentEvent.TEXT, Map.of("delta", FALLBACK_RESULT_HINT)));
             }
@@ -167,14 +181,23 @@ public class AgentChatService {
         Map<String, Object> headData = new java.util.LinkedHashMap<>();
         headData.put("conversationId", convId);
         headData.put("title", conversation.getTitle() == null ? "" : conversation.getTitle());
+        String requestId = java.util.UUID.randomUUID().toString();
+        headData.put("requestId", requestId);
         Flux<AgentEvent> head = Flux.just(new AgentEvent(AgentEvent.CONVERSATION, headData));
         Flux<AgentEvent> tail = Flux.just(new AgentEvent(AgentEvent.DONE, Map.of()));
 
         // guard 可能在文本流之后再往 channel 里补一个 PREVIEW 事件，
         // 所以必须等 guard 结束（其 doFinally 里 complete）合并流才会收尾。
         Flux<AgentEvent> body = textEvents.concatWith(guard);
-        return head.concatWith(Flux.merge(channel.asFlux(), body)).concatWith(tail)
-                .map(e -> ServerSentEvent.builder((Object) e.data()).event(e.type()).build());
+        return Flux.defer(() -> {
+            ResourceQuotaService.Permit permit = quotas == null ? null : quotas.acquire(user, "chat", List.of());
+            return head.concatWith(Flux.merge(channel.asFlux(), body)).concatWith(tail)
+                    .index()
+                    .map(event -> ServerSentEvent.builder((Object) event.getT2().data())
+                            .id(requestId + ":" + event.getT1())
+                            .event(event.getT2().type()).build())
+                    .doFinally(signal -> { if (permit != null) permit.close(); });
+        });
     }
 
     /**
@@ -208,6 +231,8 @@ public class AgentChatService {
     /** 服务端兜底补出了卡片、而模型没调工具却给出了查询结论时的提示 */
     private static final String FALLBACK_RESULT_HINT =
             "\n\n（系统提示：上面回复中的条数和结论不是本轮查询得到的，请以下方卡片为准。）";
+    private static final String QUERY_PENDING_HINT =
+            "\n\n（系统提示：预览查询仍在运行，上面的条数和结论尚未确认，请以查询完成后的卡片为准。）";
     /** 条数表述：0 条 / 共 4 条 */
     private static final Pattern COUNT_CLAIM = Pattern.compile("\\d+\\s*条");
     private static final Pattern PLAN_CLAIM = Pattern.compile("已.{0,60}?(生成|发起|更新|创建|提交)");

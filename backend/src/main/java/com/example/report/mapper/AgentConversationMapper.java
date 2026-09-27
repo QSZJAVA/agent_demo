@@ -5,6 +5,7 @@ import com.example.report.entity.AgentConversation;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Select;
+import org.apache.ibatis.annotations.Update;
 
 @Mapper
 public interface AgentConversationMapper extends BaseMapper<AgentConversation> {
@@ -15,4 +16,10 @@ public interface AgentConversationMapper extends BaseMapper<AgentConversation> {
      */
     @Select("SELECT id FROM agent_conversation WHERE id = #{id} FOR UPDATE")
     String lockById(@Param("id") String id);
+
+    @Update("UPDATE agent_conversation SET preview_request_version = preview_request_version + 1 WHERE id = #{id}")
+    int advancePreviewRequest(@Param("id") String id);
+
+    @Select("SELECT preview_request_version FROM agent_conversation WHERE id = #{id}")
+    Long previewRequestVersion(@Param("id") String id);
 }

@@ -17,6 +17,7 @@ import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.data.redis.listener.ChannelTopic;
 import org.springframework.data.redis.listener.RedisMessageListenerContainer;
 import org.springframework.stereotype.Component;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.transaction.support.TransactionSynchronization;
 import org.springframework.transaction.support.TransactionSynchronizationManager;
 
@@ -107,6 +108,12 @@ public class ReportCatalog implements MessageListener {
         state.set(new State(List.copyOf(entries), Map.copyOf(byId), Map.copyOf(legacy), terms));
         log.info("报表目录已加载：{} 张报表（已发布 {}，配置无效 {}）", entries.size(),
                 entries.stream().filter(CatalogEntry::published).count(), broken);
+    }
+
+    /** Redis 广播是即时通知；定期从数据库核对可修复断线期间遗漏的通知。 */
+    @Scheduled(fixedDelayString = "${agent.catalog-reconcile-ms:30000}")
+    public void reconcile() {
+        reload();
     }
 
     /** 全部报表（含草稿、停用），按目录顺序 */

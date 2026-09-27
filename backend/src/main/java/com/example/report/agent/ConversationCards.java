@@ -45,6 +45,15 @@ public class ConversationCards {
         return payload;
     }
 
+    public PreviewPayload recordAsyncPreview(CurrentUser user, String conversationId, PreviewOutcome outcome) {
+        PreviewPayload payload = PreviewPayload.of(outcome.snapshot(), catalogService);
+        if (conversationId != null) {
+            conversationService.logCard(conversationId, user.userId(), "preview", payload, payload.previewId(), null);
+            remember(conversationId, "（系统记录）异步预览完成，共 " + payload.total() + " 条；之前的预览和待确认清单已作废。");
+        }
+        return payload;
+    }
+
     public PlanPayload recordPlan(CurrentUser user, String conversationId, PlanSnapshot plan) {
         PlanPayload payload = PlanPayload.of(plan);
         if (conversationId == null) {

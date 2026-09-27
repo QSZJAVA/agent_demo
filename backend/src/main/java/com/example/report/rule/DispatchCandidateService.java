@@ -11,6 +11,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.Map;
+import java.util.HashSet;
+import java.util.Collection;
 
 /**
  * 候选记录查找：报表查询适配器粗筛（租户、公司范围、未派单）→ 按当前生效规则逐行求值。
@@ -32,22 +35,100 @@ public class DispatchCandidateService {
         return report.fields();
     }
 
+    /** Recheck only the IDs in an already bounded plan, without scanning the entire report. */
+    public Set<String> qualifiedPlanKeys(String tenantId, Set<String> companies, List<CatalogEntry> reports,
+                                         Map<String, ? extends Collection<String>> recordIds) {
+        Set<String> qualified = new HashSet<>();
+        EvalErrors errors = new EvalErrors();
+        for (CatalogEntry report : reports) {
+            if (!java.util.Objects.equals(tenantId, report.tenantId()) || !report.usable()) continue;
+            Collection<String> ids = recordIds.get(report.reportId());
+            if (ids == null || ids.isEmpty()) continue;
+            List<String> distinct = ids.stream().filter(java.util.Objects::nonNull).distinct().toList();
+            for (int start = 0; start < distinct.size(); start += 500) {
+                List<FactRow> rows = report.adapter().pendingRowsByIds(tenantId,
+                        distinct.subList(start, Math.min(start + 500, distinct.size())));
+                for (FactRow row : rows) {
+                    if (!companies.contains(row.companyCode())) continue;
+                    Optional<DispatchRule> rule = ruleCache.find(tenantId, report.reportId(), row.companyCode());
+                    if (rule.isPresent() && matchesSafely(rule.get().getExpression(), row, rule.get().getName(), errors)) {
+                        qualified.add(toCandidate(report, row, rule.get().getId(), rule.get().getName(),
+                                rule.get().getVersion(), rule.get().getDescription()).key());
+                    }
+                }
+            }
+        }
+        if (errors.count > 0) log.warn("派单复核规则求值失败 {} 行，首条：{}", errors.count, errors.sample);
+        return qualified;
+    }
+
     /** 指定报表范围、公司范围内按各报表当前生效规则应派单的记录；结果按传入的报表顺序排列 */
     public List<Candidate> findCandidates(String tenantId, Set<String> companies, List<CatalogEntry> reports) {
+        return findCandidates(tenantId, companies, reports, Integer.MAX_VALUE);
+    }
+
+    public List<Candidate> findCandidates(String tenantId, Set<String> companies, List<CatalogEntry> reports, int maxMatches) {
+        return findCandidates(tenantId, companies, reports, maxMatches, List.of());
+    }
+
+    public List<Candidate> findCandidates(String tenantId, Set<String> companies, List<CatalogEntry> reports,
+                                          int maxMatches, List<String> excludes) {
+        return findCandidates(tenantId, companies, reports, maxMatches, excludes, scanned -> { });
+    }
+
+    public List<Candidate> findCandidates(String tenantId, Set<String> companies, List<CatalogEntry> reports,
+                                          int maxMatches, List<String> excludes, java.util.function.IntConsumer progress) {
         List<Candidate> result = new ArrayList<>();
+        visitCandidates(tenantId, companies, reports, excludes, progress, candidate -> {
+            result.add(candidate);
+            return result.size() < maxMatches;
+        });
+        return result;
+    }
+
+    public void scanCandidates(String tenantId, Set<String> companies, List<CatalogEntry> reports,
+                               List<String> excludes, java.util.function.IntConsumer progress,
+                               java.util.function.Consumer<Candidate> consumer) {
+        visitCandidates(tenantId, companies, reports, excludes, progress, candidate -> {
+            consumer.accept(candidate);
+            return true;
+        });
+    }
+
+    private void visitCandidates(String tenantId, Set<String> companies, List<CatalogEntry> reports,
+                                 List<String> excludes, java.util.function.IntConsumer progress,
+                                 java.util.function.Predicate<Candidate> visitor) {
+        int scanned = 0;
+        List<String> keys = excludes == null ? List.of() : excludes.stream().filter(java.util.Objects::nonNull)
+                .map(String::trim).filter(s -> !s.isEmpty()).toList();
         EvalErrors errors = new EvalErrors();
+        outer:
         for (CatalogEntry report : reports) {
             if (!java.util.Objects.equals(tenantId, report.tenantId()) || !report.usable()) {
                 continue;
             }
-            for (FactRow row : report.adapter().pendingRows(tenantId, companies)) {
-                Optional<DispatchRule> rule = ruleCache.find(tenantId, report.reportId(), row.companyCode());
-                if (rule.isEmpty()) {
-                    continue;
-                }
-                DispatchRule r = rule.get();
-                if (matchesSafely(r.getExpression(), row, r.getName(), errors)) {
-                    result.add(toCandidate(report, row, r.getId(), r.getName(), r.getVersion(), r.getDescription()));
+            for (String company : new java.util.TreeSet<>(companies)) {
+                Optional<DispatchRule> rule = ruleCache.find(tenantId, report.reportId(), company);
+                if (rule.isEmpty()) continue;
+                DispatchRule active = rule.get();
+                String afterId = null;
+                while (true) {
+                    if (Thread.currentThread().isInterrupted()) throw new IllegalStateException("查询已取消");
+                    List<FactRow> page = report.adapter().pendingRowsAfterWithRule(tenantId, Set.of(company),
+                            afterId, 500, active.getExpression());
+                    scanned += page.size();
+                    progress.accept(scanned);
+                    for (FactRow row : page) {
+                        if (!company.equals(row.companyCode())) continue;
+                        if (matchesSafely(active.getExpression(), row, active.getName(), errors)) {
+                            if (keys.stream().anyMatch(k -> k.equalsIgnoreCase(row.docNo())
+                                    || (row.label() != null && row.label().contains(k)))) continue;
+                            if (!visitor.test(toCandidate(report, row, active.getId(), active.getName(),
+                                    active.getVersion(), active.getDescription()))) break outer;
+                        }
+                    }
+                    if (page.size() < 500) break;
+                    afterId = page.get(page.size() - 1).recordId();
                 }
             }
         }
@@ -55,7 +136,6 @@ public class DispatchCandidateService {
             // 只汇总告警一次，避免逐行刷日志
             log.warn("派单规则求值失败 {} 行，已按不命中处理，首条：{}", errors.count, errors.sample);
         }
-        return result;
     }
 
     /** 试算：对某个范围（具体公司或通配 = 全部公司）的粗筛结果跑一个任意表达式 */

@@ -31,6 +31,9 @@ import java.util.Map;
 @Service
 public class ConversationService {
 
+    @org.springframework.beans.factory.annotation.Autowired(required = false)
+    private com.example.report.dispatch.PreviewService previewService;
+
     private final AgentConversationMapper conversationMapper;
     private final AgentMessageMapper messageMapper;
     private final AgentProperties props;
@@ -74,13 +77,36 @@ public class ConversationService {
     }
 
     public List<AgentConversation> list(CurrentUser user, int page, int size) {
-        int offset = Math.max(page - 1, 0) * size;
+        int skip = Math.max(page - 1, 0) * size;
+        if (previewService == null) return conversationPage(user, skip, size);
+        List<AgentConversation> visible = new ArrayList<>(size);
+        int scanned = 0;
+        int allowed = 0;
+        while (visible.size() < size) {
+            List<AgentConversation> batch = conversationPage(user, scanned, 200);
+            if (batch.isEmpty()) break;
+            java.util.Set<String> readable = previewService.readableConversationIds(user,
+                    batch.stream().map(AgentConversation::getId).toList());
+            for (AgentConversation c : batch) {
+                if (readable.contains(c.getId())) {
+                    if (allowed++ >= skip) visible.add(c);
+                    if (visible.size() == size) break;
+                }
+            }
+            scanned += batch.size();
+            if (batch.size() < 200) break;
+        }
+        return visible;
+    }
+
+    private List<AgentConversation> conversationPage(CurrentUser user, int offset, int size) {
         return conversationMapper.selectList(new LambdaQueryWrapper<AgentConversation>()
                 .eq(AgentConversation::getTenantId, user.tenantId())
                 .eq(AgentConversation::getUserId, user.userId())
                 .eq(AgentConversation::getStatus, AgentConversation.STATUS_ACTIVE)
                 .orderByDesc(AgentConversation::getLastMessageAt)
                 .orderByDesc(AgentConversation::getCreatedAt)
+                .orderByDesc(AgentConversation::getId)
                 .last("LIMIT " + offset + ", " + size));
     }
 
@@ -104,6 +130,7 @@ public class ConversationService {
     /** 历史消息：向前翻页，只返回文本与卡片 */
     public List<MessageView> messages(CurrentUser user, String conversationId, Long beforeId, int size) {
         getOwned(user, conversationId);
+        if (previewService != null) previewService.requireConversationReadable(user, conversationId);
         List<AgentMessage> list = messageMapper.selectList(new LambdaQueryWrapper<AgentMessage>()
                 .eq(AgentMessage::getTenantId, conversationTenant(conversationId))
                 .eq(AgentMessage::getConversationId, conversationId)
@@ -199,7 +226,7 @@ public class ConversationService {
         submit(m, false);
     }
 
-    /** 结构化卡片：payload 全量持久化（行数超过上限时截断并标记） */
+    /** 结构化卡片只保存摘要与首屏；全部条目留在分页快照表中。 */
     public void logCard(String conversationId, String userId, String cardType, Object payload, String previewId, String planId) {
         AgentMessage m = base(conversationId, userId, AgentMessage.ROLE_CARD);
         m.setCardType(cardType);
@@ -210,17 +237,17 @@ public class ConversationService {
     }
 
     private Object capPayload(Object payload) {
-        int max = props.getConversation().getCardPayloadMaxRows();
+        int max = Math.min(props.getConversation().getCardPayloadMaxRows(), 50);
         Map<String, Object> map = JsonUtil.toMap(JsonUtil.toJson(payload));
-        Object records = map.get("records");
-        if (records instanceof List<?> list && list.size() > max) {
-            Map<String, Object> copy = new java.util.LinkedHashMap<>(map);
-            copy.put("records", list.subList(0, max));
-            copy.put("truncated", true);
-            copy.put("truncatedTotal", list.size());
-            return copy;
+        Map<String, Object> copy = new java.util.LinkedHashMap<>(map);
+        for (String field : List.of("records", "success", "failed")) {
+            Object value = copy.get(field);
+            if (value instanceof List<?> list && list.size() > max) {
+                copy.put(field, list.subList(0, max));
+                copy.put(field + "Truncated", true);
+            }
         }
-        return map;
+        return copy;
     }
 
     private AgentMessage base(String conversationId, String userId, String role) {

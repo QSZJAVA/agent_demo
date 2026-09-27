@@ -85,17 +85,22 @@
                 :status="m.status"
                 :status-message="m.statusMessage"
                 :busy="busy"
+                :refresh-version="planRefreshVersion"
                 @confirm="confirmPlan(m)"
                 @cancel="cancelPlanCard(m)"
+                @reconcile="reconcilePlanCard(m)"
               />
             </template>
             <template v-else-if="m.role === 'card' && m.cardType === 'result'">
-              <result-card :payload="m.payload" />
+              <result-card :payload="m.payload" :busy="busy" @retry="retryFailed(m)" />
             </template>
           </div>
         </div>
 
         <div class="chat-input">
+          <div v-if="choosing" class="job-progress">{{ jobStage }}
+            <el-button type="text" size="mini" @click="cancelCurrentJob">取消查询</el-button>
+          </div>
           <el-input
             v-model="input"
             type="textarea"
@@ -124,10 +129,17 @@ import PlanCard from './PlanCard.vue'
 import ResultCard from './ResultCard.vue'
 import ReportChoiceCard from './ReportChoiceCard.vue'
 import { renderMarkdown } from '../../utils/markdown'
+import { getCurrentUserId } from '../../auth'
 import {
   cancelPlan,
   confirmPlan,
-  createPreview,
+  retryFailedPlan,
+  reconcilePlan,
+  startPreviewJob,
+  fetchPreviewJob,
+  fetchLatestPreviewJob,
+  fetchPreview,
+  cancelPreviewJob,
   deleteConversation,
   fetchCardStates,
   fetchConversations,
@@ -155,10 +167,13 @@ export default {
       input: '',
       sending: false,
       choosing: false,
+      currentJobId: null,
+      jobStage: '',
       // 预览表格里取消勾选的单据号，以及它们所在的那张预览卡片（服务端只对同一张预览生效）
       uiExcludes: [],
       uiPreviewId: null,
       executingPlanId: null,
+      planRefreshVersion: 0,
       quickQuestions: ['查一下我有哪些可以派单', '查一下费用报表有哪些可以派单', '查一下客户对账有哪些可以派单', '剩下的帮我派单吧']
     }
   },
@@ -175,10 +190,72 @@ export default {
           fetchModel().then((d) => (this.modelName = d.model)).catch(() => (this.modelName = '未知'))
         }
         this.refreshStates()
+        this.resumePendingJob()
       }
     }
   },
   methods: {
+    pendingJobKey() {
+      return `agent-preview-job:${getCurrentUserId()}`
+    },
+    rememberPendingJob(jobId) {
+      sessionStorage.setItem(this.pendingJobKey(), JSON.stringify({ jobId, conversationId: this.activeId }))
+    },
+    forgetPendingJob(jobId) {
+      const stored = sessionStorage.getItem(this.pendingJobKey())
+      if (stored && JSON.parse(stored).jobId === jobId) sessionStorage.removeItem(this.pendingJobKey())
+    },
+    async pollPreviewJob(jobId) {
+      this.currentJobId = jobId
+      this.choosing = true
+      let job = await fetchPreviewJob(jobId)
+      while (job.status === 'QUEUED' || job.status === 'RUNNING') {
+        this.jobStage = job.status === 'QUEUED' ? '查询排队中…'
+          : `正在查询可派单记录…已扫描 ${job.scannedRows || 0} 条`
+        await new Promise((resolve) => setTimeout(resolve, 1000))
+        job = await fetchPreviewJob(jobId)
+      }
+      if (job.status !== 'SUCCEEDED') this.forgetPendingJob(jobId)
+      return job
+    },
+    async resumePendingJob(conversationId = null) {
+      if (this.currentJobId || this.sending || this.choosing) return
+      const stored = sessionStorage.getItem(this.pendingJobKey())
+      let pending
+      try { pending = stored ? JSON.parse(stored) : null } catch (e) { sessionStorage.removeItem(this.pendingJobKey()) }
+      if (conversationId && conversationId !== pending?.conversationId) pending = { conversationId }
+      if (!pending) pending = { conversationId: this.activeId }
+      if (!pending.conversationId) return
+      this.choosing = true
+      try {
+        if (this.activeId !== pending.conversationId) await this.openConversation(pending.conversationId, true)
+        if (!pending.jobId) {
+          const latest = await fetchLatestPreviewJob(pending.conversationId)
+          if (!latest) { this.forgetPendingJob(null); return }
+          pending.jobId = latest.id
+          this.rememberPendingJob(pending.jobId)
+        }
+        const job = await this.pollPreviewJob(pending.jobId)
+        if (job.status === 'SUCCEEDED' && !this.messages.some((m) => m.cardType === 'preview' &&
+            (m.payload?.previewId || m.previewId) === job.previewId)) {
+          const preview = await fetchPreview(job.previewId)
+          this.clearSelection()
+          this.push({ role: 'card', cardType: 'preview', payload: preview, status: preview.status, statusMessage: null })
+          this.forgetPendingJob(pending.jobId)
+        } else if (job.status === 'SUCCEEDED') {
+          this.forgetPendingJob(pending.jobId)
+        } else if (job.status === 'FAILED') {
+          this.$message.warning(job.message || '预览查询失败')
+        }
+      } catch (e) {
+        // 保留任务编号；重新打开对话抽屉或刷新页面后继续查询。
+      } finally {
+        this.choosing = false
+        this.currentJobId = null
+        this.jobStage = ''
+        this.refreshStates()
+      }
+    },
     // ---------- 会话列表 ----------
     async loadConversations() {
       this.convLoading = true
@@ -195,8 +272,8 @@ export default {
       this.clearSelection()
       this.input = ''
     },
-    async openConversation(id) {
-      if (this.busy) return
+    async openConversation(id, force = false) {
+      if (this.busy && !force) return
       this.activeId = id
       this.clearSelection()
       const list = await fetchMessages(id)
@@ -215,6 +292,7 @@ export default {
         chosen: ''
       }))
       this.scrollToBottom()
+      if (!force) await this.resumePendingJob(id)
     },
     async rename(c) {
       try {
@@ -323,6 +401,7 @@ export default {
       // 本轮的结构化卡片先收集，等文字输出完再挂到文字下面，
       // 否则卡片会插在回答中间，看起来"卡片比回答先到"
       const cards = []
+      let pendingJobId = null
       const excludeDocNos = this.uiExcludes.slice()
       const previewId = this.uiPreviewId
       const assistant = this.push({ role: 'assistant', content: '', streaming: true, pending: true })
@@ -332,6 +411,8 @@ export default {
             if (this.activeId !== data.conversationId) {
               this.activeId = data.conversationId
             }
+            // 先保存会话，即使下一个任务事件丢失也能从服务端发现任务。
+            this.rememberPendingJob(null)
             break
           case 'text':
             assistant.pending = false
@@ -341,6 +422,13 @@ export default {
           case 'preview':
             this.clearSelection()
             cards.push({ role: 'card', cardType: 'preview', payload: data, status: data.status || 'ACTIVE', statusMessage: null })
+            break
+          case 'preview_job':
+            pendingJobId = data.jobId
+            this.currentJobId = data.jobId
+            this.choosing = true
+            this.jobStage = '查询排队中…'
+            this.rememberPendingJob(data.jobId)
             break
           case 'choice':
             cards.push({ role: 'card', cardType: 'choice', payload: data, chosen: '' })
@@ -366,10 +454,57 @@ export default {
       try {
         const { promise } = streamChat({ conversationId: this.activeId, message, excludeDocNos, previewId }, onEvent)
         await promise
+        if (!pendingJobId) this.forgetPendingJob(null)
+        if (pendingJobId) {
+          const job = await this.pollPreviewJob(pendingJobId)
+          if (job.status === 'SUCCEEDED') {
+            const preview = await fetchPreview(job.previewId)
+            this.clearSelection()
+            cards.push({ role: 'card', cardType: 'preview', payload: preview,
+              status: preview.status, statusMessage: null })
+            this.forgetPendingJob(pendingJobId)
+          } else if (job.status !== 'CANCELLED') {
+            this.$message.warning(job.message || '预览查询失败')
+          }
+        }
       } catch (e) {
+        let recovered = false
+        if (!pendingJobId && this.activeId) {
+          try {
+            const latest = await fetchLatestPreviewJob(this.activeId)
+            if (latest && !this.messages.some((m) => m.cardType === 'preview' &&
+                (m.payload?.previewId || m.previewId) === latest.previewId)) {
+              pendingJobId = latest.id
+              this.rememberPendingJob(pendingJobId)
+            }
+          } catch (discoveryError) { /* 保留会话编号，重开页面后重新发现任务。 */ }
+        }
+        if (pendingJobId) {
+          try {
+            const job = await this.pollPreviewJob(pendingJobId)
+            if (job.status === 'SUCCEEDED') {
+              const preview = await fetchPreview(job.previewId)
+              this.clearSelection()
+              cards.push({ role: 'card', cardType: 'preview', payload: preview,
+                status: preview.status, statusMessage: null })
+              this.forgetPendingJob(pendingJobId)
+            } else if (job.status === 'FAILED') {
+              this.$message.warning(job.message || '预览查询失败')
+            }
+            recovered = true
+          } catch (pollError) {
+            // 任务 ID 留在 sessionStorage，网络恢复或页面重开后可继续查询。
+          }
+        }
         assistant.pending = false
-        assistant.error = true
-        assistant.content = assistant.content || `请求失败：${e.message}`
+        assistant.error = !recovered
+        assistant.content = assistant.content || (recovered ? '连接已中断，查询结果已恢复。' : `请求失败：${e.message}`)
+        if (!recovered && !pendingJobId && this.activeId) {
+          try {
+            await this.openConversation(this.activeId, true)
+            cards.length = 0
+          } catch (ignored) { /* 保留已收到的内容 */ }
+        }
       } finally {
         assistant.pending = false
         assistant.streaming = false
@@ -380,6 +515,9 @@ export default {
         cards.forEach((card) => this.push(card))
         if (cards.some((card) => card.cardType === 'result')) this.$emit('dispatched')
         this.sending = false
+        this.choosing = false
+        this.currentJobId = null
+        this.jobStage = ''
         this.loadConversations()
         this.refreshStates()
       }
@@ -391,28 +529,38 @@ export default {
       if (this.busy || !reportIds.length) return
       this.choosing = true
       try {
-        const res = await createPreview({
+        let job = await startPreviewJob({
           conversationId: this.activeId,
           reportIds,
           companyCode: m.payload.companyCode,
           excludeDocNos: m.payload.excludeDocNos,
           scopeMode: m.payload.scopeMode
         })
-        if (res.status === 'ok') {
-          const names = res.preview.byReport.map((b) => b.reportName).join('、')
+        this.currentJobId = job.id
+        this.rememberPendingJob(job.id)
+        job = await this.pollPreviewJob(job.id)
+        if (job.status === 'SUCCEEDED') {
+          const preview = await fetchPreview(job.previewId)
+          const names = preview.byReport.map((b) => b.reportName).join('、')
           this.$set(m, 'chosen', names)
           this.push({ role: 'user', content: `（选择报表）${names}` })
           this.clearSelection()
-          this.push({ role: 'card', cardType: 'preview', payload: res.preview, status: res.preview.status, statusMessage: null })
+          this.push({ role: 'card', cardType: 'preview', payload: preview, status: preview.status, statusMessage: null })
+          this.forgetPendingJob(job.id)
         } else {
-          this.$message.warning(res.message || '没有找到可查询的报表')
+          this.$message.warning(job.message || '没有找到可查询的报表')
         }
       } catch (e) {
         /* 失败原因已由请求拦截器提示 */
       } finally {
         this.choosing = false
+        this.currentJobId = null
+        this.jobStage = ''
         this.refreshStates()
       }
+    },
+    async cancelCurrentJob() {
+      if (this.currentJobId) await cancelPreviewJob(this.currentJobId)
     },
 
     // ---------- 待确认清单 ----------
@@ -422,11 +570,41 @@ export default {
       this.executingPlanId = planId
       try {
         const result = await confirmPlan(planId)
+        this.planRefreshVersion++
         this.push({ role: 'card', cardType: 'result', payload: result })
         this.clearSelection()
         this.$emit('dispatched')
       } catch (e) {
         /* 失败原因已由请求拦截器提示；卡片状态以服务端为准 */
+      } finally {
+        this.executingPlanId = null
+        this.refreshStates()
+      }
+    },
+    async retryFailed(m) {
+      if (this.busy || !m.payload.planId) return
+      this.executingPlanId = m.payload.planId
+      try {
+        const result = await retryFailedPlan(m.payload.planId)
+        this.planRefreshVersion++
+        this.push({ role: 'card', cardType: 'result', payload: result })
+        this.$emit('dispatched')
+      } catch (e) {
+        /* 失败原因由请求拦截器提示；未知结果需要人工核对。 */
+      } finally {
+        this.executingPlanId = null
+        this.refreshStates()
+      }
+    },
+    async reconcilePlanCard(m) {
+      if (this.busy || !m.payload.planId) return
+      this.executingPlanId = m.payload.planId
+      try {
+        const result = await reconcilePlan(m.payload.planId)
+        this.planRefreshVersion++
+        this.push({ role: 'card', cardType: 'result', payload: result })
+      } catch (e) {
+        /* 外部结果仍未知时保持待核对状态，禁止重发。 */
       } finally {
         this.executingPlanId = null
         this.refreshStates()

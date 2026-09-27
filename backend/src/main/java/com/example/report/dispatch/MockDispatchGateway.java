@@ -2,7 +2,9 @@ package com.example.report.dispatch;
 
 import com.example.report.catalog.query.DispatchStatusWriter;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 
@@ -14,16 +16,45 @@ import java.time.LocalDateTime;
 @Component
 public class MockDispatchGateway implements DispatchGateway {
 
+    private final JdbcTemplate jdbc;
+
+    public MockDispatchGateway(JdbcTemplate jdbc) {
+        this.jdbc = jdbc;
+    }
+
     @Override
+    @Transactional
     public Outcome dispatch(DispatchRequest request) {
+        Lookup prior = lookup(request.tenantId(), request.externalRequestId());
+        if (prior.status() == LookupStatus.SUCCESS) return Outcome.ok();
+        // 明确失败允许使用同一请求号重试；成功仍按请求号去重。
         if (!(request.report().adapter() instanceof DispatchStatusWriter writer)) {
             return Outcome.fail("NOT_SUPPORTED", "该报表未配置派单状态回写，无法派单");
         }
-        if (!writer.markDispatched(request.tenantId(), request.record().recordId(), LocalDateTime.now())) {
-            return Outcome.fail("RECORD_NOT_PENDING", "记录不存在或已派单");
+        boolean success = writer.markDispatched(request.tenantId(), request.record().recordId(), LocalDateTime.now());
+        Outcome outcome = success ? Outcome.ok() : Outcome.fail("RECORD_NOT_PENDING", "记录不存在或已派单");
+        if (prior.status() == LookupStatus.FAILED) {
+            jdbc.update("UPDATE dispatch_gateway_request SET status=?,error_code=?,message=? "
+                            + "WHERE tenant_id=? AND request_id=? AND status='FAILED'",
+                    success ? "SUCCESS" : "FAILED", outcome.errorCode(), outcome.message(),
+                    request.tenantId(), request.externalRequestId());
+        } else {
+            jdbc.update("INSERT INTO dispatch_gateway_request (tenant_id,request_id,report_id,record_id,status,error_code,message,created_at) "
+                            + "VALUES (?,?,?,?,?,?,?,NOW())", request.tenantId(), request.externalRequestId(),
+                    request.report().reportId(), request.record().recordId(), success ? "SUCCESS" : "FAILED",
+                    outcome.errorCode(), outcome.message());
         }
+        if (!success) return outcome;
         log.info("[模拟派单接口] {} {} {} 金额 {} 派单成功 requestId={}", request.report().reportName(),
                 request.record().companyCode(), request.record().docNo(), request.record().amount(), request.externalRequestId());
-        return Outcome.ok();
+        return outcome;
+    }
+
+    @Override
+    public Lookup lookup(String tenantId, String externalRequestId) {
+        return jdbc.query("SELECT status,error_code,message FROM dispatch_gateway_request WHERE tenant_id=? AND request_id=?",
+                (rs, row) -> new Lookup("SUCCESS".equals(rs.getString("status")) ? LookupStatus.SUCCESS : LookupStatus.FAILED,
+                        rs.getString("error_code"), rs.getString("message")), tenantId, externalRequestId)
+                .stream().findFirst().orElse(new Lookup(LookupStatus.NOT_FOUND, null, "外部请求号不存在"));
     }
 }

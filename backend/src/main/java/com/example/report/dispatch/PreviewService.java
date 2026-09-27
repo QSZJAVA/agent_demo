@@ -8,6 +8,7 @@ import com.example.report.catalog.ResolveResult;
 import com.example.report.common.ApiException;
 import com.example.report.common.JsonUtil;
 import com.example.report.config.AgentProperties;
+import com.example.report.config.ResourceQuotaService;
 import com.example.report.dispatch.store.PlanRepository;
 import com.example.report.dispatch.store.PreviewRepository;
 import com.example.report.entity.DispatchPlan;
@@ -55,6 +56,8 @@ public class PreviewService {
     private final PlanRepository plans;
     private final AgentProperties props;
     private final TransactionOperations tx;
+    @org.springframework.beans.factory.annotation.Autowired(required = false)
+    private ResourceQuotaService quotas;
 
     public PreviewService(ReportCatalogService catalogService, DispatchCandidateService candidateService,
                           DispatchVersionService versions, PreviewRepository previews, PlanRepository plans,
@@ -69,6 +72,29 @@ public class PreviewService {
     }
 
     public PreviewOutcome preview(CurrentUser user, String conversationId, PreviewCommand command) {
+        return preview(user, conversationId, command, scanned -> { }, id -> { });
+    }
+
+    public long beginRequest(String conversationId) {
+        return previews.beginRequest(conversationId);
+    }
+
+    public PreviewOutcome preview(CurrentUser user, String conversationId, PreviewCommand command,
+                                  java.util.function.IntConsumer progress) {
+        return preview(user, conversationId, command, progress, id -> { });
+    }
+
+    public PreviewOutcome preview(CurrentUser user, String conversationId, PreviewCommand command,
+                                  java.util.function.IntConsumer progress,
+                                  java.util.function.Consumer<String> activation) {
+        return preview(user, conversationId, command, progress, activation,
+                previews.beginRequest(conversationId));
+    }
+
+    /** 异步任务在提交时取得版本，排队期间的后续请求也能使旧任务失效。 */
+    public PreviewOutcome preview(CurrentUser user, String conversationId, PreviewCommand command,
+                                  java.util.function.IntConsumer progress,
+                                  java.util.function.Consumer<String> activation, long requestVersion) {
         String scopeMode = normalizeScope(command.scopeMode());
         ResolveResult resolution = resolve(user, command);
         if (resolution.matchType() == MatchType.NONE) {
@@ -85,15 +111,19 @@ public class PreviewService {
             throw new ApiException(SCOPE_REMOVE.equals(scopeMode)
                     ? "排除之后没有可查询的报表，请确认要保留的报表范围" : ReportCatalogService.NOT_FOUND);
         }
+        ResourceQuotaService.Permit permit = quotas == null ? null : quotas.acquire(user, "preview",
+                reports.stream().map(CatalogEntry::reportId).toList());
+        try {
         Set<String> companies = resolveCompanies(user, command.filters().companyCode());
         // 版本必须在求值之前读：求值期间有人发布规则时，快照带着旧版本，派单会被拒绝；
         // 反过来先求值后读版本，旧规则算出的结果会配上新版本，"规则变更后旧预览不能执行"就被绕过了
         VersionStamp stamp = versions.stamp(user, reports, companies);
-        List<Candidate> candidates = applyExcludes(candidateService.findCandidates(user.tenantId(), companies, reports),
-                command.excludes());
         int maxItems = props.getPreview().getMaxItems();
+        List<Candidate> candidates = candidateService.findCandidates(user.tenantId(), companies, reports,
+                maxItems + 1, command.excludes(), progress);
         if (candidates.size() > maxItems) {
-            throw new ApiException("可派单记录超过 " + maxItems + " 条，请按报表或公司缩小范围后再预览");
+            return previewLarge(user, conversationId, command, resolution, scope, reports, companies, stamp,
+                    scopeMode, progress, activation, requestVersion);
         }
 
         LocalDateTime now = LocalDateTime.now();
@@ -103,10 +133,13 @@ public class PreviewService {
         for (int i = 0; i < candidates.size(); i++) {
             items.add(toItem(preview.getId(), i, candidates.get(i)));
         }
+        if (Thread.currentThread().isInterrupted()) throw new ApiException(409, "查询已取消");
         List<String> superseded = new ArrayList<>();
         List<String> expiredPlans = new ArrayList<>();
         tx.executeWithoutResult(status -> {
             previews.lockConversation(conversationId);
+            requireLatestRequest(conversationId, requestVersion);
+            activation.accept(preview.getId());
             for (DispatchPreview old : previews.active(conversationId)) {
                 if (previews.transition(old.getId(), DispatchPreview.ACTIVE, DispatchPreview.SUPERSEDED, StateReason.NEW_PREVIEW, now)) {
                     superseded.add(old.getId());
@@ -120,14 +153,18 @@ public class PreviewService {
             previews.insert(preview, items);
         });
         return PreviewOutcome.ok(resolution, new PreviewSnapshot(preview, items), superseded, expiredPlans);
+        } finally {
+            if (permit != null) permit.close();
+        }
     }
 
     /** 当前用户的预览，读取时做懒惰校验；不归属当前用户按不存在处理 */
     public PreviewSnapshot getOwned(CurrentUser user, String previewId) {
         DispatchPreview preview = findOwned(user, previewId)
                 .orElseThrow(() -> ApiException.notFound("预览不存在或已过期"));
+        requireReadable(user, preview);
         preview = refresh(user, preview);
-        return new PreviewSnapshot(preview, previews.items(preview.getId()));
+        return new PreviewSnapshot(preview, previews.page(preview.getId(), 0, 50));
     }
 
     public Optional<DispatchPreview> findOwned(CurrentUser user, String previewId) {
@@ -173,6 +210,59 @@ public class PreviewService {
 
     public List<DispatchPreviewItem> items(String previewId) {
         return previews.items(previewId);
+    }
+
+    public List<Candidate> pageOwned(CurrentUser user, String previewId, int page, int size) {
+        DispatchPreview preview = findOwned(user, previewId)
+                .orElseThrow(() -> ApiException.notFound("预览不存在或已过期"));
+        requireReadable(user, preview);
+        if (page < 1 || size < 1 || size > 100) {
+            throw new ApiException("页码或每页条数无效（每页最多 100 条）");
+        }
+        long offset = ((long) page - 1) * size;
+        if (offset > Integer.MAX_VALUE) return List.of();
+        return previews.page(previewId, (int) offset, size).stream().map(PreviewSnapshot::toCandidate).toList();
+    }
+
+    /** Historical data remains protected when an account loses a company or report grant. */
+    public void requireReadable(CurrentUser user, DispatchPreview preview) {
+        catalogService.refreshForValidation();
+        requireReadableInCurrentCatalog(user, preview);
+    }
+
+    private void requireReadableInCurrentCatalog(CurrentUser user, DispatchPreview preview) {
+        if (!Objects.equals(user.permissionVersion(), preview.getPermissionVersion())
+                || !user.companies().containsAll(DispatchVersionService.companies(preview))) {
+            throw ApiException.forbidden("当前账号无权查看该预览的历史记录");
+        }
+        List<String> ids = DispatchVersionService.reportIds(preview);
+        if (catalogService.inCatalogOrder(ids).stream().filter(e -> catalogService.isDispatchable(user, e)).count()
+                != new LinkedHashSet<>(ids).size()) {
+            throw ApiException.forbidden("当前账号无权查看该预览的历史记录");
+        }
+    }
+
+    public void requireConversationReadable(CurrentUser user, String conversationId) {
+        List<DispatchPreview> snapshots = previews.byConversation(conversationId);
+        if (snapshots.isEmpty()) return;
+        catalogService.refreshForValidation();
+        for (DispatchPreview preview : snapshots) requireReadableInCurrentCatalog(user, preview);
+    }
+
+    public Set<String> readableConversationIds(CurrentUser user, List<String> conversationIds) {
+        if (conversationIds.isEmpty()) return Set.of();
+        Set<String> readable = new LinkedHashSet<>(conversationIds);
+        List<DispatchPreview> snapshots = previews.byConversations(conversationIds);
+        if (snapshots.isEmpty()) return readable;
+        catalogService.refreshForValidation();
+        for (DispatchPreview preview : snapshots) {
+            try {
+                requireReadableInCurrentCatalog(user, preview);
+            } catch (ApiException e) {
+                readable.remove(preview.getConversationId());
+            }
+        }
+        return readable;
     }
 
     private ResolveResult resolve(CurrentUser user, PreviewCommand command) {
@@ -248,7 +338,7 @@ public class PreviewService {
     }
 
     /** 预览阶段的排除项：优先按单据号精确匹配，未命中再按摘要关键词模糊匹配（用户常只说"云服务"这类描述） */
-    static List<Candidate> applyExcludes(List<Candidate> candidates, List<String> excludes) {
+    public static List<Candidate> applyExcludes(List<Candidate> candidates, List<String> excludes) {
         if (candidates.isEmpty() || excludes == null || excludes.isEmpty()) {
             return candidates;
         }
@@ -298,6 +388,7 @@ public class PreviewService {
         p.setReportIds(JsonUtil.toJson(reportIds));
         p.setCompanyCodes(JsonUtil.toJson(List.copyOf(companies)));
         p.setQueryJson(JsonUtil.toJson(query));
+        p.setSummaryJson(summaryJson(reports, candidates));
         p.setCatalogVersion(stamp.catalogVersion());
         p.setRuleVersion(stamp.ruleVersion());
         p.setPermissionVersion(stamp.permissionVersion());
@@ -328,6 +419,115 @@ public class PreviewService {
         i.setRuleVersion(c.ruleVersion());
         i.setRuleDescription(c.ruleDescription());
         return i;
+    }
+
+    private PreviewOutcome previewLarge(CurrentUser user, String conversationId, PreviewCommand command,
+                                        ResolveResult resolution, Scope scope, List<CatalogEntry> reports,
+                                        Set<String> companies, VersionStamp stamp, String scopeMode,
+                                        java.util.function.IntConsumer progress,
+                                        java.util.function.Consumer<String> activation, long requestVersion) {
+        LocalDateTime started = LocalDateTime.now();
+        DispatchPreview preview = newPreview(user, conversationId, command, resolution, scope, reports, companies,
+                stamp, scopeMode, List.of(), started);
+        preview.setStatus(DispatchPreview.BUILDING);
+        previews.insertBuilding(preview);
+        List<DispatchPreviewItem> batch = new ArrayList<>(500);
+        List<DispatchPreviewItem> firstPage = new ArrayList<>(50);
+        Map<String, Summary> summary = emptySummary(reports);
+        int[] sequence = {0};
+        BigDecimal[] totalAmount = {BigDecimal.ZERO};
+        List<String> superseded = new ArrayList<>();
+        List<String> expiredPlans = new ArrayList<>();
+        try {
+            candidateService.scanCandidates(user.tenantId(), companies, reports, command.excludes(), progress, c -> {
+                DispatchPreviewItem item = toItem(preview.getId(), sequence[0]++, c);
+                if (firstPage.size() < 50) firstPage.add(item);
+                batch.add(item);
+                summary.get(c.reportId()).add(c);
+                if (c.amount() != null) totalAmount[0] = totalAmount[0].add(c.amount());
+                if (batch.size() == 500) {
+                    previews.appendItems(batch);
+                    batch.clear();
+                }
+            });
+            if (!batch.isEmpty()) previews.appendItems(batch);
+            if (Thread.currentThread().isInterrupted()) throw new ApiException(409, "查询已取消");
+            String invalid = versions.verifyForRetry(user, preview);
+            if (invalid != null) throw new ApiException(409, "查询期间报表或规则发生变化，请重新查询");
+            preview.setTotalCount(sequence[0]);
+            preview.setTotalAmount(totalAmount[0]);
+            preview.setSummaryJson(summaryJson(summary));
+            preview.setExpiresAt(LocalDateTime.now().plusMinutes(props.getPreview().getTtlMinutes()));
+            preview.setUpdatedAt(LocalDateTime.now());
+            previews.updateBuilding(preview);
+            tx.executeWithoutResult(status -> {
+                previews.lockConversation(conversationId);
+                if (Thread.currentThread().isInterrupted()) throw new ApiException(409, "查询已取消");
+                requireLatestRequest(conversationId, requestVersion);
+                activation.accept(preview.getId());
+                LocalDateTime now = LocalDateTime.now();
+                for (DispatchPreview old : previews.active(conversationId)) {
+                    if (previews.transition(old.getId(), DispatchPreview.ACTIVE, DispatchPreview.SUPERSEDED,
+                            StateReason.NEW_PREVIEW, now)) superseded.add(old.getId());
+                }
+                for (DispatchPlan plan : plans.pending(conversationId)) {
+                    if (plans.transition(plan.getId(), DispatchPlan.PENDING, DispatchPlan.EXPIRED,
+                            StateReason.NEW_PREVIEW, now)) expiredPlans.add(plan.getId());
+                }
+                if (!previews.transition(preview.getId(), DispatchPreview.BUILDING, DispatchPreview.ACTIVE, null, now)) {
+                    throw new ApiException(409, "预览已被取消");
+                }
+            });
+            preview.setStatus(DispatchPreview.ACTIVE);
+            return PreviewOutcome.ok(resolution, new PreviewSnapshot(preview, firstPage), superseded, expiredPlans);
+        } catch (RuntimeException e) {
+            previews.deleteBuilding(preview.getId());
+            throw e;
+        }
+    }
+
+    private void requireLatestRequest(String conversationId, long requestVersion) {
+        if (!previews.isLatestRequest(conversationId, requestVersion)) {
+            throw new ApiException(409, "该预览已被后续查询取代");
+        }
+    }
+
+    private static Map<String, Summary> emptySummary(List<CatalogEntry> reports) {
+        Map<String, Summary> summary = new LinkedHashMap<>();
+        reports.forEach(r -> summary.put(r.reportId(), new Summary(r.reportId(), r.reportName())));
+        return summary;
+    }
+
+    private static String summaryJson(List<CatalogEntry> reports, List<Candidate> candidates) {
+        Map<String, Summary> summary = emptySummary(reports);
+        candidates.forEach(c -> summary.get(c.reportId()).add(c));
+        return summaryJson(summary);
+    }
+
+    private static String summaryJson(Map<String, Summary> summary) {
+        List<Map<String, Object>> counts = new ArrayList<>();
+        Map<String, String> rules = new LinkedHashMap<>();
+        summary.values().forEach(s -> {
+            counts.add(Map.of("reportId", s.id, "reportName", s.name, "count", s.count, "amount", s.amount));
+            if (s.ruleDescription != null) rules.put(s.id, s.ruleDescription);
+        });
+        return JsonUtil.toJson(Map.of("byReport", counts, "ruleDescriptions", rules));
+    }
+
+    private static final class Summary {
+        final String id;
+        final String name;
+        int count;
+        BigDecimal amount = BigDecimal.ZERO;
+        String ruleDescription;
+
+        Summary(String id, String name) { this.id = id; this.name = name; }
+
+        void add(Candidate candidate) {
+            count++;
+            if (candidate.amount() != null) amount = amount.add(candidate.amount());
+            if (ruleDescription == null) ruleDescription = candidate.ruleDescription();
+        }
     }
 
     static String normalizeScope(String scopeMode) {

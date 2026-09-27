@@ -13,6 +13,7 @@ import com.example.report.dispatch.PlanService;
 import com.example.report.dispatch.PlanSnapshot;
 import com.example.report.dispatch.PreviewCommand;
 import com.example.report.dispatch.PreviewOutcome;
+import com.example.report.dispatch.PreviewJobService;
 import com.example.report.dispatch.PreviewService;
 import com.example.report.permission.CurrentUser;
 import com.example.report.permission.PermissionService;
@@ -52,6 +53,8 @@ public class DispatchTools {
     private final ReportCatalogService catalogService;
     private final ConversationService conversationService;
     private final AgentProperties props;
+    @org.springframework.beans.factory.annotation.Autowired(required = false)
+    private PreviewJobService previewJobs;
 
     public DispatchTools(PermissionService permissionService, PreviewService previewService, PlanService planService,
                          DispatchService dispatchService, ReportCatalogService catalogService,
@@ -111,8 +114,18 @@ public class DispatchTools {
             CurrentUser user = permissionService.resolve(userId);
             PreviewCommand command = new PreviewCommand(PreviewCommand.OPERATION_PREVIEW, source, reportQuery, null,
                     new PreviewCommand.Filters(companyCode), excludeDocNos, resolveScopeMode(scopeMode, ctx));
-            PreviewOutcome outcome = previewService.preview(user, conversationId, command);
             AgentEventChannel channel = ToolContextKeys.channel(ctx);
+            ResolveResult initial = catalogService.resolve(user, reportQuery);
+            if (previewJobs != null && channel != null && initial.matchType() != MatchType.NONE
+                    && initial.matchType() != MatchType.AMBIGUOUS) {
+                PreviewJobService.Job job = previewJobs.submit(user, conversationId, command);
+                if ("FAILED".equals(job.status())) return error(job.message());
+                if (channel != null) channel.emit(AgentEvent.PREVIEW_JOB, Map.of("jobId", job.id()));
+                conversationService.logToolResult(conversationId, userId, TOOL_PREVIEW,
+                        "previewJobId=" + job.id(), null, null);
+                return Map.of("status", "querying", "message", "预览查询已开始，界面正在展示进度。查询完成后会显示预览卡片，请不要编造条数或派单结果。");
+            }
+            PreviewOutcome outcome = previewService.preview(user, conversationId, command);
             return switch (outcome.status()) {
                 case NOT_FOUND -> {
                     String message = outcome.resolution().noAccessibleReports()
@@ -188,6 +201,9 @@ public class DispatchTools {
         AgentEventChannel channel = ToolContextKeys.channel(ctx);
         if (channel != null) {
             channel.markToolCalled(TOOL_DISPATCH);
+        }
+        if (channel != null && channel.hasEmitted(AgentEvent.PREVIEW_JOB)) {
+            return error("新的预览仍在查询中，请等待预览卡片出现后再生成派单清单");
         }
         // 本轮重新预览后，客户端带来的勾选项属于旧卡片，不能污染新范围
         List<String> uiExcludes = channel != null && channel.hasEmitted(AgentEvent.PREVIEW)

@@ -29,6 +29,8 @@ public class DispatchPlan {
     private String conversationId;
     private String status;
     private String statusReason;
+    /** 每次认领执行或重试递增，防止旧核对请求跨执行轮次写入。 */
+    private Long executionVersion = 0L;
     /** 排除的单据号 JSON 数组 */
     private String excludeJson;
     private Integer itemCount;

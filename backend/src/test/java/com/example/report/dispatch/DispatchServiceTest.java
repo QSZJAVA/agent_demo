@@ -6,6 +6,7 @@ import com.example.report.entity.DispatchAudit;
 import com.example.report.entity.DispatchPlan;
 import com.example.report.entity.DispatchPlanItem;
 import com.example.report.entity.DispatchPreview;
+import com.example.report.dispatch.store.PlanRepository;
 import com.example.report.permission.CurrentUser;
 import com.example.report.rule.Candidate;
 import com.example.report.support.DispatchHarness;
@@ -171,7 +172,7 @@ class DispatchServiceTest {
         String planId = plan(USER1);
         CurrentUser widened = new CurrentUser("T001", "user1", "用户1", Set.of("A", "B"), TestCatalog.DEMO_PERMISSIONS, false);
         ApiException e = assertThrows(ApiException.class, () -> service.confirm(widened, planId));
-        assertTrue(e.getMessage().contains("权限范围已变化"), e.getMessage());
+        assertEquals(403, e.getCode());
         assertEquals(StateReason.PERMISSION_CHANGED, planRow(planId).getStatusReason());
     }
 
@@ -204,25 +205,200 @@ class DispatchServiceTest {
     }
 
     @Test
-    void gatewayFailuresAreRecordedPerItem() {
+    void gatewayTimeoutRequiresReconciliationInsteadOfBlindRetry() {
         String planId = plan(USER1);
         when(gateway.dispatch(argThat(r -> r != null && r.record().docNo().equals("SO2026002"))))
                 .thenReturn(DispatchGateway.Outcome.fail("REMOTE_REJECTED", "派单接口拒绝"));
         when(gateway.dispatch(argThat(r -> r != null && r.record().docNo().equals("SO2026003"))))
                 .thenThrow(new IllegalStateException("连接超时"));
-        DispatchResultPayload result = service.confirm(USER1, planId);
-        assertEquals(1, result.successCount());
-        assertEquals(2, result.failedCount());
+        assertEquals(409, assertThrows(ApiException.class, () -> service.confirm(USER1, planId)).getCode());
         List<DispatchPlanItem> items = h.store.plans().items(planId);
-        assertEquals(List.of(DispatchPlanItem.SUCCESS, DispatchPlanItem.FAILED, DispatchPlanItem.FAILED),
+        assertEquals(List.of(DispatchPlanItem.SUCCESS, DispatchPlanItem.FAILED, DispatchPlanItem.UNKNOWN),
                 items.stream().map(DispatchPlanItem::getStatus).toList());
         assertEquals("REMOTE_REJECTED", items.get(1).getErrorCode());
-        assertEquals("GATEWAY_ERROR", items.get(2).getErrorCode());
+        assertEquals("RESULT_UNKNOWN", items.get(2).getErrorCode());
         assertEquals(1, items.get(2).getAttemptCount());
-        assertEquals(1, planRow(planId).getSuccessCount());
-        assertEquals(2, planRow(planId).getFailedCount());
-        // 重放时结果与第一次一致
-        assertEquals(2, service.confirm(USER1, planId).failedCount());
+        assertEquals(DispatchPlan.REVIEW_REQUIRED, planRow(planId).getStatus());
+        assertEquals(409, assertThrows(ApiException.class, () -> service.confirm(USER1, planId)).getCode());
+    }
+
+    @Test
+    void reconciliationUsesGatewayRequestIdWithoutResending() {
+        String planId = plan(USER1);
+        when(gateway.dispatch(argThat(r -> r != null && r.record().docNo().equals("SO2026002"))))
+                .thenThrow(new IllegalStateException("连接中断"));
+        assertEquals(409, assertThrows(ApiException.class, () -> service.confirm(USER1, planId)).getCode());
+        String requestId = h.store.plans().items(planId).get(1).getExternalRequestId();
+        when(gateway.lookup(USER1.tenantId(), requestId))
+                .thenReturn(new DispatchGateway.Lookup(DispatchGateway.LookupStatus.SUCCESS, null, "已受理"));
+
+        DispatchResultPayload result = service.reconcile(USER1, planId);
+        assertEquals(3, result.successCount());
+        verify(audit).record(eq(USER1), argThat(ctx -> "reconcile".equals(ctx.source())),
+                argThat(c -> "SO2026002".equals(c.docNo())), anyLong(), eq(requestId),
+                eq(DispatchPlanItem.SUCCESS), isNull(), contains("核对"));
+        assertEquals(DispatchPlan.EXECUTED, planRow(planId).getStatus());
+        verify(gateway, times(3)).dispatch(any());
+        verify(gateway).lookup(USER1.tenantId(), requestId);
+    }
+
+    @Test
+    void planConfirmationUsesDispatchQuota() {
+        String planId = plan(USER1);
+        com.example.report.config.ResourceQuotaService quotas =
+                mock(com.example.report.config.ResourceQuotaService.class);
+        var permit = mock(com.example.report.config.ResourceQuotaService.Permit.class);
+        when(quotas.acquire(eq(USER1), eq("dispatch"), anyCollection())).thenReturn(permit);
+        org.springframework.test.util.ReflectionTestUtils.setField(service, "quotas", quotas);
+
+        assertEquals(3, service.confirm(USER1, planId).successCount());
+        verify(quotas).acquire(eq(USER1), eq("dispatch"), argThat(ids -> ids.contains(SALES)));
+        verify(permit).close();
+    }
+
+    @Test
+    void staleConcurrentReconciliationCannotOverwriteSuccessfulRetry() throws Exception {
+        h.put(SALES, first);
+        String planId = plan(USER1);
+        when(gateway.dispatch(any())).thenReturn(DispatchGateway.Outcome.fail("RESULT_UNKNOWN", "unknown"));
+        assertThrows(ApiException.class, () -> service.confirm(USER1, planId));
+        CountDownLatch lookupStarted = new CountDownLatch(1);
+        CountDownLatch resume = new CountDownLatch(1);
+        when(gateway.lookup(anyString(), anyString())).thenAnswer(call -> {
+            if (Thread.currentThread().getName().equals("slow-reconcile")) {
+                lookupStarted.countDown();
+                if (!resume.await(5, TimeUnit.SECONDS)) throw new IllegalStateException("timed out");
+            }
+            return new DispatchGateway.Lookup(DispatchGateway.LookupStatus.FAILED, "TEMPORARY", "retryable");
+        });
+        Thread stale = new Thread(() -> assertThrows(ApiException.class, () -> service.reconcile(USER1, planId)),
+                "slow-reconcile");
+        stale.start();
+        assertTrue(lookupStarted.await(5, TimeUnit.SECONDS));
+        service.reconcile(USER1, planId);
+        when(gateway.dispatch(any())).thenReturn(DispatchGateway.Outcome.ok());
+        service.retryFailed(USER1, planId);
+        resume.countDown();
+        stale.join(5000);
+        assertFalse(stale.isAlive());
+        assertEquals(DispatchPlanItem.SUCCESS, h.store.plans().items(planId).get(0).getStatus());
+        assertEquals(1, h.store.plans().find(planId).orElseThrow().getSuccessCount());
+    }
+
+    @Test
+    void staleReconciliationCannotResolveUnknownFromANewerAttempt() throws Exception {
+        h.put(SALES, first);
+        String planId = plan(USER1);
+        when(gateway.dispatch(any())).thenReturn(DispatchGateway.Outcome.fail("RESULT_UNKNOWN", "unknown"));
+        assertThrows(ApiException.class, () -> service.confirm(USER1, planId));
+        CountDownLatch lookupStarted = new CountDownLatch(1);
+        CountDownLatch resumeLookup = new CountDownLatch(1);
+        CountDownLatch retryStarted = new CountDownLatch(1);
+        CountDownLatch resumeRetry = new CountDownLatch(1);
+        java.util.concurrent.atomic.AtomicBoolean firstLookup = new java.util.concurrent.atomic.AtomicBoolean(true);
+        when(gateway.lookup(anyString(), anyString())).thenAnswer(call -> {
+            if (firstLookup.getAndSet(false)) {
+                lookupStarted.countDown();
+                if (!resumeLookup.await(5, TimeUnit.SECONDS)) throw new IllegalStateException("lookup timeout");
+            }
+            return new DispatchGateway.Lookup(DispatchGateway.LookupStatus.FAILED, "TEMPORARY", "retryable");
+        });
+        PlanRepository unreliable = spy(h.store.plans());
+        doAnswer(inv -> {
+            DispatchPlanItem item = inv.getArgument(0);
+            if (DispatchPlanItem.SUCCESS.equals(item.getStatus())) throw new IllegalStateException("write failed");
+            return inv.callRealMethod();
+        }).when(unreliable).updateItem(any());
+        service = new DispatchService(h.plans, h.previews, unreliable, h.catalogService, h.candidates, h.versions,
+                gateway, audit, mock(ConversationService.class), mock(ChatMemory.class));
+        ExecutorService pool = Executors.newFixedThreadPool(2);
+        try {
+            Future<ApiException> stale = pool.submit(() -> assertThrows(ApiException.class,
+                    () -> service.reconcile(USER1, planId)));
+            assertTrue(lookupStarted.await(5, TimeUnit.SECONDS));
+            service.reconcile(USER1, planId);
+            when(gateway.dispatch(any())).thenAnswer(call -> {
+                retryStarted.countDown();
+                if (!resumeRetry.await(5, TimeUnit.SECONDS)) throw new IllegalStateException("retry timeout");
+                return DispatchGateway.Outcome.ok();
+            });
+            Future<ApiException> retry = pool.submit(() -> assertThrows(ApiException.class,
+                    () -> service.retryFailed(USER1, planId)));
+            assertTrue(retryStarted.await(5, TimeUnit.SECONDS));
+            resumeLookup.countDown();
+            assertEquals(409, stale.get(5, TimeUnit.SECONDS).getCode());
+            assertEquals(DispatchPlanItem.UNKNOWN, h.store.plans().items(planId).get(0).getStatus());
+            resumeRetry.countDown();
+            assertEquals(409, retry.get(5, TimeUnit.SECONDS).getCode());
+            assertEquals(DispatchPlan.REVIEW_REQUIRED, planRow(planId).getStatus());
+            when(gateway.lookup(anyString(), anyString())).thenReturn(
+                    new DispatchGateway.Lookup(DispatchGateway.LookupStatus.SUCCESS, null, null));
+            assertEquals(1, service.reconcile(USER1, planId).successCount());
+            assertEquals(DispatchPlan.EXECUTED, planRow(planId).getStatus());
+            verify(gateway, times(2)).dispatch(any());
+        } finally {
+            resumeLookup.countDown();
+            resumeRetry.countDown();
+            pool.shutdownNow();
+        }
+    }
+
+    @Test
+    void retryOnlyExplicitFailuresAndReuseExternalRequestId() {
+        String planId = plan(USER1);
+        when(gateway.dispatch(argThat(r -> r != null && r.record().docNo().equals("SO2026002"))))
+                .thenReturn(DispatchGateway.Outcome.fail("TEMPORARY", "稍后重试"))
+                .thenAnswer(inv -> {
+                    DispatchPlanItem persisted = h.store.plans().items(planId).get(1);
+                    assertEquals(DispatchPlanItem.UNKNOWN, persisted.getStatus(), "重发前必须留下可核对状态");
+                    assertEquals(2, persisted.getAttemptCount());
+                    return DispatchGateway.Outcome.ok();
+                });
+        DispatchResultPayload firstResult = service.confirm(USER1, planId);
+        assertEquals(1, firstResult.failedCount());
+        String requestId = h.store.plans().items(planId).get(1).getExternalRequestId();
+
+        DispatchResultPayload retried = service.retryFailed(USER1, planId);
+        assertEquals(3, retried.successCount());
+        assertEquals(0, retried.failedCount());
+        assertEquals(DispatchPlan.EXECUTED, planRow(planId).getStatus());
+        assertEquals(2, h.store.plans().items(planId).get(1).getAttemptCount());
+        verify(gateway, times(2)).dispatch(argThat(r -> r.record().docNo().equals("SO2026002")
+                && requestId.equals(r.externalRequestId())));
+        verify(gateway, times(1)).dispatch(argThat(r -> r.record().docNo().equals("SO2026001")));
+        verify(gateway, times(1)).dispatch(argThat(r -> r.record().docNo().equals("SO2026003")));
+    }
+
+    @Test
+    void retryResultWriteFailureRemainsReconciliable() {
+        String planId = plan(USER1);
+        when(gateway.dispatch(argThat(r -> r != null && r.record().docNo().equals("SO2026002"))))
+                .thenReturn(DispatchGateway.Outcome.fail("TEMPORARY", "稍后重试"), DispatchGateway.Outcome.ok());
+        service.confirm(USER1, planId);
+        String requestId = h.store.plans().items(planId).get(1).getExternalRequestId();
+
+        PlanRepository unreliable = spy(h.store.plans());
+        java.util.concurrent.atomic.AtomicBoolean failOnce = new java.util.concurrent.atomic.AtomicBoolean(true);
+        doAnswer(inv -> {
+            DispatchPlanItem item = inv.getArgument(0);
+            if (item.getDocNo().equals("SO2026002") && DispatchPlanItem.SUCCESS.equals(item.getStatus())
+                    && failOnce.getAndSet(false)) {
+                throw new IllegalStateException("结果写库失败");
+            }
+            return inv.callRealMethod();
+        }).when(unreliable).updateItem(any());
+        service = new DispatchService(h.plans, h.previews, unreliable, h.catalogService, h.candidates, h.versions,
+                gateway, audit, mock(ConversationService.class), mock(ChatMemory.class));
+
+        assertThrows(ApiException.class, () -> service.retryFailed(USER1, planId));
+        assertEquals(DispatchPlan.REVIEW_REQUIRED, planRow(planId).getStatus());
+        assertEquals(DispatchPlanItem.UNKNOWN, h.store.plans().items(planId).get(1).getStatus());
+
+        when(gateway.lookup(USER1.tenantId(), requestId))
+                .thenReturn(new DispatchGateway.Lookup(DispatchGateway.LookupStatus.SUCCESS, null, null));
+        DispatchResultPayload reconciled = service.reconcile(USER1, planId);
+        assertEquals(3, reconciled.successCount());
+        verify(gateway, times(2)).dispatch(argThat(r -> r.record().docNo().equals("SO2026002")));
     }
 
     @Test

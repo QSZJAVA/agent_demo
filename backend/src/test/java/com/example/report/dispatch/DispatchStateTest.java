@@ -88,6 +88,31 @@ class DispatchStateTest {
     }
 
     @Test
+    void freshExecutionHeartbeatPreventsStaleRecovery() {
+        String previewId = preview("heartbeat", "销售报表").snapshot().preview().getId();
+        String planId = h.plans.create(USER1, "heartbeat", previewId, List.of(), null).plan().getId();
+        LocalDateTime now = LocalDateTime.now();
+        assertTrue(h.store.plans().claim(planId, USER1.userId(), now.minusMinutes(10)));
+        LocalDateTime cutoff = now.minusMinutes(5);
+        assertEquals(1, h.store.plans().staleExecuting(cutoff).size());
+        h.store.plans().touchExecuting(planId, now);
+        assertFalse(h.store.plans().markStaleForReview(planId, cutoff, now));
+        assertEquals(DispatchPlan.EXECUTING, planRow(planId).getStatus());
+    }
+
+    @Test
+    void cancelledJobCannotSupersedeExistingPreviewOrPlan() {
+        String first = preview("c1", "销售报表").snapshot().preview().getId();
+        String plan = h.plans.create(USER1, "c1", first, List.of(), null).plan().getId();
+        PreviewCommand command = new PreviewCommand(null, "selection", "费用报表", null, null, null, null);
+
+        assertThrows(ApiException.class, () -> h.previews.preview(USER1, "c1", command,
+                scanned -> { }, id -> { throw new ApiException(409, "查询任务已取消"); }));
+        assertEquals(DispatchPreview.ACTIVE, row(first).getStatus());
+        assertEquals(DispatchPlan.PENDING, planRow(plan).getStatus());
+    }
+
+    @Test
     void previewsOfDifferentConversationsAreIndependent() {
         // T-PREVIEW-08
         String a = preview("c1", null).snapshot().preview().getId();
@@ -201,11 +226,36 @@ class DispatchStateTest {
     }
 
     @Test
-    void tooManyRecordsAreRejectedInsteadOfTruncated() {
+    void largePreviewPersistsAllRowsAndRequiresNarrowingBeforePlanning() {
         h.props.getPreview().setMaxItems(2);
-        ApiException e = assertThrows(ApiException.class, () -> preview("c1", null));
+        PreviewSnapshot large = preview("c1", null).snapshot();
+        assertEquals(3, large.preview().getTotalCount());
+        assertEquals(3, h.store.previews().items(large.preview().getId()).size());
+        assertEquals(2, h.previews.pageOwned(USER1, large.preview().getId(), 1, 2).size());
+        assertEquals(1, h.previews.pageOwned(USER1, large.preview().getId(), 2, 2).size());
+        assertEquals(3, com.example.report.agent.PreviewPayload.of(large, h.catalogService).byReport()
+                .stream().mapToInt(com.example.report.agent.PreviewPayload.ReportCount::count).sum());
+        ApiException e = assertThrows(ApiException.class,
+                () -> h.plans.create(USER1, "c1", large.preview().getId(), List.of(), null));
         assertTrue(e.getMessage().contains("缩小范围"));
         assertEquals(PreviewOutcome.Status.OK, preview("c1", "销售报表").status());
+    }
+
+    @Test
+    void oldReviewCannotFinishAfterRetryReturnsToReviewRequired() {
+        preview("c1", null);
+        String id = h.plans.create(USER1, "c1", null, List.of(), null).plan().getId();
+        var repository = h.store.plans();
+        var now = LocalDateTime.now();
+        assertTrue(repository.claim(id, USER1.userId(), now));
+        long firstVersion = planRow(id).getExecutionVersion();
+        assertTrue(repository.transition(id, DispatchPlan.EXECUTING, DispatchPlan.REVIEW_REQUIRED, null, now));
+        assertTrue(repository.finishReview(id, firstVersion, 0, 3, now));
+        assertTrue(repository.claimRetry(id, now));
+        assertEquals(firstVersion + 1, planRow(id).getExecutionVersion());
+        assertTrue(repository.transition(id, DispatchPlan.EXECUTING, DispatchPlan.REVIEW_REQUIRED, null, now));
+        assertFalse(repository.finishReview(id, firstVersion, 0, 3, now));
+        assertEquals(DispatchPlan.REVIEW_REQUIRED, planRow(id).getStatus());
     }
 
     @Test

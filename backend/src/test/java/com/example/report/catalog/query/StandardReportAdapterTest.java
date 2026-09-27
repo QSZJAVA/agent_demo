@@ -49,6 +49,58 @@ class StandardReportAdapterTest {
 
     @Test
     @SuppressWarnings("unchecked")
+    void simpleRuleIsBoundAndPushedDownWhileComplexRuleFallsBack() {
+        adapter.pendingRowsPageWithRule("T001", Set.of("A"), 0, 50, "amount > 20 && amount <= 50000");
+        ArgumentCaptor<String> sql = ArgumentCaptor.forClass(String.class);
+        ArgumentCaptor<SqlParameterSource> params = ArgumentCaptor.forClass(SqlParameterSource.class);
+        verify(jdbc).query(sql.capture(), params.capture(), any(RowMapper.class));
+        assertTrue(sql.getValue().contains("`amount` > :rule0 AND (`amount` IS NULL OR `amount` <= :rule1)"));
+        assertEquals(new BigDecimal("20"), params.getValue().getValue("rule0"));
+        assertEquals(50, params.getValue().getValue("pageSize"));
+        assertFalse(sql.getValue().contains("50000"), "规则常量只能作为参数绑定");
+        assertTrue(RuleSqlPredicate.compile(StandardQueryConfig.parse(StandardQueryConfigTest.SALES),
+                "string.contains(productName, '云')").isEmpty());
+    }
+
+    @Test
+    void comparisonPushdownPreservesNullOrderingAndAvoidsCollationDifferences() {
+        StandardQueryConfig config = StandardQueryConfig.parse(StandardQueryConfigTest.SALES);
+        var lessThan = RuleSqlPredicate.compile(config, "amount < 100").orElseThrow();
+        assertTrue(lessThan.sql().contains("`amount` IS NULL OR `amount` < :rule0"));
+        assertTrue(RuleSqlPredicate.compile(config, "amount <= 100").orElseThrow().sql()
+                .contains("`amount` IS NULL OR `amount` <= :rule0"));
+        assertFalse(RuleSqlPredicate.compile(config, "amount > 100").orElseThrow().sql().contains("IS NULL"));
+        assertTrue(RuleSqlPredicate.compile(config, "productName < 'z'").isEmpty());
+    }
+
+    @Test
+    @SuppressWarnings("unchecked")
+    void scanningUsesPrimaryKeyCursorInsteadOfOffset() {
+        adapter.pendingRowsAfterWithRule("T001", Set.of("A"), "500", 500, "amount > 20");
+        ArgumentCaptor<String> sql = ArgumentCaptor.forClass(String.class);
+        ArgumentCaptor<SqlParameterSource> params = ArgumentCaptor.forClass(SqlParameterSource.class);
+        verify(jdbc).query(sql.capture(), params.capture(), any(RowMapper.class));
+        assertTrue(sql.getValue().contains("`id` > :afterId"));
+        assertTrue(sql.getValue().endsWith("ORDER BY `id` LIMIT :pageSize"));
+        assertFalse(sql.getValue().contains("OFFSET"));
+        assertEquals("500", params.getValue().getValue("afterId"));
+    }
+
+    @Test
+    @SuppressWarnings("unchecked")
+    void executionRevalidationReadsOnlyPlanIdsThatAreStillPending() {
+        adapter.pendingRowsByIds("T001", List.of("7", "8"));
+        ArgumentCaptor<String> sql = ArgumentCaptor.forClass(String.class);
+        ArgumentCaptor<SqlParameterSource> params = ArgumentCaptor.forClass(SqlParameterSource.class);
+        verify(jdbc).query(sql.capture(), params.capture(), any(RowMapper.class));
+        assertTrue(sql.getValue().contains("`id` IN (:ids)"));
+        assertTrue(sql.getValue().contains("`dispatch_status` = :pending"));
+        assertTrue(sql.getValue().contains("`tenant_id` = :tenantId"));
+        assertEquals(List.of("7", "8"), params.getValue().getValue("ids"));
+    }
+
+    @Test
+    @SuppressWarnings("unchecked")
     void emptyCompanyScopeQueriesNothing() {
         assertTrue(adapter.pendingRows("T001", Set.of()).isEmpty());
         verify(jdbc, never()).query(anyString(), any(SqlParameterSource.class), any(RowMapper.class));

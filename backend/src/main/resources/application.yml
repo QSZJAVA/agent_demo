@@ -13,6 +13,11 @@ spring:
     # 本地密码通过环境变量或 tools/env.local.cmd 提供，切勿把真实密码写进本文件并提交
     password: ${DB_PASSWORD:}
 
+  jdbc:
+    template:
+      # 单条报表查询的上限；整个异步预览任务另有 120 秒超时。
+      query-timeout: 60s
+
   # 表结构由 Flyway 版本化迁移维护（classpath:db/migration）。已有库第一次接入时以版本 0 建立基线，
   # V1 全部 IF NOT EXISTS 只补缺失的表，之后 V2+ 把规则、审计迁移到报表目录 / report_id 模型
   flyway:

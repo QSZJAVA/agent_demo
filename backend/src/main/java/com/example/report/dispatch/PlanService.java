@@ -65,10 +65,15 @@ public class PlanService {
                 if (!PermissionService.owns(user, plan.getTenantId(), plan.getUserId())) {
                     throw new ApiException(409, "幂等键已被使用，请更换后重试");
                 }
+                previewService.requireReadable(user, previews.find(plan.getPreviewId())
+                        .orElseThrow(() -> ApiException.notFound("原预览不存在")));
                 return new PlanSnapshot(refresh(user, plan), plans.items(plan.getId()), List.of(), true);
             }
         }
         DispatchPreview preview = usablePreview(user, conversationId, previewId);
+        if (preview.getTotalCount() > props.getPreview().getMaxItems()) {
+            throw new ApiException("该预览记录过多，请按报表或公司缩小范围后再生成派单清单");
+        }
         List<DispatchPreviewItem> previewItems = previews.items(preview.getId());
 
         Set<String> excludeKeys = new LinkedHashSet<>();
@@ -118,10 +123,14 @@ public class PlanService {
         List<String> expired = new ArrayList<>();
         tx.executeWithoutResult(status -> {
             previews.lockConversation(preview.getConversationId());
+            previews.lockPreview(preview.getId());
             // 加锁后再确认一次：等锁期间同会话可能已经生成了新预览
             DispatchPreview current = previews.find(preview.getId()).orElseThrow();
             if (plans.hasStartedByPreview(current.getId())) {
                 throw new ApiException(409, "该预览已有执行中的、已执行或待核对的清单，请先核对原清单");
+            }
+            if (plans.hasUnsettledByConversation(current.getConversationId())) {
+                throw new ApiException(409, "本会话还有执行中或待核对的清单，请先等待或核对结果");
             }
             if (!DispatchPreview.ACTIVE.equals(current.getStatus())) {
                 throw new ApiException(rejection(current));
@@ -130,11 +139,15 @@ public class PlanService {
             if (invalid != null) {
                 throw new ApiException("预览已失效：" + StateReason.message(invalid));
             }
+            for (DispatchPlan old : plans.pendingByPreview(current.getId())) {
+                if (plans.transition(old.getId(), DispatchPlan.PENDING, DispatchPlan.EXPIRED, StateReason.NEW_PLAN, now)) {
+                    expired.add(old.getId());
+                }
+            }
             if (preview.getConversationId() != null) {
                 for (DispatchPlan old : plans.pending(preview.getConversationId())) {
-                    if (plans.transition(old.getId(), DispatchPlan.PENDING, DispatchPlan.EXPIRED, StateReason.NEW_PLAN, now)) {
-                        expired.add(old.getId());
-                    }
+                    if (!expired.contains(old.getId()) && plans.transition(old.getId(), DispatchPlan.PENDING,
+                            DispatchPlan.EXPIRED, StateReason.NEW_PLAN, now)) expired.add(old.getId());
                 }
             }
             plans.insert(plan, items);
@@ -147,7 +160,19 @@ public class PlanService {
         DispatchPlan plan = findOwned(user, planId)
                 .orElseThrow(() -> ApiException.notFound("待确认清单不存在或已过期，请重新预览"));
         plan = refresh(user, plan);
+        previewService.requireReadable(user, previews.find(plan.getPreviewId())
+                .orElseThrow(() -> ApiException.notFound("原预览不存在")));
         return new PlanSnapshot(plan, plans.items(plan.getId()));
+    }
+
+    public List<DispatchPlanItem> pageOwned(CurrentUser user, String planId, int page, int size) {
+        DispatchPlan plan = findOwned(user, planId)
+                .orElseThrow(() -> ApiException.notFound("待确认清单不存在"));
+        previewService.requireReadable(user, previews.find(plan.getPreviewId())
+                .orElseThrow(() -> ApiException.notFound("预览不存在")));
+        if (page < 1 || size < 1 || size > 100) throw new ApiException("页码或每页条数无效（每页最多 100 条）");
+        long offset = ((long) page - 1) * size;
+        return offset > Integer.MAX_VALUE ? List.of() : plans.page(planId, (int) offset, size);
     }
 
     public Optional<DispatchPlan> findOwned(CurrentUser user, String planId) {
@@ -198,6 +223,35 @@ public class PlanService {
 
     public void expire(DispatchPlan plan, String reason, LocalDateTime now) {
         plans.transition(plan.getId(), DispatchPlan.PENDING, DispatchPlan.EXPIRED, reason, now);
+    }
+
+    /** 在同一会话锁内认领执行，和新预览、新清单的作废操作串行化。 */
+    public boolean claimForExecution(CurrentUser user, DispatchPlan plan, LocalDateTime now) {
+        Boolean claimed = tx.execute(status -> {
+            previews.lockConversation(plan.getConversationId());
+            previews.lockPreview(plan.getPreviewId());
+            DispatchPlan current = plans.find(plan.getId()).orElse(plan);
+            if (!DispatchPlan.PENDING.equals(current.getStatus())) return false;
+            if (plans.hasOtherStartedByPreview(current.getPreviewId(), current.getId())) {
+                plans.transition(current.getId(), DispatchPlan.PENDING, DispatchPlan.EXPIRED,
+                        StateReason.NEW_PLAN, now);
+                return false;
+            }
+            DispatchPreview preview = previews.find(current.getPreviewId()).orElse(null);
+            if (preview == null || !DispatchPreview.ACTIVE.equals(preview.getStatus())) {
+                plans.transition(current.getId(), DispatchPlan.PENDING, DispatchPlan.EXPIRED,
+                        StateReason.NEW_PREVIEW, now);
+                return false;
+            }
+            String reason = versions.verify(user, preview);
+            if (reason != null) {
+                previewService.expire(preview, reason, now);
+                plans.transition(current.getId(), DispatchPlan.PENDING, DispatchPlan.EXPIRED, reason, now);
+                return false;
+            }
+            return plans.claim(current.getId(), user.userId(), now);
+        });
+        return Boolean.TRUE.equals(claimed);
     }
 
     /** 生成清单用的预览：必须归属当前用户、属于本会话、仍然有效且版本一致 */

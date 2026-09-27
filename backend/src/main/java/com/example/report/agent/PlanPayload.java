@@ -20,6 +20,6 @@ public record PlanPayload(
 ) {
     public static PlanPayload of(PlanSnapshot snapshot) {
         return new PlanPayload(snapshot.plan().getId(), snapshot.plan().getPreviewId(), snapshot.plan().getStatus(),
-                snapshot.items().size(), snapshot.excluded(), snapshot.candidates(), snapshot.plan().getExpiresAt());
+                snapshot.plan().getItemCount(), snapshot.excluded(), snapshot.candidates().stream().limit(50).toList(), snapshot.plan().getExpiresAt());
     }
 }

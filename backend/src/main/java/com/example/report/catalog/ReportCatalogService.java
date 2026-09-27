@@ -33,6 +33,11 @@ public class ReportCatalogService {
         this.resolver = new ReportResolver(props.getResolver().getFuzzyThreshold(), props.getResolver().getAmbiguityMargin());
     }
 
+    /** 安全关键操作直接核对数据库，避免另一个实例漏收刷新广播后继续使用旧目录。 */
+    public void refreshForValidation() {
+        catalog.reload();
+    }
+
     /** 已发布、在生效期、配置可用、用户有该报表的权限 */
     public boolean isVisible(CurrentUser user, CatalogEntry entry) {
         return java.util.Objects.equals(user.tenantId(), entry.tenantId()) && entry.published() && entry.effectiveAt(LocalDateTime.now()) && entry.usable()

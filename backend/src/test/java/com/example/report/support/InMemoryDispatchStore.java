@@ -33,6 +33,7 @@ public final class InMemoryDispatchStore {
     private final Map<String, DispatchPlan> plans = new LinkedHashMap<>();
     private final Map<String, List<DispatchPlanItem>> planItems = new HashMap<>();
     private final AtomicLong sequence = new AtomicLong();
+    private final Map<String, Long> previewRequestVersions = new HashMap<>();
 
     private final PreviewRepository previewRepository = new Previews();
     private final PlanRepository planRepository = new Plans();
@@ -68,6 +69,22 @@ public final class InMemoryDispatchStore {
     }
 
     private final class Previews implements PreviewRepository {
+
+        @Override
+        public long beginRequest(String conversationId) {
+            if (conversationId == null) return 0;
+            synchronized (InMemoryDispatchStore.this) {
+                return previewRequestVersions.merge(conversationId, 1L, Long::sum);
+            }
+        }
+
+        @Override
+        public boolean isLatestRequest(String conversationId, long version) {
+            if (conversationId == null) return true;
+            synchronized (InMemoryDispatchStore.this) {
+                return Objects.equals(previewRequestVersions.get(conversationId), version);
+            }
+        }
 
         @Override
         public void lockConversation(String conversationId) {
@@ -157,9 +174,63 @@ public final class InMemoryDispatchStore {
                 return true;
             }
         }
+        @Override
+        public void insertBuilding(DispatchPreview preview) {
+            insert(preview, List.of());
+        }
+
+        @Override
+        public void appendItems(List<DispatchPreviewItem> items) {
+            if (items.isEmpty()) return;
+            synchronized (InMemoryDispatchStore.this) {
+                String previewId = items.get(0).getPreviewId();
+                if (!DispatchPreview.BUILDING.equals(previews.get(previewId).getStatus())) {
+                    throw new IllegalStateException("preview is not building");
+                }
+                List<DispatchPreviewItem> stored = previewItems.get(previewId);
+                for (DispatchPreviewItem item : items) {
+                    DispatchPreviewItem c = copy(item, new DispatchPreviewItem());
+                    c.setId(sequence.incrementAndGet());
+                    stored.add(c);
+                }
+            }
+        }
+
+        @Override
+        public void updateBuilding(DispatchPreview preview) {
+            synchronized (InMemoryDispatchStore.this) {
+                if (!DispatchPreview.BUILDING.equals(previews.get(preview.getId()).getStatus())) {
+                    throw new IllegalStateException("preview is not building");
+                }
+                previews.put(preview.getId(), copy(preview));
+            }
+        }
+
+        @Override
+        public void deleteBuilding(String previewId) {
+            synchronized (InMemoryDispatchStore.this) {
+                DispatchPreview preview = previews.get(previewId);
+                if (preview != null && DispatchPreview.BUILDING.equals(preview.getStatus())) {
+                    previews.remove(previewId);
+                    previewItems.remove(previewId);
+                    previewOrder.remove(previewId);
+                }
+            }
+        }
+
     }
 
     private final class Plans implements PlanRepository {
+
+        @Override
+        public boolean hasOtherStartedByPreview(String previewId, String planId) {
+            synchronized (InMemoryDispatchStore.this) {
+                return plans.values().stream().anyMatch(p -> previewId.equals(p.getPreviewId())
+                        && !planId.equals(p.getId())
+                        && List.of(DispatchPlan.EXECUTING, DispatchPlan.EXECUTED,
+                                DispatchPlan.REVIEW_REQUIRED).contains(p.getStatus()));
+            }
+        }
 
         @Override
         public boolean hasStartedByPreview(String previewId) {
@@ -271,7 +342,22 @@ public final class InMemoryDispatchStore {
                 }
                 p.setStatus(DispatchPlan.EXECUTING);
                 p.setConfirmedAt(now);
+                p.setExecutionVersion(p.getExecutionVersion() + 1);
                 p.setConfirmedBy(confirmedBy);
+                p.setUpdatedAt(now);
+                return true;
+            }
+        }
+
+        @Override
+        public boolean claimRetry(String planId, LocalDateTime now) {
+            synchronized (InMemoryDispatchStore.this) {
+                DispatchPlan p = plans.get(planId);
+                if (p == null || !DispatchPlan.EXECUTED.equals(p.getStatus()) || p.getFailedCount() == null || p.getFailedCount() <= 0) {
+                    return false;
+                }
+                p.setStatus(DispatchPlan.EXECUTING);
+                p.setExecutionVersion(p.getExecutionVersion() + 1);
                 p.setUpdatedAt(now);
                 return true;
             }
@@ -298,6 +384,71 @@ public final class InMemoryDispatchStore {
                 p.setFailedCount(failedCount);
                 p.setFinishedAt(now);
                 p.setUpdatedAt(now);
+                return true;
+            }
+        }
+
+        @Override
+        public boolean resolveUnknownItem(DispatchPlanItem item, String expectedStatus, long executionVersion) {
+            synchronized (InMemoryDispatchStore.this) {
+                DispatchPlan plan = plans.get(item.getPlanId());
+                if (plan == null || !DispatchPlan.REVIEW_REQUIRED.equals(plan.getStatus())
+                        || plan.getExecutionVersion() != executionVersion) return false;
+                List<DispatchPlanItem> list = planItems.get(item.getPlanId());
+                if (list == null) return false;
+                for (int index = 0; index < list.size(); index++) {
+                    DispatchPlanItem current = list.get(index);
+                    if (current.getId().equals(item.getId()) && expectedStatus.equals(current.getStatus())
+                            && Objects.equals(current.getAttemptCount(), item.getAttemptCount())) {
+                        list.set(index, copy(item, new DispatchPlanItem()));
+                        return true;
+                    }
+                }
+                return false;
+            }
+        }
+
+        @Override
+        public boolean finishReview(String planId, long executionVersion, int successCount, int failedCount, LocalDateTime now) {
+            synchronized (InMemoryDispatchStore.this) {
+                DispatchPlan p = plans.get(planId);
+                if (p == null || !DispatchPlan.REVIEW_REQUIRED.equals(p.getStatus())
+                        || p.getExecutionVersion() != executionVersion) return false;
+                p.setStatus(DispatchPlan.EXECUTED);
+                p.setStatusReason(null);
+                p.setSuccessCount(successCount);
+                p.setFailedCount(failedCount);
+                p.setFinishedAt(now);
+                p.setUpdatedAt(now);
+                return true;
+            }
+        }
+
+        @Override
+        public void touchExecuting(String planId, LocalDateTime now) {
+            synchronized (InMemoryDispatchStore.this) {
+                DispatchPlan plan = plans.get(planId);
+                if (plan != null && DispatchPlan.EXECUTING.equals(plan.getStatus())) plan.setUpdatedAt(now);
+            }
+        }
+
+        @Override
+        public List<DispatchPlan> staleExecuting(LocalDateTime cutoff) {
+            synchronized (InMemoryDispatchStore.this) {
+                return plans.values().stream().filter(p -> DispatchPlan.EXECUTING.equals(p.getStatus())
+                        && p.getUpdatedAt().isBefore(cutoff)).map(InMemoryDispatchStore::copy).toList();
+            }
+        }
+
+        @Override
+        public boolean markStaleForReview(String planId, LocalDateTime cutoff, LocalDateTime now) {
+            synchronized (InMemoryDispatchStore.this) {
+                DispatchPlan plan = plans.get(planId);
+                if (plan == null || !DispatchPlan.EXECUTING.equals(plan.getStatus())
+                        || !plan.getUpdatedAt().isBefore(cutoff)) return false;
+                plan.setStatus(DispatchPlan.REVIEW_REQUIRED);
+                plan.setStatusReason(com.example.report.dispatch.StateReason.EXECUTION_INTERRUPTED);
+                plan.setUpdatedAt(now);
                 return true;
             }
         }

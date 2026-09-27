@@ -20,6 +20,32 @@ public interface ReportQueryAdapter {
     /** 粗筛：只取指定租户、指定公司范围内未派单的记录 */
     List<FactRow> pendingRows(String tenantId, Set<String> companies);
 
+    /** 有界分页扫描；自定义适配器在处理大表时应覆盖此方法。 */
+    default List<FactRow> pendingRowsPage(String tenantId, Set<String> companies, int offset, int size) {
+        List<FactRow> rows = pendingRows(tenantId, companies);
+        return offset >= rows.size() ? List.of() : rows.subList(offset, Math.min(rows.size(), offset + size));
+    }
+
+    /** 简单规则可由标准适配器下推到 SQL；复杂规则仍由调用方逐行复核。 */
+    default List<FactRow> pendingRowsPageWithRule(String tenantId, Set<String> companies,
+                                                   int offset, int size, String expression) {
+        return pendingRowsPage(tenantId, companies, offset, size);
+    }
+
+    /** 扫描专用的稳定主键游标；自定义适配器应在数据源内实现此条件。 */
+    default List<FactRow> pendingRowsAfterWithRule(String tenantId, Set<String> companies,
+                                                    String afterId, int size, String expression) {
+        return pendingRows(tenantId, companies).stream()
+                .filter(row -> afterId == null || row.recordId().compareTo(afterId) > 0)
+                .sorted(java.util.Comparator.comparing(FactRow::recordId))
+                .limit(size).toList();
+    }
+
     /** 按主键取记录当前状态（报表页手工派单用），同样受租户约束 */
     List<FactRow> rowsByIds(String tenantId, Collection<String> recordIds);
+
+    /** Revalidation must only return records still pending in the source system. */
+    default List<FactRow> pendingRowsByIds(String tenantId, Collection<String> recordIds) {
+        throw new UnsupportedOperationException("报表适配器尚未实现按主键复核待派单状态");
+    }
 }

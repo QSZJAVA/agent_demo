@@ -39,11 +39,57 @@ public class MybatisPreviewRepository implements PreviewRepository {
     }
 
     @Override
+    public void lockPreview(String previewId) {
+        if (previewMapper.lockById(previewId) == null) {
+            throw new IllegalStateException("预览不存在，不能创建或确认清单");
+        }
+    }
+
+    @Override
+    public long beginRequest(String conversationId) {
+        if (conversationId == null) return 0;
+        if (conversationMapper.advancePreviewRequest(conversationId) != 1) {
+            throw new IllegalStateException("会话不存在，无法开始预览");
+        }
+        return conversationMapper.previewRequestVersion(conversationId);
+    }
+
+    @Override
+    public boolean isLatestRequest(String conversationId, long version) {
+        return conversationId == null || java.util.Objects.equals(
+                conversationMapper.previewRequestVersion(conversationId), version);
+    }
+
+    @Override
     public void insert(DispatchPreview preview, List<DispatchPreviewItem> items) {
         previewMapper.insert(preview);
         for (int i = 0; i < items.size(); i += INSERT_CHUNK) {
             itemMapper.insertBatch(items.subList(i, Math.min(items.size(), i + INSERT_CHUNK)));
         }
+    }
+
+    @Override
+    public void insertBuilding(DispatchPreview preview) {
+        previewMapper.insert(preview);
+    }
+
+    @Override
+    public void appendItems(List<DispatchPreviewItem> items) {
+        for (int i = 0; i < items.size(); i += INSERT_CHUNK) {
+            itemMapper.insertBatch(items.subList(i, Math.min(items.size(), i + INSERT_CHUNK)));
+        }
+    }
+
+    @Override
+    public void updateBuilding(DispatchPreview preview) {
+        if (previewMapper.updateById(preview) != 1) throw new IllegalStateException("预览汇总保存失败");
+    }
+
+    @Override
+    public void deleteBuilding(String previewId) {
+        itemMapper.delete(new LambdaQueryWrapper<DispatchPreviewItem>().eq(DispatchPreviewItem::getPreviewId, previewId));
+        previewMapper.delete(new LambdaQueryWrapper<DispatchPreview>()
+                .eq(DispatchPreview::getId, previewId).eq(DispatchPreview::getStatus, DispatchPreview.BUILDING));
     }
 
     @Override
@@ -61,6 +107,14 @@ public class MybatisPreviewRepository implements PreviewRepository {
         return itemMapper.selectList(new LambdaQueryWrapper<DispatchPreviewItem>()
                 .eq(DispatchPreviewItem::getPreviewId, previewId)
                 .orderByAsc(DispatchPreviewItem::getSeq));
+    }
+
+    @Override
+    public List<DispatchPreviewItem> page(String previewId, int offset, int size) {
+        return itemMapper.selectList(new LambdaQueryWrapper<DispatchPreviewItem>()
+                .eq(DispatchPreviewItem::getPreviewId, previewId)
+                .orderByAsc(DispatchPreviewItem::getSeq)
+                .last("LIMIT " + size + " OFFSET " + offset));
     }
 
     @Override
@@ -92,6 +146,13 @@ public class MybatisPreviewRepository implements PreviewRepository {
         return previewMapper.selectList(new LambdaQueryWrapper<DispatchPreview>()
                 .eq(DispatchPreview::getConversationId, conversationId)
                 .orderByAsc(DispatchPreview::getCreatedAt));
+    }
+
+    @Override
+    public List<DispatchPreview> byConversations(Collection<String> conversationIds) {
+        if (conversationIds.isEmpty()) return List.of();
+        return previewMapper.selectList(new LambdaQueryWrapper<DispatchPreview>()
+                .in(DispatchPreview::getConversationId, conversationIds));
     }
 
     @Override

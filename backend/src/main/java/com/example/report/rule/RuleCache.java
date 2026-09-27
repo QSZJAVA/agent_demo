@@ -124,6 +124,12 @@ public class RuleCache implements MessageListener {
         return find(rules.get(), tenantId, reportId, companyCode);
     }
 
+    /** 修复 Redis pub/sub 断线期间遗漏的规则发布通知。 */
+    @Scheduled(fixedDelayString = "${agent.rule-reconcile-ms:30000}")
+    public void reconcile() {
+        reload();
+    }
+
     private Optional<DispatchRule> find(Map<String, DispatchRule> map, String tenantId, String reportId, String companyCode) {
         DispatchRule rule = map.get(key(tenantId, reportId, companyCode));
         if (rule == null) {

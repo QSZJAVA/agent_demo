@@ -38,9 +38,45 @@ export function createPreview({ conversationId, reportIds, companyCode, excludeD
   return http.post('/dispatch/previews', { conversationId, reportIds, companyCode, excludeDocNos, scopeMode })
 }
 
+export function fetchPreviewItems(previewId, page = 1, size = 50) {
+  return http.get(`/dispatch/previews/${previewId}/items`, { params: { page, size } })
+}
+
+export function startPreviewJob(request) {
+  return http.post('/dispatch/previews/jobs', request)
+}
+
+export function fetchPreviewJob(jobId) {
+  return http.get(`/dispatch/previews/jobs/${jobId}`)
+}
+
+export function fetchLatestPreviewJob(conversationId) {
+  return http.get('/dispatch/previews/jobs', { params: { conversationId } })
+}
+
+export function cancelPreviewJob(jobId) {
+  return http.post(`/dispatch/previews/jobs/${jobId}/cancel`)
+}
+
+export function fetchPreview(previewId) {
+  return http.get(`/dispatch/previews/${previewId}`)
+}
+
+export function fetchPlanItems(planId, page = 1, size = 50) {
+  return http.get(`/dispatch/plans/${planId}/items`, { params: { page, size } })
+}
+
 /** 确认执行待确认清单；重复确认返回第一次的结果 */
 export function confirmPlan(planId) {
   return http.post(`/dispatch/plans/${planId}/confirm`)
+}
+
+export function retryFailedPlan(planId) {
+  return http.post(`/dispatch/plans/${planId}/retry-failed`)
+}
+
+export function reconcilePlan(planId) {
+  return http.post(`/dispatch/plans/${planId}/reconcile`)
 }
 
 export function cancelPlan(planId) {
@@ -77,6 +113,26 @@ export function streamChat({ conversationId, message, excludeDocNos, previewId }
     const reader = response.body.getReader()
     const decoder = new TextDecoder('utf-8')
     let buffer = ''
+    let requestId = null
+    let lastSeq = -1
+    let completed = false
+    const deliver = (block) => {
+      const event = parseBlock(block)
+      if (!event) return
+      if (event.id) {
+        const separator = event.id.lastIndexOf(':')
+        const currentRequest = event.id.slice(0, separator)
+        const seq = Number(event.id.slice(separator + 1))
+        if (separator < 1 || !Number.isSafeInteger(seq) || seq < 0) throw new Error('事件序号无效，请刷新会话')
+        if (requestId && requestId !== currentRequest) throw new Error('事件请求编号变化，请刷新会话')
+        requestId = currentRequest
+        if (seq <= lastSeq) return
+        if (seq !== lastSeq + 1) throw new Error('事件缺失，请刷新会话')
+        lastSeq = seq
+      }
+      if (event.type === 'done') completed = true
+      onEvent(event.type, event.data)
+    }
     // eslint-disable-next-line no-constant-condition
     while (true) {
       const { value, done } = await reader.read()
@@ -87,28 +143,32 @@ export function streamChat({ conversationId, message, excludeDocNos, previewId }
       while ((idx = buffer.indexOf('\n\n')) >= 0) {
         const block = buffer.slice(0, idx)
         buffer = buffer.slice(idx + 2)
-        parseBlock(block, onEvent)
+        deliver(block)
       }
     }
     if (buffer.trim()) {
-      parseBlock(buffer, onEvent)
+      deliver(buffer)
     }
+    if (!completed) throw new Error('连接中断，正在恢复会话结果')
   }
   const promise = run()
   return { promise, abort: () => controller.abort() }
 }
 
-function parseBlock(block, onEvent) {
+function parseBlock(block) {
   let type = 'message'
+  let id = null
   const dataLines = []
   block.split('\n').forEach((line) => {
     if (line.startsWith('event:')) {
       type = line.slice(6).trim()
+    } else if (line.startsWith('id:')) {
+      id = line.slice(3).trim()
     } else if (line.startsWith('data:')) {
       dataLines.push(line.slice(5).replace(/^ /, ''))
     }
   })
-  if (!dataLines.length) return
+  if (!dataLines.length) return null
   const raw = dataLines.join('\n')
   let data = raw
   try {
@@ -116,5 +176,5 @@ function parseBlock(block, onEvent) {
   } catch (e) {
     // 纯文本
   }
-  onEvent(type, data)
+  return { id, type, data }
 }

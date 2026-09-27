@@ -15,15 +15,21 @@
       </span>
     </div>
 
-    <el-table :data="payload.records" size="mini" border max-height="240">
+    <el-table :data="pageRecords" size="mini" border max-height="240">
       <el-table-column prop="reportName" label="报表" width="90" />
       <el-table-column prop="docNo" label="单据号" width="130" />
       <el-table-column prop="label" label="摘要" min-width="140" show-overflow-tooltip />
       <el-table-column prop="companyCode" label="公司" width="60" align="center" />
+      <el-table-column v-if="state !== 'pending'" prop="status" label="结果" width="90" />
+      <el-table-column v-if="state !== 'pending'" label="失败原因" min-width="180" show-overflow-tooltip>
+        <template slot-scope="scope">{{ scope.row.errorMessage || scope.row.errorCode || '' }}</template>
+      </el-table-column>
       <el-table-column label="金额(元)" width="120" align="right">
         <template slot-scope="scope">{{ formatAmount(scope.row.amount) }}</template>
       </el-table-column>
     </el-table>
+    <el-pagination v-if="payload.count > 50" small layout="prev, pager, next" :current-page="page"
+      :page-size="50" :total="payload.count" @current-change="changePage" />
 
     <div class="card-foot">
       <template v-if="state === 'pending'">
@@ -34,12 +40,17 @@
         </span>
       </template>
       <span v-else-if="state === 'expired'" class="hint">{{ statusMessage || '该清单已失效' }}，如需派单请重新预览。</span>
+      <template v-else-if="state === 'review'">
+        <span class="hint">{{ statusMessage || '外部结果待核对，不能重复派单。' }}</span>
+        <el-button size="mini" :disabled="busy" @click="$emit('reconcile')">查询外部结果</el-button>
+      </template>
       <span v-else-if="statusMessage" class="hint">{{ statusMessage }}</span>
     </div>
   </el-card>
 </template>
 
 <script>
+import { fetchPlanItems } from '../../api/agent'
 // 清单状态只由服务端给出：PENDING / EXECUTING / EXECUTED / CANCELLED / EXPIRED；
 // 升级前的历史清单没有服务端状态，按已失效处理
 const STATES = { PENDING: 'pending', EXECUTING: 'executing', REVIEW_REQUIRED: 'review', EXECUTED: 'executed', CANCELLED: 'cancelled', EXPIRED: 'expired' }
@@ -50,7 +61,11 @@ export default {
     payload: { type: Object, required: true },
     status: { type: String, default: null },
     statusMessage: { type: String, default: null },
-    busy: { type: Boolean, default: false }
+    busy: { type: Boolean, default: false },
+    refreshVersion: { type: Number, default: 0 }
+  },
+  data() {
+    return { page: 1, pageRecords: this.payload.records || [] }
   },
   computed: {
     state() {
@@ -61,7 +76,26 @@ export default {
       return t ? `清单 ${String(t).replace('T', ' ').slice(11, 16)} 前有效。` : ''
     }
   },
+  watch: {
+    state(value) {
+      if (value !== 'pending') this.changePage(this.page)
+    },
+    refreshVersion() {
+      if (this.state !== 'pending') this.changePage(this.page)
+    }
+  },
+  mounted() {
+    if (this.state !== 'pending') this.changePage(1)
+  },
   methods: {
+    async changePage(page) {
+      try {
+        this.pageRecords = await fetchPlanItems(this.payload.planId, page)
+        this.page = page
+      } catch (e) {
+        /* 请求拦截器会展示原因，保留当前页。 */
+      }
+    },
     formatAmount(value) {
       const num = Number(value)
       if (Number.isNaN(num)) return value

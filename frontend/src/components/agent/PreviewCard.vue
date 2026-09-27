@@ -19,7 +19,7 @@
 
     <el-table
       ref="table"
-      :data="payload.records"
+      :data="pageRecords"
       size="mini"
       border
       max-height="320"
@@ -38,6 +38,9 @@
       <el-table-column prop="ruleName" label="命中规则" width="140" show-overflow-tooltip />
     </el-table>
 
+    <el-pagination v-if="payload.total > 50" class="preview-pages" small layout="prev, pager, next"
+      :current-page="page" :page-size="50" :total="payload.total" @current-change="changePage" />
+
     <div class="card-foot">
       <span class="rule-desc">
         <template v-for="(desc, key) in payload.ruleDescriptions">
@@ -47,7 +50,7 @@
       </span>
       <span v-if="readonly" class="expired-hint">{{ readonlyHint }}</span>
       <span v-else class="foot-actions">
-        <span class="sel-hint">已勾选 {{ selectedCount }} / {{ payload.records.length }} 条，取消勾选的记录派单时会排除</span>
+        <span class="sel-hint">已勾选 {{ selectedCount }} / {{ payload.total }} 条，取消勾选的记录派单时会排除</span>
         <el-button type="warning" size="mini" :disabled="selectedCount === 0 || busy" @click="$emit('dispatch-selected')">派单已勾选记录</el-button>
       </span>
     </div>
@@ -55,6 +58,7 @@
 </template>
 
 <script>
+import { fetchPreviewItems } from '../../api/agent'
 // 预览状态只由服务端给出：ACTIVE 有效 / SUPERSEDED 已作废 / EXPIRED 已失效 / CONSUMED 已据此派单
 const STATUS_TAGS = {
   SUPERSEDED: { label: '已作废', type: 'info' },
@@ -76,7 +80,11 @@ export default {
   },
   data() {
     return {
-      selectedCount: 0
+      selectedCount: this.payload.total || 0,
+      page: 1,
+      pageRecords: this.payload.records || [],
+      excludedDocNos: [],
+      loadingPage: false
     }
   },
   computed: {
@@ -127,16 +135,32 @@ export default {
       this.$nextTick(() => {
         const table = this.$refs.table
         if (!table || this.readonly) return
+        this.loadingPage = true
         table.clearSelection()
-        this.payload.records.forEach((row) => table.toggleRowSelection(row, true))
+        this.pageRecords.forEach((row) => {
+          if (!this.excludedDocNos.includes(row.docNo)) table.toggleRowSelection(row, true)
+        })
+        this.$nextTick(() => { this.loadingPage = false })
       })
     },
     onSelectionChange(rows) {
-      if (this.readonly) return
-      this.selectedCount = rows.length
+      if (this.readonly || this.loadingPage) return
       const selected = new Set(rows.map((r) => r.docNo))
-      const unselected = this.payload.records.filter((r) => !selected.has(r.docNo)).map((r) => r.docNo)
-      this.$emit('selection-change', unselected)
+      const excluded = new Set(this.excludedDocNos)
+      this.pageRecords.forEach((r) => selected.has(r.docNo) ? excluded.delete(r.docNo) : excluded.add(r.docNo))
+      this.excludedDocNos = [...excluded]
+      this.selectedCount = Math.max(0, this.payload.total - excluded.size)
+      this.$emit('selection-change', this.excludedDocNos)
+    },
+    async changePage(page) {
+      this.loadingPage = true
+      try {
+        this.pageRecords = await fetchPreviewItems(this.payload.previewId, page)
+        this.page = page
+        this.selectAll()
+      } catch (e) {
+        this.loadingPage = false
+      }
     },
     formatAmount(value) {
       const num = Number(value)

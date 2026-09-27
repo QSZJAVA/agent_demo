@@ -31,6 +31,9 @@ import java.util.stream.Collectors;
 @Service
 public class DispatchTraceService {
 
+    @org.springframework.beans.factory.annotation.Autowired(required = false)
+    private PreviewService previewService;
+
     private final PlanRepository plans;
     private final PreviewRepository previews;
     private final DispatchAuditMapper auditMapper;
@@ -52,6 +55,7 @@ public class DispatchTraceService {
                         && (Objects.equals(p.getUserId(), user.userId()) || user.admin()))
                 .orElseThrow(() -> ApiException.notFound("待确认清单不存在"));
         DispatchPreview preview = previews.find(plan.getPreviewId()).orElse(null);
+        if (preview != null && previewService != null) previewService.requireReadable(user, preview);
         List<DispatchPlanItem> items = plans.items(plan.getId());
         List<DispatchAudit> audits = auditMapper.selectList(new LambdaQueryWrapper<DispatchAudit>()
                 .eq(DispatchAudit::getTenantId, user.tenantId())

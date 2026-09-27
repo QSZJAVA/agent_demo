@@ -70,6 +70,28 @@ public class StandardReportAdapter implements ReportQueryAdapter, DispatchStatus
 
     @Override
     public List<FactRow> pendingRows(String tenantId, Set<String> companies) {
+        return pendingRowsPage(tenantId, companies, 0, Integer.MAX_VALUE);
+    }
+
+    @Override
+    public List<FactRow> pendingRowsPage(String tenantId, Set<String> companies, int offset, int size) {
+        return pendingRowsPageWithRule(tenantId, companies, offset, size, null);
+    }
+
+    @Override
+    public List<FactRow> pendingRowsPageWithRule(String tenantId, Set<String> companies,
+                                                 int offset, int size, String expression) {
+        return queryPending(tenantId, companies, offset, size, expression, null, false);
+    }
+
+    @Override
+    public List<FactRow> pendingRowsAfterWithRule(String tenantId, Set<String> companies,
+                                                  String afterId, int size, String expression) {
+        return queryPending(tenantId, companies, 0, size, expression, afterId, true);
+    }
+
+    private List<FactRow> queryPending(String tenantId, Set<String> companies, int offset, int size,
+                                       String expression, String afterId, boolean cursor) {
         if (companies == null || companies.isEmpty() || !tenantUsable(tenantId)) {
             return List.of();
         }
@@ -80,7 +102,25 @@ public class StandardReportAdapter implements ReportQueryAdapter, DispatchStatus
                 .append(" WHERE ").append(quote(config.companyColumn())).append(" IN (:companies)")
                 .append(" AND ").append(quote(config.statusColumn())).append(" = :pending");
         appendTenant(sql, params, tenantId);
-        sql.append(orderBy);
+        if (afterId != null) {
+            sql.append(" AND ").append(quote(config.idColumn())).append(" > :afterId");
+            params.addValue("afterId", afterId);
+        }
+        RuleSqlPredicate.compile(config, expression).ifPresent(predicate -> {
+            sql.append(" AND (").append(predicate.sql()).append(')');
+            for (int i = 0; i < predicate.values().size(); i++) {
+                params.addValue("rule" + i, predicate.values().get(i));
+            }
+        });
+        sql.append(cursor ? " ORDER BY " + quote(config.idColumn()) : orderBy);
+        if (size != Integer.MAX_VALUE) {
+            sql.append(" LIMIT :pageSize");
+            params.addValue("pageSize", size);
+            if (!cursor) {
+                sql.append(" OFFSET :pageOffset");
+                params.addValue("pageOffset", offset);
+            }
+        }
         LocalDate today = LocalDate.now();
         return jdbc.query(sql.toString(), params, (rs, i) -> mapRow(rs, today));
     }
@@ -97,6 +137,18 @@ public class StandardReportAdapter implements ReportQueryAdapter, DispatchStatus
         sql.append(orderBy);
         LocalDate today = LocalDate.now();
         return jdbc.query(sql.toString(), params, (rs, i) -> mapRow(rs, today));
+    }
+
+    @Override
+    public List<FactRow> pendingRowsByIds(String tenantId, Collection<String> recordIds) {
+        if (recordIds == null || recordIds.isEmpty() || !tenantUsable(tenantId)) return List.of();
+        MapSqlParameterSource params = new MapSqlParameterSource()
+                .addValue("ids", recordIds).addValue("pending", config.pendingValue());
+        StringBuilder sql = new StringBuilder(selectFrom)
+                .append(" WHERE ").append(quote(config.idColumn())).append(" IN (:ids)")
+                .append(" AND ").append(quote(config.statusColumn())).append(" = :pending");
+        appendTenant(sql, params, tenantId);
+        return jdbc.query(sql.toString(), params, (rs, i) -> mapRow(rs, LocalDate.now()));
     }
 
     @Override

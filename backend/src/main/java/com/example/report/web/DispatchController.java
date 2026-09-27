@@ -16,6 +16,7 @@ import com.example.report.dispatch.PlanService;
 import com.example.report.dispatch.PlanSnapshot;
 import com.example.report.dispatch.PreviewCommand;
 import com.example.report.dispatch.PreviewOutcome;
+import com.example.report.dispatch.PreviewJobService;
 import com.example.report.dispatch.PreviewService;
 import com.example.report.entity.DispatchPlan;
 import com.example.report.entity.DispatchPlanItem;
@@ -29,6 +30,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
@@ -51,11 +53,13 @@ public class DispatchController {
     private final ConversationService conversationService;
     private final ConversationCards conversationCards;
     private final ReportCatalogService catalogService;
+    private final PreviewJobService previewJobs;
 
     public DispatchController(PermissionService permissionService, PreviewService previewService, PlanService planService,
                               DispatchService dispatchService, DispatchTraceService traceService,
                               CardStateService cardStateService, ConversationService conversationService,
-                              ConversationCards conversationCards, ReportCatalogService catalogService) {
+                              ConversationCards conversationCards, ReportCatalogService catalogService,
+                              PreviewJobService previewJobs) {
         this.permissionService = permissionService;
         this.previewService = previewService;
         this.planService = planService;
@@ -65,6 +69,7 @@ public class DispatchController {
         this.conversationService = conversationService;
         this.conversationCards = conversationCards;
         this.catalogService = catalogService;
+        this.previewJobs = previewJobs;
     }
 
     /**
@@ -95,6 +100,39 @@ public class DispatchController {
         });
     }
 
+    @PostMapping("/previews/jobs")
+    public Result<PreviewJobService.Job> createPreviewJob(@RequestHeader(PermissionService.USER_HEADER) String userId,
+                                                           @RequestBody PreviewRequest request) {
+        CurrentUser user = permissionService.resolve(userId);
+        String conversationId = blankToNull(request.getConversationId());
+        if (conversationId != null) conversationService.getOwned(user, conversationId);
+        boolean selection = request.getReportIds() != null && !request.getReportIds().isEmpty();
+        PreviewCommand command = new PreviewCommand(PreviewCommand.OPERATION_PREVIEW, selection ? "selection" : "api",
+                request.getReportQuery(), request.getReportIds(), new PreviewCommand.Filters(request.getCompanyCode()),
+                request.getExcludeDocNos(), request.getScopeMode());
+        return Result.ok(previewJobs.submit(user, conversationId, command));
+    }
+
+    @GetMapping("/previews/jobs/{jobId}")
+    public Result<PreviewJobService.Job> previewJob(@RequestHeader(PermissionService.USER_HEADER) String userId,
+                                                     @PathVariable String jobId) {
+        return Result.ok(previewJobs.get(permissionService.resolve(userId), jobId));
+    }
+
+    @GetMapping("/previews/jobs")
+    public Result<PreviewJobService.Job> recoverPreviewJob(@RequestHeader(PermissionService.USER_HEADER) String userId,
+                                                         @RequestParam String conversationId) {
+        CurrentUser user = permissionService.resolve(userId);
+        conversationService.getOwned(user, conversationId);
+        return Result.ok(previewJobs.latestForConversation(user, conversationId));
+    }
+
+    @PostMapping("/previews/jobs/{jobId}/cancel")
+    public Result<PreviewJobService.Job> cancelPreviewJob(@RequestHeader(PermissionService.USER_HEADER) String userId,
+                                                           @PathVariable String jobId) {
+        return Result.ok(previewJobs.cancel(permissionService.resolve(userId), jobId));
+    }
+
     /** 预览汇总、状态与版本（状态读取时做懒惰校验） */
     @GetMapping("/previews/{previewId}")
     public Result<PreviewPayload> preview(@RequestHeader(PermissionService.USER_HEADER) String userId,
@@ -103,12 +141,14 @@ public class DispatchController {
         return Result.ok(PreviewPayload.of(previewService.getOwned(user, previewId), catalogService));
     }
 
-    /** 预览记录（全量；分页在 P1 实现） */
+    /** 预览记录分页；服务端限制单页大小，避免大卡片进入浏览器。 */
     @GetMapping("/previews/{previewId}/items")
     public Result<List<Candidate>> previewItems(@RequestHeader(PermissionService.USER_HEADER) String userId,
-                                                @PathVariable String previewId) {
+                                                @PathVariable String previewId,
+                                                @RequestParam(defaultValue = "1") int page,
+                                                @RequestParam(defaultValue = "50") int size) {
         CurrentUser user = permissionService.resolve(userId);
-        return Result.ok(previewService.getOwned(user, previewId).candidates());
+        return Result.ok(previewService.pageOwned(user, previewId, page, size));
     }
 
     /** 基于预览生成待确认清单；Idempotency-Key 相同的重复请求返回第一次生成的清单 */
@@ -139,9 +179,11 @@ public class DispatchController {
     /** 逐条执行结果 */
     @GetMapping("/plans/{planId}/items")
     public Result<List<DispatchPlanItem>> planItems(@RequestHeader(PermissionService.USER_HEADER) String userId,
-                                                    @PathVariable String planId) {
+                                                    @PathVariable String planId,
+                                                    @RequestParam(defaultValue = "1") int page,
+                                                    @RequestParam(defaultValue = "50") int size) {
         CurrentUser user = permissionService.resolve(userId);
-        return Result.ok(planService.getOwned(user, planId).items());
+        return Result.ok(planService.pageOwned(user, planId, page, size));
     }
 
     /** 确认执行待确认清单（不经过模型，最终门槛在这里）；重复确认返回第一次的结果 */
@@ -150,6 +192,18 @@ public class DispatchController {
                                                  @PathVariable String planId) {
         CurrentUser user = permissionService.resolve(userId);
         return Result.ok(dispatchService.confirm(user, planId));
+    }
+
+    @PostMapping("/plans/{planId}/retry-failed")
+    public Result<DispatchResultPayload> retryFailed(@RequestHeader(PermissionService.USER_HEADER) String userId,
+                                                     @PathVariable String planId) {
+        return Result.ok(dispatchService.retryFailed(permissionService.resolve(userId), planId));
+    }
+
+    @PostMapping("/plans/{planId}/reconcile")
+    public Result<DispatchResultPayload> reconcile(@RequestHeader(PermissionService.USER_HEADER) String userId,
+                                                   @PathVariable String planId) {
+        return Result.ok(dispatchService.reconcile(permissionService.resolve(userId), planId));
     }
 
     /** 兼容旧前端的执行接口，等同于 confirm */

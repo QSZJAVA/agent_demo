@@ -16,6 +16,7 @@ import java.time.LocalDateTime;
 public class DispatchPreview {
 
     public static final String ACTIVE = "ACTIVE";
+    public static final String BUILDING = "BUILDING";
     public static final String SUPERSEDED = "SUPERSEDED";
     public static final String EXPIRED = "EXPIRED";
     public static final String CONSUMED = "CONSUMED";
@@ -33,6 +34,7 @@ public class DispatchPreview {
     private String companyCodes;
     /** 统一预览请求 JSON */
     private String queryJson;
+    private String summaryJson;
     private String catalogVersion;
     private String ruleVersion;
     private String permissionVersion;

@@ -21,6 +21,9 @@
         <span class="reason">{{ f.message }}</span>
       </div>
     </div>
+    <div v-if="payload.successCount > (payload.success || []).length || payload.failedCount > (payload.failed || []).length"
+      class="replayed">这里只展示前 50 条成功和失败记录；完整结果可在清单卡片中分页查看。</div>
+    <el-button v-if="canRetry" type="warning" size="mini" :disabled="busy" @click="$emit('retry')">重试明确失败项</el-button>
   </el-card>
 </template>
 
@@ -28,7 +31,14 @@
 export default {
   name: 'ResultCard',
   props: {
-    payload: { type: Object, required: true }
+    payload: { type: Object, required: true },
+    busy: { type: Boolean, default: false }
+  },
+  computed: {
+    canRetry() {
+      return this.payload.planId && (this.payload.retryableCount > 0 ||
+        (this.payload.retryableCount == null && (this.payload.failed || []).some((item) => item.outcome === 'FAILED')))
+    }
   }
 }
 </script>

@@ -123,6 +123,18 @@ class DispatchAgentIntegrationTest {
         return m.group(1);
     }
 
+    private Map<String, Object> awaitChatPreview(String userId, String sse) {
+        String jobId = firstMatch(sse, "\"jobId\":\"([0-9a-f]{32})\"");
+        Map<String, Object> job = Map.of();
+        for (int i = 0; i < 100; i++) {
+            job = asMap(call(HttpMethod.GET, "/api/dispatch/previews/jobs/" + jobId, userId, null).get("data"));
+            if (!List.of("QUEUED", "RUNNING").contains(job.get("status"))) break;
+            sleep(100);
+        }
+        assertEquals("SUCCEEDED", job.get("status"), String.valueOf(job.get("message")));
+        return asMap(call(HttpMethod.GET, "/api/dispatch/previews/" + job.get("previewId"), userId, null).get("data"));
+    }
+
     @Test
     void previewExcludeConfirmExecute() {
         // user1 只能看 A 公司：预览只包含 A 公司命中规则的记录
@@ -208,13 +220,13 @@ class DispatchAgentIntegrationTest {
     void sseChatHistoryAndServerSideCardStates() {
         String first = chat("user1", null, "查一下我有哪些可以派单");
         assertTrue(first.contains("event:conversation"));
-        assertTrue(first.contains("event:preview"));
+        assertTrue(first.contains("event:preview_job"));
         assertTrue(first.contains("event:text"));
         assertTrue(first.contains("event:done"));
         String conversationId = conversationId(first);
-        String firstPreview = firstMatch(first, "\"previewId\":\"([0-9a-f]{32})\"");
+        String firstPreview = (String) awaitChatPreview("user1", first).get("previewId");
         String second = chat("user1", conversationId, "只看费用报表");
-        String secondPreview = firstMatch(second, "\"previewId\":\"([0-9a-f]{32})\"");
+        String secondPreview = (String) awaitChatPreview("user1", second).get("previewId");
 
         // 卡片状态以服务端为准：旧卡片作废、新卡片有效（刷新页面、换设备都是这个结果）
         Map<String, Object> states = (Map<String, Object>) call(HttpMethod.GET,
@@ -321,9 +333,10 @@ class DispatchAgentIntegrationTest {
         var rule = ruleService.publish(admin, ruleService.saveDraft(admin, form).getId());
         try {
             String sse = chat("admin", null, "查一下测试采购台账有哪些可以派单");
-            assertTrue(sse.contains("event:preview"), sse);
-            assertTrue(sse.contains("PO-2026-0001"));
-            assertFalse(sse.contains("PO-2026-0002"), "800 元不满足规则");
+            assertTrue(sse.contains("event:preview_job"), sse);
+            Map<String, Object> preview = awaitChatPreview("admin", sse);
+            assertTrue(JsonUtil.toJson(preview).contains("PO-2026-0001"));
+            assertFalse(JsonUtil.toJson(preview).contains("PO-2026-0002"), "800 元不满足规则");
             // 没有该报表权限的用户识别不到
             assertFalse(chat("user1", null, "查一下测试采购台账有哪些可以派单").contains("event:preview"));
         } finally {
@@ -401,9 +414,32 @@ class DispatchAgentIntegrationTest {
 
     @Test
     void schemaIsManagedByFlyway() {
-        assertEquals(7, jdbc.queryForObject("SELECT MAX(CAST(version AS UNSIGNED)) FROM flyway_schema_history WHERE success = 1",
+        assertEquals(11, jdbc.queryForObject("SELECT MAX(CAST(version AS UNSIGNED)) FROM flyway_schema_history WHERE success = 1",
                 Integer.class));
         assertEquals(3, jdbc.queryForObject("SELECT COUNT(*) FROM report_code_mapping", Integer.class));
+    }
+
+    @Test
+    void asyncPreviewJobReportsProgressAndPagesOwnedResults() throws Exception {
+        CurrentUser user = permissionService.resolve("user1");
+        AgentConversation conversation = conversationService.create(user, "it");
+        Map<String, Object> created = asMap(call(HttpMethod.POST, "/api/dispatch/previews/jobs", "user1",
+                Map.of("conversationId", conversation.getId(), "reportQuery", "费用报表")).get("data"));
+        String jobId = (String) created.get("id");
+        Map<String, Object> job = created;
+        for (int i = 0; i < 50 && List.of("QUEUED", "RUNNING").contains(job.get("status")); i++) {
+            Thread.sleep(100);
+            job = asMap(call(HttpMethod.GET, "/api/dispatch/previews/jobs/" + jobId, "user1", null).get("data"));
+        }
+        assertEquals("SUCCEEDED", job.get("status"), String.valueOf(job.get("message")));
+        assertTrue(((Number) job.get("scannedRows")).intValue() >= 0);
+        String previewId = (String) job.get("previewId");
+        Map<String, Object> preview = asMap(call(HttpMethod.GET, "/api/dispatch/previews/" + previewId, "user1", null).get("data"));
+        assertTrue(((List<?>) preview.get("records")).size() <= 50);
+        assertTrue(((List<?>) call(HttpMethod.GET, "/api/dispatch/previews/" + previewId + "/items?page=1&size=1", "user1", null)
+                .get("data")).size() <= 1);
+        assertEquals(404, ((Number) call(HttpMethod.GET, "/api/dispatch/previews/jobs/" + jobId, "user2", null)
+                .get("code")).intValue());
     }
 
     private static void sleep(long ms) {

@@ -35,6 +35,7 @@ public class DispatchVersionService {
 
     /** 必须在求值之前调用：求值期间有人发布规则时，快照带着旧版本，后续使用会被拒绝 */
     public VersionStamp stamp(CurrentUser user, Collection<CatalogEntry> reports, Collection<String> companies) {
+        ruleCache.reload();
         List<String> reportIds = reports.stream().map(CatalogEntry::reportId).toList();
         return new VersionStamp(ReportCatalogService.fingerprint(reports), ReportCatalogService.versions(reports),
                 ruleCache.fingerprint(user.tenantId(), reportIds, companies), user.permissionVersion());
@@ -48,9 +49,20 @@ public class DispatchVersionService {
         if (!preview.getExpiresAt().isAfter(java.time.LocalDateTime.now())) {
             return StateReason.TTL;
         }
+        return verifyVersions(user, preview);
+    }
+
+    /** 已消费预览上的明确失败项重试：不复用原预览状态，只重新检查权限、目录和规则版本。 */
+    public String verifyForRetry(CurrentUser user, DispatchPreview preview) {
+        return verifyVersions(user, preview);
+    }
+
+    private String verifyVersions(CurrentUser user, DispatchPreview preview) {
         if (!Objects.equals(user.permissionVersion(), preview.getPermissionVersion())) {
             return StateReason.PERMISSION_CHANGED;
         }
+        catalogService.refreshForValidation();
+        ruleCache.reload();
         List<String> reportIds = reportIds(preview);
         List<CatalogEntry> reports = catalogService.inCatalogOrder(reportIds).stream()
                 .filter(e -> catalogService.isDispatchable(user, e))

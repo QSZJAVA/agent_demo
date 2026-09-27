@@ -23,6 +23,10 @@ import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.never;
+import static org.mockito.ArgumentMatchers.anySet;
+import static org.mockito.ArgumentMatchers.anyCollection;
 
 /**
  * 候选记录查找：报表来自目录，查询走适配器；规则求值出错的行按不命中处理，不能拖垮整次查询
@@ -77,6 +81,26 @@ class DispatchCandidateServiceTest {
         assertEquals(1, result.hitCount());
         assertEquals(1, result.errorCount());
         assertTrue(result.errorSample().startsWith("SO2"), result.errorSample());
+    }
+
+    @Test
+    void executionChecksOnlyRequestedPendingIds() {
+        ReportQueryAdapter adapter = mock(ReportQueryAdapter.class);
+        CatalogEntry report = new CatalogEntry("T001", "rpt-sales-order", "sales", "销售报表", "sales", null,
+                "STANDARD", "{}", true, "PUBLISHED", 1, 3L, "report:sales", 10,
+                null, null, null, "test", LocalDateTime.now(), List.of(), adapter, null);
+        DispatchRule rule = new DispatchRule();
+        rule.setId(7L);
+        rule.setName("云服务");
+        rule.setVersion(1);
+        rule.setExpression(CONTAINS_CLOUD);
+        when(ruleCache.find("T001", "rpt-sales-order", "A")).thenReturn(Optional.of(rule));
+        when(adapter.pendingRowsByIds(eq("T001"), anyCollection()))
+                .thenReturn(List.of(SalesRows.row("SO1", "云服务")));
+
+        assertEquals(Set.of("rpt-sales-order:1"), service.qualifiedPlanKeys("T001", Set.of("A"),
+                List.of(report), Map.of("rpt-sales-order", List.of("1"))));
+        verify(adapter, never()).pendingRows(eq("T001"), anySet());
     }
 
     /** 两行销售记录：一行产品名是"云服务"，一行产品名为空 */

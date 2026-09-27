@@ -3,6 +3,7 @@ package com.example.report.agent;
 import com.example.report.catalog.CatalogEntry;
 import com.example.report.catalog.ReportCatalogService;
 import com.example.report.dispatch.PreviewSnapshot;
+import com.example.report.common.JsonUtil;
 import com.example.report.rule.Candidate;
 
 import java.math.BigDecimal;
@@ -12,6 +13,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import com.fasterxml.jackson.core.type.TypeReference;
 
 /**
  * 预览卡片载荷（前端渲染带勾选框的表格 + 对话日志 card）。
@@ -33,6 +35,7 @@ public record PreviewPayload(
         LocalDateTime createdAt,
         LocalDateTime expiresAt
 ) {
+    public static final int PAGE_SIZE = 50;
     public record ReportCount(String reportId, String reportName, int count, BigDecimal amount) {
     }
 
@@ -54,11 +57,26 @@ public record PreviewPayload(
             list.stream().map(Candidate::ruleDescription).filter(Objects::nonNull).findFirst().ifPresent(d -> rules.put(reportId, d));
         }
         Map<String, Object> query = snapshot.query();
+        String summaryJson = snapshot.preview().getSummaryJson();
+        if (summaryJson != null && !summaryJson.isBlank()) {
+            Map<String, Object> summary = JsonUtil.toMap(summaryJson);
+            Object byReport = summary.get("byReport");
+            if (byReport != null) {
+                List<ReportCount> saved = JsonUtil.MAPPER.convertValue(byReport, new TypeReference<List<ReportCount>>() {});
+                counts.clear();
+                saved.forEach(c -> counts.put(c.reportId(), c));
+            }
+            Object descriptions = summary.get("ruleDescriptions");
+            if (descriptions instanceof Map<?, ?> saved) {
+                rules.clear();
+                saved.forEach((k, v) -> { if (k != null && v != null) rules.put(k.toString(), v.toString()); });
+            }
+        }
         Resolution resolution = new Resolution((String) query.get("matchType"), (String) query.get("reportQuery"),
                 (List<String>) query.getOrDefault("matchedTerms", List.of()),
                 (List<String>) query.getOrDefault("unrecognized", List.of()));
-        return new PreviewPayload(snapshot.preview().getId(), snapshot.preview().getStatus(), records.size(),
-                snapshot.preview().getTotalAmount(), new ArrayList<>(counts.values()), records, rules, resolution,
+        return new PreviewPayload(snapshot.preview().getId(), snapshot.preview().getStatus(), snapshot.preview().getTotalCount(),
+                snapshot.preview().getTotalAmount(), new ArrayList<>(counts.values()), records.stream().limit(PAGE_SIZE).toList(), rules, resolution,
                 snapshot.preview().getCreatedAt(), snapshot.preview().getExpiresAt());
     }
 }

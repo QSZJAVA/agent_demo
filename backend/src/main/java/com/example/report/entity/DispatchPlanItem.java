@@ -20,6 +20,8 @@ public class DispatchPlanItem {
     public static final String SUCCESS = "SUCCESS";
     public static final String FAILED = "FAILED";
     public static final String SKIPPED = "SKIPPED";
+    /** 网关超时或连接中断后无法判断外部系统是否已受理，禁止自动重试。 */
+    public static final String UNKNOWN = "UNKNOWN";
 
     @TableId(type = IdType.AUTO)
     private Long id;

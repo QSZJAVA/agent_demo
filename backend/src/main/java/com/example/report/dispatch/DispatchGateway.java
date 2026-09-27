@@ -10,6 +10,15 @@ public interface DispatchGateway {
 
     Outcome dispatch(DispatchRequest request);
 
+    /** 按幂等请求号查询外部结果；真实网关必须实现，查不到时返回 UNKNOWN 而不能猜测。 */
+    default Lookup lookup(String tenantId, String externalRequestId) {
+        return new Lookup(LookupStatus.UNKNOWN, null, "外部系统未提供请求号查询");
+    }
+
+    enum LookupStatus { SUCCESS, FAILED, NOT_FOUND, UNKNOWN }
+
+    record Lookup(LookupStatus status, String errorCode, String message) { }
+
     /**
      * @param externalRequestId 幂等请求号：同一清单条目每次调用都一样，派单接口可据此去重
      */

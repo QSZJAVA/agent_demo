@@ -15,10 +15,15 @@ public record DispatchResultPayload(
         int total,
         int successCount,
         int failedCount,
+        int retryableCount,
         List<Candidate> success,
         List<FailedRecord> failed,
         boolean replayed
 ) {
+    public DispatchResultPayload {
+        success = success == null ? List.of() : List.copyOf(success.subList(0, Math.min(success.size(), 50)));
+        failed = failed == null ? List.of() : List.copyOf(failed.subList(0, Math.min(failed.size(), 50)));
+    }
     /**
      * @param outcome FAILED（派单接口失败）/ SKIPPED（执行前复核不通过，未调用派单接口）
      */
