@@ -88,19 +88,44 @@ public class MybatisPreviewRepository implements PreviewRepository {
     }
 
     @Override
+    @Transactional
     public void appendItems(List<DispatchPreviewItem> items) {
+        if (items.isEmpty()) return;
+        String previewId = items.get(0).getPreviewId();
+        if (items.stream().anyMatch(item -> !previewId.equals(item.getPreviewId()))) {
+            throw new IllegalArgumentException("预览批次不能混合不同快照");
+        }
+        DispatchPreview current = previewMapper.lockState(previewId);
+        if (current == null || !DispatchPreview.BUILDING.equals(current.getStatus())) {
+            throw new IllegalStateException("预览已停止构建，不能追加明细");
+        }
         for (int i = 0; i < items.size(); i += INSERT_CHUNK) {
             itemMapper.insertBatch(items.subList(i, Math.min(items.size(), i + INSERT_CHUNK)));
         }
+        previewMapper.update(null, new LambdaUpdateWrapper<DispatchPreview>().eq(DispatchPreview::getId, previewId)
+                .eq(DispatchPreview::getStatus, DispatchPreview.BUILDING).set(DispatchPreview::getUpdatedAt, LocalDateTime.now()));
     }
 
     @Override
     public void updateBuilding(DispatchPreview preview) {
-        if (previewMapper.updateById(preview) != 1) throw new IllegalStateException("预览汇总保存失败");
+        if (previewMapper.update(preview, new LambdaUpdateWrapper<DispatchPreview>()
+                .eq(DispatchPreview::getId, preview.getId()).eq(DispatchPreview::getStatus, DispatchPreview.BUILDING)) != 1) {
+            throw new IllegalStateException("预览汇总保存失败或已停止构建");
+        }
     }
 
     @Override
+    @Transactional
     public void deleteBuilding(String previewId) {
+        deleteBuildingBefore(previewId, null);
+    }
+
+    @Override
+    @Transactional
+    public void deleteBuildingBefore(String previewId, LocalDateTime cutoff) {
+        DispatchPreview current = previewMapper.lockState(previewId);
+        if (current == null || !DispatchPreview.BUILDING.equals(current.getStatus())
+                || (cutoff != null && !current.getUpdatedAt().isBefore(cutoff))) return;
         itemMapper.delete(new LambdaQueryWrapper<DispatchPreviewItem>().eq(DispatchPreviewItem::getPreviewId, previewId));
         previewMapper.delete(new LambdaQueryWrapper<DispatchPreview>()
                 .eq(DispatchPreview::getId, previewId).eq(DispatchPreview::getStatus, DispatchPreview.BUILDING));

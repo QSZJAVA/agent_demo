@@ -69,7 +69,7 @@ export default {
     refreshVersion: { type: Number, default: 0 }
   },
   data() {
-    return { page: 1, pageRecords: this.payload.records || [], traceVisible: false }
+    return { page: 1, pageRecords: this.payload.records || [], traceVisible: false, pageRequest: 0, disposed: false }
   },
   computed: {
     state() {
@@ -81,6 +81,13 @@ export default {
     }
   },
   watch: {
+    'payload.planId'() {
+      this.pageRequest++
+      this.page = 1
+      this.pageRecords = []
+      this.traceVisible = false
+      this.changePage(1)
+    },
     state(value) {
       if (value !== 'pending') this.changePage(this.page)
     },
@@ -91,10 +98,19 @@ export default {
   mounted() {
     if (this.state !== 'pending') this.changePage(1)
   },
+  beforeDestroy() {
+    this.disposed = true
+    this.pageRequest++
+  },
   methods: {
     async changePage(page) {
+      if (this.disposed) return
+      const request = ++this.pageRequest
+      const planId = this.payload.planId
       try {
-        this.pageRecords = await fetchPlanItems(this.payload.planId, page)
+        const records = await fetchPlanItems(planId, page)
+        if (this.disposed || request !== this.pageRequest || planId !== this.payload.planId) return
+        this.pageRecords = records
         this.page = page
       } catch (e) {
         /* 请求拦截器会展示原因，保留当前页。 */

@@ -328,16 +328,16 @@ class PreviewRefreshTest {
     }
 
     @Test
-    void checkboxExclusionsFromAnotherCardAreIgnored() {
+    void checkboxExclusionsFromAnotherCardAreRejected() {
         PreviewPayload old = preview(chat("全部报表"));
         preview(chat("全部报表"));
-        // 勾选发生在旧卡片上：不属于本次派单的预览，不能生效
+        // 勾选发生在旧卡片上：应拒绝，不能悄悄对新预览全选。
         Map<String, Object> data = new HashMap<>(context("conversation-1").getContext());
         data.put(ToolContextKeys.UI_EXCLUDES, List.of(expense.docNo()));
         data.put(ToolContextKeys.UI_PREVIEW_ID, old.previewId());
         Map<String, Object> pending = map(tools.dispatch(null, null, new ToolContext(data)));
-        assertEquals(2, pending.get("count"));
-        assertEquals(List.of(), pending.get("excluded"));
+        assertEquals("error", pending.get("status"));
+        assertTrue(h.store.plans().pending("conversation-1").isEmpty());
     }
 
     @Test
@@ -378,6 +378,38 @@ class PreviewRefreshTest {
         var result = map(tools.dispatch(null, null, new ToolContext(data)));
         assertEquals("error", result.get("status"));
         assertTrue(h.store.plans().pending("conversation-1").isEmpty());
+    }
+
+    @Test
+    void allSelectedOldPreviewCannotFallBackToLatestWhenModelOmitsId() {
+        var old = preview(chat("全部报表"));
+        preview(chat("销售报表"));
+        Map<String, Object> data = new HashMap<>(context("conversation-1").getContext());
+        data.put(ToolContextKeys.UI_PREVIEW_ID, old.previewId());
+        data.put(ToolContextKeys.UI_EXCLUDED_RECORDS, List.of());
+        assertEquals("error", map(tools.dispatch(null, null, new ToolContext(data))).get("status"));
+        assertTrue(h.store.plans().pending("conversation-1").isEmpty());
+    }
+
+    @Test
+    void allSelectedSourceCannotBeOverriddenByModel() {
+        var old = preview(chat("全部报表"));
+        var current = preview(chat("销售报表"));
+        Map<String, Object> data = new HashMap<>(context("conversation-1").getContext());
+        data.put(ToolContextKeys.UI_PREVIEW_ID, old.previewId());
+        assertEquals("error", map(tools.dispatch(current.previewId(), null, new ToolContext(data))).get("status"));
+        assertTrue(h.store.plans().pending("conversation-1").isEmpty());
+    }
+
+    @Test
+    void currentAllSelectedSourceWorksWhenModelOmitsId() {
+        var current = preview(chat("全部报表"));
+        Map<String, Object> data = new HashMap<>(context("conversation-1").getContext());
+        data.put(ToolContextKeys.UI_PREVIEW_ID, current.previewId());
+        var result = map(tools.dispatch(null, null, new ToolContext(data)));
+        assertEquals("pending_confirm", result.get("status"));
+        assertEquals(2, result.get("count"));
+        assertEquals(current.previewId(), h.store.plans().pending("conversation-1").get(0).getPreviewId());
     }
 
     @Test

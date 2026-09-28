@@ -140,19 +140,50 @@ public class DispatchCandidateService {
 
     /** 试算：对某个范围（具体公司或通配 = 全部公司）的粗筛结果跑一个任意表达式 */
     public DryRunResult dryRun(String tenantId, CatalogEntry report, String companyCode, String expression, Set<String> allCompanies) {
+        return dryRun(tenantId, report, companyCode, expression, allCompanies, () -> { });
+    }
+
+    public DryRunResult dryRun(String tenantId, CatalogEntry report, String companyCode, String expression,
+                               Set<String> allCompanies, Runnable checkPermit) {
         if (!java.util.Objects.equals(tenantId, report.tenantId())) {
             throw com.example.report.common.ApiException.notFound("报表不存在或无权访问");
         }
         Set<String> scope = DispatchRule.ANY_COMPANY.equals(companyCode) ? allCompanies : Set.of(companyCode);
-        List<FactRow> rows = report.usable() ? report.adapter().pendingRows(tenantId, scope) : List.of();
-        List<Candidate> hits = new ArrayList<>();
+        List<Candidate> samples = new ArrayList<>(20);
         EvalErrors errors = new EvalErrors();
-        for (FactRow row : rows) {
-            if (matchesSafely(expression, row, null, errors)) {
-                hits.add(toCandidate(report, row, null, "试算", 0, null));
+        int total = 0, hits = 0;
+        long deadline = System.nanoTime() + java.util.concurrent.TimeUnit.SECONDS.toNanos(120);
+        String afterId = null;
+        while (report.usable()) {
+            checkPermit.run();
+            checkDryRunDeadline(deadline);
+            List<FactRow> page = report.adapter().dryRunRowsAfter(tenantId, scope, afterId, 500);
+            if (page.size() > 500) throw new com.example.report.common.ApiException("报表适配器未遵守试算分页上限");
+            for (FactRow row : page) {
+                checkPermit.run();
+                checkDryRunDeadline(deadline);
+                if (++total > 10000) throw new com.example.report.common.ApiException(422,
+                        "试算范围超过 10000 条，请缩小公司或报表数据范围后重试；未返回部分统计");
+                if (!scope.contains(row.companyCode())) throw new com.example.report.common.ApiException("报表试算返回了范围外的记录");
+                if (matchesSafely(expression, row, null, errors)) {
+                    hits++;
+                    if (samples.size() < 20) samples.add(toCandidate(report, row, null, "试算", 0, null));
+                }
             }
+            if (page.size() < 500) break;
+            String nextId = page.get(page.size() - 1).recordId();
+            if (nextId == null || nextId.equals(afterId)) throw new com.example.report.common.ApiException("报表试算游标未前进");
+            afterId = nextId;
         }
-        return new DryRunResult(rows.size(), hits.size(), hits.stream().limit(20).toList(), errors.count, errors.sample);
+        checkDryRunDeadline(deadline);
+        checkPermit.run();
+        return new DryRunResult(total, hits, List.copyOf(samples), errors.count, errors.sample);
+    }
+
+    private static void checkDryRunDeadline(long deadline) {
+        if (Thread.currentThread().isInterrupted() || System.nanoTime() - deadline >= 0) {
+            throw new com.example.report.common.ApiException(408, "试算已取消或超过 120 秒，请缩小范围后重试");
+        }
     }
 
     /** 单行求值出错按不命中处理：一行脏数据（例如空字段上调字符串函数）不能拖垮整次查询 */

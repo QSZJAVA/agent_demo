@@ -122,6 +122,11 @@ class DispatchCandidateServiceTest {
         }
 
         @Override
+        public List<FactRow> dryRunRowsAfter(String tenantId, Set<String> companies, String afterId, int size) {
+            return afterId == null ? List.of(row("SO1", "云服务"), row("SO2", null)) : List.of();
+        }
+
+        @Override
         public List<FactRow> rowsByIds(String tenantId, Collection<String> recordIds) {
             return List.of();
         }

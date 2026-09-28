@@ -214,9 +214,15 @@ public final class InMemoryDispatchStore {
 
         @Override
         public void deleteBuilding(String previewId) {
+            deleteBuildingBefore(previewId, null);
+        }
+
+        @Override
+        public void deleteBuildingBefore(String previewId, LocalDateTime cutoff) {
             synchronized (InMemoryDispatchStore.this) {
                 DispatchPreview preview = previews.get(previewId);
-                if (preview != null && DispatchPreview.BUILDING.equals(preview.getStatus())) {
+                if (preview != null && DispatchPreview.BUILDING.equals(preview.getStatus())
+                        && (cutoff == null || preview.getUpdatedAt().isBefore(cutoff))) {
                     previews.remove(previewId);
                     previewItems.remove(previewId);
                     previewOrder.remove(previewId);

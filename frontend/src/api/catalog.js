@@ -9,3 +9,11 @@ export function fetchCatalog(manage = false) {
 export function searchCatalog(q) {
   return http.get('/report-catalog/search', { params: { q } })
 }
+
+export const saveCatalog = (id, form) => id
+  ? http.put(`/report-catalog/${encodeURIComponent(id)}`, form)
+  : http.post('/report-catalog', form)
+export const publishCatalog = id => http.post(`/report-catalog/${encodeURIComponent(id)}/publish`)
+export const disableCatalog = id => http.post(`/report-catalog/${encodeURIComponent(id)}/disable`)
+export const addAlias = (id, form) => http.post(`/report-catalog/${encodeURIComponent(id)}/aliases`, form)
+export const disableAlias = (id, alias) => http.delete(`/report-catalog/${encodeURIComponent(id)}/aliases/${alias}`)

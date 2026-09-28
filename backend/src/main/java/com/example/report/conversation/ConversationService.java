@@ -118,7 +118,7 @@ public class ConversationService {
         if (title == null || title.isBlank()) {
             throw new ApiException("标题不能为空");
         }
-        c.setTitle(truncate(title.trim(), 64));
+        c.setTitle(truncate(com.example.report.operations.SensitiveData.text(title.trim()), 64));
         c.setUpdatedAt(LocalDateTime.now());
         conversationMapper.updateById(c);
     }
@@ -274,6 +274,8 @@ public class ConversationService {
         if (m.getConversationId() == null) {
             return;
         }
+        m.setContent(com.example.report.operations.SensitiveData.text(m.getContent()));
+        if (m.getPayload() != null) m.setPayload(com.example.report.operations.SensitiveData.value(JsonUtil.toMap(m.getPayload())).toString());
         String key = "message:" + JsonUtil.newId();
         if (AgentMessage.ROLE_CARD.equals(m.getRole())) {
             // 同一预览/清单卡片重放不重复计数；结果变化产生新的证据。

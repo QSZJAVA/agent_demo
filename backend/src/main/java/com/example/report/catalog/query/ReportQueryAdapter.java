@@ -20,6 +20,12 @@ public interface ReportQueryAdapter {
     /** 粗筛：只取指定租户、指定公司范围内未派单的记录 */
     List<FactRow> pendingRows(String tenantId, Set<String> companies);
 
+    /** Bounded scan of all pending facts (no rule pushdown, so trial totals stay exact).
+     * Custom adapters must implement this at the data source; never load all rows as a fallback. */
+    default List<FactRow> dryRunRowsAfter(String tenantId, Set<String> companies, String afterId, int size) {
+        throw new com.example.report.common.ApiException("该报表尚未配置有界试算扫描，请联系管理员配置适配器");
+    }
+
     /** 有界分页扫描；自定义适配器在处理大表时应覆盖此方法。 */
     default List<FactRow> pendingRowsPage(String tenantId, Set<String> companies, int offset, int size) {
         List<FactRow> rows = pendingRows(tenantId, companies);

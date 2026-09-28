@@ -154,7 +154,8 @@ export default {
       catalog: [],
       fields: [],
       editor: { visible: false, saving: false, id: null, reportId: '', companyCode: '*', name: '', description: '', expression: '' },
-      dryRun: { loading: false, result: null },
+      dryRun: { loading: false, result: null, request: 0, inputKey: null },
+      disposed: false,
       history: { visible: false, title: '', list: [] }
     }
   },
@@ -167,7 +168,30 @@ export default {
       })
       .catch(() => (this.isAdmin = false))
   },
+  computed: {
+    dryRunInputKey() {
+      return JSON.stringify(this.payload())
+    }
+  },
+  watch: {
+    dryRunInputKey(value) {
+      if (value !== this.dryRun.inputKey) this.invalidateDryRun()
+    },
+    'editor.visible'(visible) {
+      if (!visible) this.invalidateDryRun()
+    }
+  },
+  beforeDestroy() {
+    this.disposed = true
+    this.invalidateDryRun()
+  },
   methods: {
+    invalidateDryRun() {
+      this.dryRun.request++
+      this.dryRun.result = null
+      this.dryRun.loading = false
+      this.dryRun.inputKey = null
+    },
     async load() {
       this.loading = true
       try {
@@ -214,7 +238,7 @@ export default {
       this.editor.expression = (this.editor.expression || '') + (this.editor.expression ? ' ' : '') + name
     },
     openEditor(row, asNewVersion) {
-      this.dryRun.result = null
+      this.invalidateDryRun()
       if (row) {
         this.editor = {
           visible: true,
@@ -240,11 +264,23 @@ export default {
       this.$message.success(`语法正确，引用字段：${(r.variables || []).join(', ') || '无'}`)
     },
     async runDryRun() {
+      if (this.disposed || !this.editor.visible) return
+      const request = ++this.dryRun.request
+      const payload = this.payload()
+      const inputKey = JSON.stringify(payload)
+      const current = () => !this.disposed && this.editor.visible && request === this.dryRun.request
+        && inputKey === this.dryRunInputKey
+      this.dryRun.inputKey = inputKey
+      this.dryRun.result = null
       this.dryRun.loading = true
       try {
-        this.dryRun.result = await dryRunRule(this.payload())
+        const result = await dryRunRule(payload)
+        if (current()) this.dryRun.result = result
+      } catch (e) {
+        // The HTTP interceptor displays the failure; never retain an earlier trial's result.
+        if (current()) this.dryRun.result = null
       } finally {
-        this.dryRun.loading = false
+        if (request === this.dryRun.request) this.dryRun.loading = false
       }
     },
     async saveDraftForm() {

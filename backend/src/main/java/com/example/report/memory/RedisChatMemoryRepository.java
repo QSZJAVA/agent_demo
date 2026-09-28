@@ -32,6 +32,8 @@ public class RedisChatMemoryRepository implements ChatMemoryRepository {
     private static final TypeReference<List<StoredMessage>> LIST_TYPE = new TypeReference<>() {
     };
 
+    @org.springframework.beans.factory.annotation.Autowired(required = false)
+    private com.example.report.operations.DataRetentionService retention;
     private final StringRedisTemplate redis;
     private final ConversationService conversationService;
     private final AgentProperties props;
@@ -53,6 +55,7 @@ public class RedisChatMemoryRepository implements ChatMemoryRepository {
 
     @Override
     public List<Message> findByConversationId(String conversationId) {
+        if (retention != null && retention.erased(conversationId)) return List.of();
         String json = redis.opsForValue().get(key(conversationId));
         if (json != null) {
             return toMessages(parse(json));
@@ -77,7 +80,7 @@ public class RedisChatMemoryRepository implements ChatMemoryRepository {
             MessageType type = m.getMessageType();
             if (type == MessageType.USER || type == MessageType.ASSISTANT || type == MessageType.SYSTEM) {
                 if (m.getText() != null && !m.getText().isBlank()) {
-                    stored.add(new StoredMessage(type.getValue(), m.getText()));
+                    stored.add(new StoredMessage(type.getValue(), com.example.report.operations.SensitiveData.text(m.getText())));
                 }
             }
         }
@@ -90,7 +93,9 @@ public class RedisChatMemoryRepository implements ChatMemoryRepository {
     }
 
     private void write(String conversationId, List<StoredMessage> stored) {
+        if (retention != null && retention.erased(conversationId)) return;
         redis.opsForValue().set(key(conversationId), JsonUtil.toJson(stored), Duration.ofMinutes(props.getMemory().getTtlMinutes()));
+        if (retention != null && retention.erased(conversationId)) redis.delete(key(conversationId));
     }
 
     private static List<StoredMessage> parse(String json) {

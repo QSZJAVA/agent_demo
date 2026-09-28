@@ -25,6 +25,8 @@
           <i class="el-icon-setting"></i>
           <span slot="title">派单规则</span>
         </el-menu-item>
+        <el-menu-item v-if="isAdmin" index="/catalog"><i class="el-icon-folder-opened"></i><span slot="title">报表目录</span></el-menu-item>
+        <el-menu-item v-if="isAdmin" index="/operations"><i class="el-icon-monitor"></i><span slot="title">运营治理</span></el-menu-item>
       </el-menu>
     </el-aside>
 
@@ -69,6 +71,9 @@ export default {
     }
   },
   computed: {
+    isAdmin() {
+      return this.users.some(u => u.userId === this.currentUserId && u.admin)
+    },
     activeMenu() {
       return this.$route.path
     },
@@ -148,6 +153,8 @@ export default {
 .app-header .title {
   font-size: 16px;
   font-weight: 600;
+  white-space: nowrap;
+  flex-shrink: 0;
 }
 
 .app-header .right {
@@ -167,5 +174,12 @@ export default {
 
 .app-main {
   padding: 16px;
+}
+@media (max-width: 900px) {
+  .app-aside { width: 140px !important; }
+  .app-header { flex-wrap: wrap; height: auto !important; min-height: 80px; padding: 10px 16px; gap: 8px; }
+  .app-header .title { width: 100%; }
+  .app-header .right { flex-wrap: wrap; }
+  .user-select { width: 190px; }
 }
 </style>

@@ -127,7 +127,7 @@ class ManualDispatchSafetyTest {
             throw new org.springframework.dao.DuplicateKeyException("same manual record");
         }).when(repository).insert(any(), anyList());
         var competing = new PlanService(h.previews, h.store.previews(), repository, h.versions, h.props,
-                org.springframework.transaction.support.TransactionOperations.withoutTransaction());
+                org.springframework.transaction.support.TransactionOperations.withoutTransaction(), h.quotas);
         var result = competing.manual(USER1, h.catalog.get(SALES), "1");
         assertTrue(result.replayed());
         assertEquals(result.plan().getId(), h.plans.manual(USER1, h.catalog.get(SALES), "1").plan().getId());

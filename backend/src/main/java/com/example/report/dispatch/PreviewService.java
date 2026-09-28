@@ -49,6 +49,8 @@ public class PreviewService {
     private static final int LABEL_MAX = 512;
     private static final int DOC_NO_MAX = 128;
 
+    @org.springframework.beans.factory.annotation.Autowired(required = false)
+    private com.example.report.operations.BusinessMetrics metrics;
     private final ReportCatalogService catalogService;
     private final DispatchCandidateService candidateService;
     private final DispatchVersionService versions;
@@ -97,6 +99,10 @@ public class PreviewService {
         return previews.beginRequest(conversationId);
     }
 
+    public void deleteAbandonedBuilding(String previewId, LocalDateTime cutoff) {
+        previews.deleteBuildingBefore(previewId, cutoff);
+    }
+
     public PreviewOutcome preview(CurrentUser user, String conversationId, PreviewCommand command,
                                   java.util.function.IntConsumer progress) {
         return preview(user, conversationId, command, progress, id -> { });
@@ -113,6 +119,26 @@ public class PreviewService {
     public PreviewOutcome preview(CurrentUser user, String conversationId, PreviewCommand command,
                                   java.util.function.IntConsumer progress,
                                   java.util.function.Consumer<String> activation, long requestVersion) {
+        long started = System.nanoTime();
+        try {
+            PreviewOutcome result = measuredPreview(user,conversationId,command,progress,activation,requestVersion);
+            if (metrics != null) {
+                metrics.record(user,"PREVIEW","*","-",result.status().name(),started);
+                if (result.snapshot() != null) {
+                    var p = result.snapshot().preview();
+                    for (String id : DispatchVersionService.reportIds(p))
+                        metrics.record(user,"PREVIEW_REPORT",id,p.getCatalogVersion(),result.status().name(),started);
+                }
+            }
+            return result;
+        } catch (RuntimeException e) {
+            if (metrics != null) metrics.record(user,"PREVIEW","*","-","ERROR",started);
+            throw e;
+        }
+    }
+
+    private PreviewOutcome measuredPreview(CurrentUser user,String conversationId,PreviewCommand command,
+            java.util.function.IntConsumer progress,java.util.function.Consumer<String> activation,long requestVersion) {
         String scopeMode = normalizeScope(command.scopeMode());
         ResolveResult resolution = resolve(user, command);
         if (resolution.matchType() == MatchType.NONE) {
@@ -132,16 +158,25 @@ public class PreviewService {
         ResourceQuotaService.Permit permit = quotas == null ? null : quotas.acquire(user, "preview",
                 reports.stream().map(CatalogEntry::reportId).toList());
         try {
+        ResourceQuotaService.check(permit);
+        java.util.function.IntConsumer guardedProgress = scanned -> {
+            ResourceQuotaService.check(permit);
+            progress.accept(scanned);
+        };
+        java.util.function.Consumer<String> guardedActivation = id -> {
+            ResourceQuotaService.check(permit);
+            activation.accept(id);
+        };
         Set<String> companies = resolveCompanies(user, command.filters().companyCode());
         // 版本必须在求值之前读：求值期间有人发布规则时，快照带着旧版本，派单会被拒绝；
         // 反过来先求值后读版本，旧规则算出的结果会配上新版本，"规则变更后旧预览不能执行"就被绕过了
         VersionStamp stamp = versions.stamp(user, reports, companies);
         int maxItems = props.getPreview().getMaxItems();
         List<Candidate> candidates = candidateService.findCandidates(user.tenantId(), companies, reports,
-                maxItems + 1, command.excludes(), progress);
+                maxItems + 1, command.excludes(), guardedProgress);
         if (candidates.size() > maxItems) {
             return previewLarge(user, conversationId, command, resolution, scope, reports, companies, stamp,
-                    scopeMode, progress, activation, requestVersion);
+                    scopeMode, guardedProgress, guardedActivation, requestVersion);
         }
 
         LocalDateTime now = LocalDateTime.now();
@@ -157,7 +192,7 @@ public class PreviewService {
         tx.executeWithoutResult(status -> {
             previews.lockConversation(conversationId);
             requireLatestRequest(conversationId, requestVersion);
-            activation.accept(preview.getId());
+            guardedActivation.accept(preview.getId());
             for (DispatchPreview old : previews.active(conversationId)) {
                 if (previews.transition(old.getId(), DispatchPreview.ACTIVE, DispatchPreview.SUPERSEDED, StateReason.NEW_PREVIEW, now)) {
                     superseded.add(old.getId());

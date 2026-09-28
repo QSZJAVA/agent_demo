@@ -22,7 +22,10 @@ public interface DispatchGateway {
     /**
      * @param externalRequestId 幂等请求号：同一清单条目每次调用都一样，派单接口可据此去重
      */
-    record DispatchRequest(String tenantId, String externalRequestId, CatalogEntry report, Candidate record) {
+    // The gateway must atomically enforce record.companyCode(), pending status and (when enforceRules)
+    // the rule ID/version against fresh facts before any side effect. A prior SELECT is insufficient.
+    record DispatchRequest(String tenantId, String externalRequestId, CatalogEntry report, Candidate record,
+                           boolean enforceRules) {
     }
 
     record Outcome(boolean success, String errorCode, String message) {

@@ -20,7 +20,7 @@ public final class ToolContextKeys {
         Object value = ctx.getContext().get(UI_EXCLUDED_RECORDS);
         return value instanceof List<?> list ? (List<com.example.report.dispatch.RecordKey>) list : List.of();
     }
-    /** 取消勾选发生在哪张预览卡片上：只有与本次派单的预览一致时才生效 */
+    /** UI 选择的来源预览，包含全选；不能被模型替换，来源失效时拒绝建单。 */
     public static final String UI_PREVIEW_ID = "uiPreviewId";
     /** 本轮用户是在当前查询范围上追加报表（例如"加上费用报表的"），预览需要与上一轮范围合并 */
     public static final String PREVIEW_APPEND = "previewAppend";

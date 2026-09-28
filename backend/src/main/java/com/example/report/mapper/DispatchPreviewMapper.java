@@ -10,4 +10,7 @@ import org.apache.ibatis.annotations.Select;
 public interface DispatchPreviewMapper extends BaseMapper<DispatchPreview> {
     @Select("SELECT id FROM dispatch_preview WHERE id = #{id} FOR UPDATE")
     String lockById(@Param("id") String id);
+
+    @Select("SELECT * FROM dispatch_preview WHERE id = #{id} FOR UPDATE")
+    DispatchPreview lockState(@Param("id") String id);
 }

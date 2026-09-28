@@ -135,6 +135,7 @@ import { getCurrentUserId } from '../../auth'
 import {
   cancelPlan,
   confirmPlan,
+  createPlan,
   retryFailedPlan,
   reconcilePlan,
   startPreviewJob,
@@ -179,6 +180,7 @@ export default {
       messages: [],
       input: '',
       sending: false,
+      creatingPlan: false,
       choosing: false,
       currentJobId: null,
       jobStage: '',
@@ -192,7 +194,7 @@ export default {
   },
   computed: {
     busy() {
-      return this.sending || this.choosing || this.openingHistory || !!this.executingPlanId
+      return this.sending || this.creatingPlan || this.choosing || this.openingHistory || !!this.executingPlanId
     }
   },
   watch: {
@@ -476,9 +478,32 @@ export default {
       this.uiExcludes = excludedRecords
       this.uiPreviewId = m.payload.previewId
     },
-    dispatchSelected(m) {
-      if (m.status !== 'ACTIVE') return
-      this.send('把已勾选的记录帮我派单')
+    async dispatchSelected(m) {
+      if (!this.isCurrentSession() || this.busy || m.status !== 'ACTIVE' || !m.payload.previewId) return
+      const previewId = m.payload.previewId
+      const excludedRecords = this.uiPreviewId === previewId ? this.uiExcludes.slice() : []
+      // 同一选择在网络重试时沿用键；用户改变选择则是一次新的建单操作。
+      const selection = JSON.stringify(excludedRecords)
+      if (!m.planRequest || m.planRequest.selection !== selection) {
+        m.planRequest = { selection, key: Array.from(window.crypto.getRandomValues(new Uint32Array(4)),
+          value => value.toString(16).padStart(8, '0')).join('') }
+      }
+      this.creatingPlan = true
+      try {
+        const plan = await createPlan({ conversationId: this.activeId, previewId, excludedRecords }, m.planRequest.key)
+        if (!this.isCurrentSession()) return
+        if (!this.messages.some(message => message.cardType === 'plan' && message.payload?.planId === plan.planId)) {
+          this.push({ role: 'card', cardType: 'plan', payload: plan, status: plan.status, statusMessage: null })
+        }
+        // 收到确定响应后允许用户再次生成清单；丢失响应时保留键用于安全重放。
+        m.planRequest = null
+      } catch (e) {
+        /* 请求拦截器展示原因；失效预览不会自动换成最新预览。 */
+      } finally {
+        this.creatingPlan = false
+        this.refreshStates()
+        this.loadConversations()
+      }
     },
     async send(text) {
       if (!this.isCurrentSession()) return

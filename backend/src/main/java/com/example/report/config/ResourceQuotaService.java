@@ -2,143 +2,165 @@ package com.example.report.config;
 
 import com.example.report.common.ApiException;
 import com.example.report.permission.CurrentUser;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.data.redis.core.script.DefaultRedisScript;
 import org.springframework.stereotype.Component;
+import reactor.core.publisher.Mono;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Sinks;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
-/** Redis 原子计数器：按用户、租户和报表限制请求频率与同时运行的昂贵任务。 */
+/** Redis rate limits plus durable, independently committed MySQL concurrency leases. */
+@Slf4j
 @Component
 public class ResourceQuotaService {
-
     private static final DefaultRedisScript<Long> INCREMENT = new DefaultRedisScript<>(
             "local n=redis.call('INCR',KEYS[1]); if n==1 then redis.call('PEXPIRE',KEYS[1],ARGV[1]) end; return n", Long.class);
-    private static final long LEASE_MS = 300_000;
-    private static final DefaultRedisScript<Long> ACQUIRE_LEASE = new DefaultRedisScript<>(
-            "redis.call('ZREMRANGEBYSCORE',KEYS[1],'-inf',ARGV[1]-ARGV[2]); "
-                    + "if redis.call('ZCARD',KEYS[1]) >= tonumber(ARGV[3]) then return 0 end; "
-                    + "redis.call('ZADD',KEYS[1],ARGV[1],ARGV[4]); redis.call('PEXPIRE',KEYS[1],ARGV[2]); return 1",
-            Long.class);
-    private static final DefaultRedisScript<Long> RENEW_LEASE = new DefaultRedisScript<>(
-            "if redis.call('ZSCORE',KEYS[1],ARGV[2]) then "
-                    + "redis.call('ZADD',KEYS[1],ARGV[1],ARGV[2]); redis.call('PEXPIRE',KEYS[1],ARGV[3]); return 1 end; return 0",
-            Long.class);
-    private static final DefaultRedisScript<Long> RELEASE_LEASE = new DefaultRedisScript<>(
-            "return redis.call('ZREM',KEYS[1],ARGV[1])", Long.class);
     private final StringRedisTemplate redis;
-    private final ScheduledExecutorService renewals = Executors.newSingleThreadScheduledExecutor(task -> {
+    private final QuotaLeaseStore leases;
+    private final Set<Permit> permits = ConcurrentHashMap.newKeySet();
+    private final ScheduledExecutorService renewals = Executors.newScheduledThreadPool(2, task -> {
         Thread thread = new Thread(task, "resource-quota-renewal");
         thread.setDaemon(true);
         return thread;
     });
 
-    public ResourceQuotaService(StringRedisTemplate redis) {
+    public ResourceQuotaService(StringRedisTemplate redis, QuotaLeaseStore leases) {
         this.redis = redis;
+        this.leases = leases;
     }
 
     public Permit acquire(CurrentUser user, String operation, Collection<String> reportIds) {
         String base = "quota:" + operation + ":" + user.tenantId() + ":";
-        int userRate = "chat".equals(operation) ? 30 : 12;
-        int tenantRate = "chat".equals(operation) ? 300 : 120;
-        check(base + "minute:user:" + user.userId(), userRate, 60_000);
-        check(base + "minute:tenant", tenantRate, 60_000);
+        checkRate(base + "minute:user:" + user.userId(), "chat".equals(operation) ? 30 : 12);
+        checkRate(base + "minute:tenant", "chat".equals(operation) ? 300 : 120);
         if (reportIds != null) {
-            for (String reportId : reportIds) {
-                check(base + "minute:report:" + reportId, 30, 60_000);
-            }
+            for (String reportId : reportIds) checkRate(base + "minute:report:" + reportId, 30);
         }
-        List<String> held = new ArrayList<>();
         String token = UUID.randomUUID().toString();
+        long started = System.nanoTime();
+        Permit permit = null;
         try {
-            hold(base + "active:user:" + user.userId(), 4, token, held);
-            hold(base + "active:tenant", 20, token, held);
-            return new Permit(redis, held, token, renewals);
+            leases.acquire(user, operation, token);
+            permit = new Permit(token, started);
+            permits.add(permit);
+            permit.renewal = renewals.scheduleAtFixedRate(permit::renew, 30, 30, TimeUnit.SECONDS);
+            permit.requireValid();
+            return permit;
         } catch (RuntimeException e) {
-            held.forEach(key -> release(key, token));
-            throw e;
+            if (permit != null) permit.close();
+            else release(token);
+            if (e instanceof ApiException api) throw api;
+            log.warn("并发配额获取失败 operation={} token={}", operation, token, e);
+            throw unavailable();
         }
     }
 
-    private void check(String key, int limit, int ttlMs) {
-        Long count = increment(key, ttlMs);
-        if (count > limit) throw new ApiException(429, "请求过于频繁，请稍后重试");
-    }
-
-    private void hold(String key, int limit, String token, List<String> held) {
-        Long acquired;
+    private void checkRate(String key, int limit) {
         try {
-            acquired = redis.execute(ACQUIRE_LEASE, List.of(key),
-                    String.valueOf(System.currentTimeMillis()), String.valueOf(LEASE_MS), String.valueOf(limit), token);
+            Long count = redis.execute(INCREMENT, List.of(key), "60000");
+            if (count == null) throw unavailable();
+            if (count > limit) throw new ApiException(429, "请求过于频繁，请稍后重试");
         } catch (RuntimeException e) {
-            throw new ApiException(503, "资源保护服务暂不可用，请稍后重试");
-        }
-        if (acquired == null) throw new ApiException(503, "资源保护服务暂不可用，请稍后重试");
-        if (acquired == 0) {
-            throw new ApiException(429, "同时运行的任务过多，请稍后重试");
-        }
-        held.add(key);
-    }
-
-    private void release(String key, String token) {
-        try { redis.execute(RELEASE_LEASE, List.of(key), token); } catch (RuntimeException ignored) { }
-    }
-
-    private Long increment(String key, int ttlMs) {
-        try {
-            Long count = redis.execute(INCREMENT, List.of(key), String.valueOf(ttlMs));
-            if (count == null) throw new IllegalStateException("配额计数不可用");
-            return count;
-        } catch (RuntimeException e) {
-            if (e instanceof ApiException) throw e;
-            throw new ApiException(503, "资源保护服务暂不可用，请稍后重试");
+            if (e instanceof ApiException api) throw api;
+            throw unavailable();
         }
     }
 
-    public static final class Permit implements AutoCloseable {
-        private final StringRedisTemplate redis;
-        private final List<String> keys;
+    private void release(String token) {
+        try { leases.release(token); }
+        catch (RuntimeException e) { log.warn("并发配额释放失败，将等待租约到期 token={}", token, e); }
+    }
+
+    private static ApiException unavailable() {
+        return new ApiException(503, "资源保护服务暂不可用，请稍后重试");
+    }
+
+    /** Null is only used by service harnesses without the optional quota dependency. */
+    public static void check(Permit permit) {
+        if (permit != null) permit.requireValid();
+    }
+
+    public final class Permit implements AutoCloseable {
         private final String token;
-        private final ScheduledFuture<?> renewal;
-        private boolean closed;
+        private final Sinks.One<Void> loss = Sinks.one();
+        private volatile long validUntil;
+        private volatile boolean closed;
+        private volatile boolean invalid;
+        private volatile ScheduledFuture<?> renewal;
 
-        private Permit(StringRedisTemplate redis, List<String> keys, String token, ScheduledExecutorService scheduler) {
-            this.redis = redis;
-            this.keys = keys;
+        private Permit(String token, long started) {
             this.token = token;
-            this.renewal = scheduler.scheduleAtFixedRate(this::renew, 60, 60, TimeUnit.SECONDS);
+            // Stop locally before DB expiry; network/lock waits count against validity.
+            validUntil = started + TimeUnit.SECONDS.toNanos(QuotaLeaseStore.LEASE_SECONDS - 10);
+        }
+
+        public void requireValid() {
+            if (!closed && !invalid && System.nanoTime() - validUntil >= 0) invalidate();
+            if (closed || invalid) throw new ApiException(503, "运行配额已失效，任务已停止，请刷新结果后重试");
+        }
+
+        /** A lost lease cancels reactive model work; it is never signalled as normal completion. */
+        public Mono<Void> lossSignal() { return loss.asMono(); }
+
+        public <T> Flux<T> guard(Flux<T> work) {
+            return Flux.defer(() -> {
+                requireValid();
+                // Complete the stop publisher to force upstream cancellation, then report
+                // lease loss as an error. takeUntilOther alone need not cancel on other.onError.
+                return work.takeUntilOther(lossSignal().onErrorComplete())
+                        .concatWith(Mono.defer(() -> { requireValid(); return Mono.empty(); }));
+            });
         }
 
         private synchronized void renew() {
-            if (closed) return;
-            for (String key : keys) {
-                try {
-                    redis.execute(RENEW_LEASE, List.of(key), String.valueOf(System.currentTimeMillis()),
-                            token, String.valueOf(LEASE_MS));
-                } catch (RuntimeException ignored) { /* 下次刷新继续尝试；租约到期后由 Redis 清理。 */ }
+            if (closed || invalid) return;
+            long started = System.nanoTime();
+            if (started - validUntil >= 0) { invalidate(); return; }
+            try {
+                if (!leases.renew(token) || System.nanoTime() - validUntil >= 0) {
+                    invalidate();
+                    return;
+                }
+                validUntil = started + TimeUnit.SECONDS.toNanos(QuotaLeaseStore.LEASE_SECONDS - 10);
+            } catch (RuntimeException e) {
+                log.warn("并发配额续租失败，停止后续工作 token={}", token, e);
+                invalidate();
             }
+        }
+
+        private void invalidate() {
+            invalid = true;
+            ScheduledFuture<?> task = renewal;
+            if (task != null) task.cancel(false);
+            loss.tryEmitError(new ApiException(503, "运行配额已失效，任务已停止，请刷新结果后重试"));
+            // Keep occupancy until the caller unwinds/closes or the DB lease expires.
         }
 
         @Override
         public synchronized void close() {
             if (closed) return;
             closed = true;
-            renewal.cancel(false);
-            keys.forEach(key -> {
-                try { redis.execute(RELEASE_LEASE, List.of(key), token); } catch (RuntimeException ignored) { }
-            });
+            ScheduledFuture<?> task = renewal;
+            if (task != null) task.cancel(false);
+            permits.remove(this);
+            release(token);
         }
     }
 
     @jakarta.annotation.PreDestroy
     public void shutdown() {
+        permits.forEach(Permit::invalidate);
         renewals.shutdownNow();
     }
 }

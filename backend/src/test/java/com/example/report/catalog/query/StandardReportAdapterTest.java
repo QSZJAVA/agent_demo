@@ -1,6 +1,10 @@
 package com.example.report.catalog.query;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.springframework.jdbc.core.ConnectionCallback;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.transaction.support.TransactionSynchronizationManager;
 import org.mockito.ArgumentCaptor;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
@@ -33,6 +37,18 @@ class StandardReportAdapterTest {
     private final StandardReportAdapter adapter =
             new StandardReportAdapter(StandardQueryConfig.parse(StandardQueryConfigTest.SALES), jdbc);
 
+    @BeforeEach @SuppressWarnings("unchecked") void uniqueSource() {
+        JdbcTemplate physical = mock(JdbcTemplate.class);
+        when(jdbc.getJdbcTemplate()).thenReturn(physical);
+        when(physical.execute(any(ConnectionCallback.class))).thenReturn(true);
+    }
+
+    private <T> T inTransaction(java.util.function.Supplier<T> action) {
+        TransactionSynchronizationManager.setActualTransactionActive(true);
+        try { return action.get(); }
+        finally { TransactionSynchronizationManager.setActualTransactionActive(false); }
+    }
+
     @Test
     @SuppressWarnings("unchecked")
     void pendingRowsAlwaysFilterByCompanyScopeAndPendingStatus() {
@@ -50,6 +66,8 @@ class StandardReportAdapterTest {
     @Test
     @SuppressWarnings("unchecked")
     void simpleRuleIsBoundAndPushedDownWhileComplexRuleFallsBack() {
+        when(jdbc.query(anyString(), any(SqlParameterSource.class), any(org.springframework.jdbc.core.ResultSetExtractor.class)))
+                .thenReturn(Set.of("amount"));
         adapter.pendingRowsPageWithRule("T001", Set.of("A"), 0, 50, "amount > 20 && amount <= 50000");
         ArgumentCaptor<String> sql = ArgumentCaptor.forClass(String.class);
         ArgumentCaptor<SqlParameterSource> params = ArgumentCaptor.forClass(SqlParameterSource.class);
@@ -65,11 +83,11 @@ class StandardReportAdapterTest {
     @Test
     void comparisonPushdownPreservesNullOrderingAndAvoidsCollationDifferences() {
         StandardQueryConfig config = StandardQueryConfig.parse(StandardQueryConfigTest.SALES);
-        var lessThan = RuleSqlPredicate.compile(config, "amount < 100").orElseThrow();
+        var lessThan = RuleSqlPredicate.compile(config, "amount < 100", Set.of("amount")).orElseThrow();
         assertTrue(lessThan.sql().contains("`amount` IS NULL OR `amount` < :rule0"));
-        assertTrue(RuleSqlPredicate.compile(config, "amount <= 100").orElseThrow().sql()
+        assertTrue(RuleSqlPredicate.compile(config, "amount <= 100", Set.of("amount")).orElseThrow().sql()
                 .contains("`amount` IS NULL OR `amount` <= :rule0"));
-        assertFalse(RuleSqlPredicate.compile(config, "amount > 100").orElseThrow().sql().contains("IS NULL"));
+        assertFalse(RuleSqlPredicate.compile(config, "amount > 100", Set.of("amount")).orElseThrow().sql().contains("IS NULL"));
         assertTrue(RuleSqlPredicate.compile(config, "productName < 'z'").isEmpty());
     }
 
@@ -124,7 +142,7 @@ class StandardReportAdapterTest {
     @Test
     void markDispatchedOnlyUpdatesRecordsThatAreStillPending() {
         when(jdbc.update(anyString(), any(SqlParameterSource.class))).thenReturn(1);
-        assertTrue(adapter.markDispatched("T001", "7", LocalDateTime.of(2026, 1, 1, 0, 0)));
+        assertTrue(inTransaction(() -> adapter.markDispatched("T001", "7", LocalDateTime.of(2026, 1, 1, 0, 0))));
         ArgumentCaptor<String> sql = ArgumentCaptor.forClass(String.class);
         ArgumentCaptor<SqlParameterSource> params = ArgumentCaptor.forClass(SqlParameterSource.class);
         verify(jdbc).update(sql.capture(), params.capture());
@@ -137,7 +155,7 @@ class StandardReportAdapterTest {
     @Test
     void alreadyDispatchedRecordIsNotUpdatedTwice() {
         when(jdbc.update(anyString(), any(SqlParameterSource.class))).thenReturn(0);
-        assertFalse(adapter.markDispatched("T001", "7", LocalDateTime.now()));
+        assertFalse(inTransaction(() -> adapter.markDispatched("T001", "7", LocalDateTime.now())));
     }
 
     @Test

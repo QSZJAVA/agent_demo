@@ -27,7 +27,7 @@ class PlanSelectionIdempotencyTest {
 
     private PlanService service(PlanRepository repository) {
         return new PlanService(h.previews, h.store.previews(), repository, h.versions, h.props,
-                TransactionOperations.withoutTransaction());
+                TransactionOperations.withoutTransaction(), h.quotas);
     }
 
     @Test void sameDocumentNumberExcludesOnlyTheSelectedRecord() {
@@ -51,7 +51,7 @@ class PlanSelectionIdempotencyTest {
         String id = preview("c1");
         var winner = h.plans.create(USER1, "c1", id, List.of(), "same");
         var repository = spy(h.store.plans());
-        doReturn(Optional.empty(), Optional.of(winner.plan()))
+        doReturn(Optional.empty(), Optional.empty(), Optional.of(winner.plan()))
                 .when(repository).findByIdempotencyKey(USER1.tenantId(), "same");
         var replay = service(repository).create(USER1, "c1", id, List.of(), "same");
         assertTrue(replay.replayed());

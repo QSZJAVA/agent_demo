@@ -66,6 +66,11 @@ export function fetchPlanItems(planId, page = 1, size = 50) {
   return http.get(`/dispatch/plans/${planId}/items`, { params: { page, size } })
 }
 
+/** 卡片按钮直接绑定来源预览建单，避免模型改写或省略来源。 */
+export function createPlan(request, idempotencyKey) {
+  return http.post('/dispatch/plans', request, { headers: { 'Idempotency-Key': idempotencyKey } })
+}
+
 /** 确认执行待确认清单；重复确认返回第一次的结果 */
 export function confirmPlan(planId) {
   return http.post(`/dispatch/plans/${planId}/confirm`)

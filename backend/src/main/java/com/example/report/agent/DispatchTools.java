@@ -217,23 +217,17 @@ public class DispatchTools {
         try {
             CurrentUser user = permissionService.resolve(userId);
             String targetPreviewId = previewId == null || previewId.isBlank() ? null : previewId.trim();
-            // 勾选项只属于它所在的那张卡片：与本次派单用的预览不一致时忽略
-            String uiPreviewId = ToolContextKeys.uiPreviewId(ctx);
-            if (!recordExcludes.isEmpty()) {
-                String effective = targetPreviewId != null ? targetPreviewId
-                        : previewService.latest(user, conversationId).map(p -> p.getId()).orElse(null);
-                if (uiPreviewId == null || !uiPreviewId.equals(effective)) {
+            // 即使排除集合为空（全选），客户端提供的来源也不能被模型省略或改成另一份预览。
+            // 自然语言明确在本轮重新预览时，旧勾选不参与新范围；卡片按钮直接走 REST 建单。
+            String uiPreviewId = channel != null && channel.hasEmitted(AgentEvent.PREVIEW)
+                    ? null : ToolContextKeys.uiPreviewId(ctx);
+            if (uiPreviewId != null) {
+                if (targetPreviewId != null && !uiPreviewId.equals(targetPreviewId)) {
                     throw new ApiException("勾选所属预览已变化，请刷新并重新选择");
                 }
-                targetPreviewId = effective;
-            }
-            if (!uiExcludes.isEmpty() && uiPreviewId != null) {
-                String effective = targetPreviewId != null ? targetPreviewId
-                        : previewService.latest(user, conversationId).map(p -> p.getId()).orElse(null);
-                if (!uiPreviewId.equals(effective)) {
-                    log.info("忽略旧卡片上的勾选项 conversation={} uiPreview={} preview={}", conversationId, uiPreviewId, effective);
-                    uiExcludes = List.of();
-                }
+                targetPreviewId = uiPreviewId;
+            } else if (!recordExcludes.isEmpty()) {
+                throw new ApiException("请指定勾选所属预览，刷新后重新选择");
             }
             // 合并模型给的排除项与前端取消勾选的排除项；单据号不区分大小写
             Set<String> excludes = new LinkedHashSet<>();

@@ -1,0 +1,23 @@
+[
+ {"query":"销售报表","expected":"EXACT","reports":["rpt-sales-order"]},
+ {"query":"查一下费用报表有哪些可以派单","expected":"EXACT","reports":["rpt-expense-claim"]},
+ {"query":"SALES","expected":"EXACT","reports":["rpt-sales-order"]},
+ {"query":"销售台账","expected":"ALIAS","reports":["rpt-sales-order"]},
+ {"query":"订单销售表","expected":"ALIAS","reports":["rpt-sales-order"]},
+ {"query":"sales report","expected":"ALIAS","reports":["rpt-sales-order"]},
+ {"query":"应收发票台账","expected":"ALIAS","reports":["rpt-ar-invoice"]},
+ {"query":"AR","expected":"ALIAS","reports":["rpt-ar-invoice"]},
+ {"query":"报销单","expected":"ALIAS","reports":["rpt-expense-claim"]},
+ {"query":"应收保表","expected":"ALIAS","reports":["rpt-ar-invoice"]},
+ {"query":"销兽报表","expected":"FUZZY","reports":["rpt-sales-order"]},
+ {"query":"应手报表","expected":"FUZZY","reports":["rpt-ar-invoice"]},
+ {"query":"费甬报表","expected":"FUZZY","reports":["rpt-expense-claim"]},
+ {"query":"查客户对账","expected":"AMBIGUOUS","reports":["rpt-sales-order","rpt-ar-invoice"]},
+ {"query":"对账","expected":"AMBIGUOUS","reports":["rpt-sales-order","rpt-ar-invoice"]},
+ {"query":"查销售和应收","expected":"ALIAS","reports":["rpt-sales-order","rpt-ar-invoice"]},
+ {"query":"查一下库存报表","expected":"NONE","reports":[]},
+ {"query":"查XX","expected":"NONE","reports":[]},
+ {"query":"查我能派单的报表","expected":"ALL","reports":["rpt-sales-order","rpt-ar-invoice","rpt-expense-claim"]},
+ {"query":"客户对账","visible":["rpt-sales-order"],"expected":"ALIAS","reports":["rpt-sales-order"]},
+ {"query":"应收发票台账","visible":[],"expected":"NONE","reports":[]}
+]

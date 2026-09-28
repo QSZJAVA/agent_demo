@@ -34,6 +34,9 @@ public interface PreviewRepository {
 
     default void deleteBuilding(String previewId) { throw new UnsupportedOperationException(); }
 
+    /** Cleanup rechecks both state and staleness while holding the activation row lock. */
+    default void deleteBuildingBefore(String previewId, LocalDateTime cutoff) { throw new UnsupportedOperationException(); }
+
     Optional<DispatchPreview> find(String previewId);
 
     List<DispatchPreview> findAll(Collection<String> previewIds);

@@ -1,0 +1,16 @@
+import http from './http'
+const root = '/operations'
+export const metrics = days => http.get(`${root}/metrics`, { params: { days } })
+export const workbench = after => http.get(`${root}/workbench`, { params: { after } })
+export const workItems = (id, page) => http.get(`${root}/workbench/${encodeURIComponent(id)}/items`, { params: { page } })
+export const act = (id, action, reason) => http.post(`${root}/workbench/${encodeURIComponent(id)}/${action}`, { reason })
+export const policy = key => http.get(`${root}/policies/${encodeURIComponent(key)}`)
+export const savePolicy = (key, value) => http.put(`${root}/policies/${encodeURIComponent(key)}`, value)
+export const policyHistory = key => http.get(`${root}/policies/${encodeURIComponent(key)}/history`)
+export const rollbackPolicy = (key, value) => http.post(`${root}/policies/${encodeURIComponent(key)}/rollback`, value)
+export const auditLog = before => http.get(`${root}/audit`, { params: { before } })
+export const erasures = () => http.get(`${root}/erasures`)
+export const erase = (id, reason) => http.post(`${root}/erasures/${encodeURIComponent(id)}`, { reason })
+export const evaluation = () => http.get(`${root}/evaluation`)
+export const catalogHistory = id => http.get(`${root}/catalog/${encodeURIComponent(id)}/history`)
+export const rollbackCatalog = (id, body) => http.post(`${root}/catalog/${encodeURIComponent(id)}/rollback`, body)

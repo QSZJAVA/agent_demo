@@ -22,6 +22,11 @@ import org.springframework.jdbc.datasource.DriverManagerDataSource;
 import org.springframework.transaction.annotation.AnnotationTransactionAttributeSource;
 import org.springframework.transaction.interceptor.TransactionInterceptor;
 import org.springframework.transaction.support.TransactionTemplate;
+import org.springframework.transaction.support.TransactionOperations;
+import org.springframework.transaction.support.TransactionCallback;
+import org.springframework.transaction.TransactionSystemException;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 
 import java.util.List;
 import java.util.UUID;
@@ -109,7 +114,7 @@ class TracePersistenceIntegrationTest {
         plans = transactional(new MybatisPlanRepository(sql.getMapper(DispatchPlanMapper.class),
                 sql.getMapper(DispatchPlanItemMapper.class), journal, new RuleEvidence(jdbc)));
         previewService = new PreviewService(h.catalogService, h.candidates, h.versions, previews, plans, h.props, tx);
-        planService = new PlanService(previewService, previews, plans, h.versions, h.props, tx);
+        planService = new PlanService(previewService, previews, plans, h.versions, h.props, tx, h.quotas);
         gateway = mock(DispatchGateway.class);
         when(gateway.dispatch(any())).thenReturn(DispatchGateway.Outcome.ok());
         dispatch = new DispatchService(planService, previewService, plans, h.catalogService, h.candidates, h.versions,
@@ -277,5 +282,95 @@ class TracePersistenceIntegrationTest {
 
     private static void await(CountDownLatch start) {
         try { start.await(); } catch (InterruptedException e) { Thread.currentThread().interrupt(); throw new RuntimeException(e); }
+    }
+
+    @Test void committedLargePreviewRetainsDetailsWhenCommitAcknowledgementIsLost() {
+        h.put(SALES, candidate(SALES,"1","SO1","A","one"), candidate(SALES,"2","SO2","A","two"));
+        h.props.getPreview().setMaxItems(1);
+        var conversation = conversations.create(USER1, "mock");
+        TransactionOperations lostAck = new TransactionOperations() {
+            @Override public <T> T execute(TransactionCallback<T> action) {
+                tx.execute(action);
+                throw new TransactionSystemException("lost commit acknowledgement");
+            }
+        };
+        var service = new PreviewService(h.catalogService, h.candidates, h.versions, previews, plans, h.props, lostAck);
+        assertThrows(TransactionSystemException.class, () -> service.preview(USER1, conversation.getId(),
+                new PreviewCommand(null,"api",null,List.of(SALES),null,null,null)));
+        assertEquals("ACTIVE", jdbc.queryForObject("SELECT status FROM dispatch_preview", String.class));
+        assertEquals(2, count("dispatch_preview_item"));
+        assertEquals(2, jdbc.queryForObject("SELECT total_count FROM dispatch_preview", Integer.class));
+        drain(); assertEquals(1, jdbc.queryForObject("SELECT COUNT(*) FROM agent_message WHERE card_type='preview'", Integer.class));
+    }
+
+    @Test void rolledBackActivationStillCleansUnpublishedLargePreview() {
+        h.put(SALES, candidate(SALES,"1","SO1","A","one"), candidate(SALES,"2","SO2","A","two"));
+        h.props.getPreview().setMaxItems(1);
+        var conversation = conversations.create(USER1, "mock");
+        TransactionOperations rollback = new TransactionOperations() {
+            @Override public <T> T execute(TransactionCallback<T> action) {
+                return tx.execute(status -> { action.doInTransaction(status); throw new IllegalStateException("rollback activation"); });
+            }
+        };
+        var service = new PreviewService(h.catalogService, h.candidates, h.versions, previews, plans, h.props, rollback);
+        assertThrows(IllegalStateException.class, () -> service.preview(USER1, conversation.getId(),
+                new PreviewCommand(null,"api",null,List.of(SALES),null,null,null)));
+        assertEquals(0, count("dispatch_preview")); assertEquals(0, count("dispatch_preview_item"));
+    }
+
+    private String buildingFixture() {
+        var conversation = conversations.create(USER1, "mock");
+        var outcome = previewService.preview(USER1, conversation.getId(), new PreviewCommand(null,"api",null,List.of(SALES),null,null,null));
+        String id = outcome.snapshot().preview().getId();
+        jdbc.update("UPDATE dispatch_preview SET status='BUILDING',updated_at=DATE_SUB(NOW(),INTERVAL 11 MINUTE) WHERE id=?", id);
+        return id;
+    }
+
+    @ParameterizedTest @ValueSource(booleans = {true, false})
+    void cleanupAndActivationSerializeWithoutDeletingActiveDetails(boolean activationWins) throws Exception {
+        String id = buildingFixture();
+        var locked = new CountDownLatch(1); var release = new CountDownLatch(1); var started = new CountDownLatch(1);
+        var pool = Executors.newFixedThreadPool(2);
+        try {
+            var winner = pool.submit(() -> tx.execute(status -> {
+                sql.getMapper(DispatchPreviewMapper.class).lockState(id);
+                locked.countDown(); await(release);
+                if (activationWins) assertTrue(previews.transition(id,"BUILDING","ACTIVE",null,java.time.LocalDateTime.now()));
+                else previews.deleteBuilding(id);
+                return true;
+            }));
+            assertTrue(locked.await(5,TimeUnit.SECONDS));
+            var loser = pool.submit(() -> {
+                started.countDown();
+                if (activationWins) previews.deleteBuilding(id);
+                else assertFalse(previews.transition(id,"BUILDING","ACTIVE",null,java.time.LocalDateTime.now()));
+            });
+            assertTrue(started.await(5,TimeUnit.SECONDS));
+            assertThrows(TimeoutException.class, () -> loser.get(150,TimeUnit.MILLISECONDS));
+            release.countDown(); winner.get(5,TimeUnit.SECONDS); loser.get(5,TimeUnit.SECONDS);
+            assertEquals(activationWins ? 1 : 0, count("dispatch_preview"));
+            assertEquals(activationWins ? 1 : 0, count("dispatch_preview_item"));
+        } finally { release.countDown(); pool.shutdownNow(); }
+    }
+
+    @Test void orphanCleanupRechecksHeartbeatAndAppendCannotWriteAfterDeletion() {
+        String id = buildingFixture();
+        var item = previews.items(id).get(0); item.setId(null); item.setSeq(1); item.setRecordId("2"); item.setDocNo("SO2");
+        previews.appendItems(List.of(item));
+        previews.deleteBuildingBefore(id, java.time.LocalDateTime.now().minusMinutes(10));
+        assertEquals(2, count("dispatch_preview_item"));
+        previews.deleteBuilding(id);
+        assertEquals(0, count("dispatch_preview_item"));
+        assertThrows(IllegalStateException.class, () -> previews.appendItems(List.of(item)));
+        assertEquals(0, count("dispatch_preview_item"));
+    }
+
+    @Test void staleBuildingSummaryCannotRevertAnActivePreview() {
+        String id = buildingFixture();
+        DispatchPreview stale = previews.find(id).orElseThrow();
+        previews.transition(id,"BUILDING","ACTIVE",null,java.time.LocalDateTime.now());
+        assertThrows(IllegalStateException.class, () -> previews.updateBuilding(stale));
+        assertEquals("ACTIVE", previews.find(id).orElseThrow().getStatus());
+        assertEquals(1, count("dispatch_preview_item"));
     }
 }

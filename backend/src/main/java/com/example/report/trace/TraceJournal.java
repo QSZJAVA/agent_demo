@@ -18,6 +18,8 @@ import java.util.Map;
 /** 先同步提交可靠证据，再异步同步展示表；事件写入失败必须向业务调用方传播。 */
 @Service
 public class TraceJournal {
+    @org.springframework.beans.factory.annotation.Autowired(required = false)
+    private com.example.report.operations.DataRetentionService retention;
     private final JdbcTemplate jdbc;
     private final TransactionOperations tx;
 
@@ -39,6 +41,7 @@ public class TraceJournal {
             var owners = jdbc.queryForList("SELECT id FROM agent_conversation WHERE id=? AND tenant_id=? AND user_id=? FOR UPDATE",
                     message.getConversationId(), message.getTenantId(), message.getUserId());
             if (owners.isEmpty()) throw new IllegalStateException("消息所属会话不存在");
+            if (retention != null && retention.erased(message.getConversationId())) return 0L;
             return append(key, message.getTenantId(), message.getUserId(), message.getConversationId(),
                     message.getPreviewId(), message.getPlanId(), TraceEvent.MESSAGE,
                     Map.of("message", message, "maybeTitle", maybeTitle), message.getCreatedAt());

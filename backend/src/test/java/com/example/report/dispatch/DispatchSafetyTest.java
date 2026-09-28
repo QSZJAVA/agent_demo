@@ -4,6 +4,7 @@ import com.example.report.common.ApiException;
 import com.example.report.conversation.ConversationService;
 import com.example.report.dispatch.store.PlanRepository;
 import com.example.report.entity.DispatchPlan;
+import com.example.report.entity.DispatchPlanItem;
 import com.example.report.entity.DispatchPreview;
 import com.example.report.support.DispatchHarness;
 import com.example.report.support.TestCatalog;
@@ -74,7 +75,11 @@ class DispatchSafetyTest {
     @Test void savedResultFailureRequiresReviewAndNeverResends() {
         var plan = plan();
         PlanRepository repository = spy(h.store.plans());
-        doThrow(new RuntimeException("write failed")).when(repository).updateItem(any(), anyLong());
+        doAnswer(call -> {
+            DispatchPlanItem item = call.getArgument(0);
+            if (DispatchPlanItem.SUCCESS.equals(item.getStatus())) throw new RuntimeException("result write failed");
+            return call.callRealMethod();
+        }).when(repository).updateItem(any(), anyLong());
         when(gateway.dispatch(any())).thenReturn(DispatchGateway.Outcome.ok());
         var service = service(repository);
         assertEquals(409, assertThrows(ApiException.class, () -> service.confirm(USER1, plan.plan().getId())).getCode());
@@ -82,7 +87,21 @@ class DispatchSafetyTest {
         assertEquals(409, assertThrows(ApiException.class, () -> service.confirm(USER1, plan.plan().getId())).getCode());
         assertThrows(ApiException.class, () -> service.cancel(USER1, plan.plan().getId()));
         assertThrows(ApiException.class, () -> h.plans.create(USER1, "c1", plan.plan().getPreviewId(), List.of(), null));
+        assertEquals(DispatchPlanItem.UNKNOWN, repository.items(plan.plan().getId()).get(0).getStatus());
+        verify(gateway, times(1)).dispatch(any());
+        service.shutdownHeartbeats();
+    }
+
+    @Test void intentWriteFailureBeforeSendLeavesPlanPendingWithoutCallingGateway() {
+        var plan = plan();
+        PlanRepository repository = spy(h.store.plans());
+        doThrow(new RuntimeException("intent write failed")).when(repository).updateItem(any(), anyLong());
+        var service = service(repository);
+        assertEquals(503, assertThrows(ApiException.class, () -> service.confirm(USER1, plan.plan().getId())).getCode());
+        assertEquals(DispatchPlan.PENDING, h.plans.getOwned(USER1, plan.plan().getId()).plan().getStatus());
+        assertEquals(DispatchPlanItem.PENDING, repository.items(plan.plan().getId()).get(0).getStatus());
         verifyNoInteractions(gateway);
+        service.shutdownHeartbeats();
     }
 
     @Test void recoveryRevokesPausedExecutionBeforeGatewaySend() throws Exception {

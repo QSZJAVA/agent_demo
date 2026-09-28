@@ -36,6 +36,8 @@ public class ReportCatalogAdminService {
     private static final Pattern REPORT_ID = Pattern.compile("[a-z][a-z0-9-]{2,63}");
     private static final Set<String> ALIAS_TYPES = Set.of("SHORT", "COLLOQUIAL", "ENGLISH", "HISTORICAL", "DEPARTMENT", "TYPO");
 
+    @org.springframework.beans.factory.annotation.Autowired(required = false)
+    private com.example.report.operations.CatalogRevisions revisions;
     private final ReportDefinitionMapper definitionMapper;
     private final ReportAliasMapper aliasMapper;
     private final ReportCatalog catalog;
@@ -57,6 +59,7 @@ public class ReportCatalogAdminService {
     /** 登记一张新报表（草稿）。report_id 可以由管理员指定（跨环境保持一致），不指定时自动生成；创建后不可修改 */
     @Transactional
     public ReportDefinition create(CurrentUser admin, DefinitionForm form) {
+        com.example.report.operations.OperationsPolicy.requireAdmin(admin);
         String reportId = form.getReportId() == null || form.getReportId().isBlank()
                 ? "rpt-" + JsonUtil.newId().substring(0, 12) : form.getReportId().trim();
         if (!REPORT_ID.matcher(reportId).matches()) {
@@ -80,6 +83,7 @@ public class ReportCatalogAdminService {
         d.setUpdatedBy(admin.userId());
         d.setUpdatedAt(now);
         definitionMapper.insert(d);
+        capture(d);
         catalog.broadcastRefresh();
         return d;
     }
@@ -88,6 +92,9 @@ public class ReportCatalogAdminService {
     @Transactional
     public ReportDefinition update(CurrentUser admin, String reportId, DefinitionForm form) {
         ReportDefinition d = require(admin, reportId);
+        if (form.getExpectedVersion() != null && !form.getExpectedVersion().equals(d.getCatalogVersion())) {
+            throw new ApiException(409,"目录已被其他管理员修改，请刷新后重试");
+        }
         if (form.getReportId() != null && !form.getReportId().isBlank() && !form.getReportId().trim().equals(reportId)) {
             throw new ApiException("report_id 创建后不可修改");
         }
@@ -100,6 +107,7 @@ public class ReportCatalogAdminService {
         }
         bump(admin, d);
         definitionMapper.updateById(d);
+        capture(d);
         catalog.broadcastRefresh();
         return d;
     }
@@ -114,6 +122,7 @@ public class ReportCatalogAdminService {
         d.setStatus(ReportDefinition.STATUS_PUBLISHED);
         bump(admin, d);
         definitionMapper.updateById(d);
+        capture(d);
         catalog.broadcastRefresh();
         return d;
     }
@@ -128,13 +137,14 @@ public class ReportCatalogAdminService {
         d.setStatus(ReportDefinition.STATUS_DISABLED);
         bump(admin, d);
         definitionMapper.updateById(d);
+        capture(d);
         catalog.broadcastRefresh();
         return d;
     }
 
     @Transactional
     public ReportAlias addAlias(CurrentUser admin, String reportId, AliasForm form) {
-        require(admin, reportId);
+        ReportDefinition d = require(admin, reportId);
         String alias = form.getAlias() == null ? "" : form.getAlias().trim();
         if (TextNormalizer.normalize(alias).length() < 2) {
             throw new ApiException("别名至少两个字");
@@ -151,6 +161,9 @@ public class ReportCatalogAdminService {
             existing.setPriority(form.getPriority() == null ? 0 : form.getPriority());
             existing.setStatus(ReportAlias.STATUS_ACTIVE);
             aliasMapper.updateById(existing);
+            bump(admin, d);
+            definitionMapper.updateById(d);
+            capture(d);
             catalog.broadcastRefresh();
             return existing;
         }
@@ -164,6 +177,9 @@ public class ReportCatalogAdminService {
         a.setCreatedBy(admin.userId());
         a.setCreatedAt(LocalDateTime.now());
         aliasMapper.insert(a);
+        bump(admin, d);
+        definitionMapper.updateById(d);
+        capture(d);
         catalog.broadcastRefresh();
         return a;
     }
@@ -171,13 +187,16 @@ public class ReportCatalogAdminService {
     /** 停用别名（保留记录便于追溯） */
     @Transactional
     public void disableAlias(CurrentUser admin, String reportId, Long aliasId) {
-        require(admin, reportId);
+        ReportDefinition d = require(admin, reportId);
         ReportAlias a = aliasMapper.selectById(aliasId);
         if (a == null || !java.util.Objects.equals(admin.tenantId(), a.getTenantId()) || !a.getReportId().equals(reportId)) {
             throw ApiException.notFound("别名不存在");
         }
         a.setStatus(ReportAlias.STATUS_DISABLED);
         aliasMapper.updateById(a);
+        bump(admin, d);
+        definitionMapper.updateById(d);
+        capture(d);
         catalog.broadcastRefresh();
     }
 
@@ -192,10 +211,7 @@ public class ReportCatalogAdminService {
         ReportQueryAdapter adapter = adapterFactory.createAndProbe(d.getQueryMode(), d.getQueryConfig());
         Set<String> fields = adapter.fields().stream().map(FieldInfo::name).collect(Collectors.toSet());
         List<String> broken = new ArrayList<>();
-        for (DispatchRule rule : ruleMapper.selectList(new LambdaQueryWrapper<DispatchRule>()
-                .eq(DispatchRule::getTenantId, d.getTenantId())
-                .eq(DispatchRule::getReportId, d.getReportId())
-                .eq(DispatchRule::getStatus, DispatchRule.STATUS_PUBLISHED))) {
+        for (DispatchRule rule : ruleMapper.publishedReportForUpdate(d.getTenantId(), d.getReportId())) {
             List<String> missing = ruleEngine.variables(rule.getExpression()).stream().filter(v -> !fields.contains(v)).toList();
             if (!missing.isEmpty()) {
                 broken.add(rule.getName() + "（" + String.join("、", missing) + "）");
@@ -264,10 +280,44 @@ public class ReportCatalogAdminService {
     }
 
     private ReportDefinition require(CurrentUser admin, String reportId) {
-        ReportDefinition d = reportId == null ? null : definitionMapper.selectById(reportId);
+        com.example.report.operations.OperationsPolicy.requireAdmin(admin);
+        ReportDefinition d = reportId == null ? null : definitionMapper.lockById(reportId);
         if (d == null || !java.util.Objects.equals(admin.tenantId(), d.getTenantId())) {
             throw ApiException.notFound(ReportCatalogService.NOT_FOUND);
         }
+        capture(d);
+        return d;
+    }
+
+    private void capture(ReportDefinition d) {
+        if (revisions != null) revisions.capture(d, aliasMapper.selectList(new LambdaQueryWrapper<ReportAlias>()
+                .eq(ReportAlias::getTenantId,d.getTenantId()).eq(ReportAlias::getReportId,d.getReportId())));
+    }
+
+    @Transactional
+    public ReportDefinition rollback(CurrentUser admin, String reportId, long target, long expectedVersion) {
+        ReportDefinition current = require(admin,reportId);
+        if (current.getCatalogVersion() != expectedVersion) throw new ApiException(409,"目录已变更，请刷新后重试");
+        var saved = revisions.load(admin,reportId,target);
+        ReportDefinition d = saved.definition();
+        requireUniqueCode(admin.tenantId(),d.getReportCode(),reportId);
+        if (ReportDefinition.STATUS_PUBLISHED.equals(d.getStatus())) checkPublishable(d);
+        else adapterFactory.create(d.getQueryMode(),d.getQueryConfig());
+        d.setCatalogVersion(current.getCatalogVersion());
+        bump(admin,d);
+        definitionMapper.updateById(d);
+        // MyBatis skips null fields by default; rollback must also restore removed optional values.
+        definitionMapper.update(null,new com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper<ReportDefinition>()
+                .eq(ReportDefinition::getReportId,reportId).eq(ReportDefinition::getTenantId,admin.tenantId())
+                .set(ReportDefinition::getDescription,d.getDescription()).set(ReportDefinition::getOwnerUserId,d.getOwnerUserId())
+                .set(ReportDefinition::getEffectiveFrom,d.getEffectiveFrom()).set(ReportDefinition::getEffectiveTo,d.getEffectiveTo()));
+        aliasMapper.delete(new LambdaQueryWrapper<ReportAlias>().eq(ReportAlias::getTenantId,admin.tenantId()).eq(ReportAlias::getReportId,reportId));
+        for (ReportAlias alias : saved.aliases()) {
+            alias.setId(null);
+            aliasMapper.insert(alias);
+        }
+        capture(d);
+        catalog.broadcastRefresh();
         return d;
     }
 
@@ -283,6 +333,7 @@ public class ReportCatalogAdminService {
 
     @Data
     public static class DefinitionForm {
+        private Long expectedVersion;
         /** 可选，创建时指定稳定标识；之后不可修改 */
         private String reportId;
         private String reportCode;

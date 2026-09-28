@@ -53,6 +53,7 @@ public class PreviewJobService {
         LocalDateTime now = LocalDateTime.now();
         long requestVersion;
         try {
+            ResourceQuotaService.check(permit);
             requestVersion = previews.beginRequest(conversationId);
             jdbc.update("INSERT INTO dispatch_preview_job (id,tenant_id,user_id,conversation_id,request_version,status,stage,created_at,updated_at) "
                         + "VALUES (?,?,?,?,?,?,?,?,?)", id, user.tenantId(), user.userId(), conversationId,
@@ -72,8 +73,8 @@ public class PreviewJobService {
             timer.schedule(() -> timeout(user, id), 120, TimeUnit.SECONDS);
         } catch (RuntimeException e) {
             futures.remove(id);
-            update(id, "FAILED", "QUEUE", "查询队列已满，请稍后重试", null);
-            release(id);
+            try { update(id, "FAILED", "QUEUE", "查询队列已满，请稍后重试", null); }
+            finally { release(id); }
         }
         return get(user, id);
     }
@@ -102,9 +103,7 @@ public class PreviewJobService {
                         + "message='用户已取消',updated_at=NOW() WHERE id=? AND tenant_id=? AND user_id=? "
                         + "AND status IN ('QUEUED','RUNNING')", id, user.tenantId(), user.userId());
         if (changed == 1) {
-            Future<?> future = futures.remove(id);
-            if (future != null) future.cancel(true);
-            release(id);
+            cancelLocal(id);
         }
         return get(user, id);
     }
@@ -112,6 +111,7 @@ public class PreviewJobService {
     private void run(CurrentUser user, String conversationId, PreviewCommand command, String id, long requestVersion) {
         try {
             if (!transition(id, "QUEUED", "RUNNING", "QUERYING")) return;
+            ensureRunning(id);
             java.util.concurrent.atomic.AtomicInteger reported = new java.util.concurrent.atomic.AtomicInteger();
             PreviewOutcome outcome = previews.preview(user, conversationId, command, scanned -> {
                 ensureRunning(id);
@@ -121,6 +121,7 @@ public class PreviewJobService {
                     reported.set(scanned);
                 }
             }, previewId -> {
+                ensureRunning(id);
                 if (jdbc.update("UPDATE dispatch_preview_job SET status='SUCCEEDED',stage='DONE',preview_id=?,"
                         + "updated_at=NOW() WHERE id=? AND status='RUNNING'", previewId, id) != 1) {
                     throw new ApiException(409, "查询任务已取消或超时");
@@ -146,6 +147,7 @@ public class PreviewJobService {
     }
 
     private void ensureRunning(String id) {
+        ResourceQuotaService.check(permits.get(id));
         if (Thread.currentThread().isInterrupted() || !"RUNNING".equals(jdbc.queryForObject(
                 "SELECT status FROM dispatch_preview_job WHERE id=?", String.class, id))) {
             throw new ApiException(409, "查询任务已取消或超时");
@@ -160,10 +162,18 @@ public class PreviewJobService {
     private void timeout(CurrentUser user, String id) {
         Job job = get(user, id);
         if (!job.status().equals("QUEUED") && !job.status().equals("RUNNING")) return;
-        jdbc.update("UPDATE dispatch_preview_job SET status='FAILED',stage='TIMEOUT',message='查询超过 120 秒，请缩小范围后重试',"
+        int changed = jdbc.update("UPDATE dispatch_preview_job SET status='FAILED',stage='TIMEOUT',message='查询超过 120 秒，请缩小范围后重试',"
                         + "updated_at=NOW() WHERE id=? AND status IN ('QUEUED','RUNNING')", id);
+        // Activation may have won after the read. Do not interrupt completed work or release its permit.
+        if (changed == 1) cancelLocal(id);
+    }
+
+    private void cancelLocal(String id) {
         Future<?> future = futures.remove(id);
-        if (future != null) future.cancel(true);
+        if (future != null) {
+            future.cancel(true);
+            if (future instanceof Runnable queued) workers.remove(queued);
+        }
         release(id);
     }
 
@@ -173,10 +183,11 @@ public class PreviewJobService {
                 + "message='查询任务中断，请重新发起',updated_at=NOW() "
                 + "WHERE status IN ('QUEUED','RUNNING') AND updated_at < DATE_SUB(NOW(), INTERVAL 3 MINUTE)");
         // 进程在批量写入期间退出时，未激活的快照不会被前端读取，但其明细仍需回收。
-        jdbc.update("DELETE i FROM dispatch_preview_item i JOIN dispatch_preview p ON p.id=i.preview_id "
-                + "WHERE p.status='BUILDING' AND p.updated_at < DATE_SUB(NOW(), INTERVAL 10 MINUTE)");
-        jdbc.update("DELETE FROM dispatch_preview WHERE status='BUILDING' "
-                + "AND updated_at < DATE_SUB(NOW(), INTERVAL 10 MINUTE)");
+        LocalDateTime cutoff = LocalDateTime.now().minusMinutes(10);
+        for (String id : jdbc.queryForList("SELECT id FROM dispatch_preview WHERE status='BUILDING' "
+                + "AND updated_at<? ORDER BY updated_at LIMIT 100", String.class, cutoff)) {
+            previews.deleteAbandonedBuilding(id, cutoff);
+        }
     }
 
     private boolean transition(String id, String from, String to, String stage) {

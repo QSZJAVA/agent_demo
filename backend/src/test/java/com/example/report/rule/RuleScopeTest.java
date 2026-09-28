@@ -34,7 +34,8 @@ class RuleScopeTest {
     private final DispatchRuleMapper ruleMapper = mock(DispatchRuleMapper.class);
     private final RuleService service = new RuleService(ruleMapper, mock(DispatchRuleHistoryMapper.class), new RuleEngine(),
             mock(RuleCache.class), mock(DispatchCandidateService.class),
-            new ReportCatalogService(new TestCatalog().catalog(), new AgentProperties()));
+            new ReportCatalogService(new TestCatalog().catalog(), new AgentProperties()),
+            mock(com.example.report.config.ResourceQuotaService.class));
 
     private static DispatchRule rule(long id, String company, String status) {
         DispatchRule r = new DispatchRule();

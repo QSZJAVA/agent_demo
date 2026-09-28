@@ -17,9 +17,14 @@ import java.time.LocalDateTime;
 public class MockDispatchGateway implements DispatchGateway {
 
     private final JdbcTemplate jdbc;
+    private final com.example.report.rule.RuleCache rules;
+    private final com.example.report.rule.RuleEngine engine;
 
-    public MockDispatchGateway(JdbcTemplate jdbc) {
+    public MockDispatchGateway(JdbcTemplate jdbc, com.example.report.rule.RuleCache rules,
+                               com.example.report.rule.RuleEngine engine) {
         this.jdbc = jdbc;
+        this.rules = rules;
+        this.engine = engine;
     }
 
     @Override
@@ -31,8 +36,16 @@ public class MockDispatchGateway implements DispatchGateway {
         if (!(request.report().adapter() instanceof DispatchStatusWriter writer)) {
             return Outcome.fail("NOT_SUPPORTED", "该报表未配置派单状态回写，无法派单");
         }
-        boolean success = writer.markDispatched(request.tenantId(), request.record().recordId(), LocalDateTime.now());
-        Outcome outcome = success ? Outcome.ok() : Outcome.fail("RECORD_NOT_PENDING", "记录不存在或已派单");
+        boolean success = writer.markDispatchedGuarded(request.tenantId(), request.record().recordId(),
+                request.record().companyCode(), LocalDateTime.now(), row -> {
+                    if (!java.util.Objects.equals(row.companyCode(), request.record().companyCode())) return false;
+                    if (!request.enforceRules()) return true;
+                    return rules.find(request.tenantId(), request.report().reportId(), row.companyCode())
+                            .filter(rule -> java.util.Objects.equals(rule.getId(), request.record().ruleId())
+                                    && java.util.Objects.equals(rule.getVersion(), request.record().ruleVersion()))
+                            .map(rule -> engine.matches(rule.getExpression(), row.facts())).orElse(false);
+                });
+        Outcome outcome = success ? Outcome.ok() : Outcome.fail("RECORD_CHANGED", "记录已变化、已派单或不再满足派单条件");
         if (prior.status() == LookupStatus.FAILED) {
             jdbc.update("UPDATE dispatch_gateway_request SET status=?,error_code=?,message=? "
                             + "WHERE tenant_id=? AND request_id=? AND status='FAILED'",

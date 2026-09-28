@@ -25,6 +25,10 @@ public class ReportCatalogService {
 
     public static final String NOT_FOUND = "报表不存在或无权访问";
 
+    @org.springframework.beans.factory.annotation.Autowired(required = false)
+    private com.example.report.operations.OperationsPolicy operationsPolicy;
+    @org.springframework.beans.factory.annotation.Autowired(required = false)
+    private com.example.report.operations.BusinessMetrics metrics;
     private final ReportCatalog catalog;
     private final ReportResolver resolver;
 
@@ -41,7 +45,8 @@ public class ReportCatalogService {
     /** 已发布、在生效期、配置可用、用户有该报表的权限 */
     public boolean isVisible(CurrentUser user, CatalogEntry entry) {
         return java.util.Objects.equals(user.tenantId(), entry.tenantId()) && entry.published() && entry.effectiveAt(LocalDateTime.now()) && entry.usable()
-                && user.hasPermission(entry.permissionCode());
+                && user.hasPermission(entry.permissionCode())
+                && (operationsPolicy == null || operationsPolicy.visible(user, entry.reportId()));
     }
 
     public boolean isDispatchable(CurrentUser user, CatalogEntry entry) {
@@ -49,12 +54,16 @@ public class ReportCatalogService {
     }
 
     public List<CatalogEntry> visibleReports(CurrentUser user) {
-        return catalog.all().stream().filter(e -> isVisible(user, e)).toList();
+        Set<String> excluded = operationsPolicy == null ? Set.of() : operationsPolicy.excludedReports(user);
+        LocalDateTime now = LocalDateTime.now();
+        return catalog.all().stream().filter(e -> java.util.Objects.equals(user.tenantId(),e.tenantId())
+                && e.published() && e.effectiveAt(now) && e.usable() && user.hasPermission(e.permissionCode())
+                && !excluded.contains(e.reportId())).toList();
     }
 
     /** 当前用户可以通过 Agent 派单的报表：可见且目录中启用了派单 */
     public List<CatalogEntry> dispatchableReports(CurrentUser user) {
-        return catalog.all().stream().filter(e -> isDispatchable(user, e)).toList();
+        return visibleReports(user).stream().filter(CatalogEntry::dispatchEnabled).toList();
     }
 
     public CatalogEntry requireVisible(CurrentUser user, String reportId) {
@@ -86,7 +95,20 @@ public class ReportCatalogService {
     /** 在当前用户可派单的报表范围内解析说法 */
     public ResolveResult resolve(CurrentUser user, String query) {
         List<ReportRef> visible = dispatchableReports(user).stream().map(CatalogEntry::ref).toList();
-        return resolver.resolve(query, catalog.terms(), visible);
+        long started = System.nanoTime();
+        if (query != null && query.length() > 1000) throw new ApiException("报表查询文本不能超过 1000 字");
+        var policy = operationsPolicy == null ? null : operationsPolicy.get(user.tenantId(),"resolver");
+        boolean canary = policy != null && com.example.report.operations.OperationsPolicy.included(user,"resolver",policy);
+        ReportResolver selected = canary ? new ReportResolver(((Number)policy.payload().get("fuzzyThreshold")).doubleValue(),
+                ((Number)policy.payload().get("ambiguityMargin")).doubleValue()) : resolver;
+        ResolveResult result = selected.resolve(query, catalog.terms(), visible);
+        if (metrics != null) {
+            String policyVersion = (policy == null ? "0" : String.valueOf(policy.version())) + (canary ? ":canary" : ":baseline");
+            metrics.record(user,"RESOLVE","*",policyVersion,result.matchType().name(),started);
+            java.util.stream.Stream.concat(result.reports().stream(),result.candidates().stream()).distinct().forEach(r ->
+                    metrics.record(user,"RESOLVE_REPORT",r.reportId(),String.valueOf(catalog.find(r.reportId()).orElseThrow().catalogVersion())+":"+policyVersion,result.matchType().name(),started));
+        }
+        return result;
     }
 
     /** 可派单报表的说法索引与可见 ID，供服务端兜底识别意图用 */

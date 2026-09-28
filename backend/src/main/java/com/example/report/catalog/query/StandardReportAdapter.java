@@ -6,6 +6,8 @@ import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import java.math.BigDecimal;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.ResultSetMetaData;
+import java.sql.Types;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
@@ -16,6 +18,9 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.Locale;
+import com.example.report.common.ApiException;
+import org.springframework.jdbc.core.ConnectionCallback;
 
 /**
  * 标准报表适配器：按 {@link StandardQueryConfig} 生成查询，替代过去每张报表一个手写的事实装配器。
@@ -95,6 +100,7 @@ public class StandardReportAdapter implements ReportQueryAdapter, DispatchStatus
         if (companies == null || companies.isEmpty() || !tenantUsable(tenantId)) {
             return List.of();
         }
+        requireUniqueIdentity();
         MapSqlParameterSource params = new MapSqlParameterSource()
                 .addValue("companies", companies)
                 .addValue("pending", config.pendingValue());
@@ -106,7 +112,7 @@ public class StandardReportAdapter implements ReportQueryAdapter, DispatchStatus
             sql.append(" AND ").append(quote(config.idColumn())).append(" > :afterId");
             params.addValue("afterId", afterId);
         }
-        RuleSqlPredicate.compile(config, expression).ifPresent(predicate -> {
+        RuleSqlPredicate.compile(config, expression, expression == null ? Set.of() : exactNumericFields()).ifPresent(predicate -> {
             sql.append(" AND (").append(predicate.sql()).append(')');
             for (int i = 0; i < predicate.values().size(); i++) {
                 params.addValue("rule" + i, predicate.values().get(i));
@@ -130,6 +136,7 @@ public class StandardReportAdapter implements ReportQueryAdapter, DispatchStatus
         if (recordIds == null || recordIds.isEmpty() || !tenantUsable(tenantId)) {
             return List.of();
         }
+        requireUniqueIdentity();
         MapSqlParameterSource params = new MapSqlParameterSource().addValue("ids", recordIds);
         StringBuilder sql = new StringBuilder(selectFrom)
                 .append(" WHERE ").append(quote(config.idColumn())).append(" IN (:ids)");
@@ -142,6 +149,7 @@ public class StandardReportAdapter implements ReportQueryAdapter, DispatchStatus
     @Override
     public List<FactRow> pendingRowsByIds(String tenantId, Collection<String> recordIds) {
         if (recordIds == null || recordIds.isEmpty() || !tenantUsable(tenantId)) return List.of();
+        requireUniqueIdentity();
         MapSqlParameterSource params = new MapSqlParameterSource()
                 .addValue("ids", recordIds).addValue("pending", config.pendingValue());
         StringBuilder sql = new StringBuilder(selectFrom)
@@ -152,10 +160,48 @@ public class StandardReportAdapter implements ReportQueryAdapter, DispatchStatus
     }
 
     @Override
+    public List<FactRow> dryRunRowsAfter(String tenantId, Set<String> companies, String afterId, int size) {
+        return pendingRowsAfterWithRule(tenantId, companies, afterId, size, null);
+    }
+
+    @Override
+    public boolean markDispatchedGuarded(String tenantId, String recordId, String companyCode,
+                                         LocalDateTime dispatchedAt, java.util.function.Predicate<FactRow> eligible) {
+        if (!org.springframework.transaction.support.TransactionSynchronizationManager.isActualTransactionActive()) {
+            throw new IllegalStateException("原子派单复核必须在数据库事务内执行");
+        }
+        if (recordId == null || companyCode == null || !tenantUsable(tenantId)) return false;
+        requireUniqueIdentity();
+        MapSqlParameterSource params = new MapSqlParameterSource().addValue("id", recordId)
+                .addValue("company", companyCode).addValue("pending", config.pendingValue());
+        StringBuilder sql = new StringBuilder(selectFrom).append(" WHERE ").append(quote(config.idColumn()))
+                .append(" = :id AND ").append(quote(config.companyColumn())).append(" = :company AND ")
+                .append(quote(config.statusColumn())).append(" = :pending");
+        appendTenant(sql, params, tenantId);
+        sql.append(" FOR UPDATE");
+        List<FactRow> rows = jdbc.query(sql.toString(), params, (rs, i) -> mapRow(rs, LocalDate.now()));
+        if (rows.size() != 1 || !eligible.test(rows.get(0))) return false;
+        // The FOR UPDATE row lock remains held until the gateway transaction commits.
+        return writeDispatched(tenantId, recordId, companyCode, dispatchedAt);
+    }
+
+    @Override
     public boolean markDispatched(String tenantId, String recordId, LocalDateTime dispatchedAt) {
         if (recordId == null || !tenantUsable(tenantId)) {
             return false;
         }
+        requireWriteTransaction();
+        requireUniqueIdentity();
+        return writeDispatched(tenantId, recordId, null, dispatchedAt);
+    }
+
+    private static void requireWriteTransaction() {
+        if (!org.springframework.transaction.support.TransactionSynchronizationManager.isActualTransactionActive()) {
+            throw new IllegalStateException("派单回写必须在数据库事务内执行");
+        }
+    }
+
+    private boolean writeDispatched(String tenantId, String recordId, String companyCode, LocalDateTime dispatchedAt) {
         MapSqlParameterSource params = new MapSqlParameterSource()
                 .addValue("id", recordId)
                 .addValue("pending", config.pendingValue())
@@ -169,12 +215,93 @@ public class StandardReportAdapter implements ReportQueryAdapter, DispatchStatus
         sql.append(" WHERE ").append(quote(config.idColumn())).append(" = :id")
                 .append(" AND ").append(quote(config.statusColumn())).append(" = :pending");
         appendTenant(sql, params, tenantId);
-        return jdbc.update(sql.toString(), params) == 1;
+        if (companyCode != null) {
+            sql.append(" AND ").append(quote(config.companyColumn())).append(" = :company");
+            params.addValue("company", companyCode);
+        }
+        int changed = jdbc.update(sql.toString(), params);
+        if (changed > 1) throw new IllegalStateException("派单记录标识不唯一，事务必须回滚");
+        return changed == 1;
     }
 
     /** 发布前探测：按配置跑一条不返回数据的查询，表名、列名写错会在这里以 SQL 异常暴露 */
     public void probe() {
-        jdbc.query(selectFrom + " WHERE 1 = 0", new MapSqlParameterSource(), (rs, i) -> null);
+        requireUniqueIdentity();
+    }
+
+    /** RecordKey is (reportId, recordId): company-scoped IDs cannot be represented safely.
+     * Check at publish AND use, so previously published configurations and later schema changes fail closed.
+     * During a dispatch transaction the zero-row SELECT holds a metadata lock through the write. */
+    private void requireUniqueIdentity() {
+        Boolean unique = jdbc.getJdbcTemplate().execute((ConnectionCallback<Boolean>) connection -> {
+            boolean nonNullId = false;
+            try (var statement = connection.prepareStatement(selectFrom + " WHERE 1 = 0")) {
+                org.springframework.jdbc.datasource.DataSourceUtils.applyTimeout(statement, jdbc.getJdbcTemplate().getDataSource(),
+                        jdbc.getJdbcTemplate().getQueryTimeout());
+                try (var rows = statement.executeQuery()) {
+                    var metadata = rows.getMetaData();
+                    for (int i = 1; i <= metadata.getColumnCount(); i++) {
+                        if (config.idColumn().equalsIgnoreCase(metadata.getColumnLabel(i))) {
+                            nonNullId = metadata.isNullable(i) == ResultSetMetaData.columnNoNulls;
+                        }
+                    }
+                }
+            }
+            if (!nonNullId) return false;
+            String[] table = config.table().split("\\.");
+            String database = table.length == 2 ? table[0] : connection.getCatalog();
+            Map<String, Set<String>> indexes = new HashMap<>();
+            try (var statement = connection.prepareStatement("SELECT INDEX_NAME,COLUMN_NAME FROM information_schema.STATISTICS "
+                    + "WHERE TABLE_SCHEMA=? AND TABLE_NAME=? AND NON_UNIQUE=0")) {
+                statement.setString(1, database); statement.setString(2, table[table.length - 1]);
+                org.springframework.jdbc.datasource.DataSourceUtils.applyTimeout(statement, jdbc.getJdbcTemplate().getDataSource(),
+                        jdbc.getJdbcTemplate().getQueryTimeout());
+                try (var keys = statement.executeQuery()) {
+                    while (keys.next()) {
+                        String name = keys.getString("INDEX_NAME");
+                        String column = keys.getString("COLUMN_NAME");
+                        indexes.computeIfAbsent(name, ignored -> new LinkedHashSet<>())
+                                .add(column == null ? "<expression>" : column.toLowerCase(Locale.ROOT));
+                    }
+                }
+            }
+            Set<String> id = Set.of(config.idColumn().toLowerCase(Locale.ROOT));
+            Set<String> tenantId = new LinkedHashSet<>(id);
+            tenantId.add(config.tenantColumn().toLowerCase(Locale.ROOT));
+            return indexes.values().stream().anyMatch(columns -> columns.equals(id) || columns.equals(tenantId));
+        });
+        if (!Boolean.TRUE.equals(unique)) throw new ApiException("标准报表 idColumn 必须非空，并有 ID 或租户+ID 唯一约束；其他复合主键请配置专用适配器");
+    }
+
+    /** Read metadata for this query, so an external schema change cannot leave a cached proof stale.
+     * Unverified or lossy mappings still work, but their predicates are evaluated only in Java. */
+    private Set<String> exactNumericFields() {
+        Set<String> verified = jdbc.query(selectFrom + " WHERE 1 = 0", new MapSqlParameterSource(),
+                (org.springframework.jdbc.core.ResultSetExtractor<Set<String>>) rs -> {
+                    ResultSetMetaData metadata = rs.getMetaData();
+                    Set<String> result = new LinkedHashSet<>();
+                    for (var field : config.fields()) {
+                        for (int i = 1; i <= metadata.getColumnCount(); i++) {
+                            if (field.column().equalsIgnoreCase(metadata.getColumnLabel(i))
+                                    && exactNumericMapping(field.type(), metadata.getColumnType(i), metadata.isSigned(i))) {
+                                result.add(field.name());
+                            }
+                        }
+                    }
+                    return Set.copyOf(result);
+                });
+        return verified == null ? Set.of() : verified;
+    }
+
+    static boolean exactNumericMapping(String target, int source, boolean signed) {
+        boolean smallInteger = source == Types.TINYINT || source == Types.SMALLINT;
+        boolean integer = smallInteger || source == Types.INTEGER;
+        return switch (target) {
+            case "decimal" -> integer || source == Types.BIGINT || source == Types.DECIMAL || source == Types.NUMERIC;
+            case "long" -> integer || (source == Types.BIGINT && signed);
+            case "integer" -> smallInteger || (source == Types.INTEGER && signed);
+            default -> false;
+        };
     }
 
     /** 配置了租户列而登录态没有租户时不返回任何数据：宁可查不到，也不能跨租户 */

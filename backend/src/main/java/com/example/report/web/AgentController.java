@@ -54,7 +54,7 @@ public class AgentController {
         if (request.getMessage() == null || request.getMessage().isBlank()) {
             throw new ApiException("消息不能为空");
         }
-        return chatService.chat(user, request.getConversationId(), request.getMessage().trim(), request.getExcludeDocNos(),
+        return chatService.chat(user, request.getConversationId(), com.example.report.operations.SensitiveData.text(request.getMessage().trim()), request.getExcludeDocNos(),
                 request.getPreviewId(), request.getExcludedRecords());
     }
 

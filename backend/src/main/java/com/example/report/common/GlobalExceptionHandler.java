@@ -17,7 +17,7 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(ApiException.class)
     public ResponseEntity<Result<Void>> handleApi(ApiException e) {
         // 业务异常 HTTP 仍返回 200，由 code 表达语义，避免 axios 走网络错误分支
-        return ResponseEntity.ok(Result.fail(e.getCode(), e.getMessage()));
+        return ResponseEntity.ok(Result.fail(e.getCode(), com.example.report.operations.SensitiveData.text(e.getMessage())));
     }
 
     @ExceptionHandler(MissingRequestHeaderException.class)
@@ -28,6 +28,6 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(Exception.class)
     public ResponseEntity<Result<Void>> handleOther(Exception e) {
         log.error("未处理异常", e);
-        return ResponseEntity.status(HttpStatus.OK).body(Result.fail(500, "服务器内部错误：" + e.getMessage()));
+        return ResponseEntity.status(HttpStatus.OK).body(Result.fail(500, "服务器内部错误，请稍后重试或联系管理员"));
     }
 }

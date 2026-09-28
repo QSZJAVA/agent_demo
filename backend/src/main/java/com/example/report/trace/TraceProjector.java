@@ -22,6 +22,8 @@ import java.util.List;
 @Slf4j
 @Service
 public class TraceProjector {
+    @org.springframework.beans.factory.annotation.Autowired(required = false)
+    private com.example.report.operations.DataRetentionService retention;
     private final JdbcTemplate jdbc;
     private final DispatchAuditMapper audits;
     private final AgentMessageMapper messages;
@@ -112,6 +114,7 @@ public class TraceProjector {
     }
 
     private void projectMessage(TraceEvent event) {
+        if (retention != null && retention.erased(event.conversationId())) return;
         if (count("agent_message", event.id()) != 0) return;
         var envelope = JsonUtil.toMap(event.payload());
         AgentMessage message = JsonUtil.MAPPER.convertValue(envelope.get("message"), AgentMessage.class);

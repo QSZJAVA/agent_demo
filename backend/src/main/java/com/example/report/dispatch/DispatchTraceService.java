@@ -67,6 +67,7 @@ public class DispatchTraceService {
         DispatchPlan plan = readable(user, planId);
         DispatchPreview preview = previews.find(plan.getPreviewId()).orElseThrow();
         try (var permit = quotas.acquire(user, "trace-retry", DispatchVersionService.reportIds(preview))) {
+            ResourceQuotaService.check(permit);
             return Map.of("scheduledCount", reader.retry(plan));
         }
     }

@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.function.Function;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -18,6 +19,11 @@ final class RuleSqlPredicate {
     record Fragment(String sql, List<Object> values) { }
 
     static Optional<Fragment> compile(StandardQueryConfig config, String expression) {
+        return compile(config, expression, Set.of());
+    }
+
+    /** Numeric fields must have an exact JDBC mapping verified against result-set metadata. */
+    static Optional<Fragment> compile(StandardQueryConfig config, String expression, Set<String> exactNumericFields) {
         if (expression == null || expression.isBlank() || expression.contains("||")) return Optional.empty();
         Map<String, StandardQueryConfig.FieldSpec> fields = config.fields().stream()
                 .collect(Collectors.toMap(StandardQueryConfig.FieldSpec::name, Function.identity()));
@@ -45,11 +51,19 @@ final class RuleSqlPredicate {
                     if (!"string".equals(field.type()) && !"date".equals(field.type())) return Optional.empty();
                     value = literal.substring(1, literal.length() - 1);
                 } else if ("true".equals(literal) || "false".equals(literal)) {
-                    if (!"boolean".equals(field.type())) return Optional.empty();
-                    value = Boolean.valueOf(literal);
+                    // JDBC getBoolean can map values such as TINYINT 2 to true, whereas SQL
+                    // column = TRUE compares with 1. Physical type/value constraints are not
+                    // verified by the catalog, so keep boolean comparisons in Java.
+                    return Optional.empty();
                 } else {
-                    if (!List.of("decimal", "long", "integer").contains(field.type())) return Optional.empty();
-                    value = new BigDecimal(literal);
+                    // Aviator parses fractional literals as double. Binding their original text
+                    // as DECIMAL can exclude rows Aviator matches after rounding. Keep those in Java.
+                    // Integral literals must fit Aviator's long and the source/JDBC mapping must be exact.
+                    if (!exactNumericFields.contains(field.name()) || literal.contains(".")) return Optional.empty();
+                    long integral = Long.parseLong(literal);
+                    // Aviator's decimal-vs-long comparison converts the long through double.
+                    if (integral < -9007199254740991L || integral > 9007199254740991L) return Optional.empty();
+                    value = BigDecimal.valueOf(integral);
                 }
             } catch (RuntimeException e) {
                 return Optional.empty();

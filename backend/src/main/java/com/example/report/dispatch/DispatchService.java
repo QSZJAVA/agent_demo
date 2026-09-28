@@ -87,12 +87,13 @@ public class DispatchService {
 
     /** 确认执行一份待确认清单（前端确认按钮，或 require-confirm=false 时由工具直接调用） */
     public DispatchResultPayload confirm(CurrentUser user, String planId, String traceId) {
-        try (ResourceQuotaService.Permit ignored = acquirePlanPermit(user, planId)) {
-            return confirmWithPermit(user, planId, traceId);
+        try (ResourceQuotaService.Permit permit = acquirePlanPermit(user, planId)) {
+            return confirmWithPermit(user, planId, traceId, permit);
         }
     }
 
-    private DispatchResultPayload confirmWithPermit(CurrentUser user, String planId, String traceId) {
+    private DispatchResultPayload confirmWithPermit(CurrentUser user, String planId, String traceId, ResourceQuotaService.Permit permit) {
+        ResourceQuotaService.check(permit);
         PlanSnapshot snapshot = planService.getOwned(user, planId);
         DispatchPlan plan = snapshot.plan();
         if (DispatchPlan.EXECUTED.equals(plan.getStatus())) {
@@ -128,7 +129,7 @@ public class DispatchService {
         DispatchResultPayload result;
         ScheduledFuture<?> heartbeat = startHeartbeat(plan.getId(), executionVersion);
         try {
-            result = execute(user, plan, preview, snapshot.items(), traceId, executionVersion);
+            result = execute(user, plan, preview, snapshot.items(), traceId, executionVersion, permit);
         } catch (RuntimeException e) {
             // 只有仍在执行中的异常才需要核对；网关调用前的查询失败会恢复为 PENDING。
             boolean reviewRequired;
@@ -166,12 +167,13 @@ public class DispatchService {
 
     /** 仅重试外部接口明确返回失败的条目；SUCCESS/SKIPPED/UNKNOWN 绝不重发。 */
     public DispatchResultPayload retryFailed(CurrentUser user, String planId) {
-        try (ResourceQuotaService.Permit ignored = acquirePlanPermit(user, planId)) {
-            return retryFailedWithPermit(user, planId);
+        try (ResourceQuotaService.Permit permit = acquirePlanPermit(user, planId)) {
+            return retryFailedWithPermit(user, planId, permit);
         }
     }
 
-    private DispatchResultPayload retryFailedWithPermit(CurrentUser user, String planId) {
+    private DispatchResultPayload retryFailedWithPermit(CurrentUser user, String planId, ResourceQuotaService.Permit permit) {
+        ResourceQuotaService.check(permit);
         PlanSnapshot snapshot = planService.getOwned(user, planId);
         DispatchPlan plan = snapshot.plan();
         if (!DispatchPlan.EXECUTED.equals(plan.getStatus()) || plan.getFailedCount() == null || plan.getFailedCount() == 0) {
@@ -204,6 +206,7 @@ public class DispatchService {
                     planId, preview.getRuleVersion(), preview.getPermissionVersion(), TraceIds.current());
             boolean uncertain = false;
             for (DispatchPlanItem item : retryItems) {
+                ResourceQuotaService.check(permit);
                 requireExecution(planId, executionVersion);
                 Candidate c = PlanSnapshot.toCandidate(item);
                 CatalogEntry report = byId.get(item.getReportId());
@@ -220,7 +223,10 @@ public class DispatchService {
                 persistItem(user, ctx, item, executionVersion, "INTENT");
                 attempted = true;
                 DispatchGateway.Outcome outcome = plans.withExecutionRight(planId, executionVersion,
-                        () -> callGateway(user, requestId, report, c));
+                        () -> {
+                            ResourceQuotaService.check(permit);
+                            return callGateway(user, requestId, report, c, !SOURCE_MANUAL.equals(preview.getSource()));
+                        });
                 String code = outcome.success() ? DispatchPlanItem.SUCCESS
                         : "RESULT_UNKNOWN".equals(outcome.errorCode()) ? DispatchPlanItem.UNKNOWN : DispatchPlanItem.FAILED;
                 uncertain |= DispatchPlanItem.UNKNOWN.equals(code);
@@ -278,17 +284,19 @@ public class DispatchService {
 
     /** 查询外部幂等请求号，只有全部未知项得到确定结果后才解除待核对状态。 */
     public DispatchResultPayload reconcile(CurrentUser user, String planId) {
-        try (ResourceQuotaService.Permit ignored = acquirePlanPermit(user, planId)) {
-            return reconcileWithPermit(user, planId);
+        try (ResourceQuotaService.Permit permit = acquirePlanPermit(user, planId)) {
+            return reconcileWithPermit(user, planId, permit);
         }
     }
 
-    private DispatchResultPayload reconcileWithPermit(CurrentUser user, String planId) {
+    private DispatchResultPayload reconcileWithPermit(CurrentUser user, String planId, ResourceQuotaService.Permit permit) {
+        ResourceQuotaService.check(permit);
         PlanSnapshot snapshot = planService.getOwned(user, planId);
         if (!DispatchPlan.REVIEW_REQUIRED.equals(snapshot.plan().getStatus())) {
             throw new ApiException(409, "该清单不需要核对");
         }
         for (DispatchPlanItem item : snapshot.items()) {
+            ResourceQuotaService.check(permit);
             String expectedStatus = item.getStatus();
             if (!DispatchPlanItem.UNKNOWN.equals(expectedStatus) && !DispatchPlanItem.PENDING.equals(expectedStatus)) {
                 continue;
@@ -386,17 +394,20 @@ public class DispatchService {
         List<String> ids = recordIds.stream().filter(Objects::nonNull).map(String::trim)
                 .filter(s -> !s.isEmpty()).distinct().toList();
         if (ids.isEmpty() || ids.size() > 50) throw new ApiException("每次请选择 1～50 条记录");
-        try (ResourceQuotaService.Permit ignored = quotas == null ? null
+        try (ResourceQuotaService.Permit permit = quotas == null ? null
                 : quotas.acquire(user, "dispatch", List.of(report.reportId()))) {
             List<PlanSnapshot> prepared = new ArrayList<>();
             // 先持久化全部清单，任一准备失败时本次尚未调用网关。
-            for (String id : ids) prepared.add(planService.manual(user, report, id));
+            for (String id : ids) {
+                ResourceQuotaService.check(permit);
+                prepared.add(planService.manual(user, report, id));
+            }
             List<ManualPlan> results = new ArrayList<>();
             int success = 0, failed = 0, review = 0;
             for (PlanSnapshot snapshot : prepared) {
                 String planId = snapshot.plan().getId();
                 if (DispatchPlan.PENDING.equals(snapshot.plan().getStatus())) {
-                    try { confirmWithPermit(user, planId, TraceIds.current()); }
+                    try { confirmWithPermit(user, planId, TraceIds.current(), permit); }
                     catch (ApiException e) {
                         // 执行结果以持久化状态为准，保留清单编号供刷新、核对或重新确认。
                         log.warn("手工清单 {} 尚未完成：{}", planId, e.getMessage());
@@ -442,7 +453,8 @@ public class DispatchService {
     }
 
     private DispatchResultPayload execute(CurrentUser user, DispatchPlan plan, DispatchPreview preview,
-                                          List<DispatchPlanItem> items, String traceId, long executionVersion) {
+                                          List<DispatchPlanItem> items, String traceId, long executionVersion,
+                                          ResourceQuotaService.Permit permit) {
         AuditService.Context ctx = new AuditService.Context(SOURCE_MANUAL.equals(preview.getSource()) ? SOURCE_MANUAL : SOURCE_AGENT, plan.getConversationId(), preview.getId(), plan.getId(),
                 preview.getRuleVersion(), preview.getPermissionVersion(), traceId);
         Set<String> reportIds = items.stream().map(DispatchPlanItem::getReportId).collect(Collectors.toCollection(LinkedHashSet::new));
@@ -453,6 +465,7 @@ public class DispatchService {
         Set<String> qualified;
         try {
             qualified = qualifiedKeys(user, preview, reports, items);
+            ResourceQuotaService.check(permit);
         } catch (RuntimeException e) {
             // 尚未调用任何网关，恢复后可安全重试；下次确认仍会重验归属、预览及版本。
             plans.transitionExecution(plan.getId(), executionVersion, DispatchPlan.PENDING, null, LocalDateTime.now());
@@ -468,6 +481,7 @@ public class DispatchService {
         boolean itemPersistenceFailed = false;
         boolean uncertainOutcome = false;
         for (DispatchPlanItem item : items) {
+            ResourceQuotaService.check(permit);
             requireExecution(plan.getId(), executionVersion);
             Candidate c = PlanSnapshot.toCandidate(item);
             CatalogEntry report = reportById.get(item.getReportId());
@@ -494,7 +508,10 @@ public class DispatchService {
                     throw unavailable;
                 }
                 DispatchGateway.Outcome outcome = plans.withExecutionRight(plan.getId(), executionVersion,
-                        () -> callGateway(user, requestId, report, c));
+                        () -> {
+                            ResourceQuotaService.check(permit);
+                            return callGateway(user, requestId, report, c, !SOURCE_MANUAL.equals(preview.getSource()));
+                        });
                 code = outcome.success() ? DispatchPlanItem.SUCCESS
                         : "RESULT_UNKNOWN".equals(outcome.errorCode()) ? DispatchPlanItem.UNKNOWN : DispatchPlanItem.FAILED;
                 uncertainOutcome |= DispatchPlanItem.UNKNOWN.equals(code);
@@ -548,9 +565,10 @@ public class DispatchService {
                 LinkedHashMap::new, Collectors.mapping(DispatchPlanItem::getRecordId, Collectors.toList())));
     }
 
-    private DispatchGateway.Outcome callGateway(CurrentUser user, String requestId, CatalogEntry report, Candidate c) {
+    private DispatchGateway.Outcome callGateway(CurrentUser user, String requestId, CatalogEntry report, Candidate c,
+                                               boolean enforceRules) {
         try {
-            return gateway.dispatch(new DispatchGateway.DispatchRequest(user.tenantId(), requestId, report, c));
+            return gateway.dispatch(new DispatchGateway.DispatchRequest(user.tenantId(), requestId, report, c, enforceRules));
         } catch (Exception e) {
             log.warn("派单接口调用异常 {} {} {}", report.reportId(), c.docNo(), e.getMessage());
             return DispatchGateway.Outcome.fail("RESULT_UNKNOWN", "派单接口结果未知，需按请求号核对：" + e.getMessage());

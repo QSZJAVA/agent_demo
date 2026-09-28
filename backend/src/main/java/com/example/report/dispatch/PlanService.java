@@ -3,6 +3,7 @@ package com.example.report.dispatch;
 import com.example.report.common.ApiException;
 import com.example.report.common.JsonUtil;
 import com.example.report.config.AgentProperties;
+import com.example.report.config.ResourceQuotaService;
 import com.example.report.dispatch.store.PlanRepository;
 import com.example.report.dispatch.store.PreviewRepository;
 import com.example.report.entity.DispatchPlan;
@@ -40,15 +41,18 @@ public class PlanService {
     private final DispatchVersionService versions;
     private final AgentProperties props;
     private final TransactionOperations tx;
+    private final ResourceQuotaService quotas;
 
     public PlanService(PreviewService previewService, PreviewRepository previews, PlanRepository plans,
-                       DispatchVersionService versions, AgentProperties props, TransactionOperations tx) {
+                       DispatchVersionService versions, AgentProperties props, TransactionOperations tx,
+                       ResourceQuotaService quotas) {
         this.previewService = previewService;
         this.previews = previews;
         this.plans = plans;
         this.versions = versions;
         this.props = props;
         this.tx = tx;
+        this.quotas = Objects.requireNonNull(quotas);
     }
 
     /**
@@ -67,8 +71,18 @@ public class PlanService {
                 || idempotencyKey.trim().toLowerCase(Locale.ROOT).startsWith("retired:"))) {
             throw new ApiException("该幂等键前缀由系统保留，请更换后重试");
         }
-        try {
-            return createInternal(user, conversationId, previewId, excludes, idempotencyKey, excludedRecords);
+        if (idempotencyKey != null && !idempotencyKey.isBlank()) {
+            var existing = plans.findByIdempotencyKey(user.tenantId(), idempotencyKey.trim());
+            if (existing.isPresent()) return replayOwned(user, existing.get());
+        }
+        // 仅读取归属及报表范围；取得配额前不能懒惰作废清单、读取全量明细或开始写事务。
+        DispatchPreview source = (previewId == null || previewId.isBlank()
+                ? previewService.latest(user, conversationId)
+                : previewService.findOwned(user, previewId.trim()))
+                .orElseThrow(() -> ApiException.notFound("没有可用的预览，请重新查询"));
+        try (var permit = quotas.acquire(user, "plan-create", DispatchVersionService.reportIds(source))) {
+            ResourceQuotaService.check(permit);
+            return createInternal(user, conversationId, source.getId(), excludes, idempotencyKey, excludedRecords, permit);
         } catch (org.springframework.dao.DuplicateKeyException conflict) {
             // 插入事务已回滚；跨会话同键竞争也在这里返回赢家，其他唯一键冲突继续抛出。
             if (idempotencyKey != null && !idempotencyKey.isBlank()) {
@@ -121,6 +135,11 @@ public class PlanService {
 
     private PlanSnapshot createInternal(CurrentUser user, String conversationId, String previewId, List<String> excludes,
                                         String idempotencyKey, List<RecordKey> excludedRecords) {
+        return createInternal(user, conversationId, previewId, excludes, idempotencyKey, excludedRecords, null);
+    }
+
+    private PlanSnapshot createInternal(CurrentUser user, String conversationId, String previewId, List<String> excludes,
+                                        String idempotencyKey, List<RecordKey> excludedRecords, ResourceQuotaService.Permit permit) {
         if (idempotencyKey != null && !idempotencyKey.isBlank()) {
             Optional<DispatchPlan> existing = plans.findByIdempotencyKey(user.tenantId(), idempotencyKey.trim());
             if (existing.isPresent()) {
@@ -213,6 +232,7 @@ public class PlanService {
             if (invalid != null) {
                 throw new ApiException("预览已失效：" + StateReason.message(invalid));
             }
+            ResourceQuotaService.check(permit);
             for (DispatchPlan old : plans.pendingByPreview(current.getId())) {
                 if (plans.transition(old.getId(), DispatchPlan.PENDING, DispatchPlan.EXPIRED, StateReason.NEW_PLAN, now)) {
                     expired.add(old.getId());

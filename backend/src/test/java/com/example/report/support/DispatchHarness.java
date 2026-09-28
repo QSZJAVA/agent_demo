@@ -47,8 +47,9 @@ public final class DispatchHarness {
     public final DispatchVersionService versions = new DispatchVersionService(catalogService, rules);
     public final PreviewService previews = new PreviewService(catalogService, candidates, versions, store.previews(),
             store.plans(), props, TransactionOperations.withoutTransaction());
+    public final com.example.report.config.ResourceQuotaService quotas = mock(com.example.report.config.ResourceQuotaService.class);
     public final PlanService plans = new PlanService(previews, store.previews(), store.plans(), versions, props,
-            TransactionOperations.withoutTransaction());
+            TransactionOperations.withoutTransaction(), quotas);
 
     public DispatchHarness() {
         when(rules.fingerprint(anyString(), anyCollection(), anyCollection())).thenAnswer(inv -> ruleVersion.get());

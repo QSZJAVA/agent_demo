@@ -103,6 +103,7 @@ public class AgentChatService {
         // 模型偶尔会把预览编号这类内部标识写进回复，甚至编造一个系统里根本不存在的编号，
         // 用户看到只会被误导（预览本来已经由界面卡片完整展示），所以在流式出口做一次掩码。
         PreviewIdMask previewIdMask = new PreviewIdMask();
+        var sensitiveStream = new com.example.report.operations.SensitiveTextStream();
         // 所有消息统一交给模型；明确的查询 / 范围纠正不再由服务端抢答
         Flux<String> response = Flux.defer(() -> chatClient.prompt()
                 .user(message)
@@ -114,6 +115,8 @@ public class AgentChatService {
         Flux<AgentEvent> textEvents = response
                 .filter(s -> s != null && !s.isEmpty())
                 .concatMap(s -> Flux.fromIterable(previewIdMask.feed(s)))
+                .map(sensitiveStream::feed)
+                .filter(s -> !s.isEmpty())
                 .map(s -> {
                     reply.append(s);
                     return new AgentEvent(AgentEvent.TEXT, Map.of("delta", s));
@@ -132,9 +135,13 @@ public class AgentChatService {
             List<AgentEvent> hints = new java.util.ArrayList<>();
             // 掩码器可能还攥着半截编号没放行，先收尾，保证 text 与实际展示给用户的文本一致
             for (String tail : previewIdMask.flush()) {
-                reply.append(tail);
-                hints.add(new AgentEvent(AgentEvent.TEXT, Map.of("delta", tail)));
+                String safe = sensitiveStream.feed(tail);
+                reply.append(safe);
+                hints.add(new AgentEvent(AgentEvent.TEXT, Map.of("delta", safe)));
             }
+            String safeTail = sensitiveStream.flush();
+            reply.append(safeTail);
+            if (!safeTail.isEmpty()) hints.add(new AgentEvent(AgentEvent.TEXT, Map.of("delta",safeTail)));
             String text = reply.toString();
             boolean previewEmitted = channel.hasEmitted(AgentEvent.PREVIEW)
                     || channel.hasEmitted(AgentEvent.PREVIEW_JOB);
@@ -198,9 +205,10 @@ public class AgentChatService {
         Flux<AgentEvent> body = textEvents.concatWith(guard);
         return Flux.defer(() -> {
             ResourceQuotaService.Permit permit = quotas == null ? null : quotas.acquire(user, "chat", List.of());
-            return head.concatWith(Flux.merge(channel.asFlux(), body)).concatWith(tail)
+            Flux<AgentEvent> events = head.concatWith(Flux.merge(channel.asFlux(), body)).concatWith(tail);
+            return (permit == null ? events : permit.guard(events))
                     .index()
-                    .map(event -> ServerSentEvent.builder((Object) event.getT2().data())
+                    .map(event -> ServerSentEvent.builder(com.example.report.operations.SensitiveData.typed(event.getT2().data()))
                             .id(requestId + ":" + event.getT1())
                             .event(event.getT2().type()).build())
                     .doFinally(signal -> { if (permit != null) permit.close(); });
