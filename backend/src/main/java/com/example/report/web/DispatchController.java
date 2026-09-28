@@ -164,7 +164,8 @@ public class DispatchController {
         if (conversationId != null) {
             conversationService.getOwned(user, conversationId);
         }
-        PlanSnapshot plan = planService.create(user, conversationId, request.getPreviewId(), request.getExcludeDocNos(), idempotencyKey);
+        PlanSnapshot plan = planService.create(user, conversationId, request.getPreviewId(), request.getExcludeDocNos(), idempotencyKey,
+                request.getExcludedRecords());
         // 幂等重放返回第一次的清单，卡片已经记过，不再重复写进会话
         return Result.ok(plan.replayed() ? PlanPayload.of(plan)
                 : conversationCards.recordPlan(user, plan.plan().getConversationId(), plan));
@@ -231,7 +232,7 @@ public class DispatchController {
 
     /** 报表页手工派单：reportId 或旧 reportType 均可，按记录主键 */
     @PostMapping("/direct")
-    public Result<DispatchResultPayload> direct(@RequestHeader(PermissionService.USER_HEADER) String userId,
+    public Result<DispatchService.ManualResult> direct(@RequestHeader(PermissionService.USER_HEADER) String userId,
                                                 @RequestBody DirectRequest request) {
         CurrentUser user = permissionService.resolve(userId);
         if (request.getIds() == null || request.getIds().isEmpty()) {
@@ -239,6 +240,13 @@ public class DispatchController {
         }
         String report = blankToNull(request.getReportId()) != null ? request.getReportId() : request.getReportType();
         return Result.ok(dispatchService.dispatchDirect(user, report, request.getIds()));
+    }
+
+    @GetMapping("/direct/plans")
+    public Result<List<DispatchService.ManualPlan>> manualPlans(
+            @RequestHeader(PermissionService.USER_HEADER) String userId,
+            @RequestParam String reportType, @RequestParam(defaultValue = "1") int page) {
+        return Result.ok(dispatchService.manualPlans(permissionService.resolve(userId), reportType, page));
     }
 
     private static String blankToNull(String s) {
@@ -262,6 +270,7 @@ public class DispatchController {
 
     @Data
     public static class PlanRequest {
+        private List<com.example.report.dispatch.RecordKey> excludedRecords;
         private String previewId;
         private String conversationId;
         private List<String> excludeDocNos;

@@ -13,6 +13,13 @@ public final class ToolContextKeys {
     public static final String CONVERSATION_ID = "conversationId";
     /** 前端预览表格里取消勾选的单据号（等价于排除项） */
     public static final String UI_EXCLUDES = "uiExcludes";
+    public static final String UI_EXCLUDED_RECORDS = "uiExcludedRecords";
+
+    @SuppressWarnings("unchecked")
+    public static List<com.example.report.dispatch.RecordKey> uiExcludedRecords(ToolContext ctx) {
+        Object value = ctx.getContext().get(UI_EXCLUDED_RECORDS);
+        return value instanceof List<?> list ? (List<com.example.report.dispatch.RecordKey>) list : List.of();
+    }
     /** 取消勾选发生在哪张预览卡片上：只有与本次派单的预览一致时才生效 */
     public static final String UI_PREVIEW_ID = "uiPreviewId";
     /** 本轮用户是在当前查询范围上追加报表（例如"加上费用报表的"），预览需要与上一轮范围合并 */

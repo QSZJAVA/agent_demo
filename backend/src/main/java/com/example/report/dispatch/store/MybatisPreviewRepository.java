@@ -8,6 +8,7 @@ import com.example.report.mapper.AgentConversationMapper;
 import com.example.report.mapper.DispatchPreviewItemMapper;
 import com.example.report.mapper.DispatchPreviewMapper;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.Collection;
@@ -46,6 +47,7 @@ public class MybatisPreviewRepository implements PreviewRepository {
     }
 
     @Override
+    @Transactional
     public long beginRequest(String conversationId) {
         if (conversationId == null) return 0;
         if (conversationMapper.advancePreviewRequest(conversationId) != 1) {

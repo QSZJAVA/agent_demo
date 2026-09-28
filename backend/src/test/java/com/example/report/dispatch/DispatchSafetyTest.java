@@ -11,6 +11,9 @@ import org.junit.jupiter.api.Test;
 import org.springframework.ai.chat.memory.ChatMemory;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 import static com.example.report.support.TestCatalog.*;
 import static com.example.report.support.DispatchHarness.candidate;
 import static org.junit.jupiter.api.Assertions.*;
@@ -70,7 +73,7 @@ class DispatchSafetyTest {
     @Test void savedResultFailureRequiresReviewAndNeverResends() {
         var plan = plan();
         PlanRepository repository = spy(h.store.plans());
-        doThrow(new RuntimeException("write failed")).when(repository).updateItem(any());
+        doThrow(new RuntimeException("write failed")).when(repository).updateItem(any(), anyLong());
         when(gateway.dispatch(any())).thenReturn(DispatchGateway.Outcome.ok());
         var service = service(repository);
         assertEquals(409, assertThrows(ApiException.class, () -> service.confirm(USER1, plan.plan().getId())).getCode());
@@ -78,7 +81,36 @@ class DispatchSafetyTest {
         assertEquals(409, assertThrows(ApiException.class, () -> service.confirm(USER1, plan.plan().getId())).getCode());
         assertThrows(ApiException.class, () -> service.cancel(USER1, plan.plan().getId()));
         assertThrows(ApiException.class, () -> h.plans.create(USER1, "c1", plan.plan().getPreviewId(), List.of(), null));
-        verify(gateway, times(1)).dispatch(any());
+        verifyNoInteractions(gateway);
+    }
+
+    @Test void recoveryRevokesPausedExecutionBeforeGatewaySend() throws Exception {
+        var plan = plan();
+        CountDownLatch checking = new CountDownLatch(1);
+        CountDownLatch resume = new CountDownLatch(1);
+        doAnswer(inv -> {
+            checking.countDown();
+            assertTrue(resume.await(5, TimeUnit.SECONDS));
+            return java.util.Set.of(candidate(SALES, "1", "SO1", "A", "item").key());
+        }).when(h.candidates).qualifiedPlanKeys(anyString(), anySet(), anyList(), anyMap());
+        var service = service(h.store.plans());
+        var pool = Executors.newSingleThreadExecutor();
+        try {
+            var pending = pool.submit(() -> assertThrows(ApiException.class,
+                    () -> service.confirm(USER1, plan.plan().getId())));
+            assertTrue(checking.await(5, TimeUnit.SECONDS));
+            h.store.updatePlan(plan.plan().getId(), row -> row.setUpdatedAt(LocalDateTime.now().minusMinutes(6)));
+            assertTrue(h.store.plans().markStaleForReview(plan.plan().getId(),
+                    LocalDateTime.now().minusMinutes(5), LocalDateTime.now()));
+            resume.countDown();
+            assertEquals(409, pending.get(5, TimeUnit.SECONDS).getCode());
+            assertEquals(DispatchPlan.REVIEW_REQUIRED, h.store.plans().find(plan.plan().getId()).orElseThrow().getStatus());
+            verifyNoInteractions(gateway);
+        } finally {
+            resume.countDown();
+            pool.shutdownNow();
+            service.shutdownHeartbeats();
+        }
     }
 
     @Test void manualDispatchRespectsDispatchSwitchForIdsAndLegacyCodes() {

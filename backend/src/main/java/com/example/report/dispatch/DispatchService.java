@@ -2,14 +2,11 @@ package com.example.report.dispatch;
 
 import com.example.report.catalog.CatalogEntry;
 import com.example.report.catalog.ReportCatalogService;
-import com.example.report.catalog.query.FactRow;
 import com.example.report.common.ApiException;
-import com.example.report.common.JsonUtil;
 import com.example.report.common.TraceIds;
 import com.example.report.config.ResourceQuotaService;
 import com.example.report.conversation.ConversationService;
 import com.example.report.dispatch.store.PlanRepository;
-import com.example.report.entity.DispatchAudit;
 import com.example.report.entity.DispatchPlan;
 import com.example.report.entity.DispatchPlanItem;
 import com.example.report.entity.DispatchPreview;
@@ -112,7 +109,8 @@ public class DispatchService {
             throw new ApiException("该清单已失效：" + StateReason.message(reason));
         }
         // 认领：PENDING 且未过期 → EXECUTING，并发确认只有一个请求能成功
-        if (!planService.claimForExecution(user, plan, now)) {
+        var claimedVersion = planService.claimForExecution(user, plan, now);
+        if (claimedVersion.isEmpty()) {
             DispatchPlan latest = plans.find(plan.getId()).orElse(plan);
             if (DispatchPlan.EXECUTED.equals(latest.getStatus())) {
                 return replay(new PlanSnapshot(latest, plans.items(latest.getId())));
@@ -123,15 +121,16 @@ public class DispatchService {
             }
             throw statusError(latest);
         }
+        long executionVersion = claimedVersion.orElseThrow();
         DispatchResultPayload result;
-        ScheduledFuture<?> heartbeat = startHeartbeat(plan.getId());
+        ScheduledFuture<?> heartbeat = startHeartbeat(plan.getId(), executionVersion);
         try {
-            result = execute(user, plan, preview, snapshot.items(), traceId);
+            result = execute(user, plan, preview, snapshot.items(), traceId, executionVersion);
         } catch (RuntimeException e) {
             // 只有仍在执行中的异常才需要核对；网关调用前的查询失败会恢复为 PENDING。
             boolean reviewRequired;
             try {
-                reviewRequired = plans.transition(plan.getId(), DispatchPlan.EXECUTING, DispatchPlan.REVIEW_REQUIRED,
+                reviewRequired = plans.transitionExecution(plan.getId(), executionVersion, DispatchPlan.REVIEW_REQUIRED,
                         StateReason.EXECUTION_INTERRUPTED, LocalDateTime.now());
             } catch (RuntimeException persistenceError) {
                 log.error("清单执行中断且状态保存失败 plan={}", plan.getId(), persistenceError);
@@ -140,6 +139,11 @@ public class DispatchService {
             if (reviewRequired) {
                 log.error("清单执行中断，需核对 plan={}", plan.getId(), e);
                 throw new ApiException(409, StateReason.message(StateReason.EXECUTION_INTERRUPTED));
+            }
+            DispatchPlan current = plans.find(plan.getId()).orElse(plan);
+            if (!Objects.equals(current.getExecutionVersion(), executionVersion)
+                    || DispatchPlan.REVIEW_REQUIRED.equals(current.getStatus())) {
+                throw new ApiException(409, "清单执行权已失效，请刷新并核对结果");
             }
             throw e;
         } finally {
@@ -178,25 +182,27 @@ public class DispatchService {
                 .orElseThrow(() -> ApiException.notFound("原预览不存在"));
         String reason = versions.verifyForRetry(user, preview);
         if (reason != null) throw new ApiException(409, "权限、报表或规则已变化，请重新预览后处理失败记录");
-        if (!plans.claimRetry(planId, LocalDateTime.now())) {
+        var claimedVersion = plans.claimRetry(planId, LocalDateTime.now());
+        if (claimedVersion.isEmpty()) {
             throw new ApiException(409, "该清单正在处理或已被其他请求重试");
         }
-        ScheduledFuture<?> heartbeat = startHeartbeat(planId);
+        long executionVersion = claimedVersion.orElseThrow();
+        ScheduledFuture<?> heartbeat = startHeartbeat(planId, executionVersion);
         boolean attempted = false;
         try {
             Set<String> reportIds = retryItems.stream().map(DispatchPlanItem::getReportId).collect(Collectors.toSet());
             List<CatalogEntry> reports = catalogService.inCatalogOrder(reportIds);
             Map<String, CatalogEntry> byId = reports.stream().collect(Collectors.toMap(CatalogEntry::reportId, r -> r));
-            Set<String> qualified = candidateService.qualifiedPlanKeys(user.tenantId(),
-                    DispatchVersionService.companies(preview), reports, idsByReport(retryItems));
+            Set<String> qualified = qualifiedKeys(user, preview, reports, retryItems);
             if (versions.verifyForRetry(user, preview) != null) {
-                plans.transition(planId, DispatchPlan.EXECUTING, DispatchPlan.EXECUTED, null, LocalDateTime.now());
+                plans.transitionExecution(planId, executionVersion, DispatchPlan.EXECUTED, null, LocalDateTime.now());
                 throw new ApiException(409, "规则或权限已变化，未重试任何记录");
             }
-            AuditService.Context ctx = new AuditService.Context(SOURCE_AGENT, plan.getConversationId(), preview.getId(),
+            AuditService.Context ctx = new AuditService.Context(SOURCE_MANUAL.equals(preview.getSource()) ? SOURCE_MANUAL : SOURCE_AGENT, plan.getConversationId(), preview.getId(),
                     planId, preview.getRuleVersion(), preview.getPermissionVersion(), TraceIds.current());
             boolean uncertain = false;
             for (DispatchPlanItem item : retryItems) {
+                requireExecution(planId, executionVersion);
                 Candidate c = PlanSnapshot.toCandidate(item);
                 CatalogEntry report = byId.get(item.getReportId());
                 if (report == null || !qualified.contains(c.key())) continue;
@@ -209,9 +215,10 @@ public class DispatchService {
                 item.setErrorCode("RESULT_UNKNOWN");
                 item.setErrorMessage("重试请求结果待核对");
                 item.setUpdatedAt(LocalDateTime.now());
-                plans.updateItem(item);
+                plans.updateItem(item, executionVersion);
                 attempted = true;
-                DispatchGateway.Outcome outcome = callGateway(user, requestId, report, c);
+                DispatchGateway.Outcome outcome = plans.withExecutionRight(planId, executionVersion,
+                        () -> callGateway(user, requestId, report, c));
                 String code = outcome.success() ? DispatchPlanItem.SUCCESS
                         : "RESULT_UNKNOWN".equals(outcome.errorCode()) ? DispatchPlanItem.UNKNOWN : DispatchPlanItem.FAILED;
                 uncertain |= DispatchPlanItem.UNKNOWN.equals(code);
@@ -219,21 +226,21 @@ public class DispatchService {
                 item.setErrorCode(outcome.errorCode());
                 item.setErrorMessage(outcome.success() ? null : outcome.message());
                 item.setUpdatedAt(LocalDateTime.now());
-                plans.updateItem(item);
+                plans.updateItem(item, executionVersion);
                 recordAudit(user, ctx, c, item.getId(), requestId, code, outcome.errorCode(), outcome.message());
             }
             if (uncertain) throw new IllegalStateException("重试结果未知，需人工核对");
             List<DispatchPlanItem> latest = plans.items(planId);
             int successes = (int) latest.stream().filter(i -> DispatchPlanItem.SUCCESS.equals(i.getStatus())).count();
-            if (!plans.finish(planId, successes, latest.size() - successes, LocalDateTime.now())) {
+            if (!plans.finish(planId, executionVersion, successes, latest.size() - successes, LocalDateTime.now())) {
                 throw new IllegalStateException("失败项重试后清单收尾失败");
             }
             DispatchResultPayload result = currentResult(new PlanSnapshot(plans.find(planId).orElse(plan), latest));
             recordUpdatedResult(user, plan, result);
             return result;
         } catch (RuntimeException e) {
-            if (DispatchPlan.EXECUTING.equals(plans.find(planId).orElse(plan).getStatus())) {
-                plans.transition(planId, DispatchPlan.EXECUTING,
+            if (plans.isExecuting(planId, executionVersion)) {
+                plans.transitionExecution(planId, executionVersion,
                         attempted ? DispatchPlan.REVIEW_REQUIRED : DispatchPlan.EXECUTED,
                         attempted ? StateReason.EXECUTION_INTERRUPTED : null, LocalDateTime.now());
             }
@@ -244,14 +251,20 @@ public class DispatchService {
         }
     }
 
-    private ScheduledFuture<?> startHeartbeat(String planId) {
+    private ScheduledFuture<?> startHeartbeat(String planId, long executionVersion) {
         return executionHeartbeats.scheduleAtFixedRate(() -> {
             try {
-                plans.touchExecuting(planId, LocalDateTime.now());
+                plans.touchExecuting(planId, executionVersion, LocalDateTime.now());
             } catch (RuntimeException e) {
                 log.warn("派单执行心跳更新失败 plan={}", planId, e);
             }
         }, 30, 30, TimeUnit.SECONDS);
+    }
+
+    private void requireExecution(String planId, long executionVersion) {
+        if (!plans.isExecuting(planId, executionVersion)) {
+            throw new ApiException(409, "清单执行权已失效，请刷新并核对结果");
+        }
     }
 
     @jakarta.annotation.PreDestroy
@@ -356,48 +369,73 @@ public class DispatchService {
     }
 
     /** 报表页手工派单：按记录主键，只允许操作可见报表中、用户可见公司的记录 */
-    public DispatchResultPayload dispatchDirect(CurrentUser user, String reportIdOrLegacyCode, List<String> recordIds) {
+    public record ManualPlan(String planId, String docNo, String status, int retryableCount, String outcome, String message) { }
+    public record ManualResult(int total, int successCount, int failedCount, int reviewCount, List<ManualPlan> plans) { }
+
+    public ManualResult dispatchDirect(CurrentUser user, String reportIdOrLegacyCode, List<String> recordIds) {
         CatalogEntry report = catalogService.requireVisibleByIdOrLegacyCode(user, reportIdOrLegacyCode);
         report = catalogService.requireDispatchable(user, report.reportId());
-        ResourceQuotaService.Permit permit = quotas == null ? null : quotas.acquire(user, "dispatch", List.of(report.reportId()));
-        try {
-        List<String> ids = recordIds.stream().filter(Objects::nonNull).map(String::trim).filter(s -> !s.isEmpty()).distinct().toList();
-        Map<String, FactRow> rows = new LinkedHashMap<>();
-        report.adapter().rowsByIds(user.tenantId(), ids).forEach(r -> rows.put(r.recordId(), r));
-        List<Candidate> records = new ArrayList<>();
-        for (String id : ids) {
-            FactRow row = rows.get(id);
-            if (row == null || !user.companies().contains(row.companyCode())) {
-                throw ApiException.forbidden("记录 " + id + " 不存在或不在您的可见范围内");
+        List<String> ids = recordIds.stream().filter(Objects::nonNull).map(String::trim)
+                .filter(s -> !s.isEmpty()).distinct().toList();
+        if (ids.isEmpty() || ids.size() > 50) throw new ApiException("每次请选择 1～50 条记录");
+        try (ResourceQuotaService.Permit ignored = quotas == null ? null
+                : quotas.acquire(user, "dispatch", List.of(report.reportId()))) {
+            List<PlanSnapshot> prepared = new ArrayList<>();
+            // 先持久化全部清单，任一准备失败时本次尚未调用网关。
+            for (String id : ids) prepared.add(planService.manual(user, report, id));
+            List<ManualPlan> results = new ArrayList<>();
+            int success = 0, failed = 0, review = 0;
+            for (PlanSnapshot snapshot : prepared) {
+                String planId = snapshot.plan().getId();
+                if (DispatchPlan.PENDING.equals(snapshot.plan().getStatus())) {
+                    try { confirmWithPermit(user, planId, TraceIds.current()); }
+                    catch (ApiException e) {
+                        // 执行结果以持久化状态为准，保留清单编号供刷新、核对或重新确认。
+                        log.warn("手工清单 {} 尚未完成：{}", planId, e.getMessage());
+                    }
+                }
+                var current = planService.getOwned(user, planId);
+                success += current.items().stream().filter(i -> DispatchPlanItem.SUCCESS.equals(i.getStatus())).count();
+                if (DispatchPlan.REVIEW_REQUIRED.equals(current.plan().getStatus())
+                        || DispatchPlan.EXECUTING.equals(current.plan().getStatus())) review++;
+                else failed += current.items().stream().filter(i -> !DispatchPlanItem.SUCCESS.equals(i.getStatus())).count();
+                results.add(manualView(current));
             }
-            records.add(DispatchCandidateService.toCandidate(report, row, null, "手工派单", null, null));
-        }
-        AuditService.Context ctx = new AuditService.Context(SOURCE_MANUAL, null, null, null, null,
-                user.permissionVersion(), TraceIds.current());
-        List<Candidate> success = new ArrayList<>();
-        List<DispatchResultPayload.FailedRecord> failed = new ArrayList<>();
-        for (Candidate c : records) {
-            String requestId = "manual-" + JsonUtil.newId();
-            DispatchGateway.Outcome outcome = callGateway(user, requestId, report, c);
-            String code = outcome.success() ? DispatchAudit.OUTCOME_SUCCESS
-                    : "RESULT_UNKNOWN".equals(outcome.errorCode()) ? DispatchPlanItem.UNKNOWN : DispatchAudit.OUTCOME_FAILED;
-            recordAudit(user, ctx, c, null, requestId, code, outcome.errorCode(), outcome.message());
-            if (outcome.success()) {
-                success.add(c);
-            } else {
-                failed.add(failedRecord(c, code, outcome.errorCode(), outcome.message()));
-            }
-        }
-        return new DispatchResultPayload(null, null, records.size(), success.size(), failed.size(),
-                (int) failed.stream().filter(f -> DispatchPlanItem.FAILED.equals(f.outcome())).count(), success, failed, false);
-        } finally {
-            if (permit != null) permit.close();
+            return new ManualResult(ids.size(), success, failed, review, results);
         }
     }
 
+    private ManualPlan manualView(PlanSnapshot snapshot) {
+        return new ManualPlan(snapshot.plan().getId(), snapshot.items().get(0).getDocNo(), snapshot.plan().getStatus(),
+                (int) snapshot.items().stream().filter(i -> DispatchPlanItem.FAILED.equals(i.getStatus())).count(),
+                snapshot.items().get(0).getStatus(), snapshot.items().get(0).getErrorMessage());
+    }
+
+    public List<ManualPlan> manualPlans(CurrentUser user, String reportCode, int page) {
+        CatalogEntry report = catalogService.requireVisibleByIdOrLegacyCode(user, reportCode);
+        if (page < 1 || page > 100000) throw new ApiException("页码无效");
+        return plans.manualPlans(user.tenantId(), user.userId(), report.reportId(), (page - 1) * 50, 50)
+                .stream().map(p -> manualView(planService.getOwned(user, p.getId()))).toList();
+    }
+
+    private Set<String> qualifiedKeys(CurrentUser user, DispatchPreview preview, List<CatalogEntry> reports,
+                                       List<DispatchPlanItem> items) {
+        if (!SOURCE_MANUAL.equals(preview.getSource())) return candidateService.qualifiedPlanKeys(user.tenantId(),
+                DispatchVersionService.companies(preview), reports, idsByReport(items));
+        Set<String> keys = new LinkedHashSet<>();
+        Map<String, List<String>> ids = idsByReport(items);
+        for (CatalogEntry report : reports) {
+            report.adapter().pendingRowsByIds(user.tenantId(), ids.get(report.reportId())).stream()
+                    .filter(row -> user.companies().contains(row.companyCode())
+                            && DispatchVersionService.companies(preview).contains(row.companyCode()))
+                    .forEach(row -> keys.add(report.reportId() + ":" + row.recordId()));
+        }
+        return keys;
+    }
+
     private DispatchResultPayload execute(CurrentUser user, DispatchPlan plan, DispatchPreview preview,
-                                          List<DispatchPlanItem> items, String traceId) {
-        AuditService.Context ctx = new AuditService.Context(SOURCE_AGENT, plan.getConversationId(), preview.getId(), plan.getId(),
+                                          List<DispatchPlanItem> items, String traceId, long executionVersion) {
+        AuditService.Context ctx = new AuditService.Context(SOURCE_MANUAL.equals(preview.getSource()) ? SOURCE_MANUAL : SOURCE_AGENT, plan.getConversationId(), preview.getId(), plan.getId(),
                 preview.getRuleVersion(), preview.getPermissionVersion(), traceId);
         Set<String> reportIds = items.stream().map(DispatchPlanItem::getReportId).collect(Collectors.toCollection(LinkedHashSet::new));
         List<CatalogEntry> reports = catalogService.inCatalogOrder(reportIds);
@@ -406,16 +444,15 @@ public class DispatchService {
         // 版本一致只能说明目录、规则、权限没变，预览之后记录本身被修改（例如金额改小、已被别人派掉）时快照仍会照旧派出去
         Set<String> qualified;
         try {
-            qualified = candidateService.qualifiedPlanKeys(user.tenantId(),
-                    DispatchVersionService.companies(preview), reports, idsByReport(items));
+            qualified = qualifiedKeys(user, preview, reports, items);
         } catch (RuntimeException e) {
             // 尚未调用任何网关，恢复后可安全重试；下次确认仍会重验归属、预览及版本。
-            plans.transition(plan.getId(), DispatchPlan.EXECUTING, DispatchPlan.PENDING, null, LocalDateTime.now());
+            plans.transitionExecution(plan.getId(), executionVersion, DispatchPlan.PENDING, null, LocalDateTime.now());
             throw new ApiException(503, "执行前数据复核失败，尚未派单，请稍后重试");
         }
         String invalid = versions.verify(user, preview);
         if (invalid != null) {
-            plans.transition(plan.getId(), DispatchPlan.EXECUTING, DispatchPlan.EXPIRED, invalid, LocalDateTime.now());
+            plans.transitionExecution(plan.getId(), executionVersion, DispatchPlan.EXPIRED, invalid, LocalDateTime.now());
             throw new ApiException("该清单已失效：" + StateReason.message(invalid));
         }
         List<Candidate> success = new ArrayList<>();
@@ -423,6 +460,7 @@ public class DispatchService {
         boolean itemPersistenceFailed = false;
         boolean uncertainOutcome = false;
         for (DispatchPlanItem item : items) {
+            requireExecution(plan.getId(), executionVersion);
             Candidate c = PlanSnapshot.toCandidate(item);
             CatalogEntry report = reportById.get(item.getReportId());
             String requestId = plan.getId() + "-" + item.getId();
@@ -431,7 +469,16 @@ public class DispatchService {
             String errorCode;
             String message;
             if (sent) {
-                DispatchGateway.Outcome outcome = callGateway(user, requestId, report, c);
+                // Persist the request number before sending; recovery can then reconcile an interrupted send.
+                item.setStatus(DispatchPlanItem.UNKNOWN);
+                item.setExternalRequestId(requestId);
+                item.setAttemptCount((item.getAttemptCount() == null ? 0 : item.getAttemptCount()) + 1);
+                item.setErrorCode("RESULT_UNKNOWN");
+                item.setErrorMessage("派单请求结果待核对");
+                item.setUpdatedAt(LocalDateTime.now());
+                plans.updateItem(item, executionVersion);
+                DispatchGateway.Outcome outcome = plans.withExecutionRight(plan.getId(), executionVersion,
+                        () -> callGateway(user, requestId, report, c));
                 code = outcome.success() ? DispatchPlanItem.SUCCESS
                         : "RESULT_UNKNOWN".equals(outcome.errorCode()) ? DispatchPlanItem.UNKNOWN : DispatchPlanItem.FAILED;
                 uncertainOutcome |= DispatchPlanItem.UNKNOWN.equals(code);
@@ -443,15 +490,16 @@ public class DispatchService {
                 message = RECORD_CHANGED;
             }
             item.setStatus(code);
-            item.setAttemptCount((item.getAttemptCount() == null ? 0 : item.getAttemptCount()) + (sent ? 1 : 0));
+            if (!sent) item.setAttemptCount(item.getAttemptCount() == null ? 0 : item.getAttemptCount());
             item.setExternalRequestId(sent ? requestId : null);
             item.setErrorCode(errorCode);
             item.setErrorMessage(DispatchPlanItem.SUCCESS.equals(code) ? null : message);
             item.setUpdatedAt(LocalDateTime.now());
             try {
-                plans.updateItem(item);
-                plans.touchExecuting(plan.getId(), LocalDateTime.now());
+                plans.updateItem(item, executionVersion);
+                plans.touchExecuting(plan.getId(), executionVersion, LocalDateTime.now());
             } catch (RuntimeException e) {
+                if (!plans.isExecuting(plan.getId(), executionVersion)) throw e;
                 itemPersistenceFailed = true;
                 // 条目状态写失败不能中断整批：前面的记录已经派出，中断会让后面的记录静默丢失
                 log.error("清单条目状态写入失败 plan={} item={} {} status={}", plan.getId(), item.getId(), c.docNo(), code, e);
@@ -469,7 +517,7 @@ public class DispatchService {
             throw new IllegalStateException(itemPersistenceFailed ? "部分派单结果未能持久化，必须核对后处理"
                     : "网关结果未知，必须按外部请求号核对后处理");
         }
-        if (!plans.finish(plan.getId(), success.size(), failed.size(), finished)) {
+        if (!plans.finish(plan.getId(), executionVersion, success.size(), failed.size(), finished)) {
             throw new IllegalStateException("派单清单状态收尾失败：" + plan.getId());
         }
         return new DispatchResultPayload(plan.getId(), preview.getId(), items.size(), success.size(), failed.size(),

@@ -45,7 +45,7 @@
       </el-main>
     </el-container>
 
-    <agent-chat :visible.sync="chatVisible" @dispatched="onDispatched" />
+    <agent-chat :key="currentUserId" :visible.sync="chatVisible" @dispatched="onDispatched" />
   </el-container>
 </template>
 

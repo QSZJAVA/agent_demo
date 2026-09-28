@@ -39,7 +39,7 @@ function harness(overrides = {}, storage = new Map()) {
   state.scrollToBottom = () => {}
   state.loadConversations = async () => {}
   state.refreshStates = async () => {}
-  return { state, calls, storage }
+  return { state, calls, storage, component }
 }
 
 test('SSE disconnect before job event discovers the task and renders its result', async () => {
@@ -64,6 +64,15 @@ test('refresh can recover with only a saved conversation after discovery failed'
   assert.equal(reopened.storage.size, 0)
 })
 
+test('refresh replaces a saved older job with the latest conversation request', async () => {
+  const storage = new Map([['agent-preview-job:user1', JSON.stringify({ conversationId: 'conv1', jobId: 'older-job' })]])
+  const { state, calls } = harness({}, storage)
+  await state.resumePendingJob()
+  assert.deepEqual(calls.discovery, ['conv1'])
+  assert.deepEqual(calls.polls, ['job1'])
+  assert.equal(state.messages.filter(m => m.cardType === 'preview').length, 1)
+})
+
 test('opening conversation without local storage discovers a running task', async () => {
   let polls = 0
   const { state, calls } = harness({ fetchPreviewJob: async () => ++polls === 1
@@ -82,4 +91,152 @@ test('completed task already in history does not add another preview card', asyn
   await state.openConversation('conv1')
   assert.equal(state.messages.filter(m => m.cardType === 'preview').length, 1)
   assert.equal(storage.size, 0)
+})
+
+test('switching accounts aborts SSE and ignores late events and recovery', async () => {
+  let user = 'user1', event, finish, aborted = false
+  const { state, component, calls, storage } = harness({
+    getCurrentUserId: () => user,
+    streamChat: (_, handler) => {
+      event = handler
+      return { promise: new Promise(resolve => { finish = resolve }), abort: () => { aborted = true } }
+    }
+  })
+  const sending = state.send('query')
+  event('conversation', { conversationId: 'private' })
+  user = 'user2'
+  component.beforeDestroy.call(state)
+  event('text', { delta: 'private content' })
+  event('conversation', { conversationId: 'late' })
+  finish()
+  await sending
+  assert.equal(aborted, true)
+  assert.equal(state.messages.length, 0)
+  assert.equal(state.activeId, null)
+  assert.equal(storage.has('agent-preview-job:user2'), false)
+  assert.equal(calls.discovery.length, 0)
+})
+
+test('destroy cancels polling delay without issuing another request', async () => {
+  let cleared = false, polls = 0
+  let started
+  const timerStarted = new Promise(resolve => { started = resolve })
+  const { state, component } = harness({
+    setTimeout: () => { started(); return 123 },
+    clearTimeout: id => { assert.equal(id, 123); cleared = true },
+    fetchPreviewJob: async () => { polls++; return { status: 'RUNNING' } }
+  })
+  const pending = state.pollPreviewJob('job1')
+  await timerStarted
+  component.beforeDestroy.call(state)
+  await assert.rejects(pending, /会话已关闭/)
+  assert.equal(cleared, true)
+  assert.equal(polls, 1)
+})
+
+test('conversation pagination appends and deduplicates subsequent pages', async () => {
+  const requests = []
+  const { state, component } = harness({ fetchConversations: async (page, size) => {
+    requests.push([page, size])
+    return page === 1 ? Array.from({ length: 50 }, (_, i) => ({ id: i + 1 })) : [{ id: 50 }, { id: 51 }]
+  } })
+  await component.methods.loadConversations.call(state)
+  assert.equal(state.hasMoreConversations, true)
+  await component.methods.loadConversations.call(state, true)
+  assert.equal(state.conversations.length, 51)
+  assert.equal(state.hasMoreConversations, false)
+  assert.deepEqual(requests, [[1, 50], [2, 50]])
+})
+
+test('older history uses cursor, deduplicates, and preserves scroll position', async () => {
+  const requests = []
+  const { state } = harness({ fetchMessages: async (id, before, size) => {
+    requests.push([id, before, size])
+    return before ? [{ id: 1, role: 'user' }, { id: 101, role: 'user' }]
+      : Array.from({ length: 100 }, (_, i) => ({ id: 101 + i, role: 'user' }))
+  } })
+  const scroll = { scrollHeight: 1000, scrollTop: 40 }
+  state.$refs = { scroll }
+  state.$nextTick = fn => { scroll.scrollHeight = 1100; fn() }
+  await state.openConversation('conv1', true)
+  assert.equal(state.hasOlderMessages, true)
+  await state.loadOlderMessages()
+  assert.equal(state.messages.length, 101)
+  assert.equal(state.messages[0].id, 1)
+  assert.equal(state.hasOlderMessages, false)
+  assert.equal(scroll.scrollTop, 140)
+  assert.deepEqual(requests[1], ['conv1', 101, 100])
+})
+
+test('late history response cannot replace another conversation', async () => {
+  let finish
+  const { state } = harness({ fetchMessages: id => id === 'old'
+    ? new Promise(resolve => { finish = resolve }) : Promise.resolve([{ id: 2, role: 'user' }]) })
+  const first = state.openConversation('old', true)
+  await state.openConversation('new', true)
+  finish([{ id: 1, role: 'user' }])
+  await first
+  assert.equal(state.activeId, 'new')
+  assert.equal(state.messages[0].id, 2)
+})
+
+test('selected record identity is sent with its preview', async () => {
+  let request
+  const { state } = harness({ streamChat: args => {
+    request = args
+    return { promise: Promise.resolve() }
+  } })
+  state.uiPreviewId = 'preview1'
+  state.uiExcludes = [{ reportId: 'sales', recordId: '1' }]
+  await state.send('dispatch')
+  assert.equal(request.previewId, 'preview1')
+  assert.equal(JSON.stringify(request.excludedRecords), JSON.stringify(state.uiExcludes))
+})
+
+test('duplicate document numbers and page changes preserve exact selection', () => {
+  const script = fs.readFileSync(path.join(__dirname, '../src/components/agent/PreviewCard.vue'), 'utf8')
+    .match(/<script>([\s\S]*?)<\/script>/)[1]
+    .replace(/import[\s\S]*?from\s+['"][^'"]+['"]/g, '').replace('export default', 'result =')
+  const sandbox = { result: null }
+  vm.runInNewContext(script, sandbox)
+  const sale = { reportId: 'sales', recordId: '1', docNo: 'DUP001' }
+  const expense = { reportId: 'expense', recordId: '1', docNo: 'DUP001' }
+  const state = { readonly: false, loadingPage: false, excludedRecords: [],
+    pageRecords: [sale, expense], payload: { total: 3 }, $emit() {} }
+  for (const [key, method] of Object.entries(sandbox.result.methods)) state[key] = method.bind(state)
+  state.onSelectionChange([expense])
+  assert.equal(JSON.stringify(state.excludedRecords), JSON.stringify([{ reportId: 'sales', recordId: '1' }]))
+  state.pageRecords = [{ reportId: 'sales', recordId: '2', docNo: 'OTHER' }]
+  state.onSelectionChange(state.pageRecords)
+  assert.equal(state.selectedCount, 2)
+  state.pageRecords = [sale, expense]
+  state.onSelectionChange([sale, expense])
+  assert.equal(state.excludedRecords.length, 0)
+  assert.equal(state.selectedCount, 3)
+})
+
+test('sending is blocked until initial history finishes and remains usable afterwards', async () => {
+  let finish, sent = 0
+  const { state } = harness({
+    fetchMessages: () => new Promise(resolve => { finish = resolve }),
+    streamChat: (_, event) => { sent++; event('text', { delta: 'new answer' }); return { promise: Promise.resolve() } }
+  })
+  const opening = state.openConversation('conv1', true)
+  assert.equal(state.busy, true)
+  state.input = 'new message'
+  await state.send()
+  assert.equal(sent, 0)
+  assert.equal(state.input, 'new message')
+  finish([{ id: 1, role: 'user', content: 'old message' }])
+  await opening
+  await state.send()
+  assert.equal(sent, 1)
+  assert.equal(state.messages.length, 3)
+  assert.equal(state.messages[2].content, 'new answer')
+})
+
+test('failed history request releases the sending guard', async () => {
+  const { state } = harness({ fetchMessages: async () => { throw new Error('offline') } })
+  await assert.rejects(state.openConversation('conv1', true), /offline/)
+  assert.equal(state.busy, false)
 })

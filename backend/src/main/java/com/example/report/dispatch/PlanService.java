@@ -58,23 +58,87 @@ public class PlanService {
      */
     public PlanSnapshot create(CurrentUser user, String conversationId, String previewId, List<String> excludes,
                                String idempotencyKey) {
+        return create(user, conversationId, previewId, excludes, idempotencyKey, List.of());
+    }
+
+    public PlanSnapshot create(CurrentUser user, String conversationId, String previewId, List<String> excludes,
+                               String idempotencyKey, List<RecordKey> excludedRecords) {
+        if (idempotencyKey != null && (idempotencyKey.trim().toLowerCase(Locale.ROOT).startsWith("manual:")
+                || idempotencyKey.trim().toLowerCase(Locale.ROOT).startsWith("retired:"))) {
+            throw new ApiException("该幂等键前缀由系统保留，请更换后重试");
+        }
+        try {
+            return createInternal(user, conversationId, previewId, excludes, idempotencyKey, excludedRecords);
+        } catch (org.springframework.dao.DuplicateKeyException conflict) {
+            // 插入事务已回滚；跨会话同键竞争也在这里返回赢家，其他唯一键冲突继续抛出。
+            if (idempotencyKey != null && !idempotencyKey.isBlank()) {
+                var existing = plans.findByIdempotencyKey(user.tenantId(), idempotencyKey.trim());
+                if (existing.isPresent()) return replayOwned(user, existing.get());
+            }
+            throw conflict;
+        }
+    }
+
+    private PlanSnapshot replayOwned(CurrentUser user, DispatchPlan plan) {
+        if (!PermissionService.owns(user, plan.getTenantId(), plan.getUserId())) {
+            throw new ApiException(409, "幂等键已被使用，请更换后重试");
+        }
+        previewService.requireReadable(user, previews.find(plan.getPreviewId())
+                .orElseThrow(() -> ApiException.notFound("原预览不存在")));
+        return new PlanSnapshot(refresh(user, plan), plans.items(plan.getId()), List.of(), true);
+    }
+
+    /** 一条业务记录只对应一份手工清单，不同批次和重复提交也沿用原请求号。 */
+    public PlanSnapshot manual(CurrentUser user, com.example.report.catalog.CatalogEntry report, String recordId) {
+        String key;
+        try {
+            key = "manual:" + java.util.HexFormat.of().formatHex(java.security.MessageDigest.getInstance("SHA-256")
+                    .digest(JsonUtil.toJson(List.of(report.reportId(), recordId)).getBytes(java.nio.charset.StandardCharsets.UTF_8)));
+        } catch (java.security.NoSuchAlgorithmException e) { throw new IllegalStateException(e); }
+        try {
+            return tx.execute(status -> {
+                var prior = plans.findByIdempotencyKey(user.tenantId(), key);
+                if (prior.isPresent()) {
+                    var previous = replayOwned(user, prior.get());
+                    boolean skippedUnsent = DispatchPlan.EXECUTED.equals(previous.plan().getStatus())
+                            && previous.items().stream().allMatch(i -> DispatchPlanItem.SKIPPED.equals(i.getStatus())
+                            && (i.getAttemptCount() == null || i.getAttemptCount() == 0));
+                    if (!DispatchPlan.EXPIRED.equals(previous.plan().getStatus())
+                            && !DispatchPlan.CANCELLED.equals(previous.plan().getStatus()) && !skippedUnsent) return previous;
+                    previews.lockPreview(previous.plan().getPreviewId());
+                    if (!plans.retireManualDraftKey(previous.plan().getId())) {
+                        var current = plans.findByIdempotencyKey(user.tenantId(), key);
+                        if (current.isPresent()) return replayOwned(user, current.get());
+                    }
+                }
+                var preview = previewService.manualPreview(user, report, recordId);
+                return createInternal(user, null, preview.preview().getId(), List.of(), key, List.of());
+            });
+        } catch (org.springframework.dao.DuplicateKeyException e) {
+            return replayOwned(user, plans.findByIdempotencyKey(user.tenantId(), key).orElseThrow(() -> e));
+        }
+    }
+
+    private PlanSnapshot createInternal(CurrentUser user, String conversationId, String previewId, List<String> excludes,
+                                        String idempotencyKey, List<RecordKey> excludedRecords) {
         if (idempotencyKey != null && !idempotencyKey.isBlank()) {
             Optional<DispatchPlan> existing = plans.findByIdempotencyKey(user.tenantId(), idempotencyKey.trim());
             if (existing.isPresent()) {
-                DispatchPlan plan = existing.get();
-                if (!PermissionService.owns(user, plan.getTenantId(), plan.getUserId())) {
-                    throw new ApiException(409, "幂等键已被使用，请更换后重试");
-                }
-                previewService.requireReadable(user, previews.find(plan.getPreviewId())
-                        .orElseThrow(() -> ApiException.notFound("原预览不存在")));
-                return new PlanSnapshot(refresh(user, plan), plans.items(plan.getId()), List.of(), true);
+                return replayOwned(user, existing.get());
             }
         }
         DispatchPreview preview = usablePreview(user, conversationId, previewId);
+        if ("manual".equals(preview.getSource()) && (idempotencyKey == null || !idempotencyKey.startsWith("manual:"))) {
+            throw new ApiException("手工派单请使用原清单继续处理，不能另建清单");
+        }
         if (preview.getTotalCount() > props.getPreview().getMaxItems()) {
             throw new ApiException("该预览记录过多，请按报表或公司缩小范围后再生成派单清单");
         }
         List<DispatchPreviewItem> previewItems = previews.items(preview.getId());
+        Set<RecordKey> recordExcludes = excludedRecords == null ? Set.of() : new LinkedHashSet<>(excludedRecords);
+        Set<RecordKey> available = previewItems.stream().map(i -> new RecordKey(i.getReportId(), i.getRecordId()))
+                .collect(java.util.stream.Collectors.toSet());
+        if (!available.containsAll(recordExcludes)) throw new ApiException("排除的记录不属于该预览，请刷新后重新选择");
 
         Set<String> excludeKeys = new LinkedHashSet<>();
         if (excludes != null) {
@@ -91,10 +155,18 @@ public class PlanService {
         if (!unmatched.isEmpty()) {
             throw new ApiException("以下单据号不在预览结果中，请确认：" + String.join("、", unmatched));
         }
+        for (String key : excludeKeys) {
+            if (previewItems.stream().filter(i -> i.getDocNo() != null && key.equals(i.getDocNo().toUpperCase(Locale.ROOT))).count() > 1) {
+                throw new ApiException("单据号 " + key + " 对应多条记录，请在预览中逐条取消勾选");
+            }
+        }
         List<DispatchPreviewItem> remaining = previewItems.stream()
+                .filter(i -> !recordExcludes.contains(new RecordKey(i.getReportId(), i.getRecordId())))
                 .filter(i -> i.getDocNo() == null || !excludeKeys.contains(i.getDocNo().toUpperCase(Locale.ROOT)))
                 .toList();
-        List<String> excluded = excludeKeys.stream().map(k -> byDocNo.get(k).getDocNo()).toList();
+        List<String> excluded = new ArrayList<>(excludeKeys.stream().map(k -> byDocNo.get(k).getDocNo()).toList());
+        previewItems.stream().filter(i -> recordExcludes.contains(new RecordKey(i.getReportId(), i.getRecordId())))
+                .forEach(i -> excluded.add(i.getReportName() + " / " + (i.getDocNo() == null ? i.getRecordId() : i.getDocNo())));
         if (remaining.isEmpty()) {
             throw new ApiException("排除之后没有需要派单的记录");
         }
@@ -121,9 +193,11 @@ public class PlanService {
             items.add(toItem(plan.getId(), i, remaining.get(i), now));
         }
         List<String> expired = new ArrayList<>();
-        tx.executeWithoutResult(status -> {
+        return tx.execute(status -> {
             previews.lockConversation(preview.getConversationId());
             previews.lockPreview(preview.getId());
+            var existing = plans.findByIdempotencyKey(user.tenantId(), plan.getIdempotencyKey());
+            if (existing.isPresent()) return replayOwned(user, existing.get());
             // 加锁后再确认一次：等锁期间同会话可能已经生成了新预览
             DispatchPreview current = previews.find(preview.getId()).orElseThrow();
             if (plans.hasStartedByPreview(current.getId())) {
@@ -151,8 +225,8 @@ public class PlanService {
                 }
             }
             plans.insert(plan, items);
+            return new PlanSnapshot(plan, items, expired, false);
         });
-        return new PlanSnapshot(plan, items, expired, false);
     }
 
     /** 当前用户的清单，读取时做懒惰校验；不归属当前用户按不存在处理 */
@@ -226,32 +300,32 @@ public class PlanService {
     }
 
     /** 在同一会话锁内认领执行，和新预览、新清单的作废操作串行化。 */
-    public boolean claimForExecution(CurrentUser user, DispatchPlan plan, LocalDateTime now) {
-        Boolean claimed = tx.execute(status -> {
+    public Optional<Long> claimForExecution(CurrentUser user, DispatchPlan plan, LocalDateTime now) {
+        Optional<Long> claimed = tx.execute(status -> {
             previews.lockConversation(plan.getConversationId());
             previews.lockPreview(plan.getPreviewId());
             DispatchPlan current = plans.find(plan.getId()).orElse(plan);
-            if (!DispatchPlan.PENDING.equals(current.getStatus())) return false;
+            if (!DispatchPlan.PENDING.equals(current.getStatus())) return Optional.empty();
             if (plans.hasOtherStartedByPreview(current.getPreviewId(), current.getId())) {
                 plans.transition(current.getId(), DispatchPlan.PENDING, DispatchPlan.EXPIRED,
                         StateReason.NEW_PLAN, now);
-                return false;
+                return Optional.empty();
             }
             DispatchPreview preview = previews.find(current.getPreviewId()).orElse(null);
             if (preview == null || !DispatchPreview.ACTIVE.equals(preview.getStatus())) {
                 plans.transition(current.getId(), DispatchPlan.PENDING, DispatchPlan.EXPIRED,
                         StateReason.NEW_PREVIEW, now);
-                return false;
+                return Optional.empty();
             }
             String reason = versions.verify(user, preview);
             if (reason != null) {
                 previewService.expire(preview, reason, now);
                 plans.transition(current.getId(), DispatchPlan.PENDING, DispatchPlan.EXPIRED, reason, now);
-                return false;
+                return Optional.empty();
             }
             return plans.claim(current.getId(), user.userId(), now);
         });
-        return Boolean.TRUE.equals(claimed);
+        return Objects.requireNonNull(claimed);
     }
 
     /** 生成清单用的预览：必须归属当前用户、属于本会话、仍然有效且版本一致 */

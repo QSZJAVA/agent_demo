@@ -32,8 +32,8 @@ class ReviewFixRegressionTest {
         var first = h.plans.create(USER1, null, previewId, List.of(), null);
         var second = h.plans.create(USER1, null, previewId, List.of(), null);
         assertEquals(DispatchPlan.EXPIRED, h.plans.getOwned(USER1, first.plan().getId()).plan().getStatus());
-        assertFalse(h.plans.claimForExecution(USER1, first.plan(), LocalDateTime.now()));
-        assertTrue(h.plans.claimForExecution(USER1, second.plan(), LocalDateTime.now()));
+        assertFalse(h.plans.claimForExecution(USER1, first.plan(), LocalDateTime.now()).isPresent());
+        assertTrue(h.plans.claimForExecution(USER1, second.plan(), LocalDateTime.now()).isPresent());
     }
 
     @Test
@@ -50,6 +50,16 @@ class ReviewFixRegressionTest {
                 () -> h.plans.pageOwned(revoked, planId, 1, 50)).getCode());
         assertEquals(403, assertThrows(ApiException.class,
                 () -> h.previews.requireConversationReadable(revoked, "c1")).getCode());
+    }
+
+    @Test
+    void currentGrantsAllowAdminAndExpandedUserToReadHistory() {
+        DispatchHarness h = new DispatchHarness().put(SALES, candidate(SALES, "1", "SO1", "A", "item"));
+        String previewId = h.previews.preview(USER1, "c1", command(SALES)).snapshot().preview().getId();
+        CurrentUser expanded = new CurrentUser("T001", USER1.userId(), "user1", Set.of("A"),
+                Set.of("report:sales", "report:receivable", "report:expense", "report:extra"), false);
+        assertEquals(previewId, h.previews.getOwned(expanded, previewId).preview().getId());
+        assertDoesNotThrow(() -> h.previews.requireReadable(ADMIN, h.previews.findOwned(USER1, previewId).orElseThrow()));
     }
 
     @Test

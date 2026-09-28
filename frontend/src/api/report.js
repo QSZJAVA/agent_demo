@@ -19,3 +19,7 @@ export function fetchExpenseReport() {
 export function dispatchDirect(reportType, ids) {
   return http.post('/dispatch/direct', { reportType, ids })
 }
+
+export function fetchManualPlans(reportType, page = 1) {
+  return http.get('/dispatch/direct/plans', { params: { reportType, page } })
+}

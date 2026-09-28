@@ -11,7 +11,7 @@
           type="warning"
           size="small"
           icon="el-icon-s-promotion"
-          :disabled="selectedRows.length === 0"
+          :disabled="selectedRows.length === 0 || dispatching"
           :loading="dispatching"
           @click="handleDispatch"
         >
@@ -22,6 +22,20 @@
         </el-button>
       </div>
     </div>
+
+    <div v-if="manualPlans.length" class="manual-plans">
+      <p>手工派单记录：结果待核对时，请先核对；明确失败后才能重试。</p>
+      <div v-for="plan in manualPlans" :key="plan.planId">
+        {{ plan.docNo }} · {{ manualStatus(plan) }}
+        <span v-if="plan.message">（{{ plan.message }}）</span>
+        <el-button v-if="plan.status === 'REVIEW_REQUIRED'" size="mini" :disabled="dispatching" @click="processManual(plan, 'reconcile')">核对结果</el-button>
+        <el-button v-if="plan.status === 'EXECUTED' && plan.retryableCount" size="mini" :disabled="dispatching" @click="processManual(plan, 'retry')">重试失败项</el-button>
+        <el-button v-if="plan.status === 'PENDING'" size="mini" :disabled="dispatching" @click="processManual(plan, 'confirm')">继续派单</el-button>
+      </div>
+      <el-button size="mini" :disabled="manualPage === 1 || dispatching" @click="loadManualPlans(manualPage - 1)">上一页</el-button>
+      <el-button size="mini" :disabled="!moreManualPlans || dispatching" @click="loadManualPlans(manualPage + 1)">下一页</el-button>
+    </div>
+    <el-button size="mini" :disabled="dispatching" @click="loadManualPlans()">刷新派单记录</el-button>
 
     <el-table
       ref="reportTable"
@@ -62,7 +76,9 @@
 </template>
 
 <script>
-import { dispatchDirect } from '../api/report'
+import { dispatchDirect, fetchManualPlans } from '../api/report'
+import { confirmPlan, reconcilePlan, retryFailedPlan } from '../api/agent'
+import { getCurrentUserId } from '../auth'
 
 export default {
   name: 'ReportTable',
@@ -80,7 +96,13 @@ export default {
   data() {
     return {
       selectedRows: [],
-      dispatching: false
+      dispatching: false,
+      manualPlans: [],
+      manualPage: 1,
+      moreManualPlans: false,
+      manualRequest: 0,
+      sessionUserId: getCurrentUserId(),
+      disposed: false
     }
   },
   watch: {
@@ -93,7 +115,40 @@ export default {
       })
     }
   },
+  mounted() { this.loadManualPlans() },
+  beforeDestroy() { this.disposed = true },
   methods: {
+    isCurrentSession() { return !this.disposed && this.sessionUserId === getCurrentUserId() },
+    manualStatus(plan) {
+      if (plan.status === 'EXECUTED') return plan.outcome === 'SUCCESS' ? '派单成功' : plan.retryableCount ? '明确失败，可重试' : '未派单'
+      return { REVIEW_REQUIRED: '结果待核对', EXECUTING: '执行中', PENDING: '尚未完成',
+        EXPIRED: '已过期，可重新选择记录派单', CANCELLED: '已取消' }[plan.status] || plan.status
+    },
+    async loadManualPlans(page = 1) {
+      if (!this.isCurrentSession()) return
+      const request = ++this.manualRequest
+      try {
+        const plans = await fetchManualPlans(this.reportType, page)
+        if (!this.isCurrentSession() || request !== this.manualRequest) return
+        this.manualPlans = plans
+        this.manualPage = page
+        this.moreManualPlans = plans.length === 50
+      } catch (e) { /* 请求拦截器提示，可手工刷新。 */ }
+    },
+    async processManual(plan, action) {
+      if (!this.isCurrentSession() || this.dispatching) return
+      this.dispatching = true
+      try {
+        const operation = { reconcile: reconcilePlan, retry: retryFailedPlan, confirm: confirmPlan }[action]
+        await operation(plan.planId)
+        if (this.isCurrentSession()) this.$emit('refresh')
+      } catch (e) {
+        /* 拦截器提示原因；重新读取状态，未知结果不会当作明确失败。 */
+      } finally {
+        this.dispatching = false
+        this.loadManualPlans(this.manualPage)
+      }
+    },
     formatAmount(value) {
       const num = Number(value)
       if (Number.isNaN(num)) {
@@ -109,11 +164,18 @@ export default {
     },
     // 手工派单：调用后端派单接口（模拟实现会把记录标记为已派单并写审计）
     async handleDispatch() {
+      if (!this.isCurrentSession() || this.dispatching) return
       if (!this.selectedRows.length) {
         this.$message.warning('请先勾选需要派单的记录')
         return
       }
+      if (this.selectedRows.length > 50) {
+        this.$message.warning('每次最多派单 50 条，请分批选择')
+        return
+      }
+      const ids = this.selectedRows.map((row) => row.id)
       const nos = this.selectedRows.map((row) => row[this.docNoField] || row.id).join('、')
+      this.dispatching = true
       try {
         await this.$confirm(`确认对以下 ${this.selectedRows.length} 条记录派单？${nos}`, '手工派单', {
           type: 'warning',
@@ -121,15 +183,19 @@ export default {
           cancelButtonText: '取消'
         })
       } catch (e) {
+        this.dispatching = false
         return
       }
-      this.dispatching = true
+      if (!this.isCurrentSession()) return
       try {
-        const result = await dispatchDirect(this.reportType, this.selectedRows.map((r) => r.id))
-        this.$message.success(`派单完成：成功 ${result.successCount} 条，失败 ${result.failedCount} 条`)
+        const result = await dispatchDirect(this.reportType, ids)
+        if (!this.isCurrentSession()) return
+        if (result.reviewCount) this.$message.warning(`有 ${result.reviewCount} 条结果待核对，请在派单记录中核对，勿重复提交`)
+        else this.$message.info(`本次处理：成功 ${result.successCount} 条，未成功 ${result.failedCount} 条；详情见派单记录`)
         this.$emit('refresh')
       } finally {
         this.dispatching = false
+        this.loadManualPlans()
       }
     },
     summaryMethod({ columns }) {

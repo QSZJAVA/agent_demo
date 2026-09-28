@@ -34,6 +34,12 @@ public final class InMemoryDispatchStore {
     private final Map<String, List<DispatchPlanItem>> planItems = new HashMap<>();
     private final AtomicLong sequence = new AtomicLong();
     private final Map<String, Long> previewRequestVersions = new HashMap<>();
+    private final java.util.concurrent.ConcurrentHashMap<String, java.util.concurrent.locks.ReentrantLock> executionLocks =
+            new java.util.concurrent.ConcurrentHashMap<>();
+
+    private java.util.concurrent.locks.ReentrantLock executionLock(String planId) {
+        return executionLocks.computeIfAbsent(planId, ignored -> new java.util.concurrent.locks.ReentrantLock());
+    }
 
     private final PreviewRepository previewRepository = new Previews();
     private final PlanRepository planRepository = new Plans();
@@ -286,6 +292,30 @@ public final class InMemoryDispatchStore {
         }
 
         @Override
+        public List<DispatchPlan> manualPlans(String tenantId, String userId, String reportId, int offset, int size) {
+            synchronized (InMemoryDispatchStore.this) {
+                return plans.values().stream().filter(p -> tenantId.equals(p.getTenantId()) && userId.equals(p.getUserId())
+                        && p.getIdempotencyKey().startsWith("manual:")
+                        && planItems.get(p.getId()).stream().anyMatch(i -> reportId.equals(i.getReportId())))
+                        .sorted(java.util.Comparator.comparing(DispatchPlan::getCreatedAt).reversed())
+                        .skip(offset).limit(size).map(InMemoryDispatchStore::copy).toList();
+            }
+        }
+
+        @Override
+        public boolean retireManualDraftKey(String planId) {
+            synchronized (InMemoryDispatchStore.this) {
+                var p = plans.get(planId);
+                if (p == null || !(DispatchPlan.EXPIRED.equals(p.getStatus()) || DispatchPlan.CANCELLED.equals(p.getStatus())
+                        || DispatchPlan.EXECUTED.equals(p.getStatus()))
+                        || !p.getIdempotencyKey().startsWith("manual:")
+                        || planItems.get(planId).stream().anyMatch(i -> i.getAttemptCount() > 0)) return false;
+                p.setIdempotencyKey("retired:" + planId);
+                return true;
+            }
+        }
+
+        @Override
         public List<DispatchPlanItem> items(String planId) {
             synchronized (InMemoryDispatchStore.this) {
                 return planItems.getOrDefault(planId, List.of()).stream().map(i -> copy(i, new DispatchPlanItem())).toList();
@@ -334,50 +364,72 @@ public final class InMemoryDispatchStore {
         }
 
         @Override
-        public boolean claim(String planId, String confirmedBy, LocalDateTime now) {
+        public Optional<Long> claim(String planId, String confirmedBy, LocalDateTime now) {
             synchronized (InMemoryDispatchStore.this) {
                 DispatchPlan p = plans.get(planId);
                 if (p == null || !DispatchPlan.PENDING.equals(p.getStatus()) || !p.getExpiresAt().isAfter(now)) {
-                    return false;
+                    return Optional.empty();
                 }
                 p.setStatus(DispatchPlan.EXECUTING);
                 p.setConfirmedAt(now);
                 p.setExecutionVersion(p.getExecutionVersion() + 1);
                 p.setConfirmedBy(confirmedBy);
                 p.setUpdatedAt(now);
-                return true;
+                return Optional.of(p.getExecutionVersion());
             }
         }
 
         @Override
-        public boolean claimRetry(String planId, LocalDateTime now) {
+        public Optional<Long> claimRetry(String planId, LocalDateTime now) {
             synchronized (InMemoryDispatchStore.this) {
                 DispatchPlan p = plans.get(planId);
                 if (p == null || !DispatchPlan.EXECUTED.equals(p.getStatus()) || p.getFailedCount() == null || p.getFailedCount() <= 0) {
-                    return false;
+                    return Optional.empty();
                 }
                 p.setStatus(DispatchPlan.EXECUTING);
                 p.setExecutionVersion(p.getExecutionVersion() + 1);
                 p.setUpdatedAt(now);
-                return true;
+                return Optional.of(p.getExecutionVersion());
             }
         }
 
         @Override
-        public void updateItem(DispatchPlanItem item) {
+        public void updateItem(DispatchPlanItem item, long executionVersion) {
             synchronized (InMemoryDispatchStore.this) {
+                if (!isExecuting(item.getPlanId(), executionVersion)) {
+                    throw new IllegalStateException("派单执行权已失效");
+                }
                 List<DispatchPlanItem> list = planItems.get(item.getPlanId());
                 list.replaceAll(i -> i.getId().equals(item.getId()) ? copy(item, new DispatchPlanItem()) : i);
             }
         }
 
         @Override
-        public boolean finish(String planId, int successCount, int failedCount, LocalDateTime now) {
+        public boolean isExecuting(String planId, long executionVersion) {
             synchronized (InMemoryDispatchStore.this) {
+                DispatchPlan plan = plans.get(planId);
+                return plan != null && DispatchPlan.EXECUTING.equals(plan.getStatus())
+                        && java.util.Objects.equals(plan.getExecutionVersion(), executionVersion);
+            }
+        }
+
+        @Override
+        public <T> T withExecutionRight(String planId, long executionVersion, java.util.function.Supplier<T> action) {
+            var lock = executionLock(planId);
+            lock.lock();
+            try {
+                if (!isExecuting(planId, executionVersion)) throw new IllegalStateException("派单执行权已失效");
+                return action.get();
+            } finally {
+                lock.unlock();
+            }
+        }
+
+        @Override
+        public boolean finish(String planId, long executionVersion, int successCount, int failedCount, LocalDateTime now) {
+            synchronized (InMemoryDispatchStore.this) {
+                if (!isExecuting(planId, executionVersion)) return false;
                 DispatchPlan p = plans.get(planId);
-                if (p == null || !DispatchPlan.EXECUTING.equals(p.getStatus())) {
-                    return false;
-                }
                 p.setStatus(DispatchPlan.EXECUTED);
                 p.setStatusReason(null);
                 p.setSuccessCount(successCount);
@@ -385,6 +437,14 @@ public final class InMemoryDispatchStore {
                 p.setFinishedAt(now);
                 p.setUpdatedAt(now);
                 return true;
+            }
+        }
+
+        @Override
+        public boolean transitionExecution(String planId, long executionVersion, String toStatus, String reason, LocalDateTime now) {
+            synchronized (InMemoryDispatchStore.this) {
+                return isExecuting(planId, executionVersion)
+                        && transition(planId, DispatchPlan.EXECUTING, toStatus, reason, now);
             }
         }
 
@@ -425,10 +485,9 @@ public final class InMemoryDispatchStore {
         }
 
         @Override
-        public void touchExecuting(String planId, LocalDateTime now) {
+        public void touchExecuting(String planId, long executionVersion, LocalDateTime now) {
             synchronized (InMemoryDispatchStore.this) {
-                DispatchPlan plan = plans.get(planId);
-                if (plan != null && DispatchPlan.EXECUTING.equals(plan.getStatus())) plan.setUpdatedAt(now);
+                if (isExecuting(planId, executionVersion)) plans.get(planId).setUpdatedAt(now);
             }
         }
 
@@ -442,14 +501,21 @@ public final class InMemoryDispatchStore {
 
         @Override
         public boolean markStaleForReview(String planId, LocalDateTime cutoff, LocalDateTime now) {
-            synchronized (InMemoryDispatchStore.this) {
-                DispatchPlan plan = plans.get(planId);
-                if (plan == null || !DispatchPlan.EXECUTING.equals(plan.getStatus())
-                        || !plan.getUpdatedAt().isBefore(cutoff)) return false;
-                plan.setStatus(DispatchPlan.REVIEW_REQUIRED);
-                plan.setStatusReason(com.example.report.dispatch.StateReason.EXECUTION_INTERRUPTED);
-                plan.setUpdatedAt(now);
-                return true;
+            var lock = executionLock(planId);
+            lock.lock();
+            try {
+                synchronized (InMemoryDispatchStore.this) {
+                    DispatchPlan plan = plans.get(planId);
+                    if (plan == null || !DispatchPlan.EXECUTING.equals(plan.getStatus())
+                            || !plan.getUpdatedAt().isBefore(cutoff)) return false;
+                    plan.setStatus(DispatchPlan.REVIEW_REQUIRED);
+                    plan.setExecutionVersion(plan.getExecutionVersion() + 1);
+                    plan.setStatusReason(com.example.report.dispatch.StateReason.EXECUTION_INTERRUPTED);
+                    plan.setUpdatedAt(now);
+                    return true;
+                }
+            } finally {
+                lock.unlock();
             }
         }
     }

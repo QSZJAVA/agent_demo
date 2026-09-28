@@ -51,7 +51,7 @@
       <span v-if="readonly" class="expired-hint">{{ readonlyHint }}</span>
       <span v-else class="foot-actions">
         <span class="sel-hint">已勾选 {{ selectedCount }} / {{ payload.total }} 条，取消勾选的记录派单时会排除</span>
-        <el-button type="warning" size="mini" :disabled="selectedCount === 0 || busy" @click="$emit('dispatch-selected')">派单已勾选记录</el-button>
+        <el-button type="warning" size="mini" :disabled="selectedCount === 0 || busy || loadingPage" @click="$emit('dispatch-selected')">派单已勾选记录</el-button>
       </span>
     </div>
   </el-card>
@@ -83,8 +83,9 @@ export default {
       selectedCount: this.payload.total || 0,
       page: 1,
       pageRecords: this.payload.records || [],
-      excludedDocNos: [],
-      loadingPage: false
+      excludedRecords: [],
+      loadingPage: false,
+      pageRequest: 0
     }
   },
   computed: {
@@ -126,40 +127,46 @@ export default {
   },
   methods: {
     canSelect() {
-      return !this.readonly && !this.busy
+      return !this.readonly && !this.busy && !this.loadingPage
     },
     rowKey(row) {
-      return `${row.reportId || row.reportType}-${row.recordId || row.docNo}`
+      return JSON.stringify([row.reportId, row.recordId])
     },
-    selectAll() {
+    selectAll(request = this.pageRequest) {
       this.$nextTick(() => {
+        if (request !== this.pageRequest) return
         const table = this.$refs.table
         if (!table || this.readonly) return
         this.loadingPage = true
         table.clearSelection()
         this.pageRecords.forEach((row) => {
-          if (!this.excludedDocNos.includes(row.docNo)) table.toggleRowSelection(row, true)
+          if (!this.excludedRecords.some((item) => this.rowKey(item) === this.rowKey(row))) table.toggleRowSelection(row, true)
         })
-        this.$nextTick(() => { this.loadingPage = false })
+        this.$nextTick(() => { if (request === this.pageRequest) this.loadingPage = false })
       })
     },
     onSelectionChange(rows) {
       if (this.readonly || this.loadingPage) return
-      const selected = new Set(rows.map((r) => r.docNo))
-      const excluded = new Set(this.excludedDocNos)
-      this.pageRecords.forEach((r) => selected.has(r.docNo) ? excluded.delete(r.docNo) : excluded.add(r.docNo))
-      this.excludedDocNos = [...excluded]
+      const selected = new Set(rows.map((r) => this.rowKey(r)))
+      const excluded = new Map(this.excludedRecords.map((r) => [this.rowKey(r), r]))
+      this.pageRecords.forEach((r) => selected.has(this.rowKey(r)) ? excluded.delete(this.rowKey(r))
+        : excluded.set(this.rowKey(r), { reportId: r.reportId, recordId: r.recordId }))
+      this.excludedRecords = [...excluded.values()]
       this.selectedCount = Math.max(0, this.payload.total - excluded.size)
-      this.$emit('selection-change', this.excludedDocNos)
+      this.$emit('selection-change', this.excludedRecords)
     },
     async changePage(page) {
+      const request = ++this.pageRequest
       this.loadingPage = true
       try {
-        this.pageRecords = await fetchPreviewItems(this.payload.previewId, page)
+        const records = await fetchPreviewItems(this.payload.previewId, page)
+        if (request !== this.pageRequest) return
+        this.loadingPage = true
+        this.pageRecords = records
         this.page = page
         this.selectAll()
       } catch (e) {
-        this.loadingPage = false
+        if (request === this.pageRequest) this.loadingPage = false
       }
     },
     formatAmount(value) {

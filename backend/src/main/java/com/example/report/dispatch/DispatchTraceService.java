@@ -31,8 +31,7 @@ import java.util.stream.Collectors;
 @Service
 public class DispatchTraceService {
 
-    @org.springframework.beans.factory.annotation.Autowired(required = false)
-    private PreviewService previewService;
+    private final PreviewService previewService;
 
     private final PlanRepository plans;
     private final PreviewRepository previews;
@@ -41,12 +40,14 @@ public class DispatchTraceService {
     private final ConversationService conversationService;
 
     public DispatchTraceService(PlanRepository plans, PreviewRepository previews, DispatchAuditMapper auditMapper,
-                                DispatchRuleMapper ruleMapper, ConversationService conversationService) {
+                                DispatchRuleMapper ruleMapper, ConversationService conversationService,
+                                PreviewService previewService) {
         this.plans = plans;
         this.previews = previews;
         this.auditMapper = auditMapper;
         this.ruleMapper = ruleMapper;
         this.conversationService = conversationService;
+        this.previewService = previewService;
     }
 
     public Map<String, Object> trace(CurrentUser user, String planId) {
@@ -55,7 +56,11 @@ public class DispatchTraceService {
                         && (Objects.equals(p.getUserId(), user.userId()) || user.admin()))
                 .orElseThrow(() -> ApiException.notFound("待确认清单不存在"));
         DispatchPreview preview = previews.find(plan.getPreviewId()).orElse(null);
-        if (preview != null && previewService != null) previewService.requireReadable(user, preview);
+        if (preview != null) previewService.requireReadable(user, preview);
+        // 追溯包含整段会话的自由文本，不能仅凭当前清单的预览权限授权其他报表的消息。
+        if (plan.getConversationId() != null && preview != null) {
+            previewService.requireConversationReadable(user, plan.getConversationId());
+        }
         List<DispatchPlanItem> items = plans.items(plan.getId());
         List<DispatchAudit> audits = auditMapper.selectList(new LambdaQueryWrapper<DispatchAudit>()
                 .eq(DispatchAudit::getTenantId, user.tenantId())

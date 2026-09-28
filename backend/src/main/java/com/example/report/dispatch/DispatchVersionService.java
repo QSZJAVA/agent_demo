@@ -72,7 +72,8 @@ public class DispatchVersionService {
                 || !Objects.equals(ReportCatalogService.fingerprint(reports), preview.getCatalogVersion())) {
             return StateReason.CATALOG_CHANGED;
         }
-        if (!Objects.equals(ruleCache.fingerprint(user.tenantId(), reportIds, companies(preview)), preview.getRuleVersion())) {
+        if (!"manual".equals(preview.getSource())
+                && !Objects.equals(ruleCache.fingerprint(user.tenantId(), reportIds, companies(preview)), preview.getRuleVersion())) {
             return StateReason.RULE_CHANGED;
         }
         return null;

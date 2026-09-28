@@ -92,10 +92,10 @@ class DispatchStateTest {
         String previewId = preview("heartbeat", "销售报表").snapshot().preview().getId();
         String planId = h.plans.create(USER1, "heartbeat", previewId, List.of(), null).plan().getId();
         LocalDateTime now = LocalDateTime.now();
-        assertTrue(h.store.plans().claim(planId, USER1.userId(), now.minusMinutes(10)));
+        assertTrue(h.store.plans().claim(planId, USER1.userId(), now.minusMinutes(10)).isPresent());
         LocalDateTime cutoff = now.minusMinutes(5);
         assertEquals(1, h.store.plans().staleExecuting(cutoff).size());
-        h.store.plans().touchExecuting(planId, now);
+        h.store.plans().touchExecuting(planId, planRow(planId).getExecutionVersion(), now);
         assertFalse(h.store.plans().markStaleForReview(planId, cutoff, now));
         assertEquals(DispatchPlan.EXECUTING, planRow(planId).getStatus());
     }
@@ -247,11 +247,11 @@ class DispatchStateTest {
         String id = h.plans.create(USER1, "c1", null, List.of(), null).plan().getId();
         var repository = h.store.plans();
         var now = LocalDateTime.now();
-        assertTrue(repository.claim(id, USER1.userId(), now));
+        assertTrue(repository.claim(id, USER1.userId(), now).isPresent());
         long firstVersion = planRow(id).getExecutionVersion();
         assertTrue(repository.transition(id, DispatchPlan.EXECUTING, DispatchPlan.REVIEW_REQUIRED, null, now));
         assertTrue(repository.finishReview(id, firstVersion, 0, 3, now));
-        assertTrue(repository.claimRetry(id, now));
+        assertTrue(repository.claimRetry(id, now).isPresent());
         assertEquals(firstVersion + 1, planRow(id).getExecutionVersion());
         assertTrue(repository.transition(id, DispatchPlan.EXECUTING, DispatchPlan.REVIEW_REQUIRED, null, now));
         assertFalse(repository.finishReview(id, firstVersion, 0, 3, now));

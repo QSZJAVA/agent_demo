@@ -208,15 +208,25 @@ public class DispatchTools {
         // 本轮重新预览后，客户端带来的勾选项属于旧卡片，不能污染新范围
         List<String> uiExcludes = channel != null && channel.hasEmitted(AgentEvent.PREVIEW)
                 ? List.of() : ToolContextKeys.uiExcludes(ctx);
+        List<com.example.report.dispatch.RecordKey> recordExcludes = channel != null && channel.hasEmitted(AgentEvent.PREVIEW)
+                ? List.of() : ToolContextKeys.uiExcludedRecords(ctx);
         conversationService.logToolCall(conversationId, userId, TOOL_DISPATCH,
                 Map.of("previewId", previewId == null ? "" : previewId,
                         "excludeDocNos", excludeDocNos == null ? List.of() : excludeDocNos,
-                        "uiExcludes", uiExcludes));
+                        "uiExcludes", uiExcludes, "uiExcludedRecords", recordExcludes));
         try {
             CurrentUser user = permissionService.resolve(userId);
             String targetPreviewId = previewId == null || previewId.isBlank() ? null : previewId.trim();
             // 勾选项只属于它所在的那张卡片：与本次派单用的预览不一致时忽略
             String uiPreviewId = ToolContextKeys.uiPreviewId(ctx);
+            if (!recordExcludes.isEmpty()) {
+                String effective = targetPreviewId != null ? targetPreviewId
+                        : previewService.latest(user, conversationId).map(p -> p.getId()).orElse(null);
+                if (uiPreviewId == null || !uiPreviewId.equals(effective)) {
+                    throw new ApiException("勾选所属预览已变化，请刷新并重新选择");
+                }
+                targetPreviewId = effective;
+            }
             if (!uiExcludes.isEmpty() && uiPreviewId != null) {
                 String effective = targetPreviewId != null ? targetPreviewId
                         : previewService.latest(user, conversationId).map(p -> p.getId()).orElse(null);
@@ -232,7 +242,7 @@ public class DispatchTools {
             }
             uiExcludes.stream().filter(Objects::nonNull).map(String::trim).filter(s -> !s.isEmpty()).forEach(excludes::add);
 
-            PlanSnapshot plan = planService.create(user, conversationId, targetPreviewId, new ArrayList<>(excludes), null);
+            PlanSnapshot plan = planService.create(user, conversationId, targetPreviewId, new ArrayList<>(excludes), null, recordExcludes);
             List<String> excluded = plan.excluded();
             if (props.getDispatch().isRequireConfirm()) {
                 PlanPayload payload = PlanPayload.of(plan);

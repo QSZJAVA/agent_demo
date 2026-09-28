@@ -55,7 +55,7 @@ public class AgentController {
             throw new ApiException("消息不能为空");
         }
         return chatService.chat(user, request.getConversationId(), request.getMessage().trim(), request.getExcludeDocNos(),
-                request.getPreviewId());
+                request.getPreviewId(), request.getExcludedRecords());
     }
 
     /** 预览快照全量记录与当前状态（前端按 previewId 拉取渲染表格） */
@@ -77,6 +77,7 @@ public class AgentController {
         private String message;
         /** 前端预览表格中取消勾选的单据号 */
         private List<String> excludeDocNos;
+        private List<com.example.report.dispatch.RecordKey> excludedRecords;
         /** 取消勾选所在的预览卡片；与本轮派单用的预览不一致时勾选项不生效 */
         private String previewId;
     }

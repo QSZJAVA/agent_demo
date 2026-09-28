@@ -75,6 +75,24 @@ public class PreviewService {
         return preview(user, conversationId, command, scanned -> { }, id -> { });
     }
 
+    /** 手工派单保留人工选定范围，不套用自动派单规则；仍绑定权限和目录版本。调用方负责事务。 */
+    PreviewSnapshot manualPreview(CurrentUser user, CatalogEntry report, String recordId) {
+        var row = report.adapter().rowsByIds(user.tenantId(), List.of(recordId)).stream()
+                .filter(r -> recordId.equals(r.recordId())).findFirst()
+                .orElseThrow(() -> ApiException.forbidden("记录不存在或不在您的可见范围内"));
+        if (!user.companies().contains(row.companyCode())) throw ApiException.forbidden("记录不在您的可见范围内");
+        var records = List.of(DispatchCandidateService.toCandidate(report, row, null, "手工派单", null, null));
+        var reports = List.of(report);
+        var companies = Set.of(row.companyCode());
+        var command = new PreviewCommand(null, "manual", null, List.of(report.reportId()), null, null, null);
+        var resolution = new ResolveResult(MatchType.EXACT, null, List.of(report.ref()), null, null, null, null, false);
+        var p = newPreview(user, null, command, resolution, new Scope(Set.of(report.reportId()), false),
+                reports, companies, versions.stamp(user, reports, companies), SCOPE_REPLACE, records, LocalDateTime.now());
+        var items = List.of(toItem(p.getId(), 0, records.get(0)));
+        previews.insert(p, items);
+        return new PreviewSnapshot(p, items);
+    }
+
     public long beginRequest(String conversationId) {
         return previews.beginRequest(conversationId);
     }
@@ -231,12 +249,14 @@ public class PreviewService {
     }
 
     private void requireReadableInCurrentCatalog(CurrentUser user, DispatchPreview preview) {
-        if (!Objects.equals(user.permissionVersion(), preview.getPermissionVersion())
+        if (!Objects.equals(user.tenantId(), preview.getTenantId())
                 || !user.companies().containsAll(DispatchVersionService.companies(preview))) {
             throw ApiException.forbidden("当前账号无权查看该预览的历史记录");
         }
         List<String> ids = DispatchVersionService.reportIds(preview);
-        if (catalogService.inCatalogOrder(ids).stream().filter(e -> catalogService.isDispatchable(user, e)).count()
+        if (catalogService.inCatalogOrder(ids).stream()
+                .filter(e -> Objects.equals(user.tenantId(), e.tenantId())
+                        && user.hasPermission(e.permissionCode())).count()
                 != new LinkedHashSet<>(ids).size()) {
             throw ApiException.forbidden("当前账号无权查看该预览的历史记录");
         }

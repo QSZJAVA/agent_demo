@@ -172,7 +172,7 @@ class DispatchServiceTest {
         String planId = plan(USER1);
         CurrentUser widened = new CurrentUser("T001", "user1", "用户1", Set.of("A", "B"), TestCatalog.DEMO_PERMISSIONS, false);
         ApiException e = assertThrows(ApiException.class, () -> service.confirm(widened, planId));
-        assertEquals(403, e.getCode());
+        assertEquals(400, e.getCode());
         assertEquals(StateReason.PERMISSION_CHANGED, planRow(planId).getStatusReason());
     }
 
@@ -308,7 +308,7 @@ class DispatchServiceTest {
             DispatchPlanItem item = inv.getArgument(0);
             if (DispatchPlanItem.SUCCESS.equals(item.getStatus())) throw new IllegalStateException("write failed");
             return inv.callRealMethod();
-        }).when(unreliable).updateItem(any());
+        }).when(unreliable).updateItem(any(), anyLong());
         service = new DispatchService(h.plans, h.previews, unreliable, h.catalogService, h.candidates, h.versions,
                 gateway, audit, mock(ConversationService.class), mock(ChatMemory.class));
         ExecutorService pool = Executors.newFixedThreadPool(2);
@@ -386,7 +386,7 @@ class DispatchServiceTest {
                 throw new IllegalStateException("结果写库失败");
             }
             return inv.callRealMethod();
-        }).when(unreliable).updateItem(any());
+        }).when(unreliable).updateItem(any(), anyLong());
         service = new DispatchService(h.plans, h.previews, unreliable, h.catalogService, h.candidates, h.versions,
                 gateway, audit, mock(ConversationService.class), mock(ChatMemory.class));
 

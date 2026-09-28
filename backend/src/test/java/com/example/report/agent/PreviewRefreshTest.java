@@ -349,6 +349,38 @@ class PreviewRefreshTest {
     }
 
     @Test
+    void preciseSelectionSurvivesChatToolContextWithDuplicateDocumentNumbers() {
+        h.put(EXPENSE, candidate(EXPENSE, "1", sale.docNo(), "A", "expense"));
+        var snapshot = preview(chat("全部报表"));
+        reply = ctx -> Flux.defer(() -> {
+            var result = map(tools.dispatch(null, null, ctx));
+            assertEquals(1, result.get("count"));
+            return Flux.just("已生成待确认清单");
+        });
+        chat.chat(USER1, "conversation-1", "把已勾选的记录帮我派单", List.of(), snapshot.previewId(),
+                List.of(new com.example.report.dispatch.RecordKey(SALES, "1")))
+                .collectList().block(Duration.ofSeconds(5));
+        var pending = h.store.plans().pending("conversation-1");
+        assertEquals(1, pending.size());
+        var items = h.store.plans().items(pending.get(0).getId());
+        assertEquals(1, items.size());
+        assertEquals(EXPENSE, items.get(0).getReportId());
+    }
+
+    @Test
+    void preciseSelectionFromAnOldPreviewIsRejected() {
+        var old = preview(chat("全部报表"));
+        preview(chat("全部报表"));
+        Map<String, Object> data = new HashMap<>(context("conversation-1").getContext());
+        data.put(ToolContextKeys.UI_PREVIEW_ID, old.previewId());
+        data.put(ToolContextKeys.UI_EXCLUDED_RECORDS,
+                List.of(new com.example.report.dispatch.RecordKey(SALES, "1")));
+        var result = map(tools.dispatch(null, null, new ToolContext(data)));
+        assertEquals("error", result.get("status"));
+        assertTrue(h.store.plans().pending("conversation-1").isEmpty());
+    }
+
+    @Test
     void unauthorizedExplicitCompanyDoesNotFallBackToDefaultCompanies() {
         Map<String, Object> result = map(tools.previewDispatchable(null, "B", null, null, context("conversation-1")));
         assertEquals("error", result.get("status"));

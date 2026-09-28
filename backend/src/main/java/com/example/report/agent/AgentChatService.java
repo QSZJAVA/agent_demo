@@ -64,6 +64,12 @@ public class AgentChatService {
      */
     public Flux<ServerSentEvent<Object>> chat(CurrentUser user, String conversationId, String message,
                                               List<String> uiExcludes, String uiPreviewId) {
+        return chat(user, conversationId, message, uiExcludes, uiPreviewId, List.of());
+    }
+
+    public Flux<ServerSentEvent<Object>> chat(CurrentUser user, String conversationId, String message,
+                                              List<String> uiExcludes, String uiPreviewId,
+                                              List<com.example.report.dispatch.RecordKey> excludedRecords) {
         AgentConversation conversation = (conversationId == null || conversationId.isBlank())
                 ? conversationService.create(user, modelName)
                 : conversationService.getOwned(user, conversationId);
@@ -77,6 +83,7 @@ public class AgentChatService {
         toolContext.put(ToolContextKeys.USER_ID, user.userId());
         toolContext.put(ToolContextKeys.CONVERSATION_ID, convId);
         toolContext.put(ToolContextKeys.UI_EXCLUDES, uiExcludes == null ? List.of() : List.copyOf(uiExcludes));
+        toolContext.put(ToolContextKeys.UI_EXCLUDED_RECORDS, excludedRecords == null ? List.of() : List.copyOf(excludedRecords));
         if (uiPreviewId != null && !uiPreviewId.isBlank()) {
             toolContext.put(ToolContextKeys.UI_PREVIEW_ID, uiPreviewId);
         }

@@ -7,6 +7,7 @@ import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
+import java.util.function.Supplier;
 
 /**
  * 待确认清单的持久化。状态迁移一律是带原状态条件的更新（CAS），返回是否迁移成功。
@@ -18,6 +19,13 @@ public interface PlanRepository {
     Optional<DispatchPlan> find(String planId);
 
     Optional<DispatchPlan> findByIdempotencyKey(String tenantId, String idempotencyKey);
+
+    default List<DispatchPlan> manualPlans(String tenantId, String userId, String reportId, int offset, int size) {
+        throw new UnsupportedOperationException("手工清单查询尚未实现");
+    }
+
+    /** 仅释放从未发送过的终态手工草稿；已发送记录永远保留原幂等键。 */
+    default boolean retireManualDraftKey(String planId) { return false; }
 
     List<DispatchPlan> findAll(Collection<String> planIds);
 
@@ -50,23 +58,31 @@ public interface PlanRepository {
 
     boolean transition(String planId, String fromStatus, String toStatus, String reason, LocalDateTime now);
 
-    /** 认领执行：仅当清单仍是 PENDING 且未过期时迁移到 EXECUTING，并记录确认人 */
-    boolean claim(String planId, String confirmedBy, LocalDateTime now);
+    /** 认领执行：PENDING 且未过期时迁移到 EXECUTING，记录确认人并原子返回本次执行版本；失败返回 empty。 */
+    Optional<Long> claim(String planId, String confirmedBy, LocalDateTime now);
 
-    /** 只认领已经收尾的清单，用于重试明确失败的条目。 */
-    boolean claimRetry(String planId, LocalDateTime now);
+    /** 只认领已经收尾的清单，原子返回本次认领的执行版本；失败返回 empty。 */
+    Optional<Long> claimRetry(String planId, LocalDateTime now);
 
-    void updateItem(DispatchPlanItem item);
+    /** Save only while this execution round still owns the plan. */
+    void updateItem(DispatchPlanItem item, long executionVersion);
+
+    boolean isExecuting(String planId, long executionVersion);
+
+    /** Hold the plan row lock through the external send so recovery cannot revoke it between check and send. */
+    <T> T withExecutionRight(String planId, long executionVersion, Supplier<T> action);
 
     /** 核对结果只可将仍未知的条目更新一次；旧核对请求不能覆盖后续重试结果。 */
     boolean resolveUnknownItem(DispatchPlanItem item, String expectedStatus, long executionVersion);
 
     /** EXECUTING → EXECUTED，写入成功 / 失败条数 */
-    boolean finish(String planId, int successCount, int failedCount, LocalDateTime now);
+    boolean finish(String planId, long executionVersion, int successCount, int failedCount, LocalDateTime now);
+
+    boolean transitionExecution(String planId, long executionVersion, String toStatus, String reason, LocalDateTime now);
 
     boolean finishReview(String planId, long executionVersion, int successCount, int failedCount, LocalDateTime now);
 
-    default void touchExecuting(String planId, LocalDateTime now) { }
+    void touchExecuting(String planId, long executionVersion, LocalDateTime now);
 
     default List<DispatchPlan> staleExecuting(LocalDateTime cutoff) { return List.of(); }
 

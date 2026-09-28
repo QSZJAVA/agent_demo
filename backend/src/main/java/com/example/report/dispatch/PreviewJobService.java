@@ -54,9 +54,9 @@ public class PreviewJobService {
         long requestVersion;
         try {
             requestVersion = previews.beginRequest(conversationId);
-            jdbc.update("INSERT INTO dispatch_preview_job (id,tenant_id,user_id,conversation_id,status,stage,created_at,updated_at) "
-                        + "VALUES (?,?,?,?,?,?,?,?)", id, user.tenantId(), user.userId(), conversationId,
-                    "QUEUED", "WAITING", now, now);
+            jdbc.update("INSERT INTO dispatch_preview_job (id,tenant_id,user_id,conversation_id,request_version,status,stage,created_at,updated_at) "
+                        + "VALUES (?,?,?,?,?,?,?,?,?)", id, user.tenantId(), user.userId(), conversationId,
+                    requestVersion, "QUEUED", "WAITING", now, now);
             permits.put(id, permit);
         } catch (RuntimeException e) {
             permit.close();
@@ -87,9 +87,11 @@ public class PreviewJobService {
 
     /** SSE 事件丢失时从数据库恢复任务；已完成任务也返回，防止遗漏完成窗口。 */
     public Job latestForConversation(CurrentUser user, String conversationId) {
-        return jdbc.query("SELECT id,status,stage,scanned_rows,message,preview_id,created_at,updated_at "
-                        + "FROM dispatch_preview_job WHERE tenant_id=? AND user_id=? AND conversation_id=? "
-                        + "ORDER BY created_at DESC,updated_at DESC,id DESC LIMIT 1",
+        return jdbc.query("SELECT j.id,j.status,j.stage,j.scanned_rows,j.message,j.preview_id,j.created_at,j.updated_at "
+                        + "FROM dispatch_preview_job j JOIN agent_conversation c ON c.id=j.conversation_id "
+                        + "WHERE j.tenant_id=? AND j.user_id=? AND j.conversation_id=? "
+                        + "AND j.request_version=c.preview_request_version "
+                        + "ORDER BY j.request_version DESC LIMIT 1",
                 (rs, row) -> map(rs), user.tenantId(), user.userId(), conversationId)
                 .stream().findFirst().orElse(null);
     }

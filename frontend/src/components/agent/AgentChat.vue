@@ -32,6 +32,7 @@
             </div>
           </div>
           <div v-if="!conversations.length && !convLoading" class="conv-empty">还没有历史会话</div>
+          <el-button v-if="hasMoreConversations" type="text" :loading="convLoading" @click="loadConversations(true)">加载更多会话</el-button>
         </div>
       </div>
 
@@ -44,6 +45,7 @@
         </div>
 
         <div ref="scroll" class="chat-messages">
+          <el-button v-if="hasOlderMessages" type="text" :loading="historyLoading" @click="loadOlderMessages">加载更早消息</el-button>
           <div v-if="!messages.length" class="chat-welcome">
             <p>你好，我是派单助手。你可以这样问我：</p>
             <el-tag v-for="q in quickQuestions" :key="q" class="quick" @click="send(q)">{{ q }}</el-tag>
@@ -159,6 +161,17 @@ export default {
   },
   data() {
     return {
+      sessionUserId: getCurrentUserId(),
+      disposed: false,
+      abortStream: null,
+      stopPolling: null,
+      conversationPage: 1,
+      hasMoreConversations: false,
+      hasOlderMessages: false,
+      historyLoading: false,
+      openingHistory: false,
+      historyVersion: 0,
+      oldestMessageId: null,
       modelName: '',
       conversations: [],
       convLoading: false,
@@ -169,7 +182,7 @@ export default {
       choosing: false,
       currentJobId: null,
       jobStage: '',
-      // 预览表格里取消勾选的单据号，以及它们所在的那张预览卡片（服务端只对同一张预览生效）
+      // 取消勾选的稳定记录键及其来源预览。
       uiExcludes: [],
       uiPreviewId: null,
       executingPlanId: null,
@@ -179,7 +192,7 @@ export default {
   },
   computed: {
     busy() {
-      return this.sending || this.choosing || !!this.executingPlanId
+      return this.sending || this.choosing || this.openingHistory || !!this.executingPlanId
     }
   },
   watch: {
@@ -194,31 +207,53 @@ export default {
       }
     }
   },
+  beforeDestroy() {
+    this.disposed = true
+    if (this.abortStream) this.abortStream()
+    if (this.stopPolling) this.stopPolling()
+    this.messages = []
+    this.activeId = null
+    this.clearSelection()
+  },
   methods: {
+    isCurrentSession() {
+      return !this.disposed && this.sessionUserId === getCurrentUserId()
+    },
     pendingJobKey() {
-      return `agent-preview-job:${getCurrentUserId()}`
+      return `agent-preview-job:${this.sessionUserId}`
     },
     rememberPendingJob(jobId) {
+      if (!this.isCurrentSession()) return
       sessionStorage.setItem(this.pendingJobKey(), JSON.stringify({ jobId, conversationId: this.activeId }))
     },
     forgetPendingJob(jobId) {
+      if (!this.isCurrentSession()) return
       const stored = sessionStorage.getItem(this.pendingJobKey())
       if (stored && JSON.parse(stored).jobId === jobId) sessionStorage.removeItem(this.pendingJobKey())
     },
     async pollPreviewJob(jobId) {
+      if (!this.isCurrentSession()) throw new Error('会话已关闭')
       this.currentJobId = jobId
       this.choosing = true
       let job = await fetchPreviewJob(jobId)
+      if (!this.isCurrentSession()) throw new Error('会话已关闭')
       while (job.status === 'QUEUED' || job.status === 'RUNNING') {
         this.jobStage = job.status === 'QUEUED' ? '查询排队中…'
           : `正在查询可派单记录…已扫描 ${job.scannedRows || 0} 条`
-        await new Promise((resolve) => setTimeout(resolve, 1000))
+        await new Promise((resolve) => {
+          const timer = setTimeout(resolve, 1000)
+          this.stopPolling = () => { clearTimeout(timer); resolve() }
+        })
+        this.stopPolling = null
+        if (!this.isCurrentSession()) throw new Error('会话已关闭')
         job = await fetchPreviewJob(jobId)
+        if (!this.isCurrentSession()) throw new Error('会话已关闭')
       }
       if (job.status !== 'SUCCEEDED') this.forgetPendingJob(jobId)
       return job
     },
     async resumePendingJob(conversationId = null) {
+      if (!this.isCurrentSession()) return
       if (this.currentJobId || this.sending || this.choosing) return
       const stored = sessionStorage.getItem(this.pendingJobKey())
       let pending
@@ -229,16 +264,18 @@ export default {
       this.choosing = true
       try {
         if (this.activeId !== pending.conversationId) await this.openConversation(pending.conversationId, true)
-        if (!pending.jobId) {
-          const latest = await fetchLatestPreviewJob(pending.conversationId)
-          if (!latest) { this.forgetPendingJob(null); return }
-          pending.jobId = latest.id
-          this.rememberPendingJob(pending.jobId)
-        }
+        if (!this.isCurrentSession()) return
+        const latest = await fetchLatestPreviewJob(pending.conversationId)
+        if (!this.isCurrentSession()) return
+        if (!latest) { this.forgetPendingJob(null); return }
+        pending.jobId = latest.id
+        this.rememberPendingJob(pending.jobId)
         const job = await this.pollPreviewJob(pending.jobId)
+        if (!this.isCurrentSession()) return
         if (job.status === 'SUCCEEDED' && !this.messages.some((m) => m.cardType === 'preview' &&
             (m.payload?.previewId || m.previewId) === job.previewId)) {
           const preview = await fetchPreview(job.previewId)
+          if (!this.isCurrentSession()) return
           this.clearSelection()
           this.push({ role: 'card', cardType: 'preview', payload: preview, status: preview.status, statusMessage: null })
           this.forgetPendingJob(pending.jobId)
@@ -250,6 +287,7 @@ export default {
       } catch (e) {
         // 保留任务编号；重新打开对话抽屉或刷新页面后继续查询。
       } finally {
+        if (!this.isCurrentSession()) return
         this.choosing = false
         this.currentJobId = null
         this.jobStage = ''
@@ -257,10 +295,17 @@ export default {
       }
     },
     // ---------- 会话列表 ----------
-    async loadConversations() {
+    async loadConversations(more = false) {
+      if (!this.isCurrentSession() || this.convLoading) return
+      const page = more ? this.conversationPage + 1 : 1
       this.convLoading = true
       try {
-        this.conversations = await fetchConversations()
+        const list = await fetchConversations(page, 50)
+        if (!this.isCurrentSession()) return
+        const combined = more ? [...this.conversations, ...list] : list
+        this.conversations = [...new Map(combined.map((c) => [c.id, c])).values()]
+        this.conversationPage = page
+        this.hasMoreConversations = list.length === 50
       } finally {
         this.convLoading = false
       }
@@ -268,15 +313,30 @@ export default {
     newConversation() {
       if (this.busy) return
       this.activeId = null
+      this.historyVersion++
+      this.hasOlderMessages = false
       this.messages = []
       this.clearSelection()
       this.input = ''
     },
     async openConversation(id, force = false) {
+      if (!this.isCurrentSession()) return
       if (this.busy && !force) return
       this.activeId = id
+      const version = ++this.historyVersion
+      this.messages = []
+      this.hasOlderMessages = false
       this.clearSelection()
-      const list = await fetchMessages(id)
+      this.openingHistory = true
+      let list
+      try {
+        list = await fetchMessages(id)
+      } finally {
+        if (version === this.historyVersion) this.openingHistory = false
+      }
+      if (!this.isCurrentSession() || version !== this.historyVersion) return
+      this.hasOlderMessages = list.length === 100
+      this.oldestMessageId = list[0]?.id || null
       // 卡片状态由服务端随历史消息一起返回：刷新页面、换设备看到的都一样
       this.messages = this.textBeforeCards(list).map((m) => ({
         key: `h-${m.id}`,
@@ -294,9 +354,33 @@ export default {
       this.scrollToBottom()
       if (!force) await this.resumePendingJob(id)
     },
+    async loadOlderMessages() {
+      if (!this.isCurrentSession() || this.historyLoading || !this.activeId || !this.hasOlderMessages) return
+      const id = this.activeId
+      const version = this.historyVersion
+      const beforeId = this.oldestMessageId
+      if (beforeId == null) return
+      this.historyLoading = true
+      try {
+        const list = await fetchMessages(id, beforeId, 100)
+        if (!this.isCurrentSession() || version !== this.historyVersion) return
+        const existing = new Set(this.messages.filter((m) => m.id != null).map((m) => String(m.id)))
+        const older = this.textBeforeCards(list).filter((m) => !existing.has(String(m.id)))
+          .map((m) => ({ ...m, key: `h-${m.id}`, chosen: '' }))
+        const scroll = this.$refs.scroll
+        const height = scroll?.scrollHeight || 0
+        const top = scroll?.scrollTop || 0
+        this.messages = [...older, ...this.messages]
+        this.hasOlderMessages = list.length === 100
+        if (list.length) this.oldestMessageId = list[0].id
+        this.$nextTick(() => { if (scroll) scroll.scrollTop = top + scroll.scrollHeight - height })
+      } finally { this.historyLoading = false }
+    },
     async rename(c) {
+      if (!this.isCurrentSession()) return
       try {
         const { value } = await this.$prompt('新的会话标题', '改名', { inputValue: c.title, inputPattern: /\S+/, inputErrorMessage: '标题不能为空' })
+        if (!this.isCurrentSession()) return
         await renameConversation(c.id, value)
         c.title = value
       } catch (e) {
@@ -304,11 +388,13 @@ export default {
       }
     },
     async remove(c) {
+      if (!this.isCurrentSession()) return
       try {
         await this.$confirm(`删除会话"${c.title || '（未命名）'}"？`, '提示', { type: 'warning' })
       } catch (e) {
         return
       }
+      if (!this.isCurrentSession()) return
       await deleteConversation(c.id)
       if (this.activeId === c.id) this.newConversation()
       this.loadConversations()
@@ -320,6 +406,7 @@ export default {
      * 新预览作废旧卡片、规则变化导致失效、超时过期，都在这里体现，前端不再按消息先后自行推导。
      */
     async refreshStates() {
+      if (!this.isCurrentSession()) return
       const id = this.activeId
       if (!id) return
       let states
@@ -328,7 +415,7 @@ export default {
       } catch (e) {
         return
       }
-      if (id !== this.activeId) return
+      if (!this.isCurrentSession() || id !== this.activeId) return
       this.messages.forEach((m) => {
         if (m.role !== 'card' || !m.payload) return
         let state = null
@@ -349,6 +436,7 @@ export default {
 
     // ---------- 对话 ----------
     push(msg) {
+      if (!this.isCurrentSession()) return msg
       msg.key = msg.key || `m-${++seq}`
       this.messages.push(msg)
       this.scrollToBottom()
@@ -383,9 +471,9 @@ export default {
       flush()
       return result
     },
-    onPreviewSelection(m, unselectedDocNos) {
+    onPreviewSelection(m, excludedRecords) {
       if (m.status !== 'ACTIVE') return
-      this.uiExcludes = unselectedDocNos
+      this.uiExcludes = excludedRecords
       this.uiPreviewId = m.payload.previewId
     },
     dispatchSelected(m) {
@@ -393,6 +481,7 @@ export default {
       this.send('把已勾选的记录帮我派单')
     },
     async send(text) {
+      if (!this.isCurrentSession()) return
       const message = (text || this.input || '').trim()
       if (!message || this.busy) return
       this.input = ''
@@ -402,10 +491,11 @@ export default {
       // 否则卡片会插在回答中间，看起来"卡片比回答先到"
       const cards = []
       let pendingJobId = null
-      const excludeDocNos = this.uiExcludes.slice()
+      const excludedRecords = this.uiExcludes.slice()
       const previewId = this.uiPreviewId
       const assistant = this.push({ role: 'assistant', content: '', streaming: true, pending: true })
       const onEvent = (type, data) => {
+        if (!this.isCurrentSession()) return
         switch (type) {
           case 'conversation':
             if (this.activeId !== data.conversationId) {
@@ -452,13 +542,17 @@ export default {
         }
       }
       try {
-        const { promise } = streamChat({ conversationId: this.activeId, message, excludeDocNos, previewId }, onEvent)
+        const { promise, abort } = streamChat({ conversationId: this.activeId, message, excludedRecords, previewId }, onEvent)
+        this.abortStream = abort
         await promise
+        if (!this.isCurrentSession()) return
         if (!pendingJobId) this.forgetPendingJob(null)
         if (pendingJobId) {
           const job = await this.pollPreviewJob(pendingJobId)
+          if (!this.isCurrentSession()) return
           if (job.status === 'SUCCEEDED') {
             const preview = await fetchPreview(job.previewId)
+            if (!this.isCurrentSession()) return
             this.clearSelection()
             cards.push({ role: 'card', cardType: 'preview', payload: preview,
               status: preview.status, statusMessage: null })
@@ -468,10 +562,12 @@ export default {
           }
         }
       } catch (e) {
+        if (!this.isCurrentSession()) return
         let recovered = false
         if (!pendingJobId && this.activeId) {
           try {
             const latest = await fetchLatestPreviewJob(this.activeId)
+            if (!this.isCurrentSession()) return
             if (latest && !this.messages.some((m) => m.cardType === 'preview' &&
                 (m.payload?.previewId || m.previewId) === latest.previewId)) {
               pendingJobId = latest.id
@@ -482,8 +578,10 @@ export default {
         if (pendingJobId) {
           try {
             const job = await this.pollPreviewJob(pendingJobId)
+            if (!this.isCurrentSession()) return
             if (job.status === 'SUCCEEDED') {
               const preview = await fetchPreview(job.previewId)
+              if (!this.isCurrentSession()) return
               this.clearSelection()
               cards.push({ role: 'card', cardType: 'preview', payload: preview,
                 status: preview.status, statusMessage: null })
@@ -506,6 +604,8 @@ export default {
           } catch (ignored) { /* 保留已收到的内容 */ }
         }
       } finally {
+        if (!this.isCurrentSession()) return
+        this.abortStream = null
         assistant.pending = false
         assistant.streaming = false
         // 本轮只有卡片没有文字时，把等待占位删掉，避免留下空气泡
@@ -526,6 +626,7 @@ export default {
     // ---------- 报表选择 ----------
     /** 选择卡片上选定报表后由服务端直接生成预览（不经过模型，服务端重新按权限校验） */
     async chooseReports(m, reportIds) {
+      if (!this.isCurrentSession()) return
       if (this.busy || !reportIds.length) return
       this.choosing = true
       try {
@@ -536,11 +637,14 @@ export default {
           excludeDocNos: m.payload.excludeDocNos,
           scopeMode: m.payload.scopeMode
         })
+        if (!this.isCurrentSession()) return
         this.currentJobId = job.id
         this.rememberPendingJob(job.id)
         job = await this.pollPreviewJob(job.id)
+        if (!this.isCurrentSession()) return
         if (job.status === 'SUCCEEDED') {
           const preview = await fetchPreview(job.previewId)
+          if (!this.isCurrentSession()) return
           const names = preview.byReport.map((b) => b.reportName).join('、')
           this.$set(m, 'chosen', names)
           this.push({ role: 'user', content: `（选择报表）${names}` })
@@ -560,16 +664,19 @@ export default {
       }
     },
     async cancelCurrentJob() {
+      if (!this.isCurrentSession()) return
       if (this.currentJobId) await cancelPreviewJob(this.currentJobId)
     },
 
     // ---------- 待确认清单 ----------
     async confirmPlan(m) {
+      if (!this.isCurrentSession()) return
       if (this.busy || m.status !== 'PENDING') return
       const planId = m.payload.planId
       this.executingPlanId = planId
       try {
         const result = await confirmPlan(planId)
+        if (!this.isCurrentSession()) return
         this.planRefreshVersion++
         this.push({ role: 'card', cardType: 'result', payload: result })
         this.clearSelection()
@@ -582,10 +689,12 @@ export default {
       }
     },
     async retryFailed(m) {
+      if (!this.isCurrentSession()) return
       if (this.busy || !m.payload.planId) return
       this.executingPlanId = m.payload.planId
       try {
         const result = await retryFailedPlan(m.payload.planId)
+        if (!this.isCurrentSession()) return
         this.planRefreshVersion++
         this.push({ role: 'card', cardType: 'result', payload: result })
         this.$emit('dispatched')
@@ -597,10 +706,12 @@ export default {
       }
     },
     async reconcilePlanCard(m) {
+      if (!this.isCurrentSession()) return
       if (this.busy || !m.payload.planId) return
       this.executingPlanId = m.payload.planId
       try {
         const result = await reconcilePlan(m.payload.planId)
+        if (!this.isCurrentSession()) return
         this.planRefreshVersion++
         this.push({ role: 'card', cardType: 'result', payload: result })
       } catch (e) {
@@ -611,6 +722,7 @@ export default {
       }
     },
     async cancelPlanCard(m) {
+      if (!this.isCurrentSession()) return
       if (this.busy) return
       try {
         await cancelPlan(m.payload.planId)

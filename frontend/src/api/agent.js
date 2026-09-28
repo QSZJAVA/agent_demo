@@ -88,7 +88,7 @@ export function cancelPlan(planId) {
  * onEvent(type, data) 逐个事件回调；返回 abort 函数。
  * excludeDocNos 是 previewId 那张预览卡片上取消勾选的单据号，服务端只在派单用的正是这张预览时才采用。
  */
-export function streamChat({ conversationId, message, excludeDocNos, previewId }, onEvent) {
+export function streamChat({ conversationId, message, excludeDocNos, excludedRecords, previewId }, onEvent) {
   const controller = new AbortController()
   const run = async () => {
     const response = await fetch('/api/agent/chat', {
@@ -98,7 +98,7 @@ export function streamChat({ conversationId, message, excludeDocNos, previewId }
         Accept: 'text/event-stream',
         'X-User-Id': getCurrentUserId()
       },
-      body: JSON.stringify({ conversationId, message, excludeDocNos, previewId }),
+      body: JSON.stringify({ conversationId, message, excludeDocNos, excludedRecords, previewId }),
       signal: controller.signal
     })
     if (!response.ok) {
