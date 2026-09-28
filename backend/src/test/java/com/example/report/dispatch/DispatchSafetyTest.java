@@ -26,7 +26,8 @@ class DispatchSafetyTest {
 
     private DispatchService service(PlanRepository repository) {
         return new DispatchService(h.plans, h.previews, repository, h.catalogService,
-                h.candidates, h.versions, gateway, mock(AuditService.class), mock(ConversationService.class), mock(ChatMemory.class));
+                h.candidates, h.versions, gateway, mock(AuditService.class), mock(ConversationService.class), mock(ChatMemory.class),
+                org.springframework.transaction.support.TransactionOperations.withoutTransaction());
     }
 
     private PlanSnapshot plan() {

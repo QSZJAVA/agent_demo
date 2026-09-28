@@ -33,11 +33,10 @@ class DispatchTraceAuthorizationTest {
     private final DispatchHarness h = new DispatchHarness()
             .put(SALES, candidate(SALES, "1", "SO1", "A", "sales"))
             .put(EXPENSE, candidate(EXPENSE, "2", "EX1", "B", "expense"));
-    private final ConversationService conversations = mock(ConversationService.class);
-    private final DispatchAuditMapper audits = mock(DispatchAuditMapper.class);
-    private final DispatchRuleMapper rules = mock(DispatchRuleMapper.class);
+    private final com.example.report.trace.TraceReader reader = mock(com.example.report.trace.TraceReader.class);
+    private final com.example.report.config.ResourceQuotaService quotas = mock(com.example.report.config.ResourceQuotaService.class);
     private final DispatchTraceService trace = new DispatchTraceService(h.store.plans(), h.store.previews(),
-            audits, rules, conversations, h.previews);
+            reader, quotas, h.previews);
 
     @BeforeAll
     static void initMetadata() {
@@ -68,7 +67,7 @@ class DispatchTraceAuthorizationTest {
         var plan = h.store.plans().find(id).orElseThrow();
         assertDoesNotThrow(() -> h.previews.requireReadable(reader, h.store.previews().find(plan.getPreviewId()).orElseThrow()));
         assertEquals(403, assertThrows(ApiException.class, () -> trace.trace(reader, id)).getCode());
-        verifyNoInteractions(conversations, audits, rules);
+        verifyNoInteractions(this.reader, quotas);
     }
 
     static Stream<CurrentUser> authorizedReaders() { return Stream.of(OWNER, ADMIN); }
@@ -77,9 +76,9 @@ class DispatchTraceAuthorizationTest {
     @MethodSource("authorizedReaders")
     void ownerAndFullScopeAdminCanStillReadTheTrace(CurrentUser reader) {
         String id = mixedConversation();
-        var message = new TraceMessage(1L, "assistant", null, "authorized history", null, null, null, LocalDateTime.now());
-        when(conversations.traceMessages(eq("c1"), any(), any())).thenReturn(List.of(message));
-        assertEquals(List.of(message), trace.trace(reader, id).get("messages"));
+        var page = new com.example.report.trace.TraceReader.Page(List.of(java.util.Map.of("content", "authorized history")), 1, null);
+        when(this.reader.page(any(), eq("messages"), eq(0L), eq(50))).thenReturn(page);
+        assertEquals(page, trace.trace(reader, id).get("messages"));
     }
 
     @Test
@@ -89,6 +88,17 @@ class DispatchTraceAuthorizationTest {
                 new CurrentUser("T002", "admin", "admin", Set.of("A", "B"), Set.of(CurrentUser.ALL), true))) {
             assertEquals(404, assertThrows(ApiException.class, () -> trace.trace(reader, id)).getCode());
         }
-        verifyNoInteractions(conversations, audits, rules);
+        verifyNoInteractions(this.reader, quotas);
+    }
+
+    @ParameterizedTest
+    @MethodSource("restrictedReaders")
+    void everyTracePageAndRepairEnforcesTheSameAuthorization(CurrentUser reader) {
+        String id = mixedConversation();
+        for (String section : List.of("events", "messages", "audits", "items")) {
+            assertThrows(ApiException.class, () -> trace.page(reader, id, section, 0, 50));
+        }
+        assertThrows(ApiException.class, () -> trace.retry(reader, id));
+        verifyNoInteractions(this.reader, quotas);
     }
 }

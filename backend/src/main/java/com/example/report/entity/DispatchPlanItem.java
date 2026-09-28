@@ -25,6 +25,8 @@ public class DispatchPlanItem {
 
     @TableId(type = IdType.AUTO)
     private Long id;
+    /** 创建清单时冻结的规则原文，后续规则改名、停用或清理不影响追溯。 */
+    private String ruleSnapshot;
     private String planId;
     private Integer seq;
     private String reportId;

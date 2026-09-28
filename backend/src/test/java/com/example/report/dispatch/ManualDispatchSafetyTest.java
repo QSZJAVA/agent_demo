@@ -38,7 +38,8 @@ class ManualDispatchSafetyTest {
         gateway = mock(DispatchGateway.class);
         doReturn(DispatchGateway.Outcome.ok()).when(gateway).dispatch(any());
         service = new DispatchService(h.plans, h.previews, h.store.plans(), h.catalogService, h.candidates, h.versions,
-                gateway, mock(AuditService.class), mock(ConversationService.class), mock(ChatMemory.class));
+                gateway, mock(AuditService.class), mock(ConversationService.class), mock(ChatMemory.class),
+                org.springframework.transaction.support.TransactionOperations.withoutTransaction());
     }
     @AfterEach void close() { service.shutdownHeartbeats(); }
 

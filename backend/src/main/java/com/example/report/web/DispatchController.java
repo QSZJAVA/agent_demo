@@ -230,6 +230,20 @@ public class DispatchController {
         return Result.ok(traceService.trace(user, planId));
     }
 
+    @GetMapping("/plans/{planId}/trace/{section}")
+    public Result<com.example.report.trace.TraceReader.Page> tracePage(
+            @RequestHeader(PermissionService.USER_HEADER) String userId, @PathVariable String planId,
+            @PathVariable String section, @RequestParam(defaultValue = "0") long afterId,
+            @RequestParam(defaultValue = "50") int size) {
+        return Result.ok(traceService.page(permissionService.resolve(userId), planId, section, afterId, size));
+    }
+
+    @PostMapping("/plans/{planId}/trace/retry")
+    public Result<Map<String, Object>> retryTrace(@RequestHeader(PermissionService.USER_HEADER) String userId,
+                                                 @PathVariable String planId) {
+        return Result.ok(traceService.retry(permissionService.resolve(userId), planId));
+    }
+
     /** 报表页手工派单：reportId 或旧 reportType 均可，按记录主键 */
     @PostMapping("/direct")
     public Result<DispatchService.ManualResult> direct(@RequestHeader(PermissionService.USER_HEADER) String userId,

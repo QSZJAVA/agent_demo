@@ -83,6 +83,18 @@ export function cancelPlan(planId) {
   return http.post(`/dispatch/plans/${planId}/cancel`)
 }
 
+export function fetchDispatchTrace(planId) {
+  return http.get(`/dispatch/plans/${planId}/trace`)
+}
+
+export function fetchTracePage(planId, section, afterId, size = 50) {
+  return http.get(`/dispatch/plans/${planId}/trace/${section}`, { params: { afterId, size } })
+}
+
+export function retryTraceDelivery(planId) {
+  return http.post(`/dispatch/plans/${planId}/trace/retry`)
+}
+
 /**
  * 对话（SSE over fetch）。axios 不支持流式响应，这里用原生 fetch 读 ReadableStream。
  * onEvent(type, data) 逐个事件回调；返回 abort 函数。

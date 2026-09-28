@@ -23,6 +23,8 @@ public class DispatchPlan {
 
     @TableId(type = IdType.INPUT)
     private String id;
+    /** 0 为升级前历史清单，1 表示状态与追溯事件原子持久化。 */
+    private Integer evidenceVersion = 0;
     private String previewId;
     private String tenantId;
     private String userId;

@@ -31,11 +31,13 @@
         <el-button v-if="plan.status === 'REVIEW_REQUIRED'" size="mini" :disabled="dispatching" @click="processManual(plan, 'reconcile')">核对结果</el-button>
         <el-button v-if="plan.status === 'EXECUTED' && plan.retryableCount" size="mini" :disabled="dispatching" @click="processManual(plan, 'retry')">重试失败项</el-button>
         <el-button v-if="plan.status === 'PENDING'" size="mini" :disabled="dispatching" @click="processManual(plan, 'confirm')">继续派单</el-button>
+        <el-button size="mini" @click="tracePlanId = plan.planId">查看完整追溯</el-button>
       </div>
       <el-button size="mini" :disabled="manualPage === 1 || dispatching" @click="loadManualPlans(manualPage - 1)">上一页</el-button>
       <el-button size="mini" :disabled="!moreManualPlans || dispatching" @click="loadManualPlans(manualPage + 1)">下一页</el-button>
     </div>
     <el-button size="mini" :disabled="dispatching" @click="loadManualPlans()">刷新派单记录</el-button>
+    <dispatch-trace v-if="tracePlanId" :plan-id="tracePlanId" @close="tracePlanId = null" />
 
     <el-table
       ref="reportTable"
@@ -79,9 +81,11 @@
 import { dispatchDirect, fetchManualPlans } from '../api/report'
 import { confirmPlan, reconcilePlan, retryFailedPlan } from '../api/agent'
 import { getCurrentUserId } from '../auth'
+import DispatchTrace from './agent/DispatchTrace.vue'
 
 export default {
   name: 'ReportTable',
+  components: { DispatchTrace },
   props: {
     title: { type: String, default: '' },
     tableName: { type: String, default: '' },
@@ -96,6 +100,7 @@ export default {
   data() {
     return {
       selectedRows: [],
+      tracePlanId: null,
       dispatching: false,
       manualPlans: [],
       manualPage: 1,

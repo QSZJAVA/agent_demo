@@ -7,6 +7,12 @@ import com.example.report.entity.DispatchPreviewItem;
 import com.example.report.mapper.AgentConversationMapper;
 import com.example.report.mapper.DispatchPreviewItemMapper;
 import com.example.report.mapper.DispatchPreviewMapper;
+import com.example.report.agent.PreviewPayload;
+import com.example.report.catalog.ReportCatalogService;
+import com.example.report.common.JsonUtil;
+import com.example.report.dispatch.PreviewSnapshot;
+import com.example.report.entity.AgentMessage;
+import com.example.report.trace.TraceJournal;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -24,12 +30,16 @@ public class MybatisPreviewRepository implements PreviewRepository {
     private final DispatchPreviewMapper previewMapper;
     private final DispatchPreviewItemMapper itemMapper;
     private final AgentConversationMapper conversationMapper;
+    private final TraceJournal journal;
+    private final ReportCatalogService catalog;
 
     public MybatisPreviewRepository(DispatchPreviewMapper previewMapper, DispatchPreviewItemMapper itemMapper,
-                                    AgentConversationMapper conversationMapper) {
+                                    AgentConversationMapper conversationMapper, TraceJournal journal, ReportCatalogService catalog) {
         this.previewMapper = previewMapper;
         this.itemMapper = itemMapper;
         this.conversationMapper = conversationMapper;
+        this.journal = journal;
+        this.catalog = catalog;
     }
 
     @Override
@@ -63,11 +73,13 @@ public class MybatisPreviewRepository implements PreviewRepository {
     }
 
     @Override
+    @Transactional
     public void insert(DispatchPreview preview, List<DispatchPreviewItem> items) {
         previewMapper.insert(preview);
         for (int i = 0; i < items.size(); i += INSERT_CHUNK) {
             itemMapper.insertBatch(items.subList(i, Math.min(items.size(), i + INSERT_CHUNK)));
         }
+        recordPreview(preview, items);
     }
 
     @Override
@@ -158,12 +170,31 @@ public class MybatisPreviewRepository implements PreviewRepository {
     }
 
     @Override
+    @Transactional
     public boolean transition(String previewId, String fromStatus, String toStatus, String reason, LocalDateTime now) {
-        return previewMapper.update(null, new LambdaUpdateWrapper<DispatchPreview>()
+        boolean changed = previewMapper.update(null, new LambdaUpdateWrapper<DispatchPreview>()
                 .eq(DispatchPreview::getId, previewId)
                 .eq(DispatchPreview::getStatus, fromStatus)
                 .set(DispatchPreview::getStatus, toStatus)
                 .set(DispatchPreview::getStatusReason, reason)
                 .set(DispatchPreview::getUpdatedAt, now)) == 1;
+        if (changed && DispatchPreview.ACTIVE.equals(toStatus)) {
+            recordPreview(previewMapper.selectById(previewId), page(previewId, 0, 50));
+        }
+        return changed;
+    }
+
+    private void recordPreview(DispatchPreview preview, List<DispatchPreviewItem> items) {
+        if (preview.getConversationId() == null) return;
+        AgentMessage message = new AgentMessage();
+        message.setTenantId(preview.getTenantId());
+        message.setUserId(preview.getUserId());
+        message.setConversationId(preview.getConversationId());
+        message.setPreviewId(preview.getId());
+        message.setRole(AgentMessage.ROLE_CARD);
+        message.setCardType("preview");
+        message.setPayload(JsonUtil.toJson(PreviewPayload.of(new PreviewSnapshot(preview, items), catalog)));
+        message.setCreatedAt(preview.getCreatedAt());
+        journal.message(message, false, "card:preview:" + preview.getId());
     }
 }

@@ -31,6 +31,8 @@
     <el-pagination v-if="payload.count > 50" small layout="prev, pager, next" :current-page="page"
       :page-size="50" :total="payload.count" @current-change="changePage" />
 
+    <el-button size="mini" type="text" @click="traceVisible = true">查看完整追溯</el-button>
+    <dispatch-trace v-if="traceVisible" :plan-id="payload.planId" @close="traceVisible = false" />
     <div class="card-foot">
       <template v-if="state === 'pending'">
         <span class="hint">派单不可撤销，请核对后确认。{{ expiryText }}</span>
@@ -51,12 +53,14 @@
 
 <script>
 import { fetchPlanItems } from '../../api/agent'
+import DispatchTrace from './DispatchTrace.vue'
 // 清单状态只由服务端给出：PENDING / EXECUTING / EXECUTED / CANCELLED / EXPIRED；
 // 升级前的历史清单没有服务端状态，按已失效处理
 const STATES = { PENDING: 'pending', EXECUTING: 'executing', REVIEW_REQUIRED: 'review', EXECUTED: 'executed', CANCELLED: 'cancelled', EXPIRED: 'expired' }
 
 export default {
   name: 'PlanCard',
+  components: { DispatchTrace },
   props: {
     payload: { type: Object, required: true },
     status: { type: String, default: null },
@@ -65,7 +69,7 @@ export default {
     refreshVersion: { type: Number, default: 0 }
   },
   data() {
-    return { page: 1, pageRecords: this.payload.records || [] }
+    return { page: 1, pageRecords: this.payload.records || [], traceVisible: false }
   },
   computed: {
     state() {

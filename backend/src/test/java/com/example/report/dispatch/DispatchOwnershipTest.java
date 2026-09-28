@@ -32,7 +32,8 @@ class DispatchOwnershipTest {
     private static DispatchService service(DispatchHarness h, PlanService plans, PlanRepository repository,
                                            DispatchGateway gateway) {
         return new DispatchService(plans, h.previews, repository, h.catalogService, h.candidates, h.versions,
-                gateway, mock(AuditService.class), mock(ConversationService.class), mock(ChatMemory.class));
+                gateway, mock(AuditService.class), mock(ConversationService.class), mock(ChatMemory.class),
+                org.springframework.transaction.support.TransactionOperations.withoutTransaction());
     }
 
     @ParameterizedTest

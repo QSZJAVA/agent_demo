@@ -1,28 +1,21 @@
 package com.example.report.dispatch;
 
-import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.example.report.common.ApiException;
 import com.example.report.common.JsonUtil;
-import com.example.report.conversation.ConversationService;
 import com.example.report.dispatch.store.PlanRepository;
 import com.example.report.dispatch.store.PreviewRepository;
-import com.example.report.entity.DispatchAudit;
 import com.example.report.entity.DispatchPlan;
 import com.example.report.entity.DispatchPlanItem;
 import com.example.report.entity.DispatchPreview;
-import com.example.report.entity.DispatchRule;
-import com.example.report.mapper.DispatchAuditMapper;
-import com.example.report.mapper.DispatchRuleMapper;
+import com.example.report.trace.TraceReader;
+import com.example.report.config.ResourceQuotaService;
 import com.example.report.permission.CurrentUser;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDateTime;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 /**
  * 派单链路追溯（P0-09）：从一份清单出发，串起 用户原话 → 工具调用 → 预览（请求协议、范围、版本）→ 清单（排除项、确认人）
@@ -35,54 +28,62 @@ public class DispatchTraceService {
 
     private final PlanRepository plans;
     private final PreviewRepository previews;
-    private final DispatchAuditMapper auditMapper;
-    private final DispatchRuleMapper ruleMapper;
-    private final ConversationService conversationService;
+    private final TraceReader reader;
+    private final ResourceQuotaService quotas;
 
-    public DispatchTraceService(PlanRepository plans, PreviewRepository previews, DispatchAuditMapper auditMapper,
-                                DispatchRuleMapper ruleMapper, ConversationService conversationService,
+    public DispatchTraceService(PlanRepository plans, PreviewRepository previews, TraceReader reader, ResourceQuotaService quotas,
                                 PreviewService previewService) {
         this.plans = plans;
         this.previews = previews;
-        this.auditMapper = auditMapper;
-        this.ruleMapper = ruleMapper;
-        this.conversationService = conversationService;
+        this.reader = reader;
+        this.quotas = quotas;
         this.previewService = previewService;
     }
 
     public Map<String, Object> trace(CurrentUser user, String planId) {
+        DispatchPlan plan = readable(user, planId);
+        DispatchPreview preview = previews.find(plan.getPreviewId()).orElseThrow();
+        List<DispatchPlanItem> items = plans.items(plan.getId());
+        // 只展示清单创建时冻结的规则；缺失即报告缺失，不拿现行规则填补历史。
+        List<Map<String, Object>> rules = items.stream().map(DispatchPlanItem::getRuleSnapshot)
+                .filter(Objects::nonNull).distinct().map(JsonUtil::toMap).toList();
+        Map<String, Object> trace = new LinkedHashMap<>();
+        trace.put("plan", planView(plan));
+        trace.put("preview", previewView(preview));
+        trace.put("rules", rules);
+        trace.put("integrity", reader.integrity(plan));
+        trace.put("items", reader.page(plan, "items", 0, 50));
+        trace.put("audits", reader.page(plan, "audits", 0, 50));
+        trace.put("messages", reader.page(plan, "messages", 0, 50));
+        trace.put("events", reader.page(plan, "events", 0, 50));
+        return trace;
+    }
+
+    public TraceReader.Page page(CurrentUser user, String planId, String section, long afterId, int size) {
+        return reader.page(readable(user, planId), section, afterId, size);
+    }
+
+    public Map<String, Object> retry(CurrentUser user, String planId) {
+        DispatchPlan plan = readable(user, planId);
+        DispatchPreview preview = previews.find(plan.getPreviewId()).orElseThrow();
+        try (var permit = quotas.acquire(user, "trace-retry", DispatchVersionService.reportIds(preview))) {
+            return Map.of("scheduledCount", reader.retry(plan));
+        }
+    }
+
+    private DispatchPlan readable(CurrentUser user, String planId) {
         DispatchPlan plan = plans.find(planId)
                 .filter(p -> Objects.equals(p.getTenantId(), user.tenantId())
                         && (Objects.equals(p.getUserId(), user.userId()) || user.admin()))
                 .orElseThrow(() -> ApiException.notFound("待确认清单不存在"));
         DispatchPreview preview = previews.find(plan.getPreviewId()).orElse(null);
-        if (preview != null) previewService.requireReadable(user, preview);
+        if (preview == null) throw ApiException.notFound("追溯来源预览缺失，无法校验数据范围");
+        previewService.requireReadable(user, preview);
         // 追溯包含整段会话的自由文本，不能仅凭当前清单的预览权限授权其他报表的消息。
-        if (plan.getConversationId() != null && preview != null) {
+        if (plan.getConversationId() != null) {
             previewService.requireConversationReadable(user, plan.getConversationId());
         }
-        List<DispatchPlanItem> items = plans.items(plan.getId());
-        List<DispatchAudit> audits = auditMapper.selectList(new LambdaQueryWrapper<DispatchAudit>()
-                .eq(DispatchAudit::getTenantId, user.tenantId())
-                .eq(DispatchAudit::getPlanId, plan.getId())
-                .orderByAsc(DispatchAudit::getId));
-        Set<Long> ruleIds = items.stream().map(DispatchPlanItem::getRuleId).filter(Objects::nonNull).collect(Collectors.toSet());
-        List<DispatchRule> rules = ruleIds.isEmpty() ? List.of() : ruleMapper.selectList(new LambdaQueryWrapper<DispatchRule>()
-                .eq(DispatchRule::getTenantId, user.tenantId()).in(DispatchRule::getId, ruleIds));
-
-        Map<String, Object> trace = new LinkedHashMap<>();
-        trace.put("plan", planView(plan));
-        trace.put("preview", preview == null ? null : previewView(preview));
-        trace.put("items", items);
-        trace.put("audits", audits);
-        trace.put("rules", rules);
-        if (plan.getConversationId() != null && preview != null) {
-            LocalDateTime until = plan.getFinishedAt() != null ? plan.getFinishedAt() : LocalDateTime.now();
-            trace.put("messages", conversationService.traceMessages(plan.getConversationId(), preview.getCreatedAt(), until));
-        } else {
-            trace.put("messages", List.of());
-        }
-        return trace;
+        return plan;
     }
 
     private static Map<String, Object> planView(DispatchPlan p) {
@@ -94,6 +95,8 @@ public class DispatchTraceService {
         m.put("conversationId", p.getConversationId());
         m.put("status", p.getStatus());
         m.put("statusReason", p.getStatusReason());
+        m.put("executionVersion", p.getExecutionVersion());
+        m.put("evidenceVersion", p.getEvidenceVersion());
         m.put("excluded", new PlanSnapshot(p, List.of()).excluded());
         m.put("itemCount", p.getItemCount());
         m.put("successCount", p.getSuccessCount());

@@ -7,6 +7,12 @@ import com.example.report.entity.DispatchPlanItem;
 import com.example.report.dispatch.StateReason;
 import com.example.report.mapper.DispatchPlanItemMapper;
 import com.example.report.mapper.DispatchPlanMapper;
+import com.example.report.entity.AgentMessage;
+import com.example.report.agent.PlanPayload;
+import com.example.report.common.JsonUtil;
+import com.example.report.dispatch.PlanSnapshot;
+import com.example.report.trace.TraceJournal;
+import com.example.report.trace.RuleEvidence;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -23,17 +29,41 @@ public class MybatisPlanRepository implements PlanRepository {
 
     private final DispatchPlanMapper planMapper;
     private final DispatchPlanItemMapper itemMapper;
+    private final TraceJournal journal;
+    private final RuleEvidence rules;
 
-    public MybatisPlanRepository(DispatchPlanMapper planMapper, DispatchPlanItemMapper itemMapper) {
+    public MybatisPlanRepository(DispatchPlanMapper planMapper, DispatchPlanItemMapper itemMapper,
+                                 TraceJournal journal, RuleEvidence rules) {
         this.planMapper = planMapper;
         this.itemMapper = itemMapper;
+        this.journal = journal;
+        this.rules = rules;
     }
 
     @Override
+    @Transactional
     public void insert(DispatchPlan plan, List<DispatchPlanItem> items) {
+        plan.setEvidenceVersion(1);
+        java.util.Map<String, String> snapshots = new java.util.HashMap<>();
+        items.forEach(item -> item.setRuleSnapshot(snapshots.computeIfAbsent(
+                item.getReportId() + ":" + item.getRuleId() + ":" + item.getRuleVersion(), key -> rules.capture(plan.getTenantId(), item))));
         planMapper.insert(plan);
         for (int i = 0; i < items.size(); i += INSERT_CHUNK) {
             itemMapper.insertBatch(items.subList(i, Math.min(items.size(), i + INSERT_CHUNK)));
+        }
+        journal.plan(plan, "CREATED");
+        if (plan.getConversationId() != null) {
+            AgentMessage message = new AgentMessage();
+            message.setTenantId(plan.getTenantId());
+            message.setUserId(plan.getUserId());
+            message.setConversationId(plan.getConversationId());
+            message.setPreviewId(plan.getPreviewId());
+            message.setPlanId(plan.getId());
+            message.setRole(AgentMessage.ROLE_CARD);
+            message.setCardType("plan");
+            message.setPayload(JsonUtil.toJson(PlanPayload.of(new PlanSnapshot(plan, items))));
+            message.setCreatedAt(plan.getCreatedAt());
+            journal.message(message, false, "card:plan:" + plan.getId());
         }
     }
 
@@ -138,13 +168,16 @@ public class MybatisPlanRepository implements PlanRepository {
     }
 
     @Override
+    @Transactional
     public boolean transition(String planId, String fromStatus, String toStatus, String reason, LocalDateTime now) {
-        return planMapper.update(null, new LambdaUpdateWrapper<DispatchPlan>()
+        boolean changed = planMapper.update(null, new LambdaUpdateWrapper<DispatchPlan>()
                 .eq(DispatchPlan::getId, planId)
                 .eq(DispatchPlan::getStatus, fromStatus)
                 .set(DispatchPlan::getStatus, toStatus)
                 .set(DispatchPlan::getStatusReason, reason)
                 .set(DispatchPlan::getUpdatedAt, now)) == 1;
+        if (changed) journal.plan(planMapper.selectById(planId), "TRANSITION");
+        return changed;
     }
 
     @Override
@@ -177,6 +210,7 @@ public class MybatisPlanRepository implements PlanRepository {
 
     private Optional<Long> claimedVersion(String planId, int changed) {
         if (changed != 1) return Optional.empty();
+        journal.plan(planMapper.selectById(planId), "CLAIMED");
         // UPDATE 的行锁一直持有到事务提交；必须在锁内取得本次版本，不能由调用者另读当前版本。
         return Optional.of(java.util.Objects.requireNonNull(planMapper.lockExecution(planId),
                 "认领成功但未取得执行版本：" + planId));
@@ -236,8 +270,9 @@ public class MybatisPlanRepository implements PlanRepository {
     }
 
     @Override
+    @Transactional
     public boolean finish(String planId, long executionVersion, int successCount, int failedCount, LocalDateTime now) {
-        return planMapper.update(null, new LambdaUpdateWrapper<DispatchPlan>()
+        boolean changed = planMapper.update(null, new LambdaUpdateWrapper<DispatchPlan>()
                 .eq(DispatchPlan::getId, planId).eq(DispatchPlan::getStatus, DispatchPlan.EXECUTING)
                 .eq(DispatchPlan::getExecutionVersion, executionVersion)
                 .set(DispatchPlan::getStatus, DispatchPlan.EXECUTED)
@@ -245,20 +280,26 @@ public class MybatisPlanRepository implements PlanRepository {
                 .set(DispatchPlan::getSuccessCount, successCount)
                 .set(DispatchPlan::getFailedCount, failedCount)
                 .set(DispatchPlan::getFinishedAt, now).set(DispatchPlan::getUpdatedAt, now)) == 1;
+        if (changed) journal.plan(planMapper.selectById(planId), "FINISH");
+        return changed;
     }
 
     @Override
+    @Transactional
     public boolean transitionExecution(String planId, long executionVersion, String toStatus, String reason, LocalDateTime now) {
-        return planMapper.update(null, new LambdaUpdateWrapper<DispatchPlan>()
+        boolean changed = planMapper.update(null, new LambdaUpdateWrapper<DispatchPlan>()
                 .eq(DispatchPlan::getId, planId).eq(DispatchPlan::getStatus, DispatchPlan.EXECUTING)
                 .eq(DispatchPlan::getExecutionVersion, executionVersion)
                 .set(DispatchPlan::getStatus, toStatus).set(DispatchPlan::getStatusReason, reason)
                 .set(DispatchPlan::getUpdatedAt, now)) == 1;
+        if (changed) journal.plan(planMapper.selectById(planId), "TRANSITIONEXECUTION");
+        return changed;
     }
 
     @Override
+    @Transactional
     public boolean finishReview(String planId, long executionVersion, int successCount, int failedCount, LocalDateTime now) {
-        return planMapper.update(null, new LambdaUpdateWrapper<DispatchPlan>()
+        boolean changed = planMapper.update(null, new LambdaUpdateWrapper<DispatchPlan>()
                 .eq(DispatchPlan::getId, planId)
                 .eq(DispatchPlan::getStatus, DispatchPlan.REVIEW_REQUIRED)
                 .eq(DispatchPlan::getExecutionVersion, executionVersion)
@@ -268,6 +309,8 @@ public class MybatisPlanRepository implements PlanRepository {
                 .set(DispatchPlan::getFailedCount, failedCount)
                 .set(DispatchPlan::getFinishedAt, now)
                 .set(DispatchPlan::getUpdatedAt, now)) == 1;
+        if (changed) journal.plan(planMapper.selectById(planId), "FINISHREVIEW");
+        return changed;
     }
 
     @Override
@@ -287,8 +330,9 @@ public class MybatisPlanRepository implements PlanRepository {
     }
 
     @Override
+    @Transactional
     public boolean markStaleForReview(String planId, LocalDateTime cutoff, LocalDateTime now) {
-        return planMapper.update(null, new LambdaUpdateWrapper<DispatchPlan>()
+        boolean changed = planMapper.update(null, new LambdaUpdateWrapper<DispatchPlan>()
                 .eq(DispatchPlan::getId, planId)
                 .eq(DispatchPlan::getStatus, DispatchPlan.EXECUTING)
                 .lt(DispatchPlan::getUpdatedAt, cutoff)
@@ -296,5 +340,7 @@ public class MybatisPlanRepository implements PlanRepository {
                 .setSql("execution_version = execution_version + 1")
                 .set(DispatchPlan::getStatusReason, StateReason.EXECUTION_INTERRUPTED)
                 .set(DispatchPlan::getUpdatedAt, now)) == 1;
+        if (changed) journal.plan(planMapper.selectById(planId), "MARKSTALEFORREVIEW");
+        return changed;
     }
 }

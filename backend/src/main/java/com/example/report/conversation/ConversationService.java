@@ -5,7 +5,10 @@ import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.example.report.common.ApiException;
 import com.example.report.common.JsonUtil;
 import com.example.report.config.AgentProperties;
-import com.example.report.config.AsyncConfig;
+import com.example.report.common.Digests;
+import com.example.report.common.TraceIds;
+import com.example.report.trace.TraceJournal;
+import com.example.report.trace.TraceProjector;
 import com.example.report.entity.AgentConversation;
 import com.example.report.entity.AgentMessage;
 import com.example.report.mapper.AgentConversationMapper;
@@ -14,8 +17,6 @@ import com.example.report.permission.CurrentUser;
 import com.example.report.permission.PermissionService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.ai.chat.metadata.Usage;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -25,7 +26,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * 对话日志（MySQL 长期保存）与会话管理。写入走单线程异步池，顺序有保证，失败只记日志。
+ * 对话日志与会话管理。消息先写可靠事件，历史展示表可以在故障恢复后按顺序幂等补写。
  */
 @Slf4j
 @Service
@@ -37,16 +38,18 @@ public class ConversationService {
     private final AgentConversationMapper conversationMapper;
     private final AgentMessageMapper messageMapper;
     private final AgentProperties props;
-    private final ThreadPoolTaskExecutor logExecutor;
+    private final TraceJournal journal;
+    private final TraceProjector projector;
 
     public ConversationService(AgentConversationMapper conversationMapper,
                                AgentMessageMapper messageMapper,
                                AgentProperties props,
-                               @Qualifier(AsyncConfig.CONVERSATION_LOG_EXECUTOR) ThreadPoolTaskExecutor logExecutor) {
+                               TraceJournal journal, TraceProjector projector) {
         this.conversationMapper = conversationMapper;
         this.messageMapper = messageMapper;
         this.props = props;
-        this.logExecutor = logExecutor;
+        this.journal = journal;
+        this.projector = projector;
     }
 
     // ---------- 会话管理 ----------
@@ -261,6 +264,7 @@ public class ConversationService {
             m.setTenantId(owner.getTenantId());
         }
         m.setUserId(userId);
+        m.setTraceId(TraceIds.current());
         m.setRole(role);
         m.setCreatedAt(LocalDateTime.now());
         return m;
@@ -270,32 +274,21 @@ public class ConversationService {
         if (m.getConversationId() == null) {
             return;
         }
-        logExecutor.execute(() -> {
-            try {
-                messageMapper.insert(m);
-                LambdaUpdateWrapper<AgentConversation> update = new LambdaUpdateWrapper<AgentConversation>()
-                        .eq(AgentConversation::getId, m.getConversationId())
-                        .setSql("message_count = message_count + 1")
-                        .set(AgentConversation::getLastMessageAt, m.getCreatedAt())
-                        .set(AgentConversation::getUpdatedAt, m.getCreatedAt());
-                if (maybeTitle) {
-                    // 首条用户消息作为默认标题
-                    update.isNull(AgentConversation::getTitle)
-                            .set(AgentConversation::getTitle, truncate(m.getContent(), props.getConversation().getTitleMaxLength()));
-                    if (conversationMapper.update(null, update) == 0) {
-                        conversationMapper.update(null, new LambdaUpdateWrapper<AgentConversation>()
-                                .eq(AgentConversation::getId, m.getConversationId())
-                                .setSql("message_count = message_count + 1")
-                                .set(AgentConversation::getLastMessageAt, m.getCreatedAt())
-                                .set(AgentConversation::getUpdatedAt, m.getCreatedAt()));
-                    }
-                } else {
-                    conversationMapper.update(null, update);
+        String key = "message:" + JsonUtil.newId();
+        if (AgentMessage.ROLE_CARD.equals(m.getRole())) {
+            // 同一预览/清单卡片重放不重复计数；结果变化产生新的证据。
+            String identity = m.getPlanId() != null ? m.getPlanId() : m.getPreviewId();
+            if (identity != null) {
+                key = "card:" + m.getCardType() + ":" + identity;
+                if ("result".equals(m.getCardType())) {
+                    Map<String, Object> value = new java.util.LinkedHashMap<>(JsonUtil.toMap(m.getPayload()));
+                    value.remove("replayed");
+                    key += ":" + Digests.sha256(JsonUtil.toJson(value));
                 }
-            } catch (Exception e) {
-                log.error("对话日志写入失败 conversation={} role={}", m.getConversationId(), m.getRole(), e);
             }
-        });
+        }
+        long eventId = journal.message(m, maybeTitle, key);
+        projector.afterCommit(eventId);
     }
 
     private static String truncate(String s, int max) {

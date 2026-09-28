@@ -23,6 +23,12 @@ public class DispatchAudit {
 
     @TableId(type = IdType.AUTO)
     private Long id;
+    private Long evidenceId;
+    private Long executionVersion;
+    private Integer attemptCount;
+    /** INTENT / RESULT / RECONCILE */
+    private String phase;
+    private String ruleSnapshot;
     private String tenantId;
     private String userId;
     private String conversationId;

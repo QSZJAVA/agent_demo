@@ -24,6 +24,8 @@ public class AgentMessage {
 
     @TableId(type = IdType.AUTO)
     private Long id;
+    private Long evidenceId;
+    private String traceId;
     private String conversationId;
     private String userId;
     /** user / assistant / tool_call / tool_result / card */

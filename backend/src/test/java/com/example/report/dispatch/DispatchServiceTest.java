@@ -55,7 +55,8 @@ class DispatchServiceTest {
         when(gateway.dispatch(any())).thenReturn(DispatchGateway.Outcome.ok());
         audit = mock(AuditService.class);
         service = new DispatchService(h.plans, h.previews, h.store.plans(), h.catalogService, h.candidates, h.versions,
-                gateway, audit, mock(ConversationService.class), mock(ChatMemory.class));
+                gateway, audit, mock(ConversationService.class), mock(ChatMemory.class),
+                org.springframework.transaction.support.TransactionOperations.withoutTransaction());
     }
 
     private PreviewSnapshot preview(CurrentUser user) {
@@ -91,13 +92,14 @@ class DispatchServiceTest {
     }
 
     @Test
-    void auditFailureDoesNotAbortTheRestOfTheBatch() {
+    void durableEvidenceFailurePreventsSendingNewRequests() {
         String planId = plan(USER1);
         doThrow(new RuntimeException("db down")).when(audit)
                 .record(any(), any(), argThat(c -> c.docNo().equals("SO2026001")), any(), any(), any(), any(), any());
-        DispatchResultPayload result = service.confirm(USER1, planId);
-        assertEquals(3, result.successCount());
-        verify(gateway, times(3)).dispatch(any());
+        ApiException error = assertThrows(ApiException.class, () -> service.confirm(USER1, planId));
+        assertEquals(503, error.getCode());
+        verifyNoInteractions(gateway);
+        assertEquals(DispatchPlan.PENDING, planRow(planId).getStatus());
     }
 
     @Test
@@ -310,7 +312,8 @@ class DispatchServiceTest {
             return inv.callRealMethod();
         }).when(unreliable).updateItem(any(), anyLong());
         service = new DispatchService(h.plans, h.previews, unreliable, h.catalogService, h.candidates, h.versions,
-                gateway, audit, mock(ConversationService.class), mock(ChatMemory.class));
+                gateway, audit, mock(ConversationService.class), mock(ChatMemory.class),
+                org.springframework.transaction.support.TransactionOperations.withoutTransaction());
         ExecutorService pool = Executors.newFixedThreadPool(2);
         try {
             Future<ApiException> stale = pool.submit(() -> assertThrows(ApiException.class,
@@ -388,7 +391,8 @@ class DispatchServiceTest {
             return inv.callRealMethod();
         }).when(unreliable).updateItem(any(), anyLong());
         service = new DispatchService(h.plans, h.previews, unreliable, h.catalogService, h.candidates, h.versions,
-                gateway, audit, mock(ConversationService.class), mock(ChatMemory.class));
+                gateway, audit, mock(ConversationService.class), mock(ChatMemory.class),
+                org.springframework.transaction.support.TransactionOperations.withoutTransaction());
 
         assertThrows(ApiException.class, () -> service.retryFailed(USER1, planId));
         assertEquals(DispatchPlan.REVIEW_REQUIRED, planRow(planId).getStatus());

@@ -1,7 +1,9 @@
 package com.example.report.dispatch;
 
 import com.example.report.entity.DispatchAudit;
-import com.example.report.mapper.DispatchAuditMapper;
+import com.example.report.entity.DispatchPlanItem;
+import com.example.report.trace.TraceJournal;
+import com.example.report.trace.TraceProjector;
 import com.example.report.permission.CurrentUser;
 import com.example.report.rule.Candidate;
 import org.springframework.stereotype.Service;
@@ -14,10 +16,12 @@ import java.time.LocalDateTime;
 @Service
 public class AuditService {
 
-    private final DispatchAuditMapper auditMapper;
+    private final TraceJournal journal;
+    private final TraceProjector projector;
 
-    public AuditService(DispatchAuditMapper auditMapper) {
-        this.auditMapper = auditMapper;
+    public AuditService(TraceJournal journal, TraceProjector projector) {
+        this.journal = journal;
+        this.projector = projector;
     }
 
     /**
@@ -27,7 +31,17 @@ public class AuditService {
      * @param permissionVersion 预览时用户的权限版本
      */
     public record Context(String source, String conversationId, String previewId, String planId,
-                          String ruleFingerprint, String permissionVersion, String traceId) {
+                          String ruleFingerprint, String permissionVersion, String traceId,
+                          long executionVersion, int attemptCount, String phase, String ruleSnapshot) {
+        public Context(String source, String conversationId, String previewId, String planId,
+                       String ruleFingerprint, String permissionVersion, String traceId) {
+            this(source, conversationId, previewId, planId, ruleFingerprint, permissionVersion, traceId, 0, 0, null, null);
+        }
+
+        public Context forItem(DispatchPlanItem item, long version, String eventPhase) {
+            return new Context(source, conversationId, previewId, planId, ruleFingerprint, permissionVersion, traceId,
+                    version, item.getAttemptCount() == null ? 0 : item.getAttemptCount(), eventPhase, item.getRuleSnapshot());
+        }
     }
 
     /**
@@ -61,7 +75,14 @@ public class AuditService {
         audit.setExternalRequestId(externalRequestId);
         audit.setMessage(message == null || message.length() <= 1024 ? message : message.substring(0, 1024));
         audit.setTraceId(ctx.traceId());
+        audit.setExecutionVersion(ctx.executionVersion());
+        audit.setAttemptCount(ctx.attemptCount());
+        audit.setPhase(ctx.phase());
+        audit.setRuleSnapshot(ctx.ruleSnapshot());
         audit.setCreatedAt(LocalDateTime.now());
-        auditMapper.insert(audit);
+        if (ctx.phase() == null) throw new IllegalArgumentException("审计必须标明发生阶段");
+        // journal 失败向外抛出，调用方同事务的条目状态一起回滚；投影失败则由持久化队列补写。
+        long eventId = journal.audit(audit);
+        projector.afterCommit(eventId);
     }
 }
