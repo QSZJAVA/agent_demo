@@ -45,6 +45,7 @@ class PreviewRefreshTest {
     private DispatchTools tools;
     private AgentChatService chat;
     private ChatClient client;
+    private ConversationService conversations;
 
     @BeforeEach
     @SuppressWarnings("unchecked")
@@ -53,13 +54,13 @@ class PreviewRefreshTest {
         PermissionService permissions = mock(PermissionService.class);
         when(permissions.resolve("user1")).thenReturn(USER1);
         when(permissions.resolve("user3")).thenReturn(USER3);
-        ConversationService conversations = mock(ConversationService.class);
+        conversations = mock(ConversationService.class);
         for (String id : List.of("conversation-1", "conversation-2")) {
             AgentConversation conversation = new AgentConversation();
             conversation.setId(id);
             when(conversations.getOwned(any(CurrentUser.class), eq(id))).thenReturn(conversation);
         }
-        // 所有消息都会先交给模型；这里默认让模型返回空文本，由服务端兜底补预览。
+        // 未指定公司的消息先交给模型；这里默认返回空文本，由服务端兜底补预览。
         // 模型回复统一由 reply 生成，它能拿到本轮真实的 ToolContext，用来模拟"模型在流式输出中调用了工具"
         client = mock(ChatClient.class);
         ChatClient.ChatClientRequestSpec spec = mock(ChatClient.ChatClientRequestSpec.class);
@@ -418,6 +419,91 @@ class PreviewRefreshTest {
         assertEquals("error", result.get("status"));
         assertTrue(String.valueOf(result.get("message")).contains("无权查看 B 公司"));
         verify(h.candidates, never()).findCandidates(any(), anySet(), anyList());
+    }
+
+    @Test
+    void companyCorrectionAfterDeniedBQueriesASalesWithoutModelPermissionGuessing() {
+        PreviewPayload old = preview(chat("全部报表"));
+        String oldPlan = (String) map(tools.dispatch(null, null, context("conversation-1"))).get("planId");
+        clearInvocations(client);
+        stubReply("你说的 A 公司不在我这边可查询的范围内，无法切换到 A 公司查看。");
+
+        var denied = chat("我在B公司有吗");
+        assertTrue(text(denied).contains("无权查看 B 公司"));
+        assertTrue(denied.stream().noneMatch(e -> "preview".equals(e.event()) || "preview_job".equals(e.event())));
+        assertEquals(DispatchPreview.ACTIVE, previewStatus(old.previewId()));
+
+        var corrected = chat("A公司销售报表的");
+        assertEquals(List.of(sale), preview(corrected).records());
+        assertEquals(List.of(SALES), latestScope());
+        assertTrue(text(corrected).contains("A 公司"));
+        assertFalse(text(corrected).contains("无法切换"));
+        assertFalse(text(corrected).contains("系统提示"));
+        assertEquals(DispatchPreview.SUPERSEDED, previewStatus(old.previewId()));
+        assertEquals(DispatchPlan.EXPIRED, planStatus(oldPlan));
+        verify(client, never()).prompt();
+    }
+
+    @Test
+    void explicitCompanyResultIsPersistedAndAddedToMemory() {
+        var memory = mock(org.springframework.ai.chat.memory.ChatMemory.class);
+        org.springframework.test.util.ReflectionTestUtils.setField(chat, "chatMemory", memory);
+        var events = chat("A公司销售报表的");
+        String result = text(events);
+        verify(conversations).logUser("conversation-1", "user1", "A公司销售报表的");
+        verify(conversations).logAssistant(eq("conversation-1"), eq("user1"), eq(result), isNull(), isNull(), anyLong());
+        verify(memory).add(eq("conversation-1"), argThat((org.springframework.ai.chat.messages.Message m) ->
+                m instanceof org.springframework.ai.chat.messages.UserMessage && m.getText().equals("A公司销售报表的")));
+        verify(memory).add(eq("conversation-1"), argThat((org.springframework.ai.chat.messages.Message m) ->
+                m instanceof org.springframework.ai.chat.messages.AssistantMessage && m.getText().equals(result)));
+    }
+
+    @Test
+    void explicitCompanyStillQueriesWhenMemoryIsUnavailable() {
+        var memory = mock(org.springframework.ai.chat.memory.ChatMemory.class);
+        doThrow(new IllegalStateException("memory unavailable")).when(memory)
+                .add(anyString(), any(org.springframework.ai.chat.messages.Message.class));
+        org.springframework.test.util.ReflectionTestUtils.setField(chat, "chatMemory", memory);
+        assertEquals(List.of(sale), preview(chat("A公司销售报表的")).records());
+    }
+
+    @Test
+    void companyPermissionIsCheckedBeforeSubmittingAsyncPreview() {
+        var jobs = mock(com.example.report.dispatch.PreviewJobService.class);
+        org.springframework.test.util.ReflectionTestUtils.setField(tools, "previewJobs", jobs);
+        AgentEventChannel channel = new AgentEventChannel();
+        Map<String, Object> context = new HashMap<>(context("conversation-1").getContext());
+        context.put(AgentEventChannel.CONTEXT_KEY, channel);
+        var outcome = map(tools.previewDispatchable("销售报表", "B", null, null, new ToolContext(context)));
+        assertEquals("error", outcome.get("status"));
+        assertTrue(String.valueOf(outcome.get("message")).contains("无权查看 B 公司"));
+        verifyNoInteractions(jobs);
+        assertFalse(channel.hasEmitted(AgentEvent.PREVIEW_JOB));
+    }
+
+    @Test
+    void authorizedCompanyQuerySubmitsExactScopeAndReportsOnlyPendingStatus() {
+        var jobs = mock(com.example.report.dispatch.PreviewJobService.class);
+        org.springframework.test.util.ReflectionTestUtils.setField(tools, "previewJobs", jobs);
+        var now = java.time.LocalDateTime.now();
+        when(jobs.submit(eq(USER1), eq("conversation-1"), any())).thenReturn(
+                new com.example.report.dispatch.PreviewJobService.Job("job-a", "RUNNING", "QUERY", 0, null, null, now, now));
+        var events = chat("A公司销售报表的");
+        assertTrue(events.stream().anyMatch(e -> "preview_job".equals(e.event())));
+        assertFalse(events.stream().anyMatch(e -> "preview".equals(e.event())));
+        assertTrue(text(events).contains("正在查询 A 公司"));
+        assertFalse(text(events).contains("共 "));
+        verify(jobs).submit(eq(USER1), eq("conversation-1"), argThat(command ->
+                "A".equals(command.filters().companyCode()) && "销售报表".equals(command.reportQuery())));
+        verify(client, never()).prompt();
+    }
+
+    @Test
+    void explicitCompanyDoesNotGrantAnotherUsersCompanyAccess() {
+        var events = chat3("A公司销售报表的");
+        assertTrue(text(events).contains("无权查看 A 公司"));
+        assertTrue(events.stream().noneMatch(e -> "preview".equals(e.event()) || "preview_job".equals(e.event())));
+        verify(client, never()).prompt();
     }
 
     @Test

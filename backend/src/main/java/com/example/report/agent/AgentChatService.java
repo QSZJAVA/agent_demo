@@ -39,6 +39,8 @@ public class AgentChatService {
     private ResourceQuotaService quotas;
     @org.springframework.beans.factory.annotation.Autowired(required = false)
     private com.example.report.dispatch.PreviewService previewService;
+    @org.springframework.beans.factory.annotation.Autowired(required = false)
+    private ChatMemory chatMemory;
 
     public AgentChatService(ChatClient chatClient, ConversationService conversationService, ChatModel chatModel,
                             DispatchTools dispatchTools, ReportCatalogService catalogService) {
@@ -104,7 +106,7 @@ public class AgentChatService {
         // 用户看到只会被误导（预览本来已经由界面卡片完整展示），所以在流式出口做一次掩码。
         PreviewIdMask previewIdMask = new PreviewIdMask();
         var sensitiveStream = new com.example.report.operations.SensitiveTextStream();
-        // 所有消息统一交给模型；明确的查询 / 范围纠正不再由服务端抢答
+        // 其余意图交给模型；明确公司且已完整识别的纯查询在下方走确定性路径。
         Flux<String> response = Flux.defer(() -> chatClient.prompt()
                 .user(message)
                 .toolContext(toolContext)
@@ -202,7 +204,12 @@ public class AgentChatService {
 
         // guard 可能在文本流之后再往 channel 里补一个 PREVIEW 事件，
         // 所以必须等 guard 结束（其 doFinally 里 complete）合并流才会收尾。
-        Flux<AgentEvent> body = textEvents.concatWith(guard);
+        // 公司查询不让模型凭历史文本猜测权限，也不先展示错误拒绝再补一条系统提示。
+        // 身份校验、预览工具、异步任务、会话日志与记忆仍使用同一套业务服务。
+        Flux<AgentEvent> body = previewIntent.filter(intent -> intent.companyCode() != null)
+                .map(intent -> companyPreview(user, convId, message, intent, toolContext)
+                        .doFinally(signal -> channel.complete()))
+                .orElseGet(() -> textEvents.concatWith(guard));
         return Flux.defer(() -> {
             ResourceQuotaService.Permit permit = quotas == null ? null : quotas.acquire(user, "chat", List.of());
             Flux<AgentEvent> events = head.concatWith(Flux.merge(channel.asFlux(), body)).concatWith(tail);
@@ -213,6 +220,46 @@ public class AgentChatService {
                             .event(event.getT2().type()).build())
                     .doFinally(signal -> { if (permit != null) permit.close(); });
         });
+    }
+
+    private Flux<AgentEvent> companyPreview(CurrentUser user, String conversationId, String message,
+                                            PreviewIntentDetector.PreviewIntent intent, Map<String, Object> context) {
+        return Flux.defer(() -> {
+            // 在用户消息落库之前回灌工作记忆，避免回灌时重复读取本轮消息。
+            remember(conversationId, new org.springframework.ai.chat.messages.UserMessage(message));
+            conversationService.logUser(conversationId, user.userId(), message);
+            long started = System.nanoTime();
+            Object outcome = dispatchTools.fallbackPreview(intent.reportQuery(), intent.companyCode(), new ToolContext(context));
+            String text = companyPreviewReply(intent, outcome);
+            remember(conversationId, new org.springframework.ai.chat.messages.AssistantMessage(text));
+            conversationService.logAssistant(conversationId, user.userId(), text, null, null,
+                    (System.nanoTime() - started) / 1_000_000);
+            return Flux.just(new AgentEvent(AgentEvent.TEXT, Map.of("delta", text)));
+        }).onErrorResume(error -> {
+            log.error("公司范围预览失败 conversation={}", conversationId, error);
+            return Flux.just(new AgentEvent(AgentEvent.ERROR, Map.of("message", "预览查询暂时失败，请稍后重试")));
+        }).subscribeOn(Schedulers.boundedElastic());
+    }
+
+    private static String companyPreviewReply(PreviewIntentDetector.PreviewIntent intent, Object outcome) {
+        if (!(outcome instanceof Map<?, ?> result)) return "未能生成预览，请稍后重试。";
+        String scope = intent.companyCode() + " 公司";
+        return switch (String.valueOf(result.get("status"))) {
+            case "querying" -> "正在查询 " + scope + " 的可派单记录，完成后会显示预览卡片。";
+            case "ok" -> "已查询 " + scope + " 的可派单记录，共 " + result.get("total") + " 条，请查看新的预览卡片。";
+            case "ambiguous" -> "找到多个相关报表，请在卡片上选择要查询的报表；公司范围为 " + scope + "。";
+            case "error", "not_found" -> com.example.report.operations.SensitiveData.text(String.valueOf(result.get("message")));
+            default -> "未能生成预览，请稍后重试。";
+        };
+    }
+
+    private void remember(String conversationId, org.springframework.ai.chat.messages.Message message) {
+        if (chatMemory == null) return;
+        try {
+            chatMemory.add(conversationId, message);
+        } catch (RuntimeException failure) {
+            log.warn("公司查询工作记忆写入失败，将从会话日志恢复 conversation={}", conversationId, failure);
+        }
     }
 
     /**

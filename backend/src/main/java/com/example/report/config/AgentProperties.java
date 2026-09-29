@@ -35,7 +35,7 @@ public class AgentProperties {
     @Data
     public static class Preview {
         private int ttlMinutes = 30;
-        /** 单次预览记录上限：超出时要求用户缩小范围，不静默截断 */
+        /** 预览转分批持久化的阈值，同时限制单份待确认清单条数；更大预览仍可分页浏览 */
         private int maxItems = 5000;
     }
 

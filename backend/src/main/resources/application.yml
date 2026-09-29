@@ -7,11 +7,14 @@ spring:
 
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
-    # createDatabaseIfNotExist=true 会自动创建 report_demo 库，无需手工建库
-    url: jdbc:mysql://${DB_HOST:localhost}:${DB_PORT:3306}/report_demo?createDatabaseIfNotExist=true&useUnicode=true&characterEncoding=utf8&serverTimezone=Asia/Shanghai&useSSL=false&allowPublicKeyRetrieval=true
+    # DB_NAME 同时用于本地连接和 Docker 初始化；只切换目标库，不迁移已有数据。
+    url: jdbc:mysql://${DB_HOST:localhost}:${DB_PORT:3306}/${DB_NAME:report_demo}?createDatabaseIfNotExist=true&useUnicode=true&characterEncoding=utf8&serverTimezone=Asia/Shanghai&useSSL=false&allowPublicKeyRetrieval=true&connectTimeout=3000
     username: ${DB_USERNAME:root}
     # 本地密码通过环境变量或 tools/env.local.cmd 提供，切勿把真实密码写进本文件并提交
     password: ${DB_PASSWORD:}
+    hikari:
+      connection-timeout: 3000
+      validation-timeout: 1000
 
   jdbc:
     template:
@@ -32,6 +35,8 @@ spring:
       port: ${REDIS_PORT:6379}
       # 无密码时留空；真实密码走环境变量，不要写进本文件
       password: ${REDIS_PASSWORD:}
+      connect-timeout: 2s
+      timeout: 2s
 
   mvc:
     async:
@@ -52,8 +57,8 @@ spring:
       max-attempts: 3
       exclude-on-http-codes: 400,401,403,404
     openai:
-      # 自建 OpenAI 兼容站点默认值；直连 DeepSeek 官方改为 https://api.deepseek.com
-      # 换回阿里云百炼：https://dashscope.aliyuncs.com/compatible-mode，并把 extra-body 换成 enable_thinking: false
+      # 默认百炼兼容端点；直连 DeepSeek 官方可覆盖为 https://api.deepseek.com。
+      # extra-body 的关闭思考参数须与所选供应商和模型匹配，当前为 thinking.type=disabled。
       # base-url 不要带 /v1（completions-path 已含），否则会拼成 /v1/v1/... 报 404
       base-url: ${LLM_BASE_URL:https://dashscope.aliyuncs.com/compatible-mode}
       # 密钥只从环境变量读取，严禁把真实 Key 写进本文件并提交
@@ -75,9 +80,9 @@ web:
   cors-allowed-origins: ${CORS_ALLOWED_ORIGINS:}
 
 demo:
-  # 每次启动把报表演示数据、报表目录、派单规则恢复为示例状态（db/demo/demo-data.sql），便于反复演示和跑集成测试。
-  # 生产环境必须设为 false：报表业务表属于业务系统，目录和规则由管理员维护，不能在重启时被覆盖
-  reset-on-startup: ${DEMO_RESET_ON_STARTUP:true}
+  # 首次空库初始化示例数据；普通重启保留报表、目录、规则和历史。
+  # 仅明确需要恢复演示数据时设为 true；执行完后恢复 false，避免下次重启再次清空。
+  reset-on-startup: ${DEMO_RESET_ON_STARTUP:false}
 
 mybatis-plus:
   global-config:
@@ -95,7 +100,7 @@ agent:
     require-confirm: true             # 派单前弹确认卡片；业务接受时可关闭
   preview:
     ttl-minutes: 30
-    max-items: 5000                   # 单次预览记录上限；超出时要求缩小范围（分页在 P1 实现），不静默截断
+    max-items: 5000                   # 预览转分批持久化的阈值，也是单份待确认清单的条数上限
   plan:
     ttl-minutes: 10
   resolver:
@@ -105,7 +110,7 @@ agent:
     ttl-minutes: 30
     window-size: 20                   # Redis 工作记忆窗口，过期后从消息表回灌
   conversation:
-    retention-days: 365               # 对话日志保留期
+    retention-days: 365               # 旧兼容字段；实际清理天数由运营治理 retention 策略维护
     card-payload-max-rows: 2000       # 卡片载荷持久化行数上限，超出只存摘要
     title-max-length: 30              # 默认标题取首条用户消息前 N 字
 

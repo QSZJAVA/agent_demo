@@ -156,26 +156,49 @@ print_access() {
   echo
 }
 
-# 等四个容器都起来；发现 unhealthy 就直接报错并打印日志
+# 仅检查当前 Compose 项目的四项服务；进程 running 不等于依赖已就绪。
 wait_healthy() {
   c_info "等待服务就绪（首次启动 MySQL 初始化约 30~60 秒）..."
-  local timeout=240 elapsed=0 unhealthy running
+  local timeout=${DEPLOY_HEALTH_TIMEOUT_SECONDS:-240} elapsed=0 service id state ready
+  if [[ ! "$timeout" =~ ^[1-9][0-9]*$ ]]; then
+    c_error "DEPLOY_HEALTH_TIMEOUT_SECONDS 必须是正整数。"
+    return 1
+  fi
   while [ "$elapsed" -lt "$timeout" ]; do
-    unhealthy="$(docker ps --filter "name=report-demo-" --filter "health=unhealthy" -q 2>/dev/null | wc -l | tr -d ' ')"
-    if [ "$unhealthy" != "0" ]; then
-      c_error "有容器处于 unhealthy 状态，最近日志如下："
-      compose logs --tail=40
-      exit 1
-    fi
-    running="$(docker ps --filter "name=report-demo-" --format '{{.Names}}' 2>/dev/null | wc -l | tr -d ' ')"
-    if [ "$running" -ge 4 ]; then
-      c_info "4 个容器均已启动。"
+    ready=true
+    for service in mysql redis backend frontend; do
+      if ! id="$(compose ps --all --quiet "$service")"; then
+        c_error "无法查询 ${service} 容器状态。"
+        return 1
+      fi
+      if [ -z "$id" ]; then
+        ready=false
+        continue
+      fi
+      if ! state="$(docker inspect --format '{{.State.Status}} {{if .State.Health}}{{.State.Health.Status}}{{else}}missing{{end}}' "$id")"; then
+        c_error "无法检查 ${service} 容器状态。"
+        return 1
+      fi
+      case "$state" in
+        'running healthy') ;;
+        *' unhealthy'|exited\ *|dead\ *|removing\ *|*' missing')
+          c_error "${service} 未就绪：${state}。"
+          compose logs --tail=40 "$service" || true
+          return 1
+          ;;
+        *) ready=false ;;
+      esac
+    done
+    if [ "$ready" = true ]; then
+      c_info "MySQL、Redis、后端、前端均已通过健康检查。"
       return 0
     fi
     sleep 5
     elapsed=$((elapsed + 5))
   done
-  c_warn "等待超时，请用 ./deploy.sh ps 与 ./deploy.sh logs 排查。"
+  c_error "等待服务健康超时，请用 ./deploy.sh ps 与 ./deploy.sh logs 排查。"
+  compose ps || true
+  return 1
 }
 
 # ---------- 各动作 ----------
@@ -184,6 +207,7 @@ action_up() {
   ensure_env
   c_info "开始构建镜像并启动服务（首次构建要下载依赖，请耐心等待）..."
   compose up -d --build
+  compose restart frontend
   wait_healthy
   print_access
 }
@@ -203,7 +227,8 @@ action_update() {
   ensure_env
   c_info "重新构建前后端镜像并更新（MySQL / Redis 不动）..."
   compose build backend frontend
-  compose up -d --no-deps backend frontend
+  compose up -d --no-deps --force-recreate backend frontend
+  wait_healthy
   c_info "更新完成。"
 }
 
@@ -232,6 +257,7 @@ action_restart() {
   check_docker
   ensure_env
   compose restart
+  wait_healthy
   print_access
 }
 
@@ -252,6 +278,9 @@ action_start_mock() {
   ensure_env
   set_env SPRING_ARGS "--spring.profiles.active=mock"
   compose up -d --force-recreate backend
+  # Nginx 启动时解析 backend 地址，后端重建后重新解析，避免继续转发到旧容器 IP。
+  compose restart frontend
+  wait_healthy
   c_info "已切到模拟模型（无需 API Key）。"
 }
 
@@ -270,6 +299,8 @@ action_start_real() {
   set_env LLM_BASE_URL "$base"
   set_env LLM_MODEL "$model"
   compose up -d --force-recreate backend
+  compose restart frontend
+  wait_healthy
   c_info "已切到真实模型：${model} @ ${base}"
 }
 
@@ -277,6 +308,7 @@ usage() {
   sed -n '3,14p' "$0" | sed 's/^# \{0,1\}//'
 }
 
+if [[ "${BASH_SOURCE[0]}" == "$0" ]]; then
 case "${1:-up}" in
   up)             action_up ;;
   rebuild)        action_rebuild ;;
@@ -291,3 +323,4 @@ case "${1:-up}" in
   help|-h|--help) usage ;;
   *)              c_error "未知命令：$1"; usage; exit 1 ;;
 esac
+fi

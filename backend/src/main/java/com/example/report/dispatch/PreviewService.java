@@ -381,7 +381,8 @@ public class PreviewService {
         return new Scope(ids, false);
     }
 
-    private static Set<String> resolveCompanies(CurrentUser user, String companyCode) {
+    /** 提交任务前与实际查询时使用同一权限校验，拒绝把无权查询排队成“已发起”。 */
+    public static Set<String> resolveCompanies(CurrentUser user, String companyCode) {
         if (companyCode == null || companyCode.isBlank()) {
             return user.companies();
         }

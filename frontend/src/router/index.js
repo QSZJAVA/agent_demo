@@ -1,12 +1,12 @@
 import Vue from 'vue'
 import VueRouter from 'vue-router'
 
-import SalesReport from '../views/SalesReport.vue'
-import ReceivableReport from '../views/ReceivableReport.vue'
-import ExpenseReport from '../views/ExpenseReport.vue'
-import RuleAdmin from '../views/RuleAdmin.vue'
-import CatalogAdmin from '../views/CatalogAdmin.vue'
-import OperationsAdmin from '../views/OperationsAdmin.vue'
+const SalesReport = () => import('../views/SalesReport.vue')
+const ReceivableReport = () => import('../views/ReceivableReport.vue')
+const ExpenseReport = () => import('../views/ExpenseReport.vue')
+const RuleAdmin = () => import('../views/RuleAdmin.vue')
+const CatalogAdmin = () => import('../views/CatalogAdmin.vue')
+const OperationsAdmin = () => import('../views/OperationsAdmin.vue')
 
 Vue.use(VueRouter)
 

@@ -1,5 +1,5 @@
 import axios from 'axios'
-import { Message } from 'element-ui'
+import Message from 'element-ui/lib/message'
 import { getCurrentUserId } from '../auth'
 
 const http = axios.create({

@@ -30,6 +30,16 @@ class PreviewJobLifecycleTest {
     }
     @AfterEach void stop() { service.shutdown(); }
 
+    @Test void unauthorizedCompanyIsRejectedBeforeQuotaOrTaskCreation() {
+        var quotas = (ResourceQuotaService)ReflectionTestUtils.getField(service,"quotas");
+        var command = new PreviewCommand(null,"api",null,java.util.List.of(),
+                new PreviewCommand.Filters("B"),null,null);
+        var failure = assertThrows(com.example.report.common.ApiException.class,
+                () -> service.submit(USER1,"conversation",command));
+        assertTrue(failure.getMessage().contains("无权查看 B 公司"));
+        verifyNoInteractions(quotas,jdbc);
+    }
+
     @Test void timeoutDoesNotCancelWhenActivationWonTheDatabaseTransition() {
         when(jdbc.update(anyString(),eq("job"))).thenReturn(0);
         ReflectionTestUtils.invokeMethod(service,"timeout",USER1,"job");

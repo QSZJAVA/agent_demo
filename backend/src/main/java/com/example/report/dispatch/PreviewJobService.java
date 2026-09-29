@@ -48,6 +48,7 @@ public class PreviewJobService {
     }
 
     public Job submit(CurrentUser user, String conversationId, PreviewCommand command) {
+        PreviewService.resolveCompanies(user, command.filters().companyCode());
         ResourceQuotaService.Permit permit = quotas.acquire(user, "preview-job", command.reportIds());
         String id = JsonUtil.newId();
         LocalDateTime now = LocalDateTime.now();

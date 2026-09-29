@@ -20,6 +20,9 @@ foreach ($pair in @(@('TRACE_DB_HOST','DB_HOST'),@('TRACE_DB_PORT','DB_PORT'),@(
 }
 $env:TRACE_IT='true'
 $env:P2_IT='true'
+# This entry point only runs isolated databases, regardless of inherited shell settings.
+$env:DEMO_IT='false'
+$env:P2_UI='false'
 Push-Location (Join-Path $taskRoot 'backend')
 try {
     $argsForMaven = @('test','-q')

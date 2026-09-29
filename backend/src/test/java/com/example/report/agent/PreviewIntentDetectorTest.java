@@ -117,7 +117,9 @@ class PreviewIntentDetectorTest {
     @ParameterizedTest
     @CsvSource({
             "查一下我B公司有哪些能派单,all,B", "查B公司销售报表有哪些可以派单,sales,B",
-            "加上B公司费用报表的,expense,B"
+            "加上B公司费用报表的,expense,B", "A公司销售报表的,sales,A",
+            "A公司的销售报表,sales,A", "A 公司销售报表的。,sales,A",
+            "公司A销售报表的,sales,A", "我在B公司有吗,all,B", "那B公司有吗,all,B"
     })
     void resolvesExplicitCompanyScope(String message, String expectedType, String expectedCompany) {
         PreviewIntentDetector.PreviewIntent intent = detect(message).orElseThrow();
@@ -130,6 +132,8 @@ class PreviewIntentDetectorTest {
             "不要查销售报表", "销售报表全部帮我派单", "只派销售报表", "销售报表是什么意思",
             "销售报表的规则是什么", "不是销售报表",
             "销售报表不要SO2026002其他都派", "把已勾选的记录帮我派单", "你好", ""
+            , "A公司销售报表全部派单", "不要查A公司销售报表", "A公司销售报表的规则是什么",
+            "A公司B公司销售报表", "不是A公司，是B公司销售报表"
     })
     void leavesCompoundOrNonPreviewRequestsToModel(String message) {
         assertTrue(detect(message).isEmpty());

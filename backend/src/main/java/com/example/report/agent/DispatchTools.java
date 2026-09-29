@@ -94,7 +94,7 @@ public class DispatchTools {
         return preview(reportQuery, companyCode, excludeDocNos, scopeMode, SOURCE_AGENT, ctx);
     }
 
-    /** 服务端兜底预览用：模型该刷新预览却没调用工具时，按服务端识别出的范围补查一次 */
+    /** 服务端已识别范围的查询：用于明确公司查询，以及模型未调用工具时的补查。 */
     public Object fallbackPreview(String reportQuery, String companyCode, ToolContext ctx) {
         return preview(reportQuery, companyCode, null, null, SOURCE_FALLBACK, ctx);
     }
@@ -112,6 +112,7 @@ public class DispatchTools {
         conversationService.logToolCall(conversationId, userId, TOOL_PREVIEW, args);
         try {
             CurrentUser user = permissionService.resolve(userId);
+            PreviewService.resolveCompanies(user, companyCode);
             PreviewCommand command = new PreviewCommand(PreviewCommand.OPERATION_PREVIEW, source, reportQuery, null,
                     new PreviewCommand.Filters(companyCode), excludeDocNos, resolveScopeMode(scopeMode, ctx));
             AgentEventChannel channel = ToolContextKeys.channel(ctx);

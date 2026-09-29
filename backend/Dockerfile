@@ -1,6 +1,6 @@
 # ============================================================
 # 后端：Spring Boot 3.5 + JDK 17，多阶段构建
-# 构建上下文是项目根目录（docker compose 里已指定 context: ..）
+# 构建上下文是项目根目录（docker compose 里已指定 context: .）
 # ============================================================
 
 # ---------- 阶段一：构建 ----------
@@ -36,8 +36,8 @@ USER app
 
 EXPOSE 8080
 
-# 健康检查走报表接口，后端自带，不依赖 actuator 额外依赖
-HEALTHCHECK --interval=15s --timeout=5s --start-period=60s --retries=10 \
-    CMD curl -fsS http://127.0.0.1:8080/api/report/sales >/dev/null || exit 1
+# 独立就绪检查验证 MySQL 与 Redis；依赖不可用返回 HTTP 503，不依赖演示身份。
+HEALTHCHECK --interval=15s --timeout=10s --start-period=60s --retries=10 \
+    CMD curl -fsS --connect-timeout 2 --max-time 8 http://127.0.0.1:8080/api/health/readiness >/dev/null || exit 1
 
 ENTRYPOINT ["sh", "-c", "exec java $JAVA_OPTS -jar /app/app.jar $SPRING_ARGS"]

@@ -34,7 +34,10 @@ final class PreviewIntentDetector {
     private static final String APPEND_PREFIX =
             "(?:再)?(?:加上|外加|还要|还有|顺便|同时|另外|再看|再查)(?:(?:看|查)(?:一下|下)?|加上)?";
 
-    private static final Pattern COMPANY = Pattern.compile("(?:(?:我|我的)?(?<prefix>[a-z][a-z0-9_-]{0,31})公司|公司(?<suffix>[a-z][a-z0-9_-]{0,31}))");
+    private static final Pattern COMPANY = Pattern.compile("(?:(?:我|我的)?(?<prefix>[a-z][a-z0-9_-]{0,31})公司|公司(?<suffix>[a-z][a-z0-9_-]{0,31}))(?:的)?");
+    /** 已有查询后的公司追问，例如“我在 B 公司有吗”；不把权限说明或派单命令当作查询。 */
+    private static final Pattern COMPANY_FOLLOW_UP = Pattern.compile(
+            "(?:那|那么)?(?:我(?:在)?)?(?:还有|有|有没有)(?:吗|么|呢)?");
     private static final Pattern BROAD_QUERY = Pattern.compile(
             "(?:请|麻烦)?(?:(?:帮我|给我)?(?:查(?:询|一下|下)?|看(?:看|一下|下)?|列(?:出|一下)?|预览)(?:一下|下)?)?"
                     + "(?:(?:我|当前)的?)?(?:有哪些|啥|什么)(?:是)?(?:可以|能|需要|待)?派单(?:的)?(?:记录|单据)?(?:吧)?");
@@ -56,7 +59,7 @@ final class PreviewIntentDetector {
             "(?:请|麻烦)?(?:(?:帮我|给我)?(?:查(?:询|一下|下)?|看(?:看|一下|下)?|列(?:出|一下)?|预览)(?:一下|下)?)?"
                     + "(?:(?:我|当前)的?)?" + SCOPES
                     + "(?:(?:中|里|的)?(?:有)?(?:哪些|啥|什么)(?:是)?(?:可以|能|需要|待)?派单(?:的)?(?:记录|单据)?"
-                    + "|的?(?:可|可以|能|需要|待)派单的?(?:记录|单据)?)?(?:吧)?");
+                    + "|的?(?:可|可以|能|需要|待)派单的?(?:记录|单据)?)?" + TAIL);
     /** 后置追问动词：应收报表再查下 / 应收报表重查一下 / 销售报表再看看 / 应收报表刷新一下 */
     private static final String FOLLOW_UP_VERB =
             "(?:再|重新|重|又)?(?:查(?:询)?|看(?:看)?|刷新|载入|预览|拉)(?:一下|下|一次|一遍)?";
@@ -126,7 +129,8 @@ final class PreviewIntentDetector {
                 return intent(m, tokens, mentions, companyCode, false, false, false);
             }
         }
-        if (companyCode == null || !BROAD_QUERY.matcher(tokens).matches()) {
+        if (companyCode == null || !(BROAD_QUERY.matcher(tokens).matches()
+                || COMPANY_FOLLOW_UP.matcher(tokens).matches())) {
             return Optional.empty();
         }
         return Optional.of(new PreviewIntent(null, List.of(), companyCode, false, false));
@@ -178,6 +182,7 @@ final class PreviewIntentDetector {
             return null;
         }
         String code = matcher.group("prefix") != null ? matcher.group("prefix") : matcher.group("suffix");
-        return code == null ? null : code.toUpperCase(Locale.ROOT);
+        // 多公司、否定后切换等复合说法交给模型处理，不能只采用第一家公司。
+        return code == null || matcher.find() ? null : code.toUpperCase(Locale.ROOT);
     }
 }

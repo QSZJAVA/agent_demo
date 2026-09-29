@@ -71,8 +71,10 @@ services:
       TZ: Asia/Shanghai
       DB_HOST: mysql
       DB_PORT: "3306"
+      DB_NAME: ${DB_NAME:-report_demo}
       DB_USERNAME: root
       DB_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      DEMO_RESET_ON_STARTUP: ${DEMO_RESET_ON_STARTUP:-false}
       REDIS_HOST: redis
       REDIS_PORT: "6379"
       REDIS_PASSWORD: ${REDIS_PASSWORD}
@@ -80,8 +82,7 @@ services:
       # 接真实大模型时把 SPRING_ARGS 改成空串，并填 LLM_* 三项
       # 这里必须用 "-" 而不是 ":-"：":-" 会把空串也当成未设置而回落到 mock，deploy.sh start-real 就切不过去
       SPRING_ARGS: "${SPRING_ARGS---spring.profiles.active=mock}"
-      # 留空时后端会用 application.yml 里的默认值（自建 OpenAI 兼容站点）
-      # 这里不要写 ${VAR:-}，空值会让后端 base-url 解析失败
+      # Compose 为未设置或空值提供默认端点/模型，避免传入空 base-url。
       LLM_BASE_URL: ${LLM_BASE_URL:-https://dashscope.aliyuncs.com/compatible-mode}
       LLM_API_KEY: ${LLM_API_KEY:-sk-no-key-set}
       LLM_MODEL: ${LLM_MODEL:-qwen3.7-plus}
@@ -98,7 +99,8 @@ services:
     container_name: report-demo-frontend
     restart: unless-stopped
     depends_on:
-      - backend
+      backend:
+        condition: service_healthy
     environment:
       TZ: Asia/Shanghai
       SERVER_NAME: ${SERVER_NAME:-_}

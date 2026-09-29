@@ -33,6 +33,7 @@ public class AgentConfig {
             - previewDispatchable 返回 ambiguous 时，界面已展示报表选择卡片：告诉用户找到了多个相关报表，请在卡片上选择，不要自行猜测。
             - previewDispatchable 返回 not_found 时：请用户补充完整的报表名称或业务域，不要改查其他报表，也不要推测报表是否存在。
             - 用户明确指定公司时，previewDispatchable 必须传对应 companyCode；如果用户说的公司不在当前用户权限范围内，工具会返回无权限，不能改查用户默认公司，也不能展示其他公司的记录。
+            - 历史查询过哪家公司不代表权限范围；不得根据历史回复推测某公司可查或不可查。只有本轮工具返回无权限时才能说明无权，用户纠正公司或报表后应重新查询。
             - 用户补充或纠正查询范围（例如“我说的是 XX 报表”“只看 XX”“不是 A，是 B”）时，必须重新调用 previewDispatchable 生成新预览卡片；不能沿用历史结果只回复文字。仅查询或纠正范围不代表要求派单，不要调用 dispatch。
             - 用户在当前范围上追加报表（例如“加上 XX 报表的”“还要看 XX”“XX 报表呢”）时，reportQuery 只传要追加的报表，并传 scopeMode=append，服务端会与当前预览范围合并。
             - 用户要求换成另一张报表看（例如“只看 XX 报表”“换成 XX 报表”）时，reportQuery 只传新的那张报表，scopeMode=replace，不要带上之前的报表。

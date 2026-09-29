@@ -1,147 +1,141 @@
 # Docker 部署指南
 
-在一台 Linux 服务器上用 Docker 拉起整套 Demo：MySQL 8 + Redis 7 + Spring Boot 后端 + Nginx 前端。
-浏览器只访问一个端口，`/api` 由 Nginx 反代到后端，SSE 流式对话已做好不缓冲处理。
+适用于当前仓库的 Linux 演示部署：MySQL 8、Redis 7、Spring Boot 后端和 Nginx 前端。浏览器访问前端端口，`/api` 由 Nginx 反向代理，SSE 已关闭代理缓冲。
 
-## 一、服务器要求
+**真实认证和真实业务派单网关尚未接入，属于下一阶段。** 整站 Basic Auth 保护演示入口；页面的用户切换仍是请求头模拟身份，接真实大模型也仍使用演示派单网关。
 
-| 项目 | 要求 |
-| --- | --- |
-| 系统 | CentOS 7+ / Ubuntu 20.04+ / Debian 11+ 等主流发行版 |
-| 内存 | 建议 4G 以上；2G 也能跑，需把 `.env` 里 `JAVA_OPTS` 的 `-Xmx` 调到 512m |
-| 磁盘 | 10G 以上（镜像约 2G，MySQL 数据卷随会话记录增长） |
-| 软件 | Docker Engine 20.10+ 与 Docker Compose V2 |
+## 1. 环境准备
 
-安装 Docker（官方一键脚本，国内服务器建议换镜像源）：
+需要受支持的 Linux、Docker Engine 和 Docker Compose V2，能下载 Maven/npm 依赖及基础镜像。建议至少 4 GB 内存，并为数据库增长预留磁盘。小内存机器可以调整 `.env` 的 `JAVA_OPTS`，实际容量需验证。
 
-```bash
-curl -fsSL https://get.docker.com | bash -s docker --mirror Aliyun
-sudo systemctl enable --now docker
-# 让当前用户免 sudo 使用 docker，重新登录后生效
-sudo usermod -aG docker $USER
-```
+按 [Docker 官方安装说明](https://docs.docker.com/engine/install/) 安装，确认 `docker info`、`docker compose version` 可用。仓库只配置 HTTP；跨不可信网络访问时，应在入口反向代理或负载均衡层配置 HTTPS。
 
-验证：`docker compose version` 能输出版本号即可。
+## 2. 打包上传
 
-## 二、上传项目
-
-在本地项目根目录打包（`.gitignore` / `.dockerignore` 已排除 `node_modules`、`target`、`.env`，包会很小）：
+`tar` 不会自动读取 `.gitignore` 或 `.dockerignore`。以下 Bash 命令在项目根目录按明确文件清单打包，将输出放到项目外，保留当前未提交的源码修改；不包含 `.env`、`tools/env.local.cmd`、Windows Redis、依赖目录及构建产物：
 
 ```bash
-tar --exclude=node_modules --exclude=target --exclude=dist --exclude=.git -czf demo.tar.gz .
+tar -czf ../demo-source.tar.gz \
+  --exclude='*.exe' --exclude='*.dll' --exclude='*.jar' \
+  --exclude='*.class' --exclude='*.log' --exclude='*.tmp' \
+  .dockerignore .env.example docker-compose.yml deploy.sh \
+  backend/Dockerfile backend/pom.xml backend/mvnw backend/mvnw.cmd \
+  backend/.mvn backend/src \
+  frontend/Dockerfile frontend/index.html frontend/nginx.conf.template \
+  frontend/package.json frontend/package-lock.json frontend/vite.config.mjs \
+  frontend/src frontend/tests
+
+tar -tzf ../demo-source.tar.gz
+scp ../demo-source.tar.gz <部署用户>@<服务器IP>:/opt/
 ```
 
-上传并解压到服务器：
+服务器上准备有写权限的目录并解压：
 
 ```bash
-scp demo.tar.gz root@<服务器IP>:/opt/
-ssh root@<服务器IP>
-cd /opt && mkdir -p demo && tar -xzf demo.tar.gz -C demo && cd demo
+mkdir -p /opt/demo
+tar -xzf /opt/demo-source.tar.gz -C /opt/demo
+cd /opt/demo
 ```
 
-> 也可以直接 `git clone` 到服务器，效果一样。
+也可以从已提交对应改动的 Git 分支克隆。配置密钥在目标服务器创建，不随源码包传输。覆盖已有部署前先备份数据库及 `.env`。
 
-## 三、一键启动
+## 3. 配置与启动
 
 ```bash
 chmod +x deploy.sh
 ./deploy.sh up
 ```
 
-脚本会自动完成：
+首次运行自动从 `.env.example` 生成随机 MySQL/Redis 密码及网页访问口令；已有 `.env` 会沿用。生成的口令会打印到终端，请妥善保存 `.env`，避免将部署日志公开。
 
-1. 检查 Docker / Compose 是否可用
-2. 从 `.env.example` 生成 `.env`，写入**随机 MySQL / Redis 密码和网页访问口令**，并把 `SERVER_NAME` 自动设为服务器公网 IP
-3. 构建后端与前端镜像，拉起 MySQL、Redis，等它们 healthy 后再启动后端
-4. 等四个容器全部就绪，打印访问地址
-
-首次执行要下载 MySQL 镜像、Maven 依赖、npm 依赖，视网络情况约 5~15 分钟。脚本最后会打印出**随机生成的 MySQL / Redis 密码与网页访问口令**，请记录下来（也在 `.env` 里）。
-
-启动完成后访问 `http://<服务器IP>/`，浏览器会先弹出登录框，账号 `BASIC_AUTH_USER`（默认 `demo`），口令为 `.env` 里的 `BASIC_AUTH_PASSWORD`。
-
-> 为什么要这层口令：演示系统的"用户1 / 用户2 / 管理员"只是请求头 `X-User-Id` 模拟的身份，谁都能切成管理员。
-> 没有整站口令，任何能访问端口的人都可以改派单规则、执行派单。口令只挡住外人，不区分演示身份；
-> 正式使用前需要把 `PermissionService` 换成真实登录（Session / JWT）。旧版 `.env` 没有口令时，`deploy.sh` 会自动补一个随机口令。
-
-**云服务器记得放行安全组端口**（默认 80）。80 被占用时改 `.env` 里的 `HTTP_PORT=8000` 再 `./deploy.sh up`。
-
-## 四、模型配置（可选）
-
-默认走 `mock` profile，用关键词模拟模型驱动同一套工具与流程，**不需要 API Key**，适合先验证部署是否成功。
-
-接真实大模型：编辑 `.env`
-
-```ini
-SPRING_ARGS=
-LLM_BASE_URL=https://dashscope.aliyuncs.com/compatible-mode
-LLM_API_KEY=sk-你的key
-LLM_MODEL=qwen3.7-plus
-```
-
-然后 `./deploy.sh start-real`（只重建后端容器，数据库不动）。想切回模拟模型用 `./deploy.sh start-mock`。
-
-> 直连 DeepSeek 官方时 `LLM_BASE_URL=https://api.deepseek.com`，并把 `.env` 里的 `extra-body` 相关配置按 DeepSeek 文档改成关闭思考模式的参数（详见项目根 README）。
-
-## 五、常用命令
-
-| 命令 | 作用 |
+| `.env` 配置 | 作用 |
 | --- | --- |
-| `./deploy.sh up` | 构建并启动全部服务 |
-| `./deploy.sh ps` | 查看四个容器状态与健康情况 |
-| `./deploy.sh logs` | 实时跟踪全部日志（`Ctrl+C` 退出，不影响容器） |
-| `docker logs -f report-demo-backend` | 只看后端日志 |
-| `./deploy.sh restart` | 重启所有容器（数据保留） |
-| `./deploy.sh update` | 改完代码后只重建前后端并更新，MySQL / Redis 不动 |
-| `./deploy.sh rebuild` | 不用缓存强制全量重建 |
-| `./deploy.sh down` | 停止并删除容器，**数据卷保留** |
-| `./deploy.sh destroy` | 停止并删除容器 + 数据卷，**数据全部清空**（会要求输入 yes） |
+| `HTTP_PORT`、`SERVER_NAME` | 前端对外端口与访问主机名，默认端口 80 |
+| `BASIC_AUTH_USER`、`BASIC_AUTH_PASSWORD` | 整站演示访问口令；不提供业务用户身份隔离 |
+| `MYSQL_ROOT_PASSWORD`、`REDIS_PASSWORD` | 容器依赖服务密码 |
+| `DB_NAME` | MySQL 初始化库名和后端连接库名，默认 `report_demo` |
+| `DEMO_RESET_ON_STARTUP` | 默认 `false`；仅显式 `true` 时每次启动重置演示报表、目录与规则 |
+| `SPRING_ARGS` | 默认 `--spring.profiles.active=mock`；真实模型模式留空 |
+| `LLM_BASE_URL`、`LLM_API_KEY`、`LLM_MODEL` | 模型端点、密钥、模型名 |
+| `JAVA_OPTS` | JVM 参数与内存上限 |
 
-## 六、数据持久化
+启动顺序和健康判定：
 
-| 数据 | 位置 | 是否随容器删除 |
+1. MySQL、Redis 健康后启动后端。
+2. 后端 `GET /api/health/readiness` 实际查询 MySQL 并检查 Redis；全部正常返回 HTTP 200，失败返回 503，不要求 `X-User-Id`。
+3. 前端在后端健康后启动，自身通过 `/healthz` 检查 Nginx。
+4. 部署脚本等待全部服务健康再输出成功；依赖失败、容器异常或等待超时会以非零状态退出。默认等待上限 240 秒，可用 shell 环境变量 `DEPLOY_HEALTH_TIMEOUT_SECONDS` 覆盖（不是 `.env` 配置）。
+
+访问 `http://<服务器IP>:<HTTP_PORT>/`，输入 Basic Auth 口令后选择演示用户。只发布前端端口；MySQL、Redis 和后端未映射宿主机端口。安全组按实际入口端口开放。
+
+readiness 只证明当前 MySQL/Redis 依赖可用，不代表真实模型端点或未来外部派单服务已联通。普通业务接口有 HTTP 200 携带非零业务码的兼容行为，不能用它们代替 readiness。
+
+## 4. 数据初始化与保留
+
+表结构由 Flyway 的版本迁移维护，当前为 V1–V17。**默认 `DEMO_RESET_ON_STARTUP=false`：新空库第一次初始化示例数据，已有数据库启动保留数据与管理配置。** 不使用启动时反复执行的 `schema.sql`/`data.sql` 机制。
+
+显式改为 `true` 会在每次启动重置演示报表、目录、派单规则及规则历史，对相关表不按租户限制；既有预览和待确认清单按演示重置逻辑失效。仅在可清空的演示库使用，用完恢复 `false` 并重建后端容器使配置生效。真实业务环境不得开启。
+
+| 数据 | 默认位置 | 删除容器后 |
 | --- | --- | --- |
-| MySQL（会话、消息、审计、规则） | Docker 卷 `report-demo_mysql-data` | 否，仅 `destroy` 会删 |
-| Redis（预览快照、待确认清单） | Docker 卷 `report-demo_redis-data` | 否，仅 `destroy` 会删 |
+| MySQL：报表、目录、规则、预览/计划/任务/去重请求、租约、会话、追溯与运营数据 | Docker 卷 `report-demo_mysql-data` | 数据卷保留时仍在 |
+| Redis：模型工作记忆、缓存刷新广播、分钟频率限制；配置 AOF | Docker 卷 `report-demo_redis-data` | 数据卷保留时仍在，带 TTL 的内容仍会过期 |
 
-注意：报表表与规则表在后端每次启动时**重建并写入示例数据**（`schema.sql` / `data.sql` 的行为），
-而 `agent_conversation`、`agent_message`、`dispatch_audit` 用 `IF NOT EXISTS` 创建，历史记录跨重启保留。
+`down` 保留数据卷；`destroy` 会删除数据卷。MySQL 镜像的 `MYSQL_DATABASE`、初始密码仅在空数据目录初始化时使用；修改 `DB_NAME` 不是迁移旧库，修改 `.env` 密码也不会自动修改既有 MySQL 账号密码。
 
-备份 MySQL：
+运营治理另有按租户配置的留存策略：默认会话/结果/审计 365 天、指标 90 天。清理分批执行，在途、未知结果或未处理失败有保留条件；永久去重标识和必要终态不会随显示明细一起清除。
+
+## 5. 模型切换
+
+默认 mock 不请求外部模型。接真实模型前填写供应商实际支持的组合，例如编辑 `.env` 中的端点、API Key 和模型名，然后执行：
 
 ```bash
-docker exec report-demo-mysql sh -c 'exec mysqldump -uroot -p"$MYSQL_ROOT_PASSWORD" report_demo' > backup-$(date +%F).sql
+./deploy.sh start-real
 ```
 
-## 七、架构与端口
+模型切换会重建后端容器，并重启前端使 Nginx 重新解析后端地址，然后等待健康。返回 mock：
 
-```
-浏览器 ──:80──> [frontend / Nginx]
-                    ├── /            静态文件（Vue 构建产物）
-                    └── /api/*   ──> [backend:8080] ──┬──> [mysql:3306]
-                                                      └──> [redis:6379]
+```bash
+./deploy.sh start-mock
 ```
 
-- 只有 `frontend` 对外暴露端口，`backend` 仅在内网（`expose`），MySQL / Redis 完全不出网
-- 容器间通过服务名 `mysql` / `redis` / `backend` 互访，走 Docker 内置 DNS
-- Nginx 对 `/api` 关掉了 `proxy_buffering`，SSE 流式返回才能逐字推给浏览器
+当前 Compose 默认模型 `qwen3.7-plus`，本地 `application.yml` 默认 `deepseek-v4.1-flash`，默认端点均为 `https://dashscope.aliyuncs.com/compatible-mode`。URL 不附加 `/v1`，配置的请求路径已包含它。
 
-## 八、常见问题
+当前请求体 `extra-body` 是 `thinking: {type: disabled}`，温度为 `0.1`。该配置位于 `backend/src/main/resources/application.yml`，不是 `.env` 的独立字段。切换供应商需核对模型名与关闭思考参数，必要时改配置、执行 `./deploy.sh update` 重建后端；不能只凭“OpenAI 兼容”认定所有扩展参数相同。真实模型连通性需另行验证。
 
-**构建时卡在下载依赖**
-国内服务器给 Docker 配镜像加速：`/etc/docker/daemon.json` 写入 `{"registry-mirrors":["https://docker.mirrors.ustc.edu.cn"]}` 后 `sudo systemctl restart docker`。
+## 6. 运维命令与备份
 
-**后端一直 starting / unhealthy**
-`docker logs report-demo-backend` 看报错。常见原因是 MySQL 还没初始化完 —— compose 里已配 `depends_on: service_healthy`，若仍失败可 `./deploy.sh restart` 一次。
-内存不足导致后端被 kill 时，把 `.env` 的 `JAVA_OPTS` 改成 `-Xms128m -Xmx512m`。
+| 命令 | 用途 |
+| --- | --- |
+| `./deploy.sh up` | 构建、启动并等待健康 |
+| `./deploy.sh ps` | 容器与健康状态 |
+| `./deploy.sh logs` | 跟踪全部日志；Ctrl+C 停止跟踪 |
+| `docker logs -f report-demo-backend` | 后端日志 |
+| `./deploy.sh restart` | 重启现有容器并等待健康；修改环境变量后应重建容器 |
+| `./deploy.sh update` | 重新构建并强制重建前后端容器，等待健康 |
+| `./deploy.sh rebuild` | 禁用构建缓存后重新构建 |
+| `./deploy.sh down` | 停止并删除容器，保留数据卷 |
+| `./deploy.sh destroy` | 输入确认后删除容器和数据卷，数据不可依赖容器恢复 |
 
-**页面能打开，但接口报错 / 对话一直转圈**
-确认浏览器用的是服务器 IP 而不是 `localhost`，并且安全组已放行端口。SSE 若被中间的 SLB / CDN 缓冲，需要在其上同样关闭响应缓冲。
+备份当前配置的 MySQL 数据库：
 
-**改了代码怎么更新**
-传到服务器后执行 `./deploy.sh update`。
+```bash
+docker exec report-demo-mysql sh -c \
+  'MYSQL_PWD="$MYSQL_ROOT_PASSWORD" exec mysqldump -uroot --single-transaction --routines --triggers "$MYSQL_DATABASE"' \
+  > "backup-$(date +%F-%H%M%S).sql"
+```
 
-**端口冲突**
-`.env` 里改 `HTTP_PORT` 即可，容器内部仍是 80。
+确认命令成功且备份可恢复后再执行升级或清理。恢复演练使用隔离数据库，勿直接覆盖运行中的演示库。生产接入阶段还需最小权限业务账号、备份保留/恢复目标及密钥轮换方案。
 
-**彻底重来**
-`./deploy.sh destroy` 后 `./deploy.sh up`。
+## 7. 故障定位
+
+| 现象 | 检查方式 |
+| --- | --- |
+| 依赖下载失败 | 检查镜像源、Maven/npm 网络和代理；使用组织认可的源 |
+| 后端 `unhealthy` | 查看后端日志和 MySQL/Redis 健康状态，检查连接参数、密码、库名、迁移失败或内存不足 |
+| 页面可用但对话失败 | 区分 mock/真实模型，检查服务端业务码、密钥、端点、模型名与扩展参数 |
+| SSE 停顿或断开 | 检查入口 SLB/CDN 的缓冲和超时；通过会话/任务查询恢复结果 |
+| 改 `.env` 后未生效 | `restart` 不会重新注入环境变量；执行 `up` 或对应的模型切换命令重建容器 |
+| 升级后数据“消失” | 核对 `DB_NAME`、数据卷及 `DEMO_RESET_ON_STARTUP`；先保留现场和备份，勿直接 `destroy` |
+
+当前功能与接口以 [README](../README.md) 为入口；真实认证、外部派单和生产验收工作见 [下一阶段待办](派单Agent_Demo到生产级待办.md)。

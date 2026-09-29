@@ -53,7 +53,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  * 越权访问；报表选择卡片；只靠配置接入新报表；并发确认只执行一次；同会话并发预览只有一份有效；链路追溯。
  */
 @EnabledIfEnvironmentVariable(named = "DEMO_IT", matches = "true")
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT, properties = "demo.reset-on-startup=true")
 @ActiveProfiles("mock")
 @SuppressWarnings("unchecked")
 class DispatchAgentIntegrationTest {
