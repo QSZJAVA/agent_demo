@@ -33,6 +33,10 @@ export function fetchCardStates(conversationId) {
   return http.get(`/agent/conversations/${conversationId}/card-states`)
 }
 
+export function fetchDialogueSelection(conversationId) {
+  return http.get(`/agent/conversations/${conversationId}/selection`)
+}
+
 /** 在报表选择卡片上选定报表后创建预览（服务端重新按权限校验） */
 export function createPreview({ conversationId, reportIds, companyCode, excludeDocNos, scopeMode }) {
   return http.post('/dispatch/previews', { conversationId, reportIds, companyCode, excludeDocNos, scopeMode })

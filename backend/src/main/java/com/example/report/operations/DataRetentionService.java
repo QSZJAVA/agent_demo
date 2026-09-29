@@ -69,11 +69,14 @@ public class DataRetentionService {
             if(rows.isEmpty() || !erased(id)) return;
             String tenant=rows.get(0).get("tenant_id").toString();
             if(held(id)) return;
+            jdbc.update("DELETE FROM semantic_dialogue WHERE tenant_id=? AND conversation_id=?",tenant,id);
+            jdbc.update("DELETE FROM semantic_turn WHERE tenant_id=? AND conversation_id=? LIMIT 500",tenant,id);
             // Delete bounded batches; tombstone prevents replay from adding new messages.
             jdbc.update("DELETE FROM agent_message WHERE tenant_id=? AND conversation_id=? LIMIT 500",tenant,id);
             jdbc.update("DELETE FROM trace_event WHERE tenant_id=? AND conversation_id=? AND event_type='MESSAGE' LIMIT 500",tenant,id);
             long left=jdbc.queryForObject("SELECT (SELECT COUNT(*) FROM agent_message WHERE tenant_id=? AND conversation_id=?)+(SELECT COUNT(*) FROM trace_event WHERE tenant_id=? AND conversation_id=? AND event_type='MESSAGE')",Long.class,tenant,id,tenant,id);
-            if(left==0) {
+            long semanticLeft=jdbc.queryForObject("SELECT COUNT(*) FROM semantic_turn WHERE tenant_id=? AND conversation_id=?",Long.class,tenant,id);
+            if(left==0 && semanticLeft==0) {
                 jdbc.update("UPDATE agent_conversation SET title=NULL,message_count=0,status='deleted' WHERE id=?",id);
                 jdbc.update("UPDATE conversation_erasure SET status='COMPLETED',completed_at=NOW(3) WHERE conversation_id=? AND status='PENDING'",id);
             }

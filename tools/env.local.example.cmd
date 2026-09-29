@@ -24,7 +24,7 @@ REM 本机 Redis 未设密码时留空
 set REDIS_PASSWORD=
 
 REM ---------- 模型开关 ----------
-REM mock = 关键词模拟模型，无需 API Key；real = 走下面配置的真实模型
+REM mock = 固定语义样本，无需 API Key；real = 走下面配置的真实模型
 REM 双击 start-backend.cmd 时生效，也可用参数临时覆盖：
 REM   start-backend.cmd mock        仅这一次用 mock
 REM   start-backend.cmd real        仅这一次用真实模型

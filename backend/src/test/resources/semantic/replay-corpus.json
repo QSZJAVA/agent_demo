@@ -1,0 +1,251 @@
+[
+  {
+    "name": "公司拒绝与省略继承",
+    "turns": [
+      {
+        "message": "先看看 A 公司的销售台账",
+        "action": "PREVIEW",
+        "companyOperation": "REPLACE",
+        "reportsOperation": "REPLACE",
+        "company": "A",
+        "outcome": "READY",
+        "reportIds": [
+          "rpt-sales-order"
+        ],
+        "exclusionsOperation": "KEEP"
+      },
+      {
+        "message": "那 B 公司呢？",
+        "action": "PREVIEW",
+        "companyOperation": "REPLACE",
+        "reportsOperation": "KEEP",
+        "company": "B",
+        "outcome": "REJECTED",
+        "reportIds": [
+          "rpt-sales-order"
+        ],
+        "exclusionsOperation": "KEEP"
+      },
+      {
+        "message": "现在我只想派销售报表的",
+        "action": "PREPARE_DISPATCH",
+        "companyOperation": "KEEP",
+        "reportsOperation": "REPLACE",
+        "company": "B",
+        "outcome": "REJECTED",
+        "reportIds": [
+          "rpt-sales-order"
+        ],
+        "exclusionsOperation": "KEEP"
+      },
+      {
+        "message": "A公司销售报表的",
+        "action": "PREVIEW",
+        "companyOperation": "REPLACE",
+        "reportsOperation": "REPLACE",
+        "company": "A",
+        "outcome": "READY",
+        "reportIds": [
+          "rpt-sales-order"
+        ],
+        "exclusionsOperation": "KEEP"
+      }
+    ]
+  },
+  {
+    "name": "报表集合变更",
+    "turns": [
+      {
+        "message": "只给我看看销售报表",
+        "action": "PREVIEW",
+        "companyOperation": "KEEP",
+        "reportsOperation": "REPLACE",
+        "company": null,
+        "outcome": "READY",
+        "reportIds": [
+          "rpt-sales-order"
+        ],
+        "exclusionsOperation": "KEEP"
+      },
+      {
+        "message": "把应收台账也加进来",
+        "action": "PREVIEW",
+        "companyOperation": "KEEP",
+        "reportsOperation": "ADD",
+        "company": null,
+        "outcome": "READY",
+        "reportIds": [
+          "rpt-sales-order",
+          "rpt-ar-invoice"
+        ],
+        "exclusionsOperation": "KEEP"
+      },
+      {
+        "message": "销售报表先不要了",
+        "action": "PREVIEW",
+        "companyOperation": "KEEP",
+        "reportsOperation": "REMOVE",
+        "company": null,
+        "outcome": "READY",
+        "reportIds": [
+          "rpt-ar-invoice"
+        ],
+        "exclusionsOperation": "KEEP"
+      },
+      {
+        "message": "改为所有报表",
+        "action": "PREVIEW",
+        "companyOperation": "KEEP",
+        "reportsOperation": "CLEAR",
+        "company": null,
+        "outcome": "READY",
+        "reportIds": [],
+        "exclusionsOperation": "KEEP"
+      }
+    ]
+  },
+  {
+    "name": "拒绝恢复与显式清除",
+    "turns": [
+      {
+        "message": "我想查 B 公司费用报表的记录",
+        "action": "PREVIEW",
+        "companyOperation": "REPLACE",
+        "reportsOperation": "REPLACE",
+        "company": "B",
+        "outcome": "REJECTED",
+        "reportIds": [
+          "rpt-expense-claim"
+        ],
+        "exclusionsOperation": "KEEP"
+      },
+      {
+        "message": "不要限制公司了，查我能看的全部公司",
+        "action": "PREVIEW",
+        "companyOperation": "CLEAR",
+        "reportsOperation": "KEEP",
+        "company": null,
+        "outcome": "READY",
+        "reportIds": [
+          "rpt-expense-claim"
+        ],
+        "exclusionsOperation": "KEEP"
+      },
+      {
+        "message": "这些先别派，看看就行",
+        "action": "PREVIEW",
+        "companyOperation": "KEEP",
+        "reportsOperation": "KEEP",
+        "company": null,
+        "outcome": "READY",
+        "reportIds": [
+          "rpt-expense-claim"
+        ],
+        "exclusionsOperation": "KEEP"
+      }
+    ]
+  },
+  {
+    "name": "记录和动作分离",
+    "turns": [
+      {
+        "message": "预览 A 公司销售报表",
+        "action": "PREVIEW",
+        "companyOperation": "REPLACE",
+        "reportsOperation": "REPLACE",
+        "company": "A",
+        "outcome": "READY",
+        "reportIds": [
+          "rpt-sales-order"
+        ],
+        "exclusionsOperation": "KEEP"
+      },
+      {
+        "message": "先把 SO2026002 排除掉",
+        "action": "PREVIEW",
+        "companyOperation": "KEEP",
+        "reportsOperation": "KEEP",
+        "company": "A",
+        "outcome": "READY",
+        "reportIds": [
+          "rpt-sales-order"
+        ],
+        "exclusionsOperation": "ADD"
+      },
+      {
+        "message": "SO2026002 又需要了，把它恢复",
+        "action": "PREVIEW",
+        "companyOperation": "KEEP",
+        "reportsOperation": "KEEP",
+        "company": "A",
+        "outcome": "READY",
+        "reportIds": [
+          "rpt-sales-order"
+        ],
+        "exclusionsOperation": "REMOVE"
+      },
+      {
+        "message": "给剩下的生成待确认派单清单",
+        "action": "PREPARE_DISPATCH",
+        "companyOperation": "KEEP",
+        "reportsOperation": "KEEP",
+        "company": "A",
+        "outcome": "READY",
+        "reportIds": [
+          "rpt-sales-order"
+        ],
+        "exclusionsOperation": "KEEP"
+      },
+      {
+        "message": "先取消这份清单",
+        "action": "CANCEL_PLAN",
+        "companyOperation": "KEEP",
+        "reportsOperation": "KEEP",
+        "company": "A",
+        "outcome": "READY",
+        "reportIds": [
+          "rpt-sales-order"
+        ],
+        "exclusionsOperation": "KEEP"
+      },
+      {
+        "message": "查看这份清单的派单结果",
+        "action": "SHOW_RESULT",
+        "companyOperation": "KEEP",
+        "reportsOperation": "KEEP",
+        "company": "A",
+        "outcome": "READY",
+        "reportIds": [
+          "rpt-sales-order"
+        ],
+        "exclusionsOperation": "KEEP"
+      }
+    ]
+  },
+  {
+    "name": "别名歧义与纠正",
+    "turns": [
+      {
+        "message": "帮忙查一下客户对账",
+        "action": "PREVIEW",
+        "companyOperation": "KEEP",
+        "reportsOperation": "REPLACE",
+        "company": null,
+        "outcome": "CLARIFY",
+        "exclusionsOperation": "KEEP"
+      },
+      {
+        "message": "我指的是应收报表",
+        "action": "PREVIEW",
+        "companyOperation": "KEEP",
+        "reportsOperation": "REPLACE",
+        "company": null,
+        "outcome": "READY",
+        "reportIds": [
+          "rpt-ar-invoice"
+        ],
+        "exclusionsOperation": "KEEP"
+      }
+    ]
+  }
+]

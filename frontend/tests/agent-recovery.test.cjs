@@ -1,4 +1,66 @@
 const { test } = require('node:test')
+
+test('semantic selection event applies to the exact preview and survives history reload', async () => {
+  const excluded = [{ reportId: 'sales', recordId: '2' }]
+  const { state } = harness({
+    streamChat: (_, event) => {
+      event('conversation', { conversationId: 'conv1' })
+      event('preview', { previewId: 'p1', status: 'ACTIVE', records: [] })
+      event('selection', { previewId: 'p1', excludedRecords: excluded })
+      return { promise: Promise.resolve() }
+    },
+    fetchMessages: async () => [{ id: 1, role: 'card', cardType: 'preview', status: 'ACTIVE', payload: { previewId: 'p1' } }],
+    fetchDialogueSelection: async () => ({ previewId: 'p1', excludedRecords: excluded })
+  })
+  await state.send('exclude')
+  assert.equal(state.uiPreviewId, 'p1')
+  assert.deepEqual(state.uiExcludes, excluded)
+  state.clearSelection()
+  await state.openConversation('conv1', true)
+  assert.equal(state.uiPreviewId, 'p1')
+  assert.deepEqual(state.uiExcludes, excluded)
+})
+
+test('late restored selection cannot affect a different conversation', async () => {
+  let resolveOld
+  const { state } = harness({
+    fetchMessages: async id => [{ id: 1, role: 'card', cardType: 'preview', status: 'ACTIVE', payload: { previewId: id } }],
+    fetchDialogueSelection: id => id === 'old' ? new Promise(resolve => { resolveOld = resolve })
+      : Promise.resolve({ previewId: 'new', excludedRecords: [] })
+  })
+  const opening = state.openConversation('old', true)
+  await new Promise(resolve => setImmediate(resolve))
+  await state.openConversation('new', true)
+  resolveOld({ previewId: 'old', excludedRecords: [{ reportId: 'private', recordId: '1' }] })
+  await opening
+  assert.equal(state.uiPreviewId, 'new')
+  assert.equal(state.uiExcludes.length, 0)
+})
+
+test('server exclusion updates during a page fetch preserve the requested page and checkbox identity', async () => {
+  const script = fs.readFileSync(path.join(__dirname, '../src/components/agent/PreviewCard.vue'), 'utf8')
+    .match(/<script>([\s\S]*?)<\/script>/)[1]
+    .replace(/import[\s\S]*?from\s+['"][^'"]+['"]/g, '').replace('export default', 'result =')
+  let resolvePage
+  const sandbox = { result: null, fetchPreviewItems: () => new Promise(resolve => { resolvePage = resolve }) }
+  vm.runInNewContext(script, sandbox)
+  const component = sandbox.result
+  const toggled = []
+  const state = { payload: { previewId: 'p1', total: 100, records: [] }, readonly: false, serverExclusions: [] }
+  Object.assign(state, component.data.call(state))
+  state.$refs = { table: { clearSelection() {}, toggleRowSelection: row => toggled.push(row.recordId) } }
+  state.$nextTick = fn => fn()
+  for (const [key, method] of Object.entries(component.methods)) state[key] = method.bind(state)
+  const loading = state.changePage(2)
+  component.watch.serverExclusions.handler.call(state, [{ reportId: 'sales', recordId: '51' }])
+  assert.equal(state.loadingPage, true)
+  resolvePage([{ reportId: 'sales', recordId: '51' }, { reportId: 'sales', recordId: '52' }])
+  await loading
+  assert.equal(state.page, 2)
+  assert.deepEqual(toggled, ['52'])
+  assert.equal(state.selectedCount, 99)
+})
+
 const assert = require('node:assert/strict')
 const fs = require('node:fs')
 const path = require('node:path')
@@ -25,6 +87,7 @@ function harness(overrides = {}, storage = new Map()) {
     fetchPreviewJob: async id => { calls.polls.push(id); return job },
     fetchPreview: async id => ({ previewId: id, status: 'ACTIVE' }),
     fetchMessages: async () => [],
+    fetchDialogueSelection: async () => ({ previewId: null, excludedRecords: [] }),
     streamChat: (_, event) => {
       event('conversation', { conversationId: 'conv1' })
       return { promise: Promise.reject(new Error('disconnected before preview_job')) }

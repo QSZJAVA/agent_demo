@@ -1,0 +1,144 @@
+{
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "version": {
+      "type": "integer",
+      "enum": [
+        1
+      ]
+    },
+    "action": {
+      "type": "string",
+      "enum": [
+        "PREVIEW",
+        "PREPARE_DISPATCH",
+        "CANCEL_PLAN",
+        "SHOW_RESULT",
+        "EXPLAIN_RULES",
+        "CLARIFY",
+        "HELP"
+      ]
+    },
+    "company": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "operation": {
+          "type": "string",
+          "enum": [
+            "KEEP",
+            "REPLACE",
+            "ADD",
+            "REMOVE",
+            "CLEAR"
+          ],
+          "description": "KEEP: 未提及; CLEAR: 明确清除; REPLACE: 本轮范围; ADD/REMOVE: 集合增减"
+        },
+        "mentions": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "原话实体列表；KEEP和CLEAR必须为空数组"
+        },
+        "evidence": {
+          "type": "string",
+          "description": "非KEEP时必须填写包含mentions的本轮连续原文；KEEP为空字符串"
+        }
+      },
+      "required": [
+        "operation",
+        "mentions",
+        "evidence"
+      ],
+      "description": "公司操作仅KEEP/REPLACE/CLEAR；REPLACE为一个公司原话"
+    },
+    "reports": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "operation": {
+          "type": "string",
+          "enum": [
+            "KEEP",
+            "REPLACE",
+            "ADD",
+            "REMOVE",
+            "CLEAR"
+          ],
+          "description": "KEEP: 未提及; CLEAR: 明确清除; REPLACE: 本轮范围; ADD/REMOVE: 集合增减"
+        },
+        "mentions": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "原话实体列表；KEEP和CLEAR必须为空数组"
+        },
+        "evidence": {
+          "type": "string",
+          "description": "非KEEP时必须填写包含mentions的本轮连续原文；KEEP为空字符串"
+        }
+      },
+      "required": [
+        "operation",
+        "mentions",
+        "evidence"
+      ],
+      "description": "报表名称或别名原话，不由模型判断是否可用"
+    },
+    "exclusions": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "operation": {
+          "type": "string",
+          "enum": [
+            "KEEP",
+            "REPLACE",
+            "ADD",
+            "REMOVE",
+            "CLEAR"
+          ],
+          "description": "KEEP: 未提及; CLEAR: 明确清除; REPLACE: 本轮范围; ADD/REMOVE: 集合增减"
+        },
+        "mentions": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "原话实体列表；KEEP和CLEAR必须为空数组"
+        },
+        "evidence": {
+          "type": "string",
+          "description": "非KEEP时必须填写包含mentions的本轮连续原文；KEEP为空字符串"
+        }
+      },
+      "required": [
+        "operation",
+        "mentions",
+        "evidence"
+      ],
+      "description": "排除记录；ADD不派，REMOVE恢复派单"
+    },
+    "clarify": {
+      "type": "string",
+      "enum": [
+        "NONE",
+        "COMPANY",
+        "REPORTS",
+        "RECORDS",
+        "ACTION"
+      ]
+    }
+  },
+  "required": [
+    "version",
+    "action",
+    "company",
+    "reports",
+    "exclusions",
+    "clarify"
+  ]
+}

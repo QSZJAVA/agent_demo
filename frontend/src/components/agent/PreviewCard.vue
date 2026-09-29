@@ -76,14 +76,15 @@ export default {
     // 状态说明（失效原因等），由服务端给出
     statusMessage: { type: String, default: null },
     // 正在发送消息时禁用按钮
-    busy: { type: Boolean, default: false }
+    busy: { type: Boolean, default: false },
+    serverExclusions: { type: Array, default: () => [] }
   },
   data() {
     return {
-      selectedCount: this.payload.total || 0,
+      selectedCount: Math.max(0, (this.payload.total || 0) - (this.serverExclusions || []).length),
       page: 1,
       pageRecords: this.payload.records || [],
-      excludedRecords: [],
+      excludedRecords: (this.serverExclusions || []).slice(),
       loadingPage: false,
       pageRequest: 0
     }
@@ -118,6 +119,14 @@ export default {
     }
   },
   watch: {
+    serverExclusions: {
+      deep: true,
+      handler(value) {
+        this.excludedRecords = value.slice()
+        this.selectedCount = Math.max(0, this.payload.total - value.length)
+        if (!this.loadingPage && !this.readonly) this.selectAll()
+      }
+    },
     readonly(v) {
       if (!v) this.selectAll()
     }

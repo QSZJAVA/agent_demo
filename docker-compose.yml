@@ -75,10 +75,14 @@ services:
       DB_USERNAME: root
       DB_PASSWORD: ${MYSQL_ROOT_PASSWORD}
       DEMO_RESET_ON_STARTUP: ${DEMO_RESET_ON_STARTUP:-false}
+      SEMANTIC_MODE: ${SEMANTIC_MODE:-legacy}
+      SEMANTIC_NATIVE_SCHEMA: ${SEMANTIC_NATIVE_SCHEMA:-false}
+      SEMANTIC_MODEL: ${SEMANTIC_MODEL:-}
+      SEMANTIC_THINKING_ENABLED: ${SEMANTIC_THINKING_ENABLED:-false}
       REDIS_HOST: redis
       REDIS_PORT: "6379"
       REDIS_PASSWORD: ${REDIS_PASSWORD}
-      # 默认 --spring.profiles.active=mock：走本地关键词模拟模型，不需要 API Key（演示最省事）
+      # 默认 mock：active 使用固定意图样本，不需要 API Key。
       # 接真实大模型时把 SPRING_ARGS 改成空串，并填 LLM_* 三项
       # 这里必须用 "-" 而不是 ":-"：":-" 会把空串也当成未设置而回落到 mock，deploy.sh start-real 就切不过去
       SPRING_ARGS: "${SPRING_ARGS---spring.profiles.active=mock}"

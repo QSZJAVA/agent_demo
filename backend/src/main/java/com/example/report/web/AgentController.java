@@ -54,6 +54,7 @@ public class AgentController {
         if (request.getMessage() == null || request.getMessage().isBlank()) {
             throw new ApiException("消息不能为空");
         }
+        if (request.getMessage().length() > 2000) throw new ApiException("消息不能超过 2000 字");
         return chatService.chat(user, request.getConversationId(), com.example.report.operations.SensitiveData.text(request.getMessage().trim()), request.getExcludeDocNos(),
                 request.getPreviewId(), request.getExcludedRecords());
     }

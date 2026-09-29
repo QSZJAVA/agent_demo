@@ -12,13 +12,15 @@
 
 ## 1. 目标与业务原则
 
-用户可以用自然语言查询可派单记录、调整预览选择，再生成清单并确认执行。模型负责意图和工具调用；报表范围、组织权限、规则判定、版本检查和实际执行由服务端决定。
+用户可以用自然语言查询可派单记录、调整预览选择，再生成清单并确认执行。新 `active` 模式中，模型只输出结构化意图，不调用业务工具。公司、报表和排除项由服务端归并、校验和执行；查询结果与状态文字来自实际业务结果。
+
+当前默认保留 `legacy`，使用已存在的工具、选择卡片和公司查询纠正逻辑；下文语义规则描述显式启用的 `active`。本次真实模型最终回放严格通过 16/19，未达到切换验收要求。已观察到开启 Schema 仍返回非法枚举，不能把端点接受参数当作支持严格约束输出。完整原始结果保存在本地 `backend/target/semantic-live-evaluation.json`，重新运行可选测试可产生新证据。
 
 1. 报表名称和别名从目录读取，新增标准报表通过配置与发布接入。
 2. 查询同时受租户、报表权限和公司范围限制；身份不能从模型生成的参数取值。
 3. 预览、待确认清单和执行结果保存在 MySQL，不能依赖模型回复或 Redis 中的工作记忆判断是否已派单。
 4. 排除项必须属于对应预览；派单前再次检查归属、当前权限、目录/规则版本、状态及记录事实。
-5. 当前默认启用确认卡片，按钮通过 REST 执行。明确失败允许重试，结果不明先核对，不将超时当作成功。
+5. 语义入口始终生成待确认卡片，按钮通过 REST 执行，即使 legacy 的 `require-confirm` 被关闭也不会自动确认。明确失败允许重试，结果不明先核对，不将超时当作成功。
 6. 历史卡片有效性以服务端当前状态为准，管理员操作也受租户及报表/公司权限范围约束。
 
 ## 2. 当前选型
@@ -26,16 +28,16 @@
 | 选型 | 仓库版本/方式 | 用途与边界 |
 | --- | --- | --- |
 | Spring Boot | 3.5.16，Java 17+ | 承载现有报表和 Agent 业务；CI 使用 JDK 21 |
-| Spring AI | 1.1.8，OpenAI 兼容 ChatClient/工具调用 | 接模型、工作记忆、流式回复；mock 使用同一业务工具协议 |
+| Spring AI | 1.1.8，OpenAI 兼容 ChatClient | active 每轮一次无工具的意图解析，原生 JSON Schema 可配置；legacy 保留工具和工作记忆以便回滚 |
 | MyBatis-Plus 与 JDBC | 3.5.17；保留 JdbcTemplate/NamedParameterJdbcTemplate | 实体读写、配置式报表查询、状态事务及运营 SQL |
 | Aviator | 5.4.4 | 管理员定义表达式，服务器编译校验和确定性求值 |
 | MySQL | 8 | 业务状态、去重请求、并发租约、审计和版本历史的持久来源 |
 | Redis | Docker 使用 7 | 短期工作记忆、缓存刷新广播、分钟请求频率限制 |
 | Vue / Element UI / Vite | Vue 2.7、Element UI 2.15、Vite | 报表、聊天、历史会话和管理页面；组件按需引入、页面按路由加载 |
 | SSE | POST + fetch 读取事件流 | 传递文本与卡片，事件有请求号/序号，断线通过持久状态恢复 |
-| Flyway | `backend/src/main/resources/db/migration` 及 Java 迁移 | 当前 V1–V17，维护表结构演进 |
+| Flyway | `backend/src/main/resources/db/migration` 及 Java 迁移 | 当前 V1–V18，维护表结构演进 |
 
-当前模型默认值不是供应商可用性保证：本地 `application.yml` 为 `deepseek-v4.1-flash`，Compose 为 `qwen3.7-plus`，默认端点为百炼兼容地址；请求扩展体为 `thinking: {type: disabled}`、温度 `0.1`。切供应商需核对端点、模型和扩展参数，详见 README。
+当前模型默认值不是供应商可用性保证：本地 `application.yml` 为 `deepseek-v4.1-flash`，Compose 为 `qwen3.7-plus`，默认端点为百炼兼容地址；请求扩展体为 `thinking: {type: disabled}`。active 意图解析温度为 `0`、最多输出 1600 tokens，legacy 温度为 `0.1`。切供应商需核对端点、模型、原生 Schema 和扩展参数，详见 README。
 
 ## 3. 页面与流程
 
@@ -50,17 +52,24 @@
 
 一次派单的步骤：
 
-1. 用户表达查询范围。服务端在有权限且生效的目录中识别名称、编码或别名，再进行模糊匹配；近似得分接近或一个别名指向多张报表时返回选择卡片。
+1. 用户表达查询范围。目录词典标注本轮提到的报表，模型输出带原文证据的动作和条件变更；服务端检查协议、证据与实体完整性。别名冲突、未知报表或只有模糊近似时要求用户明确完整名称，不自动选取近似报表。
 2. 按选择的报表和公司范围扫描待派单记录，通过生效规则求值。生成预览摘要、规则/目录/权限版本及明细；较大查询可使用异步任务。
 3. 用户调整勾选或提出排除要求，基于来源预览创建待确认清单。相同幂等键重放返回已创建清单，不能因此扩大选择范围。
 4. 用户点击确认。服务端认领清单、复核版本和事实，再按逐条请求号执行。成功、明确失败、未知结果分别保存。
 5. 页面显示结果，刷新时重新读取当前状态。失败项重试、未知项核对、取消和运营关闭均走对应业务规则。
 
-SSE 事件包括 `conversation`、`text`、`preview_job`、`choice`、`preview`、`plan`、`result`、`error`、`done`。序号用于识别重复或缺失事件；恢复查询针对任务、消息和业务卡片，不等于原始模型文本流的 Last-Event-ID 续传。
+SSE 事件包括 `conversation`、`text`、`preview_job`、`choice`、`preview`、`plan`、`result`、`selection`、`error`、`done`。active 在本轮完成查询并流式发送进度与卡片，处理上限默认 180 秒，扫描不持有会话事务；大预览仍分批持久化。既有 REST/报表选择卡片的异步任务保留 120 秒上限。序号识别重复或缺失事件，断线通过消息和业务状态恢复，不提供原始文本流续传。
 
-公司范围纠正采用确定性处理：当请求明确指定单家公司且完整匹配纯查询句式时，直接调用预览服务，不让模型根据历史文字推断权限。查询前、异步任务入队前及实际执行查询时使用同一公司权限校验；回复、会话日志和工作记忆记录真实结果。复合派单意图、多公司或未识别的说法仍交给模型处理。
+语义状态分别记录用户请求范围（desired）和最近成功查询范围（effective）。例如 `user1` 查 A 成功、查 B 被拒绝后，desired=B、effective=A；接着说“现在我只想派销售报表的”只改变报表，仍拒绝 B 请求，不能回退查询 A；明确说“A公司销售报表的”才查询 A。助手历史文字不参与权限或状态推断。
 
-例如 `user1` 先问“我在B公司有吗”，应立即提示无权查询 B，公司任务不得入队；随后说“A公司销售报表的”，应发起 A 公司销售报表预览，而不是沿用 B 公司或拒绝 A 公司。该纠正不会自动执行派单，也不改写已有历史回复。
+| 条件变更 | 业务含义 |
+| --- | --- |
+| KEEP | 本轮未表达该字段，继承最近请求；不会清除未解决的拒绝/歧义 |
+| REPLACE | 使用本轮明确对象替换；公司当前支持单家公司代码及其“公司”后缀 |
+| ADD / REMOVE | 在既有报表集合追加/移除；在排除记录集合中表示不派/恢复 |
+| CLEAR | 用户明确清除限制；公司恢复全部可见公司，报表恢复全部可派单报表，记录恢复全部勾选 |
+
+多家公司、模糊报表、不能唯一定位的记录需要澄清。记录先按单据号精确匹配，再按摘要匹配，必须唯一；之后始终保存“报表 ID＋记录 ID”。只调整排除记录时复用同一有效预览，`selection` 事件同步勾选；已保存的语义选择可在刷新后通过 `GET /api/agent/conversations/{id}/selection` 恢复。仅在浏览器修改、尚未随消息提交的勾选仍是本地状态。
 
 ## 4. 目录、查询与规则口径
 
@@ -90,12 +99,16 @@ SSE 事件包括 `conversation`、`text`、`preview_job`、`choice`、`preview`�
 | `dispatch_plan`、`dispatch_plan_item` | 清单状态、逐条结果、尝试次数及外部请求号 |
 | `dispatch_gateway_request` | 演示网关请求流水及结果查询 |
 | `agent_conversation`、`agent_message`、`trace_event` | 会话、消息、持久追溯事件和投递状态 |
+| `semantic_dialogue` | 请求/生效范围、未解决条件、预览/清单绑定、排除记录、会话版本和处理租约 |
+| `semantic_turn` | 每轮输入、结构化意图、状态结果、原因、模型及耗时；与会话删除流程一起清理 |
 | `dispatch_audit`、`operations_audit`、`business_metric` | 派单审计、访问/管理审计及业务指标 |
 | `catalog_revision`、`operations_policy`、`operations_policy_revision` | 目录/策略历史、灰度与回滚 |
 | 数据库配额表 | 按请求持有和续期并发租约，Redis 丢键不能释放已持有容量 |
 | Redis | 有 TTL 的模型上下文、缓存刷新广播、分钟频率限制 |
 
 清单可处于 `PENDING`、`EXECUTING`、`EXECUTED`、`REVIEW_REQUIRED`、`EXPIRED`、`CANCELLED` 等状态；逐条结果另行记录。新预览/清单、超时、权限或版本变化可能使旧卡片失效，不能从历史消息内容反推可执行性。
+
+同一语义会话同一时刻只允许一个处理租约，其他请求返回冲突。租约到期、删除或被其他实例接管后，旧请求不能保存状态、激活预览或建单；只有短暂的状态写入/业务提交持有事务。旧会话从有归属且有效的业务快照初始化；后续只采纳更新的显式 UI/API 选择，不把历史成功预览当作被拒绝请求的新结果。
 
 标准演示回写在事务内锁定源记录并复核条件，持久化请求号用于重复提交与结果核对。真实外部网关并未实现；接入时必须建立同等的幂等与查询契约，不能假设外部调用具有本地数据库事务语义。
 
@@ -104,6 +117,7 @@ SSE 事件包括 `conversation`、`text`、`preview_job`、`choice`、`preview`�
 | 项目 | 当前行为 |
 | --- | --- |
 | 解析回归 | 按租户维护样本，对目录/解析策略/样本集/模型配置指纹变化自动评估；评估对象是目录解析，不能代替真实模型端到端验收 |
+| 多轮语义回放 | `SemanticProtocolTest` 验证归并与证据，`SemanticIntegrationTest` 验证真实持久化/业务路由；独立 `replay-corpus.json` 通过可选真实模型测试对比动作、操作、范围与拒绝/澄清结果 |
 | 指标 | 按租户、操作、报表、版本、结果分组统计次数、平均耗时和 P95；派单统计依据清单条目当前状态，重试不重复累计成功 |
 | 灰度 | 目录与解析策略按用户稳定分桶，规则复用公司范围；策略修改校验期望版本，回滚生成新版本 |
 | 人工处理 | 失败重试、结果核对、取消、关闭已知失败；在途或未知条目不能直接关闭 |
@@ -136,7 +150,10 @@ SSE 事件包括 `conversation`、`text`、`preview_job`、`choice`、`preview`�
 | 场景 | 应验证结果 |
 | --- | --- |
 | 无报表权限/跨租户/跨用户访问 | 不返回越权数据，不泄露任务存在性 |
-| 别名冲突或模糊结果接近 | 返回选择卡片，不擅自派单 |
+| 别名冲突或模糊结果接近 | active 要求明确报表名称，保持未解决状态；legacy/目录接口保留选择卡片 |
+| A 成功→B 拒绝→只改报表→明确 A | 中间两轮不能查询 A；最后一轮才切回 A，实际查询和状态一致 |
+| 排除同名单据、刷新、生成清单 | 歧义要求勾选；已确认排除项按复合记录键保存，实际清单不能包含排除项 |
+| 同会话并发、超时接管、删除 | 旧请求失去写入与业务提交权，不能复活状态 |
 | 0 条预览 | 显示明确空结果，不沿用旧卡片 |
 | 规则/目录/权限变化 | 旧预览和清单不能继续执行 |
 | 同幂等键重复建单、重复确认 | 不创建重复业务派单 |
@@ -171,6 +188,18 @@ ORDER BY i.id;
 SELECT policy_key, version, payload
 FROM operations_policy
 WHERE tenant_id = @tenant_id;
+
+SET @conversation_id = '替换为会话ID';
+SELECT version, JSON_EXTRACT(state_json, '$.desired') AS desired,
+       JSON_EXTRACT(state_json, '$.effective') AS effective,
+       JSON_EXTRACT(state_json, '$.phase') AS phase
+FROM semantic_dialogue
+WHERE tenant_id = @tenant_id AND conversation_id = @conversation_id;
+
+SELECT request_id, state_version, outcome, reason, model, latency_ms, intent_json
+FROM semantic_turn
+WHERE tenant_id = @tenant_id AND conversation_id = @conversation_id
+ORDER BY created_at;
 ```
 
 建表与升级以 Flyway 迁移文件为准，不在文档复制一套易过期的建表脚本。
@@ -181,7 +210,12 @@ WHERE tenant_id = @tenant_id;
 | --- | --- |
 | `demo.reset-on-startup` / `DEMO_RESET_ON_STARTUP` | `false`；新空库首次初始化，已有库默认保留，`true` 才反复重置 |
 | `agent.llm.mock` | `false`；`mock` profile 将其打开 |
-| `agent.dispatch.require-confirm` | `true`，通过确认卡片执行 |
+| `agent.semantic.mode` / `SEMANTIC_MODE` | 当前默认 `legacy`；验证新链路设为 `active`，真实模型回放通过后再切换；旧工具兜底不参与 active 处理 |
+| `agent.semantic.native-schema` / `SEMANTIC_NATIVE_SCHEMA` | 原生 Schema 开关；无论开启与否，服务端都会严格校验形状、字段、原文证据及权限 |
+| `agent.semantic.model` / `SEMANTIC_MODEL` | 默认空，沿用 `LLM_MODEL`；可独立替换语义解析模型 |
+| `agent.semantic.thinking-enabled` / `SEMANTIC_THINKING_ENABLED` | 默认 `false`；开启需支持 `thinking.type=enabled`，输出预算从 1600 调整为 4096 tokens |
+| `agent.semantic.turn-timeout-seconds` | `180`；实际配置限制在 10–240 秒；租约过期后拒绝继续提交 |
+| `agent.dispatch.require-confirm` | `true`；仅 legacy 工具路径读取该开关，active 始终待按钮确认 |
 | `agent.preview.ttl-minutes` | `30` |
 | `agent.preview.max-items` | `5000`，超过时预览改走分批持久化路径，建单仍受该上限约束；大预览需缩小报表或公司范围后再建单 |
 | `agent.plan.ttl-minutes` | `10` |

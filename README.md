@@ -12,7 +12,7 @@
 | 后端 | Java 17+、Spring Boot 3.5.16、Spring AI 1.1.8、MyBatis-Plus 3.5.17 与 JdbcTemplate、Aviator 5.4.4 |
 | MySQL 8 | 报表、目录、规则及版本，预览/清单及明细，任务、请求去重、并发配额租约、对话、追溯、审计和运营策略 |
 | Redis | 模型短期工作记忆、规则/目录刷新广播、分钟频率限制；不是派单业务状态的唯一来源 |
-| 数据结构 | Flyway 版本迁移，当前迁移范围 V1–V17；示例数据由初始化回调管理 |
+| 数据结构 | Flyway 版本迁移，当前迁移范围 V1–V18；示例数据由初始化回调管理 |
 
 | 目录 | 用途 |
 | --- | --- |
@@ -21,6 +21,7 @@
 | `backend/src/main/java/com/example/report/dispatch` | 预览、清单、执行、恢复和演示网关 |
 | `backend/src/main/java/com/example/report/operations` | 评估、指标、留存、脱敏、访问审计和人工处理 |
 | `backend/src/main/java/com/example/report/agent` | 模型工具、SSE 与结构化卡片 |
+| `backend/src/main/java/com/example/report/semantic` | 结构化意图、实体校验、持久会话状态和确定性业务编排；`active` 对话入口 |
 | `frontend` | 页面、组件、请求封装和前端测试 |
 | `tools` | 本地启动脚本、隔离数据库回归入口和私有配置模板 |
 | `docs` | 当前设计/部署说明及按日期保留的历史评审 |
@@ -57,7 +58,11 @@ chmod +x deploy.sh
 | `LLM_BASE_URL` | `https://dashscope.aliyuncs.com/compatible-mode`；不附加 `/v1`，请求路径已含 `/v1/chat/completions` |
 | `LLM_MODEL` | 本地 `application.yml` 默认 `deepseek-v4.1-flash`；Compose 默认 `qwen3.7-plus` |
 | `LLM_API_KEY` | 真实模型模式必须提供有效密钥；不要写入源码 |
-| 请求选项 | 温度 `0.1`；当前 `extra-body` 为 `thinking: {type: disabled}` |
+| 请求选项 | 语义解析温度 `0`、最多输出 1600 tokens；legacy 温度 `0.1`；`extra-body` 为 `thinking: {type: disabled}` |
+| `SEMANTIC_MODE` | 当前默认 `legacy`；`active` 为完整结构化语义入口，真实模型回放通过后切换 |
+| `SEMANTIC_NATIVE_SCHEMA` | 是否向模型端点发送原生 JSON Schema；不支持该能力的端点须关闭，服务端仍校验协议和原文证据 |
+| `SEMANTIC_MODEL` | 默认空，沿用 `LLM_MODEL`；可仅对语义解析选择其他模型 |
+| `SEMANTIC_THINKING_ENABLED` | 默认 `false`；开启后发送 `thinking.type=enabled`，输出预算改为 4096 tokens，需端点实际支持 |
 
 模型名、兼容端点和关闭思考参数必须与所选供应商实际支持范围匹配；上述值描述仓库默认配置，不代表所有组合都已联调。`extra-body` 在 `backend/src/main/resources/application.yml` 中，`.env` 没有单独的同名配置项；必要时修改配置并重建后端。直连 DeepSeek 时可将端点改为 `https://api.deepseek.com`，同时核对模型名和参数。
 
@@ -67,10 +72,16 @@ Docker 编辑 `.env` 的 `LLM_*` 后执行 `./deploy.sh start-real`；返回 moc
 
 演示用户均属于租户 `T001`：`user1` 只能看 A 公司；`user2` 只能看 B 公司；`user3` 看 B 公司但无应收报表权限；`admin` 看 A/B/C 公司并可管理规则、目录和运营策略。
 
-明确公司且能完整识别的查询（如“A公司销售报表的”“我在B公司有吗”）由服务端直接校验权限并执行预览，回复与历史记录使用实际工具结果。无权限的公司在异步任务入队前即被拒绝；上一轮查询过哪家公司不能作为权限依据。其余复杂意图继续交给模型处理，派单仍需确认卡片。
+`active` 链路中，模型只提取本轮意图和原文实体，不调用业务工具。服务端将公司、报表和排除项的 KEEP/REPLACE/ADD/REMOVE/CLEAR 操作合并到 MySQL 会话状态，校验权限后调用业务服务。回复中的结果、条数和状态来自实际业务结果；任何模型输出都不能直接确认派单。
+
+**启用状态：** 新架构已实现并有独立业务集成测试；当前连接的真实模型在最终 19 轮回放中严格通过 16 轮，仍有非法枚举、清除条件缺少证据及后续范围未解除问题，尚未通过切换验收。因此默认保留 `legacy`。验证新链路时显式设置 `SEMANTIC_MODE=active`；mock 只验证固定样本，不能替代真实模型验收。Schema 参数被端点接受不等于约束被严格执行，已观察到开启 Schema 仍返回非法枚举。
+
+例如先查 A 成功、再查 B 被拒绝后，省略公司会继续保留未生效的 B 请求并提示拒绝；明确说“A公司销售报表的”才切回 A 查询。公司被拒绝不等于自动回退到 A，历史助手文字也不作为范围或权限依据。
+
+active 的 mock 模式使用 `backend/src/main/resources/semantic/mock-intents.json` 固定演示样本，未收录说法返回澄清；legacy 的 mock 保留关键词工具模拟。二者都不代表自然语言准确率。真实模型回放使用独立测试语料，见下文。以下查询步骤描述 active；legacy 保留原有模型工具、歧义选择卡片和明确公司查询纠正逻辑。
 
 1. 输入“查一下我有哪些可以派单”。服务端先按目录、租户、报表权限和公司范围筛选，再按生效规则查询；候选数以当前数据为准。
-2. 名称存在歧义时先选报表。较大预览以异步任务执行，卡片与明细分页读取，刷新后可恢复任务状态。
+2. 名称或别名存在歧义、只有模糊近似匹配时，语义入口要求明确完整报表名称。新语义入口在本轮完成查询并流式发送进度与卡片，默认处理上限 180 秒；大预览仍分批持久化和分页读取。既有报表选择卡片和 REST 异步任务保留 120 秒超时及刷新恢复。
 3. 在预览卡片取消勾选记录或表达排除要求，生成待确认清单。排除项必须来自对应预览，新查询/新清单会使旧卡片失效。
 4. 点击确认，调用确定性 REST 接口。服务端复核后逐条派单，成功、明确失败和结果不明分别记录；明确失败可重试，结果不明先核对。
 5. 在历史会话查看消息、当前卡片状态和派单追溯；管理员可维护规则/目录、查看指标、处理异常任务及配置留存。
@@ -84,7 +95,8 @@ Docker 编辑 `.env` 的 `LLM_*` 后执行 `./deploy.sh start-real`；返回 moc
 | `GET /api/health/readiness` | MySQL 与 Redis 就绪检查，HTTP 200/503 |
 | `GET /api/auth/users`、`GET /api/auth/me` | 演示用户列表、当前身份 |
 | `GET /api/report/{sales,receivable,expense}` | 三张报表查询，服务端权限过滤 |
-| `POST /api/agent/chat` | SSE：`conversation`、`text`、`preview_job`、`choice`、`preview`、`plan`、`result`、`error`、`done` |
+| `POST /api/agent/chat` | SSE：`conversation`、`text`、`preview_job`、`choice`、`preview`、`plan`、`result`、`selection`、`error`、`done`；不同模式按业务结果发送事件 |
+| `GET /api/agent/conversations/{id}/selection` | 当前语义预览绑定的排除记录与阶段，恢复会话时与有效卡片匹配 |
 | `POST /api/dispatch/previews`、`POST /api/dispatch/previews/jobs` | 同步/异步创建预览 |
 | `GET /api/dispatch/previews/jobs/{jobId}`、`GET /api/dispatch/previews/jobs?conversationId=...` | 查询任务、发现会话最新任务；`POST .../{jobId}/cancel` 取消任务 |
 | `GET /api/dispatch/previews/{id}`、`GET .../{id}/items?page=1&size=50` | 预览摘要/状态及分页明细 |
@@ -115,7 +127,8 @@ Windows 使用 `mvnw.cmd`。普通后端测试包含规则、目录、状态机�
 | 开关/入口 | 范围 |
 | --- | --- |
 | `TRACE_IT=true` | UUID 隔离数据库上的事务、持久化追溯等数据库集成测试 |
-| `P2_IT=true` | UUID 隔离数据库上的运营治理集成测试 |
+| `P2_IT=true` | UUID 隔离数据库上的运营治理及语义多轮/租约/删除集成测试 |
+| `./tools/test-semantic-live.ps1 -NativeSchema` | 显式调用配置的真实模型，只做语义解析与范围归并，不查业务库、不执行派单；可加 `-Thinking`、`-Model 名称` 对比，输出 `backend/target/semantic-live-evaluation.json` |
 | `P2_UI=true` | 可选浏览器驻留测试，需配合 P2 测试，默认关闭 |
 | `DEMO_IT=true` | 原有共用演示环境集成测试，会操作演示数据；仅在专用测试环境启用 |
 | `./tools/test-p2.ps1` | Windows 设置 TRACE/P2 开关并显式关闭 DEMO_IT/P2_UI，运行后端、前端测试及构建；`-BackendOnly` 仅后端，`-Tests` 指定类 |

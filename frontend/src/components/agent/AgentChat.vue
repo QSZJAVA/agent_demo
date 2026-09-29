@@ -69,6 +69,7 @@
                 :status="m.status"
                 :status-message="m.statusMessage"
                 :busy="busy"
+                :server-exclusions="uiPreviewId === m.payload.previewId ? uiExcludes : []"
                 @selection-change="onPreviewSelection(m, $event)"
                 @dispatch-selected="dispatchSelected(m)"
               />
@@ -145,6 +146,7 @@ import {
   cancelPreviewJob,
   deleteConversation,
   fetchCardStates,
+  fetchDialogueSelection,
   fetchConversations,
   fetchMessages,
   fetchModel,
@@ -354,6 +356,9 @@ export default {
         chosen: ''
       }))
       this.scrollToBottom()
+      this.openingHistory = true
+      try { await this.restoreSelection(id, version) }
+      finally { if (version === this.historyVersion) this.openingHistory = false }
       if (!force) await this.resumePendingJob(id)
     },
     async loadOlderMessages() {
@@ -434,6 +439,18 @@ export default {
     clearSelection() {
       this.uiExcludes = []
       this.uiPreviewId = null
+    },
+    applySelection(data) {
+      this.uiPreviewId = data.previewId || null
+      this.uiExcludes = Array.isArray(data.excludedRecords) ? data.excludedRecords : []
+    },
+    async restoreSelection(id, version) {
+      try {
+        const selection = await fetchDialogueSelection(id)
+        if (!this.isCurrentSession() || this.activeId !== id || this.historyVersion !== version) return
+        const card = this.messages.find(m => m.cardType === 'preview' && m.payload?.previewId === selection.previewId)
+        if (card && card.status === 'ACTIVE') this.applySelection(selection)
+      } catch (e) { /* 保留可读历史；对话入口仍会校验来源预览和勾选。 */ }
     },
 
     // ---------- 对话 ----------
@@ -544,6 +561,9 @@ export default {
             this.choosing = true
             this.jobStage = '查询排队中…'
             this.rememberPendingJob(data.jobId)
+            break
+          case 'selection':
+            this.applySelection(data)
             break
           case 'choice':
             cards.push({ role: 'card', cardType: 'choice', payload: data, chosen: '' })

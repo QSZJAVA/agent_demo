@@ -93,6 +93,12 @@ mybatis-plus:
     map-underscore-to-camel-case: true
 
 agent:
+  semantic:
+    mode: ${SEMANTIC_MODE:legacy}      # active 结构化意图；真实模型回放通过后再切换，当前保留 legacy
+    native-schema: ${SEMANTIC_NATIVE_SCHEMA:false} # 仅端点支持 JSON Schema 时开启
+    model: ${SEMANTIC_MODEL:}         # 留空沿用 LLM_MODEL，可单独选择通过语义验收的模型
+    thinking-enabled: ${SEMANTIC_THINKING_ENABLED:false} # 需端点支持 thinking.type=enabled
+    turn-timeout-seconds: 180         # 跨实例租约与业务动作上限，不在模型调用期间持有事务
   llm:
     # true 时使用本地关键词模拟模型（无需 API Key），配合 --spring.profiles.active=mock 使用
     mock: false

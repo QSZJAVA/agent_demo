@@ -57,6 +57,9 @@ chmod +x deploy.sh
 | `DEMO_RESET_ON_STARTUP` | 默认 `false`；仅显式 `true` 时每次启动重置演示报表、目录与规则 |
 | `SPRING_ARGS` | 默认 `--spring.profiles.active=mock`；真实模型模式留空 |
 | `LLM_BASE_URL`、`LLM_API_KEY`、`LLM_MODEL` | 模型端点、密钥、模型名 |
+| `SEMANTIC_MODE` | 当前默认 `legacy`；验证新语义链路设为 `active`，通过真实模型回放后再切换 |
+| `SEMANTIC_NATIVE_SCHEMA` | 原生 JSON Schema 输出开关，需按供应商实际能力设置；服务端协议校验始终启用 |
+| `SEMANTIC_MODEL`、`SEMANTIC_THINKING_ENABLED` | 语义模型独立覆盖（默认空）与推理开关（默认 false），需用回放验证供应商行为 |
 | `JAVA_OPTS` | JVM 参数与内存上限 |
 
 启动顺序和健康判定：
@@ -72,7 +75,7 @@ readiness 只证明当前 MySQL/Redis 依赖可用，不代表真实模型端点
 
 ## 4. 数据初始化与保留
 
-表结构由 Flyway 的版本迁移维护，当前为 V1–V17。**默认 `DEMO_RESET_ON_STARTUP=false`：新空库第一次初始化示例数据，已有数据库启动保留数据与管理配置。** 不使用启动时反复执行的 `schema.sql`/`data.sql` 机制。
+表结构由 Flyway 的版本迁移维护，当前为 V1–V18。V18 新增语义会话状态和逐轮证据表。**默认 `DEMO_RESET_ON_STARTUP=false`：新空库第一次初始化示例数据，已有数据库启动保留数据与管理配置。** 不使用启动时反复执行的 `schema.sql`/`data.sql` 机制。
 
 显式改为 `true` 会在每次启动重置演示报表、目录、派单规则及规则历史，对相关表不按租户限制；既有预览和待确认清单按演示重置逻辑失效。仅在可清空的演示库使用，用完恢复 `false` 并重建后端容器使配置生效。真实业务环境不得开启。
 
@@ -87,7 +90,7 @@ readiness 只证明当前 MySQL/Redis 依赖可用，不代表真实模型端点
 
 ## 5. 模型切换
 
-默认 mock 不请求外部模型。接真实模型前填写供应商实际支持的组合，例如编辑 `.env` 中的端点、API Key 和模型名，然后执行：
+默认 mock 不请求外部模型；active 使用固定语义样本，未收录说法返回澄清。接真实模型前填写供应商实际支持的组合，例如编辑 `.env` 中的端点、API Key 和模型名，然后执行：
 
 ```bash
 ./deploy.sh start-real
@@ -101,7 +104,9 @@ readiness 只证明当前 MySQL/Redis 依赖可用，不代表真实模型端点
 
 当前 Compose 默认模型 `qwen3.7-plus`，本地 `application.yml` 默认 `deepseek-v4.1-flash`，默认端点均为 `https://dashscope.aliyuncs.com/compatible-mode`。URL 不附加 `/v1`，配置的请求路径已包含它。
 
-当前请求体 `extra-body` 是 `thinking: {type: disabled}`，温度为 `0.1`。该配置位于 `backend/src/main/resources/application.yml`，不是 `.env` 的独立字段。切换供应商需核对模型名与关闭思考参数，必要时改配置、执行 `./deploy.sh update` 重建后端；不能只凭“OpenAI 兼容”认定所有扩展参数相同。真实模型连通性需另行验证。
+当前请求体 `extra-body` 是 `thinking: {type: disabled}`；active 解析温度为 `0`，legacy 温度为 `0.1`。扩展参数位于 `backend/src/main/resources/application.yml`，不是 `.env` 的独立字段。切换供应商需核对模型名、Schema 和关闭思考参数，必要时改配置、执行 `./deploy.sh update` 重建后端；不能只凭“OpenAI 兼容”认定行为相同。
+
+语义路径切换使用 `SEMANTIC_MODE=active|legacy`，修改后重建后端容器。回滚业务入口时保留 V18 表结构与已有状态，不回删数据库迁移。原生 Schema 开关是模型能力配置，不替代权限校验或多轮语料验收；可在本地用 `tools/test-semantic-live.ps1 -NativeSchema` 单独测试解析，不会执行派单。
 
 ## 6. 运维命令与备份
 

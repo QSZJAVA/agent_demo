@@ -41,6 +41,8 @@ public class AgentChatService {
     private com.example.report.dispatch.PreviewService previewService;
     @org.springframework.beans.factory.annotation.Autowired(required = false)
     private ChatMemory chatMemory;
+    @org.springframework.beans.factory.annotation.Autowired(required = false)
+    private com.example.report.semantic.SemanticConversationService semantic;
 
     public AgentChatService(ChatClient chatClient, ConversationService conversationService, ChatModel chatModel,
                             DispatchTools dispatchTools, ReportCatalogService catalogService) {
@@ -57,7 +59,7 @@ public class AgentChatService {
     }
 
     public String modelName() {
-        return modelName;
+        return semantic != null && semantic.enabled() ? semantic.modelName(modelName) : modelName;
     }
 
     /**
@@ -72,6 +74,8 @@ public class AgentChatService {
     public Flux<ServerSentEvent<Object>> chat(CurrentUser user, String conversationId, String message,
                                               List<String> uiExcludes, String uiPreviewId,
                                               List<com.example.report.dispatch.RecordKey> excludedRecords) {
+        if (semantic != null && semantic.enabled())
+            return semantic.chat(user, conversationId, message, uiExcludes, uiPreviewId, excludedRecords, modelName());
         AgentConversation conversation = (conversationId == null || conversationId.isBlank())
                 ? conversationService.create(user, modelName)
                 : conversationService.getOwned(user, conversationId);
