@@ -19,7 +19,7 @@ export default defineConfig({
     proxy: {
       // 开发环境把 /api 转发到 Spring Boot
       '/api': {
-        target: 'http://127.0.0.1:8080',
+        target: process.env.AGENT_API_URL || 'http://127.0.0.1:8080',
         changeOrigin: true
       }
     }

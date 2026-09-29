@@ -89,7 +89,7 @@ public class ReportCatalog implements MessageListener {
             ReportQueryAdapter adapter = null;
             String error = null;
             try {
-                adapter = adapterFactory.create(d.getQueryMode(), d.getQueryConfig());
+                adapter = adapterFactory.createForReport(d);
             } catch (RuntimeException e) {
                 error = e.getMessage();
                 broken++;

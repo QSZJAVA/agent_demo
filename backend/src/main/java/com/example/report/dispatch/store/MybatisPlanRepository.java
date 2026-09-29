@@ -24,6 +24,8 @@ import java.util.function.Supplier;
 
 @Repository
 public class MybatisPlanRepository implements PlanRepository {
+    @org.springframework.beans.factory.annotation.Value("${business.remote.enabled:false}")
+    private boolean remoteBusiness;
 
     private static final int INSERT_CHUNK = 500;
 
@@ -247,6 +249,12 @@ public class MybatisPlanRepository implements PlanRepository {
     @Override
     @Transactional
     public <T> T withExecutionRight(String planId, long executionVersion, Supplier<T> action) {
+        // The business service holds this row lock during remote mutation. Holding it here
+        // would deadlock the two processes; the remote service validates the same fencing version.
+        if(remoteBusiness) {
+            if(!isExecuting(planId,executionVersion)) throw new IllegalStateException("派单执行权已失效："+planId);
+            return action.get();
+        }
         if (!java.util.Objects.equals(planMapper.lockExecution(planId), executionVersion)) {
             throw new IllegalStateException("派单执行权已失效：" + planId);
         }

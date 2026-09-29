@@ -1,5 +1,5 @@
 import http from './http'
-import { getCurrentUserId } from '../auth'
+import { authHeaders, sessionExpired } from '../auth'
 
 /** demo 用户列表（模拟登录） */
 export function fetchUsers() {
@@ -117,12 +117,13 @@ export function streamChat({ conversationId, message, excludeDocNos, excludedRec
       headers: {
         'Content-Type': 'application/json',
         Accept: 'text/event-stream',
-        'X-User-Id': getCurrentUserId()
+        ...authHeaders()
       },
       body: JSON.stringify({ conversationId, message, excludeDocNos, excludedRecords, previewId }),
       signal: controller.signal
     })
     if (!response.ok) {
+      if (response.status === 401) sessionExpired()
       throw new Error(`HTTP ${response.status}`)
     }
     const contentType = response.headers.get('content-type') || ''

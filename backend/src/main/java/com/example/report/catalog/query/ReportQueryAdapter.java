@@ -10,6 +10,7 @@ import java.util.Set;
  * 数据范围（租户、公司）由调用方从登录态传入，适配器必须把它作为查询条件，不能返回范围外的记录。
  */
 public interface ReportQueryAdapter {
+    default ReportQueryAdapter forUser(com.example.report.permission.CurrentUser user) { return this; }
 
     /** 规则里可用的字段 */
     List<FieldInfo> fields();

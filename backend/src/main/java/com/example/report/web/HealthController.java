@@ -19,6 +19,8 @@ import javax.sql.DataSource;
 @RestController
 @RequestMapping("/api/health")
 public class HealthController {
+    @org.springframework.beans.factory.annotation.Autowired(required=false)
+    private com.example.report.mcp.BusinessMcpClient business;
     private final DataSource mysql;
     private final RedisConnectionFactory redis;
 
@@ -31,7 +33,7 @@ public class HealthController {
     public ResponseEntity<Map<String, String>> readiness() {
         boolean mysqlReady = mysqlReady();
         boolean redisReady = redisReady();
-        boolean ready = mysqlReady && redisReady;
+        boolean ready = mysqlReady && redisReady && (business==null || business.available());
         return ResponseEntity.status(ready ? HttpStatus.OK : HttpStatus.SERVICE_UNAVAILABLE)
                 .body(Map.of("status", ready ? "UP" : "DOWN"));
     }

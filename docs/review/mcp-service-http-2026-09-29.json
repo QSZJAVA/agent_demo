@@ -1,0 +1,291 @@
+{
+  "checks": [
+    {
+      "name": "伪造演示身份不能访问受保护接口",
+      "passed": true
+    },
+    {
+      "name": "MCP 拒绝没有服务凭据的请求",
+      "passed": true
+    },
+    {
+      "name": "登录身份覆盖伪造用户头",
+      "passed": true
+    },
+    {
+      "name": "分页只返回权限内 A 公司记录",
+      "passed": true
+    },
+    {
+      "name": "没有应收报表权限时拒绝查询",
+      "passed": true
+    },
+    {
+      "name": "运行真实 DeepSeek 模型",
+      "passed": true
+    },
+    {
+      "name": "真实模型 SSE 完成：查询A公司销售报表中可以派单的记录",
+      "passed": true
+    },
+    {
+      "name": "真实模型查询经 MCP 返回销售候选",
+      "passed": true
+    },
+    {
+      "name": "真实模型 SSE 完成：把当前勾选的记录生成派单清单",
+      "passed": true
+    },
+    {
+      "name": "真实模型只生成指定一条记录的待确认清单",
+      "passed": true
+    },
+    {
+      "name": "模型生成清单后尚未执行派单",
+      "passed": true
+    },
+    {
+      "name": "确认经 MCP 原子完成一条派单",
+      "passed": true
+    },
+    {
+      "name": "重复确认返回原结果",
+      "passed": true
+    },
+    {
+      "name": "业务服务可按稳定请求号查回成功",
+      "passed": true
+    },
+    {
+      "name": "报表重新查询显示已派单",
+      "passed": true
+    },
+    {
+      "name": "退出登录立即撤销会话",
+      "passed": true
+    }
+  ],
+  "turns": [
+    {
+      "message": "查询A公司销售报表中可以派单的记录",
+      "events": [
+        {
+          "type": "conversation",
+          "data": {
+            "conversationId": "1e814e761ea7412c8771108601eadbc6",
+            "title": "",
+            "requestId": "617fc6bc4c224c43a4128bcad3ebcf1d"
+          }
+        },
+        {
+          "type": "text",
+          "data": {
+            "delta": "正在查询可派单记录。\n"
+          }
+        },
+        {
+          "type": "preview",
+          "data": {
+            "previewId": "1505182f2d3f4247acfb872aceb39173",
+            "status": "ACTIVE",
+            "total": 3,
+            "totalAmount": 256000,
+            "byReport": [
+              {
+                "reportId": "rpt-sales-order",
+                "reportName": "销售报表",
+                "count": 3,
+                "amount": 256000
+              }
+            ],
+            "records": [
+              {
+                "reportId": "rpt-sales-order",
+                "reportName": "销售报表",
+                "recordId": "1",
+                "docNo": "SO2026001",
+                "companyCode": "A",
+                "label": "服务器",
+                "amount": 128000.0,
+                "date": "2026-01-15",
+                "ruleId": 1,
+                "ruleName": "销售报表默认规则",
+                "ruleVersion": 1,
+                "ruleDescription": "销售订单金额大于 20 元需要派单",
+                "catalogVersion": 1
+              },
+              {
+                "reportId": "rpt-sales-order",
+                "reportName": "销售报表",
+                "recordId": "2",
+                "docNo": "SO2026002",
+                "companyCode": "A",
+                "label": "交换机",
+                "amount": 32000.0,
+                "date": "2026-02-08",
+                "ruleId": 1,
+                "ruleName": "销售报表默认规则",
+                "ruleVersion": 1,
+                "ruleDescription": "销售订单金额大于 20 元需要派单",
+                "catalogVersion": 1
+              },
+              {
+                "reportId": "rpt-sales-order",
+                "reportName": "销售报表",
+                "recordId": "3",
+                "docNo": "SO2026007",
+                "companyCode": "A",
+                "label": "云服务",
+                "amount": 96000.0,
+                "date": "2026-04-05",
+                "ruleId": 1,
+                "ruleName": "销售报表默认规则",
+                "ruleVersion": 1,
+                "ruleDescription": "销售订单金额大于 20 元需要派单",
+                "catalogVersion": 1
+              }
+            ],
+            "ruleDescriptions": {
+              "rpt-sales-order": "销售订单金额大于 20 元需要派单"
+            },
+            "resolution": {
+              "matchType": "EXACT",
+              "query": null,
+              "matchedTerms": [
+                "销售报表"
+              ],
+              "unrecognized": []
+            },
+            "createdAt": "2026-09-29T20:45:18.078992",
+            "expiresAt": "2026-09-29T21:15:18.078992"
+          }
+        },
+        {
+          "type": "text",
+          "data": {
+            "delta": "当前预览共 3 条，已排除 0 条。"
+          }
+        },
+        {
+          "type": "selection",
+          "data": {
+            "previewId": "1505182f2d3f4247acfb872aceb39173",
+            "excludedRecords": [],
+            "phase": "READY"
+          }
+        },
+        {
+          "type": "done",
+          "data": {}
+        }
+      ],
+      "latencyMs": 3672
+    },
+    {
+      "message": "把当前勾选的记录生成派单清单",
+      "events": [
+        {
+          "type": "conversation",
+          "data": {
+            "conversationId": "1e814e761ea7412c8771108601eadbc6",
+            "title": "查询A公司销售报表中可以派单的记录",
+            "requestId": "420107860b6c4a8b8e313df8b1088e29"
+          }
+        },
+        {
+          "type": "plan",
+          "data": {
+            "planId": "2fed0cf16662466abfacb2135573632f",
+            "previewId": "1505182f2d3f4247acfb872aceb39173",
+            "status": "PENDING",
+            "count": 1,
+            "excluded": [
+              "销售报表 / SO2026002",
+              "销售报表 / SO2026007"
+            ],
+            "records": [
+              {
+                "reportId": "rpt-sales-order",
+                "reportName": "销售报表",
+                "recordId": "1",
+                "docNo": "SO2026001",
+                "companyCode": "A",
+                "label": "服务器",
+                "amount": 128000.0,
+                "date": "2026-01-15",
+                "ruleId": 1,
+                "ruleName": "销售报表默认规则",
+                "ruleVersion": 1,
+                "ruleDescription": null,
+                "catalogVersion": 1
+              }
+            ],
+            "expiresAt": "2026-09-29T20:55:20.1578354"
+          }
+        },
+        {
+          "type": "text",
+          "data": {
+            "delta": "已生成待确认清单，共 1 条。请核对卡片并点击“确认派单”后执行。"
+          }
+        },
+        {
+          "type": "selection",
+          "data": {
+            "previewId": "1505182f2d3f4247acfb872aceb39173",
+            "excludedRecords": [
+              {
+                "reportId": "rpt-sales-order",
+                "recordId": "2"
+              },
+              {
+                "reportId": "rpt-sales-order",
+                "recordId": "3"
+              }
+            ],
+            "phase": "PLAN_READY"
+          }
+        },
+        {
+          "type": "done",
+          "data": {}
+        }
+      ],
+      "latencyMs": 2063
+    }
+  ],
+  "confirmedDispatches": 1,
+  "model": {
+    "model": "deepseek-v4.1-flash"
+  },
+  "conversationId": "1e814e761ea7412c8771108601eadbc6",
+  "planId": "2fed0cf16662466abfacb2135573632f",
+  "result": {
+    "planId": "2fed0cf16662466abfacb2135573632f",
+    "previewId": "1505182f2d3f4247acfb872aceb39173",
+    "total": 1,
+    "successCount": 1,
+    "failedCount": 0,
+    "retryableCount": 0,
+    "success": [
+      {
+        "reportId": "rpt-sales-order",
+        "reportName": "销售报表",
+        "recordId": "1",
+        "docNo": "SO2026001",
+        "companyCode": "A",
+        "label": "服务器",
+        "amount": 128000.0,
+        "date": "2026-01-15",
+        "ruleId": 1,
+        "ruleName": "销售报表默认规则",
+        "ruleVersion": 1,
+        "ruleDescription": null,
+        "catalogVersion": 1
+      }
+    ],
+    "failed": [],
+    "replayed": false
+  },
+  "externalRequestId": "2fed0cf16662466abfacb2135573632f-1"
+}

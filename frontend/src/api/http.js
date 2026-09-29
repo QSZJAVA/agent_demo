@@ -1,6 +1,6 @@
 import axios from 'axios'
 import Message from 'element-ui/lib/message'
-import { getCurrentUserId } from '../auth'
+import { authHeaders, sessionExpired } from '../auth'
 
 const http = axios.create({
   baseURL: '/api',
@@ -9,7 +9,7 @@ const http = axios.create({
 
 // 模拟登录态：每个请求带上当前用户 ID（真实系统由登录态 / token 提供）
 http.interceptors.request.use((config) => {
-  config.headers['X-User-Id'] = getCurrentUserId()
+  Object.assign(config.headers, authHeaders())
   return config
 })
 
@@ -21,12 +21,14 @@ http.interceptors.response.use(
       if (body.code === 0) {
         return body.data
       }
+      if (body.code === 401) sessionExpired()
       Message.error(body.message || '请求失败')
       return Promise.reject(new Error(body.message || '请求失败'))
     }
     return body
   },
   (error) => {
+    if (error.response && error.response.status === 401) sessionExpired()
     Message.error(error.message || '网络异常，请确认后端服务已启动')
     return Promise.reject(error)
   }

@@ -17,6 +17,8 @@ import java.util.List;
  */
 @Service
 public class ReportService {
+    @org.springframework.beans.factory.annotation.Autowired(required=false)
+    private com.example.report.mcp.BusinessMcpClient remote;
 
     private final SalesReportMapper salesMapper;
     private final ReceivableReportMapper receivableMapper;
@@ -35,6 +37,7 @@ public class ReportService {
     }
 
     public ReportPage<SalesReport> pageSales(CurrentUser user,int page,int size) {
+        if(remote!=null) return remote.call("report_page",user,java.util.Map.of("reportCode","sales","page",page,"size",size),new com.fasterxml.jackson.core.type.TypeReference<>() {});
         return page(salesMapper,user,new LambdaQueryWrapper<SalesReport>()
                 .eq(SalesReport::getTenantId, user.tenantId())
                 .in(SalesReport::getCompanyCode, user.companies())
@@ -47,6 +50,7 @@ public class ReportService {
     }
 
     public ReportPage<ReceivableReport> pageReceivable(CurrentUser user,int page,int size) {
+        if(remote!=null) return remote.call("report_page",user,java.util.Map.of("reportCode","receivable","page",page,"size",size),new com.fasterxml.jackson.core.type.TypeReference<>() {});
         return page(receivableMapper,user,new LambdaQueryWrapper<ReceivableReport>()
                 .eq(ReceivableReport::getTenantId, user.tenantId())
                 .in(ReceivableReport::getCompanyCode, user.companies())
@@ -59,6 +63,7 @@ public class ReportService {
     }
 
     public ReportPage<ExpenseReport> pageExpense(CurrentUser user,int page,int size) {
+        if(remote!=null) return remote.call("report_page",user,java.util.Map.of("reportCode","expense","page",page,"size",size),new com.fasterxml.jackson.core.type.TypeReference<>() {});
         return page(expenseMapper,user,new LambdaQueryWrapper<ExpenseReport>()
                 .eq(ExpenseReport::getTenantId, user.tenantId())
                 .in(ExpenseReport::getCompanyCode, user.companies())

@@ -24,9 +24,12 @@ public class AuthController {
     }
 
     @GetMapping("/users")
-    public Result<List<CurrentUser>> users() {
-        return Result.ok(permissionService.listUsers());
+    public Result<List<CurrentUser>> users(@RequestHeader(value=PermissionService.USER_HEADER,required=false) String userId) {
+        return Result.ok(permissionService.isSecure()?List.of(permissionService.resolve(userId)):permissionService.listUsers());
     }
+
+    @GetMapping("/mode")
+    public Result<java.util.Map<String,Boolean>> mode() { return Result.ok(java.util.Map.of("loginRequired",permissionService.isSecure())); }
 
     @GetMapping("/me")
     public Result<CurrentUser> me(@RequestHeader(PermissionService.USER_HEADER) String userId) {

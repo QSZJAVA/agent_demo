@@ -49,7 +49,7 @@ public record CatalogEntry(
         aliases = aliases == null ? List.of() : List.copyOf(aliases);
     }
 
-    static CatalogEntry of(ReportDefinition d, List<ReportAlias> aliases, ReportQueryAdapter adapter, String configError) {
+    public static CatalogEntry of(ReportDefinition d, List<ReportAlias> aliases, ReportQueryAdapter adapter, String configError) {
         List<AliasView> views = aliases.stream()
                 .map(a -> new AliasView(a.getId(), a.getAlias(), a.getAliasType(),
                         a.getPriority() == null ? 0 : a.getPriority(), a.getStatus()))
@@ -88,5 +88,12 @@ public record CatalogEntry(
 
     public ReportRef ref() {
         return new ReportRef(reportId, reportName, domainCode, description);
+    }
+
+    public CatalogEntry forUser(com.example.report.permission.CurrentUser user) {
+        if (!(adapter instanceof com.example.report.mcp.McpReportQueryAdapter)) return this;
+        return new CatalogEntry(tenantId,reportId,reportCode,reportName,domainCode,description,queryMode,queryConfig,
+                dispatchEnabled,status,schemaVersion,catalogVersion,permissionCode,sortOrder,effectiveFrom,effectiveTo,
+                ownerUserId,updatedBy,updatedAt,aliases,adapter.forUser(user),configError);
     }
 }

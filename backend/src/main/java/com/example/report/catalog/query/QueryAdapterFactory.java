@@ -17,6 +17,13 @@ import java.util.Map;
  */
 @Component
 public class QueryAdapterFactory {
+    @org.springframework.beans.factory.annotation.Autowired(required=false)
+    private com.example.report.mcp.BusinessMcpClient remote;
+
+    public ReportQueryAdapter createForReport(ReportDefinition definition) {
+        ReportQueryAdapter metadata = create(definition.getQueryMode(), definition.getQueryConfig());
+        return remote == null ? metadata : new com.example.report.mcp.McpReportQueryAdapter(remote,definition.getReportId(),metadata);
+    }
 
     private final NamedParameterJdbcTemplate jdbc;
     private final Map<String, CustomReportAdapter> customAdapters = new HashMap<>();
@@ -48,6 +55,11 @@ public class QueryAdapterFactory {
     /** 发布前校验：配置能解析、适配器存在；标准报表还要确认表和列在库里真实存在 */
     public ReportQueryAdapter createAndProbe(String queryMode, String queryConfig) {
         ReportQueryAdapter adapter = create(queryMode, queryConfig);
+        if (remote != null) {
+            remote.call("report_probe",null,Map.of("queryMode",queryMode,"queryConfig",queryConfig),
+                    new com.fasterxml.jackson.core.type.TypeReference<Boolean>() {});
+            return adapter;
+        }
         if (adapter instanceof StandardReportAdapter standard) {
             try {
                 standard.probe();

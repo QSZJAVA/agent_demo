@@ -195,7 +195,7 @@ public class DispatchService {
         boolean attempted = false;
         try {
             Set<String> reportIds = retryItems.stream().map(DispatchPlanItem::getReportId).collect(Collectors.toSet());
-            List<CatalogEntry> reports = catalogService.inCatalogOrder(reportIds);
+            List<CatalogEntry> reports = catalogService.inCatalogOrder(reportIds).stream().map(r -> r.forUser(user)).toList();
             Map<String, CatalogEntry> byId = reports.stream().collect(Collectors.toMap(CatalogEntry::reportId, r -> r));
             Set<String> qualified = qualifiedKeys(user, preview, reports, retryItems);
             if (versions.verifyForRetry(user, preview) != null) {
@@ -303,7 +303,8 @@ public class DispatchService {
             }
             String requestId = item.getExternalRequestId() == null
                     ? planId + "-" + item.getId() : item.getExternalRequestId();
-            DispatchGateway.Lookup lookup = gateway.lookup(user.tenantId(), requestId);
+            DispatchGateway.Lookup lookup = gateway instanceof AuthenticatedDispatchGateway authenticated
+                    ? authenticated.lookup(user, requestId) : gateway.lookup(user.tenantId(), requestId);
             if (lookup == null || lookup.status() == DispatchGateway.LookupStatus.UNKNOWN) continue;
             boolean success = lookup.status() == DispatchGateway.LookupStatus.SUCCESS;
             item.setStatus(success ? DispatchPlanItem.SUCCESS : DispatchPlanItem.FAILED);
@@ -458,7 +459,7 @@ public class DispatchService {
         AuditService.Context ctx = new AuditService.Context(SOURCE_MANUAL.equals(preview.getSource()) ? SOURCE_MANUAL : SOURCE_AGENT, plan.getConversationId(), preview.getId(), plan.getId(),
                 preview.getRuleVersion(), preview.getPermissionVersion(), traceId);
         Set<String> reportIds = items.stream().map(DispatchPlanItem::getReportId).collect(Collectors.toCollection(LinkedHashSet::new));
-        List<CatalogEntry> reports = catalogService.inCatalogOrder(reportIds);
+        List<CatalogEntry> reports = catalogService.inCatalogOrder(reportIds).stream().map(r -> r.forUser(user)).toList();
         Map<String, CatalogEntry> reportById = reports.stream().collect(Collectors.toMap(CatalogEntry::reportId, r -> r));
         // 清单里的记录是预览时的快照，执行前按当前数据复核：记录仍未派单、仍满足当前规则、仍在预览时的公司范围内。
         // 版本一致只能说明目录、规则、权限没变，预览之后记录本身被修改（例如金额改小、已被别人派掉）时快照仍会照旧派出去
@@ -568,7 +569,8 @@ public class DispatchService {
     private DispatchGateway.Outcome callGateway(CurrentUser user, String requestId, CatalogEntry report, Candidate c,
                                                boolean enforceRules) {
         try {
-            return gateway.dispatch(new DispatchGateway.DispatchRequest(user.tenantId(), requestId, report, c, enforceRules));
+            var request = new DispatchGateway.DispatchRequest(user.tenantId(), requestId, report, c, enforceRules);
+            return gateway instanceof AuthenticatedDispatchGateway authenticated ? authenticated.dispatch(user, request) : gateway.dispatch(request);
         } catch (Exception e) {
             log.warn("派单接口调用异常 {} {} {}", report.reportId(), c.docNo(), e.getMessage());
             return DispatchGateway.Outcome.fail("RESULT_UNKNOWN", "派单接口结果未知，需按请求号核对：" + e.getMessage());

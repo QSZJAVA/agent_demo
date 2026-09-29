@@ -30,7 +30,7 @@ RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone \
 # 非 root 运行
 RUN groupadd -r app && useradd -r -g app -d /app app
 
-COPY --from=build /build/target/*.jar app.jar
+COPY --from=build /build/target/report-demo-2.0.0.jar app.jar
 RUN chown -R app:app /app
 USER app
 

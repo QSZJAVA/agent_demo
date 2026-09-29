@@ -23,6 +23,7 @@ import java.sql.SQLException;
  */
 @Slf4j
 @Component
+@org.springframework.boot.autoconfigure.condition.ConditionalOnProperty(name="business.remote.enabled",havingValue="false",matchIfMissing=true)
 public class DemoDataResetCallback implements Callback {
 
     private static final String SCRIPT = "db/demo/demo-data.sql";

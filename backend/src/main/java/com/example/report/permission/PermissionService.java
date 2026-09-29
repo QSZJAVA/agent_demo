@@ -17,6 +17,9 @@ import java.util.Set;
  */
 @Service
 public class PermissionService {
+    @org.springframework.beans.factory.annotation.Autowired(required=false)
+    private com.example.report.security.IdentityStore identities;
+    public boolean isSecure() { return identities!=null; }
 
     public static final String USER_HEADER = "X-User-Id";
     public static final String DEMO_TENANT = "T001";
@@ -34,6 +37,7 @@ public class PermissionService {
     }
 
     public CurrentUser resolve(String userId) {
+        if(identities!=null) return identities.resolve(identities.tenant(),userId);
         if (userId == null || userId.isBlank()) {
             throw ApiException.forbidden("未登录：缺少请求头 " + USER_HEADER);
         }

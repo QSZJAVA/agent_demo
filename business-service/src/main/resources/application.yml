@@ -1,0 +1,44 @@
+server:
+  address: 127.0.0.1
+  port: ${BUSINESS_PORT:8090}
+  max-http-request-header-size: 16KB
+spring:
+  application:
+    name: report-business-service
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://${DB_HOST:localhost}:${DB_PORT:3306}/${DB_NAME:report_demo}?createDatabaseIfNotExist=true&useUnicode=true&characterEncoding=utf8&serverTimezone=Asia/Shanghai&useSSL=false&allowPublicKeyRetrieval=true&connectTimeout=3000
+    username: ${DB_USERNAME:root}
+    password: ${DB_PASSWORD:}
+    hikari:
+      connection-timeout: 3000
+  jdbc:
+    template:
+      query-timeout: 60s
+  flyway:
+    locations: classpath:db/migration
+    baseline-on-migrate: true
+    baseline-version: 0
+  data:
+    redis:
+      host: ${REDIS_HOST:localhost}
+      port: ${REDIS_PORT:6379}
+      password: ${REDIS_PASSWORD:}
+      connect-timeout: 2s
+      timeout: 2s
+mybatis-plus:
+  global-config:
+    banner: false
+  configuration:
+    map-underscore-to-camel-case: true
+security:
+  enabled: true
+  tenant-id: ${AUTH_TENANT_ID:T001}
+  bootstrap-password: ${AUTH_BOOTSTRAP_PASSWORD:}
+business:
+  remote:
+    enabled: false
+  service-token: ${BUSINESS_SERVICE_TOKEN}
+  allowed-origins: ${BUSINESS_ALLOWED_ORIGINS:}
+demo:
+  reset-on-startup: false

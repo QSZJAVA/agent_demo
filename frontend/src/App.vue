@@ -1,5 +1,21 @@
 <template>
-  <el-container class="app-layout">
+  <div class="app-frame">
+  <div v-if="!authReady" class="login-page">正在连接服务…</div>
+  <div v-else-if="loginRequired && !authenticated" class="login-page">
+    <el-card class="login-card">
+      <h2>报表与派单工作台</h2>
+      <p>请使用已分配的账号登录</p>
+      <form @submit.prevent="login">
+        <label for="login-user">账号</label>
+        <el-input id="login-user" v-model="loginUser" autocomplete="username" :maxlength="64" />
+        <label for="login-password">密码</label>
+        <el-input id="login-password" v-model="loginPassword" type="password" autocomplete="current-password" show-password :maxlength="256" />
+        <p v-if="loginError" role="alert" class="login-error">{{ loginError }}</p>
+        <el-button native-type="submit" type="primary" :loading="loginBusy">登录</el-button>
+      </form>
+    </el-card>
+  </div>
+  <el-container v-else class="app-layout">
     <el-aside width="210px" class="app-aside">
       <div class="logo">报表 Demo</div>
       <el-menu
@@ -34,9 +50,10 @@
       <el-header class="app-header">
         <span class="title">{{ currentTitle }}</span>
         <div class="right">
-          <el-select v-model="currentUserId" size="small" class="user-select" @change="switchUser">
+          <el-select v-if="!loginRequired" v-model="currentUserId" size="small" class="user-select" @change="switchUser">
             <el-option v-for="u in users" :key="u.userId" :label="u.displayName" :value="u.userId" />
           </el-select>
+          <template v-else><span>{{ users[0] && users[0].displayName }}</span><el-button size="small" @click="logout">退出登录</el-button></template>
           <el-button type="primary" size="small" icon="el-icon-chat-dot-round" @click="chatVisible = true">
             派单助手
           </el-button>
@@ -49,19 +66,23 @@
 
     <agent-chat :key="currentUserId" :visible.sync="chatVisible" @dispatched="onDispatched" />
   </el-container>
+  </div>
 </template>
 
 <script>
 import AgentChat from './components/agent/AgentChat.vue'
 import { fetchUsers } from './api/agent'
 import { fetchCatalog } from './api/catalog'
-import { getCurrentUserId, setCurrentUserId } from './auth'
+import { getCurrentUserId, setCurrentUserId, getSessionToken, saveSession, clearSession } from './auth'
+import http from './api/http'
 
 export default {
   name: 'App',
   components: { AgentChat },
   data() {
     return {
+      authReady: false, loginRequired: true, authenticated: false,
+      loginUser: '', loginPassword: '', loginError: '', loginBusy: false,
       users: [],
       currentUserId: getCurrentUserId(),
       chatVisible: false,
@@ -86,14 +107,35 @@ export default {
     }
   },
   async created() {
-    this.loadCatalog()
+    window.addEventListener('session-expired', this.onSessionExpired)
     try {
-      this.users = await fetchUsers()
+      this.loginRequired = (await http.get('/auth/mode')).loginRequired
+      if (this.loginRequired && getSessionToken()) {
+        const user = await http.get('/auth/me')
+        this.currentUserId = user.userId
+        setCurrentUserId(user.userId)
+        this.authenticated = true
+      }
+      if (!this.loginRequired || this.authenticated) await this.loadWorkspace()
     } catch (e) {
-      this.users = [{ userId: this.currentUserId, displayName: this.currentUserId }]
-    }
+      this.loginError = '无法恢复登录，请重新登录或检查服务连接'
+    } finally { this.authReady = true }
   },
+  beforeDestroy() { window.removeEventListener('session-expired', this.onSessionExpired) },
   methods: {
+    async loadWorkspace() { this.users = await fetchUsers(); await this.loadCatalog() },
+    async login() {
+      this.loginBusy = true; this.loginError = ''
+      try {
+        const result = await http.post('/auth/login', { userId: this.loginUser, password: this.loginPassword })
+        saveSession(result.token, result.user)
+        this.currentUserId = result.user.userId; this.loginPassword = ''; this.authenticated = true
+        await this.loadWorkspace()
+      } catch (e) { this.loginError = e.message || '登录失败' }
+      finally { this.loginBusy = false }
+    },
+    async logout() { try { await http.post('/auth/logout') } finally { this.onSessionExpired() } },
+    onSessionExpired() { clearSession(); this.authenticated = false; this.chatVisible = false; this.users = []; this.visibleCodes = [] },
     /** 报表菜单按报表目录的权限显示：没有权限的报表不出现在菜单里 */
     async loadCatalog() {
       try {
@@ -119,6 +161,13 @@ export default {
 </script>
 
 <style scoped>
+.app-frame { height: 100%; }
+.login-page { min-height: 100%; display: flex; justify-content: center; align-items: center; background: #f3f6fa; }
+.login-card { width: 360px; max-width: calc(100vw - 40px); }
+.login-card h2 { margin-top: 0; }
+.login-card label { display: block; margin: 18px 0 8px; }
+.login-card button { margin-top: 22px; width: 100%; }
+.login-error { color: #c23030; }
 .app-layout {
   height: 100%;
 }

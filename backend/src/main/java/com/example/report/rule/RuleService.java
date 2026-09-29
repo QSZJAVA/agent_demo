@@ -99,7 +99,7 @@ public class RuleService {
         requireCompanyScope(user, company);
         try (var permit = quotas.acquire(user, "rule-dry-run", List.of(report.reportId()))) {
             com.example.report.config.ResourceQuotaService.check(permit);
-            return candidateService.dryRun(user.tenantId(), report, company, expression, user.companies(),
+            return candidateService.dryRun(user.tenantId(), report.forUser(user), company, expression, user.companies(),
                     () -> com.example.report.config.ResourceQuotaService.check(permit));
         }
     }

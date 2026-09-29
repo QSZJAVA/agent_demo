@@ -14,6 +14,7 @@ import java.time.LocalDateTime;
  */
 @Slf4j
 @Component
+@org.springframework.boot.autoconfigure.condition.ConditionalOnProperty(name="business.remote.enabled",havingValue="false",matchIfMissing=true)
 public class MockDispatchGateway implements DispatchGateway {
 
     private final JdbcTemplate jdbc;

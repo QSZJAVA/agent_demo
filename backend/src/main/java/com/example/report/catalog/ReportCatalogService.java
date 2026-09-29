@@ -58,7 +58,7 @@ public class ReportCatalogService {
         LocalDateTime now = LocalDateTime.now();
         return catalog.all().stream().filter(e -> java.util.Objects.equals(user.tenantId(),e.tenantId())
                 && e.published() && e.effectiveAt(now) && e.usable() && user.hasPermission(e.permissionCode())
-                && !excluded.contains(e.reportId())).toList();
+                && !excluded.contains(e.reportId())).map(e -> e.forUser(user)).toList();
     }
 
     /** 当前用户可以通过 Agent 派单的报表：可见且目录中启用了派单 */
@@ -67,11 +67,11 @@ public class ReportCatalogService {
     }
 
     public CatalogEntry requireVisible(CurrentUser user, String reportId) {
-        return catalog.find(reportId).filter(e -> isVisible(user, e)).orElseThrow(() -> ApiException.notFound(NOT_FOUND));
+        return catalog.find(reportId).filter(e -> isVisible(user, e)).map(e -> e.forUser(user)).orElseThrow(() -> ApiException.notFound(NOT_FOUND));
     }
 
     public CatalogEntry requireDispatchable(CurrentUser user, String reportId) {
-        return catalog.find(reportId).filter(e -> isDispatchable(user, e)).orElseThrow(() -> ApiException.notFound(NOT_FOUND));
+        return catalog.find(reportId).filter(e -> isDispatchable(user, e)).map(e -> e.forUser(user)).orElseThrow(() -> ApiException.notFound(NOT_FOUND));
     }
 
     /** 旧接口仍按 Demo 时期的 reportType 访问时，经映射表找到目录，再做同样的权限校验 */
