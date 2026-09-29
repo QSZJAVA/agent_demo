@@ -4,6 +4,7 @@ import com.example.report.catalog.ReportRef;
 import java.util.List;
 
 public interface IntentParser {
+    // DOMAIN is read-only compatibility for historical V1 sessions, never emitted by V2.
     enum Source { DOMAIN, MODEL, MOCK }
     record Interpretation(SemanticIntent intent,Source source) { }
     record Context(DialogueState state, List<ReportRef> reports, List<String> mentionedReportTerms) {

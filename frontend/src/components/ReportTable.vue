@@ -4,14 +4,14 @@
       <div class="left">
         <span class="title">{{ title }}</span>
         <el-tag size="mini" type="info">{{ tableName }}</el-tag>
-        <span class="count">共 {{ data.length }} 条</span>
+        <span class="count">本页 {{ data.length }} 条</span>
       </div>
       <div class="right">
         <el-button
           type="warning"
           size="small"
           icon="el-icon-s-promotion"
-          :disabled="selectedRows.length === 0 || dispatching"
+          :disabled="selectedRows.length === 0 || dispatching || loading"
           :loading="dispatching"
           @click="handleDispatch"
         >
@@ -50,7 +50,7 @@
       style="width: 100%"
       @selection-change="handleSelectionChange"
     >
-      <el-table-column type="selection" width="55" align="center" :selectable="(row) => row.dispatchStatus !== 1" />
+      <el-table-column type="selection" width="55" align="center" :selectable="(row) => !loading && !dispatching && row.dispatchStatus !== 1" />
       <el-table-column type="index" label="序号" width="70" align="center" />
       <el-table-column
         v-for="col in columns"
@@ -74,6 +74,11 @@
         </template>
       </el-table-column>
     </el-table>
+    <el-pagination
+      :current-page="page" :page-size="pageSize" :total="total" :page-sizes="[20, 50, 100, 200]"
+      :disabled="loading || dispatching" layout="total, sizes, prev, pager, next"
+      @current-change="$emit('page-change', $event)" @size-change="$emit('size-change', $event)"
+    />
   </el-card>
 </template>
 
@@ -94,6 +99,9 @@ export default {
     columns: { type: Array, default: () => [] },
     data: { type: Array, default: () => [] },
     loading: { type: Boolean, default: false },
+    page: { type: Number, default: 1 },
+    pageSize: { type: Number, default: 50 },
+    total: { type: Number, default: 0 },
     // 派单提示中展示的单据号字段
     docNoField: { type: String, default: '' }
   },
@@ -169,7 +177,7 @@ export default {
     },
     // 手工派单：调用后端派单接口（模拟实现会把记录标记为已派单并写审计）
     async handleDispatch() {
-      if (!this.isCurrentSession() || this.dispatching) return
+      if (!this.isCurrentSession() || this.dispatching || this.loading) return
       if (!this.selectedRows.length) {
         this.$message.warning('请先勾选需要派单的记录')
         return
@@ -210,7 +218,7 @@ export default {
           return ''
         }
         if (index === 1) {
-          return '合计'
+          return '本页合计'
         }
         const target = this.columns[index - 2]
         if (target && target.isAmount) {

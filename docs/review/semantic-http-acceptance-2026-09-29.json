@@ -1,0 +1,1364 @@
+{
+  "checks": [
+    {
+      "name": "SSE completes: 先看看 A 公司的销售台账",
+      "passed": true
+    },
+    {
+      "name": "Initial A query returns only A sales",
+      "passed": true
+    },
+    {
+      "name": "SSE completes: 那 B 公司呢？",
+      "passed": true
+    },
+    {
+      "name": "B request is refused without another company preview",
+      "passed": true
+    },
+    {
+      "name": "SSE completes: 现在我只想派销售报表的",
+      "passed": true
+    },
+    {
+      "name": "Omitted company retains rejected B",
+      "passed": true
+    },
+    {
+      "name": "SSE completes: A公司销售报表的",
+      "passed": true
+    },
+    {
+      "name": "Explicit A correction succeeds",
+      "passed": true
+    },
+    {
+      "name": "SSE completes: 排除SO2026002",
+      "passed": true
+    },
+    {
+      "name": "Exclusion uses original preview and exact record key",
+      "passed": true
+    },
+    {
+      "name": "SSE completes: 给剩下的生成待确认派单清单",
+      "passed": true
+    },
+    {
+      "name": "Plan stays pending and excludes SO2026002",
+      "passed": true
+    },
+    {
+      "name": "SSE completes: 取消这份待确认清单",
+      "passed": true
+    },
+    {
+      "name": "Cancel command cancels only the created plan",
+      "passed": true
+    },
+    {
+      "name": "SSE completes: 查一下 B 公司销售报表有哪些可以派单",
+      "passed": true
+    },
+    {
+      "name": "B request is refused without another company preview",
+      "passed": true
+    },
+    {
+      "name": "SSE completes: 现在我只想派销售报表的",
+      "passed": true
+    },
+    {
+      "name": "Omitted company retains rejected B",
+      "passed": true
+    },
+    {
+      "name": "SSE completes: A公司销售报表的",
+      "passed": true
+    },
+    {
+      "name": "Explicit A correction succeeds",
+      "passed": true
+    },
+    {
+      "name": "SSE completes: 查询A公司销售报表",
+      "passed": true
+    },
+    {
+      "name": "SSE completes: 再加上应收报表",
+      "passed": true
+    },
+    {
+      "name": "Append retains sales and adds receivables",
+      "passed": true
+    },
+    {
+      "name": "SSE completes: 移除销售报表",
+      "passed": true
+    },
+    {
+      "name": "Remove retains only receivables",
+      "passed": true
+    },
+    {
+      "name": "SSE completes: 改为所有报表",
+      "passed": true
+    },
+    {
+      "name": "Clear restores all dispatchable reports",
+      "passed": true
+    }
+  ],
+  "turns": [
+    {
+      "conversationId": "84b09729ee594a118935cb3cda6963a5",
+      "message": "先看看 A 公司的销售台账",
+      "latencyMs": 4235,
+      "events": [
+        {
+          "type": "conversation",
+          "data": {
+            "conversationId": "84b09729ee594a118935cb3cda6963a5",
+            "title": "",
+            "requestId": "f56355f6579145be9d7ff404d9b11c4d"
+          }
+        },
+        {
+          "type": "text",
+          "data": {
+            "delta": "正在查询可派单记录。\n"
+          }
+        },
+        {
+          "type": "preview",
+          "data": {
+            "previewId": "9bf9f424433c4a62bb02d075c8467416",
+            "status": "ACTIVE",
+            "total": 3,
+            "totalAmount": 256000.0,
+            "byReport": [
+              {
+                "reportId": "rpt-sales-order",
+                "reportName": "销售报表",
+                "count": 3,
+                "amount": 256000.0
+              }
+            ],
+            "records": [
+              {
+                "reportId": "rpt-sales-order",
+                "reportName": "销售报表",
+                "recordId": "1",
+                "docNo": "SO2026001",
+                "companyCode": "A",
+                "label": "服务器",
+                "amount": 128000.0,
+                "date": "2026-01-15",
+                "ruleId": 1,
+                "ruleName": "销售报表默认规则",
+                "ruleVersion": 1,
+                "ruleDescription": "销售订单金额大于 20 元需要派单",
+                "catalogVersion": 1
+              },
+              {
+                "reportId": "rpt-sales-order",
+                "reportName": "销售报表",
+                "recordId": "2",
+                "docNo": "SO2026002",
+                "companyCode": "A",
+                "label": "交换机",
+                "amount": 32000.0,
+                "date": "2026-02-08",
+                "ruleId": 1,
+                "ruleName": "销售报表默认规则",
+                "ruleVersion": 1,
+                "ruleDescription": "销售订单金额大于 20 元需要派单",
+                "catalogVersion": 1
+              },
+              {
+                "reportId": "rpt-sales-order",
+                "reportName": "销售报表",
+                "recordId": "3",
+                "docNo": "SO2026007",
+                "companyCode": "A",
+                "label": "云服务",
+                "amount": 96000.0,
+                "date": "2026-04-05",
+                "ruleId": 1,
+                "ruleName": "销售报表默认规则",
+                "ruleVersion": 1,
+                "ruleDescription": "销售订单金额大于 20 元需要派单",
+                "catalogVersion": 1
+              }
+            ],
+            "ruleDescriptions": {
+              "rpt-sales-order": "销售订单金额大于 20 元需要派单"
+            },
+            "resolution": {
+              "matchType": "EXACT",
+              "query": null,
+              "matchedTerms": [
+                "销售报表"
+              ],
+              "unrecognized": []
+            },
+            "createdAt": "2026-09-29T19:45:29.2798153",
+            "expiresAt": "2026-09-29T20:15:29.2798153"
+          }
+        },
+        {
+          "type": "text",
+          "data": {
+            "delta": "当前预览共 3 条，已排除 0 条。"
+          }
+        },
+        {
+          "type": "selection",
+          "data": {
+            "previewId": "9bf9f424433c4a62bb02d075c8467416",
+            "excludedRecords": [],
+            "phase": "READY"
+          }
+        },
+        {
+          "type": "done",
+          "data": {}
+        }
+      ]
+    },
+    {
+      "conversationId": "84b09729ee594a118935cb3cda6963a5",
+      "message": "那 B 公司呢？",
+      "latencyMs": 1938,
+      "events": [
+        {
+          "type": "conversation",
+          "data": {
+            "conversationId": "84b09729ee594a118935cb3cda6963a5",
+            "title": "语义修复验收-省略公司",
+            "requestId": "86c39f4754554f34a6d1abf04e4b763d"
+          }
+        },
+        {
+          "type": "text",
+          "data": {
+            "delta": "当前账号无权查看 B 公司，未返回其他公司的派单记录"
+          }
+        },
+        {
+          "type": "selection",
+          "data": {
+            "previewId": "9bf9f424433c4a62bb02d075c8467416",
+            "excludedRecords": [],
+            "phase": "REJECTED"
+          }
+        },
+        {
+          "type": "done",
+          "data": {}
+        }
+      ]
+    },
+    {
+      "conversationId": "84b09729ee594a118935cb3cda6963a5",
+      "message": "现在我只想派销售报表的",
+      "latencyMs": 2000,
+      "events": [
+        {
+          "type": "conversation",
+          "data": {
+            "conversationId": "84b09729ee594a118935cb3cda6963a5",
+            "title": "语义修复验收-省略公司",
+            "requestId": "8cd2c93caa0242c09b16e13b477c0363"
+          }
+        },
+        {
+          "type": "text",
+          "data": {
+            "delta": "当前账号无权查看 B 公司，未返回其他公司的派单记录"
+          }
+        },
+        {
+          "type": "selection",
+          "data": {
+            "previewId": "9bf9f424433c4a62bb02d075c8467416",
+            "excludedRecords": [],
+            "phase": "REJECTED"
+          }
+        },
+        {
+          "type": "done",
+          "data": {}
+        }
+      ]
+    },
+    {
+      "conversationId": "84b09729ee594a118935cb3cda6963a5",
+      "message": "A公司销售报表的",
+      "latencyMs": 2094,
+      "events": [
+        {
+          "type": "conversation",
+          "data": {
+            "conversationId": "84b09729ee594a118935cb3cda6963a5",
+            "title": "语义修复验收-省略公司",
+            "requestId": "d3333283218e47c6bdd4b7b43a6a0173"
+          }
+        },
+        {
+          "type": "text",
+          "data": {
+            "delta": "正在查询可派单记录。\n"
+          }
+        },
+        {
+          "type": "preview",
+          "data": {
+            "previewId": "26d96aee6b064c4cbb5abf6b91dc5c45",
+            "status": "ACTIVE",
+            "total": 3,
+            "totalAmount": 256000.0,
+            "byReport": [
+              {
+                "reportId": "rpt-sales-order",
+                "reportName": "销售报表",
+                "count": 3,
+                "amount": 256000.0
+              }
+            ],
+            "records": [
+              {
+                "reportId": "rpt-sales-order",
+                "reportName": "销售报表",
+                "recordId": "1",
+                "docNo": "SO2026001",
+                "companyCode": "A",
+                "label": "服务器",
+                "amount": 128000.0,
+                "date": "2026-01-15",
+                "ruleId": 1,
+                "ruleName": "销售报表默认规则",
+                "ruleVersion": 1,
+                "ruleDescription": "销售订单金额大于 20 元需要派单",
+                "catalogVersion": 1
+              },
+              {
+                "reportId": "rpt-sales-order",
+                "reportName": "销售报表",
+                "recordId": "2",
+                "docNo": "SO2026002",
+                "companyCode": "A",
+                "label": "交换机",
+                "amount": 32000.0,
+                "date": "2026-02-08",
+                "ruleId": 1,
+                "ruleName": "销售报表默认规则",
+                "ruleVersion": 1,
+                "ruleDescription": "销售订单金额大于 20 元需要派单",
+                "catalogVersion": 1
+              },
+              {
+                "reportId": "rpt-sales-order",
+                "reportName": "销售报表",
+                "recordId": "3",
+                "docNo": "SO2026007",
+                "companyCode": "A",
+                "label": "云服务",
+                "amount": 96000.0,
+                "date": "2026-04-05",
+                "ruleId": 1,
+                "ruleName": "销售报表默认规则",
+                "ruleVersion": 1,
+                "ruleDescription": "销售订单金额大于 20 元需要派单",
+                "catalogVersion": 1
+              }
+            ],
+            "ruleDescriptions": {
+              "rpt-sales-order": "销售订单金额大于 20 元需要派单"
+            },
+            "resolution": {
+              "matchType": "EXACT",
+              "query": null,
+              "matchedTerms": [
+                "销售报表"
+              ],
+              "unrecognized": []
+            },
+            "createdAt": "2026-09-29T19:45:35.3808743",
+            "expiresAt": "2026-09-29T20:15:35.3808743"
+          }
+        },
+        {
+          "type": "text",
+          "data": {
+            "delta": "当前预览共 3 条，已排除 0 条。"
+          }
+        },
+        {
+          "type": "selection",
+          "data": {
+            "previewId": "26d96aee6b064c4cbb5abf6b91dc5c45",
+            "excludedRecords": [],
+            "phase": "READY"
+          }
+        },
+        {
+          "type": "done",
+          "data": {}
+        }
+      ]
+    },
+    {
+      "conversationId": "84b09729ee594a118935cb3cda6963a5",
+      "message": "排除SO2026002",
+      "latencyMs": 2578,
+      "events": [
+        {
+          "type": "conversation",
+          "data": {
+            "conversationId": "84b09729ee594a118935cb3cda6963a5",
+            "title": "语义修复验收-省略公司",
+            "requestId": "50ed525cf07f4189b758558e8d3704d3"
+          }
+        },
+        {
+          "type": "text",
+          "data": {
+            "delta": "当前预览共 3 条，已排除 1 条。"
+          }
+        },
+        {
+          "type": "selection",
+          "data": {
+            "previewId": "26d96aee6b064c4cbb5abf6b91dc5c45",
+            "excludedRecords": [
+              {
+                "reportId": "rpt-sales-order",
+                "recordId": "2"
+              }
+            ],
+            "phase": "READY"
+          }
+        },
+        {
+          "type": "done",
+          "data": {}
+        }
+      ]
+    },
+    {
+      "conversationId": "84b09729ee594a118935cb3cda6963a5",
+      "message": "给剩下的生成待确认派单清单",
+      "latencyMs": 1750,
+      "events": [
+        {
+          "type": "conversation",
+          "data": {
+            "conversationId": "84b09729ee594a118935cb3cda6963a5",
+            "title": "语义修复验收-省略公司",
+            "requestId": "733f1041b01b4ae8a081b869b368faa2"
+          }
+        },
+        {
+          "type": "plan",
+          "data": {
+            "planId": "f5fa2d1fc6a146d79adbb0dec6532a97",
+            "previewId": "26d96aee6b064c4cbb5abf6b91dc5c45",
+            "status": "PENDING",
+            "count": 2,
+            "excluded": [
+              "销售报表 / SO2026002"
+            ],
+            "records": [
+              {
+                "reportId": "rpt-sales-order",
+                "reportName": "销售报表",
+                "recordId": "1",
+                "docNo": "SO2026001",
+                "companyCode": "A",
+                "label": "服务器",
+                "amount": 128000.0,
+                "date": "2026-01-15",
+                "ruleId": 1,
+                "ruleName": "销售报表默认规则",
+                "ruleVersion": 1,
+                "ruleDescription": null,
+                "catalogVersion": 1
+              },
+              {
+                "reportId": "rpt-sales-order",
+                "reportName": "销售报表",
+                "recordId": "3",
+                "docNo": "SO2026007",
+                "companyCode": "A",
+                "label": "云服务",
+                "amount": 96000.0,
+                "date": "2026-04-05",
+                "ruleId": 1,
+                "ruleName": "销售报表默认规则",
+                "ruleVersion": 1,
+                "ruleDescription": null,
+                "catalogVersion": 1
+              }
+            ],
+            "expiresAt": "2026-09-29T19:55:39.7697985"
+          }
+        },
+        {
+          "type": "text",
+          "data": {
+            "delta": "已生成待确认清单，共 2 条。请核对卡片并点击“确认派单”后执行。"
+          }
+        },
+        {
+          "type": "selection",
+          "data": {
+            "previewId": "26d96aee6b064c4cbb5abf6b91dc5c45",
+            "excludedRecords": [
+              {
+                "reportId": "rpt-sales-order",
+                "recordId": "2"
+              }
+            ],
+            "phase": "PLAN_READY"
+          }
+        },
+        {
+          "type": "done",
+          "data": {}
+        }
+      ]
+    },
+    {
+      "conversationId": "84b09729ee594a118935cb3cda6963a5",
+      "message": "取消这份待确认清单",
+      "latencyMs": 1656,
+      "events": [
+        {
+          "type": "conversation",
+          "data": {
+            "conversationId": "84b09729ee594a118935cb3cda6963a5",
+            "title": "语义修复验收-省略公司",
+            "requestId": "3c9098ac7c07490989fcde3346d96a20"
+          }
+        },
+        {
+          "type": "text",
+          "data": {
+            "delta": "当前清单状态：已取消。"
+          }
+        },
+        {
+          "type": "selection",
+          "data": {
+            "previewId": "26d96aee6b064c4cbb5abf6b91dc5c45",
+            "excludedRecords": [
+              {
+                "reportId": "rpt-sales-order",
+                "recordId": "2"
+              }
+            ],
+            "phase": "READY"
+          }
+        },
+        {
+          "type": "done",
+          "data": {}
+        }
+      ]
+    },
+    {
+      "conversationId": "5abd9b87265548d5862083332aca2a18",
+      "message": "查一下 B 公司销售报表有哪些可以派单",
+      "latencyMs": 2266,
+      "events": [
+        {
+          "type": "conversation",
+          "data": {
+            "conversationId": "5abd9b87265548d5862083332aca2a18",
+            "title": "",
+            "requestId": "793643aa182b4f88bfe73c121bbac888"
+          }
+        },
+        {
+          "type": "text",
+          "data": {
+            "delta": "当前账号无权查看 B 公司，未返回其他公司的派单记录"
+          }
+        },
+        {
+          "type": "selection",
+          "data": {
+            "previewId": null,
+            "excludedRecords": [],
+            "phase": "REJECTED"
+          }
+        },
+        {
+          "type": "done",
+          "data": {}
+        }
+      ]
+    },
+    {
+      "conversationId": "5abd9b87265548d5862083332aca2a18",
+      "message": "现在我只想派销售报表的",
+      "latencyMs": 2125,
+      "events": [
+        {
+          "type": "conversation",
+          "data": {
+            "conversationId": "5abd9b87265548d5862083332aca2a18",
+            "title": "语义修复验收-拒绝后纠正",
+            "requestId": "8bcaca89b3e442d5abd48922acff2470"
+          }
+        },
+        {
+          "type": "text",
+          "data": {
+            "delta": "当前账号无权查看 B 公司，未返回其他公司的派单记录"
+          }
+        },
+        {
+          "type": "selection",
+          "data": {
+            "previewId": null,
+            "excludedRecords": [],
+            "phase": "REJECTED"
+          }
+        },
+        {
+          "type": "done",
+          "data": {}
+        }
+      ]
+    },
+    {
+      "conversationId": "5abd9b87265548d5862083332aca2a18",
+      "message": "A公司销售报表的",
+      "latencyMs": 2172,
+      "events": [
+        {
+          "type": "conversation",
+          "data": {
+            "conversationId": "5abd9b87265548d5862083332aca2a18",
+            "title": "语义修复验收-拒绝后纠正",
+            "requestId": "4b69ccdd312c43cda93617022abfb923"
+          }
+        },
+        {
+          "type": "text",
+          "data": {
+            "delta": "正在查询可派单记录。\n"
+          }
+        },
+        {
+          "type": "preview",
+          "data": {
+            "previewId": "0653a023a82849a486ed03e6045eb234",
+            "status": "ACTIVE",
+            "total": 3,
+            "totalAmount": 256000.0,
+            "byReport": [
+              {
+                "reportId": "rpt-sales-order",
+                "reportName": "销售报表",
+                "count": 3,
+                "amount": 256000.0
+              }
+            ],
+            "records": [
+              {
+                "reportId": "rpt-sales-order",
+                "reportName": "销售报表",
+                "recordId": "1",
+                "docNo": "SO2026001",
+                "companyCode": "A",
+                "label": "服务器",
+                "amount": 128000.0,
+                "date": "2026-01-15",
+                "ruleId": 1,
+                "ruleName": "销售报表默认规则",
+                "ruleVersion": 1,
+                "ruleDescription": "销售订单金额大于 20 元需要派单",
+                "catalogVersion": 1
+              },
+              {
+                "reportId": "rpt-sales-order",
+                "reportName": "销售报表",
+                "recordId": "2",
+                "docNo": "SO2026002",
+                "companyCode": "A",
+                "label": "交换机",
+                "amount": 32000.0,
+                "date": "2026-02-08",
+                "ruleId": 1,
+                "ruleName": "销售报表默认规则",
+                "ruleVersion": 1,
+                "ruleDescription": "销售订单金额大于 20 元需要派单",
+                "catalogVersion": 1
+              },
+              {
+                "reportId": "rpt-sales-order",
+                "reportName": "销售报表",
+                "recordId": "3",
+                "docNo": "SO2026007",
+                "companyCode": "A",
+                "label": "云服务",
+                "amount": 96000.0,
+                "date": "2026-04-05",
+                "ruleId": 1,
+                "ruleName": "销售报表默认规则",
+                "ruleVersion": 1,
+                "ruleDescription": "销售订单金额大于 20 元需要派单",
+                "catalogVersion": 1
+              }
+            ],
+            "ruleDescriptions": {
+              "rpt-sales-order": "销售订单金额大于 20 元需要派单"
+            },
+            "resolution": {
+              "matchType": "EXACT",
+              "query": null,
+              "matchedTerms": [
+                "销售报表"
+              ],
+              "unrecognized": []
+            },
+            "createdAt": "2026-09-29T19:45:48.0166817",
+            "expiresAt": "2026-09-29T20:15:48.0166817"
+          }
+        },
+        {
+          "type": "text",
+          "data": {
+            "delta": "当前预览共 3 条，已排除 0 条。"
+          }
+        },
+        {
+          "type": "selection",
+          "data": {
+            "previewId": "0653a023a82849a486ed03e6045eb234",
+            "excludedRecords": [],
+            "phase": "READY"
+          }
+        },
+        {
+          "type": "done",
+          "data": {}
+        }
+      ]
+    },
+    {
+      "conversationId": "25840a5c97c64caebe3a12674a2e7850",
+      "message": "查询A公司销售报表",
+      "latencyMs": 2125,
+      "events": [
+        {
+          "type": "conversation",
+          "data": {
+            "conversationId": "25840a5c97c64caebe3a12674a2e7850",
+            "title": "",
+            "requestId": "705f1ea4fe14413bb2cc8f47e319a6b7"
+          }
+        },
+        {
+          "type": "text",
+          "data": {
+            "delta": "正在查询可派单记录。\n"
+          }
+        },
+        {
+          "type": "preview",
+          "data": {
+            "previewId": "a25efddeab0f45af8a0a57d496f52b29",
+            "status": "ACTIVE",
+            "total": 3,
+            "totalAmount": 256000.0,
+            "byReport": [
+              {
+                "reportId": "rpt-sales-order",
+                "reportName": "销售报表",
+                "count": 3,
+                "amount": 256000.0
+              }
+            ],
+            "records": [
+              {
+                "reportId": "rpt-sales-order",
+                "reportName": "销售报表",
+                "recordId": "1",
+                "docNo": "SO2026001",
+                "companyCode": "A",
+                "label": "服务器",
+                "amount": 128000.0,
+                "date": "2026-01-15",
+                "ruleId": 1,
+                "ruleName": "销售报表默认规则",
+                "ruleVersion": 1,
+                "ruleDescription": "销售订单金额大于 20 元需要派单",
+                "catalogVersion": 1
+              },
+              {
+                "reportId": "rpt-sales-order",
+                "reportName": "销售报表",
+                "recordId": "2",
+                "docNo": "SO2026002",
+                "companyCode": "A",
+                "label": "交换机",
+                "amount": 32000.0,
+                "date": "2026-02-08",
+                "ruleId": 1,
+                "ruleName": "销售报表默认规则",
+                "ruleVersion": 1,
+                "ruleDescription": "销售订单金额大于 20 元需要派单",
+                "catalogVersion": 1
+              },
+              {
+                "reportId": "rpt-sales-order",
+                "reportName": "销售报表",
+                "recordId": "3",
+                "docNo": "SO2026007",
+                "companyCode": "A",
+                "label": "云服务",
+                "amount": 96000.0,
+                "date": "2026-04-05",
+                "ruleId": 1,
+                "ruleName": "销售报表默认规则",
+                "ruleVersion": 1,
+                "ruleDescription": "销售订单金额大于 20 元需要派单",
+                "catalogVersion": 1
+              }
+            ],
+            "ruleDescriptions": {
+              "rpt-sales-order": "销售订单金额大于 20 元需要派单"
+            },
+            "resolution": {
+              "matchType": "EXACT",
+              "query": null,
+              "matchedTerms": [
+                "销售报表"
+              ],
+              "unrecognized": []
+            },
+            "createdAt": "2026-09-29T19:45:50.1465289",
+            "expiresAt": "2026-09-29T20:15:50.1465289"
+          }
+        },
+        {
+          "type": "text",
+          "data": {
+            "delta": "当前预览共 3 条，已排除 0 条。"
+          }
+        },
+        {
+          "type": "selection",
+          "data": {
+            "previewId": "a25efddeab0f45af8a0a57d496f52b29",
+            "excludedRecords": [],
+            "phase": "READY"
+          }
+        },
+        {
+          "type": "done",
+          "data": {}
+        }
+      ]
+    },
+    {
+      "conversationId": "25840a5c97c64caebe3a12674a2e7850",
+      "message": "再加上应收报表",
+      "latencyMs": 2219,
+      "events": [
+        {
+          "type": "conversation",
+          "data": {
+            "conversationId": "25840a5c97c64caebe3a12674a2e7850",
+            "title": "语义修复验收-报表增减",
+            "requestId": "7bb63aed1e8245d8bc5f1db7adcb25b8"
+          }
+        },
+        {
+          "type": "text",
+          "data": {
+            "delta": "正在查询可派单记录。\n"
+          }
+        },
+        {
+          "type": "preview",
+          "data": {
+            "previewId": "d17884945b164570af1e62ca9b0cb8a3",
+            "status": "ACTIVE",
+            "total": 5,
+            "totalAmount": 256020.5,
+            "byReport": [
+              {
+                "reportId": "rpt-sales-order",
+                "reportName": "销售报表",
+                "count": 3,
+                "amount": 256000.0
+              },
+              {
+                "reportId": "rpt-ar-invoice",
+                "reportName": "应收报表",
+                "count": 2,
+                "amount": 20.5
+              }
+            ],
+            "records": [
+              {
+                "reportId": "rpt-sales-order",
+                "reportName": "销售报表",
+                "recordId": "1",
+                "docNo": "SO2026001",
+                "companyCode": "A",
+                "label": "服务器",
+                "amount": 128000.0,
+                "date": "2026-01-15",
+                "ruleId": 1,
+                "ruleName": "销售报表默认规则",
+                "ruleVersion": 1,
+                "ruleDescription": "销售订单金额大于 20 元需要派单",
+                "catalogVersion": 1
+              },
+              {
+                "reportId": "rpt-sales-order",
+                "reportName": "销售报表",
+                "recordId": "2",
+                "docNo": "SO2026002",
+                "companyCode": "A",
+                "label": "交换机",
+                "amount": 32000.0,
+                "date": "2026-02-08",
+                "ruleId": 1,
+                "ruleName": "销售报表默认规则",
+                "ruleVersion": 1,
+                "ruleDescription": "销售订单金额大于 20 元需要派单",
+                "catalogVersion": 1
+              },
+              {
+                "reportId": "rpt-sales-order",
+                "reportName": "销售报表",
+                "recordId": "3",
+                "docNo": "SO2026007",
+                "companyCode": "A",
+                "label": "云服务",
+                "amount": 96000.0,
+                "date": "2026-04-05",
+                "ruleId": 1,
+                "ruleName": "销售报表默认规则",
+                "ruleVersion": 1,
+                "ruleDescription": "销售订单金额大于 20 元需要派单",
+                "catalogVersion": 1
+              },
+              {
+                "reportId": "rpt-ar-invoice",
+                "reportName": "应收报表",
+                "recordId": "3",
+                "docNo": "INV-2026-0007",
+                "companyCode": "A",
+                "label": "天津某某贸易有限公司",
+                "amount": 12.5,
+                "date": "2026-05-10",
+                "ruleId": 3,
+                "ruleName": "应收报表默认规则",
+                "ruleVersion": 1,
+                "ruleDescription": "应收发票金额小于 20 元需要派单（小额应收集中催收）",
+                "catalogVersion": 1
+              },
+              {
+                "reportId": "rpt-ar-invoice",
+                "reportName": "应收报表",
+                "recordId": "4",
+                "docNo": "INV-2026-0008",
+                "companyCode": "A",
+                "label": "北京某某咨询有限公司",
+                "amount": 8.0,
+                "date": "2026-06-01",
+                "ruleId": 3,
+                "ruleName": "应收报表默认规则",
+                "ruleVersion": 1,
+                "ruleDescription": "应收发票金额小于 20 元需要派单（小额应收集中催收）",
+                "catalogVersion": 1
+              }
+            ],
+            "ruleDescriptions": {
+              "rpt-sales-order": "销售订单金额大于 20 元需要派单",
+              "rpt-ar-invoice": "应收发票金额小于 20 元需要派单（小额应收集中催收）"
+            },
+            "resolution": {
+              "matchType": "EXACT",
+              "query": null,
+              "matchedTerms": [
+                "销售报表",
+                "应收报表"
+              ],
+              "unrecognized": []
+            },
+            "createdAt": "2026-09-29T19:45:52.3873024",
+            "expiresAt": "2026-09-29T20:15:52.3873024"
+          }
+        },
+        {
+          "type": "text",
+          "data": {
+            "delta": "当前预览共 5 条，已排除 0 条。"
+          }
+        },
+        {
+          "type": "selection",
+          "data": {
+            "previewId": "d17884945b164570af1e62ca9b0cb8a3",
+            "excludedRecords": [],
+            "phase": "READY"
+          }
+        },
+        {
+          "type": "done",
+          "data": {}
+        }
+      ]
+    },
+    {
+      "conversationId": "25840a5c97c64caebe3a12674a2e7850",
+      "message": "移除销售报表",
+      "latencyMs": 2156,
+      "events": [
+        {
+          "type": "conversation",
+          "data": {
+            "conversationId": "25840a5c97c64caebe3a12674a2e7850",
+            "title": "语义修复验收-报表增减",
+            "requestId": "62d88db8fff041f2806f3ea069617a83"
+          }
+        },
+        {
+          "type": "text",
+          "data": {
+            "delta": "正在查询可派单记录。\n"
+          }
+        },
+        {
+          "type": "preview",
+          "data": {
+            "previewId": "c5cf24610cc14c0caf8716f737b92f0f",
+            "status": "ACTIVE",
+            "total": 2,
+            "totalAmount": 20.5,
+            "byReport": [
+              {
+                "reportId": "rpt-ar-invoice",
+                "reportName": "应收报表",
+                "count": 2,
+                "amount": 20.5
+              }
+            ],
+            "records": [
+              {
+                "reportId": "rpt-ar-invoice",
+                "reportName": "应收报表",
+                "recordId": "3",
+                "docNo": "INV-2026-0007",
+                "companyCode": "A",
+                "label": "天津某某贸易有限公司",
+                "amount": 12.5,
+                "date": "2026-05-10",
+                "ruleId": 3,
+                "ruleName": "应收报表默认规则",
+                "ruleVersion": 1,
+                "ruleDescription": "应收发票金额小于 20 元需要派单（小额应收集中催收）",
+                "catalogVersion": 1
+              },
+              {
+                "reportId": "rpt-ar-invoice",
+                "reportName": "应收报表",
+                "recordId": "4",
+                "docNo": "INV-2026-0008",
+                "companyCode": "A",
+                "label": "北京某某咨询有限公司",
+                "amount": 8.0,
+                "date": "2026-06-01",
+                "ruleId": 3,
+                "ruleName": "应收报表默认规则",
+                "ruleVersion": 1,
+                "ruleDescription": "应收发票金额小于 20 元需要派单（小额应收集中催收）",
+                "catalogVersion": 1
+              }
+            ],
+            "ruleDescriptions": {
+              "rpt-ar-invoice": "应收发票金额小于 20 元需要派单（小额应收集中催收）"
+            },
+            "resolution": {
+              "matchType": "EXACT",
+              "query": null,
+              "matchedTerms": [
+                "应收报表"
+              ],
+              "unrecognized": []
+            },
+            "createdAt": "2026-09-29T19:45:54.5477733",
+            "expiresAt": "2026-09-29T20:15:54.5477733"
+          }
+        },
+        {
+          "type": "text",
+          "data": {
+            "delta": "当前预览共 2 条，已排除 0 条。"
+          }
+        },
+        {
+          "type": "selection",
+          "data": {
+            "previewId": "c5cf24610cc14c0caf8716f737b92f0f",
+            "excludedRecords": [],
+            "phase": "READY"
+          }
+        },
+        {
+          "type": "done",
+          "data": {}
+        }
+      ]
+    },
+    {
+      "conversationId": "25840a5c97c64caebe3a12674a2e7850",
+      "message": "改为所有报表",
+      "latencyMs": 2422,
+      "events": [
+        {
+          "type": "conversation",
+          "data": {
+            "conversationId": "25840a5c97c64caebe3a12674a2e7850",
+            "title": "语义修复验收-报表增减",
+            "requestId": "f8db375a3f03473a915bdb1ac7adebb0"
+          }
+        },
+        {
+          "type": "text",
+          "data": {
+            "delta": "正在查询可派单记录。\n"
+          }
+        },
+        {
+          "type": "preview",
+          "data": {
+            "previewId": "a29716f079e8461eb611846c15b54579",
+            "status": "ACTIVE",
+            "total": 7,
+            "totalAmount": 267820.5,
+            "byReport": [
+              {
+                "reportId": "rpt-sales-order",
+                "reportName": "销售报表",
+                "count": 3,
+                "amount": 256000.0
+              },
+              {
+                "reportId": "rpt-ar-invoice",
+                "reportName": "应收报表",
+                "count": 2,
+                "amount": 20.5
+              },
+              {
+                "reportId": "rpt-expense-claim",
+                "reportName": "费用报表",
+                "count": 2,
+                "amount": 11800.0
+              }
+            ],
+            "records": [
+              {
+                "reportId": "rpt-sales-order",
+                "reportName": "销售报表",
+                "recordId": "1",
+                "docNo": "SO2026001",
+                "companyCode": "A",
+                "label": "服务器",
+                "amount": 128000.0,
+                "date": "2026-01-15",
+                "ruleId": 1,
+                "ruleName": "销售报表默认规则",
+                "ruleVersion": 1,
+                "ruleDescription": "销售订单金额大于 20 元需要派单",
+                "catalogVersion": 1
+              },
+              {
+                "reportId": "rpt-sales-order",
+                "reportName": "销售报表",
+                "recordId": "2",
+                "docNo": "SO2026002",
+                "companyCode": "A",
+                "label": "交换机",
+                "amount": 32000.0,
+                "date": "2026-02-08",
+                "ruleId": 1,
+                "ruleName": "销售报表默认规则",
+                "ruleVersion": 1,
+                "ruleDescription": "销售订单金额大于 20 元需要派单",
+                "catalogVersion": 1
+              },
+              {
+                "reportId": "rpt-sales-order",
+                "reportName": "销售报表",
+                "recordId": "3",
+                "docNo": "SO2026007",
+                "companyCode": "A",
+                "label": "云服务",
+                "amount": 96000.0,
+                "date": "2026-04-05",
+                "ruleId": 1,
+                "ruleName": "销售报表默认规则",
+                "ruleVersion": 1,
+                "ruleDescription": "销售订单金额大于 20 元需要派单",
+                "catalogVersion": 1
+              },
+              {
+                "reportId": "rpt-ar-invoice",
+                "reportName": "应收报表",
+                "recordId": "3",
+                "docNo": "INV-2026-0007",
+                "companyCode": "A",
+                "label": "天津某某贸易有限公司",
+                "amount": 12.5,
+                "date": "2026-05-10",
+                "ruleId": 3,
+                "ruleName": "应收报表默认规则",
+                "ruleVersion": 1,
+                "ruleDescription": "应收发票金额小于 20 元需要派单（小额应收集中催收）",
+                "catalogVersion": 1
+              },
+              {
+                "reportId": "rpt-ar-invoice",
+                "reportName": "应收报表",
+                "recordId": "4",
+                "docNo": "INV-2026-0008",
+                "companyCode": "A",
+                "label": "北京某某咨询有限公司",
+                "amount": 8.0,
+                "date": "2026-06-01",
+                "ruleId": 3,
+                "ruleName": "应收报表默认规则",
+                "ruleVersion": 1,
+                "ruleDescription": "应收发票金额小于 20 元需要派单（小额应收集中催收）",
+                "catalogVersion": 1
+              },
+              {
+                "reportId": "rpt-expense-claim",
+                "reportName": "费用报表",
+                "recordId": "1",
+                "docNo": "EXP-2026-0001",
+                "companyCode": "A",
+                "label": "差旅费",
+                "amount": 8600.0,
+                "date": "2026-01-09",
+                "ruleId": 4,
+                "ruleName": "费用报表默认规则",
+                "ruleVersion": 1,
+                "ruleDescription": "报销单金额大于 1000 元需要派单",
+                "catalogVersion": 1
+              },
+              {
+                "reportId": "rpt-expense-claim",
+                "reportName": "费用报表",
+                "recordId": "2",
+                "docNo": "EXP-2026-0002",
+                "companyCode": "A",
+                "label": "业务招待费",
+                "amount": 3200.0,
+                "date": "2026-02-14",
+                "ruleId": 4,
+                "ruleName": "费用报表默认规则",
+                "ruleVersion": 1,
+                "ruleDescription": "报销单金额大于 1000 元需要派单",
+                "catalogVersion": 1
+              }
+            ],
+            "ruleDescriptions": {
+              "rpt-sales-order": "销售订单金额大于 20 元需要派单",
+              "rpt-ar-invoice": "应收发票金额小于 20 元需要派单（小额应收集中催收）",
+              "rpt-expense-claim": "报销单金额大于 1000 元需要派单"
+            },
+            "resolution": {
+              "matchType": "ALL",
+              "query": null,
+              "matchedTerms": [],
+              "unrecognized": []
+            },
+            "createdAt": "2026-09-29T19:45:56.9616646",
+            "expiresAt": "2026-09-29T20:15:56.9616646"
+          }
+        },
+        {
+          "type": "text",
+          "data": {
+            "delta": "当前预览共 7 条，已排除 0 条。"
+          }
+        },
+        {
+          "type": "selection",
+          "data": {
+            "previewId": "a29716f079e8461eb611846c15b54579",
+            "excludedRecords": [],
+            "phase": "READY"
+          }
+        },
+        {
+          "type": "done",
+          "data": {}
+        }
+      ]
+    }
+  ],
+  "conversations": [
+    "84b09729ee594a118935cb3cda6963a5",
+    "5abd9b87265548d5862083332aca2a18",
+    "25840a5c97c64caebe3a12674a2e7850"
+  ],
+  "plans": [
+    {
+      "planId": "f5fa2d1fc6a146d79adbb0dec6532a97",
+      "previewId": "26d96aee6b064c4cbb5abf6b91dc5c45",
+      "status": "PENDING",
+      "count": 2,
+      "excluded": [
+        "销售报表 / SO2026002"
+      ],
+      "records": [
+        {
+          "reportId": "rpt-sales-order",
+          "reportName": "销售报表",
+          "recordId": "1",
+          "docNo": "SO2026001",
+          "companyCode": "A",
+          "label": "服务器",
+          "amount": 128000.0,
+          "date": "2026-01-15",
+          "ruleId": 1,
+          "ruleName": "销售报表默认规则",
+          "ruleVersion": 1,
+          "ruleDescription": null,
+          "catalogVersion": 1
+        },
+        {
+          "reportId": "rpt-sales-order",
+          "reportName": "销售报表",
+          "recordId": "3",
+          "docNo": "SO2026007",
+          "companyCode": "A",
+          "label": "云服务",
+          "amount": 96000.0,
+          "date": "2026-04-05",
+          "ruleId": 1,
+          "ruleName": "销售报表默认规则",
+          "ruleVersion": 1,
+          "ruleDescription": null,
+          "catalogVersion": 1
+        }
+      ],
+      "expiresAt": "2026-09-29T19:55:39.7697985"
+    }
+  ],
+  "confirmedDispatches": 0,
+  "passed": 27,
+  "total": 27
+}

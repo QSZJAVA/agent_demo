@@ -1,18 +1,18 @@
 import http from './http'
 
 /** 报表一：销售报表 */
-export function fetchSalesReport() {
-  return http.get('/report/sales')
+export function fetchSalesReport(page = 1, size = 50) {
+  return http.get('/report/sales/page', { params: { page, size } })
 }
 
 /** 报表二：应收报表 */
-export function fetchReceivableReport() {
-  return http.get('/report/receivable')
+export function fetchReceivableReport(page = 1, size = 50) {
+  return http.get('/report/receivable/page', { params: { page, size } })
 }
 
 /** 报表三：费用报表 */
-export function fetchExpenseReport() {
-  return http.get('/report/expense')
+export function fetchExpenseReport(page = 1, size = 50) {
+  return http.get('/report/expense/page', { params: { page, size } })
 }
 
 /** 报表页手工派单 */

@@ -76,6 +76,11 @@ public class AgentChatService {
                                               List<com.example.report.dispatch.RecordKey> excludedRecords) {
         if (semantic != null && semantic.enabled())
             return semantic.chat(user, conversationId, message, uiExcludes, uiPreviewId, excludedRecords, modelName());
+        return legacyChat(user,conversationId,com.example.report.operations.SensitiveData.text(message),uiExcludes,uiPreviewId,excludedRecords);
+    }
+
+    private Flux<ServerSentEvent<Object>> legacyChat(CurrentUser user,String conversationId,String message,
+            List<String> uiExcludes,String uiPreviewId,List<com.example.report.dispatch.RecordKey> excludedRecords) {
         AgentConversation conversation = (conversationId == null || conversationId.isBlank())
                 ? conversationService.create(user, modelName)
                 : conversationService.getOwned(user, conversationId);

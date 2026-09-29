@@ -7,6 +7,7 @@ import com.example.report.permission.CurrentUser;
 import org.springframework.stereotype.Component;
 import java.util.*;
 import static com.example.report.semantic.SemanticIntent.Operation.*;
+import static com.example.report.semantic.SemanticIntent.Target.*;
 
 /** Entity linking and delta reduction. This class never interprets whole sentences. */
 @Component
@@ -14,6 +15,7 @@ public class SemanticPlanner {
     private final ReportCatalogService catalog;
     public SemanticPlanner(ReportCatalogService catalog) { this.catalog=catalog; }
     public void requireAction(DialogueState state,SemanticIntent intent) {
+        if (intent.forbids(intent.action())) throw new ApiException(422,"本次动作与禁止条件冲突，请明确本轮操作");
         if (intent.action()!=SemanticIntent.Action.CLARIFY) return;
         if (Set.of(SemanticIntent.Clarify.COMPANY,SemanticIntent.Clarify.ACTION).contains(intent.clarify())) state.setUnresolvedCompany(true);
         if (Set.of(SemanticIntent.Clarify.REPORTS,SemanticIntent.Clarify.ACTION).contains(intent.clarify())) state.setUnresolvedReports(true);
@@ -32,20 +34,46 @@ public class SemanticPlanner {
     /** A coverage gate rejects omitted catalog entities; it never invents or executes a replacement intent. */
     public void requireCoverage(DialogueState state,SemanticIntent intent,List<String> mentions) {
         if (!Set.of(SemanticIntent.Action.PREVIEW,SemanticIntent.Action.PREPARE_DISPATCH,SemanticIntent.Action.EXPLAIN_RULES).contains(intent.action())) return;
-        if (intent.reports().operation()==CLEAR) return;
-        var captured=intent.reports().mentions().stream().map(TextNormalizer::normalize).toList();
-        if (mentions.stream().anyMatch(m -> captured.stream().noneMatch(c -> c.contains(m) || m.contains(c)))) {
+        if (!hasReportCoverage(intent,mentions)) {
             state.setUnresolvedReports(true);
             throw new ApiException(422,"本次提到的报表未被完整识别，请明确要查询的报表名称和追加、移除或替换操作");
         }
     }
+    static boolean hasReportCoverage(SemanticIntent intent,List<String> mentions) {
+        if (!Set.of(SemanticIntent.Action.PREVIEW,SemanticIntent.Action.PREPARE_DISPATCH,SemanticIntent.Action.EXPLAIN_RULES).contains(intent.action())) return true;
+        var captured=intent.changesFor(REPORTS).stream().flatMap(c -> c.mentions().stream()).map(TextNormalizer::normalize).toList();
+        return mentions.stream().map(TextNormalizer::normalize).allMatch(m -> captured.stream().anyMatch(c -> c.contains(m) || m.contains(c)));
+    }
     public void merge(CurrentUser user, DialogueState state, SemanticIntent intent) {
+        requireAction(state,intent);
+        // Commit scope only once all operations resolve; a later invalid operation cannot apply a partial program.
+        var draft=new DialogueState();
+        draft.setDesired(state.getDesired());
+        draft.setUnresolvedCompany(state.isUnresolvedCompany());
+        draft.setUnresolvedReports(state.isUnresolvedReports());
+        try {
+            for (var scoped:intent.scopeChanges()) {
+                if(scoped.target()==RECORDS) continue;
+                mergeChange(user,draft,scoped);
+            }
+        } catch (RuntimeException error) {
+            // Preserve the requested scope, but prevent ellipsis from using an older effective preview.
+            if(intent.changes(COMPANY)) state.setUnresolvedCompany(true);
+            if(intent.changes(REPORTS)) state.setUnresolvedReports(true);
+            throw error;
+        }
+        state.setDesired(draft.getDesired());
+        state.setUnresolvedCompany(draft.isUnresolvedCompany());
+        state.setUnresolvedReports(draft.isUnresolvedReports());
+    }
+    private void mergeChange(CurrentUser user,DialogueState state,SemanticIntent.ScopeChange scoped) {
         var previous = state.getDesired();
         String company = previous.companyCode();
-        if (intent.company().operation() == CLEAR) { company=null; state.setUnresolvedCompany(false); }
-        if (intent.company().operation() == REPLACE) {
+        var companyChange=scoped.target()==COMPANY?scoped.change():SemanticIntent.Change.keep();
+        if (companyChange.operation() == CLEAR) { company=null; state.setUnresolvedCompany(false); }
+        if (companyChange.operation() == REPLACE) {
             // Company codes currently are the authoritative company identifiers in PermissionService.
-            company = companyCode(intent.company().mentions().get(0));
+            company = companyCode(companyChange.mentions().get(0));
             if (company.isBlank()) {
                 state.setUnresolvedCompany(true);
                 throw new ApiException(422,"请提供具体公司代码或名称，不能只写“公司”");
@@ -53,7 +81,7 @@ public class SemanticPlanner {
             state.setUnresolvedCompany(false);
         }
         state.setDesired(new DialogueState.Scope(company, previous.allReports(), previous.reportIds()));
-        var change = intent.reports();
+        var change = scoped.target()==REPORTS?scoped.change():SemanticIntent.Change.keep();
         if (change.operation() == CLEAR) {
             state.setDesired(new DialogueState.Scope(company, true, List.of()));
             state.setUnresolvedReports(false);

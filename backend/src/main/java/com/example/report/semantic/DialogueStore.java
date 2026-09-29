@@ -46,8 +46,14 @@ public class DialogueStore {
             return new Session(user, id, token, ((Number)row.get("version")).longValue(), decode(row.get("state_json").toString()));
         });
     }
-    private static DialogueState decode(String json) {
-        try { return JsonUtil.MAPPER.readValue(json, DialogueState.class); }
+    static DialogueState decode(String json) {
+        try {
+            var node=JsonUtil.MAPPER.readTree(json);
+            var pending=node.path("pendingIntent");
+            if (pending.path("version").asInt()==1)
+                ((com.fasterxml.jackson.databind.node.ObjectNode)node).set("pendingIntent",JsonUtil.MAPPER.valueToTree(IntentCodec.fromStoredV1(pending)));
+            return JsonUtil.MAPPER.treeToValue(node, DialogueState.class);
+        }
         catch (Exception e) { throw new IllegalStateException("会话状态无法读取", e); }
     }
     public final class Session implements AutoCloseable {

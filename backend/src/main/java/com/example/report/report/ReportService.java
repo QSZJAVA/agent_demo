@@ -31,26 +31,48 @@ public class ReportService {
     }
 
     public List<SalesReport> listSales(CurrentUser user) {
-        return salesMapper.selectList(new LambdaQueryWrapper<SalesReport>()
+        return pageSales(user,1,200).records();
+    }
+
+    public ReportPage<SalesReport> pageSales(CurrentUser user,int page,int size) {
+        return page(salesMapper,user,new LambdaQueryWrapper<SalesReport>()
                 .eq(SalesReport::getTenantId, user.tenantId())
                 .in(SalesReport::getCompanyCode, user.companies())
                 .orderByAsc(SalesReport::getCompanyCode)
-                .orderByAsc(SalesReport::getSaleDate));
+                .orderByAsc(SalesReport::getSaleDate).orderByAsc(SalesReport::getId),page,size);
     }
 
     public List<ReceivableReport> listReceivable(CurrentUser user) {
-        return receivableMapper.selectList(new LambdaQueryWrapper<ReceivableReport>()
+        return pageReceivable(user,1,200).records();
+    }
+
+    public ReportPage<ReceivableReport> pageReceivable(CurrentUser user,int page,int size) {
+        return page(receivableMapper,user,new LambdaQueryWrapper<ReceivableReport>()
                 .eq(ReceivableReport::getTenantId, user.tenantId())
                 .in(ReceivableReport::getCompanyCode, user.companies())
                 .orderByAsc(ReceivableReport::getCompanyCode)
-                .orderByAsc(ReceivableReport::getDueDate));
+                .orderByAsc(ReceivableReport::getDueDate).orderByAsc(ReceivableReport::getId),page,size);
     }
 
     public List<ExpenseReport> listExpense(CurrentUser user) {
-        return expenseMapper.selectList(new LambdaQueryWrapper<ExpenseReport>()
+        return pageExpense(user,1,200).records();
+    }
+
+    public ReportPage<ExpenseReport> pageExpense(CurrentUser user,int page,int size) {
+        return page(expenseMapper,user,new LambdaQueryWrapper<ExpenseReport>()
                 .eq(ExpenseReport::getTenantId, user.tenantId())
                 .in(ExpenseReport::getCompanyCode, user.companies())
                 .orderByAsc(ExpenseReport::getCompanyCode)
-                .orderByAsc(ExpenseReport::getExpenseDate));
+                .orderByAsc(ExpenseReport::getExpenseDate).orderByAsc(ExpenseReport::getId),page,size);
+    }
+
+    private <T> ReportPage<T> page(com.baomidou.mybatisplus.core.mapper.BaseMapper<T> mapper,CurrentUser user,
+            LambdaQueryWrapper<T> query,int page,int size) {
+        if (page<1 || page>100000 || size<1 || size>200) throw new com.example.report.common.ApiException("页码需为 1–100000，每页条数需为 1–200");
+        if (user.companies().isEmpty()) return new ReportPage<>(List.of(),0,page,size);
+        long total=mapper.selectCount(query);
+        long offset=(page-1L)*size;
+        var records=offset>=total ? List.<T>of() : mapper.selectList(query.last("LIMIT "+offset+", "+size));
+        return new ReportPage<>(records,total,page,size);
     }
 }

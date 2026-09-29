@@ -12,6 +12,8 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.RequestParam;
+import com.example.report.report.ReportPage;
 
 import java.util.List;
 
@@ -33,6 +35,30 @@ public class ReportController {
     }
 
     /** 报表一：销售报表 */
+    @GetMapping("/sales/page")
+    public Result<ReportPage<SalesReport>> salesPage(@RequestHeader(PermissionService.USER_HEADER) String userId,
+            @RequestParam(defaultValue="1") int page,@RequestParam(defaultValue="50") int size) {
+        CurrentUser user=permissionService.resolve(userId);
+        catalogService.requireVisibleByLegacyCode(user,"sales");
+        return Result.ok(reportService.pageSales(user,page,size));
+    }
+
+    @GetMapping("/receivable/page")
+    public Result<ReportPage<ReceivableReport>> receivablePage(@RequestHeader(PermissionService.USER_HEADER) String userId,
+            @RequestParam(defaultValue="1") int page,@RequestParam(defaultValue="50") int size) {
+        CurrentUser user=permissionService.resolve(userId);
+        catalogService.requireVisibleByLegacyCode(user,"receivable");
+        return Result.ok(reportService.pageReceivable(user,page,size));
+    }
+
+    @GetMapping("/expense/page")
+    public Result<ReportPage<ExpenseReport>> expensePage(@RequestHeader(PermissionService.USER_HEADER) String userId,
+            @RequestParam(defaultValue="1") int page,@RequestParam(defaultValue="50") int size) {
+        CurrentUser user=permissionService.resolve(userId);
+        catalogService.requireVisibleByLegacyCode(user,"expense");
+        return Result.ok(reportService.pageExpense(user,page,size));
+    }
+
     @GetMapping("/sales")
     public Result<List<SalesReport>> sales(@RequestHeader(PermissionService.USER_HEADER) String userId) {
         CurrentUser user = permissionService.resolve(userId);

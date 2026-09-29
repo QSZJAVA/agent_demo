@@ -298,6 +298,34 @@ test('sending is blocked until initial history finishes and remains usable after
   assert.equal(state.messages[2].content, 'new answer')
 })
 
+test('failed selection restore blocks both chat and plan creation until a successful retry', async () => {
+  let fail = true, sent = 0, plans = 0
+  const excluded = [{ reportId: 'sales', recordId: '2' }]
+  const { state } = harness({
+    fetchMessages: async () => [{ id: 1, role: 'card', cardType: 'preview', status: 'ACTIVE', payload: { previewId: 'p1' } }],
+    fetchDialogueSelection: async () => { if (fail) throw new Error('offline'); return { previewId: 'p1', excludedRecords: excluded } },
+    createPlan: async request => { plans++; assert.deepEqual(request.excludedRecords, excluded); return { planId: 'plan1' } },
+    window: { crypto: require('node:crypto').webcrypto },
+    streamChat: () => { sent++; return { promise: Promise.resolve() } }
+  })
+  await state.openConversation('conv1', true)
+  assert.equal(state.selectionRestoreFailed, true)
+  await state.send('dispatch'); await state.dispatchSelected(state.messages[0])
+  assert.equal(sent, 0); assert.equal(plans, 0)
+  fail = false
+  await state.retrySelectionRestore()
+  assert.equal(state.selectionRestoreFailed, false)
+  await state.dispatchSelected(state.messages[0])
+  assert.equal(plans, 1)
+})
+
+test('expired or older-page preview retains the server exclusions for safe refresh', async () => {
+  const excluded = [{ reportId: 'sales', recordId: '2' }]
+  const { state } = harness({ fetchDialogueSelection: async () => ({ previewId: 'old', excludedRecords: excluded }) })
+  await state.openConversation('conv1', true)
+  assert.equal(state.uiPreviewId, 'old'); assert.deepEqual(state.uiExcludes, excluded)
+})
+
 test('failed history request releases the sending guard', async () => {
   const { state } = harness({ fetchMessages: async () => { throw new Error('offline') } })
   await assert.rejects(state.openConversation('conv1', true), /offline/)

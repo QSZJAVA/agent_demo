@@ -13,13 +13,13 @@ export default defineConfig({
     }
   },
   server: {
-    // 同时监听 IPv4/IPv6，避免访问 127.0.0.1 时连接被拒
-    host: true,
+    // Development server is local-only; production uses the Nginx build.
+    host: '127.0.0.1',
     port: 5173,
     proxy: {
       // 开发环境把 /api 转发到 Spring Boot
       '/api': {
-        target: 'http://localhost:8080',
+        target: 'http://127.0.0.1:8080',
         changeOrigin: true
       }
     }

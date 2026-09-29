@@ -20,7 +20,10 @@
             v-for="c in conversations"
             :key="c.id"
             :class="['conv-item', { active: c.id === activeId }]"
+            role="button"
+            tabindex="0"
             @click="openConversation(c.id)"
+            @keydown.enter.prevent="openConversation(c.id)"
           >
             <div class="conv-title" :title="c.title || '（未命名）'">{{ c.title || '（未命名）' }}</div>
             <div class="conv-meta">
@@ -68,7 +71,7 @@
                 :payload="m.payload"
                 :status="m.status"
                 :status-message="m.statusMessage"
-                :busy="busy"
+                :busy="busy || selectionRestoreFailed"
                 :server-exclusions="uiPreviewId === m.payload.previewId ? uiExcludes : []"
                 @selection-change="onPreviewSelection(m, $event)"
                 @dispatch-selected="dispatchSelected(m)"
@@ -101,6 +104,10 @@
         </div>
 
         <div class="chat-input">
+          <div v-if="selectionRestoreFailed" class="job-progress" role="alert">
+            未能恢复之前的勾选，恢复成功后才能继续查询或生成清单。
+            <el-button type="text" size="mini" :loading="openingHistory" @click="retrySelectionRestore">重试恢复勾选</el-button>
+          </div>
           <div v-if="choosing" class="job-progress">{{ jobStage }}
             <el-button type="text" size="mini" @click="cancelCurrentJob">取消查询</el-button>
           </div>
@@ -118,7 +125,7 @@
               <template v-if="uiExcludes.length">已在表格中取消勾选 {{ uiExcludes.length }} 条，派单时会自动排除</template>
               <template v-else>派单前会先生成待确认清单，点击"确认派单"才会真正执行</template>
             </span>
-            <el-button type="primary" size="small" :loading="sending" @click="send()">发送</el-button>
+            <el-button type="primary" size="small" :loading="sending" :disabled="selectionRestoreFailed" @click="send()">发送</el-button>
           </div>
         </div>
       </div>
@@ -173,6 +180,7 @@ export default {
       hasOlderMessages: false,
       historyLoading: false,
       openingHistory: false,
+      selectionRestoreFailed: false,
       historyVersion: 0,
       oldestMessageId: null,
       modelName: '',
@@ -321,6 +329,7 @@ export default {
       this.hasOlderMessages = false
       this.messages = []
       this.clearSelection()
+      this.selectionRestoreFailed = false
       this.input = ''
     },
     async openConversation(id, force = false) {
@@ -331,6 +340,7 @@ export default {
       this.messages = []
       this.hasOlderMessages = false
       this.clearSelection()
+      this.selectionRestoreFailed = false
       this.openingHistory = true
       let list
       try {
@@ -448,9 +458,20 @@ export default {
       try {
         const selection = await fetchDialogueSelection(id)
         if (!this.isCurrentSession() || this.activeId !== id || this.historyVersion !== version) return
-        const card = this.messages.find(m => m.cardType === 'preview' && m.payload?.previewId === selection.previewId)
-        if (card && card.status === 'ACTIVE') this.applySelection(selection)
-      } catch (e) { /* 保留可读历史；对话入口仍会校验来源预览和勾选。 */ }
+        // Keep selection even when its card is expired or outside the current history page.
+        // The server decides whether it can migrate to a refreshed preview.
+        this.applySelection(selection)
+        this.selectionRestoreFailed = false
+      } catch (e) {
+        if (this.isCurrentSession() && this.activeId === id && this.historyVersion === version) this.selectionRestoreFailed = true
+      }
+    },
+    async retrySelectionRestore() {
+      if (!this.isCurrentSession() || this.busy || !this.activeId) return
+      const id = this.activeId, version = this.historyVersion
+      this.openingHistory = true
+      try { await this.restoreSelection(id, version) }
+      finally { if (version === this.historyVersion) this.openingHistory = false }
     },
 
     // ---------- 对话 ----------
@@ -491,12 +512,12 @@ export default {
       return result
     },
     onPreviewSelection(m, excludedRecords) {
-      if (m.status !== 'ACTIVE') return
+      if (m.status !== 'ACTIVE' || this.selectionRestoreFailed || this.openingHistory) return
       this.uiExcludes = excludedRecords
       this.uiPreviewId = m.payload.previewId
     },
     async dispatchSelected(m) {
-      if (!this.isCurrentSession() || this.busy || m.status !== 'ACTIVE' || !m.payload.previewId) return
+      if (!this.isCurrentSession() || this.busy || this.selectionRestoreFailed || m.status !== 'ACTIVE' || !m.payload.previewId) return
       const previewId = m.payload.previewId
       const excludedRecords = this.uiPreviewId === previewId ? this.uiExcludes.slice() : []
       // 同一选择在网络重试时沿用键；用户改变选择则是一次新的建单操作。
@@ -525,7 +546,7 @@ export default {
     async send(text) {
       if (!this.isCurrentSession()) return
       const message = (text || this.input || '').trim()
-      if (!message || this.busy) return
+      if (!message || this.busy || this.selectionRestoreFailed) return
       this.input = ''
       this.sending = true
       this.push({ role: 'user', content: message })
@@ -1106,5 +1127,17 @@ export default {
 .chat-input-actions .hint {
   font-size: 12px;
   color: #909399;
+}
+</style>
+
+<style>
+@media (max-width: 900px) {
+  .agent-drawer { width: 100% !important; }
+  .agent-drawer .agent-layout { flex-direction: column; }
+  .agent-drawer .conv-pane { width: auto; max-height: 130px; flex-shrink: 0; }
+  .agent-drawer .conv-list { overflow-y: auto; }
+  .agent-drawer .chat-pane { min-height: 0; }
+  .agent-drawer .foot-actions { flex-wrap: wrap; }
+  .agent-drawer .sel-hint { flex-basis: 100%; }
 }
 </style>

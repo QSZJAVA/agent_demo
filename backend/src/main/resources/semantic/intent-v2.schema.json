@@ -1,0 +1,125 @@
+{
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "version": {
+      "type": "integer",
+      "enum": [
+        2
+      ]
+    },
+    "action": {
+      "type": "string",
+      "enum": [
+        "PREVIEW",
+        "PREPARE_DISPATCH",
+        "CANCEL_PLAN",
+        "SHOW_RESULT",
+        "EXPLAIN_RULES",
+        "CLARIFY",
+        "HELP"
+      ]
+    },
+    "scopeChanges": {
+      "type": "array",
+      "maxItems": 8,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "target": {
+            "type": "string",
+            "enum": [
+              "COMPANY",
+              "REPORTS",
+              "RECORDS"
+            ]
+          },
+          "operation": {
+            "type": "string",
+            "enum": [
+              "REPLACE",
+              "ADD",
+              "REMOVE",
+              "CLEAR"
+            ]
+          },
+          "mentions": {
+            "type": "array",
+            "maxItems": 20,
+            "items": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 160
+            }
+          },
+          "evidence": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 1000
+          }
+        },
+        "required": [
+          "target",
+          "operation",
+          "mentions",
+          "evidence"
+        ]
+      }
+    },
+    "restrictions": {
+      "type": "array",
+      "maxItems": 7,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "action": {
+            "type": "string",
+            "enum": [
+              "PREVIEW",
+              "PREPARE_DISPATCH",
+              "CANCEL_PLAN",
+              "SHOW_RESULT",
+              "EXPLAIN_RULES",
+              "HELP"
+            ]
+          },
+          "scope": {
+            "type": "string",
+            "enum": [
+              "THIS_TURN"
+            ]
+          },
+          "evidence": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 1000
+          }
+        },
+        "required": [
+          "action",
+          "scope",
+          "evidence"
+        ]
+      }
+    },
+    "clarify": {
+      "type": "string",
+      "enum": [
+        "NONE",
+        "COMPANY",
+        "REPORTS",
+        "RECORDS",
+        "ACTION"
+      ]
+    }
+  },
+  "required": [
+    "version",
+    "action",
+    "scopeChanges",
+    "restrictions",
+    "clarify"
+  ]
+}

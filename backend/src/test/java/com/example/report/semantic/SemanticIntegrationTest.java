@@ -103,6 +103,58 @@ class SemanticIntegrationTest {
             assertTrue(text(turn(id,"取消清单")).contains("已取消"));
         } finally {props.getDispatch().setRequireConfirm(before);}
     }
+    @Test void expiredPreviewRetainsExclusionsWithAndWithoutUiSelection() {
+        for (boolean ui : List.of(false,true)) {
+            String id=conversation();turn(id,"A公司销售报表的");turn(id,"排除SO2026002");
+            var before=store.read(user(),id);
+            jdbc.update("UPDATE dispatch_preview SET expires_at=TIMESTAMPADD(SECOND,-1,NOW(3)) WHERE id=?",before.getPreviewId());
+            var events=chat.chat(user(),id,"剩下的帮我派单吧",List.of(),ui?before.getPreviewId():null,
+                    ui?before.getExcludedRecords():List.of()).collectList().block(Duration.ofSeconds(30));
+            assertTrue(events.stream().anyMatch(e->"plan".equals(e.event())),text(events));
+            var state=store.read(user(),id);assertNotEquals(before.getPreviewId(),state.getPreviewId());
+            assertEquals(before.getExcludedRecords(),state.getExcludedRecords());
+            var plan=plans.getOwned(user(),state.getPlanId());assertEquals("PENDING",plan.plan().getStatus());
+            assertTrue(plan.items().stream().noneMatch(i->"SO2026002".equals(i.getDocNo())));
+            assertTrue(plan.items().stream().allMatch(i->i.getAttemptCount()==null || i.getAttemptCount()==0));
+        }
+    }
+    @Test void scopeChangeCannotDropExclusionsAndExplicitResetCanRecover() {
+        String id=conversation();turn(id,"A公司销售报表的");turn(id,"排除SO2026002");
+        org.mockito.Mockito.doReturn(new SemanticIntent(2,SemanticIntent.Action.PREVIEW,List.of(
+                new SemanticIntent.ScopeChange(SemanticIntent.Target.REPORTS,SemanticIntent.Operation.REPLACE,List.of("费用报表"),"只查费用报表")),List.of(),SemanticIntent.Clarify.NONE))
+                .when(parser).parse(org.mockito.ArgumentMatchers.eq("只查费用报表"),org.mockito.ArgumentMatchers.any());
+        turn(id,"只查费用报表");
+        assertTrue(store.read(user(),id).isUnresolvedRecords());
+        assertFalse(turn(id,"剩下的帮我派单吧").stream().anyMatch(e->"plan".equals(e.event())));
+        turn(id,"恢复全部记录");
+        assertFalse(store.read(user(),id).isUnresolvedRecords());
+        assertTrue(store.read(user(),id).getExcludedRecords().isEmpty());
+        assertTrue(turn(id,"剩下的帮我派单吧").stream().anyMatch(e->"plan".equals(e.event())));
+    }
+    @Test void refreshingLargePreviewWithExplicitAllSelectionDoesNotLoadAllRows() {
+        int previous=props.getPreview().getMaxItems();props.getPreview().setMaxItems(2);
+        try {
+            String id=conversation();turn(id,"A公司销售报表的");
+            String source=store.read(user(),id).getPreviewId();
+            var events=chat.chat(user(),id,"A公司销售报表的",List.of(),source,List.of()).collectList().block(Duration.ofSeconds(30));
+            assertTrue(events.stream().anyMatch(e->"preview".equals(e.event())),text(events));
+            assertEquals(DialogueState.Phase.READY,store.read(user(),id).getPhase(),text(events));
+        } finally {props.getPreview().setMaxItems(previous);}
+    }
+    @Test void reportPaginationKeepsPermissionFiltersAndStableOrdering(@Autowired com.example.report.report.ReportService reports) {
+        var first=reports.pageSales(user(),1,2);var second=reports.pageSales(user(),2,2);
+        assertEquals(2,first.records().size());assertEquals(first.total(),second.total());
+        assertTrue(first.total()>2);
+        assertTrue(first.records().stream().allMatch(r->"A".equals(r.getCompanyCode()) && user().tenantId().equals(r.getTenantId())));
+        assertTrue(second.records().stream().noneMatch(r->first.records().stream().anyMatch(x->x.getId().equals(r.getId()))));
+        assertTrue(reports.pageSales(user(),100000,200).records().isEmpty());
+        assertThrows(ApiException.class,()->reports.pageSales(user(),0,50));
+        assertThrows(ApiException.class,()->reports.pageSales(user(),1,201));
+        var nobody=new CurrentUser(user().tenantId(),"empty","empty",Set.of(),Set.of(),false);
+        assertEquals(0,reports.pageSales(nobody,1,50).total());
+        assertEquals(0,reports.pageReceivable(nobody,1,50).total());
+        assertEquals(0,reports.pageExpense(nobody,1,50).total());
+    }
     @Test void ambiguousScopeStaysBlockedUntilExplicitReportCorrection() {
         String id=conversation();turn(id,"只查销售报表");
         var ambiguous=turn(id,"查一下客户对账有哪些可以派单");
@@ -160,19 +212,71 @@ class SemanticIntegrationTest {
         assertEquals(0,jdbc.queryForObject("SELECT COUNT(*) FROM semantic_turn WHERE conversation_id=?",Integer.class,id));
         assertThrows(ApiException.class,()->store.acquire(user(),id));
     }
-    @Test void companyEllipsisAndCorrectionWorkEvenWhenModelIsUnavailable() {
-        org.mockito.Mockito.doThrow(new ApiException(503,"model unavailable"))
-                .when(parser).parse(org.mockito.ArgumentMatchers.anyString(),org.mockito.ArgumentMatchers.any());
+    @Test void modelFailureNeverFallsBackToKeywordScopeAndExplicitCorrectionCanRecover() {
         String id=conversation();
         assertTrue(turn(id,"A公司销售报表的").stream().anyMatch(e->"preview".equals(e.event())));
+        org.mockito.Mockito.doThrow(new ApiException(503,"model unavailable"))
+                .when(parser).parse(org.mockito.ArgumentMatchers.anyString(),org.mockito.ArgumentMatchers.any());
         var refused=turn(id,"那 B 公司呢？");
-        assertTrue(text(refused).contains("无权查看 B 公司"),text(refused));
-        assertEquals("B",store.read(user(),id).getDesired().companyCode());
-        assertTrue(text(turn(id,"现在我只想派销售报表的")).contains("无权查看 B 公司"));
+        assertFalse(refused.stream().anyMatch(e->Set.of("preview","plan").contains(e.event())));
+        assertTrue(store.read(user(),id).isUnresolvedCompany());
+        org.mockito.Mockito.doCallRealMethod().when(parser).parse(org.mockito.ArgumentMatchers.anyString(),org.mockito.ArgumentMatchers.any());
+        assertFalse(turn(id,"剩下的帮我派单吧").stream().anyMatch(e->"plan".equals(e.event())));
         var corrected=turn(id,"A公司销售报表的");
         assertTrue(corrected.stream().anyMatch(e->"preview".equals(e.event())),text(corrected));
-        assertEquals(IntentParser.Source.DOMAIN,store.read(user(),id).getParserSource());
-        assertEquals(4,jdbc.queryForObject("SELECT COUNT(*) FROM semantic_turn WHERE conversation_id=? AND model='domain-grammar-v1'",Integer.class,id));
-        org.mockito.Mockito.verify(parser,org.mockito.Mockito.never()).parse(org.mockito.ArgumentMatchers.anyString(),org.mockito.ArgumentMatchers.any());
+        assertEquals(IntentParser.Source.MOCK,store.read(user(),id).getParserSource());
+        assertEquals(0,jdbc.queryForObject("SELECT COUNT(*) FROM semantic_turn WHERE conversation_id=? AND model='domain-grammar-v1'",Integer.class,id));
+    }
+
+    @Test void queryNegationCannotCreatePlanAndOrderedScopeChangesReachBusinessServices() {
+        String id=conversation();
+        var events=turn(id,"只查销售报表，不要派单");
+        assertTrue(events.stream().anyMatch(e->"preview".equals(e.event())),text(events));
+        assertFalse(events.stream().anyMatch(e->"plan".equals(e.event())));
+        var state=store.read(user(),id);
+        assertEquals(List.of("rpt-sales-order"),state.getDesired().reportIds());
+        assertTrue(state.getPendingIntent().forbids(SemanticIntent.Action.PREPARE_DISPATCH));
+        assertEquals(0,jdbc.queryForObject("SELECT COUNT(*) FROM dispatch_plan WHERE conversation_id=?",Integer.class,id));
+        var prepared=turn(id,"剩下的帮我派单吧");
+        assertTrue(prepared.stream().anyMatch(e->"plan".equals(e.event())),text(prepared));
+        var plan=plans.getOwned(user(),store.read(user(),id).getPlanId());
+        assertEquals("PENDING",plan.plan().getStatus());
+        assertTrue(plan.items().stream().allMatch(i->i.getAttemptCount()==null || i.getAttemptCount()==0));
+        var changed=turn(id,"只查费用报表，再加销售报表，最后去掉费用报表");
+        assertTrue(changed.stream().anyMatch(e->"preview".equals(e.event())),text(changed));
+        assertEquals(List.of("rpt-sales-order"),store.read(user(),id).getDesired().reportIds());
+    }
+
+    @Test void orderedRecordOperationsUseOnePreviewAndCommitNoPartialSelection() {
+        String id=conversation();turn(id,"A公司销售报表的");
+        String preview=store.read(user(),id).getPreviewId();
+        turn(id,"排除SO2026002");
+        assertEquals(1,store.read(user(),id).getExcludedRecords().size());
+        turn(id,"排除SO2026002，再恢复SO2026002");
+        var state=store.read(user(),id);assertEquals(preview,state.getPreviewId());assertTrue(state.getExcludedRecords().isEmpty());
+        var invalid=new SemanticIntent(2,SemanticIntent.Action.PREVIEW,List.of(
+                new SemanticIntent.ScopeChange(SemanticIntent.Target.RECORDS,SemanticIntent.Operation.ADD,List.of("SO2026002"),"排除SO2026002"),
+                new SemanticIntent.ScopeChange(SemanticIntent.Target.RECORDS,SemanticIntent.Operation.ADD,List.of("UNKNOWN99"),"排除UNKNOWN99")),List.of(),SemanticIntent.Clarify.NONE);
+        org.mockito.Mockito.doReturn(invalid).when(parser).parse(org.mockito.ArgumentMatchers.eq("排除SO2026002，再排除UNKNOWN99"),org.mockito.ArgumentMatchers.any());
+        var failed=turn(id,"排除SO2026002，再排除UNKNOWN99");
+        assertFalse(failed.stream().anyMatch(e->"plan".equals(e.event())));
+        assertTrue(store.read(user(),id).getExcludedRecords().isEmpty());
+        assertTrue(store.read(user(),id).isUnresolvedRecords());
+        assertFalse(turn(id,"剩下的帮我派单吧").stream().anyMatch(e->"plan".equals(e.event())));
+    }
+
+    @Test void malformedAndConflictingModelProgramsCannotMutateScopeOrCreatePlans() {
+        String id=conversation();turn(id,"A公司销售报表的");
+        var before=store.read(user(),id).getDesired();
+        var conflict=new SemanticIntent(2,SemanticIntent.Action.PREPARE_DISPATCH,List.of(
+                new SemanticIntent.ScopeChange(SemanticIntent.Target.REPORTS,SemanticIntent.Operation.REPLACE,List.of("费用报表"),"费用报表")),
+                List.of(new SemanticIntent.Restriction(SemanticIntent.Action.PREPARE_DISPATCH,SemanticIntent.RestrictionScope.THIS_TURN,"不要派单")),SemanticIntent.Clarify.NONE);
+        org.mockito.Mockito.doReturn(conflict).when(parser).parse(org.mockito.ArgumentMatchers.eq("费用报表不要派单"),org.mockito.ArgumentMatchers.any());
+        var events=turn(id,"费用报表不要派单");
+        assertFalse(events.stream().anyMatch(e->Set.of("plan","preview").contains(e.event())));
+        assertEquals(before,store.read(user(),id).getDesired());
+        assertTrue(store.read(user(),id).isUnresolvedReports());
+        assertFalse(turn(id,"剩下的帮我派单吧").stream().anyMatch(e->"plan".equals(e.event())));
+        assertEquals(0,jdbc.queryForObject("SELECT COUNT(*) FROM dispatch_plan WHERE conversation_id=?",Integer.class,id));
     }
 }

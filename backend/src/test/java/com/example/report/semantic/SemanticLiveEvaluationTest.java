@@ -1,9 +1,7 @@
 package com.example.report.semantic;
 
-import com.example.report.catalog.*;
-import com.example.report.common.*;
+import com.example.report.common.JsonUtil;
 import com.example.report.config.AgentProperties;
-import com.example.report.support.TestCatalog;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.EnabledIfEnvironmentVariable;
 import org.springframework.ai.openai.*;
@@ -15,7 +13,7 @@ import java.nio.file.*;
 import java.util.*;
 import static org.junit.jupiter.api.Assertions.*;
 
-/** Opt-in acceptance replay. Records DOMAIN/MODEL/MOCK separately; no DB or dispatch service. */
+/** Opt-in V2 model acceptance. Synthetic data only: no database, no dispatch gateway. */
 @EnabledIfEnvironmentVariable(named="SEMANTIC_LIVE_EVAL",matches="true")
 class SemanticLiveEvaluationTest {
     @Test void multiTurnAcceptanceReplay() throws Exception {
@@ -29,51 +27,22 @@ class SemanticLiveEvaluationTest {
         var chat=OpenAiChatModel.builder().openAiApi(api).retryTemplate(RetryTemplate.builder().maxAttempts(1).build())
                 .defaultOptions(OpenAiChatOptions.builder().model(model).extraBody(Map.of("thinking",Map.of("type","disabled"))).build()).build();
         var modelParser=new ModelIntentParser(chat,new IntentCodec(),props);
-        IntentParser parser="model".equals(System.getenv("SEMANTIC_EVAL_PARSER"))?modelParser:new SemanticIntentParser(modelParser);
-        var catalog=new ReportCatalogService(new TestCatalog().catalog(),props);
-        var planner=new SemanticPlanner(catalog);
-        List<Map<String,Object>> results=new ArrayList<>();
-        try(var input=getClass().getResourceAsStream("/semantic/replay-corpus.json")) {
-            var scenarios=JsonUtil.MAPPER.readTree(input);
-            evaluation: for(var scenario:scenarios) {
-                var state=new DialogueState();
-                for(var test:scenario.get("turns")) {
-                    String message=test.get("message").asText();long start=System.nanoTime();
-                    Map<String,Object> result=new LinkedHashMap<>();result.put("scenario",scenario.get("name").asText());result.put("message",message);
-                    try {
-                        var mentions=planner.mentions(TestCatalog.USER1,message);
-                        var interpreted=parser.interpret(message,new IntentParser.Context(state,catalog.dispatchableReports(TestCatalog.USER1).stream().map(CatalogEntry::ref).toList(),mentions));
-                        var intent=interpreted.intent();result.put("parserSource",interpreted.source());
-                        String outcome="READY";
-                        try { planner.merge(TestCatalog.USER1,state,intent);planner.requireCoverage(state,intent,mentions);planner.requireAction(state,intent);planner.validate(TestCatalog.USER1,state);state.setEffective(state.getDesired());state.setPhase(DialogueState.Phase.READY); }
-                        catch(ApiException e){outcome=e.getCode()==422?"CLARIFY":"REJECTED";state.setPhase(DialogueState.Phase.valueOf(outcome));state.setLastReason(e.getMessage());}
-                        state.setPendingIntent(intent);state.setRecentUserMessages(List.of(message));
-                        boolean actionCorrect=intent.action().name().equals(test.get("action").asText());
-                        boolean passed=actionCorrect
-                                && intent.company().operation().name().equals(test.get("companyOperation").asText())
-                                && intent.reports().operation().name().equals(test.get("reportsOperation").asText())
-                                && intent.exclusions().operation().name().equals(test.path("exclusionsOperation").asText("KEEP"))
-                                && Objects.equals(state.getDesired().companyCode(),test.get("company").isNull()?null:test.get("company").asText())
-                                && outcome.equals(test.get("outcome").asText());
-                        if(test.has("reportIds")) passed &= new HashSet<>(state.getDesired().reportIds()).equals(JsonUtil.MAPPER.convertValue(test.get("reportIds"),new com.fasterxml.jackson.core.type.TypeReference<Set<String>>(){}));
-                        result.put("actionCorrect",actionCorrect);
-                        result.put("passed",passed);result.put("intent",intent);result.put("outcome",outcome);result.put("scope",state.getDesired());
-                    } catch(Exception e){result.put("passed",false);result.put("error",e.getClass().getSimpleName());
-                        if(e instanceof IntentCodec.InvalidOutput invalid) result.put("invalidOutput",invalid.output());
-                        else if(e.getMessage()!=null) result.put("errorMessage",e.getMessage().replace(System.getenv("LLM_API_KEY"),"[redacted]"));
-                        state.setUnresolvedCompany(true);state.setUnresolvedReports(true);state.setPhase(DialogueState.Phase.CLARIFY);
-                        if(!(e instanceof ApiException)) {
-                            result.put("latencyMs",(System.nanoTime()-start)/1_000_000);results.add(result);break evaluation;
-                        }
-                    }
-                    result.put("latencyMs",(System.nanoTime()-start)/1_000_000);results.add(result);
-                }
-            }
-        }
-        long passed=results.stream().filter(r->Boolean.TRUE.equals(r.get("passed"))).count();
+        var parser=new SemanticIntentParser(modelParser);
+        String chosen=System.getenv("SEMANTIC_EVAL_CORPUS");
+        var corpora=chosen==null || chosen.isBlank()?List.of("replay-corpus.json","business-corpus-v2.json")
+                : "all".equals(chosen)?List.of("replay-corpus.json","business-corpus-v2.json","business-additional-corpus.json"):List.of(chosen);
+        assertTrue(corpora.stream().allMatch(Set.of("replay-corpus.json","business-corpus-v2.json","business-additional-corpus.json")::contains));
+        var evaluation=SemanticEvaluation.run(parser,props,corpora);
+        var results=evaluation.results();
         var sources=results.stream().filter(r->r.containsKey("parserSource")).collect(java.util.stream.Collectors.groupingBy(r->r.get("parserSource").toString(),java.util.stream.Collectors.counting()));
-        var output=Map.of("model",model,"nativeSchema",props.getSemantic().isNativeSchema(),"thinkingEnabled",props.getSemantic().isThinkingEnabled(),"passed",passed,"total",results.size(),"parserSources",sources,"cases",results);
+        var output=new LinkedHashMap<String,Object>();
+        output.putAll(Map.of("protocol",2,"model",model,"nativeSchema",props.getSemantic().isNativeSchema(),"thinkingEnabled",props.getSemantic().isThinkingEnabled(),"corpora",corpora,
+                "passed",results.size()-evaluation.failed(),"total",evaluation.expectedTurns(),"parserSources",sources,"cases",results));
+        output.put("modelCalls",modelParser.modelCalls());output.put("formatRepairs",modelParser.formatRepairs());
+        output.put("promptSha256",com.example.report.common.Digests.sha256(ModelIntentParser.INSTRUCTIONS));
         Files.createDirectories(Path.of("target"));Files.writeString(Path.of("target/semantic-live-evaluation.json"),JsonUtil.MAPPER.writerWithDefaultPrettyPrinter().writeValueAsString(output));
-        assertEquals(results.size(),passed,"See target/semantic-live-evaluation.json (no business actions executed)");
+        assertEquals(evaluation.expectedTurns(),results.size(),"Replay incomplete");
+        assertEquals(0,evaluation.failed(),"See target/semantic-live-evaluation.json (no business actions executed)");
+        assertTrue(results.stream().allMatch(r->"MODEL".equals(r.get("parserSource"))),"No mock or grammar short circuit allowed");
     }
 }

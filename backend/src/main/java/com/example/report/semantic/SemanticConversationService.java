@@ -19,9 +19,9 @@ import reactor.core.scheduler.Schedulers;
 import java.time.*;
 import java.util.*;
 import java.util.function.Consumer;
-import static com.example.report.semantic.SemanticIntent.Operation.KEEP;
+import static com.example.report.semantic.SemanticIntent.Target.*;
 
-/** Domain/model interpretation -> authoritative state -> deterministic business services -> factual replies. */
+/** Model interpretation -> authoritative state -> deterministic business services -> factual replies. */
 @Slf4j
 @Service
 public class SemanticConversationService {
@@ -58,13 +58,12 @@ public class SemanticConversationService {
                 Runnable guard=() -> { session.check(); ResourceQuotaService.check(permit); if (sink.isCancelled()) throw new ApiException(409,"对话连接已关闭"); };
                 Consumer<AgentEvent> emit=event -> { guard.run(); sink.next(event); };
                 turn(user,id,requestId,message,legacyExcludes,uiPreviewId,excludedRecords,model,session,guard,emit);
-                sink.next(new AgentEvent(AgentEvent.DONE,Map.of()));
-                sink.complete();
             } catch (Exception failure) {
                 log.warn("语义对话未完成 conversation={} type={}",id,failure.getClass().getSimpleName());
                 sink.next(new AgentEvent(AgentEvent.ERROR,Map.of("message",friendly(failure))));
-                sink.next(new AgentEvent(AgentEvent.DONE,Map.of())); sink.complete();
             }
+            // A completed stream permits another turn; release the dialogue and quota leases first.
+            sink.next(new AgentEvent(AgentEvent.DONE,Map.of())); sink.complete();
         }).subscribeOn(Schedulers.boundedElastic()).timeout(Duration.ofSeconds(store.timeoutSeconds()+5))
                 .onErrorResume(e -> Flux.just(new AgentEvent(AgentEvent.ERROR,Map.of("message","本次处理超时，请刷新会话查看已保存的结果后重试")),new AgentEvent(AgentEvent.DONE,Map.of())));
         return events.index().map(e -> ServerSentEvent.builder((Object)SensitiveData.typed(e.getT2().data()))
@@ -84,11 +83,11 @@ public class SemanticConversationService {
             catalog.refreshForValidation();
             var mentions=planner.mentions(user,message);
             var interpreted=parser.interpret(message,new IntentParser.Context(state,catalog.dispatchableReports(user).stream().map(CatalogEntry::ref).toList(),mentions));
+            codec.validate(interpreted.intent(),message); guard.run();
             intent=interpreted.intent();state.setParserSource(interpreted.source());
-            codec.validate(intent,message); guard.run();
             state.setPendingIntent(intent);
-            planner.merge(user,state,intent);
             planner.requireCoverage(state,intent,mentions);
+            planner.merge(user,state,intent);
             session.save();
             planner.requireAction(state,intent);
             reply=switch(intent.action()) {
@@ -113,7 +112,7 @@ public class SemanticConversationService {
         state.setRecentUserMessages(List.copyOf(recent.subList(Math.max(0,recent.size()-4),recent.size())));
         session.save();
         session.record(requestId,message,intent,state.getPhase().name(),state.getLastReason(),
-                state.getParserSource()==IntentParser.Source.DOMAIN?"domain-grammar-v1":model,(System.nanoTime()-started)/1_000_000);
+                model,(System.nanoTime()-started)/1_000_000);
         conversations.logAssistant(id,user.userId(),reply,null,null,(System.nanoTime()-started)/1_000_000);
         emit.accept(new AgentEvent(AgentEvent.TEXT,Map.of("delta",reply)));
         emit.accept(new AgentEvent("selection",selection(state)));
@@ -127,7 +126,11 @@ public class SemanticConversationService {
             var saved=previews.getOwned(user,state.getPreviewId());
             if (DispatchPreview.ACTIVE.equals(saved.preview().getStatus())) snapshot=saved;
         }
-        boolean onlySelection=intent.exclusions().operation()!=KEEP && intent.company().operation()==KEEP && intent.reports().operation()==KEEP;
+        boolean onlySelection=intent.changes(RECORDS) && !intent.changes(COMPANY) && !intent.changes(REPORTS);
+        String previousPreviewId=state.getPreviewId();
+        boolean refreshed=false;
+        boolean resetsRecords=intent.changesFor(RECORDS).stream().anyMatch(c ->
+                c.operation()==SemanticIntent.Operation.CLEAR || c.operation()==SemanticIntent.Operation.REPLACE);
         if (snapshot==null || (intent.action()==SemanticIntent.Action.PREVIEW && !onlySelection)) {
             state.setPhase(DialogueState.Phase.QUERYING); session.save();
             // Stream factual progress; the final count only comes from the completed snapshot.
@@ -137,26 +140,41 @@ public class SemanticConversationService {
             var outcome=previews.preview(user,id,command,n -> guard.run(),pid -> session.fenced(() -> { guard.run(); return null; }),previewVersion);
             if (outcome.status()!=PreviewOutcome.Status.OK) throw new ApiException(422,"当前范围没有可用报表，请重新指定报表名称");
             snapshot=outcome.snapshot();
-            state.setPreviewId(snapshot.preview().getId()); state.setEffective(scope); state.setPlanId(null); state.setExcludedRecords(List.of());
+            state.setPreviewId(snapshot.preview().getId()); state.setEffective(scope); state.setPlanId(null);
+            refreshed=true;
             session.save();
             var payload=PreviewPayload.of(snapshot,catalog);
             conversations.logCard(id,user.userId(),"preview",payload,payload.previewId(),null);
             emit.accept(new AgentEvent(AgentEvent.PREVIEW,payload));
         }
         boolean uiMatches=Objects.equals(uiPreviewId,state.getPreviewId());
+        // Migrate explicit UI selection only after validating its original source and the refreshed snapshot.
+        if (refreshed && sameScope && previousPreviewId!=null && Objects.equals(uiPreviewId,previousPreviewId) && uiExcludes!=null) {
+            if (!uiExcludes.isEmpty()) SelectionResolver.validate(rows(user,previews.getOwned(user,previousPreviewId)),uiExcludes);
+            state.setExcludedRecords(List.copyOf(uiExcludes));
+            uiMatches=true;
+        }
+        if (refreshed && !state.getExcludedRecords().isEmpty() && !resetsRecords) {
+            try { SelectionResolver.validate(rows(user,snapshot),state.getExcludedRecords()); }
+            catch (ApiException unavailable) {
+                state.setUnresolvedRecords(true);
+                throw new ApiException(422,"预览已更新，原排除记录不能完整恢复；请明确恢复全部记录或重新指定排除项后生成清单");
+            }
+        }
         if (uiPreviewId!=null && !uiMatches && uiExcludes!=null && !uiExcludes.isEmpty())
             throw new ApiException(422,"查询范围已变化，旧预览的勾选未应用；请在新预览上重新选择后派单");
-        if (state.isUnresolvedRecords() && intent.exclusions().operation()==KEEP
+        if (state.isUnresolvedRecords() && !intent.changes(RECORDS)
                 && (!uiMatches || uiExcludes==null || uiExcludes.equals(state.getExcludedRecords())))
             throw new ApiException(422,"上次排除记录尚未确定，请说明准确单据号、明确恢复全部记录，或在表格中重新选择");
-        if (intent.exclusions().operation()!=KEEP || (uiMatches && uiExcludes!=null && !uiExcludes.isEmpty()) || (uiMatches && legacyExcludes!=null && !legacyExcludes.isEmpty())) {
+        if (intent.changes(RECORDS) || (uiMatches && uiExcludes!=null && !uiExcludes.isEmpty()) || (uiMatches && legacyExcludes!=null && !legacyExcludes.isEmpty())) {
             state.setUnresolvedRecords(true);
             var rows=rows(user,snapshot);
             List<RecordKey> selected=uiMatches && uiExcludes!=null ? List.copyOf(uiExcludes) : state.getExcludedRecords();
             if (uiMatches && legacyExcludes!=null && !legacyExcludes.isEmpty()) selected=SelectionResolver.apply(rows,selected,
                     new SemanticIntent.Change(SemanticIntent.Operation.ADD,legacyExcludes,""));
+            for (var change:intent.changesFor(RECORDS)) selected=SelectionResolver.apply(rows,selected,change);
             SelectionResolver.validate(rows,selected);
-            state.setExcludedRecords(SelectionResolver.apply(rows,selected,intent.exclusions()));
+            state.setExcludedRecords(selected);
             state.setUnresolvedRecords(false);
         } else if (uiMatches && uiExcludes!=null) {
             state.setExcludedRecords(List.copyOf(uiExcludes));state.setUnresolvedRecords(false);

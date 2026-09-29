@@ -24,6 +24,26 @@ public final class SensitiveData {
         return EMAIL.matcher(ID.matcher(PHONE.matcher(text).replaceAll("[手机号已脱敏]")).replaceAll("[证件号已脱敏]")).replaceAll("[邮箱已脱敏]");
     }
     public static JsonNode value(Object value) { return clean(MAPPER.valueToTree(value), ""); }
+    /** Per-request reversible tokens; raw values stay local and never enter the model request. */
+    public record ModelText(String text, java.util.Map<String,String> originals) {
+        public String restore(String value) {
+            if (value == null) return null;
+            for (var entry : originals.entrySet()) value=value.replace(entry.getKey(),entry.getValue());
+            return value;
+        }
+    }
+    public static ModelText modelText(String input) {
+        var originals=new java.util.LinkedHashMap<String,String>();
+        var tokens=new java.util.LinkedHashMap<String,String>();
+        String prefix="REF"+java.util.UUID.randomUUID().toString().replace("-","")+"N";
+        String masked=input;
+        for (Pattern pattern : java.util.List.of(PHONE,ID,EMAIL)) {
+            masked=pattern.matcher(masked).replaceAll(match -> tokens.computeIfAbsent(match.group(), raw -> {
+                String token=prefix+tokens.size()+"Z"; originals.put(token,raw); return token;
+            }));
+        }
+        return new ModelText(masked,java.util.Collections.unmodifiableMap(originals));
+    }
     public static Object typed(Object value) {
         if (value == null) return null;
         Class<?> type = value instanceof java.util.Map ? java.util.Map.class : value.getClass();

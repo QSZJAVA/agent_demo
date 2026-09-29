@@ -4,6 +4,10 @@
 
 当前已实现配置化报表目录、规则管理、异步预览、持久化清单、失败重试和结果核对，以及运营治理页面。**身份仍由 `X-User-Id` 模拟，派单仍由演示网关回写数据库；真实认证与真实业务派单网关属于下一阶段。** 切换真实大模型不会改变这两个边界。
 
+后续真实派单等业务能力按 **MCP** 接入，入口为服务端 `DispatchGateway` 适配器，继续执行确认、权限、幂等和结果核对；详见 [MCP 派单接入契约](docs/MCP派单接入契约.md)。
+
+2026-09-29 真实模型联调最终固定语料 75/75、运行服务 HTTP 检查 27/27 通过，修复选择恢复、预览过期排除项和数字单据识别问题；具体配置、迭代过程、验证边界及运行入口见 [联调与修复报告](docs/真实模型联调与缺陷修复_2026-09-29.md)。样本通过率不是任意输入的正确率承诺。
+
 ## 技术与存储
 
 | 部分 | 当前实现 |
@@ -58,8 +62,8 @@ chmod +x deploy.sh
 | `LLM_BASE_URL` | `https://dashscope.aliyuncs.com/compatible-mode`；不附加 `/v1`，请求路径已含 `/v1/chat/completions` |
 | `LLM_MODEL` | 本地 `application.yml` 默认 `deepseek-v4.1-flash`；Compose 默认 `qwen3.7-plus` |
 | `LLM_API_KEY` | 真实模型模式必须提供有效密钥；不要写入源码 |
-| 请求选项 | 语义解析温度 `0`、最多输出 1600 tokens；legacy 温度 `0.1`；`extra-body` 为 `thinking: {type: disabled}` |
-| `SEMANTIC_MODE` | 默认 `active`，领域语法与模型协作的结构化语义入口；`legacy` 为回滚开关 |
+| 请求选项 | 语义解析温度 `0`、最多输出 2400 tokens；legacy 温度 `0.1`；`extra-body` 为 `thinking: {type: disabled}` |
+| `SEMANTIC_MODE` | 默认 `active`，V2 统一模型语义入口；`legacy` 为回滚开关 |
 | `SEMANTIC_NATIVE_SCHEMA` | 是否向模型端点发送原生 JSON Schema；不支持该能力的端点须关闭，服务端仍校验协议和原文证据 |
 | `SEMANTIC_MODEL` | 默认空，沿用 `LLM_MODEL`；可仅对语义解析选择其他模型 |
 | `SEMANTIC_THINKING_ENABLED` | 默认 `false`；开启后发送 `thinking.type=enabled`，输出预算改为 4096 tokens，需端点实际支持 |
@@ -68,19 +72,21 @@ chmod +x deploy.sh
 
 Docker 编辑 `.env` 的 `LLM_*` 后执行 `./deploy.sh start-real`；返回 mock 用 `./deploy.sh start-mock`。本地真实模型模式设置 `LLM_*` 后执行 Maven 启动命令，不带 `mock` profile。
 
+Windows 也可先在 `backend` 执行 `./mvnw.cmd package -DskipTests`，将 `LLM_BASE_URL`、`LLM_MODEL`、`LLM_API_KEY` 注入进程环境，再从项目根目录执行 `./tools/start-real.ps1 -Frontend`。该入口隐藏启动窗口、仅监听本机、明确关闭重置；日志和 PID 在 `backend/target`，不会保存模型密钥。端点支持时加 `-NativeSchema`。传入的 base URL 可带末尾 `/v1`，脚本会规范化，避免重复路径。
+
 ## 业务操作
 
 演示用户均属于租户 `T001`：`user1` 只能看 A 公司；`user2` 只能看 B 公司；`user3` 看 B 公司但无应收报表权限；`admin` 看 A/B/C 公司并可管理规则、目录和运营策略。
 
-`active` 链路先用领域语法解析能够完整识别的命令，报表名称和别名从目录读取，公司和单据号按标识符识别。其余表达交给模型提取本轮意图和原文实体，模型不调用业务工具。两种解析结果统一经过协议、原文证据、实体覆盖和权限校验，再将 KEEP/REPLACE/ADD/REMOVE/CLEAR 操作合并到 MySQL 会话状态并调用业务服务。回复中的结果、条数和状态来自实际业务结果；任何解析结果都不能直接确认派单。
+`active` 使用 V2 业务指令协议，自由文本统一交给模型解析，模型不调用业务工具。目录词典只提供实体候选，不决定动作含义。输出包含有序 `scopeChanges`（COMPANY/REPORTS/RECORDS）与本轮动作禁止 `restrictions`；后端验证协议、原文证据、实体覆盖、权限及状态，再调用确定性业务服务。未提及的对象保持原请求范围；未知/冲突指令要求澄清，不能丢弃一部分后继续执行。按钮选择与确认仍走 REST。
 
-**启用状态：** 默认启用 `active`。原有 19 轮回放全部通过，全部来自领域语法；真实 HTTP 验收 29/29 通过，包含已保存失败会话的纠正、报表增减、排除记录、生成待确认清单和取消。另已验证未覆盖的使用帮助表达会调用真实模型并正常返回。领域语法要求完整消费输入；复合操作、未知条件或不能确定作用范围的表达交给模型，不能丢掉后半句后执行。逐轮状态记录 `parserSource=DOMAIN/MODEL/MOCK`，领域解析的诊断模型标记为 `domain-grammar-v1`。
+**启用状态：** 默认 `active` 已使用 V2，不再以领域语法短路模型调用。旧 V1 会话状态在读取时兼容转换，历史 DOMAIN 来源仅保留用于读取；新请求来源为 MODEL/MOCK。真实环境部署前必须运行 V2 模型验收，不能沿用 V1 的语法回放成绩。
 
-上述回放结果是新链路的回归通过率，不是大模型准确率。此前仅模型解析回放为 16/19，已观察到端点接受 Schema 后仍返回非法枚举；此限制仍需通过 `-ModelOnly` 独立评估，不能由领域语法命中率掩盖。
+当前业务回放包含原有 19 轮和 V2 边界 32 轮，共 51 轮，另有 24 轮真实模型补充样本。模拟样本仅验证协议、归并和业务约束，不代表模型准确率。真实模型返回的 JSON、原文证据或报表覆盖校验失败时，最多追加一次解析修复，不执行任何业务动作；仍失败则要求澄清。设计、兼容和验收边界见 [语义 V2 实施说明](docs/语义V2实施与验收.md)。
 
 例如先查 A 成功、再查 B 被拒绝后，省略公司会继续保留未生效的 B 请求并提示拒绝；明确说“A公司销售报表的”才切回 A 查询。公司被拒绝不等于自动回退到 A，历史助手文字也不作为范围或权限依据。
 
-active 的 mock 模式仍先走领域语法，未覆盖的表达使用 `backend/src/main/resources/semantic/mock-intents.json` 固定演示样本，其余返回澄清；legacy 的 mock 保留关键词工具模拟。mock 不代表自然语言准确率。回放语料及模型单独评估见下文。以下查询步骤描述 active；legacy 保留原有模型工具、歧义选择卡片和明确公司查询纠正逻辑。
+active 的 mock 模式只读取 `backend/src/main/resources/semantic/mock-intents.json` 中明确列出的固定演示样本，其余返回澄清；这些样本不参与真实模型模式，不是关键词兜底。legacy 保留历史工具链作为显式回滚，不能在 V2 失败时自动切换。
 
 1. 输入“查一下我有哪些可以派单”。服务端先按目录、租户、报表权限和公司范围筛选，再按生效规则查询；候选数以当前数据为准。
 2. 名称或别名存在歧义、只有模糊近似匹配时，语义入口要求明确完整报表名称。新语义入口在本轮完成查询并流式发送进度与卡片，默认处理上限 180 秒；大预览仍分批持久化和分页读取。既有报表选择卡片和 REST 异步任务保留 120 秒超时及刷新恢复。
@@ -97,6 +103,7 @@ active 的 mock 模式仍先走领域语法，未覆盖的表达使用 `backend/
 | `GET /api/health/readiness` | MySQL 与 Redis 就绪检查，HTTP 200/503 |
 | `GET /api/auth/users`、`GET /api/auth/me` | 演示用户列表、当前身份 |
 | `GET /api/report/{sales,receivable,expense}` | 三张报表查询，服务端权限过滤 |
+| `GET /api/report/{sales,receivable,expense}/page?page=1&size=50` | 三张普通报表的服务端分页，返回 `records/total/page/size`；每页最多 200 条，前端显示本页合计。旧列表接口保留数组形状，但最多返回前 200 条，调用方需迁移分页接口 |
 | `POST /api/agent/chat` | SSE：`conversation`、`text`、`preview_job`、`choice`、`preview`、`plan`、`result`、`selection`、`error`、`done`；不同模式按业务结果发送事件 |
 | `GET /api/agent/conversations/{id}/selection` | 当前语义预览绑定的排除记录与阶段，恢复会话时与有效卡片匹配 |
 | `POST /api/dispatch/previews`、`POST /api/dispatch/previews/jobs` | 同步/异步创建预览 |
@@ -130,7 +137,7 @@ Windows 使用 `mvnw.cmd`。普通后端测试包含规则、目录、状态机�
 | --- | --- |
 | `TRACE_IT=true` | UUID 隔离数据库上的事务、持久化追溯等数据库集成测试 |
 | `P2_IT=true` | UUID 隔离数据库上的运营治理及语义多轮/租约/删除集成测试 |
-| `./tools/test-semantic-live.ps1` | 回放领域语法与真实模型协作链路，按 DOMAIN/MODEL/MOCK 分别记录来源；仅解析与范围归并，不查业务库、不执行派单。`-ModelOnly` 强制只评估模型；可加 `-NativeSchema`、`-Thinking`、`-Model 名称`，输出 `backend/target/semantic-live-evaluation.json` |
+| `./tools/test-semantic-live.ps1` | V2 真实模型业务级回放，要求所有成功解析来源均为 MODEL；比较最终范围、动作、排除项与禁止条件，仅使用合成数据，不查业务库、不执行派单。`-ModelOnly` 为兼容参数；可加 `-NativeSchema`、`-Thinking`、`-Model 名称`，输出 `backend/target/semantic-live-evaluation.json` |
 | `python tools/test-semantic-http.py` | 验收运行中的 active 服务：公司切换、报表增减、排除、待确认清单及取消；创建验收会话，不确认派单。默认连接本机 8080；可加 `--resume-conversation ID` 验证旧会话，结果写入 `backend/target/semantic-http-acceptance.json`；固定断言对应未改动的示例数据 |
 | `P2_UI=true` | 可选浏览器驻留测试，需配合 P2 测试，默认关闭 |
 | `DEMO_IT=true` | 原有共用演示环境集成测试，会操作演示数据；仅在专用测试环境启用 |

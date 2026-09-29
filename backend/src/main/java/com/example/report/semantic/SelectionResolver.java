@@ -16,6 +16,12 @@ public final class SelectionResolver {
         for (String mention : change.mentions()) {
             String term=TextNormalizer.normalize(mention);
             var matches=rows.stream().filter(r -> term.equals(TextNormalizer.normalize(r.docNo()))).toList();
+            if (matches.isEmpty()) {
+                // Entity linking only: remove a document-kind label, never interpret action/negation here.
+                String identifier=term.replaceFirst("^(?:报销单号|单据号|订单号|发票号|报销单|单据|订单|发票)","");
+                if (!identifier.equals(term) && !identifier.isBlank())
+                    matches=rows.stream().filter(r -> identifier.equals(TextNormalizer.normalize(r.docNo()))).toList();
+            }
             if (matches.isEmpty()) matches=rows.stream().filter(r -> r.label()!=null && TextNormalizer.normalize(r.label()).contains(term)).toList();
             if (matches.size()!=1) throw new ApiException(422,"“"+mention+"”未能唯一定位记录，请在预览表格中勾选要派单的记录");
             var row=matches.get(0); keys.add(new RecordKey(row.reportId(),row.recordId()));

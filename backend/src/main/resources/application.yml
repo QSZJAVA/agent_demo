@@ -94,7 +94,7 @@ mybatis-plus:
 
 agent:
   semantic:
-    mode: ${SEMANTIC_MODE:active}      # 领域语法/模型解析统一进入结构化意图；legacy 用于回滚
+    mode: ${SEMANTIC_MODE:active}      # V2 统一模型语义入口；legacy 为显式回滚，不作为解析兜底
     native-schema: ${SEMANTIC_NATIVE_SCHEMA:false} # 仅端点支持 JSON Schema 时开启
     model: ${SEMANTIC_MODEL:}         # 留空沿用 LLM_MODEL，可单独选择通过语义验收的模型
     thinking-enabled: ${SEMANTIC_THINKING_ENABLED:false} # 需端点支持 thinking.type=enabled

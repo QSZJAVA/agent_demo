@@ -1,0 +1,36 @@
+[
+  {"name":"补充-省略公司与纠正","turns":[
+    {"message":"麻烦预览一下 A 公司的销售报表","action":"PREVIEW","company":"A","outcome":"READY","reportIds":["rpt-sales-order"]},
+    {"message":"换成 B 公司看看","action":"PREVIEW","company":"B","outcome":"REJECTED","reportIds":["rpt-sales-order"]},
+    {"message":"还是看 A 公司吧","action":"PREVIEW","company":"A","outcome":"READY","reportIds":["rpt-sales-order"]},
+    {"message":"把这些列成待确认清单","action":"PREPARE_DISPATCH","company":"A","outcome":"READY","reportIds":["rpt-sales-order"]},
+    {"message":"撤销刚才的待确认清单","action":"CANCEL_PLAN","company":"A","outcome":"READY","reportIds":["rpt-sales-order"]}
+  ]},
+  {"name":"补充-集合与否定","turns":[
+    {"message":"先查询应收报表","action":"PREVIEW","company":null,"outcome":"READY","reportIds":["rpt-ar-invoice"]},
+    {"message":"销售报表也一起看，暂时不生成派单清单","action":"PREVIEW","company":null,"outcome":"READY","reportIds":["rpt-ar-invoice","rpt-sales-order"],"forbiddenActions":["PREPARE_DISPATCH"]},
+    {"message":"把应收报表从查询中移除，只留下销售报表","action":"PREVIEW","company":null,"outcome":"READY","reportIds":["rpt-sales-order"]},
+    {"message":"现在可以生成派单清单了","action":"PREPARE_DISPATCH","company":null,"outcome":"READY","reportIds":["rpt-sales-order"]},
+    {"message":"恢复查询所有可见报表","action":"PREVIEW","company":null,"outcome":"READY","allReports":true}
+  ]},
+  {"name":"补充-数字单据与恢复","turns":[
+    {"message":"请查看 A 公司销售报表里的可派单记录","action":"PREVIEW","company":"A","outcome":"READY","reportIds":["rpt-sales-order"]},
+    {"message":"单据900000000000000001不参加派单","action":"PREVIEW","company":"A","outcome":"READY","excludedIds":["3"]},
+    {"message":"其他记录请生成待确认清单","action":"PREPARE_DISPATCH","company":"A","outcome":"READY","excludedIds":["3"]},
+    {"message":"把单据900000000000000001重新选回来","action":"PREVIEW","company":"A","outcome":"READY","excludedIds":[]},
+    {"message":"SO2026001和SO2026002都先排除","action":"PREVIEW","company":"A","outcome":"READY","excludedIds":["1","2"]},
+    {"message":"取消所有记录排除，重新全选","action":"PREVIEW","company":"A","outcome":"READY","excludedIds":[]}
+  ]},
+  {"name":"补充-不支持条件必须澄清","turns":[
+    {"message":"查询销售报表中金额超过3000元的记录","action":"CLARIFY","company":null,"outcome":"CLARIFY"},
+    {"message":"明确查询A公司销售报表，不附加其他条件","action":"PREVIEW","company":"A","outcome":"READY","reportIds":["rpt-sales-order"]},
+    {"message":"只查昨天的记录","action":"CLARIFY","company":"A","outcome":"CLARIFY"},
+    {"message":"请同时查询A公司和B公司的销售报表","action":"CLARIFY","company":"A","outcome":"CLARIFY"}
+  ]},
+  {"name":"补充-未定义实体与帮助","turns":[
+    {"message":"看看工资核算报表","action":"PREVIEW","company":null,"outcome":"CLARIFY"},
+    {"message":"你能处理哪些操作？","action":"HELP","company":null,"outcome":"READY"},
+    {"message":"改查A公司的应收报表","action":"PREVIEW","company":"A","outcome":"READY","reportIds":["rpt-ar-invoice"]},
+    {"message":"解释一下当前派单规则","action":"EXPLAIN_RULES","company":"A","outcome":"READY","reportIds":["rpt-ar-invoice"]}
+  ]}
+]
