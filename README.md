@@ -1,150 +1,279 @@
-# 报表派单 Agent Demo
+# 报表派单 Agent · MCP 双服务版
 
-本分支新增独立业务后端与 MCP 接入。运行 `tools/start-mcp.ps1 -Build -Frontend` 可启动 Agent、业务服务和登录界面；真实模型密钥从进程环境读取。具体边界、账号配置、工具契约与验收结果见 [MCP 业务服务说明](docs/MCP业务服务实施与验收.md)。下文未注明 MCP 模式的启动方式仍为原有单体演示模式。
+当前分支：`codex/mcp-business-service`。
 
-自然语言报表查询与派单演示项目。用户先查询可派单记录、调整选择、生成待确认清单，再通过按钮确认执行；服务端校验权限、规则、版本和记录当前状态，并保留逐条结果与追溯记录。
+系统通过自然语言查询可派单记录、调整选择并生成待确认清单。用户确认后，Agent 经 MCP 调用独立业务服务执行派单，保留逐条结果、幂等请求号、审计与追溯记录。
 
-当前已实现配置化报表目录、规则管理、异步预览、持久化清单、失败重试和结果核对，以及运营治理页面。**身份仍由 `X-User-Id` 模拟，派单仍由演示网关回写数据库；真实认证与真实业务派单网关属于下一阶段。** 切换真实大模型不会改变这两个边界。
+本分支已实现用户登录、服务间认证、MCP 报表查询与派单。默认使用新演示库 `report_mcp`；业务服务管理本库的报表派单状态，尚未接入外部 ERP。
 
-后续真实派单等业务能力按 **MCP** 接入，入口为服务端 `DispatchGateway` 适配器，继续执行确认、权限、幂等和结果核对；详见 [MCP 派单接入契约](docs/MCP派单接入契约.md)。
+## 架构与完整流程
 
-2026-09-29 真实模型联调最终固定语料 75/75、运行服务 HTTP 检查 27/27 通过，修复选择恢复、预览过期排除项和数字单据识别问题；具体配置、迭代过程、验证边界及运行入口见 [联调与修复报告](docs/真实模型联调与缺陷修复_2026-09-29.md)。样本通过率不是任意输入的正确率承诺。
+![系统架构](docs/diagrams/mcp-architecture.png)
 
-## 技术与存储
+- [可编辑 draw.io 文档（架构、完整请求流程两页）](docs/diagrams/mcp-system.drawio)
+- [完整请求流程长图](docs/diagrams/mcp-task-flow.png) · [两页 PDF](docs/diagrams/mcp-system.pdf)
+- [图表说明与源码依据](docs/diagrams/README.md) · [MCP 实施与验收说明](docs/MCP业务服务实施与验收.md)
 
-| 部分 | 当前实现 |
+| 部分 | 职责 |
 | --- | --- |
-| 前端 | Vue 2.7、Element UI、Vite；报表、聊天与历史会话、规则、目录、运营治理页面 |
-| 后端 | Java 17+、Spring Boot 3.5.16、Spring AI 1.1.8、MyBatis-Plus 3.5.17 与 JdbcTemplate、Aviator 5.4.4 |
-| MySQL 8 | 报表、目录、规则及版本，预览/清单及明细，任务、请求去重、并发配额租约、对话、追溯、审计和运营策略 |
-| Redis | 模型短期工作记忆、规则/目录刷新广播、分钟频率限制；不是派单业务状态的唯一来源 |
-| 数据结构 | Flyway 版本迁移，当前迁移范围 V1–V18；示例数据由初始化回调管理 |
+| 前端 `frontend` | 登录、报表分页、SSE 对话、预览勾选、派单确认、历史与管理页面 |
+| Agent 后端 `backend` | 模型意图解析、对话状态、规则/目录管理、预览与清单编排、确认、重试和核对 |
+| 业务后端 `business-service` | MCP 工具、当前账号权限复核、报表数据查询、业务派单事务与持久化幂等结果 |
+| MySQL 8 | 账号/会话、目录/规则、对话、预览/清单、配额租约、审计、报表源数据及派单结果 |
+| Redis | 工作记忆、频率限制、规则/目录刷新广播等辅助能力 |
 
-| 目录 | 用途 |
-| --- | --- |
-| `backend/src/main/java/com/example/report/catalog` | 报表目录、权限过滤、名称/别名/模糊解析；`query` 提供配置式查询及事实映射 |
-| `backend/src/main/java/com/example/report/rule` | 规则校验、试算、发布/回滚及候选扫描 |
-| `backend/src/main/java/com/example/report/dispatch` | 预览、清单、执行、恢复和演示网关 |
-| `backend/src/main/java/com/example/report/operations` | 评估、指标、留存、脱敏、访问审计和人工处理 |
-| `backend/src/main/java/com/example/report/agent` | 模型工具、SSE 与结构化卡片 |
-| `backend/src/main/java/com/example/report/semantic` | 结构化意图、实体校验、持久会话状态和确定性业务编排；`active` 对话入口 |
-| `frontend` | 页面、组件、请求封装和前端测试 |
-| `tools` | 本地启动脚本、隔离数据库回归入口和私有配置模板 |
-| `docs` | 当前设计/部署说明及按日期保留的历史评审 |
+**模型只输出结构化意图，Agent 服务负责调用 MCP。** 生成清单和实际派单是不同操作；真实写入由用户点击确认后发起的 REST 请求触发。MCP 调用失败不会回退到本地模拟网关。
 
-## Docker 启动
+两个后端是独立进程，但当前共用一个 MySQL schema。业务服务读取共享账号、确认清单、目录和规则完成再次复核；图中的控制表与业务表是逻辑分组，尚未拆成独立数据库。
 
-Linux 项目根目录执行：
+## 快速启动
 
-```bash
-chmod +x deploy.sh
-./deploy.sh up
+推荐使用 Windows PowerShell 7.2+，并安装 JDK 17+、Node.js 22、MySQL 8 和 Redis。确保 `java`、`node`、`npm` 可从 PATH 调用；Maven 使用仓库内 Wrapper。
+
+### 1. 准备依赖与连接配置
+
+在仓库根目录执行：
+
+```powershell
+npm.cmd --prefix ./frontend ci
+
+# 已有本机配置时保留原文件
+if (-not (Test-Path ./tools/env.local.cmd)) {
+    Copy-Item ./tools/env.local.example.cmd ./tools/env.local.cmd
+}
 ```
 
-脚本生成随机 MySQL/Redis 密码和整站 Basic Auth 口令，构建镜像，并等待服务健康；失败或等待超时以非零状态退出。后端通过 `GET /api/health/readiness` 检查 MySQL 和 Redis，依赖正常返回 HTTP 200，否则返回 503；前端等待后端健康后启动。
+在 `tools/env.local.cmd` 填写 `DB_HOST`、`DB_PORT`、`DB_USERNAME`、`DB_PASSWORD`、`REDIS_HOST`、`REDIS_PORT`、`REDIS_PASSWORD`，也可以直接设置这些环境变量。MySQL 账号需能创建目标库并执行迁移，或由部署方预先准备所需权限。
 
-默认使用 `mock` 模型，不需要 API Key。访问口令只用于保护演示入口，持有口令的人仍可切换演示管理员。详细配置、打包、备份与更新见 [Docker 部署指南](docs/Docker部署指南.md)。
+MCP 启动脚本只把该文件中的 `DB_*`、`REDIS_*` 当作数据读取，不执行 CMD 文件，也不读取其中的 `JAVA_HOME`、`LLM_MODE` 或 `LLM_*`。启动目标库由 `-Database` 参数决定，默认 `report_mcp`，会覆盖继承的 `DB_NAME`。
 
-## 本地启动
+### 2. 选择模型模式并启动
 
-需要 MySQL 8、Redis、JDK 17+ 和支持当前 Vite 的 Node.js（CI 使用 Node.js 22）；仓库自带 Maven Wrapper。
+真实模型模式：
 
-1. 配置 `DB_HOST`、`DB_PORT`、`DB_NAME`、`DB_USERNAME`、`DB_PASSWORD`。默认连接 `localhost:3306/report_demo`、用户名 `root`，密码没有内置固定值，按本机实例提供。账号需具备建库/迁移所需权限，或事先准备数据库。
-2. 配置 `REDIS_HOST`、`REDIS_PORT`、`REDIS_PASSWORD`，默认 `localhost:6379`，密码留空表示无密码实例。
-3. Windows 可复制 `tools/env.local.example.cmd` 为 `tools/env.local.cmd` 并填写本机参数，运行 `tools/start-backend.cmd` 以 mock 模式启动后端。此私有文件不入库。其他平台在 `backend` 执行 `./mvnw spring-boot:run -Dspring-boot.run.profiles=mock`。
-4. 在 `frontend` 执行 `npm ci`、`npm run dev`，访问 [本地前端](http://127.0.0.1:5173)。后端默认端口为 8080。
+```powershell
+$env:LLM_BASE_URL = Read-Host 'OpenAI 兼容端点的 base URL'
+$env:LLM_MODEL = 'deepseek-v4.1-flash'
+$env:LLM_API_KEY = Read-Host '模型 API Key' -MaskInput
 
-**数据初始化：** `DEMO_RESET_ON_STARTUP` 默认 `false`。新空库首次初始化示例报表、目录和规则；已有数据库正常启动保留业务数据与管理配置，结构变更由 Flyway 迁移。只有显式设为 `true` 才会在每次启动清空并重建演示报表数据、目录和规则，旧预览/清单按重置逻辑失效。该开关会影响相关表的全部租户数据，仅在可丢弃的演示/测试库使用，重置后恢复 `false`。
+./tools/start-mcp.ps1 -Build -Frontend
+```
 
-## 模型配置
+端点必须支持配置的模型与请求选项。脚本会去掉 base URL 末尾的 `/v1`，并开启原生 JSON Schema。
 
-| 配置 | 当前默认/说明 |
+也可以使用无需模型密钥的固定语义样本模式：
+
+```powershell
+./tools/start-mcp.ps1 -Mock -Build -Frontend
+```
+
+两种模式选择其一。`-Mock` 仅替换语义解析，用户认证、HTTP MCP、数据库查询和派单事务仍真实运行；支持的固定输入见 [mock 意图样本](backend/src/main/resources/semantic/mock-intents.json)，其他输入会要求澄清。
+
+### 3. 登录与访问
+
+| 默认地址 | 用途 |
 | --- | --- |
-| 模式 | 本地启动脚本与 Docker 默认 mock；直接不指定 profile 启动使用真实模型配置 |
-| `LLM_BASE_URL` | `https://dashscope.aliyuncs.com/compatible-mode`；不附加 `/v1`，请求路径已含 `/v1/chat/completions` |
-| `LLM_MODEL` | 本地 `application.yml` 默认 `deepseek-v4.1-flash`；Compose 默认 `qwen3.7-plus` |
-| `LLM_API_KEY` | 真实模型模式必须提供有效密钥；不要写入源码 |
-| 请求选项 | 语义解析温度 `0`、最多输出 2400 tokens；legacy 温度 `0.1`；`extra-body` 为 `thinking: {type: disabled}` |
-| `SEMANTIC_MODE` | 默认 `active`，V2 统一模型语义入口；`legacy` 为回滚开关 |
-| `SEMANTIC_NATIVE_SCHEMA` | 是否向模型端点发送原生 JSON Schema；不支持该能力的端点须关闭，服务端仍校验协议和原文证据 |
-| `SEMANTIC_MODEL` | 默认空，沿用 `LLM_MODEL`；可仅对语义解析选择其他模型 |
-| `SEMANTIC_THINKING_ENABLED` | 默认 `false`；开启后发送 `thinking.type=enabled`，输出预算改为 4096 tokens，需端点实际支持 |
+| [http://127.0.0.1:5173](http://127.0.0.1:5173) | 登录、报表与派单助手 |
+| `http://127.0.0.1:8080` | 面向前端的 Agent REST / SSE 服务 |
+| `http://127.0.0.1:8090/mcp` | 业务 MCP 入口，需要独立服务凭据 |
+| `http://127.0.0.1:8090/health` | 业务服务的数据库健康检查 |
+| `http://127.0.0.1:8080/api/health/readiness` | Agent 的 MySQL、Redis、业务服务连通性检查 |
 
-模型名、兼容端点和关闭思考参数必须与所选供应商实际支持范围匹配；上述值描述仓库默认配置，不代表所有组合都已联调。`extra-body` 在 `backend/src/main/resources/application.yml` 中，`.env` 没有单独的同名配置项；必要时修改配置并重建后端。直连 DeepSeek 时可将端点改为 `https://api.deepseek.com`，同时核对模型名和参数。
+首次启动使用账号 `admin`。随机初始密码保存在本机 `.runtime/mcp-credentials.json` 的 `adminPassword` 字段；同文件的 `serviceToken` 用于两个后端之间的调用。文件记录的是初始凭据，后续修改账号密码不会由重启恢复。
 
-Docker 编辑 `.env` 的 `LLM_*` 后执行 `./deploy.sh start-real`；返回 mock 用 `./deploy.sh start-mock`。本地真实模型模式设置 `LLM_*` 后执行 Maven 启动命令，不带 `mock` profile。
+启动脚本先启动业务服务并等待 Flyway 迁移与健康检查，再启动 Agent；Agent 侧关闭 Flyway，不装配演示数据初始化器。两个后端默认仅监听回环地址。
 
-Windows 也可先在 `backend` 执行 `./mvnw.cmd package -DskipTests`，将 `LLM_BASE_URL`、`LLM_MODEL`、`LLM_API_KEY` 注入进程环境，再从项目根目录执行 `./tools/start-real.ps1 -Frontend`。该入口隐藏启动窗口、仅监听本机、明确关闭重置；日志和 PID 在 `backend/target`，不会保存模型密钥。端点支持时加 `-NativeSchema`。传入的 base URL 可带末尾 `/v1`，脚本会规范化，避免重复路径。
+### 停止、重启与可选参数
 
-## 业务操作
+```powershell
+./tools/stop-mcp.ps1
+./tools/start-mcp.ps1 -Build -Frontend
 
-演示用户均属于租户 `T001`：`user1` 只能看 A 公司；`user2` 只能看 B 公司；`user3` 看 B 公司但无应收报表权限；`admin` 看 A/B/C 公司并可管理规则、目录和运营策略。
+# 自定义端口或目标演示库
+./tools/stop-mcp.ps1
+./tools/start-mcp.ps1 -AgentPort 8082 -BusinessPort 8092 -Database report_mcp_test -Frontend
+```
 
-`active` 使用 V2 业务指令协议，自由文本统一交给模型解析，模型不调用业务工具。目录词典只提供实体候选，不决定动作含义。输出包含有序 `scopeChanges`（COMPANY/REPORTS/RECORDS）与本轮动作禁止 `restrictions`；后端验证协议、原文证据、实体覆盖、权限及状态，再调用确定性业务服务。未提及的对象保持原请求范围；未知/冲突指令要求澄清，不能丢弃一部分后继续执行。按钮选择与确认仍走 REST。
+重启前保留或重新设置真实模型环境变量；mock 模式重启时继续加 `-Mock`。打包前先停止旧进程，避免 Windows 锁定运行中的 JAR。
 
-**启用状态：** 默认 `active` 已使用 V2，不再以领域语法短路模型调用。旧 V1 会话状态在读取时兼容转换，历史 DOMAIN 来源仅保留用于读取；新请求来源为 MODEL/MOCK。真实环境部署前必须运行 V2 模型验收，不能沿用 V1 的语法回放成绩。
+| 参数 | 默认值 / 行为 |
+| --- | --- |
+| `-Build` | 从根 `pom.xml` 构建两个模块；省略时使用已有 JAR |
+| `-Frontend` | 5173 未被占用时启动 Vite；新启动的前端代理指向本次 Agent 端口 |
+| `-Mock` | 使用 `mock,mcp` profiles；不加时使用 `real,mcp` |
+| `-AgentPort` / `-BusinessPort` | 8080 / 8090 |
+| `-Database` | `report_mcp` |
+| 日志与 PID | `.runtime/agent.*`、`.runtime/business.*`、`.runtime/frontend.*` |
 
-当前业务回放包含原有 19 轮和 V2 边界 32 轮，共 51 轮，另有 24 轮真实模型补充样本。模拟样本仅验证协议、归并和业务约束，不代表模型准确率。真实模型返回的 JSON、原文证据或报表覆盖校验失败时，最多追加一次解析修复，不执行任何业务动作；仍失败则要求澄清。设计、兼容和验收边界见 [语义 V2 实施说明](docs/语义V2实施与验收.md)。
+已有前端进程不会被启动脚本重配；手动启动前端或切换 Agent 端口时，设置 `AGENT_API_URL` 后重启 Vite。停止脚本会核验 PID 和本工作区程序路径，避免误停其他进程。
 
-例如先查 A 成功、再查 B 被拒绝后，省略公司会继续保留未生效的 B 请求并提示拒绝；明确说“A公司销售报表的”才切回 A 查询。公司被拒绝不等于自动回退到 A，历史助手文字也不作为范围或权限依据。
+`.runtime/` 已被 Git 和 Docker 忽略，Windows 脚本会限制其目录访问权限。模型密钥只注入 Agent 进程，不写入该凭据文件，也不传给前端和业务服务。
 
-active 的 mock 模式只读取 `backend/src/main/resources/semantic/mock-intents.json` 中明确列出的固定演示样本，其余返回澄清；这些样本不参与真实模型模式，不是关键词兜底。legacy 保留历史工具链作为显式回滚，不能在 V2 失败时自动切换。
+## 配置、存储与技术栈
 
-1. 输入“查一下我有哪些可以派单”。服务端先按目录、租户、报表权限和公司范围筛选，再按生效规则查询；候选数以当前数据为准。
-2. 名称或别名存在歧义、只有模糊近似匹配时，语义入口要求明确完整报表名称。新语义入口在本轮完成查询并流式发送进度与卡片，默认处理上限 180 秒；大预览仍分批持久化和分页读取。既有报表选择卡片和 REST 异步任务保留 120 秒超时及刷新恢复。
-3. 在预览卡片取消勾选记录或表达排除要求，生成待确认清单。排除项必须来自对应预览，新查询/新清单会使旧卡片失效。
-4. 点击确认，调用确定性 REST 接口。服务端复核后逐条派单，成功、明确失败和结果不明分别记录；明确失败可重试，结果不明先核对。
-5. 在历史会话查看消息、当前卡片状态和派单追溯；管理员可维护规则/目录、查看指标、处理异常任务及配置留存。
+| 配置 | 当前双服务模式 |
+| --- | --- |
+| 数据库 / Redis | 使用 `DB_*`、`REDIS_*`；本机脚本默认新库 `report_mcp` |
+| `BUSINESS_MCP_URL` | 业务服务 base URL；本机脚本按 `-BusinessPort` 设置，路径由客户端追加 `/mcp` |
+| `BUSINESS_SERVICE_TOKEN` | 至少 32 字符，两个后端一致；本机脚本使用随机生成的服务凭据 |
+| `AUTH_TENANT_ID` | 应用默认 `T001`；本机脚本固定使用 `T001` |
+| `AUTH_BOOTSTRAP_PASSWORD` | 首次创建管理员使用，至少 12 位；本机脚本使用随机初始密码 |
+| `security.enabled` | `mcp` profile 启用；关闭认证却启用远端 MCP 时拒绝启动 |
+| `LLM_BASE_URL` / `LLM_MODEL` / `LLM_API_KEY` | 真实模型连接；本分支已联调 `deepseek-v4.1-flash` |
+| `SEMANTIC_MODE` | 应用默认 `active`，使用语义 V2；`legacy` 为显式兼容模式 |
+| `SEMANTIC_NATIVE_SCHEMA` | 应用默认 false，`start-mcp.ps1` 会设为 true |
+| `SEMANTIC_MODEL` | 留空沿用 `LLM_MODEL`，可为语义解析单独指定模型 |
+| `SEMANTIC_THINKING_ENABLED` | 默认 false；需与端点支持的 thinking 参数匹配 |
 
-## 主要接口
+真实语义解析温度为 0，默认最多输出 2400 tokens；格式、原文证据或报表覆盖校验失败时最多追加一次解析修复。当前脚本没有关闭原生 Schema 的参数；若端点不支持，应手动启动 Agent，并传入 `--agent.semantic.native-schema=false`。
 
-业务接口通常通过请求头 `X-User-Id` 传入演示身份。`/api/auth/users`、`/api/agent/model` 和 readiness 等信息/健康接口不要求该头；它不是生产认证协议。
+手动启动需先设置相同的 `DB_NAME`、数据库/Redis 连接、`AUTH_TENANT_ID` 和服务凭据。业务服务先完成迁移；Agent 使用 `real,mcp` 或 `mock,mcp` profiles，加 `--spring.flyway.enabled=false --server.port=8080`。直接使用 `mcp` profile 而不指定端口时，Agent 默认监听 **8081**，与一键脚本的 **8080** 不同。
+
+| 部分 | 版本 / 存储说明 |
+| --- | --- |
+| Agent | Java 17+、Spring Boot 3.5.16、Spring AI 1.1.8 |
+| 业务服务 | Spring Boot 3.5.16、MCP Java SDK 0.18.3；不装配模型或模拟派单网关 |
+| 数据访问 / 规则 | MyBatis-Plus 3.5.17、JdbcTemplate、Aviator 5.4.4 |
+| 前端 | Vue 2.7、Element UI、Vite 6.4.3 |
+| 数据结构 | Flyway V1–V19，包含 Java 迁移 V7；V19 增加账号、会话及业务派单幂等结果表 |
+
+默认启动不会重置已有数据；新空库由业务服务初始化示例报表、目录与规则，后续启动只迁移结构。使用默认库名不会迁移或修改原 `report_demo` 数据。应用保留演示重置开关，但一键 MCP 启动明确将其设为 false。
+
+## 用户认证与账号管理
+
+用户密码采用随机盐和 600000 轮 PBKDF2-HMAC-SHA256。登录返回 256 bit 随机 Bearer token，数据库只存 token 的 SHA-256 摘要，8 小时过期；前端使用 `sessionStorage`，退出登录立即撤销服务端会话。登录按账号和来源地址限流。
+
+MCP 模式不接受 `X-User-Id` 作为身份凭据，过滤器用真实会话身份覆盖该头。除登录、认证模式查询和健康探针外，业务 API 都要求登录，包括用户信息及模型名称查询。旧的 `user1/user2/user3` 身份不会作为本分支的真实登录账号自动创建。
+
+管理员通过 `PUT /api/auth/users` 创建或更新账号，分配公司、报表权限以及管理员标记。更新账号会撤销其已有会话；`enabled=false` 禁用账号，更新时不提供新密码可保留原密码。请求格式见 [账号接口说明](docs/MCP业务服务实施与验收.md#账号接口)。
+
+服务间使用独立 Bearer 密钥，当前绑定配置租户。工具中的 `tenantId/operatorId` 由可信 Agent 代码填入；业务服务重新读取数据库中的账号状态、公司及报表权限。该凭据不下发浏览器、不放入模型提示，仅供可信服务调用。跨主机 MCP 连接要求 HTTPS；客户端只允许回环地址使用 HTTP。
+
+## 业务操作与执行保障
+
+1. 登录后查询，例如“查询 A 公司销售报表中可以派单的记录”。Agent 解析意图、验证范围，并经 MCP 查询业务数据。
+2. 查看预览，在表格勾选记录或表达排除要求。服务端把选择绑定到对应预览，防止刷新或切换会话后误用旧选择。
+3. 要求“把当前勾选的记录生成派单清单”，生成持久化的 `PENDING` 清单。
+4. 点击“确认派单”。REST 服务复核归属、有效期、权限和版本，认领执行权，再逐条调用 `dispatch_submit`。
+5. 查看成功、明确失败和未知结果。明确失败可显式重试；未知结果先通过 `dispatch_lookup` 核对，不盲目重发。
+
+一次完整任务可以包含多轮 SSE 请求和一次单独的确认 REST 请求。报表页手工派单由用户操作触发，内部同样建立持久化清单并走确认与 MCP 执行路径。
+
+派单时先记录稳定请求号和意图证据。业务服务在事务内检查幂等负载、已确认清单、执行版本、当前规则及源记录状态，再原子提交报表状态与请求结果。同一请求号且负载一致时，已成功的调用直接返回原结果；不同负载被拒绝。结果查询使用锁定读，避免把尚未提交的执行误报为“未受理”。
+
+语义 V2 支持公司、报表与记录排除；不支持的日期、金额、排序等条件会要求澄清。当前“仅选一条”可通过表格勾选完成，不能将所有自然语言表达视为已支持。详细边界见 [语义 V2 说明](docs/语义V2实施与验收.md)。
+
+## MCP 工具
+
+业务入口为 `/mcp`，使用无状态 Streamable HTTP，支持标准 `initialize`、`tools/list`、`tools/call`。无状态指 MCP 连接不承载业务状态；清单、请求号和结果仍持久化。
+
+| 工具 | 能力与限制 |
+| --- | --- |
+| `report_catalog` | 列出操作者有权访问的报表及字段 |
+| `report_page` | 销售、应收、费用报表分页，包含派单状态；每页最多 200 条 |
+| `report_records` | 游标/分页查询、按 ID 读取或复核、管理员试算；每批最多 500 条 |
+| `report_probe` | 发布报表配置前检查数据源表和字段，供可信服务内部调用 |
+| `dispatch_submit` | 提交已确认条目，校验请求号、负载、权限、确认状态及执行版本 |
+| `dispatch_lookup` | 按原请求号返回 SUCCESS / FAILED / NOT_FOUND / UNKNOWN |
+
+工具的 text 与 structuredContent 返回 `{data: ...}`；工具错误使用 `isError=true` 及 `{code,message}`。协议调用成功不等于业务派单成功。参数 Schema 通过 `tools/list` 获取，完整约定见 [MCP 工具契约](docs/MCP业务服务实施与验收.md#mcp-工具契约)。
+
+## 主要 REST 接口
+
+下表位于 Agent 后端，需要用户会话的请求使用 `Authorization: Bearer <token>`。
 
 | 接口 | 行为 |
 | --- | --- |
-| `GET /api/health/readiness` | MySQL 与 Redis 就绪检查，HTTP 200/503 |
-| `GET /api/auth/users`、`GET /api/auth/me` | 演示用户列表、当前身份 |
-| `GET /api/report/{sales,receivable,expense}` | 三张报表查询，服务端权限过滤 |
-| `GET /api/report/{sales,receivable,expense}/page?page=1&size=50` | 三张普通报表的服务端分页，返回 `records/total/page/size`；每页最多 200 条，前端显示本页合计。旧列表接口保留数组形状，但最多返回前 200 条，调用方需迁移分页接口 |
-| `POST /api/agent/chat` | SSE：`conversation`、`text`、`preview_job`、`choice`、`preview`、`plan`、`result`、`selection`、`error`、`done`；不同模式按业务结果发送事件 |
-| `GET /api/agent/conversations/{id}/selection` | 当前语义预览绑定的排除记录与阶段，恢复会话时与有效卡片匹配 |
-| `POST /api/dispatch/previews`、`POST /api/dispatch/previews/jobs` | 同步/异步创建预览 |
-| `GET /api/dispatch/previews/jobs/{jobId}`、`GET /api/dispatch/previews/jobs?conversationId=...` | 查询任务、发现会话最新任务；`POST .../{jobId}/cancel` 取消任务 |
-| `GET /api/dispatch/previews/{id}`、`GET .../{id}/items?page=1&size=50` | 预览摘要/状态及分页明细 |
-| `POST /api/dispatch/plans` | 从预览建单，支持 `Idempotency-Key` 请求头 |
-| `GET /api/dispatch/plans/{id}`、`GET .../{id}/items` | 清单摘要/状态及分页明细 |
-| `POST /api/dispatch/plans/{id}/{confirm,retry-failed,reconcile,cancel}` | 确认、失败重试、核对、取消；`execute` 为兼容确认入口 |
-| `GET /api/dispatch/plans/{id}/trace` | 派单追溯；分段分页和补投接口见控制器 |
-| `POST /api/dispatch/direct` | 报表页手工派单 |
-| `GET /api/agent/conversations`、`GET .../{id}/messages`、`GET .../{id}/card-states` | 会话列表、历史消息和当前卡片状态；首次对话创建会话 |
-| `PUT /api/agent/conversations/{id}/title`、`DELETE .../{id}` | 改名、软删除；内容清理另走留存/删除流程 |
-| `/api/report-catalog`、`/api/rules`、`/api/operations` | 目录、规则、运营管理；具体动作见 [技术选型与当前设计](docs/派单Agent技术选型.md) |
+| `GET /api/auth/mode`、`POST /api/auth/login` | 查询是否要求登录、执行登录；免登录访问 |
+| `GET /api/auth/me`、`POST /api/auth/logout` | 当前身份、退出会话 |
+| `GET /api/auth/users` | MCP 模式仅返回当前用户，供前端兼容展示 |
+| `PUT /api/auth/users` | 管理员创建/更新账号及权限 |
+| `GET /api/health/readiness` | MySQL、Redis、业务服务连通性；HTTP 200/503 |
+| `GET /api/report/{sales,receivable,expense}/page?page=1&size=50` | 通过 MCP 查询分页报表，返回 records/total/page/size |
+| `POST /api/agent/chat` | 自然语言对话，SSE 返回文字、预览、清单、选择状态及结束事件 |
+| `GET /api/agent/model` | 当前模型名称 |
+| `GET /api/agent/conversations`、`GET .../{id}/messages`、`GET .../{id}/card-states`、`GET .../{id}/selection` | 会话、历史、卡片状态及选择恢复 |
+| `POST /api/dispatch/previews`、`POST /api/dispatch/previews/jobs` | 同步预览与可恢复异步任务 |
+| `GET /api/dispatch/previews/{id}`、`GET .../{id}/items` | 预览状态与分页明细 |
+| `POST /api/dispatch/plans` | 从预览建单，支持 `Idempotency-Key` |
+| `GET /api/dispatch/plans/{id}`、`GET .../{id}/items` | 清单状态与逐条结果 |
+| `POST /api/dispatch/plans/{id}/{confirm,retry-failed,reconcile,cancel}` | 确认、失败重试、核对与取消 |
+| `GET /api/dispatch/plans/{id}/trace`、`POST /api/dispatch/direct` | 追溯查询、报表页手工派单 |
+| `/api/report-catalog`、`/api/rules`、`/api/operations` | 目录、规则和运营管理 |
 
-普通 REST 业务响应使用 `{code,message,data}`，`code=0` 表示成功；当前异常处理通常仍返回 HTTP 200，调用方需要检查业务码。readiness 使用实际 HTTP 状态；SSE 进入流前可能返回 JSON 错误，进入流后以事件报告结果。事件带请求号和序号，断线通过历史消息、卡片状态及任务查询恢复，不提供原始文本流的续传保证。
+普通 REST 返回 `{code,message,data}`，`code=0` 表示成功；部分业务错误仍以 HTTP 200 携带业务码，认证过滤失败与健康探针使用实际 HTTP 状态。SSE 建流前可能返回 JSON 错误，建流后以事件报告；通过历史、卡片状态及任务接口恢复，不保证原始文本流续传。未分页的旧报表接口保留，但最多返回前 200 条。
 
-## 测试与验证
+## 测试与验收
 
-```bash
-cd backend
-./mvnw test
-cd ../frontend
-npm ci
-npm test
-npm run build
+在仓库根目录依次执行：
+
+```powershell
+pwsh -File ./tools/test-p2.ps1 -BackendOnly
+pwsh -File ./tools/test-mcp.ps1
+npm.cmd --prefix ./frontend test
+npm.cmd --prefix ./frontend run build
 ```
 
-Windows 使用 `mvnw.cmd`。普通后端测试包含规则、目录、状态机及回归测试；真实 MySQL/Redis 集成测试按环境开关启用，不应把跳过当作已验证。
-
-| 开关/入口 | 范围 |
+| 入口 | 范围 |
 | --- | --- |
-| `TRACE_IT=true` | UUID 隔离数据库上的事务、持久化追溯等数据库集成测试 |
-| `P2_IT=true` | UUID 隔离数据库上的运营治理及语义多轮/租约/删除集成测试 |
-| `./tools/test-semantic-live.ps1` | V2 真实模型业务级回放，要求所有成功解析来源均为 MODEL；比较最终范围、动作、排除项与禁止条件，仅使用合成数据，不查业务库、不执行派单。`-ModelOnly` 为兼容参数；可加 `-NativeSchema`、`-Thinking`、`-Model 名称`，输出 `backend/target/semantic-live-evaluation.json` |
-| `python tools/test-semantic-http.py` | 验收运行中的 active 服务：公司切换、报表增减、排除、待确认清单及取消；创建验收会话，不确认派单。默认连接本机 8080；可加 `--resume-conversation ID` 验证旧会话，结果写入 `backend/target/semantic-http-acceptance.json`；固定断言对应未改动的示例数据 |
-| `P2_UI=true` | 可选浏览器驻留测试，需配合 P2 测试，默认关闭 |
-| `DEMO_IT=true` | 原有共用演示环境集成测试，会操作演示数据；仅在专用测试环境启用 |
-| `./tools/test-p2.ps1` | Windows 设置 TRACE/P2 开关并显式关闭 DEMO_IT/P2_UI，运行后端、前端测试及构建；`-BackendOnly` 仅后端，`-Tests` 指定类 |
+| `tools/test-p2.ps1` | 启用 TRACE/P2 隔离库回归，关闭 DEMO_IT/P2_UI；支持 `-BackendOnly`、`-Tests` |
+| `tools/test-mcp.ps1` | 启用 MCP_IT，测试真实 HTTP MCP、事务、权限、并发幂等和服务重启；创建并清理 `mcp_it_<UUID>` 数据库 |
+| `tools/test-mcp-http.py` | 当前 MCP 双服务的登录、真实模型与业务链路验收，需要运行中的服务和本机管理员凭据 |
+| `tools/test-semantic-live.ps1 -NativeSchema -Corpus all` | 纯真实模型语义回放；使用合成数据，不查业务库、不执行派单 |
 
-隔离测试读取 `TRACE_DB_HOST/PORT/USER/PASSWORD`、`TRACE_REDIS_HOST/PORT/PASSWORD` 等连接设置；脚本可从本地 `DB_*`/`REDIS_*` 映射，读取私有配置而不打印凭据。测试需要可创建和删除临时数据库的账号及专用 Redis 测试环境。CI 入口为 `.github/workflows/regression.yml`。`bash tools/test-deploy.sh` 使用模拟 Docker 命令验证部署等待与失败退出，不需要 Docker 服务；不替代真实容器启动验收。
+集成测试需要能创建/删除临时数据库的账号及 Redis。配置来自进程环境或 `tools/env.local.cmd`；业务测试不可将跳过项视为已通过。
 
-按日期命名的评审文档仅记录对应历史版本的结果，不能代表当前检出的代码已完成相同验证。当前能力和下一阶段验收清单见 [Demo 到生产级待办](docs/派单Agent_Demo到生产级待办.md)。
+使用 Python 3 验收运行中的 MCP 服务：
+
+```powershell
+# 默认会创建测试账号、会话和清单，取消清单并禁用测试账号；不确认派单
+python ./tools/test-mcp-http.py
+
+# 仅用于专门的 report_mcp 演示/测试库：实际确认其中一条候选记录
+python ./tools/test-mcp-http.py --confirm-dispatch
+```
+
+HTTP 验收脚本默认连接 Agent 8080、MCP 8090，读取 `.runtime/mcp-credentials.json`，输出 `.runtime/mcp-http-acceptance.json`；可用 `--base-url`、`--mcp-url`、`--credentials` 覆盖。它依赖样例销售报表与管理员账号，应在专用演示环境运行。
+
+2026-09-29 的本分支验收记录：
+
+| 验证项 | 已记录结果 |
+| --- | --- |
+| 后端回归与认证测试 | 624 项：609 通过、15 跳过、0 失败 |
+| 独立业务服务 MCP 集成测试 | 16/16 通过 |
+| 前端测试与构建 | 53/53 通过，构建成功 |
+| 真实模型 MCP 完整链路 | 16/16 通过，新演示库实际派单 1 条；重复确认与请求号核对通过 |
+
+结果与范围见 [本分支验收说明](docs/MCP业务服务实施与验收.md#验证) 和 [HTTP 证据](docs/review/mcp-service-http-2026-09-29.json)。这些是已记录的回归与链路验证，不是任意自然语言输入的准确率承诺；之前固定语料 75/75 的结果见 [历史模型联调报告](docs/真实模型联调与缺陷修复_2026-09-29.md)。
+
+当前 [CI](.github/workflows/regression.yml) 运行 Agent 后端和前端回归，尚未执行独立业务服务的 MCP 集成测试；本分支应额外运行 `tools/test-mcp.ps1`。
+
+## 工程结构与兼容入口
+
+下表中的 `backend/...` 指 `backend/src/main/java/com/example/report`。
+
+| 目录 | 用途 |
+| --- | --- |
+| 根 `pom.xml` | Maven 聚合构建 `backend` 与 `business-service` |
+| `backend/.../semantic`、`backend/.../agent` | 语义解析、对话状态、SSE 与结构化卡片 |
+| `backend/.../security`、`backend/.../mcp` | 用户认证、MCP 客户端和适配器 |
+| `backend/.../catalog`、`rule`、`dispatch`、`operations` | 目录、规则、任务编排、审计与运营治理 |
+| `business-service/src/main/java/com/example/business` | 独立业务应用、MCP 工具注册、服务认证、查询与派单事务 |
+| `backend/src/main/resources/db/migration`、`backend/src/main/java/db/migration` | 两个进程使用的 SQL / Java 迁移，合计 V1–V19 |
+| `frontend` | 登录、页面、请求封装与前端测试 |
+| `tools` | 双服务启动/停止、隔离回归、模型和 HTTP 验收脚本 |
+| `docs/diagrams` | draw.io 源文件、PNG/SVG 和 PDF |
+
+业务服务复用 `backend` 的 `lib` 分类 JAR 中的公共类型与数据访问代码，但应用只装配业务所需组件。两个可执行产物分别是 `backend/target/report-demo-2.0.0.jar` 和 `business-service/target/business-service-2.0.0.jar`。
+
+现有 `deploy.sh`、`docker-compose.yml`、`tools/start-backend.cmd` 和 `tools/start-real.ps1` 仍属于原单体演示入口，不会自动启用本分支的 MCP 双服务与真实登录。旧 `tools/test-semantic-http.py` 使用模拟身份头，也不能直接用于受认证保护的 MCP 模式。
+
+本分支提供业务服务 Dockerfile，可在仓库根目录构建：
+
+```bash
+docker build -f business-service/Dockerfile -t report-business-service:1.0.0 .
+```
+
+该镜像构建文件已提供，但尚无双服务 Compose 编排，本次验收未执行 Docker 构建。容器部署需配置数据库、Redis、服务凭据、监听地址和 HTTPS 入口；现有 [Docker 部署指南](docs/Docker部署指南.md) 对应原单体部署。
+
+后续生产接入包括外部 ERP、企业统一登录、按 MCP 客户端授权、独立数据库边界，以及数据库最小权限、密钥轮换、备份和监控。外部业务系统应继续遵守 [MCP 派单接入约定](docs/MCP派单接入契约.md)。
