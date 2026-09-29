@@ -21,7 +21,7 @@ import java.util.*;
 import java.util.function.Consumer;
 import static com.example.report.semantic.SemanticIntent.Operation.KEEP;
 
-/** Model interpretation -> authoritative state -> deterministic business services -> factual replies. */
+/** Domain/model interpretation -> authoritative state -> deterministic business services -> factual replies. */
 @Slf4j
 @Service
 public class SemanticConversationService {
@@ -74,6 +74,7 @@ public class SemanticConversationService {
             String uiPreviewId,List<RecordKey> uiExcludes,String model,DialogueStore.Session session,Runnable guard,Consumer<AgentEvent> emit) {
         long started=System.nanoTime();
         var state=session.state(); SemanticIntent intent=null; String reply;
+        state.setParserSource(null);
         conversations.logUser(id,user.userId(),message);
         try {
             hydrate(user,id,state);
@@ -82,7 +83,8 @@ public class SemanticConversationService {
             long previewVersion=previews.beginRequest(id);
             catalog.refreshForValidation();
             var mentions=planner.mentions(user,message);
-            intent=parser.parse(message,new IntentParser.Context(state,catalog.dispatchableReports(user).stream().map(CatalogEntry::ref).toList(),mentions));
+            var interpreted=parser.interpret(message,new IntentParser.Context(state,catalog.dispatchableReports(user).stream().map(CatalogEntry::ref).toList(),mentions));
+            intent=interpreted.intent();state.setParserSource(interpreted.source());
             codec.validate(intent,message); guard.run();
             state.setPendingIntent(intent);
             planner.merge(user,state,intent);
@@ -110,7 +112,8 @@ public class SemanticConversationService {
         var recent=new ArrayList<>(state.getRecentUserMessages()); recent.add(SensitiveData.text(message));
         state.setRecentUserMessages(List.copyOf(recent.subList(Math.max(0,recent.size()-4),recent.size())));
         session.save();
-        session.record(requestId,message,intent,state.getPhase().name(),state.getLastReason(),model,(System.nanoTime()-started)/1_000_000);
+        session.record(requestId,message,intent,state.getPhase().name(),state.getLastReason(),
+                state.getParserSource()==IntentParser.Source.DOMAIN?"domain-grammar-v1":model,(System.nanoTime()-started)/1_000_000);
         conversations.logAssistant(id,user.userId(),reply,null,null,(System.nanoTime()-started)/1_000_000);
         emit.accept(new AgentEvent(AgentEvent.TEXT,Map.of("delta",reply)));
         emit.accept(new AgentEvent("selection",selection(state)));

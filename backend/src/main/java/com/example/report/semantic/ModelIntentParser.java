@@ -64,5 +64,8 @@ public class ModelIntentParser implements IntentParser {
                 .options(options.build()).call().content();
         return codec.decode(response, message);
     }
+    @Override public Interpretation interpret(String message,Context context) {
+        return new Interpretation(parse(message,context),props.getLlm().isMock()?Source.MOCK:Source.MODEL);
+    }
     private static String normalize(String value) { return com.example.report.catalog.TextNormalizer.normalize(value); }
 }

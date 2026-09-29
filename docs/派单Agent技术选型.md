@@ -12,9 +12,9 @@
 
 ## 1. 目标与业务原则
 
-用户可以用自然语言查询可派单记录、调整预览选择，再生成清单并确认执行。新 `active` 模式中，模型只输出结构化意图，不调用业务工具。公司、报表和排除项由服务端归并、校验和执行；查询结果与状态文字来自实际业务结果。
+用户可以用自然语言查询可派单记录、调整预览选择，再生成清单并确认执行。默认 `active` 模式先解析领域命令，未覆盖的表达交给模型输出结构化意图，模型不调用业务工具。公司、报表和排除项由服务端归并、校验和执行；查询结果与状态文字来自实际业务结果。
 
-当前默认保留 `legacy`，使用已存在的工具、选择卡片和公司查询纠正逻辑；下文语义规则描述显式启用的 `active`。本次真实模型最终回放严格通过 16/19，未达到切换验收要求。已观察到开启 Schema 仍返回非法枚举，不能把端点接受参数当作支持严格约束输出。完整原始结果保存在本地 `backend/target/semantic-live-evaluation.json`，重新运行可选测试可产生新证据。
+当前默认启用 `active`，`legacy` 保留为回滚入口。原有 19 轮回放在新链路中全部通过，解析来源均为 DOMAIN；真实 HTTP 验收 29/29 通过，覆盖公司拒绝、省略继承、明确纠正及旧失败会话恢复。真实模型的使用帮助请求另行通过。此前仅模型解析回放为 16/19，端点接受 Schema 后仍出现非法枚举，因此不能把领域语法的回归结果解释为模型准确率。回放与 HTTP 证据分别保存在本地 `backend/target/semantic-live-evaluation.json`、`backend/target/semantic-http-acceptance.json`；这些文件可能被 clean 清除，可通过 README 中的入口重跑。
 
 1. 报表名称和别名从目录读取，新增标准报表通过配置与发布接入。
 2. 查询同时受租户、报表权限和公司范围限制；身份不能从模型生成的参数取值。
@@ -28,7 +28,7 @@
 | 选型 | 仓库版本/方式 | 用途与边界 |
 | --- | --- | --- |
 | Spring Boot | 3.5.16，Java 17+ | 承载现有报表和 Agent 业务；CI 使用 JDK 21 |
-| Spring AI | 1.1.8，OpenAI 兼容 ChatClient | active 每轮一次无工具的意图解析，原生 JSON Schema 可配置；legacy 保留工具和工作记忆以便回滚 |
+| Spring AI | 1.1.8，OpenAI 兼容 ChatClient | active 仅在领域语法未覆盖时调用无工具的意图解析，原生 JSON Schema 可配置；legacy 保留工具和工作记忆以便回滚 |
 | MyBatis-Plus 与 JDBC | 3.5.17；保留 JdbcTemplate/NamedParameterJdbcTemplate | 实体读写、配置式报表查询、状态事务及运营 SQL |
 | Aviator | 5.4.4 | 管理员定义表达式，服务器编译校验和确定性求值 |
 | MySQL | 8 | 业务状态、去重请求、并发租约、审计和版本历史的持久来源 |
@@ -52,7 +52,7 @@
 
 一次派单的步骤：
 
-1. 用户表达查询范围。目录词典标注本轮提到的报表，模型输出带原文证据的动作和条件变更；服务端检查协议、证据与实体完整性。别名冲突、未知报表或只有模糊近似时要求用户明确完整名称，不自动选取近似报表。
+1. 用户表达查询范围。目录词典标注本轮提到的报表，领域语法解析完整覆盖的命令；未覆盖表达由模型提取动作和条件变更。二者统一输出带原文证据的意图，服务端检查协议、证据与实体完整性。别名冲突、未知报表或只有模糊近似时要求用户明确完整名称，不自动选取近似报表。
 2. 按选择的报表和公司范围扫描待派单记录，通过生效规则求值。生成预览摘要、规则/目录/权限版本及明细；较大查询可使用异步任务。
 3. 用户调整勾选或提出排除要求，基于来源预览创建待确认清单。相同幂等键重放返回已创建清单，不能因此扩大选择范围。
 4. 用户点击确认。服务端认领清单、复核版本和事实，再按逐条请求号执行。成功、明确失败、未知结果分别保存。
@@ -70,6 +70,8 @@ SSE 事件包括 `conversation`、`text`、`preview_job`、`choice`、`preview`�
 | CLEAR | 用户明确清除限制；公司恢复全部可见公司，报表恢复全部可派单报表，记录恢复全部勾选 |
 
 多家公司、模糊报表、不能唯一定位的记录需要澄清。记录先按单据号精确匹配，再按摘要匹配，必须唯一；之后始终保存“报表 ID＋记录 ID”。只调整排除记录时复用同一有效预览，`selection` 事件同步勾选；已保存的语义选择可在刷新后通过 `GET /api/agent/conversations/{id}/selection` 恢复。仅在浏览器修改、尚未随消息提交的勾选仍是本地状态。
+
+领域语法以查询/派单等动作、公司标识、目录实体和集合操作组合识别，不按整句维护公司或报表特例。它必须完整消费归一化后的输入；未知词、顺序操作、双重否定、不同实体之间的混合操作等交给模型。新增报表及别名直接来自目录。语法成功和模型成功使用同一业务校验；模型失败不会重试另一个解释后继续执行。mock 模式同样先走语法，其余表达使用固定演示样本或澄清。
 
 ## 4. 目录、查询与规则口径
 
@@ -99,8 +101,8 @@ SSE 事件包括 `conversation`、`text`、`preview_job`、`choice`、`preview`�
 | `dispatch_plan`、`dispatch_plan_item` | 清单状态、逐条结果、尝试次数及外部请求号 |
 | `dispatch_gateway_request` | 演示网关请求流水及结果查询 |
 | `agent_conversation`、`agent_message`、`trace_event` | 会话、消息、持久追溯事件和投递状态 |
-| `semantic_dialogue` | 请求/生效范围、未解决条件、预览/清单绑定、排除记录、会话版本和处理租约 |
-| `semantic_turn` | 每轮输入、结构化意图、状态结果、原因、模型及耗时；与会话删除流程一起清理 |
+| `semantic_dialogue` | 请求/生效范围、未解决条件、预览/清单绑定、排除记录、会话版本和处理租约；`state_json.parserSource` 标记 DOMAIN/MODEL/MOCK，未完成解析时为空 |
+| `semantic_turn` | 每轮输入、结构化意图、状态结果、原因、解析器/模型及耗时；DOMAIN 的 `model` 为 `domain-grammar-v1`，其余为配置模型名；与会话删除流程一起清理 |
 | `dispatch_audit`、`operations_audit`、`business_metric` | 派单审计、访问/管理审计及业务指标 |
 | `catalog_revision`、`operations_policy`、`operations_policy_revision` | 目录/策略历史、灰度与回滚 |
 | 数据库配额表 | 按请求持有和续期并发租约，Redis 丢键不能释放已持有容量 |
@@ -117,7 +119,7 @@ SSE 事件包括 `conversation`、`text`、`preview_job`、`choice`、`preview`�
 | 项目 | 当前行为 |
 | --- | --- |
 | 解析回归 | 按租户维护样本，对目录/解析策略/样本集/模型配置指纹变化自动评估；评估对象是目录解析，不能代替真实模型端到端验收 |
-| 多轮语义回放 | `SemanticProtocolTest` 验证归并与证据，`SemanticIntegrationTest` 验证真实持久化/业务路由；独立 `replay-corpus.json` 通过可选真实模型测试对比动作、操作、范围与拒绝/澄清结果 |
+| 多轮语义回放 | `DomainIntentParserTest` 验证领域组合、目录扩展及未覆盖表达委派，`SemanticProtocolTest` 验证归并与证据，`SemanticIntegrationTest` 验证持久化/业务路由及模型不可用时的公司纠正；`replay-corpus.json` 对比动作、操作、范围与拒绝/澄清结果。可选回放按来源计数，`-ModelOnly` 单独评估模型 |
 | 指标 | 按租户、操作、报表、版本、结果分组统计次数、平均耗时和 P95；派单统计依据清单条目当前状态，重试不重复累计成功 |
 | 灰度 | 目录与解析策略按用户稳定分桶，规则复用公司范围；策略修改校验期望版本，回滚生成新版本 |
 | 人工处理 | 失败重试、结果核对、取消、关闭已知失败；在途或未知条目不能直接关闭 |
@@ -210,7 +212,7 @@ ORDER BY created_at;
 | --- | --- |
 | `demo.reset-on-startup` / `DEMO_RESET_ON_STARTUP` | `false`；新空库首次初始化，已有库默认保留，`true` 才反复重置 |
 | `agent.llm.mock` | `false`；`mock` profile 将其打开 |
-| `agent.semantic.mode` / `SEMANTIC_MODE` | 当前默认 `legacy`；验证新链路设为 `active`，真实模型回放通过后再切换；旧工具兜底不参与 active 处理 |
+| `agent.semantic.mode` / `SEMANTIC_MODE` | 默认 `active`，领域语法与模型共用结构化业务路径；`legacy` 为回滚开关，旧工具兜底不参与 active 处理 |
 | `agent.semantic.native-schema` / `SEMANTIC_NATIVE_SCHEMA` | 原生 Schema 开关；无论开启与否，服务端都会严格校验形状、字段、原文证据及权限 |
 | `agent.semantic.model` / `SEMANTIC_MODEL` | 默认空，沿用 `LLM_MODEL`；可独立替换语义解析模型 |
 | `agent.semantic.thinking-enabled` / `SEMANTIC_THINKING_ENABLED` | 默认 `false`；开启需支持 `thinking.type=enabled`，输出预算从 1600 调整为 4096 tokens |

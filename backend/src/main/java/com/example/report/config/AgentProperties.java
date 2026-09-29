@@ -24,7 +24,7 @@ public class AgentProperties {
     @Data
     public static class Semantic {
         /** active uses structured intents; legacy is an explicit rollback switch. */
-        private String mode = "legacy";
+        private String mode = "active";
         private boolean nativeSchema = false;
         private boolean thinkingEnabled = false;
         private String model;

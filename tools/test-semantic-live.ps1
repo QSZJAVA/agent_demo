@@ -1,9 +1,9 @@
-param([switch]$NativeSchema, [switch]$Thinking, [string]$Model = '')
+param([switch]$NativeSchema, [switch]$Thinking, [string]$Model = '', [switch]$ModelOnly)
 $ErrorActionPreference = 'Stop'
 $taskRoot = Split-Path $PSScriptRoot -Parent
 $settings = Join-Path $PSScriptRoot 'env.local.cmd'
 $taskOriginal = @{}
-foreach ($name in @('LLM_BASE_URL','LLM_API_KEY','LLM_MODEL','LLM_MODE','SEMANTIC_LIVE_EVAL','SEMANTIC_NATIVE_SCHEMA','SEMANTIC_THINKING_ENABLED')) {
+foreach ($name in @('LLM_BASE_URL','LLM_API_KEY','LLM_MODEL','LLM_MODE','SEMANTIC_LIVE_EVAL','SEMANTIC_NATIVE_SCHEMA','SEMANTIC_THINKING_ENABLED','SEMANTIC_EVAL_PARSER')) {
     $taskOriginal[$name] = [Environment]::GetEnvironmentVariable($name)
 }
 $taskExit = 0
@@ -19,6 +19,7 @@ if (-not $env:LLM_API_KEY) { throw 'LLM_API_KEY is required for live semantic ev
 $env:SEMANTIC_LIVE_EVAL='true'
 $env:SEMANTIC_NATIVE_SCHEMA=if($NativeSchema){'true'}else{'false'}
 $env:SEMANTIC_THINKING_ENABLED=if($Thinking){'true'}else{'false'}
+$env:SEMANTIC_EVAL_PARSER=if($ModelOnly){'model'}else{'hybrid'}
 if ($Model) { $env:LLM_MODEL=$Model }
 Push-Location (Join-Path $taskRoot 'backend')
 try {

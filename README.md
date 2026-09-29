@@ -59,7 +59,7 @@ chmod +x deploy.sh
 | `LLM_MODEL` | 本地 `application.yml` 默认 `deepseek-v4.1-flash`；Compose 默认 `qwen3.7-plus` |
 | `LLM_API_KEY` | 真实模型模式必须提供有效密钥；不要写入源码 |
 | 请求选项 | 语义解析温度 `0`、最多输出 1600 tokens；legacy 温度 `0.1`；`extra-body` 为 `thinking: {type: disabled}` |
-| `SEMANTIC_MODE` | 当前默认 `legacy`；`active` 为完整结构化语义入口，真实模型回放通过后切换 |
+| `SEMANTIC_MODE` | 默认 `active`，领域语法与模型协作的结构化语义入口；`legacy` 为回滚开关 |
 | `SEMANTIC_NATIVE_SCHEMA` | 是否向模型端点发送原生 JSON Schema；不支持该能力的端点须关闭，服务端仍校验协议和原文证据 |
 | `SEMANTIC_MODEL` | 默认空，沿用 `LLM_MODEL`；可仅对语义解析选择其他模型 |
 | `SEMANTIC_THINKING_ENABLED` | 默认 `false`；开启后发送 `thinking.type=enabled`，输出预算改为 4096 tokens，需端点实际支持 |
@@ -72,13 +72,15 @@ Docker 编辑 `.env` 的 `LLM_*` 后执行 `./deploy.sh start-real`；返回 moc
 
 演示用户均属于租户 `T001`：`user1` 只能看 A 公司；`user2` 只能看 B 公司；`user3` 看 B 公司但无应收报表权限；`admin` 看 A/B/C 公司并可管理规则、目录和运营策略。
 
-`active` 链路中，模型只提取本轮意图和原文实体，不调用业务工具。服务端将公司、报表和排除项的 KEEP/REPLACE/ADD/REMOVE/CLEAR 操作合并到 MySQL 会话状态，校验权限后调用业务服务。回复中的结果、条数和状态来自实际业务结果；任何模型输出都不能直接确认派单。
+`active` 链路先用领域语法解析能够完整识别的命令，报表名称和别名从目录读取，公司和单据号按标识符识别。其余表达交给模型提取本轮意图和原文实体，模型不调用业务工具。两种解析结果统一经过协议、原文证据、实体覆盖和权限校验，再将 KEEP/REPLACE/ADD/REMOVE/CLEAR 操作合并到 MySQL 会话状态并调用业务服务。回复中的结果、条数和状态来自实际业务结果；任何解析结果都不能直接确认派单。
 
-**启用状态：** 新架构已实现并有独立业务集成测试；当前连接的真实模型在最终 19 轮回放中严格通过 16 轮，仍有非法枚举、清除条件缺少证据及后续范围未解除问题，尚未通过切换验收。因此默认保留 `legacy`。验证新链路时显式设置 `SEMANTIC_MODE=active`；mock 只验证固定样本，不能替代真实模型验收。Schema 参数被端点接受不等于约束被严格执行，已观察到开启 Schema 仍返回非法枚举。
+**启用状态：** 默认启用 `active`。原有 19 轮回放全部通过，全部来自领域语法；真实 HTTP 验收 29/29 通过，包含已保存失败会话的纠正、报表增减、排除记录、生成待确认清单和取消。另已验证未覆盖的使用帮助表达会调用真实模型并正常返回。领域语法要求完整消费输入；复合操作、未知条件或不能确定作用范围的表达交给模型，不能丢掉后半句后执行。逐轮状态记录 `parserSource=DOMAIN/MODEL/MOCK`，领域解析的诊断模型标记为 `domain-grammar-v1`。
+
+上述回放结果是新链路的回归通过率，不是大模型准确率。此前仅模型解析回放为 16/19，已观察到端点接受 Schema 后仍返回非法枚举；此限制仍需通过 `-ModelOnly` 独立评估，不能由领域语法命中率掩盖。
 
 例如先查 A 成功、再查 B 被拒绝后，省略公司会继续保留未生效的 B 请求并提示拒绝；明确说“A公司销售报表的”才切回 A 查询。公司被拒绝不等于自动回退到 A，历史助手文字也不作为范围或权限依据。
 
-active 的 mock 模式使用 `backend/src/main/resources/semantic/mock-intents.json` 固定演示样本，未收录说法返回澄清；legacy 的 mock 保留关键词工具模拟。二者都不代表自然语言准确率。真实模型回放使用独立测试语料，见下文。以下查询步骤描述 active；legacy 保留原有模型工具、歧义选择卡片和明确公司查询纠正逻辑。
+active 的 mock 模式仍先走领域语法，未覆盖的表达使用 `backend/src/main/resources/semantic/mock-intents.json` 固定演示样本，其余返回澄清；legacy 的 mock 保留关键词工具模拟。mock 不代表自然语言准确率。回放语料及模型单独评估见下文。以下查询步骤描述 active；legacy 保留原有模型工具、歧义选择卡片和明确公司查询纠正逻辑。
 
 1. 输入“查一下我有哪些可以派单”。服务端先按目录、租户、报表权限和公司范围筛选，再按生效规则查询；候选数以当前数据为准。
 2. 名称或别名存在歧义、只有模糊近似匹配时，语义入口要求明确完整报表名称。新语义入口在本轮完成查询并流式发送进度与卡片，默认处理上限 180 秒；大预览仍分批持久化和分页读取。既有报表选择卡片和 REST 异步任务保留 120 秒超时及刷新恢复。
@@ -128,7 +130,8 @@ Windows 使用 `mvnw.cmd`。普通后端测试包含规则、目录、状态机�
 | --- | --- |
 | `TRACE_IT=true` | UUID 隔离数据库上的事务、持久化追溯等数据库集成测试 |
 | `P2_IT=true` | UUID 隔离数据库上的运营治理及语义多轮/租约/删除集成测试 |
-| `./tools/test-semantic-live.ps1 -NativeSchema` | 显式调用配置的真实模型，只做语义解析与范围归并，不查业务库、不执行派单；可加 `-Thinking`、`-Model 名称` 对比，输出 `backend/target/semantic-live-evaluation.json` |
+| `./tools/test-semantic-live.ps1` | 回放领域语法与真实模型协作链路，按 DOMAIN/MODEL/MOCK 分别记录来源；仅解析与范围归并，不查业务库、不执行派单。`-ModelOnly` 强制只评估模型；可加 `-NativeSchema`、`-Thinking`、`-Model 名称`，输出 `backend/target/semantic-live-evaluation.json` |
+| `python tools/test-semantic-http.py` | 验收运行中的 active 服务：公司切换、报表增减、排除、待确认清单及取消；创建验收会话，不确认派单。默认连接本机 8080；可加 `--resume-conversation ID` 验证旧会话，结果写入 `backend/target/semantic-http-acceptance.json`；固定断言对应未改动的示例数据 |
 | `P2_UI=true` | 可选浏览器驻留测试，需配合 P2 测试，默认关闭 |
 | `DEMO_IT=true` | 原有共用演示环境集成测试，会操作演示数据；仅在专用测试环境启用 |
 | `./tools/test-p2.ps1` | Windows 设置 TRACE/P2 开关并显式关闭 DEMO_IT/P2_UI，运行后端、前端测试及构建；`-BackendOnly` 仅后端，`-Tests` 指定类 |

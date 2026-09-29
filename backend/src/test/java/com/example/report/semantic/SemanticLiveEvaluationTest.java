@@ -15,10 +15,10 @@ import java.nio.file.*;
 import java.util.*;
 import static org.junit.jupiter.api.Assertions.*;
 
-/** Opt-in held-out multi-turn corpus. Only parsing + scope reduction; no DB or dispatch service. */
+/** Opt-in acceptance replay. Records DOMAIN/MODEL/MOCK separately; no DB or dispatch service. */
 @EnabledIfEnvironmentVariable(named="SEMANTIC_LIVE_EVAL",matches="true")
 class SemanticLiveEvaluationTest {
-    @Test void heldOutMultiTurnCorpus() throws Exception {
+    @Test void multiTurnAcceptanceReplay() throws Exception {
         var props=new AgentProperties();props.getSemantic().setNativeSchema(Boolean.parseBoolean(System.getenv("SEMANTIC_NATIVE_SCHEMA")));
         props.getSemantic().setThinkingEnabled(Boolean.parseBoolean(System.getenv("SEMANTIC_THINKING_ENABLED")));
         var http=new SimpleClientHttpRequestFactory();http.setConnectTimeout(10000);http.setReadTimeout(45000);
@@ -28,7 +28,8 @@ class SemanticLiveEvaluationTest {
                 .restClientBuilder(RestClient.builder().requestFactory(http)).build();
         var chat=OpenAiChatModel.builder().openAiApi(api).retryTemplate(RetryTemplate.builder().maxAttempts(1).build())
                 .defaultOptions(OpenAiChatOptions.builder().model(model).extraBody(Map.of("thinking",Map.of("type","disabled"))).build()).build();
-        var parser=new ModelIntentParser(chat,new IntentCodec(),props);
+        var modelParser=new ModelIntentParser(chat,new IntentCodec(),props);
+        IntentParser parser="model".equals(System.getenv("SEMANTIC_EVAL_PARSER"))?modelParser:new SemanticIntentParser(modelParser);
         var catalog=new ReportCatalogService(new TestCatalog().catalog(),props);
         var planner=new SemanticPlanner(catalog);
         List<Map<String,Object>> results=new ArrayList<>();
@@ -41,7 +42,8 @@ class SemanticLiveEvaluationTest {
                     Map<String,Object> result=new LinkedHashMap<>();result.put("scenario",scenario.get("name").asText());result.put("message",message);
                     try {
                         var mentions=planner.mentions(TestCatalog.USER1,message);
-                        var intent=parser.parse(message,new IntentParser.Context(state,catalog.dispatchableReports(TestCatalog.USER1).stream().map(CatalogEntry::ref).toList(),mentions));
+                        var interpreted=parser.interpret(message,new IntentParser.Context(state,catalog.dispatchableReports(TestCatalog.USER1).stream().map(CatalogEntry::ref).toList(),mentions));
+                        var intent=interpreted.intent();result.put("parserSource",interpreted.source());
                         String outcome="READY";
                         try { planner.merge(TestCatalog.USER1,state,intent);planner.requireCoverage(state,intent,mentions);planner.requireAction(state,intent);planner.validate(TestCatalog.USER1,state);state.setEffective(state.getDesired());state.setPhase(DialogueState.Phase.READY); }
                         catch(ApiException e){outcome=e.getCode()==422?"CLARIFY":"REJECTED";state.setPhase(DialogueState.Phase.valueOf(outcome));state.setLastReason(e.getMessage());}
@@ -69,7 +71,8 @@ class SemanticLiveEvaluationTest {
             }
         }
         long passed=results.stream().filter(r->Boolean.TRUE.equals(r.get("passed"))).count();
-        var output=Map.of("model",model,"nativeSchema",props.getSemantic().isNativeSchema(),"thinkingEnabled",props.getSemantic().isThinkingEnabled(),"passed",passed,"total",results.size(),"cases",results);
+        var sources=results.stream().filter(r->r.containsKey("parserSource")).collect(java.util.stream.Collectors.groupingBy(r->r.get("parserSource").toString(),java.util.stream.Collectors.counting()));
+        var output=Map.of("model",model,"nativeSchema",props.getSemantic().isNativeSchema(),"thinkingEnabled",props.getSemantic().isThinkingEnabled(),"passed",passed,"total",results.size(),"parserSources",sources,"cases",results);
         Files.createDirectories(Path.of("target"));Files.writeString(Path.of("target/semantic-live-evaluation.json"),JsonUtil.MAPPER.writerWithDefaultPrettyPrinter().writeValueAsString(output));
         assertEquals(results.size(),passed,"See target/semantic-live-evaluation.json (no business actions executed)");
     }

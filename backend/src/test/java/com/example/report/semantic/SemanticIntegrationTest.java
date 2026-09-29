@@ -160,4 +160,19 @@ class SemanticIntegrationTest {
         assertEquals(0,jdbc.queryForObject("SELECT COUNT(*) FROM semantic_turn WHERE conversation_id=?",Integer.class,id));
         assertThrows(ApiException.class,()->store.acquire(user(),id));
     }
+    @Test void companyEllipsisAndCorrectionWorkEvenWhenModelIsUnavailable() {
+        org.mockito.Mockito.doThrow(new ApiException(503,"model unavailable"))
+                .when(parser).parse(org.mockito.ArgumentMatchers.anyString(),org.mockito.ArgumentMatchers.any());
+        String id=conversation();
+        assertTrue(turn(id,"A公司销售报表的").stream().anyMatch(e->"preview".equals(e.event())));
+        var refused=turn(id,"那 B 公司呢？");
+        assertTrue(text(refused).contains("无权查看 B 公司"),text(refused));
+        assertEquals("B",store.read(user(),id).getDesired().companyCode());
+        assertTrue(text(turn(id,"现在我只想派销售报表的")).contains("无权查看 B 公司"));
+        var corrected=turn(id,"A公司销售报表的");
+        assertTrue(corrected.stream().anyMatch(e->"preview".equals(e.event())),text(corrected));
+        assertEquals(IntentParser.Source.DOMAIN,store.read(user(),id).getParserSource());
+        assertEquals(4,jdbc.queryForObject("SELECT COUNT(*) FROM semantic_turn WHERE conversation_id=? AND model='domain-grammar-v1'",Integer.class,id));
+        org.mockito.Mockito.verify(parser,org.mockito.Mockito.never()).parse(org.mockito.ArgumentMatchers.anyString(),org.mockito.ArgumentMatchers.any());
+    }
 }

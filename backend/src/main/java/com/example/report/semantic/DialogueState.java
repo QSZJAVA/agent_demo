@@ -20,6 +20,7 @@ public class DialogueState {
     private String planId;
     private List<RecordKey> excludedRecords = List.of();
     private SemanticIntent pendingIntent;
+    private IntentParser.Source parserSource;
     private boolean unresolvedReports;
     private boolean unresolvedCompany;
     private boolean unresolvedRecords;

@@ -57,7 +57,7 @@ chmod +x deploy.sh
 | `DEMO_RESET_ON_STARTUP` | 默认 `false`；仅显式 `true` 时每次启动重置演示报表、目录与规则 |
 | `SPRING_ARGS` | 默认 `--spring.profiles.active=mock`；真实模型模式留空 |
 | `LLM_BASE_URL`、`LLM_API_KEY`、`LLM_MODEL` | 模型端点、密钥、模型名 |
-| `SEMANTIC_MODE` | 当前默认 `legacy`；验证新语义链路设为 `active`，通过真实模型回放后再切换 |
+| `SEMANTIC_MODE` | 默认 `active`，领域语法与模型协作的结构化语义入口；`legacy` 为回滚开关 |
 | `SEMANTIC_NATIVE_SCHEMA` | 原生 JSON Schema 输出开关，需按供应商实际能力设置；服务端协议校验始终启用 |
 | `SEMANTIC_MODEL`、`SEMANTIC_THINKING_ENABLED` | 语义模型独立覆盖（默认空）与推理开关（默认 false），需用回放验证供应商行为 |
 | `JAVA_OPTS` | JVM 参数与内存上限 |
@@ -90,7 +90,7 @@ readiness 只证明当前 MySQL/Redis 依赖可用，不代表真实模型端点
 
 ## 5. 模型切换
 
-默认 mock 不请求外部模型；active 使用固定语义样本，未收录说法返回澄清。接真实模型前填写供应商实际支持的组合，例如编辑 `.env` 中的端点、API Key 和模型名，然后执行：
+默认 mock 不请求外部模型；active 先走领域语法，未覆盖表达使用固定语义样本，其余返回澄清。接真实模型前填写供应商实际支持的组合，例如编辑 `.env` 中的端点、API Key 和模型名，然后执行：
 
 ```bash
 ./deploy.sh start-real
@@ -106,7 +106,7 @@ readiness 只证明当前 MySQL/Redis 依赖可用，不代表真实模型端点
 
 当前请求体 `extra-body` 是 `thinking: {type: disabled}`；active 解析温度为 `0`，legacy 温度为 `0.1`。扩展参数位于 `backend/src/main/resources/application.yml`，不是 `.env` 的独立字段。切换供应商需核对模型名、Schema 和关闭思考参数，必要时改配置、执行 `./deploy.sh update` 重建后端；不能只凭“OpenAI 兼容”认定行为相同。
 
-语义路径切换使用 `SEMANTIC_MODE=active|legacy`，修改后重建后端容器。回滚业务入口时保留 V18 表结构与已有状态，不回删数据库迁移。原生 Schema 开关是模型能力配置，不替代权限校验或多轮语料验收；可在本地用 `tools/test-semantic-live.ps1 -NativeSchema` 单独测试解析，不会执行派单。
+语义路径切换使用 `SEMANTIC_MODE=active|legacy`，默认 active，修改后重建后端容器。回滚业务入口时保留 V18 表结构与已有状态，不回删数据库迁移。原生 Schema 开关是模型能力配置，不替代权限校验或多轮语料验收。可用 `tools/test-semantic-live.ps1` 回放混合解析链路，以 `-ModelOnly` 单独测试模型，按需追加 `-NativeSchema`；结果分开记录解析来源，不执行派单。`python tools/test-semantic-http.py` 则验收运行服务，创建验收会话和待确认清单并取消，不确认派单；其数据断言面向未改动的示例库。
 
 ## 6. 运维命令与备份
 
