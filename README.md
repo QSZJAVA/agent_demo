@@ -103,6 +103,37 @@ $env:LLM_API_KEY = Read-Host '模型 API Key' -MaskInput
 
 启动脚本先启动业务服务并等待 Flyway 迁移与健康检查，再启动 Agent；Agent 侧关闭 Flyway，不装配演示数据初始化器。两个后端默认仅监听回环地址。
 
+### 4. 创建演示账号并查看密码、权限
+
+一键启动不会自动创建普通业务员账号。首次启动且目标租户没有账号时，只初始化 `admin` 管理员，其公司范围为 A、B、C，功能权限为 `*`。已有账号时保留数据库中的账号和权限；修改管理员密码后，`.runtime/mcp-credentials.json` 中的初始密码不会自动更新。
+
+等待服务启动成功后，在仓库根目录执行：
+
+```powershell
+pwsh -File tools/prepare-demo-accounts.ps1
+
+# Agent 使用自定义端口时，传入后端地址（不是前端或 MCP 地址）
+pwsh -File tools/prepare-demo-accounts.ps1 -BaseUrl http://127.0.0.1:8082
+
+# 成功后查看本机生成的账号、密码与权限清单
+Get-Content .runtime/demo-accounts.md
+```
+
+脚本通过真实登录接口使用 `.runtime/mcp-credentials.json` 的 `adminUser`、`adminPassword` 创建或更新以下账号。该凭据必须能登录目标 Agent 且具有管理员权限；管理员密码已经修改时，先在本机私有文件中更新对应凭据再运行。
+
+| 用户名 | 显示名称 | 公司范围 | 权限 |
+| --- | --- | --- | --- |
+| `demo_admin` | 演示管理员 | A、B、C | 全部报表、目录、规则及运营管理 |
+| `demo_a` | A公司业务员 | A | 销售、应收、费用报表，在授权范围内派单 |
+| `demo_b` | B公司业务员 | B | 销售、应收、费用报表，在授权范围内派单 |
+| `demo_sales` | A公司销售业务员 | A | 仅销售报表，在授权范围内派单 |
+
+首次生成随机密码并保存到 `.runtime/demo-accounts.json`；重复执行复用该文件中的密码，将上述账号设为启用、恢复脚本定义的权限并撤销其旧会话。若账号密码已在其他途径修改，重复执行会重新设置为该文件保存的密码。账号创建属于独立操作，不必每次启动都执行。
+
+成功后在 `.runtime/demo-accounts.md` 查看用户名、密码、公司范围和权限；`.runtime/demo-account-checks.json` 保存登录、报表目录权限及销售记录公司范围的检查结果。这些检查不调用真实模型、不执行派单，不代表真实模型或外部 ERP 验收。脚本报错时先检查目标地址、管理员凭据及报表目录，再修复并重跑；失败时可能已有部分账号更新，不能依据之前生成的清单宣称本次全部成功。
+
+以上文件均在 Git 忽略且限制访问的 `.runtime/` 下，密码不写入 README 或版本库。新机器克隆仓库后需要先配置真实模型、数据库和 Redis，启动服务，再运行此脚本；旧机器账号和业务数据不会自动迁移。
+
 ### 停止、重启与可选参数
 
 ```powershell
@@ -179,7 +210,7 @@ MCP 模式不接受 `X-User-Id` 作为身份凭据，过滤器用真实会话身
 
 三张报表分页响应的业务 `id` 统一为 JSON 字符串，避免大整数在浏览器中失真；调用手工派单接口时也应保持字符串。
 
-启动后可执行 `pwsh -File tools/prepare-demo-accounts.ps1` 创建并验证 `demo_admin`、`demo_a`、`demo_b`、`demo_sales` 四个演示账号。账号密码保存在 Git 忽略的 `.runtime/demo-accounts.md` 和 `.runtime/demo-accounts.json`；重复执行会复用密码并刷新账号权限、撤销旧会话。真实模型启动优先使用进程环境变量；未提供 `LLM_API_KEY` 时，`tools/start-mcp.ps1` 可读取本机 `.runtime/llm-credentials.json` 中的 `apiKey/baseUrl/model`，该文件不提交仓库。
+演示账号的创建命令、权限和凭据查看位置见上文“创建演示账号并查看密码、权限”。真实模型启动优先使用进程环境变量；未提供 `LLM_API_KEY` 时，`tools/start-mcp.ps1` 可读取本机 `.runtime/llm-credentials.json` 中的 `apiKey/baseUrl/model`，该文件不提交仓库。
 
 ## 业务操作与执行保障
 
