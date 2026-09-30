@@ -27,7 +27,9 @@ public class SessionFilter extends OncePerRequestFilter {
         response.setHeader("X-Content-Type-Options","nosniff");
         response.setHeader("Cache-Control","no-store");
         String path=request.getServletPath();
-        if(path.equals("/api/auth/login") || path.equals("/api/auth/mode") || path.startsWith("/api/health")) {chain.doFilter(request,response);return;}
+        // MVC checks configured origins/methods/headers. A browser preflight carries no session token.
+        if(org.springframework.web.cors.CorsUtils.isPreFlightRequest(request)
+                || path.equals("/api/auth/login") || path.equals("/api/auth/mode") || path.startsWith("/api/health")) {chain.doFilter(request,response);return;}
         try {
             var user=identities.authenticate(bearer(request));
             HttpServletRequestWrapper wrapped=new HttpServletRequestWrapper(request) {

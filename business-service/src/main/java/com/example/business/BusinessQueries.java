@@ -27,6 +27,11 @@ public class BusinessQueries {
         if(!entry.published() || !entry.effectiveAt(LocalDateTime.now())) throw ApiException.notFound("报表不存在或无权访问");
         return entry;
     }
+    public void requireHistoricalAccess(CurrentUser user,String reportId) {
+        var d=definitions.selectById(reportId);
+        if(d==null || !Objects.equals(d.getTenantId(),user.tenantId()) || !user.hasPermission(d.getPermissionCode()))
+            throw ApiException.notFound("报表不存在或无权访问");
+    }
     public List<Map<String,Object>> catalog(CurrentUser user) {
         return definitions.selectList(new LambdaQueryWrapper<ReportDefinition>().eq(ReportDefinition::getTenantId,user.tenantId()).orderByAsc(ReportDefinition::getSortOrder))
                 .stream().filter(d->user.hasPermission(d.getPermissionCode()) && ReportDefinition.STATUS_PUBLISHED.equals(d.getStatus()))

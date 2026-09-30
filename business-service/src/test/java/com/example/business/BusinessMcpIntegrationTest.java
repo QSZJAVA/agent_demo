@@ -77,12 +77,68 @@ class BusinessMcpIntegrationTest {
         jdbc.update("INSERT INTO dispatch_plan(id,preview_id,tenant_id,user_id,status,item_count,idempotency_key,created_at,expires_at,confirmed_at,confirmed_by,updated_at,execution_version) VALUES (?,?,'T001','readerA',?,1,?,NOW(),DATE_ADD(NOW(),INTERVAL 1 HOUR),?, ?,NOW(),1)",plan,preview,confirmed?"EXECUTING":"PENDING",plan,confirmed?java.time.LocalDateTime.now():null,confirmed?"readerA":null);
         String request=plan+"-item";
         jdbc.update("INSERT INTO dispatch_plan_item(plan_id,seq,report_id,report_name,catalog_version,record_id,company_code,rule_id,rule_version,status,external_request_id,updated_at) VALUES (?,1,?,'销售报表',1,'1','A',1,1,'UNKNOWN',?,NOW())",plan,REPORT,request);
+        jdbc.update("UPDATE dispatch_preview SET report_ids=?,company_codes='[\"A\"]' WHERE id=?","[\""+REPORT+"\"]",preview);
         return request;
     }
     Map<String,Object> submitArgs(String request){return new LinkedHashMap<>(Map.of("requestId",request,"reportId",REPORT,"record",record(),"enforceRules",true,"executionVersion",1));}
     Outcome submit(String request){return call("dispatch_submit",reader,submitArgs(request),new TypeReference<>(){});}
     Lookup lookup(String request){return call("dispatch_lookup",reader,Map.of("requestId",request),new TypeReference<>(){});}
     int status(){return jdbc.queryForObject("SELECT dispatch_status FROM report_sales WHERE id=1",Integer.class);}
+
+    Lookup delegated(CurrentUser actor,String owner,String request) {
+        return call("dispatch_lookup",actor,Map.of("requestId",request,"requestOperatorId",owner),new TypeReference<>(){});
+    }
+    @Test void adminCanLookupDisabledOwnerWithoutReactivationOrResend() {
+        String request=evidence(true);assertTrue(submit(request).success());
+        jdbc.update("UPDATE app_user SET enabled=false WHERE user_id='readerA'");
+        assertEquals(LookupStatus.SUCCESS,delegated(admin,"readerA",request).status());
+        assertThrows(ApiException.class,()->lookup(request));assertThrows(ApiException.class,()->submit(request));
+        assertEquals(1,status());assertEquals(1,jdbc.queryForObject("SELECT COUNT(*) FROM business_dispatch_request",Integer.class));
+        assertFalse(jdbc.queryForObject("SELECT enabled FROM app_user WHERE user_id='readerA'",Boolean.class));
+    }
+    @Test void adminLookupRequiresTenantPlanCompanyAndReportGrants() {
+        String request=evidence(true);submit(request);
+        assertThrows(ApiException.class,()->delegated(reader,"readerA",request));
+        assertThrows(ApiException.class,()->delegated(admin,"readerB",request));
+        assertThrows(ApiException.class,()->delegated(admin,"readerA","unknown-request"));
+        identities.saveUser(admin,new IdentityStore.UserForm("limitedAdmin","Limited",password,Set.of("B"),Set.of("*"),true,true));
+        final var limited=identities.resolve("T001","limitedAdmin");
+        assertThrows(ApiException.class,()->delegated(limited,"readerA",request));
+        identities.saveUser(admin,new IdentityStore.UserForm("limitedAdmin","Limited",null,Set.of("A"),Set.of(),true,true));
+        final var noReports=identities.resolve("T001","limitedAdmin");
+        assertThrows(ApiException.class,()->delegated(noReports,"readerA",request));
+        var foreign=new CurrentUser("T002","admin","",Set.of("A"),Set.of("*"),true);
+        assertThrows(ApiException.class,()->delegated(foreign,"readerA",request));
+    }
+    @Test void adminCanProveUnsentRequestForDisabledOwnerIncludingMissingIntentId() {
+        String request=evidence(true);
+        jdbc.update("UPDATE app_user SET enabled=false WHERE user_id='readerA'");
+        assertEquals(LookupStatus.NOT_FOUND,delegated(admin,"readerA",request).status());
+        String plan=jdbc.queryForObject("SELECT plan_id FROM dispatch_plan_item WHERE external_request_id=?",String.class,request);
+        String item=jdbc.queryForObject("SELECT id FROM dispatch_plan_item WHERE external_request_id=?",String.class,request);
+        jdbc.update("UPDATE dispatch_plan_item SET external_request_id=NULL WHERE plan_id=?",plan);
+        assertEquals(LookupStatus.NOT_FOUND,delegated(admin,"readerA",plan+"-"+item).status());
+        assertEquals(0,status());
+    }
+    @Test void adjacentLargeReportIdsRemainStringsAndOnlyTheSelectedRecordIsDispatched() {
+        String even="9007199254740992",odd="9007199254740993";
+        try {
+            for(String id:List.of(even,odd)) jdbc.update("INSERT INTO report_sales(id,tenant_id,company_code,order_no,product_name,amount,sale_date,dispatch_status) "
+                    +"SELECT ?,tenant_id,company_code,CONCAT('BIG-',?),product_name,amount,sale_date,0 FROM report_sales WHERE id=1",id,id);
+            Map<String,Object> page=call("report_page",reader,Map.of("reportCode","sales","page",1,"size",200),new TypeReference<>(){});
+            var records=(List<Map<String,Object>>)page.get("records");
+            assertTrue(records.stream().anyMatch(row->even.equals(row.get("id"))));
+            assertTrue(records.stream().anyMatch(row->odd.equals(row.get("id"))));
+            assertTrue(records.stream().allMatch(row->row.get("id") instanceof String));
+            String request=evidence(true);
+            jdbc.update("UPDATE dispatch_plan_item SET record_id=? WHERE external_request_id=?",odd,request);
+            var args=submitArgs(request);var selected=record();selected.put("recordId",odd);selected.put("docNo","BIG-"+odd);args.put("record",selected);
+            Outcome result=call("dispatch_submit",reader,args,new TypeReference<>(){});
+            assertTrue(result.success());
+            assertEquals(1,jdbc.queryForObject("SELECT dispatch_status FROM report_sales WHERE id=?",Integer.class,odd));
+            assertEquals(0,jdbc.queryForObject("SELECT dispatch_status FROM report_sales WHERE id=?",Integer.class,even));
+        } finally {jdbc.update("DELETE FROM report_sales WHERE id IN (?,?)",even,odd);}
+    }
 
     @Test void standardMcpInitializationAndDiscovery() throws Exception {
         var transport=io.modelcontextprotocol.client.transport.HttpClientStreamableHttpTransport.builder(base).endpoint("/mcp")

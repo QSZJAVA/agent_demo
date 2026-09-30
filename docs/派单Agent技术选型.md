@@ -2,9 +2,9 @@
 
 | 项目 | 内容 |
 | --- | --- |
-| 适用版本 | 当前仓库代码，说明更新于 2026-09-29 |
+| 适用版本 | 当前仓库代码，说明更新于 2026-09-30，真实模型 real,mcp 链路 |
 | 功能范围 | 报表识别、预览、排除、确认派单、结果追踪、目录/规则管理及运营治理 |
-| 当前边界 | 演示身份、演示派单网关；真实认证和外部业务派单接入为下一阶段 |
+| 当前边界 | 真实账号、真实模型、独立 MCP 业务服务已实现；企业统一登录和外部 ERP 接入待完成 |
 | 启动与验证 | [README](../README.md)、[Docker 部署指南](Docker部署指南.md) |
 | 下一阶段 | [Demo 到生产级待办](派单Agent_Demo到生产级待办.md) |
 
@@ -14,7 +14,7 @@
 
 用户可以用自然语言查询可派单记录、调整选择、生成清单并确认执行。默认 active 模式统一调用模型输出 V2 业务指令；模型不调用业务工具。公司、报表与排除项由服务端校验、归并和执行，结果文字来自实际业务结果。
 
-当前默认 active 使用 V2，legacy 仅为显式回滚。历史 V1 语法/HTTP/模型成绩不适用于 V2。V2 包含 51 轮合成业务回放；真实模型验收目前因缺少 LLM_API_KEY 未执行，部署前必须针对实际端点运行。详见 [语义 V2 实施说明](语义V2实施与验收.md)。
+当前 active 使用 V2。2026-09-30 已启动真实 deepseek-v4.1-flash 并验证前端代理登录、真实模型查询和 SSE 预览；历史完整回放与新端点验证分别记录，部署前仍须针对实际配置跑完整真实语料验收。详见 [语义 V2 实施说明](语义V2实施与验收.md)。
 
 1. 报表名称和别名从目录读取，新增标准报表通过配置与发布接入。
 2. 查询同时受租户、报表权限和公司范围限制；身份不能从模型生成的参数取值。
@@ -35,7 +35,7 @@
 | Redis | Docker 使用 7 | 短期工作记忆、缓存刷新广播、分钟请求频率限制 |
 | Vue / Element UI / Vite | Vue 2.7、Element UI 2.15、Vite | 报表、聊天、历史会话和管理页面；组件按需引入、页面按路由加载 |
 | SSE | POST + fetch 读取事件流 | 传递文本与卡片，事件有请求号/序号，断线通过持久状态恢复 |
-| Flyway | `backend/src/main/resources/db/migration` 及 Java 迁移 | 当前 V1–V18，维护表结构演进 |
+| Flyway | `backend/src/main/resources/db/migration` 及 Java 迁移 | 当前 V1–V19，维护表结构演进及真实账号/业务结果表 |
 
 当前模型默认值不是供应商可用性保证：本地 `application.yml` 为 `deepseek-v4.1-flash`，Compose 为 `qwen3.7-plus`，默认端点为百炼兼容地址；请求扩展体为 `thinking: {type: disabled}`。active 意图解析温度为 `0`、最多输出 2400 tokens，legacy 温度为 `0.1`。切供应商需核对端点、模型、原生 Schema 和扩展参数，详见 README。
 
@@ -71,7 +71,7 @@ SSE 事件包括 `conversation`、`text`、`preview_job`、`choice`、`preview`�
 
 多家公司、模糊报表、不能唯一定位的记录需要澄清。记录先按单据号精确匹配，再按摘要匹配，必须唯一；之后始终保存“报表 ID＋记录 ID”。只调整排除记录时复用同一有效预览，`selection` 事件同步勾选；已保存的语义选择可在刷新后通过 `GET /api/agent/conversations/{id}/selection` 恢复。仅在浏览器修改、尚未随消息提交的勾选仍是本地状态。
 
-自由文本不再使用领域词法规则决定动作。V2 中每个修改绑定 COMPANY/REPORTS/RECORDS；报表操作按顺序归并，全部实体解析成功才提交请求范围；记录操作应用于最终预览，所有选择修改成功才提交排除集合。禁止派单表达通过本轮 PREPARE_DISPATCH restriction 表达，不修改报表范围。模型不可用时停止该轮业务动作，不能退回关键词猜测。mock 仅使用固定样本或澄清。
+自由文本由真实模型决定本轮结构化意图。V2 中每个修改绑定 COMPANY/REPORTS/RECORDS；报表操作按顺序归并，全部实体解析成功才提交请求范围；记录操作应用于最终预览，所有选择修改成功才提交排除集合。禁止派单表达通过本轮 PREPARE_DISPATCH restriction 表达，不修改报表范围。模型不可用时停止该轮业务动作并返回明确原因。
 
 ## 4. 目录、查询与规则口径
 
@@ -86,10 +86,10 @@ SSE 事件包括 `conversation`、`text`、`preview_job`、`choice`、`preview`�
 | 唯一记录 | 标准接入要求 ID 非空，且具有 ID 或租户+ID 唯一约束；其他复合主键使用专用适配器 |
 | 发布检查 | 探测真实表列和唯一约束，检查权限码；新事实字段不能破坏既有已发布规则 |
 | 规则范围 | 按租户、报表和公司选择生效规则；发布/回滚维护版本并在提交后刷新缓存 |
-| SQL 下推 | 只下推可证明与 Aviator 语义一致的简单谓词；不安全或无法证明无损的映射回到 Java 求值 |
+| 规则求值 | 当前 MCP 读取有界候选事实后由 Agent 使用 Aviator 求值，不向远端传递规则表达式；本地查询适配器只允许可证明安全的简单谓词下推 |
 | 解析方式 | 名称/编码/ID、别名、编辑距离/二元组/包含匹配；当前未接搜索引擎或向量检索 |
 
-模型不直接生成 SQL，也不决定最终可访问的报表或公司。当前身份源仍是 `X-User-Id` 模拟，四个演示账号都属于 `T001`；生产登录态、真实租户和组织权限对接尚待实施。
+模型不直接生成 SQL，也不决定最终可访问的报表或公司。当前 MCP 模式使用真实账号和 Bearer 会话；过滤器用可信身份覆盖客户端用户头。当前服务绑定租户，企业统一登录、多租户客户端及组织权限同步仍需接入。
 
 ## 5. 持久化、状态与恢复
 
@@ -99,9 +99,9 @@ SSE 事件包括 `conversation`、`text`、`preview_job`、`choice`、`preview`�
 | `dispatch_rule`、`dispatch_rule_history` | 规则版本与变更历史 |
 | `dispatch_preview`、`dispatch_preview_item`、`dispatch_preview_job` | 预览摘要、冻结明细、异步任务及进度 |
 | `dispatch_plan`、`dispatch_plan_item` | 清单状态、逐条结果、尝试次数及外部请求号 |
-| `dispatch_gateway_request` | 演示网关请求流水及结果查询 |
+| `business_dispatch_request` | MCP 业务服务持久化请求流水、幂等负载和派单结果 |
 | `agent_conversation`、`agent_message`、`trace_event` | 会话、消息、持久追溯事件和投递状态 |
-| `semantic_dialogue` | 请求/生效范围、未解决条件、预览/清单绑定、排除记录、版本与处理租约；V1 pendingIntent 读取时转为 V2；新 parserSource 为 MODEL/MOCK，DOMAIN 仅兼容历史 |
+| `semantic_dialogue` | 请求/生效范围、未解决条件、预览/清单绑定、排除记录、版本与处理租约；V1 pendingIntent 读取时转为 V2；真实语义 parserSource 为 MODEL |
 | `semantic_turn` | 每轮输入、V2 指令、状态结果、原因、模型及耗时；与会话删除流程一起清理，旧审计记录不重写 |
 | `dispatch_audit`、`operations_audit`、`business_metric` | 派单审计、访问/管理审计及业务指标 |
 | `catalog_revision`、`operations_policy`、`operations_policy_revision` | 目录/策略历史、灰度与回滚 |
@@ -112,14 +112,14 @@ SSE 事件包括 `conversation`、`text`、`preview_job`、`choice`、`preview`�
 
 同一语义会话同一时刻只允许一个处理租约，其他请求返回冲突。租约到期、删除或被其他实例接管后，旧请求不能保存状态、激活预览或建单；只有短暂的状态写入/业务提交持有事务。旧会话从有归属且有效的业务快照初始化；后续只采纳更新的显式 UI/API 选择，不把历史成功预览当作被拒绝请求的新结果。
 
-标准演示回写在事务内锁定源记录并复核条件，持久化请求号用于重复提交与结果核对。真实外部网关并未实现；接入时必须建立同等的幂等与查询契约，不能假设外部调用具有本地数据库事务语义。
+独立 MCP 业务服务在事务内锁定源记录并复核条件，源状态和请求结果同事务提交，稳定请求号用于重复提交与核对。当前操作本仓库业务表；外部 ERP 接入必须遵守幂等与查询契约，不能假设跨系统调用具有本地数据库事务语义。
 
 ## 6. 运营治理与数据口径
 
 | 项目 | 当前行为 |
 | --- | --- |
 | 解析回归 | 按租户维护样本，对目录/解析策略/样本集/模型配置指纹变化自动评估；评估对象是目录解析，不能代替真实模型端到端验收 |
-| 多轮语义回放 | SemanticV2Test 验证统一模型路由、协议边界、原子归并和 V1 兼容；SemanticIntegrationTest 验证真实 MySQL 状态及业务服务。replay-corpus.json + business-corpus-v2.json 共 51 轮，通过同一业务 oracle 验证 mock 或真实模型；mock 不计模型准确率 |
+| 多轮语义回放 | 用真实模型回放 replay-corpus.json、business-corpus-v2.json 和独立补充语料，记录实际动作、最终范围及澄清结果；服务端协议/状态/数据库回归另行统计，不计为模型准确率 |
 | 指标 | 按租户、操作、报表、版本、结果分组统计次数、平均耗时和 P95；派单统计依据清单条目当前状态，重试不重复累计成功 |
 | 灰度 | 目录与解析策略按用户稳定分桶，规则复用公司范围；策略修改校验期望版本，回滚生成新版本 |
 | 人工处理 | 失败重试、结果核对、取消、关闭已知失败；在途或未知条目不能直接关闭 |
@@ -211,7 +211,7 @@ ORDER BY created_at;
 | 配置项 | 默认值/行为 |
 | --- | --- |
 | `demo.reset-on-startup` / `DEMO_RESET_ON_STARTUP` | `false`；新空库首次初始化，已有库默认保留，`true` 才反复重置 |
-| `agent.llm.mock` | `false`；`mock` profile 将其打开 |
+| Agent profile | `real,mcp`，真实模型解析及独立业务服务 |
 | `agent.semantic.mode` / `SEMANTIC_MODE` | 默认 active，V2 统一模型语义入口；legacy 为显式回滚，旧工具兜底不参与 active 处理 |
 | `agent.semantic.native-schema` / `SEMANTIC_NATIVE_SCHEMA` | 原生 Schema 开关；无论开启与否，服务端都会严格校验形状、字段、原文证据及权限 |
 | `agent.semantic.model` / `SEMANTIC_MODEL` | 默认空，沿用 `LLM_MODEL`；可独立替换语义解析模型 |

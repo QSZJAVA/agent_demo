@@ -98,4 +98,25 @@ public class BusinessDispatch {
                 (rs,i)->new Lookup(switch(rs.getString("status")){case "SUCCESS"->LookupStatus.SUCCESS;case "FAILED"->LookupStatus.FAILED;default->LookupStatus.UNKNOWN;},rs.getString("error_code"),rs.getString("message")),user.tenantId(),requestId,user.userId())
                 .stream().findFirst().orElse(new Lookup(LookupStatus.NOT_FOUND,null,"请求未受理"));
     }
+    @Transactional(isolation=Isolation.READ_COMMITTED)
+    public Lookup lookupForOperator(CurrentUser actor,String operatorId,String requestId) {
+        if(!actor.admin()) throw ApiException.forbidden("仅管理员可代核对");
+        // Bind delegation to an existing plan in this tenant; no account reactivation is needed.
+        var rows=jdbc.queryForList("SELECT v.company_codes,v.report_ids FROM dispatch_plan_item i "
+                +"JOIN dispatch_plan p ON p.id=i.plan_id JOIN dispatch_preview v ON v.id=p.preview_id "
+                +"WHERE p.tenant_id=? AND v.tenant_id=? AND p.user_id=? AND (i.external_request_id=? "
+                +"OR (i.external_request_id IS NULL AND CONCAT(p.id,'-',i.id)=?))",
+                actor.tenantId(),actor.tenantId(),operatorId,requestId,requestId);
+        if(rows.size()!=1) throw ApiException.notFound("请求不存在或无权核对");
+        try {
+            Set<String> companies=json.readValue(rows.get(0).get("company_codes").toString(),new com.fasterxml.jackson.core.type.TypeReference<>(){});
+            List<String> reports=json.readValue(rows.get(0).get("report_ids").toString(),new com.fasterxml.jackson.core.type.TypeReference<>(){});
+            if(companies.isEmpty() || reports.isEmpty() || !actor.companies().containsAll(companies)) throw ApiException.forbidden("公司范围超出权限");
+            for(String report:reports) queries.requireHistoricalAccess(actor,report);
+        } catch(ApiException e) {throw e;}
+        catch(Exception invalid){throw new ApiException("清单范围数据不完整，无法代核对");}
+        return jdbc.query("SELECT status,error_code,message FROM business_dispatch_request WHERE tenant_id=? AND request_id=? AND operator_id=? FOR UPDATE",
+                (rs,i)->new Lookup(switch(rs.getString("status")){case "SUCCESS"->LookupStatus.SUCCESS;case "FAILED"->LookupStatus.FAILED;default->LookupStatus.UNKNOWN;},rs.getString("error_code"),rs.getString("message")),actor.tenantId(),requestId,operatorId)
+                .stream().findFirst().orElse(new Lookup(LookupStatus.NOT_FOUND,null,"请求未受理"));
+    }
 }

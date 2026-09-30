@@ -39,3 +39,61 @@ test('session expiry clears credentials and notifies the login screen', () => {
   assert.equal(context.sessionStorage.getItem('report.sessionUser'), null)
   assert.deepEqual(events, ['session-expired'])
 })
+
+test('old and anonymous requests cannot expire a newer session', () => {
+  const { context, events } = auth()
+  context.saveSession('new-session', { userId: 'new-user' })
+  assert.equal(context.sessionExpired('old-session'), false)
+  assert.equal(context.sessionExpired(null), false)
+  assert.equal(context.getSessionToken(), 'new-session')
+  assert.deepEqual(events, [])
+  assert.equal(context.sessionExpired('new-session'), true)
+  assert.equal(context.getSessionToken(), null)
+  assert.deepEqual(events, ['session-expired'])
+})
+
+function httpAuth() {
+  const state = auth()
+  let request, success, failure
+  state.context.axios = { create: () => ({ interceptors: {
+    request: { use: fn => { request = fn } },
+    response: { use: (ok, err) => { success = ok; failure = err } }
+  } }) }
+  state.context.Message = { error() {} }
+  vm.runInContext(fs.readFileSync(path.join(__dirname, '../src/api/http.js'), 'utf8')
+    .replace(/^import .*$/gm, '').replace('export default http', ''), state.context)
+  return { ...state, request, success, failure }
+}
+for (const mode of ['http', 'business']) {
+  test(`${mode} 401 only expires the session associated with that request`, async () => {
+    const { context, events, request, success, failure } = httpAuth()
+    context.saveSession('old-session', { userId: 'old-user' })
+    const old = request({ headers: {} })
+    context.saveSession('new-session', { userId: 'new-user' })
+    const reject = config => mode === 'http'
+      ? failure({ config, response: { status: 401 }, message: 'expired' })
+      : success({ config, data: { code: 401, message: 'expired' } })
+    await assert.rejects(reject(old))
+    assert.equal(context.getSessionToken(), 'new-session'); assert.deepEqual(events, [])
+    await assert.rejects(reject(request({ headers: {} })))
+    assert.equal(context.getSessionToken(), null); assert.deepEqual(events, ['session-expired'])
+  })
+}
+
+for (const code of [401, 200]) {
+  test(`late SSE authentication error HTTP ${code} cannot clear a new login`, async () => {
+    const { context, events } = auth()
+    let finish
+    context.AbortController = AbortController
+    context.fetch = () => new Promise(resolve => { finish = resolve })
+    vm.runInContext(fs.readFileSync(path.join(__dirname, '../src/api/agent.js'), 'utf8')
+      .replace(/^import .*$/gm, '').replaceAll('export function', 'function'), context)
+    context.saveSession('old-session', { userId: 'old-user' })
+    const stream = context.streamChat({ message: 'test' }, () => {})
+    context.saveSession('new-session', { userId: 'new-user' })
+    finish({ ok: code === 200, status: code, headers: { get: () => 'application/json' },
+      json: async () => ({ code: 401, message: 'expired' }) })
+    await assert.rejects(stream.promise)
+    assert.equal(context.getSessionToken(), 'new-session'); assert.deepEqual(events, [])
+  })
+}

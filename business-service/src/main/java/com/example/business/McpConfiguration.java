@@ -51,7 +51,9 @@ public class McpConfiguration {
                 List.of("requestId","reportId","record","enforceRules","executionVersion"),a->dispatch.submit(user(a),string(a,"requestId"),string(a,"reportId"),
                         json.convertValue(a.get("record"),Candidate.class),(Boolean)a.get("enforceRules"),((Number)a.get("executionVersion")).longValue())));
         builder.tools(tool("dispatch_lookup","按稳定请求号查询派单结果；超时先核对，不得盲目重发",true,
-                props("requestId",str()),List.of("requestId"),a->dispatch.lookup(user(a),string(a,"requestId"))));
+                props("requestId",str(),"requestOperatorId",str()),List.of("requestId"),a->a.containsKey("requestOperatorId")
+                        ?dispatch.lookupForOperator(user(a),string(a,"requestOperatorId"),string(a,"requestId"))
+                        :dispatch.lookup(user(a),string(a,"requestId"))));
         // Internal configuration probe. Restricted to the authenticated orchestration service, not a model tool callback.
         builder.tools(tool("report_probe","服务端发布报表配置前检查表与字段，不返回业务记录",true,
                 props("queryMode",str(),"queryConfig",Map.of("type","string","maxLength",65536)),List.of("queryMode","queryConfig"),

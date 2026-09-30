@@ -285,11 +285,22 @@ public class DispatchService {
     /** 查询外部幂等请求号，只有全部未知项得到确定结果后才解除待核对状态。 */
     public DispatchResultPayload reconcile(CurrentUser user, String planId) {
         try (ResourceQuotaService.Permit permit = acquirePlanPermit(user, planId)) {
-            return reconcileWithPermit(user, planId, permit);
+            return reconcileWithPermit(user, user, planId, permit);
         }
     }
 
-    private DispatchResultPayload reconcileWithPermit(CurrentUser user, String planId, ResourceQuotaService.Permit permit) {
+    /** Read-only lookup delegated by an administrator; this path never submits or retries mutations. */
+    public DispatchResultPayload reconcileForOperator(CurrentUser actor,String operatorId,String planId) {
+        com.example.report.operations.OperationsPolicy.requireAdmin(actor);
+        CurrentUser scope = new CurrentUser(actor.tenantId(),operatorId,actor.displayName(),actor.companies(),actor.permissions(),true);
+        // Ownership and the administrator's current data grants are checked before acquiring quota or lookup.
+        planService.getOwned(scope,planId);
+        try(ResourceQuotaService.Permit permit = acquirePlanPermit(scope,planId)) {
+            return reconcileWithPermit(scope,actor,planId,permit);
+        }
+    }
+
+    private DispatchResultPayload reconcileWithPermit(CurrentUser user, CurrentUser actor, String planId, ResourceQuotaService.Permit permit) {
         ResourceQuotaService.check(permit);
         PlanSnapshot snapshot = planService.getOwned(user, planId);
         if (!DispatchPlan.REVIEW_REQUIRED.equals(snapshot.plan().getStatus())) {
@@ -304,7 +315,8 @@ public class DispatchService {
             String requestId = item.getExternalRequestId() == null
                     ? planId + "-" + item.getId() : item.getExternalRequestId();
             DispatchGateway.Lookup lookup = gateway instanceof AuthenticatedDispatchGateway authenticated
-                    ? authenticated.lookup(user, requestId) : gateway.lookup(user.tenantId(), requestId);
+                    ? (actor == user ? authenticated.lookup(user, requestId)
+                    : authenticated.lookupForOperator(actor,user.userId(),requestId)) : gateway.lookup(user.tenantId(), requestId);
             if (lookup == null || lookup.status() == DispatchGateway.LookupStatus.UNKNOWN) continue;
             boolean success = lookup.status() == DispatchGateway.LookupStatus.SUCCESS;
             item.setStatus(success ? DispatchPlanItem.SUCCESS : DispatchPlanItem.FAILED);
@@ -323,7 +335,7 @@ public class DispatchService {
                 if (!plans.resolveUnknownItem(item, expectedStatus, snapshot.plan().getExecutionVersion())) {
                     throw new ApiException(409, "清单已被其他请求核对或重试，请刷新后重新核对");
                 }
-                auditService.record(user, ctx.forItem(item, snapshot.plan().getExecutionVersion(), "RECONCILE"),
+                auditService.record(actor, ctx.forItem(item, snapshot.plan().getExecutionVersion(), "RECONCILE"),
                         PlanSnapshot.toCandidate(item), item.getId(), requestId, item.getStatus(), item.getErrorCode(),
                         "核对 " + expectedStatus + " → " + item.getStatus()
                                 + (item.getErrorMessage() == null ? "" : "：" + item.getErrorMessage()));

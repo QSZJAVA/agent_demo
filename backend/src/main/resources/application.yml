@@ -78,6 +78,8 @@ web:
   # 允许跨域访问 /api 的来源，逗号分隔，例如 https://demo.example.com。
   # 开发（Vite 代理）与 Docker（Nginx 反代）都是同源访问，默认留空即不开放跨域
   cors-allowed-origins: ${CORS_ALLOWED_ORIGINS:}
+  # 只信任实际反向代理的 IP/CIDR；留空忽略转发头，禁止公网客户端伪造限流身份。
+  trusted-proxies: ${TRUSTED_PROXY_CIDRS:}
 
 demo:
   # 首次空库初始化示例数据；普通重启保留报表、目录、规则和历史。

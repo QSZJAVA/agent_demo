@@ -37,6 +37,22 @@ public class WebConfig implements WebMvcConfigurer {
                 .maxAge(3600);
     }
 
+    /** Apply CORS before authentication so preflights and authentication errors get valid CORS headers. */
+    @Bean
+    public org.springframework.boot.web.servlet.FilterRegistrationBean<org.springframework.web.filter.CorsFilter> apiCorsFilter() {
+        var policy = new org.springframework.web.cors.CorsConfiguration();
+        policy.setAllowedOrigins(corsAllowedOrigins);
+        policy.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+        policy.setAllowedHeaders(List.of("*"));
+        policy.setAllowCredentials(true);
+        policy.setMaxAge(3600L);
+        var source = new org.springframework.web.cors.UrlBasedCorsConfigurationSource();
+        source.registerCorsConfiguration("/api/**", policy);
+        var registration = new org.springframework.boot.web.servlet.FilterRegistrationBean<>(new org.springframework.web.filter.CorsFilter(source));
+        registration.setOrder(-110);
+        return registration;
+    }
+
     @Bean(name = "mvcAsyncExecutor")
     public ThreadPoolTaskExecutor mvcAsyncExecutor() {
         ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();

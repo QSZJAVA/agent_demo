@@ -1,0 +1,40 @@
+flowchart TD
+  conversation["agent_conversation<br/>会话归属、标题、请求版本<br/>deleted/erasure 拒绝继续写"]:::store
+  lease{"semantic_dialogue 租约<br/>默认单轮 180 秒<br/>租约 + version CAS；不跨模型持事务"}:::guard
+  model["模型调用 / 规则扫描<br/>阶段之间 check 租约与配额<br/>被取消或超时不能提交业务变更"]:::model
+  save["fenced() 小事务保存<br/>校验 token / version / expiry<br/>state_json 脱敏持久化"]:::store
+  turn["semantic_turn<br/>脱敏原文、意图、模型<br/>结果、原因、耗时、状态版本"]:::store
+  business["预览 / 清单 / 条目 / 追溯<br/>业务数据和状态持久化<br/>更新正文与卡片记录"]:::store
+  text["服务端生成事实回复<br/>数量、状态、规则来自服务<br/>不再请求模型润色回答"]:::agent
+  events["SSE 事件<br/>conversation / text / preview<br/>plan / selection / error / done"]:::ui
+  seq{"requestId:seq + 输出脱敏<br/>前端按请求/序号校验<br/>卡片、文字与选择分别处理"}:::guard
+  front["前端更新并落地历史恢复线索<br/>忽略旧账号/旧会话响应<br/>selection 绑定指定 previewId"]:::ui
+  disconnected["SSE 断开 / 页面刷新<br/>不保证原文本流续传<br/>读取已经保存的业务状态"]:::error
+  restore["历史 + card-states + selection<br/>必要时查询持久化 preview job<br/>选择恢复失败先阻止建单"]:::ui
+  phase["错误阶段持久化<br/>422 → CLARIFY；业务拒绝<br/>REJECTED；其他异常 FAILED"]:::store
+  next["新的一轮<br/>重新取权威状态/目录<br/>上一轮禁止仅 THIS_TURN"]:::agent
+  legacyJobs["独立异步预览接口<br/>UI/legacy preview_job 可恢复<br/>active 语义查询直接调用 PreviewService"]:::agent
+  conversation --> lease
+  lease --> model
+  model --> save
+  save --> turn
+  save --> business
+  turn --> text
+  business --> text
+  text --> events
+  events --> seq
+  seq --> front
+  front -->|"正常完成"| next
+  front -->|"断线/刷新"| disconnected
+  disconnected --> restore
+  restore --> next
+  model -->|"异常/不可靠"| phase
+  phase --> events
+  legacyJobs -->|"有独立预览任务"| restore
+  classDef ui fill:#eaf2ff,stroke:#386bc1,color:#1e354c
+  classDef agent fill:#edf5ff,stroke:#3778a8,color:#1e354c
+  classDef model fill:#f3edff,stroke:#8751bf,color:#1e354c
+  classDef business fill:#e8f7ef,stroke:#268255,color:#1e354c
+  classDef guard fill:#fff4dc,stroke:#b58022,color:#1e354c
+  classDef error fill:#fff0ef,stroke:#ba534e,color:#1e354c
+  classDef store fill:#edf1f5,stroke:#60768b,color:#1e354c

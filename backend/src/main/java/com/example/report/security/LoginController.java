@@ -10,10 +10,11 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 @ConditionalOnProperty(name="security.enabled",havingValue="true")
 public class LoginController {
     private final IdentityStore identities;
-    public LoginController(IdentityStore identities) {this.identities=identities;}
+    private final ClientAddressResolver addresses;
+    public LoginController(IdentityStore identities,ClientAddressResolver addresses) {this.identities=identities;this.addresses=addresses;}
     public record Login(String userId,String password) {}
     @PostMapping("/login") public Result<IdentityStore.LoginResult> login(@RequestBody Login login,HttpServletRequest request) {
-        return Result.ok(identities.login(login.userId(),login.password(),request.getRemoteAddr()));
+        return Result.ok(identities.login(login.userId(),login.password(),addresses.resolve(request)));
     }
     @PostMapping("/logout") public Result<Boolean> logout(HttpServletRequest request) {identities.logout(SessionFilter.bearer(request));return Result.ok(true);}
     @PutMapping("/users") public Result<Boolean> save(@RequestBody IdentityStore.UserForm user,HttpServletRequest request) {

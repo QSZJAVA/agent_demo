@@ -2,6 +2,8 @@
 
 当前分支：`codex/mcp-business-service`。
 
+本文及仓库文档以真实模型 `real,mcp` 链路为基线，编写规则见 [AGENTS.md](AGENTS.md)。文档与图表变更后运行 `node tools/check-docs-real-model.cjs`。
+
 系统通过自然语言查询可派单记录、调整选择并生成待确认清单。用户确认后，Agent 经 MCP 调用独立业务服务执行派单，保留逐条结果、幂等请求号、审计与追溯记录。
 
 本分支已实现用户登录、服务间认证、MCP 报表查询与派单。默认使用新演示库 `report_mcp`；业务服务管理本库的报表派单状态，尚未接入外部 ERP。
@@ -22,7 +24,7 @@
 | MySQL 8 | 账号/会话、目录/规则、对话、预览/清单、配额租约、审计、报表源数据及派单结果 |
 | Redis | 工作记忆、频率限制、规则/目录刷新广播等辅助能力 |
 
-**模型只输出结构化意图，Agent 服务负责调用 MCP。** 生成清单和实际派单是不同操作；真实写入由用户点击确认后发起的 REST 请求触发。MCP 调用失败不会回退到本地模拟网关。
+**模型只输出结构化意图，Agent 服务负责调用 MCP。** 生成清单和实际派单是不同操作；真实写入由用户点击确认后发起的 REST 请求触发。MCP 调用失败会记录错误或待核对状态。
 
 两个后端是独立进程，但当前共用一个 MySQL schema。业务服务读取共享账号、确认清单、目录和规则完成再次复核；图中的控制表与业务表是逻辑分组，尚未拆成独立数据库。
 
@@ -47,7 +49,7 @@ if (-not (Test-Path ./tools/env.local.cmd)) {
 
 MCP 启动脚本只把该文件中的 `DB_*`、`REDIS_*` 当作数据读取，不执行 CMD 文件，也不读取其中的 `JAVA_HOME`、`LLM_MODE` 或 `LLM_*`。启动目标库由 `-Database` 参数决定，默认 `report_mcp`，会覆盖继承的 `DB_NAME`。
 
-### 2. 选择模型模式并启动
+### 2. 配置真实模型并启动
 
 真实模型模式：
 
@@ -61,13 +63,7 @@ $env:LLM_API_KEY = Read-Host '模型 API Key' -MaskInput
 
 端点必须支持配置的模型与请求选项。脚本会去掉 base URL 末尾的 `/v1`，并开启原生 JSON Schema。
 
-也可以使用无需模型密钥的固定语义样本模式：
-
-```powershell
-./tools/start-mcp.ps1 -Mock -Build -Frontend
-```
-
-两种模式选择其一。`-Mock` 仅替换语义解析，用户认证、HTTP MCP、数据库查询和派单事务仍真实运行；支持的固定输入见 [mock 意图样本](backend/src/main/resources/semantic/mock-intents.json)，其他输入会要求澄清。
+模型密钥缺失或端点不可用时，应先修复配置与连接，再验证真实模型调用。本文所有操作均基于 `real,mcp` 场景。
 
 ### 3. 登录与访问
 
@@ -94,13 +90,13 @@ $env:LLM_API_KEY = Read-Host '模型 API Key' -MaskInput
 ./tools/start-mcp.ps1 -AgentPort 8082 -BusinessPort 8092 -Database report_mcp_test -Frontend
 ```
 
-重启前保留或重新设置真实模型环境变量；mock 模式重启时继续加 `-Mock`。打包前先停止旧进程，避免 Windows 锁定运行中的 JAR。
+重启前保留或重新设置真实模型环境变量，也可使用本机 `.runtime/llm-credentials.json`。打包前先停止旧进程，避免 Windows 锁定运行中的 JAR。
 
 | 参数 | 默认值 / 行为 |
 | --- | --- |
 | `-Build` | 从根 `pom.xml` 构建两个模块；省略时使用已有 JAR |
 | `-Frontend` | 5173 未被占用时启动 Vite；新启动的前端代理指向本次 Agent 端口 |
-| `-Mock` | 使用 `mock,mcp` profiles；不加时使用 `real,mcp` |
+| Agent profiles | 上述命令启动 `real,mcp` |
 | `-AgentPort` / `-BusinessPort` | 8080 / 8090 |
 | `-Database` | `report_mcp` |
 | 日志与 PID | `.runtime/agent.*`、`.runtime/business.*`、`.runtime/frontend.*` |
@@ -127,12 +123,12 @@ $env:LLM_API_KEY = Read-Host '模型 API Key' -MaskInput
 
 真实语义解析温度为 0，默认最多输出 2400 tokens；格式、原文证据或报表覆盖校验失败时最多追加一次解析修复。当前脚本没有关闭原生 Schema 的参数；若端点不支持，应手动启动 Agent，并传入 `--agent.semantic.native-schema=false`。
 
-手动启动需先设置相同的 `DB_NAME`、数据库/Redis 连接、`AUTH_TENANT_ID` 和服务凭据。业务服务先完成迁移；Agent 使用 `real,mcp` 或 `mock,mcp` profiles，加 `--spring.flyway.enabled=false --server.port=8080`。直接使用 `mcp` profile 而不指定端口时，Agent 默认监听 **8081**，与一键脚本的 **8080** 不同。
+手动启动需先设置相同的 `DB_NAME`、数据库/Redis 连接、`AUTH_TENANT_ID` 和服务凭据。业务服务先完成迁移；Agent 使用 `real,mcp` profiles，加 `--spring.flyway.enabled=false --server.port=8080`。直接使用 `mcp` profile 而不指定端口时，Agent 默认监听 **8081**，与一键脚本的 **8080** 不同。
 
 | 部分 | 版本 / 存储说明 |
 | --- | --- |
 | Agent | Java 17+、Spring Boot 3.5.16、Spring AI 1.1.8 |
-| 业务服务 | Spring Boot 3.5.16、MCP Java SDK 0.18.3；不装配模型或模拟派单网关 |
+| 业务服务 | Spring Boot 3.5.16、MCP Java SDK 0.18.3；独立实现业务查询和派单事务 |
 | 数据访问 / 规则 | MyBatis-Plus 3.5.17、JdbcTemplate、Aviator 5.4.4 |
 | 前端 | Vue 2.7、Element UI、Vite 6.4.3 |
 | 数据结构 | Flyway V1–V19，包含 Java 迁移 V7；V19 增加账号、会话及业务派单幂等结果表 |
@@ -148,6 +144,16 @@ MCP 模式不接受 `X-User-Id` 作为身份凭据，过滤器用真实会话身
 管理员通过 `PUT /api/auth/users` 创建或更新账号，分配公司、报表权限以及管理员标记。更新账号会撤销其已有会话；`enabled=false` 禁用账号，更新时不提供新密码可保留原密码。请求格式见 [账号接口说明](docs/MCP业务服务实施与验收.md#账号接口)。
 
 服务间使用独立 Bearer 密钥，当前绑定配置租户。工具中的 `tenantId/operatorId` 由可信 Agent 代码填入；业务服务重新读取数据库中的账号状态、公司及报表权限。该凭据不下发浏览器、不放入模型提示，仅供可信服务调用。跨主机 MCP 连接要求 HTTPS；客户端只允许回环地址使用 HTTP。
+
+前后端分域时，将 `CORS_ALLOWED_ORIGINS` 设置为准确的前端来源，例如 `https://reports.example.com`。合法预检在认证前处理，真实业务请求仍要求会话，401 响应也会附带允许来源的 CORS 头。
+
+反向代理部署须为 Agent 设置 `TRUSTED_PROXY_CIDRS`，仅列出实际代理的 IP/CIDR；例如同机代理可使用 `127.0.0.1/32,::1/128`，容器代理则使用实际代理地址或专用网段。默认留空忽略转发头。登录限流从可信代理的 `X-Forwarded-For` 链右侧识别客户端，不接受直接访问者伪造地址；代理应追加或重写该头。不要把所有公网地址配置为可信代理。
+
+运营管理员可在自身公司/报表权限范围内核对、读取和关闭禁用账号的遗留清单，审计记录实际管理员；不会重新启用原账号或重新发送派单。失败重试仍要求原账号有效并重新校验其当前权限。MCP `dispatch_lookup` 新增可选 `requestOperatorId`，仅管理员可用于指定原请求操作者，业务服务重新检查清单租户及公司/报表范围。
+
+三张报表分页响应的业务 `id` 统一为 JSON 字符串，避免大整数在浏览器中失真；调用手工派单接口时也应保持字符串。
+
+启动后可执行 `pwsh -File tools/prepare-demo-accounts.ps1` 创建并验证 `demo_admin`、`demo_a`、`demo_b`、`demo_sales` 四个演示账号。账号密码保存在 Git 忽略的 `.runtime/demo-accounts.md` 和 `.runtime/demo-accounts.json`；重复执行会复用密码并刷新账号权限、撤销旧会话。真实模型启动优先使用进程环境变量；未提供 `LLM_API_KEY` 时，`tools/start-mcp.ps1` 可读取本机 `.runtime/llm-credentials.json` 中的 `apiKey/baseUrl/model`，该文件不提交仓库。
 
 ## 业务操作与执行保障
 
@@ -266,7 +272,7 @@ HTTP 验收脚本默认连接 Agent 8080、MCP 8090，读取 `.runtime/mcp-crede
 
 业务服务复用 `backend` 的 `lib` 分类 JAR 中的公共类型与数据访问代码，但应用只装配业务所需组件。两个可执行产物分别是 `backend/target/report-demo-2.0.0.jar` 和 `business-service/target/business-service-2.0.0.jar`。
 
-现有 `deploy.sh`、`docker-compose.yml`、`tools/start-backend.cmd` 和 `tools/start-real.ps1` 仍属于原单体演示入口，不会自动启用本分支的 MCP 双服务与真实登录。旧 `tools/test-semantic-http.py` 使用模拟身份头，也不能直接用于受认证保护的 MCP 模式。
+现有 `deploy.sh`、`docker-compose.yml`、`tools/start-backend.cmd` 和 `tools/start-real.ps1` 尚未提供当前 MCP 双服务及真实登录的完整部署。当前启停使用 `tools/start-mcp.ps1` 和 `tools/stop-mcp.ps1`；运行服务验收使用支持真实会话认证的 `tools/test-mcp-http.py`。
 
 本分支提供业务服务 Dockerfile，可在仓库根目录构建：
 

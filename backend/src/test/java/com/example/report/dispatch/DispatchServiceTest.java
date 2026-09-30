@@ -72,6 +72,29 @@ class DispatchServiceTest {
         return h.store.plans().find(planId).orElseThrow();
     }
 
+    @Test void administratorReconciliationUsesActualActorAndOriginalOperatorWithoutResending() {
+        h.put(SALES,first);
+        String planId=plan(USER1);
+        when(gateway.dispatch(any())).thenReturn(DispatchGateway.Outcome.fail("RESULT_UNKNOWN","unknown"));
+        assertThrows(ApiException.class,()->service.confirm(USER1,planId));
+        var authenticated=mock(AuthenticatedDispatchGateway.class);
+        var admin=new CurrentUser("T001","admin","Admin",Set.of("A"),Set.of("*"),true);
+        String request=h.store.plans().items(planId).get(0).getExternalRequestId();
+        when(authenticated.lookupForOperator(admin,USER1.userId(),request)).thenReturn(new DispatchGateway.Lookup(DispatchGateway.LookupStatus.SUCCESS,null,null));
+        service=new DispatchService(h.plans,h.previews,h.store.plans(),h.catalogService,h.candidates,h.versions,
+                authenticated,audit,mock(ConversationService.class),mock(ChatMemory.class),
+                org.springframework.transaction.support.TransactionOperations.withoutTransaction());
+        assertThrows(ApiException.class,()->service.reconcileForOperator(USER1,USER1.userId(),planId));
+        var foreign=new CurrentUser("T002","admin","",Set.of("A"),Set.of("*"),true);
+        assertThrows(ApiException.class,()->service.reconcileForOperator(foreign,USER1.userId(),planId));
+        var restricted=new CurrentUser("T001","limited","",Set.of("B"),Set.of("*"),true);
+        assertThrows(ApiException.class,()->service.reconcileForOperator(restricted,USER1.userId(),planId));
+        assertEquals(1,service.reconcileForOperator(admin,USER1.userId(),planId).successCount());
+        verify(authenticated).lookupForOperator(admin,USER1.userId(),request);
+        verify(authenticated,never()).dispatch(any());verify(authenticated,never()).dispatch(any(),any());
+        verify(audit).record(eq(admin),any(),any(),anyLong(),eq(request),eq("SUCCESS"),isNull(),anyString());
+    }
+
     @Test
     void recordsThatNoLongerQualifyAreSkippedWithoutCallingTheGateway() {
         String planId = plan(USER1);

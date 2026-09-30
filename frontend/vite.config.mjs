@@ -20,7 +20,9 @@ export default defineConfig({
       // 开发环境把 /api 转发到 Spring Boot
       '/api': {
         target: process.env.AGENT_API_URL || 'http://127.0.0.1:8080',
-        changeOrigin: true
+        // Preserve the browser-facing Host so Spring recognizes proxied
+        // requests as same-origin (Origin still contains the Vite address).
+        changeOrigin: false
       }
     }
   }

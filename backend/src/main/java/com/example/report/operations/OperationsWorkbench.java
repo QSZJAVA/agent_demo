@@ -51,17 +51,20 @@ public class OperationsWorkbench {
         if(p==null || !admin.tenantId().equals(p.getTenantId())) throw ApiException.notFound("任务不存在");
         previews.requireReadable(admin,p);
     }
-    private CurrentUser owner(CurrentUser admin,String planId) {
+    private CurrentUser owner(CurrentUser admin,String planId,boolean requireActive) {
         OperationsPolicy.requireAdmin(admin);
         var rows=jdbc.queryForList("SELECT user_id,preview_id FROM dispatch_plan WHERE tenant_id=? AND id=?",admin.tenantId(),planId);
         if(rows.isEmpty()) throw ApiException.notFound("任务不存在");
         readable(admin,rows.get(0).get("preview_id").toString());
-        CurrentUser owner=permissions.resolve(rows.get(0).get("user_id").toString());
+        String ownerId=rows.get(0).get("user_id").toString();
+        // Administrative reading/closing/cancelling must not depend on the owner's account lifecycle.
+        CurrentUser owner=requireActive ? permissions.resolve(ownerId)
+                : new CurrentUser(admin.tenantId(),ownerId,admin.displayName(),admin.companies(),admin.permissions(),true);
         if(!admin.tenantId().equals(owner.tenantId())) throw ApiException.notFound("任务不存在");
         return owner;
     }
     public Object items(CurrentUser admin,String planId,int page) {
-        var owner=owner(admin,planId);
+        var owner=owner(admin,planId,false);
         Object result=plans.pageOwned(owner,planId,page,50);
         audit.record(admin,"WORKBENCH_ITEMS",planId,"SUCCESS",null);
         return result;
@@ -69,13 +72,13 @@ public class OperationsWorkbench {
     public Object act(CurrentUser admin,String planId,String action,String reason) {
         OperationsPolicy.requireReason(reason);
         if(!Set.of("retry-failed","reconcile","cancel","close").contains(action)) throw new ApiException("不支持的操作");
-        CurrentUser owner=owner(admin,planId);
+        CurrentUser owner=owner(admin,planId,"retry-failed".equals(action));
         audit.record(admin,"WORKBENCH_"+action,planId,"STARTED",reason);
         Object result;
         try {
             result=switch(action) {
                 case "retry-failed" -> dispatch.retryFailed(owner,planId);
-                case "reconcile" -> dispatch.reconcile(owner,planId);
+                case "reconcile" -> dispatch.reconcileForOperator(admin,owner.userId(),planId);
                 case "close" -> closeKnownFailure(admin,owner,planId,reason);
                 default -> dispatch.cancel(owner,planId);
             };

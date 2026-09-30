@@ -12,7 +12,12 @@ export function authHeaders() {
   const token = getSessionToken()
   return token ? { Authorization: `Bearer ${token}` } : { 'X-User-Id': getCurrentUserId() }
 }
-export function sessionExpired() { clearSession(); window.dispatchEvent(new Event('session-expired')) }
+export function sessionExpired(expectedToken) {
+  if (arguments.length && getSessionToken() !== expectedToken) return false
+  clearSession()
+  window.dispatchEvent(new Event('session-expired'))
+  return true
+}
 
 export function getCurrentUserId() {
   return (getSessionToken() && sessionStorage.getItem(SESSION_USER)) || localStorage.getItem(KEY) || 'user1'

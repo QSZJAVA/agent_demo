@@ -17,8 +17,8 @@ flowchart LR
 ```
 
 - `backend` 保留语义理解、会话、规则/目录管理、预览和确认清单的编排。
-- `business-service` 独立启动，不装配模型、对话控制器或 `MockDispatchGateway`；它查询报表业务表，并在事务内更新派单状态、持久化请求结果。
-- `business.remote.enabled=true` 时，Agent 通过 `McpReportQueryAdapter`、`McpDispatchGateway` 和 `report_page` 访问业务数据。远端失败不会回退本地模拟网关。
+- `business-service` 独立启动，不装配模型或对话控制器；它查询报表业务表，并在事务内更新派单状态、持久化请求结果。
+- `business.remote.enabled=true` 时，Agent 通过 `McpReportQueryAdapter`、`McpDispatchGateway` 和 `report_page` 访问业务数据。远端失败按错误和未知结果核对契约处理。
 - 当前两个进程共用 MySQL schema 中的控制数据；业务服务读取已经确认的清单作为执行凭证。此版本完成进程与调用边界拆分，尚未把控制数据拆到独立数据库。后续拆库应将确认凭证改为带签名、绑定执行版本的独立协议。
 - 默认启动脚本使用新库 `report_mcp`。首次空库初始化样例报表，普通重启保留数据；不会修改原 `report_demo` 库。业务派单目前是本服务管理的数据库状态变更，尚未对接外部 ERP 工单系统。
 
@@ -46,7 +46,7 @@ flowchart LR
 
 初始账号为 `admin`；随机初始密码和独立服务密钥位于 `.runtime/mcp-credentials.json`。目录已加入 Git、Docker 忽略列表，Windows 脚本将 ACL 限制为当前用户。该文件不是模型配置，不含模型密钥。后台进程日志和 PID 同样在 `.runtime/`。
 
-脚本支持 `-AgentPort`、`-BusinessPort`、`-Database`、`-Mock`。`-Mock` 仍通过真实 HTTP MCP 调用业务服务，仅语义解析使用固定样本。当前真实模型启动默认开启原生 JSON Schema；如接入不支持该能力的端点，可直接通过应用参数覆盖 `agent.semantic.native-schema=false`。
+真实模型启动可使用 `-AgentPort`、`-BusinessPort`、`-Database` 指定服务地址和数据库。当前启动默认开启原生 JSON Schema；如接入不支持该能力的端点，可直接通过应用参数覆盖 `agent.semantic.native-schema=false`。
 
 先启动业务服务完成 Flyway 迁移，再启动 Agent。脚本为 Agent 关闭 Flyway，避免 Agent 负责样例业务表初始化。手动启动 Agent 时需激活 `mcp` profile，设置 `BUSINESS_MCP_URL`、`BUSINESS_SERVICE_TOKEN` 和 `security.enabled=true`。
 
@@ -99,9 +99,11 @@ MCP 模式中所有业务 API 都要求会话；`X-User-Id` 不能作为认证�
 | `report_records` | 身份、reportId、mode、offset、size；可选 companies、afterId、recordIds | 事实记录；mode 为 page/cursor/ids/pendingIds/dryRun |
 | `report_probe` | queryMode、queryConfig | 发布前检查数据源表和字段，只供可信服务内部配置流程 |
 | `dispatch_submit` | 身份、requestId、reportId、record、enforceRules、executionVersion | success、errorCode、message |
-| `dispatch_lookup` | 身份、requestId | SUCCESS / FAILED / NOT_FOUND / UNKNOWN |
+| `dispatch_lookup` | 身份、requestId；可选 requestOperatorId 仅用于管理员代核对 | SUCCESS / FAILED / NOT_FOUND / UNKNOWN |
 
 工具成功的 text 与 structuredContent 均包含 `{ "data": ... }`；工具错误返回 `isError=true` 及 `{ "code": ..., "message": ... }`。MCP 调用成功与派单业务成功分别判断；网络异常、超时和不能解析的响应不会被当成明确失败自动重发。
+
+`requestOperatorId` 指定既有请求的原操作者，`operatorId` 仍是实际登录的管理员。代核对要求存在同租户的持久化清单，并验证管理员对预览中全部公司和报表的当前权限；原账号可已禁用。不传该参数时仍仅查询当前操作者的请求。代核对不调用 `dispatch_submit`，禁用账号仍不能重试派单。报表分页返回的业务 `id` 为字符串。
 
 ### 派单保障
 

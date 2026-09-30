@@ -186,7 +186,7 @@ export default {
         this.$message.warning('每次最多派单 50 条，请分批选择')
         return
       }
-      const ids = this.selectedRows.map((row) => row.id)
+      const ids = this.selectedRows.map((row) => String(row.id))
       const nos = this.selectedRows.map((row) => row[this.docNoField] || row.id).join('、')
       this.dispatching = true
       try {

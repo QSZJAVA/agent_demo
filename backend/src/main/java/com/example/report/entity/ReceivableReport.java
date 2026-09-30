@@ -19,6 +19,7 @@ public class ReceivableReport {
     private String tenantId;
 
     @TableId(type = IdType.AUTO)
+    @com.fasterxml.jackson.databind.annotation.JsonSerialize(using = com.fasterxml.jackson.databind.ser.std.ToStringSerializer.class)
     private Long id;
     private String companyCode;
     private String invoiceNo;

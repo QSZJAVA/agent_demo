@@ -1,0 +1,2180 @@
+[
+  {
+    "name": "01 输入到业务的总流程",
+    "note": "当前 active V2 主路径；自然语言生成清单与用户确认执行是两次独立交互。",
+    "nodes": [
+      {
+        "id": "input",
+        "col": 1,
+        "row": 0,
+        "kind": "ui",
+        "title": "用户输入自然语言",
+        "lines": [
+          "Vue AgentChat.send"
+        ]
+      },
+      {
+        "id": "buttons",
+        "col": 0,
+        "row": 1,
+        "kind": "ui",
+        "title": "表格和卡片按钮",
+        "lines": [
+          "结构化 REST；不经过模型"
+        ]
+      },
+      {
+        "id": "request",
+        "col": 1,
+        "row": 1,
+        "kind": "ui",
+        "title": "POST /api/agent/chat",
+        "lines": [
+          "message + conversationId",
+          "previewId + excludedRecords"
+        ]
+      },
+      {
+        "id": "auth",
+        "col": 1,
+        "row": 2,
+        "kind": "guard",
+        "title": "CORS → 会话认证",
+        "lines": [
+          "Bearer token → 数据库身份",
+          "覆盖客户端 X-User-Id"
+        ]
+      },
+      {
+        "id": "badAuth",
+        "col": 2,
+        "row": 2,
+        "kind": "error",
+        "title": "身份失效：拒绝请求",
+        "lines": [
+          "HTTP 401；不解析语义"
+        ]
+      },
+      {
+        "id": "inputCheck",
+        "col": 1,
+        "row": 3,
+        "kind": "guard",
+        "title": "检查非空与长度",
+        "lines": [
+          "trim；最多 2000 字符"
+        ]
+      },
+      {
+        "id": "badInput",
+        "col": 2,
+        "row": 3,
+        "kind": "error",
+        "title": "输入不合法",
+        "lines": [
+          "REST JSON 业务错误码 400",
+          "尚未进入语义解析"
+        ]
+      },
+      {
+        "id": "route",
+        "col": 1,
+        "row": 4,
+        "kind": "guard",
+        "title": "agent.semantic.mode？",
+        "lines": [
+          "当前 active"
+        ]
+      },
+      {
+        "id": "legacy",
+        "col": 2,
+        "row": 4,
+        "kind": "model",
+        "title": "legacy 兼容模式",
+        "lines": [
+          "ChatClient + 记忆 + 工具",
+          "不是当前主路径或失败兜底"
+        ]
+      },
+      {
+        "id": "entry",
+        "col": 1,
+        "row": 5,
+        "kind": "agent",
+        "title": "SemanticConversationService",
+        "lines": [
+          "新建或验证会话归属",
+          "检查历史数据可读性"
+        ]
+      },
+      {
+        "id": "lease",
+        "col": 1,
+        "row": 6,
+        "kind": "store",
+        "title": "配额 + 对话租约",
+        "lines": [
+          "同会话串行；读取状态",
+          "本轮 requestId/previewVersion"
+        ]
+      },
+      {
+        "id": "leaseFail",
+        "col": 0,
+        "row": 6,
+        "kind": "error",
+        "title": "配额或会话租约失败",
+        "lines": [
+          "限流/依赖异常/同会话忙",
+          "外层 SSE error + done"
+        ]
+      },
+      {
+        "id": "semantic",
+        "col": 1,
+        "row": 7,
+        "kind": "model",
+        "title": "解析本轮结构化语义",
+        "lines": [
+          "保护实体；模型输出 V2 JSON",
+          "详见第 02 页"
+        ]
+      },
+      {
+        "id": "planner",
+        "col": 1,
+        "row": 8,
+        "kind": "agent",
+        "title": "校验并合并范围",
+        "lines": [
+          "公司 / 报表 / 排除项",
+          "详见第 03、04 页"
+        ]
+      },
+      {
+        "id": "reject",
+        "col": 2,
+        "row": 8,
+        "kind": "error",
+        "title": "澄清 / 拒绝 / 失败",
+        "lines": [
+          "记录 unresolved 和原因",
+          "不回落旧范围执行业务"
+        ]
+      },
+      {
+        "id": "action",
+        "col": 1,
+        "row": 9,
+        "kind": "guard",
+        "title": "是哪一种 action？",
+        "lines": [
+          "查询 / 建单 / 解释规则"
+        ]
+      },
+      {
+        "id": "other",
+        "col": 2,
+        "row": 10,
+        "kind": "agent",
+        "title": "HELP / CANCEL_PLAN / SHOW_RESULT",
+        "lines": [
+          "服务端帮助、取消或读结果",
+          "均不执行实际派单"
+        ]
+      },
+      {
+        "id": "query",
+        "col": 1,
+        "row": 10,
+        "kind": "business",
+        "title": "确定性查询流程",
+        "lines": [
+          "权限 + 当前目录/规则版本",
+          "MCP report_records → 业务库"
+        ]
+      },
+      {
+        "id": "preview",
+        "col": 1,
+        "row": 11,
+        "kind": "store",
+        "title": "复用或生成预览",
+        "lines": [
+          "本地规则求值；预览持久化",
+          "排除项与预览绑定"
+        ]
+      },
+      {
+        "id": "prepare",
+        "col": 1,
+        "row": 12,
+        "kind": "guard",
+        "title": "PREPARE_DISPATCH？",
+        "lines": [
+          "有效范围和排除项已确认"
+        ]
+      },
+      {
+        "id": "plan",
+        "col": 1,
+        "row": 13,
+        "kind": "store",
+        "title": "创建 PENDING 清单",
+        "lines": [
+          "语义幂等键 semantic:requestId",
+          "没有调用 dispatch_submit"
+        ]
+      },
+      {
+        "id": "sse",
+        "col": 1,
+        "row": 14,
+        "kind": "ui",
+        "title": "SSE / REST 返回前端",
+        "lines": [
+          "自然语言：事实文本和卡片事件",
+          "按钮：结构化 JSON 结果"
+        ]
+      },
+      {
+        "id": "wait",
+        "col": 1,
+        "row": 15,
+        "kind": "ui",
+        "title": "用户核对并点击确认",
+        "lines": [
+          "POST /dispatch/plans/{id}/confirm"
+        ]
+      },
+      {
+        "id": "execute",
+        "col": 1,
+        "row": 16,
+        "kind": "business",
+        "title": "归属/版本/TTL/CAS 复核",
+        "lines": [
+          "逐条提交 MCP dispatch_submit",
+          "详见第 06 页"
+        ]
+      },
+      {
+        "id": "result",
+        "col": 1,
+        "row": 17,
+        "kind": "store",
+        "title": "结果保存与展示",
+        "lines": [
+          "SUCCESS / FAILED / SKIPPED",
+          "UNKNOWN → REVIEW_REQUIRED"
+        ]
+      }
+    ],
+    "edges": [
+      [
+        "input",
+        "request"
+      ],
+      [
+        "request",
+        "auth"
+      ],
+      [
+        "auth",
+        "badAuth",
+        "失效"
+      ],
+      [
+        "auth",
+        "inputCheck",
+        "有效"
+      ],
+      [
+        "inputCheck",
+        "badInput",
+        "不合法"
+      ],
+      [
+        "inputCheck",
+        "route",
+        "合法"
+      ],
+      [
+        "route",
+        "legacy",
+        "legacy"
+      ],
+      [
+        "route",
+        "entry",
+        "active"
+      ],
+      [
+        "entry",
+        "lease"
+      ],
+      [
+        "lease",
+        "leaseFail",
+        "失败"
+      ],
+      [
+        "lease",
+        "semantic",
+        "取得租约"
+      ],
+      [
+        "semantic",
+        "planner"
+      ],
+      [
+        "semantic",
+        "reject",
+        "不可靠"
+      ],
+      [
+        "planner",
+        "reject",
+        "不确定/无权限"
+      ],
+      [
+        "planner",
+        "action",
+        "允许继续"
+      ],
+      [
+        "action",
+        "other",
+        "辅助动作"
+      ],
+      [
+        "action",
+        "query",
+        "查询类动作"
+      ],
+      [
+        "query",
+        "preview"
+      ],
+      [
+        "preview",
+        "prepare"
+      ],
+      [
+        "prepare",
+        "plan",
+        "是"
+      ],
+      [
+        "prepare",
+        "sse",
+        "否"
+      ],
+      [
+        "plan",
+        "sse"
+      ],
+      [
+        "other",
+        "sse"
+      ],
+      [
+        "reject",
+        "sse"
+      ],
+      [
+        "sse",
+        "wait",
+        "有清单"
+      ],
+      [
+        "wait",
+        "execute"
+      ],
+      [
+        "execute",
+        "result"
+      ],
+      [
+        "buttons",
+        "query",
+        "报表选择/预览"
+      ],
+      [
+        "buttons",
+        "plan",
+        "从固定预览建单"
+      ]
+    ]
+  },
+  {
+    "name": "02 模型语义解析与校验",
+    "note": "模型只负责 action / scopeChanges / restrictions；服务端校验原文证据。应用层最多追加一次解析修复。",
+    "nodes": [
+      {
+        "id": "message",
+        "col": 1,
+        "row": 0,
+        "kind": "agent",
+        "title": "本轮原始 message",
+        "lines": [
+          "原文进入受信任服务边界"
+        ]
+      },
+      {
+        "id": "context",
+        "col": 0,
+        "row": 1,
+        "kind": "store",
+        "title": "权威上下文",
+        "lines": [
+          "desired / effective / phase",
+          "未解状态、排除数、上次 action"
+        ]
+      },
+      {
+        "id": "terms",
+        "col": 2,
+        "row": 1,
+        "kind": "agent",
+        "title": "权限过滤后的报表候选",
+        "lines": [
+          "ReportRef + mentionedReportTerms",
+          "词典命中只提供实体线索"
+        ]
+      },
+      {
+        "id": "protect",
+        "col": 1,
+        "row": 1,
+        "kind": "guard",
+        "title": "SensitiveData.modelText",
+        "lines": [
+          "手机号 / 证件号 / 邮箱",
+          "替换为本轮随机 REF 占位符"
+        ]
+      },
+      {
+        "id": "payload",
+        "col": 1,
+        "row": 2,
+        "kind": "agent",
+        "title": "构造 JSON 输入",
+        "lines": [
+          "currentMessage + context",
+          "不带完整助手历史或业务明细"
+        ]
+      },
+      {
+        "id": "options",
+        "col": 1,
+        "row": 4,
+        "kind": "model",
+        "title": "构造真实模型调用",
+        "lines": [
+          "temperature 0；maxTokens 2400",
+          "禁用内部工具执行和回调"
+        ]
+      },
+      {
+        "id": "schema",
+        "col": 1,
+        "row": 5,
+        "kind": "model",
+        "title": "规则提示 + V2 JSON Schema",
+        "lines": [
+          "当前启用 native-schema",
+          "模型 deepseek-v4.1-flash"
+        ]
+      },
+      {
+        "id": "call",
+        "col": 1,
+        "row": 6,
+        "kind": "model",
+        "title": "同步 call().content()",
+        "lines": [
+          "只取完整 JSON 内容",
+          "模型不能实际派单或编写 SQL"
+        ]
+      },
+      {
+        "id": "decode",
+        "col": 1,
+        "row": 7,
+        "kind": "guard",
+        "title": "IntentCodec 严格解码",
+        "lines": [
+          "version=2；必填/类型/枚举",
+          "未知字段和尾随内容拒绝"
+        ]
+      },
+      {
+        "id": "ground",
+        "col": 1,
+        "row": 8,
+        "kind": "guard",
+        "title": "验证原文证据和协议不变量",
+        "lines": [
+          "evidence 归一化后属于原文",
+          "mentions 属于 evidence"
+        ]
+      },
+      {
+        "id": "invariants",
+        "col": 1,
+        "row": 9,
+        "kind": "guard",
+        "title": "检查动作、顺序和限制",
+        "lines": [
+          "公司仅一次 REPLACE/CLEAR",
+          "记录修改在后；动作禁止不冲突"
+        ]
+      },
+      {
+        "id": "coverage",
+        "col": 1,
+        "row": 10,
+        "kind": "guard",
+        "title": "报表实体覆盖检查",
+        "lines": [
+          "查询类输出必须覆盖",
+          "本轮所有已命中的报表候选"
+        ]
+      },
+      {
+        "id": "valid",
+        "col": 1,
+        "row": 11,
+        "kind": "guard",
+        "title": "所有检查通过？",
+        "lines": [
+          "JSON / 原文 / 报表覆盖"
+        ]
+      },
+      {
+        "id": "repair",
+        "col": 2,
+        "row": 11,
+        "kind": "model",
+        "title": "第一次失败：独立重解析",
+        "lines": [
+          "同一本轮输入 + 修复指令",
+          "不采用模型猜测或关键词兜底"
+        ]
+      },
+      {
+        "id": "failed",
+        "col": 2,
+        "row": 13,
+        "kind": "error",
+        "title": "第二次失败 / 调用异常",
+        "lines": [
+          "返回友好原因与未解状态",
+          "传输异常不走格式修复循环"
+        ]
+      },
+      {
+        "id": "restore",
+        "col": 1,
+        "row": 12,
+        "kind": "agent",
+        "title": "恢复 REF 到本地原实体",
+        "lines": [
+          "恢复 mentions / evidence",
+          "在原 message 上再次校验"
+        ]
+      },
+      {
+        "id": "intent",
+        "col": 1,
+        "row": 13,
+        "kind": "agent",
+        "title": "交付 SemanticIntent",
+        "lines": [
+          "Source=MODEL",
+          "交给 Planner，不调用业务工具"
+        ]
+      }
+    ],
+    "edges": [
+      [
+        "message",
+        "protect"
+      ],
+      [
+        "context",
+        "payload"
+      ],
+      [
+        "terms",
+        "payload"
+      ],
+      [
+        "protect",
+        "payload"
+      ],
+      [
+        "payload",
+        "options"
+      ],
+      [
+        "options",
+        "schema"
+      ],
+      [
+        "schema",
+        "call"
+      ],
+      [
+        "call",
+        "decode"
+      ],
+      [
+        "decode",
+        "ground"
+      ],
+      [
+        "ground",
+        "invariants"
+      ],
+      [
+        "invariants",
+        "coverage"
+      ],
+      [
+        "coverage",
+        "valid"
+      ],
+      [
+        "valid",
+        "restore",
+        "通过"
+      ],
+      [
+        "valid",
+        "repair",
+        "首次失败"
+      ],
+      [
+        "repair",
+        "call",
+        "最多一次"
+      ],
+      [
+        "valid",
+        "failed",
+        "再次失败"
+      ],
+      [
+        "call",
+        "failed",
+        "传输/模型异常"
+      ],
+      [
+        "restore",
+        "intent",
+        "再校验通过"
+      ],
+      [
+        "restore",
+        "failed",
+        "再校验失败"
+      ]
+    ]
+  },
+  {
+    "name": "03 多轮范围与动作规划",
+    "note": "desired 是请求范围，effective 是最近成功范围；拒绝的新输入不会被悄悄替换为旧的成功查询。",
+    "nodes": [
+      {
+        "id": "read",
+        "col": 1,
+        "row": 0,
+        "kind": "store",
+        "title": "读取 DialogueState",
+        "lines": [
+          "按会话、租户、操作者归属",
+          "hydrate 新的显式 UI 预览"
+        ]
+      },
+      {
+        "id": "coverage",
+        "col": 1,
+        "row": 1,
+        "kind": "guard",
+        "title": "requireCoverage / requireAction",
+        "lines": [
+          "CLARIFY 或禁止冲突立即阻断",
+          "对应字段置 unresolved"
+        ]
+      },
+      {
+        "id": "draft",
+        "col": 1,
+        "row": 2,
+        "kind": "agent",
+        "title": "在临时 draft 上合并",
+        "lines": [
+          "按 scopeChanges 原始顺序",
+          "全部公司/报表操作成功才提交"
+        ]
+      },
+      {
+        "id": "company",
+        "col": 0,
+        "row": 3,
+        "kind": "agent",
+        "title": "COMPANY",
+        "lines": [
+          "REPLACE：NFKC/去公司后缀/大写",
+          "CLEAR：全部可见公司"
+        ]
+      },
+      {
+        "id": "reports",
+        "col": 2,
+        "row": 3,
+        "kind": "agent",
+        "title": "REPORTS",
+        "lines": [
+          "REPLACE / ADD / REMOVE / CLEAR",
+          "原话逐项映射到 reportId"
+        ]
+      },
+      {
+        "id": "records",
+        "col": 0,
+        "row": 5,
+        "kind": "agent",
+        "title": "RECORDS 暂不应用",
+        "lines": [
+          "留到最终范围的预览完成",
+          "详见第 05 页"
+        ]
+      },
+      {
+        "id": "reportGate",
+        "col": 2,
+        "row": 4,
+        "kind": "guard",
+        "title": "报表链接必须可靠",
+        "lines": [
+          "EXACT/唯一 ALIAS 可继续",
+          "FUZZY/AMBIGUOUS/NONE 需澄清"
+        ]
+      },
+      {
+        "id": "merge",
+        "col": 1,
+        "row": 5,
+        "kind": "store",
+        "title": "提交 desired 范围",
+        "lines": [
+          "未提及字段保持不变",
+          "清除已解决字段的未解标记"
+        ]
+      },
+      {
+        "id": "noPartial",
+        "col": 2,
+        "row": 6,
+        "kind": "error",
+        "title": "任一合并失败",
+        "lines": [
+          "不提交部分 draft",
+          "相关 unresolved 标记保留"
+        ]
+      },
+      {
+        "id": "validate",
+        "col": 1,
+        "row": 6,
+        "kind": "guard",
+        "title": "执行前 validate desired",
+        "lines": [
+          "公司范围、报表可用与权限",
+          "移除后为空 / 未解字段拒绝"
+        ]
+      },
+      {
+        "id": "action",
+        "col": 1,
+        "row": 7,
+        "kind": "guard",
+        "title": "按 action 分支",
+        "lines": [
+          "语义层没有 EXECUTE 动作"
+        ]
+      },
+      {
+        "id": "preview",
+        "col": 0,
+        "row": 8,
+        "kind": "business",
+        "title": "PREVIEW / EXPLAIN_RULES",
+        "lines": [
+          "刷新或复用预览",
+          "规则说明来自实际预览"
+        ]
+      },
+      {
+        "id": "prepare",
+        "col": 1,
+        "row": 8,
+        "kind": "business",
+        "title": "PREPARE_DISPATCH",
+        "lines": [
+          "复用或刷新相同范围预览",
+          "恢复选择后生成 PENDING"
+        ]
+      },
+      {
+        "id": "aux",
+        "col": 2,
+        "row": 8,
+        "kind": "agent",
+        "title": "HELP / CANCEL / SHOW_RESULT",
+        "lines": [
+          "服务端文本或当前清单",
+          "不靠模型生成业务结论"
+        ]
+      },
+      {
+        "id": "effective",
+        "col": 1,
+        "row": 9,
+        "kind": "store",
+        "title": "仅查询成功后更新 effective",
+        "lines": [
+          "previewId 对应成功数据范围",
+          "建单成功更新 planId/PLAN_READY"
+        ]
+      },
+      {
+        "id": "failure",
+        "col": 2,
+        "row": 10,
+        "kind": "store",
+        "title": "失败记录 phase 和 lastReason",
+        "lines": [
+          "422 → CLARIFY；其他业务拒绝",
+          "基础设施异常 → FAILED"
+        ]
+      },
+      {
+        "id": "next",
+        "col": 1,
+        "row": 11,
+        "kind": "ui",
+        "title": "下一轮继续",
+        "lines": [
+          "这些/剩下的参考权威状态",
+          "未解条件不能沿用旧数据建单"
+        ]
+      }
+    ],
+    "edges": [
+      [
+        "read",
+        "coverage"
+      ],
+      [
+        "coverage",
+        "draft",
+        "允许"
+      ],
+      [
+        "coverage",
+        "failure",
+        "需澄清"
+      ],
+      [
+        "draft",
+        "company"
+      ],
+      [
+        "draft",
+        "reports"
+      ],
+      [
+        "company",
+        "merge"
+      ],
+      [
+        "reports",
+        "reportGate"
+      ],
+      [
+        "reportGate",
+        "merge",
+        "全部成功"
+      ],
+      [
+        "reportGate",
+        "noPartial",
+        "不可靠"
+      ],
+      [
+        "draft",
+        "records",
+        "跳过记录操作"
+      ],
+      [
+        "merge",
+        "validate"
+      ],
+      [
+        "validate",
+        "action",
+        "有权且明确"
+      ],
+      [
+        "validate",
+        "failure",
+        "拒绝"
+      ],
+      [
+        "noPartial",
+        "failure"
+      ],
+      [
+        "action",
+        "preview",
+        "查询/规则"
+      ],
+      [
+        "action",
+        "prepare",
+        "建单"
+      ],
+      [
+        "action",
+        "aux",
+        "辅助"
+      ],
+      [
+        "preview",
+        "effective"
+      ],
+      [
+        "prepare",
+        "effective"
+      ],
+      [
+        "aux",
+        "next"
+      ],
+      [
+        "effective",
+        "next"
+      ],
+      [
+        "failure",
+        "next"
+      ]
+    ]
+  },
+  {
+    "name": "04 报表实体解析",
+    "note": "词典和模糊算法解决“这段原话对应哪张报表”，不负责整句的否定、动作或追加/排除语义。",
+    "nodes": [
+      {
+        "id": "mention",
+        "col": 1,
+        "row": 0,
+        "kind": "agent",
+        "title": "模型提取的报表原话",
+        "lines": [
+          "例如 销售报表 / 应收台账"
+        ]
+      },
+      {
+        "id": "visible",
+        "col": 0,
+        "row": 1,
+        "kind": "guard",
+        "title": "先限定当前可派单目录",
+        "lines": [
+          "同租户 + 已发布/生效/可用",
+          "报表权限 + 治理灰度可见"
+        ]
+      },
+      {
+        "id": "normalize",
+        "col": 1,
+        "row": 1,
+        "kind": "agent",
+        "title": "TextNormalizer.normalize",
+        "lines": [
+          "NFKC + 小写 + 去空白"
+        ]
+      },
+      {
+        "id": "scan",
+        "col": 1,
+        "row": 2,
+        "kind": "agent",
+        "title": "TermIndex 最长不重叠扫描",
+        "lines": [
+          "名称 / 编码 / ID / 别名",
+          "英文词还检查词边界"
+        ]
+      },
+      {
+        "id": "hit",
+        "col": 1,
+        "row": 3,
+        "kind": "guard",
+        "title": "命中词典说法？",
+        "lines": [
+          "按优先类型关联报表"
+        ]
+      },
+      {
+        "id": "identity",
+        "col": 0,
+        "row": 4,
+        "kind": "agent",
+        "title": "名称 > 编码 > ID > 别名",
+        "lines": [
+          "唯一 → EXACT 或 ALIAS",
+          "一词多报表 → AMBIGUOUS"
+        ]
+      },
+      {
+        "id": "fuzzy",
+        "col": 2,
+        "row": 4,
+        "kind": "agent",
+        "title": "无命中：模糊候选评分",
+        "lines": [
+          "编辑距离 / 二元组 Dice",
+          "包含相似度取最大值"
+        ]
+      },
+      {
+        "id": "threshold",
+        "col": 2,
+        "row": 5,
+        "kind": "guard",
+        "title": "候选评分阈值与领先差",
+        "lines": [
+          "默认阈值 0.6；歧义差 0.15",
+          "治理策略可提供当前参数"
+        ]
+      },
+      {
+        "id": "result",
+        "col": 1,
+        "row": 6,
+        "kind": "agent",
+        "title": "ResolveResult",
+        "lines": [
+          "EXACT / ALIAS / FUZZY",
+          "AMBIGUOUS / ALL / NONE"
+        ]
+      },
+      {
+        "id": "planner",
+        "col": 1,
+        "row": 7,
+        "kind": "guard",
+        "title": "V2 Planner 二次收紧",
+        "lines": [
+          "只接受可靠唯一链接",
+          "拒绝 FUZZY、ALL、未识别残片"
+        ]
+      },
+      {
+        "id": "accept",
+        "col": 0,
+        "row": 8,
+        "kind": "agent",
+        "title": "稳定 reportId",
+        "lines": [
+          "按目录顺序合并范围",
+          "不使用模型直接提供的内部 ID"
+        ]
+      },
+      {
+        "id": "clarify",
+        "col": 2,
+        "row": 8,
+        "kind": "error",
+        "title": "提示完整名称或候选报表",
+        "lines": [
+          "用户补充名称或显式 UI 选择",
+          "不自动选择最高分候选"
+        ]
+      }
+    ],
+    "edges": [
+      [
+        "mention",
+        "normalize"
+      ],
+      [
+        "visible",
+        "scan"
+      ],
+      [
+        "normalize",
+        "scan"
+      ],
+      [
+        "scan",
+        "hit"
+      ],
+      [
+        "hit",
+        "identity",
+        "是"
+      ],
+      [
+        "hit",
+        "fuzzy",
+        "否"
+      ],
+      [
+        "fuzzy",
+        "threshold"
+      ],
+      [
+        "threshold",
+        "result"
+      ],
+      [
+        "identity",
+        "result"
+      ],
+      [
+        "result",
+        "planner"
+      ],
+      [
+        "planner",
+        "accept",
+        "EXACT/唯一 ALIAS"
+      ],
+      [
+        "planner",
+        "clarify",
+        "模糊/歧义/未知"
+      ]
+    ]
+  },
+  {
+    "name": "05 预览、规则与记录选择",
+    "note": "模型不读取全部业务明细或自行判断规则命中；记录描述只有在服务器真实预览中唯一定位后才转为 RecordKey。",
+    "nodes": [
+      {
+        "id": "scope",
+        "col": 1,
+        "row": 0,
+        "kind": "guard",
+        "title": "校验最终 desired",
+        "lines": [
+          "是否和 effective 相同？",
+          "是否有 ACTIVE、版本有效预览？"
+        ]
+      },
+      {
+        "id": "reuse",
+        "col": 0,
+        "row": 1,
+        "kind": "store",
+        "title": "符合条件：复用预览",
+        "lines": [
+          "仅记录修改/建单可复用",
+          "普通 PREVIEW 通常重新查"
+        ]
+      },
+      {
+        "id": "new",
+        "col": 1,
+        "row": 1,
+        "kind": "agent",
+        "title": "需要重新查询",
+        "lines": [
+          "PreviewCommand：明确范围",
+          "先保存 QUERYING 状态"
+        ]
+      },
+      {
+        "id": "stamp",
+        "col": 1,
+        "row": 2,
+        "kind": "guard",
+        "title": "查询前记录版本指纹",
+        "lines": [
+          "目录 / 当前规则 / 权限",
+          "配额与对话租约持续检查"
+        ]
+      },
+      {
+        "id": "mcp",
+        "col": 1,
+        "row": 3,
+        "kind": "business",
+        "title": "MCP report_records(cursor)",
+        "lines": [
+          "可信 tenantId/operatorId",
+          "每批 500；按 ID 递增"
+        ]
+      },
+      {
+        "id": "query",
+        "col": 1,
+        "row": 4,
+        "kind": "business",
+        "title": "业务侧权限和粗筛",
+        "lines": [
+          "账号当前权限 + 公司范围",
+          "租户 / 未派单 / 游标条件"
+        ]
+      },
+      {
+        "id": "rules",
+        "col": 1,
+        "row": 5,
+        "kind": "agent",
+        "title": "Agent 侧当前规则求值",
+        "lines": [
+          "具体公司规则优先于通配",
+          "Aviator Boolean；异常按未命中"
+        ]
+      },
+      {
+        "id": "persist",
+        "col": 1,
+        "row": 6,
+        "kind": "store",
+        "title": "生成持久化预览",
+        "lines": [
+          "超过 5000 → 分批持久化",
+          "确认最新 requestVersion 后激活"
+        ]
+      },
+      {
+        "id": "supersede",
+        "col": 2,
+        "row": 6,
+        "kind": "store",
+        "title": "激活新预览时",
+        "lines": [
+          "旧 ACTIVE → SUPERSEDED",
+          "旧 PENDING 清单 → EXPIRED"
+        ]
+      },
+      {
+        "id": "bind",
+        "col": 1,
+        "row": 7,
+        "kind": "guard",
+        "title": "绑定最终预览及 UI 选择",
+        "lines": [
+          "previewId 相同才接纳",
+          "同范围刷新可迁移并重新验证"
+        ]
+      },
+      {
+        "id": "stale",
+        "col": 2,
+        "row": 8,
+        "kind": "error",
+        "title": "旧选择不可恢复 / 范围变了",
+        "lines": [
+          "设置 unresolvedRecords",
+          "要求重新选择；不默认全部派"
+        ]
+      },
+      {
+        "id": "rows",
+        "col": 1,
+        "row": 8,
+        "kind": "guard",
+        "title": "需要记录修改时读取真实预览",
+        "lines": [
+          "最多 5000 条；每页 100",
+          "更多记录先缩小范围"
+        ]
+      },
+      {
+        "id": "match",
+        "col": 1,
+        "row": 9,
+        "kind": "agent",
+        "title": "SelectionResolver 依次匹配",
+        "lines": [
+          "单据号精确 → 去类别前缀",
+          "仍无命中 → label 包含匹配"
+        ]
+      },
+      {
+        "id": "unique",
+        "col": 1,
+        "row": 10,
+        "kind": "guard",
+        "title": "是否恰好匹配一条？",
+        "lines": [
+          "重复单据号或描述歧义拒绝"
+        ]
+      },
+      {
+        "id": "key",
+        "col": 1,
+        "row": 11,
+        "kind": "store",
+        "title": "转换 RecordKey",
+        "lines": [
+          "reportId + 字符串 recordId",
+          "ADD 排除；REMOVE 恢复"
+        ]
+      },
+      {
+        "id": "unclear",
+        "col": 2,
+        "row": 10,
+        "kind": "error",
+        "title": "0 条或多条命中",
+        "lines": [
+          "返回澄清提示",
+          "请用表格精确勾选"
+        ]
+      },
+      {
+        "id": "selection",
+        "col": 1,
+        "row": 12,
+        "kind": "guard",
+        "title": "校验排除项都属于当前预览",
+        "lines": [
+          "CLEAR 恢复全部",
+          "REPLACE 替换排除集合"
+        ]
+      },
+      {
+        "id": "action",
+        "col": 1,
+        "row": 13,
+        "kind": "guard",
+        "title": "PREPARE_DISPATCH？",
+        "lines": [
+          "否则返回预览或规则说明"
+        ]
+      },
+      {
+        "id": "zero",
+        "col": 0,
+        "row": 14,
+        "kind": "ui",
+        "title": "0 条候选或仅查询",
+        "lines": [
+          "不创建清单",
+          "返回事实文本与 selection"
+        ]
+      },
+      {
+        "id": "plan",
+        "col": 1,
+        "row": 14,
+        "kind": "store",
+        "title": "PlanService 创建清单",
+        "lines": [
+          "固定预览 + 排除项 + 幂等键",
+          "条数上限 5000；PENDING"
+        ]
+      },
+      {
+        "id": "card",
+        "col": 1,
+        "row": 15,
+        "kind": "ui",
+        "title": "持久化卡片并 SSE 返回",
+        "lines": [
+          "有效预览约 30 分钟",
+          "待确认清单约 10 分钟"
+        ]
+      }
+    ],
+    "edges": [
+      [
+        "scope",
+        "reuse",
+        "可复用"
+      ],
+      [
+        "scope",
+        "new",
+        "需刷新"
+      ],
+      [
+        "new",
+        "stamp"
+      ],
+      [
+        "stamp",
+        "mcp"
+      ],
+      [
+        "mcp",
+        "query"
+      ],
+      [
+        "query",
+        "rules"
+      ],
+      [
+        "rules",
+        "mcp",
+        "还有下一批"
+      ],
+      [
+        "rules",
+        "persist",
+        "扫描完成"
+      ],
+      [
+        "persist",
+        "supersede"
+      ],
+      [
+        "persist",
+        "bind"
+      ],
+      [
+        "reuse",
+        "bind"
+      ],
+      [
+        "bind",
+        "stale",
+        "选择来源无效"
+      ],
+      [
+        "bind",
+        "rows",
+        "修改或验证排除项"
+      ],
+      [
+        "bind",
+        "action",
+        "无需变更选择"
+      ],
+      [
+        "rows",
+        "match",
+        "自然语言记录变更"
+      ],
+      [
+        "rows",
+        "selection",
+        "仅验证已有/UI键"
+      ],
+      [
+        "match",
+        "unique"
+      ],
+      [
+        "unique",
+        "unclear",
+        "非唯一"
+      ],
+      [
+        "unique",
+        "key",
+        "唯一"
+      ],
+      [
+        "key",
+        "selection"
+      ],
+      [
+        "selection",
+        "stale",
+        "有缺失键"
+      ],
+      [
+        "selection",
+        "action",
+        "全部有效"
+      ],
+      [
+        "action",
+        "zero",
+        "查询/零候选"
+      ],
+      [
+        "action",
+        "plan",
+        "生成清单"
+      ],
+      [
+        "plan",
+        "card"
+      ],
+      [
+        "zero",
+        "card"
+      ]
+    ]
+  },
+  {
+    "name": "06 确认、执行与结果核对",
+    "note": "本页从用户点击确认开始；与本轮模型解析分离。未知结果必须先查询原请求号，不能盲目重发。",
+    "nodes": [
+      {
+        "id": "confirm",
+        "col": 1,
+        "row": 0,
+        "kind": "ui",
+        "title": "用户点击确认卡片",
+        "lines": [
+          "REST confirm；没有模型参与"
+        ]
+      },
+      {
+        "id": "gate",
+        "col": 1,
+        "row": 1,
+        "kind": "guard",
+        "title": "归属、权限、TTL、版本复核",
+        "lines": [
+          "已 EXECUTED → 返回原结果",
+          "不是有效 PENDING 则拒绝"
+        ]
+      },
+      {
+        "id": "invalid",
+        "col": 0,
+        "row": 1,
+        "kind": "error",
+        "title": "清单不可确认",
+        "lines": [
+          "返回当前状态或错误",
+          "无权限/失效/正在执行等"
+        ]
+      },
+      {
+        "id": "replay",
+        "col": 2,
+        "row": 1,
+        "kind": "store",
+        "title": "重放已有清单结果",
+        "lines": [
+          "原状态已 EXECUTED",
+          "直接返回，不再调用网关"
+        ]
+      },
+      {
+        "id": "claim",
+        "col": 1,
+        "row": 2,
+        "kind": "store",
+        "title": "CAS 认领执行权",
+        "lines": [
+          "确认 PENDING / 重试 EXECUTED",
+          "→ EXECUTING + executionVersion"
+        ]
+      },
+      {
+        "id": "check",
+        "col": 1,
+        "row": 3,
+        "kind": "guard",
+        "title": "按清单 ID 重读和规则复核",
+        "lines": [
+          "当前记录仍待派单且有权",
+          "复核失败且未发送可恢复 PENDING"
+        ]
+      },
+      {
+        "id": "item",
+        "col": 1,
+        "row": 4,
+        "kind": "guard",
+        "title": "逐条是否仍符合？",
+        "lines": [
+          "取消/过期/失权不能继续"
+        ]
+      },
+      {
+        "id": "skip",
+        "col": 0,
+        "row": 5,
+        "kind": "store",
+        "title": "SKIPPED",
+        "lines": [
+          "记录已变化；未调用网关"
+        ]
+      },
+      {
+        "id": "intent",
+        "col": 1,
+        "row": 5,
+        "kind": "store",
+        "title": "先持久化发送意图",
+        "lines": [
+          "requestId=planId-itemId",
+          "条目 UNKNOWN + 审计 INTENT"
+        ]
+      },
+      {
+        "id": "call",
+        "col": 1,
+        "row": 6,
+        "kind": "business",
+        "title": "MCP dispatch_submit",
+        "lines": [
+          "操作者 / 记录 / 规则模式",
+          "执行版本来自服务器清单"
+        ]
+      },
+      {
+        "id": "business",
+        "col": 1,
+        "row": 7,
+        "kind": "guard",
+        "title": "业务服务重新读取有效身份",
+        "lines": [
+          "公司、报表权限",
+          "锁用户、幂等请求和清单"
+        ]
+      },
+      {
+        "id": "duplicate",
+        "col": 1,
+        "row": 8,
+        "kind": "guard",
+        "title": "稳定请求号和负载是否一致？",
+        "lines": [
+          "同号不同负载 → 拒绝",
+          "已 SUCCESS → 重放成功"
+        ]
+      },
+      {
+        "id": "fence",
+        "col": 1,
+        "row": 9,
+        "kind": "guard",
+        "title": "验证已确认清单和条目",
+        "lines": [
+          "EXECUTING / confirmedBy",
+          "executionVersion / UNKNOWN 意图"
+        ]
+      },
+      {
+        "id": "source",
+        "col": 1,
+        "row": 10,
+        "kind": "business",
+        "title": "原子业务事务复核",
+        "lines": [
+          "锁目录、规则和源记录",
+          "版本、规则、当前待派单状态"
+        ]
+      },
+      {
+        "id": "commit",
+        "col": 1,
+        "row": 11,
+        "kind": "store",
+        "title": "事务提交业务状态与结果",
+        "lines": [
+          "业务表状态 + 请求结果同事务",
+          "当前是本地业务库，非外部 ERP"
+        ]
+      },
+      {
+        "id": "persist",
+        "col": 1,
+        "row": 12,
+        "kind": "store",
+        "title": "Agent 保存逐条结果及审计",
+        "lines": [
+          "SUCCESS / FAILED / SKIPPED",
+          "超时/不确定 → UNKNOWN"
+        ]
+      },
+      {
+        "id": "uncertain",
+        "col": 1,
+        "row": 13,
+        "kind": "guard",
+        "title": "有未知/保存失败/执行中断？",
+        "lines": [
+          "所有条目遍历并聚合"
+        ]
+      },
+      {
+        "id": "finish",
+        "col": 0,
+        "row": 14,
+        "kind": "store",
+        "title": "EXECUTED",
+        "lines": [
+          "保存实际成功和失败数",
+          "返回结果卡片"
+        ]
+      },
+      {
+        "id": "review",
+        "col": 2,
+        "row": 14,
+        "kind": "store",
+        "title": "REVIEW_REQUIRED",
+        "lines": [
+          "不能认为全部失败",
+          "不允许盲目自动重发"
+        ]
+      },
+      {
+        "id": "lookup",
+        "col": 2,
+        "row": 15,
+        "kind": "business",
+        "title": "用户或管理员显式核对",
+        "lines": [
+          "MCP dispatch_lookup",
+          "锁定读等待在途结果"
+        ]
+      },
+      {
+        "id": "known",
+        "col": 2,
+        "row": 16,
+        "kind": "guard",
+        "title": "核对结果明确？",
+        "lines": [
+          "SUCCESS / FAILED / NOT_FOUND",
+          "UNKNOWN 则继续等待"
+        ]
+      },
+      {
+        "id": "resolved",
+        "col": 1,
+        "row": 17,
+        "kind": "store",
+        "title": "更新未知条目",
+        "lines": [
+          "NOT_FOUND → 未发送的明确失败",
+          "全部明确后解除待核对状态"
+        ]
+      },
+      {
+        "id": "retry",
+        "col": 1,
+        "row": 18,
+        "kind": "guard",
+        "title": "用户显式 retry-failed",
+        "lines": [
+          "仅 FAILED；原操作者必须有效",
+          "重新复核，沿用原请求号"
+        ]
+      },
+      {
+        "id": "close",
+        "col": 0,
+        "row": 18,
+        "kind": "agent",
+        "title": "管理员安全关闭明确失败",
+        "lines": [
+          "权限 + 原清单范围检查",
+          "未知/在途状态不能强行关闭"
+        ]
+      }
+    ],
+    "edges": [
+      [
+        "confirm",
+        "gate"
+      ],
+      [
+        "gate",
+        "invalid",
+        "不可确认"
+      ],
+      [
+        "gate",
+        "replay",
+        "已执行"
+      ],
+      [
+        "gate",
+        "claim",
+        "允许确认"
+      ],
+      [
+        "claim",
+        "check"
+      ],
+      [
+        "check",
+        "item"
+      ],
+      [
+        "item",
+        "skip",
+        "不符合"
+      ],
+      [
+        "item",
+        "intent",
+        "符合"
+      ],
+      [
+        "intent",
+        "call"
+      ],
+      [
+        "call",
+        "business"
+      ],
+      [
+        "business",
+        "duplicate"
+      ],
+      [
+        "duplicate",
+        "fence",
+        "新请求/失败重试"
+      ],
+      [
+        "duplicate",
+        "persist",
+        "已成功：重放"
+      ],
+      [
+        "duplicate",
+        "persist",
+        "协议错误：保守核对"
+      ],
+      [
+        "fence",
+        "source"
+      ],
+      [
+        "source",
+        "commit"
+      ],
+      [
+        "commit",
+        "persist"
+      ],
+      [
+        "skip",
+        "persist"
+      ],
+      [
+        "persist",
+        "item",
+        "还有下一条"
+      ],
+      [
+        "persist",
+        "uncertain",
+        "全部处理完成"
+      ],
+      [
+        "call",
+        "persist",
+        "调用异常：UNKNOWN"
+      ],
+      [
+        "uncertain",
+        "finish",
+        "否"
+      ],
+      [
+        "uncertain",
+        "review",
+        "是"
+      ],
+      [
+        "review",
+        "lookup"
+      ],
+      [
+        "lookup",
+        "known"
+      ],
+      [
+        "known",
+        "review",
+        "UNKNOWN"
+      ],
+      [
+        "known",
+        "resolved",
+        "明确"
+      ],
+      [
+        "resolved",
+        "finish",
+        "全部明确"
+      ],
+      [
+        "finish",
+        "retry",
+        "有明确失败且用户要求"
+      ],
+      [
+        "retry",
+        "claim",
+        "重新认领并复核"
+      ],
+      [
+        "finish",
+        "close",
+        "无需重试"
+      ]
+    ]
+  },
+  {
+    "name": "07 状态、SSE 与异常恢复",
+    "note": "V2 多轮依据持久化状态，不依赖模型助手历史。SSE 是业务事件流，不是当前主路径的模型 token 流。",
+    "nodes": [
+      {
+        "id": "conversation",
+        "col": 1,
+        "row": 0,
+        "kind": "store",
+        "title": "agent_conversation",
+        "lines": [
+          "会话归属、标题、请求版本",
+          "deleted/erasure 拒绝继续写"
+        ]
+      },
+      {
+        "id": "lease",
+        "col": 1,
+        "row": 1,
+        "kind": "guard",
+        "title": "semantic_dialogue 租约",
+        "lines": [
+          "默认单轮 180 秒",
+          "租约 + version CAS；不跨模型持事务"
+        ]
+      },
+      {
+        "id": "model",
+        "col": 1,
+        "row": 2,
+        "kind": "model",
+        "title": "模型调用 / 规则扫描",
+        "lines": [
+          "阶段之间 check 租约与配额",
+          "被取消或超时不能提交业务变更"
+        ]
+      },
+      {
+        "id": "save",
+        "col": 1,
+        "row": 3,
+        "kind": "store",
+        "title": "fenced() 小事务保存",
+        "lines": [
+          "校验 token / version / expiry",
+          "state_json 脱敏持久化"
+        ]
+      },
+      {
+        "id": "turn",
+        "col": 0,
+        "row": 4,
+        "kind": "store",
+        "title": "semantic_turn",
+        "lines": [
+          "脱敏原文、意图、模型",
+          "结果、原因、耗时、状态版本"
+        ]
+      },
+      {
+        "id": "business",
+        "col": 2,
+        "row": 4,
+        "kind": "store",
+        "title": "预览 / 清单 / 条目 / 追溯",
+        "lines": [
+          "业务数据和状态持久化",
+          "更新正文与卡片记录"
+        ]
+      },
+      {
+        "id": "text",
+        "col": 1,
+        "row": 5,
+        "kind": "agent",
+        "title": "服务端生成事实回复",
+        "lines": [
+          "数量、状态、规则来自服务",
+          "不再请求模型润色回答"
+        ]
+      },
+      {
+        "id": "events",
+        "col": 1,
+        "row": 6,
+        "kind": "ui",
+        "title": "SSE 事件",
+        "lines": [
+          "conversation / text / preview",
+          "plan / selection / error / done"
+        ]
+      },
+      {
+        "id": "seq",
+        "col": 1,
+        "row": 7,
+        "kind": "guard",
+        "title": "requestId:seq + 输出脱敏",
+        "lines": [
+          "前端按请求/序号校验",
+          "卡片、文字与选择分别处理"
+        ]
+      },
+      {
+        "id": "front",
+        "col": 1,
+        "row": 8,
+        "kind": "ui",
+        "title": "前端更新并落地历史恢复线索",
+        "lines": [
+          "忽略旧账号/旧会话响应",
+          "selection 绑定指定 previewId"
+        ]
+      },
+      {
+        "id": "disconnected",
+        "col": 2,
+        "row": 9,
+        "kind": "error",
+        "title": "SSE 断开 / 页面刷新",
+        "lines": [
+          "不保证原文本流续传",
+          "读取已经保存的业务状态"
+        ]
+      },
+      {
+        "id": "restore",
+        "col": 1,
+        "row": 10,
+        "kind": "ui",
+        "title": "历史 + card-states + selection",
+        "lines": [
+          "必要时查询持久化 preview job",
+          "选择恢复失败先阻止建单"
+        ]
+      },
+      {
+        "id": "phase",
+        "col": 0,
+        "row": 9,
+        "kind": "store",
+        "title": "错误阶段持久化",
+        "lines": [
+          "422 → CLARIFY；业务拒绝",
+          "REJECTED；其他异常 FAILED"
+        ]
+      },
+      {
+        "id": "next",
+        "col": 1,
+        "row": 11,
+        "kind": "agent",
+        "title": "新的一轮",
+        "lines": [
+          "重新取权威状态/目录",
+          "上一轮禁止仅 THIS_TURN"
+        ]
+      },
+      {
+        "id": "legacyJobs",
+        "col": 2,
+        "row": 11,
+        "kind": "agent",
+        "title": "独立异步预览接口",
+        "lines": [
+          "UI/legacy preview_job 可恢复",
+          "active 语义查询直接调用 PreviewService"
+        ]
+      }
+    ],
+    "edges": [
+      [
+        "conversation",
+        "lease"
+      ],
+      [
+        "lease",
+        "model"
+      ],
+      [
+        "model",
+        "save"
+      ],
+      [
+        "save",
+        "turn"
+      ],
+      [
+        "save",
+        "business"
+      ],
+      [
+        "turn",
+        "text"
+      ],
+      [
+        "business",
+        "text"
+      ],
+      [
+        "text",
+        "events"
+      ],
+      [
+        "events",
+        "seq"
+      ],
+      [
+        "seq",
+        "front"
+      ],
+      [
+        "front",
+        "next",
+        "正常完成"
+      ],
+      [
+        "front",
+        "disconnected",
+        "断线/刷新"
+      ],
+      [
+        "disconnected",
+        "restore"
+      ],
+      [
+        "restore",
+        "next"
+      ],
+      [
+        "model",
+        "phase",
+        "异常/不可靠"
+      ],
+      [
+        "phase",
+        "events"
+      ],
+      [
+        "legacyJobs",
+        "restore",
+        "有独立预览任务"
+      ]
+    ]
+  }
+]

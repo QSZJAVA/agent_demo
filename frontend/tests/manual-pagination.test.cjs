@@ -70,3 +70,18 @@ test('manual unknown is shown as pending reconciliation and recovered from serve
   await state.processManual(state.manualPlans[0], 'reconcile')
   assert.deepEqual(calls, [['dispatch', '1'], ['reconcile', 'p1']])
 })
+
+test('manual dispatch submits only the selected adjacent large ID as a string', async () => {
+  let ids
+  const c = component('ReportTable.vue', {
+    getCurrentUserId: () => 'user1', fetchManualPlans: async () => [],
+    dispatchDirect: async (_, submitted) => { ids = submitted; return { successCount: 1, failedCount: 0 } }
+  })
+  const records = JSON.parse('[{"id":"9007199254740992","orderNo":"EVEN"},{"id":"9007199254740993","orderNo":"ODD"}]')
+  const state = { ...c.data(), reportType: 'sales', docNoField: 'orderNo',
+    $message: { info() {}, warning() {} }, $confirm: async () => {}, $emit() {} }
+  for (const [key, fn] of Object.entries(c.methods)) state[key] = fn.bind(state)
+  state.selectedRows = [records[1]]
+  await state.handleDispatch()
+  assert.deepEqual(Array.from(ids), ['9007199254740993'])
+})

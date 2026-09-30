@@ -6,7 +6,6 @@ if ($Database -notmatch '^[a-zA-Z0-9_]+$') {throw 'Invalid database name.'}
 foreach($taskPort in @($AgentPort,$BusinessPort)) {
     if(Get-NetTCPConnection -State Listen -LocalPort $taskPort -ErrorAction SilentlyContinue){throw "Port $taskPort is already in use. Stop the previous verified process first."}
 }
-if(-not $Mock -and -not $env:LLM_API_KEY){throw 'Set LLM_API_KEY, LLM_BASE_URL and LLM_MODEL in the process environment.'}
 if($Build) {
     & (Join-Path $taskRoot 'backend/mvnw.cmd') -f (Join-Path $taskRoot 'pom.xml') package '-DskipTests' -q
     if($LASTEXITCODE -ne 0){throw 'Build failed.'}
@@ -37,6 +36,15 @@ function Wait-TaskHealth([string]$Url,$Process) {
 }
 $taskBusiness=$null; $taskAgent=$null
 try {
+    # Optional local runtime model configuration; never committed or echoed.
+    $taskModelSecrets=Join-Path $taskRuntime 'llm-credentials.json'
+    if(-not $Mock -and -not $env:LLM_API_KEY -and (Test-Path -LiteralPath $taskModelSecrets)) {
+        $taskModelCredentials=Get-Content -LiteralPath $taskModelSecrets -Raw | ConvertFrom-Json
+        Set-TaskEnvironment 'LLM_API_KEY' $taskModelCredentials.apiKey
+        if(-not $env:LLM_BASE_URL){Set-TaskEnvironment 'LLM_BASE_URL' $taskModelCredentials.baseUrl}
+        if(-not $env:LLM_MODEL){Set-TaskEnvironment 'LLM_MODEL' $taskModelCredentials.model}
+    }
+    if(-not $Mock -and -not $env:LLM_API_KEY){throw 'Set LLM_API_KEY, LLM_BASE_URL and LLM_MODEL, or configure .runtime/llm-credentials.json.'}
     $taskLocal=Join-Path $PSScriptRoot 'env.local.cmd'
     if(Test-Path -LiteralPath $taskLocal) {
         Get-Content -LiteralPath $taskLocal | ForEach-Object {

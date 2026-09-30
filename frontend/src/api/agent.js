@@ -1,5 +1,5 @@
 import http from './http'
-import { authHeaders, sessionExpired } from '../auth'
+import { authHeaders, sessionExpired, getSessionToken } from '../auth'
 
 /** demo 用户列表（模拟登录） */
 export function fetchUsers() {
@@ -112,6 +112,7 @@ export function retryTraceDelivery(planId) {
 export function streamChat({ conversationId, message, excludeDocNos, excludedRecords, previewId }, onEvent) {
   const controller = new AbortController()
   const run = async () => {
+    const sessionToken = getSessionToken()
     const response = await fetch('/api/agent/chat', {
       method: 'POST',
       headers: {
@@ -123,13 +124,14 @@ export function streamChat({ conversationId, message, excludeDocNos, excludedRec
       signal: controller.signal
     })
     if (!response.ok) {
-      if (response.status === 401) sessionExpired()
+      if (response.status === 401) sessionExpired(sessionToken)
       throw new Error(`HTTP ${response.status}`)
     }
     const contentType = response.headers.get('content-type') || ''
     if (!contentType.includes('text/event-stream')) {
       // 后端在进入流之前就报错时返回的是 JSON Result
       const body = await response.json()
+      if (body.code === 401) sessionExpired(sessionToken)
       throw new Error(body.message || '请求失败')
     }
     const reader = response.body.getReader()

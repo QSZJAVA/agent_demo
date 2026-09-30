@@ -26,4 +26,9 @@ public class McpDispatchGateway implements com.example.report.dispatch.Authentic
         try { return client.call("dispatch_lookup",user,Map.of("requestId",requestId),new TypeReference<>() {}); }
         catch (RuntimeException e) { return new Lookup(LookupStatus.UNKNOWN,null,"业务服务暂时无法核对，请稍后重试"); }
     }
+    @Override public Lookup lookupForOperator(CurrentUser actor,String operatorId,String requestId) {
+        if(!actor.admin()) throw com.example.report.common.ApiException.forbidden("仅管理员可代核对");
+        try { return client.call("dispatch_lookup",actor,Map.of("requestId",requestId,"requestOperatorId",operatorId),new TypeReference<>() {}); }
+        catch (RuntimeException e) { return new Lookup(LookupStatus.UNKNOWN,null,"业务服务暂时无法核对，请稍后重试"); }
+    }
 }

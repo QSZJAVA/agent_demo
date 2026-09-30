@@ -1,0 +1,32 @@
+flowchart TD
+  mention["模型提取的报表原话<br/>例如 销售报表 / 应收台账"]:::agent
+  visible{"先限定当前可派单目录<br/>同租户 + 已发布/生效/可用<br/>报表权限 + 治理灰度可见"}:::guard
+  normalize["TextNormalizer.normalize<br/>NFKC + 小写 + 去空白"]:::agent
+  scan["TermIndex 最长不重叠扫描<br/>名称 / 编码 / ID / 别名<br/>英文词还检查词边界"]:::agent
+  hit{"命中词典说法？<br/>按优先类型关联报表"}:::guard
+  identity["名称 > 编码 > ID > 别名<br/>唯一 → EXACT 或 ALIAS<br/>一词多报表 → AMBIGUOUS"]:::agent
+  fuzzy["无命中：模糊候选评分<br/>编辑距离 / 二元组 Dice<br/>包含相似度取最大值"]:::agent
+  threshold{"候选评分阈值与领先差<br/>默认阈值 0.6；歧义差 0.15<br/>治理策略可提供当前参数"}:::guard
+  result["ResolveResult<br/>EXACT / ALIAS / FUZZY<br/>AMBIGUOUS / ALL / NONE"]:::agent
+  planner{"V2 Planner 二次收紧<br/>只接受可靠唯一链接<br/>拒绝 FUZZY、ALL、未识别残片"}:::guard
+  accept["稳定 reportId<br/>按目录顺序合并范围<br/>不使用模型直接提供的内部 ID"]:::agent
+  clarify["提示完整名称或候选报表<br/>用户补充名称或显式 UI 选择<br/>不自动选择最高分候选"]:::error
+  mention --> normalize
+  visible --> scan
+  normalize --> scan
+  scan --> hit
+  hit -->|"是"| identity
+  hit -->|"否"| fuzzy
+  fuzzy --> threshold
+  threshold --> result
+  identity --> result
+  result --> planner
+  planner -->|"EXACT/唯一 ALIAS"| accept
+  planner -->|"模糊/歧义/未知"| clarify
+  classDef ui fill:#eaf2ff,stroke:#386bc1,color:#1e354c
+  classDef agent fill:#edf5ff,stroke:#3778a8,color:#1e354c
+  classDef model fill:#f3edff,stroke:#8751bf,color:#1e354c
+  classDef business fill:#e8f7ef,stroke:#268255,color:#1e354c
+  classDef guard fill:#fff4dc,stroke:#b58022,color:#1e354c
+  classDef error fill:#fff0ef,stroke:#ba534e,color:#1e354c
+  classDef store fill:#edf1f5,stroke:#60768b,color:#1e354c
