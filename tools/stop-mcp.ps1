@@ -10,10 +10,11 @@ foreach($taskName in $taskTargets.Keys) {
     if(-not (Test-Path -LiteralPath $taskPidPath)){continue}
     $taskProcessId=[int](Get-Content -LiteralPath $taskPidPath)
     $taskProcess=Get-CimInstance Win32_Process -Filter "ProcessId=$taskProcessId"
-    if(-not $taskProcess){continue}
+    if(-not $taskProcess){Remove-Item -LiteralPath $taskPidPath -Force;continue}
     $taskExpected=[IO.Path]::GetFullPath($taskTargets[$taskName]).Replace('/','\')
     if($taskProcess.Name -in @('java.exe','node.exe') -and $taskProcess.CommandLine.Replace('/','\').Contains($taskExpected)) {
         Stop-Process -Id $taskProcessId
+        Remove-Item -LiteralPath $taskPidPath -Force
         Write-Output "Stopped $taskName (PID=$taskProcessId)."
     } else {throw "PID $taskProcessId no longer belongs to this workspace; left it untouched."}
 }

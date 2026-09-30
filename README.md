@@ -1,6 +1,6 @@
 # 报表派单 Agent · MCP 双服务版
 
-当前分支：`codex/mcp-business-service`。
+当前分支：`mcp-business-service`。
 
 本文及仓库文档以真实模型 `real,mcp` 链路为基线，编写规则见 [AGENTS.md](AGENTS.md)。文档与图表变更后运行 `node tools/check-docs-real-model.cjs`。
 
@@ -29,6 +29,30 @@
 两个后端是独立进程，但当前共用一个 MySQL schema。业务服务读取共享账号、确认清单、目录和规则完成再次复核；图中的控制表与业务表是逻辑分组，尚未拆成独立数据库。
 
 ## 快速启动
+
+### 前后端一键启动与停止（Windows）
+
+配置完成后，双击 [`tools/start-app.cmd`](tools/start-app.cmd) 启动，双击 [`tools/stop-app.cmd`](tools/stop-app.cmd) 停止。需要 PowerShell 7.2+、JDK 17+、Node.js 22，以及已运行的 MySQL 8、Redis。
+
+首次使用将 `tools/env.local.example.cmd` 复制为已被 Git 忽略的 `tools/env.local.cmd`，填写数据库、Redis 连接和真实模型的 `LLM_BASE_URL`、`LLM_MODEL`、`LLM_API_KEY`。已有私有配置请保留。也可通过进程环境变量或已忽略的 `.runtime/llm-credentials.json` 提供模型的 `apiKey`、`baseUrl`、`model`；配置优先级依次为进程环境、本机 CMD 配置、JSON 文件。私有文件应仅允许当前 Windows 用户访问，切勿提交凭据。
+
+一键脚本只读取允许的 `set NAME=value` 赋值，不执行私有 CMD 文件，不展开 `%变量%`。可读取 `JAVA_HOME`、`DB_*`、`REDIS_*`、`LLM_*`、`SEMANTIC_*` 和代理/CORS 配置；目标数据库由 `-Database` 指定，默认 `report_mcp`。
+
+```powershell
+# 只检查配置、工具、服务端口及 MySQL/Redis TCP 连接
+pwsh -File tools/start-app.ps1 -CheckOnly
+
+# 自动构建两个后端，缺少 Vite 时安装锁定的前端依赖，然后启动三个服务
+pwsh -File tools/start-app.ps1
+
+# 使用已构建的 JAR；自定义三个端口与目标库
+pwsh -File tools/start-app.ps1 -SkipBuild -AgentPort 8082 -BusinessPort 8092 -FrontendPort 5174 -Database report_mcp_test
+pwsh -File tools/stop-app.ps1
+```
+
+启动固定使用 `real,mcp`、`agent.semantic.mode=active` 和真实认证，依次等待 HTTP MCP 业务服务、Agent、Vite 就绪，前端代理自动指向本次 Agent 端口。默认前端地址为 `http://127.0.0.1:5173`。`SEMANTIC_NATIVE_SCHEMA` 默认 false，仅在真实端点已验证支持 JSON Schema 时配置为 true；thinking 配置须与实际模型能力一致。
+
+缺少模型配置、依赖无法连接或应用端口被占用时，启动脚本报错并退出；应用启动失败会回收本次创建的进程。日志和 PID 在 `.runtime/`，初始管理员凭据在 `.runtime/mcp-credentials.json`。停止脚本核验 PID 与本工作区程序路径并清理 PID，保留数据库、Redis及业务数据。启动就绪仅证明服务和依赖可用，真实模型认证与输出需通过页面实际对话验证；失败时检查真实端点、密钥和模型配置后重试。
 
 推荐使用 Windows PowerShell 7.2+，并安装 JDK 17+、Node.js 22、MySQL 8 和 Redis。确保 `java`、`node`、`npm` 可从 PATH 调用；Maven 使用仓库内 Wrapper。
 
@@ -95,13 +119,15 @@ $env:LLM_API_KEY = Read-Host '模型 API Key' -MaskInput
 | 参数 | 默认值 / 行为 |
 | --- | --- |
 | `-Build` | 从根 `pom.xml` 构建两个模块；省略时使用已有 JAR |
-| `-Frontend` | 5173 未被占用时启动 Vite；新启动的前端代理指向本次 Agent 端口 |
+| `-Frontend` | 启动 Vite 并等待就绪；端口被占用时报错，代理指向本次 Agent 端口 |
+| `-FrontendPort` | 5173 |
+| `-NativeSchema` | `start-mcp.ps1` 默认 true，可显式传入 `'false'`；一键脚本读取 `SEMANTIC_NATIVE_SCHEMA`，默认 false |
 | Agent profiles | 上述命令启动 `real,mcp` |
 | `-AgentPort` / `-BusinessPort` | 8080 / 8090 |
 | `-Database` | `report_mcp` |
 | 日志与 PID | `.runtime/agent.*`、`.runtime/business.*`、`.runtime/frontend.*` |
 
-已有前端进程不会被启动脚本重配；手动启动前端或切换 Agent 端口时，设置 `AGENT_API_URL` 后重启 Vite。停止脚本会核验 PID 和本工作区程序路径，避免误停其他进程。
+启动前先停止本工作区旧进程；手动启动前端或切换 Agent 端口时，设置 `AGENT_API_URL` 后重启 Vite。停止脚本会核验 PID 和本工作区程序路径，避免误停其他进程。
 
 `.runtime/` 已被 Git 和 Docker 忽略，Windows 脚本会限制其目录访问权限。模型密钥只注入 Agent 进程，不写入该凭据文件，也不传给前端和业务服务。
 
@@ -121,7 +147,7 @@ $env:LLM_API_KEY = Read-Host '模型 API Key' -MaskInput
 | `SEMANTIC_MODEL` | 留空沿用 `LLM_MODEL`，可为语义解析单独指定模型 |
 | `SEMANTIC_THINKING_ENABLED` | 默认 false；需与端点支持的 thinking 参数匹配 |
 
-真实语义解析温度为 0，默认最多输出 2400 tokens；格式、原文证据或报表覆盖校验失败时最多追加一次解析修复。当前脚本没有关闭原生 Schema 的参数；若端点不支持，应手动启动 Agent，并传入 `--agent.semantic.native-schema=false`。
+真实语义解析温度为 0，默认最多输出 2400 tokens；格式、原文证据或报表覆盖校验失败时最多追加一次解析修复。端点不支持原生 Schema 时，使用一键脚本默认配置，或向 `start-mcp.ps1` 传入 `-NativeSchema 'false'`。
 
 手动启动需先设置相同的 `DB_NAME`、数据库/Redis 连接、`AUTH_TENANT_ID` 和服务凭据。业务服务先完成迁移；Agent 使用 `real,mcp` profiles，加 `--spring.flyway.enabled=false --server.port=8080`。直接使用 `mcp` profile 而不指定端口时，Agent 默认监听 **8081**，与一键脚本的 **8080** 不同。
 
