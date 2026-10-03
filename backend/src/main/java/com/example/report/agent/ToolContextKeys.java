@@ -20,11 +20,11 @@ public final class ToolContextKeys {
         Object value = ctx.getContext().get(UI_EXCLUDED_RECORDS);
         return value instanceof List<?> list ? (List<com.example.report.dispatch.RecordKey>) list : List.of();
     }
-    /** UI 选择的来源预览，包含全选；不能被模型替换，来源失效时拒绝建单。 */
+    /** UI 选择的来源预览，包含全选；不能被模型替换，来源失效时拒绝建单。*/
     public static final String UI_PREVIEW_ID = "uiPreviewId";
     /** 本轮用户是在当前查询范围上追加报表（例如"加上费用报表的"），预览需要与上一轮范围合并 */
     public static final String PREVIEW_APPEND = "previewAppend";
-    /** 本轮用户是在当前查询范围上排除报表（例如"应收的也删掉"），预览需要从上一轮范围中减去 */
+    /** 本轮用户是在当前查询范围上排除报表（例如"应收的也删掉"），预览需要从上一轮范围中减去*/
     public static final String PREVIEW_REMOVE = "previewRemove";
     /** 本轮请求的链路号：工具在响应式线程里执行，拿不到请求线程的 MDC */
     public static final String TRACE_ID = "traceId";

@@ -11,7 +11,10 @@ import org.springframework.transaction.support.TransactionOperations;
 import java.util.*;
 import java.util.function.Supplier;
 
-/** Durable CAS state. No transaction spans a model call or a report scan. */
+/**
+ * 会话权威语义状态的数据库仓储，以租约令牌和乐观锁版本串行化对话轮次。
+ * 事务只覆盖状态保存与业务激活，模型调用和报表扫描在事务外执行，避免长时间锁库。删除墓碑使旧轮次失去写入权。
+ */
 @Service
 public class DialogueStore {
     private final JdbcTemplate jdbc;
@@ -28,11 +31,18 @@ public class DialogueStore {
                 id, user.tenantId(), user.userId());
         if (rows.isEmpty()) throw ApiException.notFound("会话不存在或已删除");
     }
+    /**
+     * 验证会话归属与删除墓碑后读取权威状态；首次会话返回初始状态，读取不取得处理租约。
+     */
     public DialogueState read(CurrentUser user, String id) {
         owner(user, id, false);
         var rows = jdbc.queryForList("SELECT state_json FROM semantic_dialogue WHERE conversation_id=? AND tenant_id=? AND user_id=?", id, user.tenantId(), user.userId());
         return rows.isEmpty() ? new DialogueState() : decode(rows.get(0).get("state_json").toString());
     }
+    /**
+     * 事务内锁会话并认领对话租约；并发轮次或未过期租约返回409，模型调用不得持有此事务。
+     * @return 调用方必须关闭的对话会话句柄
+     */
     public Session acquire(CurrentUser user, String id) {
         return tx.execute(status -> {
             owner(user, id, true);
@@ -65,13 +75,18 @@ public class DialogueStore {
             this.user=user; this.id=id; this.token=token; this.version=version; this.state=state;
         }
         public DialogueState state() { return state; }
+        /**
+         * 同时验证线程取消、会话删除、租约令牌、状态版本与截止时间；任何条件失效都阻止旧轮次继续写入。
+         */
         public void check() {
             if (Thread.currentThread().isInterrupted()) throw new ApiException(409, "对话处理已取消");
             owner(user, id, false);
             Boolean valid = jdbc.queryForObject("SELECT EXISTS(SELECT 1 FROM semantic_dialogue WHERE conversation_id=? AND lease_token=? AND version=? AND lease_until>NOW(3))", Boolean.class, id, token, version);
             if (!Boolean.TRUE.equals(valid)) throw new ApiException(409, "本次对话处理已超时或被替代，请重新发送");
         }
-        /** Also used inside preview activation's transaction; fence cannot change before commit. */
+        /**
+         * Also used inside preview activation's transaction; fence cannot change before commit.  * 在短事务中锁语义状态行并验证执行权，再运行状态相关的业务激活操作；事务提交前其他轮次不能换走令牌。
+         */
         public <T> T fenced(Supplier<T> action) {
             return tx.execute(status -> {
                 owner(user, id, true);
@@ -80,6 +95,9 @@ public class DialogueStore {
                 return action.get();
             });
         }
+        /**
+         * 先脱敏再用令牌和版本条件保存，成功后同步递增本地版本；不能用无条件 UPDATE 覆盖其他轮次。
+         */
         public void save() {
             fenced(() -> {
                 // The protocol carries raw source spans; persist a redacted copy only.
@@ -91,6 +109,9 @@ public class DialogueStore {
                 return null;
             });
         }
+        /**
+         * 在有效租约内保存本轮意图与处理结果证据；原文、原因和模型名按存储边界脱敏或截断，latency 单位为毫秒。
+         */
         public void record(String requestId, String utterance, SemanticIntent intent, String outcome, String reason, String model, long latency) {
             fenced(() -> {
                 jdbc.update("INSERT INTO semantic_turn(request_id,conversation_id,tenant_id,user_id,mode,state_version,utterance,intent_json,outcome,reason,model,latency_ms,created_at) VALUES (?,?,?,?,'active',?,?,?,?,?,?,?,NOW(3))",

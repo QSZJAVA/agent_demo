@@ -6,6 +6,9 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.HandlerInterceptor;
 import org.springframework.web.servlet.config.annotation.*;
 
+/**
+ * 注册会话、派单、目录与规则接口的访问审计；在处理前记录 ATTEMPT，操作结果由对应业务服务保存。
+ */
 @Configuration
 public class AccessAuditConfig implements WebMvcConfigurer {
     private final OperationsAudit audit;

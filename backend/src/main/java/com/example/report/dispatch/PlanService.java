@@ -134,7 +134,7 @@ public class PlanService {
     }
 
     private PlanSnapshot createInternal(CurrentUser user, String conversationId, String previewId, List<String> excludes,
-                                        String idempotencyKey, List<RecordKey> excludedRecords) {
+    String idempotencyKey, List<RecordKey> excludedRecords) {
         return createInternal(user, conversationId, previewId, excludes, idempotencyKey, excludedRecords, null);
     }
 
@@ -249,7 +249,7 @@ public class PlanService {
         });
     }
 
-    /** 当前用户的清单，读取时做懒惰校验；不归属当前用户按不存在处理 */
+    /** 当前用户的清单，读取时做懒惰校验；不归属当前用户按不存在处理*/
     public PlanSnapshot getOwned(CurrentUser user, String planId) {
         DispatchPlan plan = findOwned(user, planId)
                 .orElseThrow(() -> ApiException.notFound("待确认清单不存在或已过期，请重新预览"));
@@ -259,6 +259,9 @@ public class PlanService {
         return new PlanSnapshot(plan, plans.items(plan.getId()));
     }
 
+    /**
+     * 检查当前用户的清单归属及预览权限后分页读取条目；不能依赖页面最初加载时的授权。
+     */
     public List<DispatchPlanItem> pageOwned(CurrentUser user, String planId, int page, int size) {
         DispatchPlan plan = findOwned(user, planId)
                 .orElseThrow(() -> ApiException.notFound("待确认清单不存在"));
@@ -275,6 +278,7 @@ public class PlanService {
 
     /**
      * 懒惰校验：PENDING 的清单超过有效期，或来源预览的目录 / 规则 / 权限版本变化，立即置为 EXPIRED。返回最新状态。
+     * 读取清单时进行有效期和版本的惰性失效；执行中或待核对结果保持原状态，避免读请求改变在途业务事实。
      */
     public DispatchPlan refresh(CurrentUser user, DispatchPlan plan) {
         if (!DispatchPlan.PENDING.equals(plan.getStatus())) {
@@ -319,13 +323,17 @@ public class PlanService {
         plans.transition(plan.getId(), DispatchPlan.PENDING, DispatchPlan.EXPIRED, reason, now);
     }
 
-    /** 在同一会话锁内认领执行，和新预览、新清单的作废操作串行化。 */
+    /**
+     * 在同一会话锁内认领执行，和新预览、新清单的作废操作串行化。  * 在清单认领事务内复核预览、权限和目录版本，用条件更新从 PENDING 转 EXECUTING。
+     * @return 本次执行版本；认领竞争失败返回 empty，不得据此发送业务请求
+     */
     public Optional<Long> claimForExecution(CurrentUser user, DispatchPlan plan, LocalDateTime now) {
         Optional<Long> claimed = tx.execute(status -> {
             previews.lockConversation(plan.getConversationId());
             previews.lockPreview(plan.getPreviewId());
             DispatchPlan current = plans.find(plan.getId()).orElse(plan);
             if (!DispatchPlan.PENDING.equals(current.getStatus())) return Optional.empty();
+            if (!Objects.equals(current.getExecutionVersion(), plan.getExecutionVersion())) return Optional.empty();
             if (plans.hasOtherStartedByPreview(current.getPreviewId(), current.getId())) {
                 plans.transition(current.getId(), DispatchPlan.PENDING, DispatchPlan.EXPIRED,
                         StateReason.NEW_PLAN, now);
@@ -368,7 +376,7 @@ public class PlanService {
         return preview;
     }
 
-    /** 预览不能再用于生成清单时给用户的提示 */
+    /** 预览不能再用于生成清单时给用户的提示*/
     static String rejection(DispatchPreview preview) {
         return switch (preview.getStatus()) {
             case DispatchPreview.SUPERSEDED -> "该预览已作废，请使用本会话最新的预览卡片";

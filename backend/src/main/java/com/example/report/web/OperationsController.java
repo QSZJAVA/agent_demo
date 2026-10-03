@@ -7,6 +7,9 @@ import com.example.report.permission.*;
 import org.springframework.web.bind.annotation.*;
 import java.util.*;
 
+/**
+ * 租户管理与运维 HTTP 入口；统一要求管理员授权和操作原因，业务服务进一步校验数据范围并保存审计。
+ */
 @RestController
 @RequestMapping("/api/operations")
 public class OperationsController {
@@ -52,6 +55,12 @@ public class OperationsController {
     public Result<?> policyHistory(@RequestHeader(PermissionService.USER_HEADER) String id,@PathVariable String key) {
         return Result.ok(policies.history(admin(id),key));
     }
+    /**
+     * 以当前版本为条件的历史版本回滚请求。
+     * @param targetVersion 要回滚的历史版本号；回滚创建新版本而非覆盖历史
+     * @param expectedVersion 修改前读取的版本，须与服务器当前版本匹配
+     * @param reason 操作原因或状态变更说明；保存前脱敏
+     */
     public record Rollback(long targetVersion,long expectedVersion,String reason) { }
     @PostMapping("/policies/{key}/rollback")
     public Result<?> rollbackPolicy(@RequestHeader(PermissionService.USER_HEADER) String id,@PathVariable String key,@RequestBody Rollback r) {
@@ -76,6 +85,10 @@ public class OperationsController {
         if(page<1||page>100000) throw new ApiException("页码无效");
         return Result.ok(workbench.items(admin(id),plan,page));
     }
+    /**
+     * 运维操作原因请求。
+     * @param reason 操作原因或状态变更说明；保存前脱敏
+     */
     public record Reason(String reason) { }
     @PostMapping("/workbench/{plan}/{action}")
     public Result<?> action(@RequestHeader(PermissionService.USER_HEADER) String id,@PathVariable String plan,@PathVariable String action,@RequestBody Reason reason) {

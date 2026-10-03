@@ -130,7 +130,7 @@ public class ConversationService {
         conversationMapper.updateById(c);
     }
 
-    /** 历史消息：向前翻页，只返回文本与卡片 */
+    /** 历史消息：向前翻页，只返回文本与卡片*/
     public List<MessageView> messages(CurrentUser user, String conversationId, Long beforeId, int size) {
         getOwned(user, conversationId);
         if (previewService != null) previewService.requireConversationReadable(user, conversationId);
@@ -229,7 +229,7 @@ public class ConversationService {
         submit(m, false);
     }
 
-    /** 结构化卡片只保存摘要与首屏；全部条目留在分页快照表中。 */
+    /** 结构化卡片只保存摘要与首屏；全部条目留在分页快照表中。*/
     public void logCard(String conversationId, String userId, String cardType, Object payload, String previewId, String planId) {
         AgentMessage m = base(conversationId, userId, AgentMessage.ROLE_CARD);
         m.setCardType(cardType);

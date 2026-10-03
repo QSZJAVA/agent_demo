@@ -7,6 +7,9 @@ import lombok.extern.slf4j.Slf4j;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * 持久化业务操作耗时、版本及结果，按租户汇总；指标记录不包含原始业务事实或模型输入。
+ */
 @Slf4j
 @Service
 public class BusinessMetrics {

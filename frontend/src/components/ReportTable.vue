@@ -31,6 +31,7 @@
         <el-button v-if="plan.status === 'REVIEW_REQUIRED'" size="mini" :disabled="dispatching" @click="processManual(plan, 'reconcile')">核对结果</el-button>
         <el-button v-if="plan.status === 'EXECUTED' && plan.retryableCount" size="mini" :disabled="dispatching" @click="processManual(plan, 'retry')">重试失败项</el-button>
         <el-button v-if="plan.status === 'PENDING'" size="mini" :disabled="dispatching" @click="processManual(plan, 'confirm')">继续派单</el-button>
+        <el-button v-if="plan.status === 'EXECUTING'" size="mini" :disabled="dispatching" @click="processManual(plan, 'resume')">刷新执行结果</el-button>
         <el-button size="mini" @click="tracePlanId = plan.planId">查看完整追溯</el-button>
       </div>
       <el-button size="mini" :disabled="manualPage === 1 || dispatching" @click="loadManualPlans(manualPage - 1)">上一页</el-button>
@@ -83,8 +84,13 @@
 </template>
 
 <script>
+/**
+ * 业务报表表格与人工派单清单入口；选择只针对当前页事实，执行后以服务器持久化结果刷新。
+ * 记录ID与报表共同确定范围；在途任务通过读取恢复，不能因弹窗或页面刷新再次发起派单。
+ */
 import { dispatchDirect, fetchManualPlans } from '../api/report'
 import { confirmPlan, reconcilePlan, retryFailedPlan } from '../api/agent'
+import { resumePlanAction } from '../api/dispatchJob'
 import { getCurrentUserId } from '../auth'
 import DispatchTrace from './agent/DispatchTrace.vue'
 
@@ -148,11 +154,12 @@ export default {
         this.moreManualPlans = plans.length === 50
       } catch (e) { /* 请求拦截器提示，可手工刷新。 */ }
     },
+    /** 人工清单核对、重试或恢复时检查当前会话仍有效；操作完成后重新读取清单列表，不能根据传输异常猜测未执行。 */
     async processManual(plan, action) {
       if (!this.isCurrentSession() || this.dispatching) return
       this.dispatching = true
       try {
-        const operation = { reconcile: reconcilePlan, retry: retryFailedPlan, confirm: confirmPlan }[action]
+        const operation = { reconcile: reconcilePlan, retry: retryFailedPlan, confirm: confirmPlan, resume: resumePlanAction }[action]
         await operation(plan.planId)
         if (this.isCurrentSession()) this.$emit('refresh')
       } catch (e) {
@@ -176,6 +183,7 @@ export default {
       this.selectedRows = rows
     },
     // 手工派单：调用后端派单接口（模拟实现会把记录标记为已派单并写审计）
+    /** 以当前页人工选择创建任务；处理结束清除选择并刷新报表，最多50条，服务端再次验证公司权限与派单状态。 */
     async handleDispatch() {
       if (!this.isCurrentSession() || this.dispatching || this.loading) return
       if (!this.selectedRows.length) {

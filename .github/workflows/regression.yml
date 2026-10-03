@@ -19,6 +19,13 @@ jobs:
       P2_IT: 'true'
       TRACE_DB_HOST: 127.0.0.1
       TRACE_DB_PASSWORD: ci-test-only
+      DB_HOST: 127.0.0.1
+      DB_USERNAME: root
+      DB_PASSWORD: ci-test-only
+      MCP_IT: 'true'
+      DEMO_IT: 'false'
+      P2_UI: 'false'
+      SEMANTIC_LIVE: 'false'
     steps:
       - uses: actions/checkout@v4
       - run: bash tools/test-deploy.sh
@@ -33,12 +40,20 @@ jobs:
           cache: npm
           cache-dependency-path: frontend/package-lock.json
       - run: node tools/check-docs-real-model.cjs
-      - run: bash mvnw test -B
-        working-directory: backend
+      - run: node tools/check-comments.cjs
+      - run: docker compose --env-file .env.example config --quiet
+        env:
+          LLM_API_KEY: ci-configuration-placeholder
+          LLM_MODEL: ci-configuration-placeholder
+          BUSINESS_SERVICE_TOKEN: ci-service-configuration-placeholder-32
+          AUTH_BOOTSTRAP_PASSWORD: ci-bootstrap-placeholder
+      - run: bash backend/mvnw -f pom.xml verify -B
       - run: npm ci && npm test && npm run build
         working-directory: frontend
       - uses: actions/upload-artifact@v4
         if: always()
         with:
           name: regression-reports
-          path: backend/target/surefire-reports
+          path: |
+            backend/target/surefire-reports
+            business-service/target/surefire-reports

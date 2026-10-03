@@ -34,6 +34,9 @@
   </el-card>
 </template>
 <script>
+/**
+ * 报表目录及别名维护页；保留稳定标识并提交当前版本，配置合法性及数据权限由服务端校验。
+ */
 import http from '../api/http'
 import * as api from '../api/catalog'
 import * as ops from '../api/operations'

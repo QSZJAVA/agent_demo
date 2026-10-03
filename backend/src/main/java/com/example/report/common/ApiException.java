@@ -1,7 +1,7 @@
 package com.example.report.common;
 
 /**
- * 业务异常：携带 HTTP 语义的错误码（400 参数/状态错误，403 无权限，404 不存在），由 GlobalExceptionHandler 统一转成 Result
+ * 可安全返回给调用方的业务异常；携带 HTTP/业务错误码，由统一异常处理器转换为响应。异常消息不得包含凭据或底层数据库详情。
  */
 public class ApiException extends RuntimeException {
 

@@ -22,6 +22,13 @@ import com.fasterxml.jackson.core.type.TypeReference;
  * @param byReport         预览范围内每张报表的条数与金额（0 条的报表也列出）
  * @param ruleDescriptions report_id → 命中规则说明
  * @param resolution       报表是怎么识别出来的（精确 / 别名 / 模糊 / 全部 / 选择）
+ * @param previewId 预览标识，选择和建单必须绑定此快照
+ * @param status 当前业务状态，以所属状态机为准
+ * @param total 授权范围内统计总数，不能用当前页长度代替
+ * @param totalAmount 候选业务金额合计，币种沿用来源账本
+ * @param records 当前对象的有界业务记录集合
+ * @param createdAt 记录创建时间
+ * @param expiresAt 有效期截止时间，到期后须重新校验或创建
  */
 public record PreviewPayload(
         String previewId,
@@ -36,9 +43,23 @@ public record PreviewPayload(
         LocalDateTime expiresAt
 ) {
     public static final int PAGE_SIZE = 50;
+    /**
+     * 单报表的预览数量与金额汇总。
+     * @param reportId 稳定报表标识，关联报表目录
+     * @param reportName 报表展示名称
+     * @param count 当前业务对象的记录数量
+     * @param amount 业务金额，保留精确十进制；币种沿用来源账本
+     */
     public record ReportCount(String reportId, String reportName, int count, BigDecimal amount) {
     }
 
+    /**
+     * 报表解析展示证据。
+     * @param matchType 名称匹配类型；歧义或未识别不能自动执行
+     * @param query 用户对报表的说法或本次解析输入
+     * @param matchedTerms 在输入中命中的目录词条
+     * @param unrecognized 未被可靠解析的输入部分，不能静默丢弃
+     */
     public record Resolution(String matchType, String query, List<String> matchedTerms, List<String> unrecognized) {
     }
 

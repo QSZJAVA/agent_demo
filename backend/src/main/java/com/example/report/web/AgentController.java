@@ -72,12 +72,16 @@ public class AgentController {
         return Result.ok(Map.of("model", chatService.modelName()));
     }
 
+    /** 本轮对话输入；身份从服务端解析，记录选择必须绑定来源预览，不能由模型提供执行授权。 */
     @Data
     public static class ChatRequest {
+        /** 用户所属会话标识；首次发送时为空，由服务端创建新会话。 */
         private String conversationId;
+        /** 本轮用户原文；按接口长度边界校验后交由语义解析。 */
         private String message;
-        /** 前端预览表格中取消勾选的单据号 */
+        /** 前端预览表格中取消勾选的单据号*/
         private List<String> excludeDocNos;
+        /** 按报表与记录复合标识保存的排除项；服务端验证全部属于当前预览。 */
         private List<com.example.report.dispatch.RecordKey> excludedRecords;
         /** 取消勾选所在的预览卡片；与本轮派单用的预览不一致时勾选项不生效 */
         private String previewId;

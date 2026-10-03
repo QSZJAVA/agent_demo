@@ -12,6 +12,9 @@ import org.springframework.web.filter.OncePerRequestFilter;
 import java.io.IOException;
 import java.util.*;
 
+/**
+ * 解析当前 Demo 的请求会话并建立服务端身份上下文；业务控制器据此取得用户。账号生命周期行为仍按维护范围暂缓处理。
+ */
 @Component
 @Order(-100)
 @ConditionalOnProperty(name="security.enabled",havingValue="true")

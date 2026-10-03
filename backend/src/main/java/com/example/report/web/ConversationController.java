@@ -50,7 +50,7 @@ public class ConversationController {
     /** 历史消息：预览 / 清单卡片带上服务端当前状态，刷新页面或换设备后与服务端一致 */
     @GetMapping("/{id}/messages")
     public Result<List<MessageView>> messages(@RequestHeader(PermissionService.USER_HEADER) String userId,
-                                              @PathVariable String id,
+    @PathVariable String id,
                                               @RequestParam(required = false) Long beforeId,
                                               @RequestParam(defaultValue = "100") int size) {
         CurrentUser user = permissionService.resolve(userId);
@@ -66,7 +66,7 @@ public class ConversationController {
         }).toList());
     }
 
-    /** 会话里全部预览 / 清单卡片的当前状态：前端每轮对话、每次操作后以此为准刷新卡片 */
+    /** 会话里全部预览 / 清单卡片的当前状态：前端每轮对话、每次操作后以此为准刷新卡片*/
     @GetMapping("/{id}/card-states")
     public Result<CardStateService.ConversationStates> cardStates(@RequestHeader(PermissionService.USER_HEADER) String userId,
                                                                   @PathVariable String id) {

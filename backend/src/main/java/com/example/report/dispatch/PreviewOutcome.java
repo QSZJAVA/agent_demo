@@ -9,6 +9,9 @@ import java.util.List;
  *
  * @param supersededPreviewIds 本次作废的旧预览
  * @param expiredPlanIds       本次失效的待确认清单
+ * @param status 当前业务状态，以所属状态机为准
+ * @param resolution 报表名称解析证据与结果
+ * @param snapshot 成功生成的预览事实快照，未成功时可为空
  */
 public record PreviewOutcome(Status status, ResolveResult resolution, PreviewSnapshot snapshot,
                              List<String> supersededPreviewIds, List<String> expiredPlanIds) {

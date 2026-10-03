@@ -95,6 +95,9 @@ public class PreviewService {
         return new PreviewSnapshot(p, items);
     }
 
+    /**
+     * 为同会话新预览请求分配递增序号；提交时就占序号，使排队或扫描中的旧请求失去激活资格。
+     */
     public long beginRequest(String conversationId) {
         return previews.beginRequest(conversationId);
     }
@@ -117,8 +120,8 @@ public class PreviewService {
 
     /** 异步任务在提交时取得版本，排队期间的后续请求也能使旧任务失效。 */
     public PreviewOutcome preview(CurrentUser user, String conversationId, PreviewCommand command,
-                                  java.util.function.IntConsumer progress,
-                                  java.util.function.Consumer<String> activation, long requestVersion) {
+    java.util.function.IntConsumer progress,
+    java.util.function.Consumer<String> activation, long requestVersion) {
         long started = System.nanoTime();
         try {
             PreviewOutcome result = measuredPreview(user,conversationId,command,progress,activation,requestVersion);
@@ -137,6 +140,9 @@ public class PreviewService {
         }
     }
 
+    /**
+     * 先解析可见报表与公司范围，再记录目录、规则和权限指纹，扫描匹配事实并激活快照。最终激活必须再次核对请求序号，旧结果不能替代新范围。
+     */
     private PreviewOutcome measuredPreview(CurrentUser user,String conversationId,PreviewCommand command,
             java.util.function.IntConsumer progress,java.util.function.Consumer<String> activation,long requestVersion) {
         String scopeMode = normalizeScope(command.scopeMode());
@@ -158,54 +164,54 @@ public class PreviewService {
         ResourceQuotaService.Permit permit = quotas == null ? null : quotas.acquire(user, "preview",
                 reports.stream().map(CatalogEntry::reportId).toList());
         try {
-        ResourceQuotaService.check(permit);
-        java.util.function.IntConsumer guardedProgress = scanned -> {
             ResourceQuotaService.check(permit);
-            progress.accept(scanned);
-        };
-        java.util.function.Consumer<String> guardedActivation = id -> {
-            ResourceQuotaService.check(permit);
-            activation.accept(id);
-        };
-        Set<String> companies = resolveCompanies(user, command.filters().companyCode());
-        // 版本必须在求值之前读：求值期间有人发布规则时，快照带着旧版本，派单会被拒绝；
-        // 反过来先求值后读版本，旧规则算出的结果会配上新版本，"规则变更后旧预览不能执行"就被绕过了
-        VersionStamp stamp = versions.stamp(user, reports, companies);
-        int maxItems = props.getPreview().getMaxItems();
-        List<Candidate> candidates = candidateService.findCandidates(user.tenantId(), companies, reports,
+            java.util.function.IntConsumer guardedProgress = scanned -> {
+                ResourceQuotaService.check(permit);
+                progress.accept(scanned);
+            };
+            java.util.function.Consumer<String> guardedActivation = id -> {
+                ResourceQuotaService.check(permit);
+                activation.accept(id);
+            };
+            Set<String> companies = resolveCompanies(user, command.filters().companyCode());
+            // 版本必须在求值之前读：求值期间有人发布规则时，快照带着旧版本，派单会被拒绝；
+            // 反过来先求值后读版本，旧规则算出的结果会配上新版本，"规则变更后旧预览不能执行"就被绕过了
+            VersionStamp stamp = versions.stamp(user, reports, companies);
+            int maxItems = props.getPreview().getMaxItems();
+            List<Candidate> candidates = candidateService.findCandidates(user.tenantId(), companies, reports,
                 maxItems + 1, command.excludes(), guardedProgress);
-        if (candidates.size() > maxItems) {
-            return previewLarge(user, conversationId, command, resolution, scope, reports, companies, stamp,
+            if (candidates.size() > maxItems) {
+                return previewLarge(user, conversationId, command, resolution, scope, reports, companies, stamp,
                     scopeMode, guardedProgress, guardedActivation, requestVersion);
-        }
+            }
 
-        LocalDateTime now = LocalDateTime.now();
-        DispatchPreview preview = newPreview(user, conversationId, command, resolution, scope, reports, companies,
+            LocalDateTime now = LocalDateTime.now();
+            DispatchPreview preview = newPreview(user, conversationId, command, resolution, scope, reports, companies,
                 stamp, scopeMode, candidates, now);
-        List<DispatchPreviewItem> items = new ArrayList<>(candidates.size());
-        for (int i = 0; i < candidates.size(); i++) {
-            items.add(toItem(preview.getId(), i, candidates.get(i)));
-        }
-        if (Thread.currentThread().isInterrupted()) throw new ApiException(409, "查询已取消");
-        List<String> superseded = new ArrayList<>();
-        List<String> expiredPlans = new ArrayList<>();
-        tx.executeWithoutResult(status -> {
-            previews.lockConversation(conversationId);
-            requireLatestRequest(conversationId, requestVersion);
-            guardedActivation.accept(preview.getId());
-            for (DispatchPreview old : previews.active(conversationId)) {
-                if (previews.transition(old.getId(), DispatchPreview.ACTIVE, DispatchPreview.SUPERSEDED, StateReason.NEW_PREVIEW, now)) {
-                    superseded.add(old.getId());
-                }
+            List<DispatchPreviewItem> items = new ArrayList<>(candidates.size());
+            for (int i = 0; i < candidates.size(); i++) {
+                items.add(toItem(preview.getId(), i, candidates.get(i)));
             }
-            for (DispatchPlan plan : plans.pending(conversationId)) {
-                if (plans.transition(plan.getId(), DispatchPlan.PENDING, DispatchPlan.EXPIRED, StateReason.NEW_PREVIEW, now)) {
-                    expiredPlans.add(plan.getId());
+            if (Thread.currentThread().isInterrupted()) throw new ApiException(409, "查询已取消");
+            List<String> superseded = new ArrayList<>();
+            List<String> expiredPlans = new ArrayList<>();
+            tx.executeWithoutResult(status -> {
+                previews.lockConversation(conversationId);
+                requireLatestRequest(conversationId, requestVersion);
+                guardedActivation.accept(preview.getId());
+                for (DispatchPreview old : previews.active(conversationId)) {
+                    if (previews.transition(old.getId(), DispatchPreview.ACTIVE, DispatchPreview.SUPERSEDED, StateReason.NEW_PREVIEW, now)) {
+                        superseded.add(old.getId());
+                    }
                 }
-            }
-            previews.insert(preview, items);
-        });
-        return PreviewOutcome.ok(resolution, new PreviewSnapshot(preview, items), superseded, expiredPlans);
+                for (DispatchPlan plan : plans.pending(conversationId)) {
+                    if (plans.transition(plan.getId(), DispatchPlan.PENDING, DispatchPlan.EXPIRED, StateReason.NEW_PREVIEW, now)) {
+                        expiredPlans.add(plan.getId());
+                    }
+                }
+                previews.insert(preview, items);
+            });
+            return PreviewOutcome.ok(resolution, new PreviewSnapshot(preview, items), superseded, expiredPlans);
         } finally {
             if (permit != null) permit.close();
         }
@@ -224,7 +230,7 @@ public class PreviewService {
         return previews.find(previewId).filter(p -> PermissionService.owns(user, p.getTenantId(), p.getUserId()));
     }
 
-    /** 本会话最近一次预览（不论状态） */
+    /** 本会话最近一次预览（不论状态）*/
     public Optional<DispatchPreview> latest(CurrentUser user, String conversationId) {
         return previews.latest(user.tenantId(), user.userId(), conversationId);
     }
@@ -256,7 +262,7 @@ public class PreviewService {
         }
     }
 
-    /** 已据此执行派单：预览不能再生成新的清单 */
+    /** 已据此执行派单：预览不能再生成新的清单*/
     public void consume(String previewId, LocalDateTime now) {
         previews.transition(previewId, DispatchPreview.ACTIVE, DispatchPreview.CONSUMED, StateReason.EXECUTED, now);
     }
@@ -393,7 +399,7 @@ public class PreviewService {
         return Set.of(requested);
     }
 
-    /** 预览阶段的排除项：优先按单据号精确匹配，未命中再按摘要关键词模糊匹配（用户常只说"云服务"这类描述） */
+    /** 预览阶段的排除项：优先按单据号精确匹配，未命中再按摘要关键词模糊匹配（用户常只说"云服务"这类描述）*/
     public static List<Candidate> applyExcludes(List<Candidate> candidates, List<String> excludes) {
         if (candidates.isEmpty() || excludes == null || excludes.isEmpty()) {
             return candidates;

@@ -22,15 +22,15 @@ final class PreviewIntentDetector {
 
     /** 报表说法的占位符（Unicode 私用区字符，不会出现在正常输入里） */
     private static final char MARK = '\uE000';
-    /** 单个报表范围：占位符，后面可带“报表”二字（别名“应收”+“报表”） */
+    /** 单个报表范围：占位符，后面可带“报表”二字（别名“应收”+“报表”）*/
     private static final String SCOPE = MARK + "(?:报表)?";
     /** 报表范围之间的连接词：应收和费用报表 / 销售、应收 / 应收+费用 */
     private static final String SEPARATOR = "(?:[、,，/+和与跟及]|以及|还有|加上)";
-    /** 报表范围序列 */
+    /** 报表范围序列*/
     private static final String SCOPES = "(?<scopes>" + SCOPE + "(?:" + SEPARATOR + SCOPE + ")*)";
     /** 范围表达式的收尾词：销售报表 / 费用报表的 / 只看应收吧 / 还有费用吗 */
     private static final String TAIL = "的?(?:就行|即可|吧|吗|么|呢)?";
-    /** 范围追加词：加上费用报表的 / 还要看应收 / 顺便查一下费用报表 */
+    /** 范围追加词：加上费用报表的 / 还要看应收 / 顺便查一下费用报表*/
     private static final String APPEND_PREFIX =
             "(?:再)?(?:加上|外加|还要|还有|顺便|同时|另外|再看|再查)(?:(?:看|查)(?:一下|下)?|加上)?";
 
@@ -45,12 +45,12 @@ final class PreviewIntentDetector {
             "(?:我(?:说|指)(?:的)?(?:是)?|只(?:看|要|查)|仅(?:看|查)|改(?:成|为)|换(?:成|为)|切换(?:到|成|为))"
                     + SCOPES + TAIL);
     private static final Pattern APPEND = Pattern.compile(APPEND_PREFIX + SCOPES + TAIL);
-    /** 追问式追加：费用报表呢 / 那应收呢 / 也看看费用呢 —— 表示"在刚才的范围上再看看这张报表" */
+    /** 追问式追加：费用报表呢 / 那应收呢 / 也看看费用呢 —— 表示"在刚才的范围上再看看这张报表"*/
     private static final Pattern APPEND_FOLLOW_UP = Pattern.compile(
             "(?:那|那么)?(?:也|再)?" + SCOPES + "(?:呢|呐|吗|么|怎么样|咋样)");
     /** 排除词：删掉 / 去掉 / 移除 / 不要 / 排除 / 不用 */
     private static final String REMOVE_WORD = "(?:删(?:掉|除|去)|去掉|移除|不要|排除|不用)";
-    /** 后置语序：应收的也删掉 / 把销售报表去掉 / 排除费用报表 */
+    /** 后置语序：应收的也删掉 / 把销售报表去掉 / 排除费用报表*/
     private static final Pattern REMOVE_AFTER = Pattern.compile(
             "(?:把|将)?(?:这|那)?(?:个|些)?" + SCOPES + "(?:的)?" + "(?:也|都)?" + REMOVE_WORD + TAIL);
     /** 前置语序：删掉应收报表 / 不要应收的 / 去掉费用 */
@@ -60,7 +60,7 @@ final class PreviewIntentDetector {
                     + "(?:(?:我|当前)的?)?" + SCOPES
                     + "(?:(?:中|里|的)?(?:有)?(?:哪些|啥|什么)(?:是)?(?:可以|能|需要|待)?派单(?:的)?(?:记录|单据)?"
                     + "|的?(?:可|可以|能|需要|待)派单的?(?:记录|单据)?)?" + TAIL);
-    /** 后置追问动词：应收报表再查下 / 应收报表重查一下 / 销售报表再看看 / 应收报表刷新一下 */
+    /** 后置追问动词：应收报表再查下 / 应收报表重查一下 / 销售报表再看看 / 应收报表刷新一下*/
     private static final String FOLLOW_UP_VERB =
             "(?:再|重新|重|又)?(?:查(?:询)?|看(?:看)?|刷新|载入|预览|拉)(?:一下|下|一次|一遍)?";
     /**

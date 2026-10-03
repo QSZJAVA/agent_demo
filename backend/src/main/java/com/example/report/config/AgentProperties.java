@@ -31,9 +31,9 @@ public class AgentProperties {
         private int turnTimeoutSeconds = 180;
     }
 
-    @Data
+        @Data
     public static class Llm {
-        /** true 时使用关键词模拟模型，不调用真实大模型 */
+        /** true 时使用关键词模拟模型，不调用真实大模型*/
         private boolean mock = false;
     }
 
@@ -43,10 +43,10 @@ public class AgentProperties {
         private boolean requireConfirm = true;
     }
 
-    @Data
+        @Data
     public static class Preview {
         private int ttlMinutes = 30;
-        /** 预览转分批持久化的阈值，同时限制单份待确认清单条数；更大预览仍可分页浏览 */
+        /** 预览转分批持久化的阈值，同时限制单份待确认清单条数；更大预览仍可分页浏览*/
         private int maxItems = 5000;
     }
 
@@ -59,7 +59,7 @@ public class AgentProperties {
     public static class Resolver {
         /** 模糊匹配最低得分 */
         private double fuzzyThreshold = 0.6;
-        /** 第一名领先不足该分差时视为歧义 */
+        /** 第一名领先不足该分差时视为歧义*/
         private double ambiguityMargin = 0.15;
     }
 

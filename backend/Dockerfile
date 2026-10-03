@@ -37,7 +37,7 @@ USER app
 EXPOSE 8080
 
 # 独立就绪检查验证 MySQL 与 Redis；依赖不可用返回 HTTP 503，不依赖演示身份。
-HEALTHCHECK --interval=15s --timeout=10s --start-period=60s --retries=10 \
-    CMD curl -fsS --connect-timeout 2 --max-time 8 http://127.0.0.1:8080/api/health/readiness >/dev/null || exit 1
+HEALTHCHECK --interval=15s --timeout=15s --start-period=60s --retries=10 \
+    CMD curl -fsS --connect-timeout 2 --max-time 12 http://127.0.0.1:8080/api/health/readiness >/dev/null || exit 1
 
 ENTRYPOINT ["sh", "-c", "exec java $JAVA_OPTS -jar /app/app.jar $SPRING_ARGS"]

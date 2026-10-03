@@ -39,6 +39,10 @@
   </el-card>
 </template>
 <script>
+/**
+ * 租户管理员运维页；策略修改使用期望版本，异常清单操作必须提供原因。
+ * 异步操作无论成功或失败均重新读取实际任务状态，避免页面把未知结果误显示为尚未执行。
+ */
 import http from '../api/http'
 import { fetchCatalog } from '../api/catalog'
 import * as api from '../api/operations'
@@ -52,10 +56,12 @@ export default {
     ratio(outcomes){const rows=(this.stats.overview ? this.stats.overview.requests : []).filter(r=>r.operation==='RESOLVE');return this.percent(rows.filter(r=>outcomes.includes(r.outcome)).reduce((n,r)=>n+Number(r.samples),0),rows.reduce((n,r)=>n+Number(r.samples),0))},
     async load(){this.loading=true;try{this.admin=(await http.get('/auth/me')).admin;if(this.admin){this.catalog=await fetchCatalog(true);await this.loadTab()}}finally{this.loading=false}},
     async loadTab(){if(!this.admin)return;this.loading=true;try{if(this.tab==='metrics')this.stats=await api.metrics(this.days);if(this.tab==='workbench')await this.loadTasks();if(this.tab==='policy')await this.loadPolicy();if(this.tab==='evaluation'){this.evaluated=await api.evaluation();const corpus=await api.policy('evaluation');this.sampleJson=JSON.stringify(corpus.payload.samples,null,2);this.sampleVersion=corpus.version;}if(this.tab==='audit')this.audits=await api.auditLog();if(this.tab==='retention'){const p=await api.policy('retention');this.retentionForm={...p.payload};this.retentionVersion=p.version;this.erasureRows=await api.erasures()}}finally{this.loading=false}},
+    /** 递增请求序号，只接收最后一次工作台分页结果；管理员权限过滤后的游标由服务端提供。 */
     async loadTasks(after){const seq=++this.tasksSequence;const p=await api.workbench(after);if(this.disposed||seq!==this.tasksSequence)return;this.tasks=p.rows;this.nextCursor=p.nextCursor},
     async showItems(row){this.selected=row;this.itemPage=1;await this.reloadItems();this.itemsVisible=true},async reloadItems(){const seq=++this.itemsSequence;const id=this.selected.id;this.items=[];const rows=await api.workItems(id,this.itemPage);if(this.disposed||seq!==this.itemsSequence||id!==this.selected.id)return;this.items=rows},
     async promptReason(title){try{const r=await this.$prompt('请填写操作原因，执行前将再次校验权限和任务状态。',title,{inputValidator:v=>!!(v&&v.trim())||'请填写原因'});return r.value}catch(e){return null}},
-    async act(row,action){const reason=await this.promptReason(action==='reconcile'?'核对网关结果':(action==='close'?'关闭异常任务（未派单项不再重试）':'重试明确失败项'));if(!reason||this.disposed)return;this.saving=true;try{await api.act(row.id,action,reason);await this.loadTasks();this.$message.success('处理结果已刷新')}finally{this.saving=false}},
+    /** 管理员填写原因后提交持久化任务；传输或任务失败也刷新实际状态，避免重复确认结果不明的操作。 */
+    async act(row,action){const reason=await this.promptReason(action==='reconcile'?'核对网关结果':(action==='close'?'关闭异常任务（未派单项不再重试）':'重试明确失败项'));if(!reason||this.disposed)return;this.saving=true;try{await api.act(row.id,action,reason);if(!this.disposed)this.$message.success('处理已完成')}catch(e){/* 提示已由任务或请求层展示，刷新实际持久状态。 */}finally{this.saving=false;if(!this.disposed)await this.loadTasks()}},
     async loadPolicy(){this.policyReady=false;const key=this.policyKey;const p=await api.policy(key);const h=await api.policyHistory(key);if(this.disposed||key!==this.policyKey)return;this.policyReady=true;this.policyForm={...p.payload};this.policyVersion=p.version;this.policyRevisions=h;this.reason=''},
     async savePolicy(){if(!this.policyReady||this.saving||this.disposed)return;if(!this.reason.trim()){this.$message.error('请填写变更原因');return}this.saving=true;try{await api.savePolicy(this.policyKey,{expectedVersion:this.policyVersion,payload:this.policyForm,reason:this.reason});await this.loadPolicy()}finally{this.saving=false}},
     async rollbackPolicy(row){const reason=await this.promptReason(`回滚到版本 ${row.version}`);if(!reason||this.disposed)return;this.saving=true;try{await api.rollbackPolicy(this.policyKey,{targetVersion:row.version,expectedVersion:this.policyVersion,reason});await this.loadPolicy()}finally{this.saving=false}},

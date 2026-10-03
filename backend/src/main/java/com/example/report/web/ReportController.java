@@ -66,7 +66,7 @@ public class ReportController {
         return Result.ok(reportService.listSales(user));
     }
 
-    /** 报表二：应收报表 */
+    /** 报表二：应收报表*/
     @GetMapping("/receivable")
     public Result<List<ReceivableReport>> receivable(@RequestHeader(PermissionService.USER_HEADER) String userId) {
         CurrentUser user = permissionService.resolve(userId);

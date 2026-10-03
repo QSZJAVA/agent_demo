@@ -11,6 +11,10 @@ import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.util.*;
 
+/**
+ * 真实 HTTP MCP 的服务间认证与请求边界；验证配置的服务令牌、来源约束和有界请求体。
+ * 该令牌授权编排服务连接，用户公司与报表权限仍由工具处理过程校验。
+ */
 @Component
 @Order(-200)
 public class ServiceAuthenticationFilter extends OncePerRequestFilter {

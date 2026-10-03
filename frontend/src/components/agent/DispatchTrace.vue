@@ -54,6 +54,9 @@
 </template>
 
 <script>
+/**
+ * 清单追溯视图；分段读取服务端持久化证据，补写重试只修复展示证据，不重新派单。
+ */
 import { fetchDispatchTrace, fetchTracePage, retryTraceDelivery } from '../../api/agent'
 import { getCurrentUserId } from '../../auth'
 

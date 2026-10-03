@@ -1,7 +1,9 @@
 package com.example.report.agent;
 
 /**
- * 推给前端的 SSE 事件：type 即 SSE event 名，data 为 JSON 载荷
+ * 对话 SSE 事件协议；事件数据由服务端业务结果生成，前端按 type 分流渲染。
+ * @param type 事件类型，例如文本增量、预览、清单、错误或完成
+ * @param data 该类型的结构化载荷，发送前须执行脱敏
  */
 public record AgentEvent(String type, Object data) {
 

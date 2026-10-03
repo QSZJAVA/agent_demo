@@ -29,6 +29,15 @@ public class AuditService {
      *
      * @param ruleFingerprint   预览时范围内生效规则的指纹
      * @param permissionVersion 预览时用户的权限版本
+     * @param source 当前业务入口或解析来源标识
+     * @param conversationId 用户所属会话标识；无会话的直接接口调用可为空
+     * @param previewId 预览标识，选择和建单必须绑定此快照
+     * @param planId 派单清单标识，关联服务端持久化清单
+     * @param traceId 请求链路标识，供日志和证据关联
+     * @param executionVersion 认领时冻结的清单执行轮次，旧轮次不能发送或回写
+     * @param attemptCount 条目已准备发送的次数
+     * @param phase 证据产生时的业务阶段
+     * @param ruleSnapshot 执行依据的规则JSON快照；历史缺失证据允许为空
      */
     public record Context(String source, String conversationId, String previewId, String planId,
                           String ruleFingerprint, String permissionVersion, String traceId,

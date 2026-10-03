@@ -10,6 +10,11 @@ import java.util.TreeSet;
  * 全部来自权限服务，模型永远接触不到，工具入参里也没有这些字段。
  *
  * @param permissions 报表级权限码（如 report:sales），{@value #ALL} 表示全部
+ * @param tenantId 数据所属租户标识，来自服务端身份
+ * @param userId 租户内用户标识，来自服务端身份
+ * @param displayName 用户展示名称
+ * @param companies 授权公司代码集合；空集合表示无公司数据权限
+ * @param admin 是否具有当前系统管理员权限，仍受租户与数据范围约束
  */
 public record CurrentUser(String tenantId, String userId, String displayName, Set<String> companies,
                           Set<String> permissions, boolean admin) {

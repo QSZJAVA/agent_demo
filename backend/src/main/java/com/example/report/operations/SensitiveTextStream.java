@@ -1,6 +1,9 @@
 package com.example.report.operations;
 
-/** Hold a potential email/number token across SSE chunks, bounded to 512 characters. */
+/**
+ * 跨 SSE 文本分片暂存可能的邮箱或号码，识别完整片段后脱敏再输出。
+ * 暂存上限512字符，流结束必须 flush，避免分片边界绕过脱敏或丢失尾段。
+ */
 public final class SensitiveTextStream {
     private final StringBuilder token=new StringBuilder();
     private boolean suppressed;

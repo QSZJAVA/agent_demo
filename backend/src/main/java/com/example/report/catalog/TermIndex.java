@@ -20,11 +20,11 @@ public final class TermIndex {
     public enum Kind {
         /** 当前展示名称 */
         NAME,
-        /** 对外编码 */
+        /** 对外编码*/
         CODE,
         /** 稳定标识 */
         ID,
-        /** 别名 */
+        /** 别名*/
         ALIAS,
         /** “全部报表”等通用说法 */
         ALL
@@ -34,6 +34,8 @@ public final class TermIndex {
      * @param norm     归一化后的说法
      * @param surface  原始写法
      * @param reportId 指向的报表；ALL 为 null
+     * @param kind 当前类型的词条分类或派生计算类型
+     * @param priority 候选排序优先级，数值越大越靠前
      */
     public record Term(String norm, String surface, String reportId, Kind kind, int priority) {
         boolean exact() {
@@ -41,7 +43,13 @@ public final class TermIndex {
         }
     }
 
-    /** 文本中的一次命中：同一个说法可能指向多张可见报表（歧义） */
+    /**
+     * 文本中的一次命中：同一个说法可能指向多张可见报表（歧义）
+     * @param start 原文匹配起始位置，含此字符
+     * @param end 原文匹配结束位置，不含此字符
+     * @param text 脱敏后文本或待处理的文本内容
+     * @param terms 该位置命中的词条候选集合
+     */
     public record Mention(int start, int end, String text, List<Term> terms) {
         public boolean all() {
             return terms.stream().anyMatch(t -> t.kind() == Kind.ALL);
@@ -62,10 +70,21 @@ public final class TermIndex {
         }
     }
 
-    /** 构建索引的输入：一张报表的全部说法 */
+    /**
+     * 构建索引的输入：一张报表的全部说法
+     * @param reportId 稳定报表标识，关联报表目录
+     * @param reportName 报表展示名称
+     * @param reportCode 租户内报表接口编码
+     * @param aliases 报表别名集合
+     */
     public record ReportTerms(String reportId, String reportName, String reportCode, List<AliasTerm> aliases) {
     }
 
+    /**
+     * 报表别名及匹配排序权重。
+     * @param alias 报表别名文本
+     * @param priority 候选排序优先级，数值越大越靠前
+     */
     public record AliasTerm(String alias, int priority) {
     }
 
@@ -119,7 +138,7 @@ public final class TermIndex {
         }
     }
 
-    /** 整句正好是某个说法时的命中（仅可见报表） */
+    /** 整句正好是某个说法时的命中（仅可见报表）*/
     public List<Term> exact(String normalized, Set<String> visible) {
         return visibleTerms(byNorm.get(normalized), visible);
     }

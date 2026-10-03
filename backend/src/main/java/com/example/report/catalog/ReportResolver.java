@@ -136,7 +136,7 @@ public final class ReportResolver {
         return result;
     }
 
-    /** 0~1 的相似度：编辑距离、二元组 Dice、包含关系取最大 */
+    /** 0~1 的相似度：编辑距离、二元组 Dice、包含关系取最大*/
     static double similarity(String a, String b) {
         if (a.isEmpty() || b.isEmpty()) {
             return 0;

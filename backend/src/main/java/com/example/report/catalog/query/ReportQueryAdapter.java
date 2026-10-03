@@ -15,14 +15,16 @@ public interface ReportQueryAdapter {
     /** 规则里可用的字段 */
     List<FieldInfo> fields();
 
-    /** 单据号的展示名，例如“订单号” */
+    /** 单据号的展示名，例如“订单号”*/
     String docNoLabel();
 
     /** 粗筛：只取指定租户、指定公司范围内未派单的记录 */
     List<FactRow> pendingRows(String tenantId, Set<String> companies);
 
-    /** Bounded scan of all pending facts (no rule pushdown, so trial totals stay exact).
-     * Custom adapters must implement this at the data source; never load all rows as a fallback. */
+    /**
+     * Bounded scan of all pending facts (no rule pushdown, so trial totals stay exact).
+     * Custom adapters must implement this at the data source; never load all rows as a fallback.
+     */
     default List<FactRow> dryRunRowsAfter(String tenantId, Set<String> companies, String afterId, int size) {
         throw new com.example.report.common.ApiException("该报表尚未配置有界试算扫描，请联系管理员配置适配器");
     }
@@ -33,7 +35,7 @@ public interface ReportQueryAdapter {
         return offset >= rows.size() ? List.of() : rows.subList(offset, Math.min(rows.size(), offset + size));
     }
 
-    /** 简单规则可由标准适配器下推到 SQL；复杂规则仍由调用方逐行复核。 */
+    /** 简单规则可由标准适配器下推到 SQL；复杂规则仍由调用方逐行复核。*/
     default List<FactRow> pendingRowsPageWithRule(String tenantId, Set<String> companies,
                                                    int offset, int size, String expression) {
         return pendingRowsPage(tenantId, companies, offset, size);
@@ -48,7 +50,7 @@ public interface ReportQueryAdapter {
                 .limit(size).toList();
     }
 
-    /** 按主键取记录当前状态（报表页手工派单用），同样受租户约束 */
+    /** 按主键取记录当前状态（报表页手工派单用），同样受租户约束*/
     List<FactRow> rowsByIds(String tenantId, Collection<String> recordIds);
 
     /** Revalidation must only return records still pending in the source system. */

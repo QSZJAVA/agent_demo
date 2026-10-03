@@ -141,7 +141,7 @@ public class DispatchController {
         return Result.ok(PreviewPayload.of(previewService.getOwned(user, previewId), catalogService));
     }
 
-    /** 预览记录分页；服务端限制单页大小，避免大卡片进入浏览器。 */
+    /** 预览记录分页；服务端限制单页大小，避免大卡片进入浏览器。*/
     @GetMapping("/previews/{previewId}/items")
     public Result<List<Candidate>> previewItems(@RequestHeader(PermissionService.USER_HEADER) String userId,
                                                 @PathVariable String previewId,
@@ -177,7 +177,7 @@ public class DispatchController {
         return Result.ok(PlanPayload.of(planService.getOwned(user, planId)));
     }
 
-    /** 逐条执行结果 */
+    /** 逐条执行结果*/
     @GetMapping("/plans/{planId}/items")
     public Result<List<DispatchPlanItem>> planItems(@RequestHeader(PermissionService.USER_HEADER) String userId,
                                                     @PathVariable String planId,
@@ -190,24 +190,24 @@ public class DispatchController {
     /** 确认执行待确认清单（不经过模型，最终门槛在这里）；重复确认返回第一次的结果 */
     @PostMapping("/plans/{planId}/confirm")
     public Result<DispatchResultPayload> confirm(@RequestHeader(PermissionService.USER_HEADER) String userId,
-                                                 @PathVariable String planId) {
+    @PathVariable String planId) {
         CurrentUser user = permissionService.resolve(userId);
         return Result.ok(dispatchService.confirm(user, planId));
     }
 
     @PostMapping("/plans/{planId}/retry-failed")
     public Result<DispatchResultPayload> retryFailed(@RequestHeader(PermissionService.USER_HEADER) String userId,
-                                                     @PathVariable String planId) {
+    @PathVariable String planId) {
         return Result.ok(dispatchService.retryFailed(permissionService.resolve(userId), planId));
     }
 
     @PostMapping("/plans/{planId}/reconcile")
     public Result<DispatchResultPayload> reconcile(@RequestHeader(PermissionService.USER_HEADER) String userId,
-                                                   @PathVariable String planId) {
+    @PathVariable String planId) {
         return Result.ok(dispatchService.reconcile(permissionService.resolve(userId), planId));
     }
 
-    /** 兼容旧前端的执行接口，等同于 confirm */
+    /** 兼容旧前端的执行接口，等同于 confirm*/
     @PostMapping("/plans/{planId}/execute")
     public Result<DispatchResultPayload> execute(@RequestHeader(PermissionService.USER_HEADER) String userId,
                                                  @PathVariable String planId) {
@@ -225,7 +225,7 @@ public class DispatchController {
     /** 链路追溯：用户原话 → 工具调用 → 预览 → 清单 → 逐条结果 → 审计 → 规则版本（本人或同租户管理员） */
     @GetMapping("/plans/{planId}/trace")
     public Result<Map<String, Object>> trace(@RequestHeader(PermissionService.USER_HEADER) String userId,
-                                             @PathVariable String planId) {
+    @PathVariable String planId) {
         CurrentUser user = permissionService.resolve(userId);
         return Result.ok(traceService.trace(user, planId));
     }
@@ -234,17 +234,17 @@ public class DispatchController {
     public Result<com.example.report.trace.TraceReader.Page> tracePage(
             @RequestHeader(PermissionService.USER_HEADER) String userId, @PathVariable String planId,
             @PathVariable String section, @RequestParam(defaultValue = "0") long afterId,
-            @RequestParam(defaultValue = "50") int size) {
+    @RequestParam(defaultValue = "50") int size) {
         return Result.ok(traceService.page(permissionService.resolve(userId), planId, section, afterId, size));
     }
 
     @PostMapping("/plans/{planId}/trace/retry")
     public Result<Map<String, Object>> retryTrace(@RequestHeader(PermissionService.USER_HEADER) String userId,
-                                                 @PathVariable String planId) {
+    @PathVariable String planId) {
         return Result.ok(traceService.retry(permissionService.resolve(userId), planId));
     }
 
-    /** 报表页手工派单：reportId 或旧 reportType 均可，按记录主键 */
+    /** 报表页手工派单：reportId 或旧 reportType 均可，按记录主键*/
     @PostMapping("/direct")
     public Result<DispatchService.ManualResult> direct(@RequestHeader(PermissionService.USER_HEADER) String userId,
                                                 @RequestBody DirectRequest request) {
@@ -267,34 +267,54 @@ public class DispatchController {
         return s == null || s.isBlank() ? null : s.trim();
     }
 
+    /**
+     * 预览接口结果；有效事实或选择候选按状态返回。
+     * @param status 当前业务状态，以所属状态机为准
+     * @param preview 权威预览状态或其展示载荷
+     * @param choice 有歧义时供用户选择的报表候选载荷
+     * @param message 可展示的操作摘要或失败原因，禁止包含凭据
+     */
     public record PreviewResponse(String status, PreviewPayload preview, ReportChoicePayload choice, String message) {
     }
 
+    /** 统一预览接口输入；报表选择或原始说法交由服务端解析，筛选条件不能扩展成SQL。 */
     @Data
     public static class PreviewRequest {
+        /** 用户所属会话标识；无会话的独立预览入口允许为空。 */
         private String conversationId;
         /** 选择卡片上选定的报表（服务端按权限校验） */
         private List<String> reportIds;
-        /** 或者按说法查询 */
+        /** 或者按说法查询*/
         private String reportQuery;
+        /** 用户明确指定的公司；空表示当前用户全部可见公司。 */
         private String companyCode;
+        /** 按单据号排除的记录；服务端只能在当前授权范围内应用。 */
         private List<String> excludeDocNos;
+        /** replace替换、append追加或remove移除报表范围；未指定时按服务端默认替换。 */
         private String scopeMode;
     }
 
+    /** 根据指定预览生成待确认清单；本请求只建单，不表示已经确认派单。 */
     @Data
     public static class PlanRequest {
+        /** 排除的报表与记录复合标识集合，必须属于来源快照。 */
         private List<com.example.report.dispatch.RecordKey> excludedRecords;
+        /** 必须绑定的有效预览标识，不能使用被替代或权限版本过期的快照。 */
         private String previewId;
+        /** 来源会话标识，服务端验证与预览会话及当前用户一致。 */
         private String conversationId;
+        /** 旧接口按单据号指定的排除项，不能与其他预览的选择混用。 */
         private List<String> excludeDocNos;
     }
 
+    /** 人工选择记录的派单接口输入；每条记录仍创建持久化清单以便结果核对及重试。 */
     @Data
     public static class DirectRequest {
+        /** 稳定报表标识；指定时优先于兼容reportType编码。 */
         private String reportId;
         /** 旧报表页仍传 sales / receivable / expense，经映射表转换 */
         private String reportType;
+        /** 人工选择的来源主键字符串，最多50条；写入前复核当前公司授权和待派单状态。 */
         private List<String> ids;
     }
 }

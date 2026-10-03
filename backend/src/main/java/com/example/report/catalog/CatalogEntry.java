@@ -13,6 +13,26 @@ import java.util.List;
  *
  * @param adapter     按 query_config 创建的查询适配器；配置无效时为 null，此时报表不可用
  * @param configError 配置无效的原因
+ * @param tenantId 数据所属租户标识，来自服务端身份
+ * @param reportId 稳定报表标识，关联报表目录
+ * @param reportCode 租户内报表接口编码
+ * @param reportName 报表展示名称
+ * @param domainCode 业务域编码
+ * @param description 业务用途或字段含义说明
+ * @param queryMode STANDARD字段映射或ADAPTER专用适配器
+ * @param queryConfig 服务器维护的查询映射JSON，不允许模型提供SQL
+ * @param dispatchEnabled 是否允许派单，仍须验证发布状态及业务授权
+ * @param status 当前业务状态，以所属状态机为准
+ * @param schemaVersion 事实结构版本号
+ * @param catalogVersion 目录版本或聚合指纹，用于发现预览后定义变更
+ * @param permissionCode 访问报表所需权限码
+ * @param sortOrder 展示及汇总排序值
+ * @param effectiveFrom 生效开始时间，含边界；为空不限制开始时间
+ * @param effectiveTo 生效结束时间，不含边界；为空不限制结束时间
+ * @param ownerUserId 报表负责人用户标识，未配置时为空
+ * @param updatedBy 最后修改人用户标识
+ * @param updatedAt 最后更新时间
+ * @param aliases 报表别名集合
  */
 public record CatalogEntry(
         String tenantId,
@@ -39,6 +59,14 @@ public record CatalogEntry(
         String configError
 ) {
 
+    /**
+     * 业务数据契约；字段含义及有效范围如下。
+     * @param id 报表别名记录的数据库主键
+     * @param alias 报表别名文本
+     * @param aliasType 别名类型，例如SHORT、COLLOQUIAL或HISTORICAL
+     * @param priority 候选排序优先级，数值越大越靠前
+     * @param status ACTIVE启用或DISABLED停用
+     */
     public record AliasView(Long id, String alias, String aliasType, int priority, String status) {
         public boolean active() {
             return ReportAlias.STATUS_ACTIVE.equals(status);

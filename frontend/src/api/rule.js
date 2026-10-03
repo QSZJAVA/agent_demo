@@ -1,3 +1,6 @@
+/**
+ * 规则草稿、校验、试算、发布和回滚接口；请求由服务端验证报表、公司范围及管理权限。
+ */
 import http from './http'
 
 export function fetchRules() {

@@ -15,9 +15,13 @@ import java.time.LocalDateTime;
 @TableName("report_code_mapping")
 public class ReportCodeMapping {
 
+    /** 历史接口报表编码。 */
     @TableId(type = IdType.INPUT)
     private String legacyCode;
+    /** 关联 report_definition.report_id 的稳定报表标识。*/
     private String reportId;
+    /** 历史编码映射的说明；允许为空，表示尚无该项数据。 */
     private String description;
+    /** 记录创建时间。*/
     private LocalDateTime createdAt;
 }

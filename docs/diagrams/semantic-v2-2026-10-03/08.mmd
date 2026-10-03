@@ -1,0 +1,35 @@
+flowchart TD
+  button["用户明确提交操作<br/>确认 / 重试 / 核对 / 手工派单"]:::ui
+  key["先保存稳定任务幂等键<br/>POST /api/dispatch/jobs<br/>丢失响应时沿用原键"]:::ui
+  admit{"归属、权限、参数与队列预算<br/>冻结清单版本；同清单仅一在途任务<br/>不经过模型决定是否执行"}:::guard
+  queued["持久化 QUEUED<br/>返回任务号；排队最多 10 分钟<br/>租户最多 100、用户最多 8 在途任务"]:::store
+  claim["跨实例认领 RUNNING<br/>FOR UPDATE SKIP LOCKED<br/>5 分钟租约，30 秒续租"]:::store
+  expired["未启动即排队过期<br/>FAILED；未发送业务请求<br/>用户刷新后重新确认"]:::error
+  service["重新读身份并复用业务服务<br/>确认 / retryFailed / reconcile<br/>手工派单持久化逐记录清单"]:::business
+  mcp["真实 HTTP MCP 业务服务<br/>冻结原认领 executionVersion<br/>稳定请求号、规则和源记录复核"]:::business
+  result["保存可靠业务结果和任务结果<br/>SUCCEEDED 是任务完成<br/>条目成功/失败以实际结果为准"]:::store
+  query["GET /api/dispatch/jobs/{id}<br/>前端每秒读取持久任务<br/>结果卡片与业务页刷新"]:::ui
+  disconnect["页面刷新 / 连接中断<br/>本机保留任务号和原幂等键<br/>后台继续，不自动创建新任务"]:::error
+  recover["运行租约过期或执行崩溃<br/>任务 FAILED，不重新入队<br/>清单按持久状态恢复或核对"]:::store
+  review{"读取清单与原请求号结果<br/>未知结果必须先核对<br/>明确失败才允许用户再次重试"}:::guard
+  button --> key
+  key --> admit
+  admit --> queued
+  queued --> claim
+  queued -->|"超时未启动"| expired
+  claim --> service
+  service --> mcp
+  mcp --> result
+  result --> query
+  query -->|"断线"| disconnect
+  disconnect -->|"仅恢复读取"| query
+  claim -->|"执行中断"| recover
+  recover --> review
+  review -->|"查看持久状态"| query
+  classDef ui fill:#eaf2ff,stroke:#386bc1,color:#1e354c
+  classDef agent fill:#edf5ff,stroke:#3778a8,color:#1e354c
+  classDef model fill:#f3edff,stroke:#8751bf,color:#1e354c
+  classDef business fill:#e8f7ef,stroke:#268255,color:#1e354c
+  classDef guard fill:#fff4dc,stroke:#b58022,color:#1e354c
+  classDef error fill:#fff0ef,stroke:#ba534e,color:#1e354c
+  classDef store fill:#edf1f5,stroke:#60768b,color:#1e354c

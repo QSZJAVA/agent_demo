@@ -1,3 +1,7 @@
+/**
+ * 普通 HTTP 请求边界：附加当前会话凭据、解包 Result 响应并统一展示错误。
+ * 每个请求保存发送时的会话令牌，迟到的401只能清理对应旧会话，不能覆盖新登录状态。
+ */
 import axios from 'axios'
 import Message from 'element-ui/lib/message'
 import { authHeaders, sessionExpired, getSessionToken } from '../auth'
@@ -7,7 +11,7 @@ const http = axios.create({
   timeout: 30000
 })
 
-// 模拟登录态：每个请求带上当前用户 ID（真实系统由登录态 / token 提供）
+// 请求头来自当前Demo会话；保存发送时令牌，供迟到的认证失败响应判断归属。
 http.interceptors.request.use((config) => {
   config.sessionToken = getSessionToken()
   Object.assign(config.headers, authHeaders())

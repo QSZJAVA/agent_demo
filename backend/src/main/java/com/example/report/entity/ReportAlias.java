@@ -14,20 +14,27 @@ import java.time.LocalDateTime;
 @TableName("report_alias")
 public class ReportAlias {
 
+    /** 数据所属租户标识；查询和写入必须限定租户。 */
     private String tenantId;
 
     public static final String STATUS_ACTIVE = "ACTIVE";
     public static final String STATUS_DISABLED = "DISABLED";
 
+    /** 本表记录主键；数据库自增。*/
     @TableId(type = IdType.AUTO)
     private Long id;
+    /** 关联 report_definition.report_id 的稳定报表标识。 */
     private String reportId;
+    /** 报表简称、口语名、英文名或历史名称。*/
     private String alias;
-    /** SHORT / COLLOQUIAL / ENGLISH / HISTORICAL / DEPARTMENT / TYPO */
+    /** 别名类型：SHORT、COLLOQUIAL、ENGLISH、HISTORICAL、DEPARTMENT、TYPO。 */
     private String aliasType;
+    /** 候选排序优先级；数值越大越靠前。*/
     private Integer priority;
-    /** ACTIVE / DISABLED */
+    /** 别名状态：ACTIVE启用、DISABLED停用。 */
     private String status;
+    /** 创建操作的用户标识；允许为空，表示尚无该项数据。*/
     private String createdBy;
+    /** 记录创建时间。 */
     private LocalDateTime createdAt;
 }

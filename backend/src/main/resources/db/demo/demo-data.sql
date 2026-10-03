@@ -9,67 +9,67 @@
 
 CREATE TABLE IF NOT EXISTS report_sales
 (
-    id              BIGINT         NOT NULL AUTO_INCREMENT,
-    tenant_id       VARCHAR(64) NOT NULL,
-    company_code    VARCHAR(10)    NOT NULL COMMENT '公司代码(A/B/C)',
-    order_no        VARCHAR(32)    NOT NULL COMMENT '订单号',
-    product_name    VARCHAR(64)             COMMENT '产品名称',
-    amount          DECIMAL(18, 2) NOT NULL DEFAULT 0.00 COMMENT '金额',
-    sale_date       DATE                    COMMENT '销售日期',
-    dispatch_status TINYINT        NOT NULL DEFAULT 0 COMMENT '派单状态 0 未派单 1 已派单',
-    dispatched_at   DATETIME                COMMENT '派单时间',
+    id              BIGINT         NOT NULL AUTO_INCREMENT COMMENT '本表记录主键；数据库自增',
+    tenant_id       VARCHAR(64) NOT NULL COMMENT '数据所属租户标识；查询和写入必须限定租户',
+    company_code    VARCHAR(10)    NOT NULL COMMENT '业务记录所属公司代码；用于公司权限隔离',
+    order_no        VARCHAR(32)    NOT NULL COMMENT '销售订单号',
+    product_name    VARCHAR(64) COMMENT '销售产品名称；允许为空，表示尚无该项数据',
+    amount          DECIMAL(18, 2) NOT NULL DEFAULT 0.00 COMMENT '业务金额；小数精度2位，币种沿用来源业务账本',
+    sale_date       DATE COMMENT '销售发生日期；允许为空，表示尚无该项数据',
+    dispatch_status TINYINT        NOT NULL DEFAULT 0 COMMENT '业务派单状态：0未派单，1已派单',
+    dispatched_at   DATETIME COMMENT '业务派单完成时间；未派单时为空',
     PRIMARY KEY (id),
     KEY idx_company_status (company_code, dispatch_status),
     KEY idx_tenant_company_status (tenant_id, company_code, dispatch_status)
-) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COMMENT '销售报表';
+) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COMMENT '销售业务报表；本仓库演示业务数据，按租户和公司隔离';
 
 CREATE TABLE IF NOT EXISTS report_receivable
 (
-    id              BIGINT         NOT NULL AUTO_INCREMENT,
-    tenant_id       VARCHAR(64) NOT NULL,
-    company_code    VARCHAR(10)    NOT NULL COMMENT '公司代码(A/B/C)',
-    invoice_no      VARCHAR(32)    NOT NULL COMMENT '发票号',
-    customer_name   VARCHAR(64)             COMMENT '客户名称',
-    amount          DECIMAL(18, 2) NOT NULL DEFAULT 0.00 COMMENT '金额',
-    due_date        DATE                    COMMENT '到期日',
-    dispatch_status TINYINT        NOT NULL DEFAULT 0 COMMENT '派单状态 0 未派单 1 已派单',
-    dispatched_at   DATETIME                COMMENT '派单时间',
+    id              BIGINT         NOT NULL AUTO_INCREMENT COMMENT '本表记录主键；数据库自增',
+    tenant_id       VARCHAR(64) NOT NULL COMMENT '数据所属租户标识；查询和写入必须限定租户',
+    company_code    VARCHAR(10)    NOT NULL COMMENT '业务记录所属公司代码；用于公司权限隔离',
+    invoice_no      VARCHAR(32)    NOT NULL COMMENT '应收发票号',
+    customer_name   VARCHAR(64) COMMENT '客户名称；允许为空，表示尚无该项数据',
+    amount          DECIMAL(18, 2) NOT NULL DEFAULT 0.00 COMMENT '业务金额；小数精度2位，币种沿用来源业务账本',
+    due_date        DATE COMMENT '应收到期日期；允许为空，表示尚无该项数据',
+    dispatch_status TINYINT        NOT NULL DEFAULT 0 COMMENT '业务派单状态：0未派单，1已派单',
+    dispatched_at   DATETIME COMMENT '业务派单完成时间；未派单时为空',
     PRIMARY KEY (id),
     KEY idx_company_status (company_code, dispatch_status),
     KEY idx_tenant_company_status (tenant_id, company_code, dispatch_status)
-) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COMMENT '应收报表';
+) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COMMENT '应收业务报表；本仓库演示业务数据，按租户和公司隔离';
 
 CREATE TABLE IF NOT EXISTS report_expense
 (
-    id              BIGINT         NOT NULL AUTO_INCREMENT,
-    tenant_id       VARCHAR(64) NOT NULL,
-    company_code    VARCHAR(10)    NOT NULL COMMENT '公司代码(A/B/C)',
-    expense_no      VARCHAR(32)    NOT NULL COMMENT '报销单号',
-    expense_type    VARCHAR(32)             COMMENT '费用类型',
-    amount          DECIMAL(18, 2) NOT NULL DEFAULT 0.00 COMMENT '金额',
-    expense_date    DATE                    COMMENT '发生日期',
-    dispatch_status TINYINT        NOT NULL DEFAULT 0 COMMENT '派单状态 0 未派单 1 已派单',
-    dispatched_at   DATETIME                COMMENT '派单时间',
+    id              BIGINT         NOT NULL AUTO_INCREMENT COMMENT '本表记录主键；数据库自增',
+    tenant_id       VARCHAR(64) NOT NULL COMMENT '数据所属租户标识；查询和写入必须限定租户',
+    company_code    VARCHAR(10)    NOT NULL COMMENT '业务记录所属公司代码；用于公司权限隔离',
+    expense_no      VARCHAR(32)    NOT NULL COMMENT '报销单据号',
+    expense_type    VARCHAR(32) COMMENT '费用类型；允许为空，表示尚无该项数据',
+    amount          DECIMAL(18, 2) NOT NULL DEFAULT 0.00 COMMENT '业务金额；小数精度2位，币种沿用来源业务账本',
+    expense_date    DATE COMMENT '费用发生日期；允许为空，表示尚无该项数据',
+    dispatch_status TINYINT        NOT NULL DEFAULT 0 COMMENT '业务派单状态：0未派单，1已派单',
+    dispatched_at   DATETIME COMMENT '业务派单完成时间；未派单时为空',
     PRIMARY KEY (id),
     KEY idx_company_status (company_code, dispatch_status),
     KEY idx_tenant_company_status (tenant_id, company_code, dispatch_status)
-) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COMMENT '费用报表';
+) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COMMENT '费用业务报表；本仓库演示业务数据，按租户和公司隔离';
 
 CREATE TABLE IF NOT EXISTS report_purchase
 (
-    id              BIGINT         NOT NULL AUTO_INCREMENT,
-    tenant_id       VARCHAR(64) NOT NULL,
-    company_code    VARCHAR(10)    NOT NULL COMMENT '公司代码(A/B/C)',
-    po_no           VARCHAR(32)    NOT NULL COMMENT '采购单号',
-    supplier_name   VARCHAR(64)             COMMENT '供应商',
-    amount          DECIMAL(18, 2) NOT NULL DEFAULT 0.00 COMMENT '金额',
-    order_date      DATE                    COMMENT '下单日期',
-    dispatch_status TINYINT        NOT NULL DEFAULT 0 COMMENT '派单状态 0 未派单 1 已派单',
-    dispatched_at   DATETIME                COMMENT '派单时间',
+    id              BIGINT         NOT NULL AUTO_INCREMENT COMMENT '本表记录主键；数据库自增',
+    tenant_id       VARCHAR(64) NOT NULL COMMENT '数据所属租户标识；查询和写入必须限定租户',
+    company_code    VARCHAR(10)    NOT NULL COMMENT '业务记录所属公司代码；用于公司权限隔离',
+    po_no           VARCHAR(32)    NOT NULL COMMENT '采购订单号',
+    supplier_name   VARCHAR(64) COMMENT '供应商名称；允许为空，表示尚无该项数据',
+    amount          DECIMAL(18, 2) NOT NULL DEFAULT 0.00 COMMENT '业务金额；小数精度2位，币种沿用来源业务账本',
+    order_date      DATE COMMENT '采购下单日期；允许为空，表示尚无该项数据',
+    dispatch_status TINYINT        NOT NULL DEFAULT 0 COMMENT '业务派单状态：0未派单，1已派单',
+    dispatched_at   DATETIME COMMENT '业务派单完成时间；未派单时为空',
     PRIMARY KEY (id),
     KEY idx_company_status (company_code, dispatch_status),
     KEY idx_tenant_company_status (tenant_id, company_code, dispatch_status)
-) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COMMENT '采购报表（演示通过配置接入的新报表）';
+) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COMMENT '采购业务报表；本仓库演示业务数据，按租户和公司隔离';
 
 TRUNCATE TABLE report_sales;
 TRUNCATE TABLE report_receivable;

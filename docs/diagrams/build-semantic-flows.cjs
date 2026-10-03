@@ -1,5 +1,5 @@
 const fs = require('node:fs'), path = require('node:path');
-const out = path.join(__dirname, 'semantic-v2-2026-09-30');
+const out = path.join(__dirname, 'semantic-v2-2026-10-03');
 fs.mkdirSync(out, { recursive: true });
 const n = (id,col,row,kind,title,...lines) => ({id,col,row,kind,title,lines});
 const charts = [
@@ -11,8 +11,7 @@ n('auth',1,2,'guard','CORS → 会话认证','Bearer token → 数据库身份',
 n('badAuth',2,2,'error','身份失效：拒绝请求','HTTP 401；不解析语义'),
 n('inputCheck',1,3,'guard','检查非空与长度','trim；最多 2000 字符'),
 n('badInput',2,3,'error','输入不合法','REST JSON 业务错误码 400','尚未进入语义解析'),
-n('route',1,4,'guard','agent.semantic.mode？','当前 active'),
-n('legacy',2,4,'model','legacy 兼容模式','ChatClient + 记忆 + 工具','不是当前主路径或失败兜底'),
+n('route',1,4,'guard','进入 active V2 语义入口','真实模型调用链'),
 n('entry',1,5,'agent','SemanticConversationService','新建或验证会话归属','检查历史数据可读性'),
 n('lease',1,6,'store','配额 + 对话租约','同会话串行；读取状态','本轮 requestId/previewVersion'),
 n('leaseFail',0,6,'error','配额或会话租约失败','限流/依赖异常/同会话忙','外层 SSE error + done'),
@@ -26,10 +25,10 @@ n('preview',1,11,'store','复用或生成预览','本地规则求值；预览持
 n('prepare',1,12,'guard','PREPARE_DISPATCH？','有效范围和排除项已确认'),
 n('plan',1,13,'store','创建 PENDING 清单','语义幂等键 semantic:requestId','没有调用 dispatch_submit'),
 n('sse',1,14,'ui','SSE / REST 返回前端','自然语言：事实文本和卡片事件','按钮：结构化 JSON 结果'),
-n('wait',1,15,'ui','用户核对并点击确认','POST /dispatch/plans/{id}/confirm'),
-n('execute',1,16,'business','归属/版本/TTL/CAS 复核','逐条提交 MCP dispatch_submit','详见第 06 页'),
+n('wait',1,15,'ui','用户核对并点击确认','POST /api/dispatch/jobs'),
+n('execute',1,16,'business','持久任务认领与复核','DispatchJobService → DispatchService','逐条 MCP 提交；详见第 06、08 页'),
 n('result',1,17,'store','结果保存与展示','SUCCESS / FAILED / SKIPPED','UNKNOWN → REVIEW_REQUIRED'),
-],edges:[['input','request'],['request','auth'],['auth','badAuth','失效'],['auth','inputCheck','有效'],['inputCheck','badInput','不合法'],['inputCheck','route','合法'],['route','legacy','legacy'],['route','entry','active'],['entry','lease'],['lease','leaseFail','失败'],['lease','semantic','取得租约'],['semantic','planner'],['semantic','reject','不可靠'],['planner','reject','不确定/无权限'],['planner','action','允许继续'],['action','other','辅助动作'],['action','query','查询类动作'],['query','preview'],['preview','prepare'],['prepare','plan','是'],['prepare','sse','否'],['plan','sse'],['other','sse'],['reject','sse'],['sse','wait','有清单'],['wait','execute'],['execute','result'],['buttons','query','报表选择/预览'],['buttons','plan','从固定预览建单']]},
+],edges:[['input','request'],['request','auth'],['auth','badAuth','失效'],['auth','inputCheck','有效'],['inputCheck','badInput','不合法'],['inputCheck','route','合法'],['route','entry','active'],['entry','lease'],['lease','leaseFail','失败'],['lease','semantic','取得租约'],['semantic','planner'],['semantic','reject','不可靠'],['planner','reject','不确定/无权限'],['planner','action','允许继续'],['action','other','辅助动作'],['action','query','查询类动作'],['query','preview'],['preview','prepare'],['prepare','plan','是'],['prepare','sse','否'],['plan','sse'],['other','sse'],['reject','sse'],['sse','wait','有清单'],['wait','execute'],['execute','result'],['buttons','query','报表选择/预览'],['buttons','plan','从固定预览建单']]},
 {name:'02 模型语义解析与校验',note:'模型只负责 action / scopeChanges / restrictions；服务端校验原文证据。应用层最多追加一次解析修复。',nodes:[
 n('message',1,0,'agent','本轮原始 message','原文进入受信任服务边界'),
 n('context',0,1,'store','权威上下文','desired / effective / phase','未解状态、排除数、上次 action'),
@@ -37,7 +36,7 @@ n('terms',2,1,'agent','权限过滤后的报表候选','ReportRef + mentionedRep
 n('protect',1,1,'guard','SensitiveData.modelText','手机号 / 证件号 / 邮箱','替换为本轮随机 REF 占位符'),
 n('payload',1,2,'agent','构造 JSON 输入','currentMessage + context','不带完整助手历史或业务明细'),
 n('options',1,4,'model','构造真实模型调用','temperature 0；maxTokens 2400','禁用内部工具执行和回调'),
-n('schema',1,5,'model','规则提示 + V2 JSON Schema','当前启用 native-schema','模型 deepseek-v4.1-flash'),
+n('schema',1,5,'model','规则提示 + V2 JSON Schema','native-schema 默认关闭；按端点验证','模型名由实际模型配置提供'),
 n('call',1,6,'model','同步 call().content()','只取完整 JSON 内容','模型不能实际派单或编写 SQL'),
 n('decode',1,7,'guard','IntentCodec 严格解码','version=2；必填/类型/枚举','未知字段和尾随内容拒绝'),
 n('ground',1,8,'guard','验证原文证据和协议不变量','evidence 归一化后属于原文','mentions 属于 evidence'),
@@ -106,7 +105,7 @@ n('plan',1,14,'store','PlanService 创建清单','固定预览 + 排除项 + 幂
 n('card',1,15,'ui','持久化卡片并 SSE 返回','有效预览约 30 分钟','待确认清单约 10 分钟'),
 ],edges:[['scope','reuse','可复用'],['scope','new','需刷新'],['new','stamp'],['stamp','mcp'],['mcp','query'],['query','rules'],['rules','mcp','还有下一批'],['rules','persist','扫描完成'],['persist','supersede'],['persist','bind'],['reuse','bind'],['bind','stale','选择来源无效'],['bind','rows','修改或验证排除项'],['bind','action','无需变更选择'],['rows','match','自然语言记录变更'],['rows','selection','仅验证已有/UI键'],['match','unique'],['unique','unclear','非唯一'],['unique','key','唯一'],['key','selection'],['selection','stale','有缺失键'],['selection','action','全部有效'],['action','zero','查询/零候选'],['action','plan','生成清单'],['plan','card'],['zero','card']]},
 {name:'06 确认、执行与结果核对',note:'本页从用户点击确认开始；与本轮模型解析分离。未知结果必须先查询原请求号，不能盲目重发。',nodes:[
-n('confirm',1,0,'ui','用户点击确认卡片','REST confirm；没有模型参与'),
+n('confirm',1,0,'ui','用户点击确认卡片','POST /api/dispatch/jobs；不经过模型'),
 n('gate',1,1,'guard','归属、权限、TTL、版本复核','已 EXECUTED → 返回原结果','不是有效 PENDING 则拒绝'),
 n('invalid',0,1,'error','清单不可确认','返回当前状态或错误','无权限/失效/正在执行等'),
 n('replay',2,1,'store','重放已有清单结果','原状态已 EXECUTED','直接返回，不再调用网关'),
@@ -115,7 +114,7 @@ n('check',1,3,'guard','按清单 ID 重读和规则复核','当前记录仍待�
 n('item',1,4,'guard','逐条是否仍符合？','取消/过期/失权不能继续'),
 n('skip',0,5,'store','SKIPPED','记录已变化；未调用网关'),
 n('intent',1,5,'store','先持久化发送意图','requestId=planId-itemId','条目 UNKNOWN + 审计 INTENT'),
-n('call',1,6,'business','MCP dispatch_submit','操作者 / 记录 / 规则模式','执行版本来自服务器清单'),
+n('call',1,6,'business','MCP dispatch_submit','操作者 / 记录 / 规则模式','原认领执行版本冻结传递'),
 n('business',1,7,'guard','业务服务重新读取有效身份','公司、报表权限','锁用户、幂等请求和清单'),
 n('duplicate',1,8,'guard','稳定请求号和负载是否一致？','同号不同负载 → 拒绝','已 SUCCESS → 重放成功'),
 n('fence',1,9,'guard','验证已确认清单和条目','EXECUTING / confirmedBy','executionVersion / UNKNOWN 意图'),
@@ -146,9 +145,37 @@ n('disconnected',2,9,'error','SSE 断开 / 页面刷新','不保证原文本流�
 n('restore',1,10,'ui','历史 + card-states + selection','必要时查询持久化 preview job','选择恢复失败先阻止建单'),
 n('phase',0,9,'store','错误阶段持久化','422 → CLARIFY；业务拒绝','REJECTED；其他异常 FAILED'),
 n('next',1,11,'agent','新的一轮','重新取权威状态/目录','上一轮禁止仅 THIS_TURN'),
-n('legacyJobs',2,11,'agent','独立异步预览接口','UI/legacy preview_job 可恢复','active 语义查询直接调用 PreviewService'),
-],edges:[['conversation','lease'],['lease','model'],['model','save'],['save','turn'],['save','business'],['turn','text'],['business','text'],['text','events'],['events','seq'],['seq','front'],['front','next','正常完成'],['front','disconnected','断线/刷新'],['disconnected','restore'],['restore','next'],['model','phase','异常/不可靠'],['phase','events'],['legacyJobs','restore','有独立预览任务']]},
+n('previewJobs',2,11,'agent','独立异步预览接口','UI preview_job 可恢复','active 语义查询直接调用 PreviewService'),
+],edges:[['conversation','lease'],['lease','model'],['model','save'],['save','turn'],['save','business'],['turn','text'],['business','text'],['text','events'],['events','seq'],['seq','front'],['front','next','正常完成'],['front','disconnected','断线/刷新'],['disconnected','restore'],['restore','next'],['model','phase','异常/不可靠'],['phase','events'],['previewJobs','restore','有独立预览任务']]},
 ];
+
+// Persistent dispatch commands augment the confirmation path; retain dated historical exports.
+const execution = charts[5];
+execution.nodes.forEach(node => { if (node.id !== 'confirm') node.row += 3; });
+execution.nodes.push(
+  n('acceptJob',1,1,'store','接受稳定幂等任务','按当前权限检查；冻结清单版本','重复请求返回同一任务'),
+  n('queueJob',1,2,'store','dispatch_job QUEUED','最多等待 10 分钟','请求快速返回任务标识'),
+  n('workerJob',1,3,'business','后台认领 RUNNING 任务','跨实例 CAS；重新读取操作者','以下仍复用原派单与核对服务')
+);
+execution.edges = execution.edges.filter(edge => !(edge[0] === 'confirm' && edge[1] === 'gate'));
+execution.edges.push(['confirm','acceptJob'],['acceptJob','queueJob'],['queueJob','workerJob'],['workerJob','gate']);
+execution.edges = execution.edges.map(edge => edge[0] === 'retry' && edge[1] === 'claim' ? ['retry','acceptJob','新任务，原请求号'] : edge);
+charts.push({name:'08 异步派单任务与恢复',note:'确认、明确失败重试、结果核对和手工派单使用持久任务；真实业务服务仍逐项事务复核。',nodes:[
+ n('button',1,0,'ui','用户明确提交操作','确认 / 重试 / 核对 / 手工派单'),
+ n('key',1,1,'ui','先保存稳定任务幂等键','POST /api/dispatch/jobs','丢失响应时沿用原键'),
+ n('admit',1,2,'guard','归属、权限、参数与队列预算','冻结清单版本；同清单仅一在途任务','不经过模型决定是否执行'),
+ n('queued',1,3,'store','持久化 QUEUED','返回任务号；排队最多 10 分钟','租户最多 100、用户最多 8 在途任务'),
+ n('claim',1,4,'store','跨实例认领 RUNNING','FOR UPDATE SKIP LOCKED','5 分钟租约，30 秒续租'),
+ n('expired',0,4,'error','未启动即排队过期','FAILED；未发送业务请求','用户刷新后重新确认'),
+ n('service',1,5,'business','重新读身份并复用业务服务','确认 / retryFailed / reconcile','手工派单持久化逐记录清单'),
+ n('mcp',1,6,'business','真实 HTTP MCP 业务服务','冻结原认领 executionVersion','稳定请求号、规则和源记录复核'),
+ n('result',1,7,'store','保存可靠业务结果和任务结果','SUCCEEDED 是任务完成','条目成功/失败以实际结果为准'),
+ n('query',1,8,'ui','GET /api/dispatch/jobs/{id}','前端每秒读取持久任务','结果卡片与业务页刷新'),
+ n('disconnect',2,8,'error','页面刷新 / 连接中断','本机保留任务号和原幂等键','后台继续，不自动创建新任务'),
+ n('recover',2,6,'store','运行租约过期或执行崩溃','任务 FAILED，不重新入队','清单按持久状态恢复或核对'),
+ n('review',2,7,'guard','读取清单与原请求号结果','未知结果必须先核对','明确失败才允许用户再次重试'),
+],edges:[['button','key'],['key','admit'],['admit','queued'],['queued','claim'],['queued','expired','超时未启动'],['claim','service'],['service','mcp'],['mcp','result'],['result','query'],['query','disconnect','断线'],['disconnect','query','仅恢复读取'],['claim','recover','执行中断'],['recover','review'],['review','query','查看持久状态']]});
+
 const colors={ui:['#eaf2ff','#386bc1'],agent:['#edf5ff','#3778a8'],model:['#f3edff','#8751bf'],business:['#e8f7ef','#268255'],guard:['#fff4dc','#b58022'],error:['#fff0ef','#ba534e'],store:['#edf1f5','#60768b']};
 const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&apos;'}[c]));
 function wrap(s,max=33){let chunks=[],line='',count=0;for(const ch of s){const weight=ch.charCodeAt(0)>255?1.7:1;if(count+weight>max){chunks.push(line);line='';count=0;}line+=ch;count+=weight;}if(line)chunks.push(line);return chunks;}
@@ -157,16 +184,16 @@ function points(a,b){let A=geom(a),B=geom(b);if(a.col===b.col){const sx=A.x+A.w/
 function render(chart,index){const W=1340,H=300+Math.max(...chart.nodes.map(x=>x.row))*165;const byId=Object.fromEntries(chart.nodes.map(x=>[x.id,x]));let parts=[`<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" role="img" aria-label="${esc(chart.name)}"><defs><marker id="arrow${index}" markerWidth="10" markerHeight="8" refX="9" refY="4" orient="auto"><path d="M0,0 L10,4 L0,8 Z" fill="#657891"/></marker></defs><rect width="100%" height="100%" fill="#fff"/><g font-family="Microsoft YaHei,PingFang SC,Arial,sans-serif"><text x="60" y="44" font-size="26" font-weight="700" fill="#15334b">${esc(chart.name)}</text><text x="60" y="79" font-size="14" fill="#53697e">${esc(chart.note)}</text>`];
 for(const [from,to,label=''] of chart.edges){if(!byId[from]||!byId[to])throw Error('Unknown edge');const p=points(byId[from],byId[to]);const d=p.map((v,i)=>(i?'L':'M')+v.join(',')).join(' ');parts.push(`<path d="${d}" fill="none" stroke="#657891" stroke-width="1.7" marker-end="url(#arrow${index})"/>`);if(label){const A=p[0],B=p[1],x=(A[0]+B[0])/2,y=(A[1]+B[1])/2-8;const width=label.length*13+10;parts.push(`<rect x="${x-width/2}" y="${y-14}" width="${width}" height="20" fill="white" rx="3"/><text x="${x}" y="${y}" font-size="12" text-anchor="middle" fill="#53697e">${esc(label)}</text>`);}}
 for(const node of chart.nodes){const g=geom(node),[fill,stroke]=colors[node.kind];if(node.kind==='guard')parts.push(`<polygon points="${g.x+g.w/2},${g.y} ${g.x+g.w},${g.y+g.h/2} ${g.x+g.w/2},${g.y+g.h} ${g.x},${g.y+g.h/2}" fill="${fill}" stroke="${stroke}" stroke-width="1.5"/>`);else parts.push(`<rect x="${g.x}" y="${g.y}" width="${g.w}" height="${g.h}" rx="12" fill="${fill}" stroke="${stroke}" stroke-width="1.5"/>`);const texts=[...wrap(node.title),...node.lines.flatMap(s=>wrap(s))];if(texts.length>5)throw Error('Node text too long: '+node.id);texts.forEach((line,i)=>parts.push(`<text x="${g.x+g.w/2}" y="${g.y+g.h/2-(texts.length-1)*10+i*20+5}" text-anchor="middle" font-size="${i===0?15:13}" font-weight="${i===0?700:400}" fill="#1e354c">${esc(line)}</text>`));}
-parts.push(`<text x="60" y="${H-26}" font-size="12" fill="#64748b">2026-09-30 · 依据当前工作区源码 · 模型解析 / 确定性业务 / 实际派单边界分离</text></g></svg>`);return parts.join('');}
+parts.push(`<text x="60" y="${H-26}" font-size="12" fill="#64748b">2026-10-03 · 依据当前工作区源码 · 模型解析 / 确定性业务 / 实际派单边界分离</text></g></svg>`);return parts.join('');}
 function mermaid(chart){return 'flowchart TD\n'+chart.nodes.map(node=>{const text=[node.title,...node.lines].join('<br/>').replaceAll('"','&quot;');return `  ${node.id}${node.kind==='guard'?'{"'+text+'"}':'["'+text+'"]'}:::${node.kind}`;}).join('\n')+'\n'+chart.edges.map(([a,b,label])=>`  ${a} -->${label?'|"'+label+'"|':''} ${b}`).join('\n')+'\n'+Object.entries(colors).map(([k,[f,s]])=>`  classDef ${k} fill:${f},stroke:${s},color:#1e354c`).join('\n');}
 const svgs=charts.map(render);
 charts.forEach((chart,i)=>{fs.writeFileSync(path.join(out,`0${i+1}.svg`),svgs[i]);fs.writeFileSync(path.join(out,`0${i+1}.mmd`),mermaid(chart));});
-let xml='<mxfile host="app.diagrams.net" modified="2026-09-30T00:00:00.000Z" agent="Codex" version="26.0.0">';
+let xml='<mxfile host="app.diagrams.net" modified="2026-10-03T00:00:00.000Z" agent="Codex" version="26.0.0">';
 charts.forEach((chart,index)=>{xml+=`<diagram id="semantic-${index+1}" name="${esc(chart.name)}"><mxGraphModel dx="1340" dy="2000" grid="1" gridSize="10" page="0"><root><mxCell id="0"/><mxCell id="1" parent="0"/>`;for(const node of chart.nodes){const g=geom(node),[fill,stroke]=colors[node.kind],value=[`<b>${node.title}</b>`,...node.lines].join('<br>');xml+=`<mxCell id="${node.id}" value="${esc(value)}" style="${node.kind==='guard'?'rhombus;':'rounded=1;'}whiteSpace=wrap;html=1;fillColor=${fill};strokeColor=${stroke};fontColor=#1e354c;fontFamily=Microsoft YaHei;fontSize=14;" vertex="1" parent="1"><mxGeometry x="${g.x}" y="${g.y}" width="${g.w}" height="${g.h}" as="geometry"/></mxCell>`;}chart.edges.forEach(([a,b,label=''],i)=>{xml+=`<mxCell id="e${i}" value="${esc(label)}" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#657891;fontFamily=Microsoft YaHei;fontSize=12;" edge="1" parent="1" source="${a}" target="${b}"><mxGeometry relative="1" as="geometry"/></mxCell>`;});xml+='</root></mxGraphModel></diagram>';});xml+='</mxfile>';fs.writeFileSync(path.join(out,'semantic-v2.drawio'),xml);
 fs.writeFileSync(path.join(out,'flows.json'),JSON.stringify(charts,null,2));
-const html=`<!doctype html><html lang="zh-CN"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>用户输入与语义 V2 完整流程</title><style>*{box-sizing:border-box}body{margin:0;font-family:"Microsoft YaHei",sans-serif;color:#1d354a;background:#f1f5f9}header{padding:24px 32px;background:#102a43;color:white}header h1{font-size:25px;margin:0 0 10px}header p{margin:0;color:#c3d4e7;font-size:14px}.bar{position:sticky;top:0;z-index:3;display:flex;gap:8px;flex-wrap:wrap;background:white;padding:12px 20px;border-bottom:1px solid #d7e2ed}button,a{font:inherit}button{cursor:pointer;border:1px solid #c5d5e5;background:#fff;border-radius:7px;padding:8px 11px;color:#214b70}button.active{background:#214b70;color:white}.zoom{padding:10px 24px;display:flex;align-items:center;gap:10px;background:#e8eef5}main{padding:22px;overflow:auto}.chart{background:white;max-width:1800px;margin:auto;box-shadow:0 2px 12px #102a4310}.chart svg{display:block;width:100%;height:auto}.hidden{display:none}small{color:#52687a}a{color:#27649d}.legend{display:flex;gap:14px;flex-wrap:wrap;margin-left:auto;font-size:12px}.legend span{padding:4px 7px;border-radius:4px}.summary{padding:14px 24px;background:#fff;border-bottom:1px solid #d7e2ed;line-height:1.7;font-size:14px}</style></head><body><header><h1>用户输入 → 结构化语义 → 权威状态 → 业务执行</h1><p>当前运行：active 语义 V2 · deepseek-v4.1-flash · native JSON Schema · MCP 双服务 · 2026-09-30</p></header><div class="summary">模型只解析本轮动作和范围变化；原文证据、实体映射、权限、规则、版本和实际派单由服务端负责。<br>七页可切换、缩放；下方节点颜色区分责任边界。日期/金额/排序等新增筛选当前不可表达，应要求澄清。<a href="semantic-v2.drawio" download>下载可编辑 draw.io</a> · <a href="说明.md">详细说明与 JSON 示例</a></div><nav class="bar">${charts.map((c,i)=>`<button data-page="${i}" class="${i===0?'active':''}">${c.name}</button>`).join('')}</nav><div class="zoom"><button id="less">缩小</button><button id="fit">适配宽度</button><button id="more">放大</button><small id="percent">100%</small><div class="legend">${Object.entries({ui:'前端',agent:'Agent 服务',model:'模型',business:'MCP 业务',guard:'校验/判断',store:'持久状态',error:'拒绝/异常'}).map(([k,t])=>`<span style="background:${colors[k][0]};color:${colors[k][1]}">${t}</span>`).join('')}</div></div><main>${svgs.map((s,i)=>`<section class="chart ${i?'hidden':''}" data-chart="${i}">${s}</section>`).join('')}</main><script>let selected=0,zoom=1;const sections=[...document.querySelectorAll('[data-chart]')];function update(){sections.forEach((s,i)=>{s.classList.toggle('hidden',i!==selected);s.style.width=(100*zoom)+'%';s.style.maxWidth=zoom>1?'none':'1800px'});document.querySelectorAll('[data-page]').forEach(b=>b.classList.toggle('active',Number(b.dataset.page)===selected));document.querySelector('#percent').textContent=Math.round(zoom*100)+'%'}document.querySelectorAll('[data-page]').forEach(b=>b.onclick=()=>{selected=Number(b.dataset.page);zoom=1;update();window.scrollTo({top:0})});document.querySelector('#less').onclick=()=>{zoom=Math.max(.35,zoom-.15);update()};document.querySelector('#more').onclick=()=>{zoom=Math.min(2.5,zoom+.15);update()};document.querySelector('#fit').onclick=()=>{zoom=1;update()};</script></body></html>`;
+const html=`<!doctype html><html lang="zh-CN"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>用户输入与语义 V2 完整流程</title><style>*{box-sizing:border-box}body{margin:0;font-family:"Microsoft YaHei",sans-serif;color:#1d354a;background:#f1f5f9}header{padding:24px 32px;background:#102a43;color:white}header h1{font-size:25px;margin:0 0 10px}header p{margin:0;color:#c3d4e7;font-size:14px}.bar{position:sticky;top:0;z-index:3;display:flex;gap:8px;flex-wrap:wrap;background:white;padding:12px 20px;border-bottom:1px solid #d7e2ed}button,a{font:inherit}button{cursor:pointer;border:1px solid #c5d5e5;background:#fff;border-radius:7px;padding:8px 11px;color:#214b70}button.active{background:#214b70;color:white}.zoom{padding:10px 24px;display:flex;align-items:center;gap:10px;background:#e8eef5}main{padding:22px;overflow:auto}.chart{background:white;max-width:1800px;margin:auto;box-shadow:0 2px 12px #102a4310}.chart svg{display:block;width:100%;height:auto}.hidden{display:none}small{color:#52687a}a{color:#27649d}.legend{display:flex;gap:14px;flex-wrap:wrap;margin-left:auto;font-size:12px}.legend span{padding:4px 7px;border-radius:4px}.summary{padding:14px 24px;background:#fff;border-bottom:1px solid #d7e2ed;line-height:1.7;font-size:14px}</style></head><body><header><h1>用户输入 → 结构化语义 → 权威状态 → 业务执行</h1><p>当前运行：active 语义 V2 · deepseek-v4.1-flash · native JSON Schema · MCP 双服务 · 2026-10-03</p></header><div class="summary">模型只解析本轮动作和范围变化；原文证据、实体映射、权限、规则、版本和实际派单由服务端负责。<br>七页可切换、缩放；下方节点颜色区分责任边界。日期/金额/排序等新增筛选当前不可表达，应要求澄清。<a href="semantic-v2.drawio" download>下载可编辑 draw.io</a> · <a href="说明.md">详细说明与 JSON 示例</a></div><nav class="bar">${charts.map((c,i)=>`<button data-page="${i}" class="${i===0?'active':''}">${c.name}</button>`).join('')}</nav><div class="zoom"><button id="less">缩小</button><button id="fit">适配宽度</button><button id="more">放大</button><small id="percent">100%</small><div class="legend">${Object.entries({ui:'前端',agent:'Agent 服务',model:'模型',business:'MCP 业务',guard:'校验/判断',store:'持久状态',error:'拒绝/异常'}).map(([k,t])=>`<span style="background:${colors[k][0]};color:${colors[k][1]}">${t}</span>`).join('')}</div></div><main>${svgs.map((s,i)=>`<section class="chart ${i?'hidden':''}" data-chart="${i}">${s}</section>`).join('')}</main><script>let selected=0,zoom=1;const sections=[...document.querySelectorAll('[data-chart]')];function update(){sections.forEach((s,i)=>{s.classList.toggle('hidden',i!==selected);s.style.width=(100*zoom)+'%';s.style.maxWidth=zoom>1?'none':'1800px'});document.querySelectorAll('[data-page]').forEach(b=>b.classList.toggle('active',Number(b.dataset.page)===selected));document.querySelector('#percent').textContent=Math.round(zoom*100)+'%'}document.querySelectorAll('[data-page]').forEach(b=>b.onclick=()=>{selected=Number(b.dataset.page);zoom=1;update();window.scrollTo({top:0})});document.querySelector('#less').onclick=()=>{zoom=Math.max(.35,zoom-.15);update()};document.querySelector('#more').onclick=()=>{zoom=Math.min(2.5,zoom+.15);update()};document.querySelector('#fit').onclick=()=>{zoom=1;update()};</script></body></html>`;
 fs.writeFileSync(path.join(out,'index.html'),html);
 const fence=String.fromCharCode(96).repeat(3);
 const sections=charts.map((chart,i)=>`## ${chart.name}\n\n${chart.note}\n\n${fence}mermaid\n${mermaid(chart)}\n${fence}\n`);
-fs.writeFileSync(path.join(out,'流程图.md'),'# 当前用户输入和语义 V2 的完整流程图\n\n2026-09-30，按当前工作区代码绘制。配合 [详细说明](说明.md) 阅读。\n\n'+sections.join('\n'));
+fs.writeFileSync(path.join(out,'流程图.md'),'# 当前用户输入和语义 V2 的完整流程图\n\n2026-10-03，按当前工作区代码绘制。配合 [详细说明](说明.md) 阅读。\n\n'+sections.join('\n'));
 console.log(`Generated ${charts.length} SVG/Mermaid pages, editable draw.io and standalone HTML in ${out}`);

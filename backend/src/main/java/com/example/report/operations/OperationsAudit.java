@@ -6,6 +6,9 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * 记录运维操作的操作者、资源、原因和结果；所有内容保存前脱敏，事务归属由调用方决定。
+ */
 @Service
 public class OperationsAudit {
     private final JdbcTemplate jdbc;

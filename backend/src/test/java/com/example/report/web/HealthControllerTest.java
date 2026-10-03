@@ -26,6 +26,7 @@ class HealthControllerTest {
     private final RedisConnectionFactory redis = mock(RedisConnectionFactory.class);
     private final RedisConnection connection = mock(RedisConnection.class);
     private MockMvc http;
+    private HealthController controller;
 
     @BeforeEach
     void setUp() throws Exception {
@@ -36,7 +37,8 @@ class HealthControllerTest {
         when(result.getInt(1)).thenReturn(1);
         when(redis.getConnection()).thenReturn(connection);
         when(connection.ping()).thenReturn("PONG");
-        http = MockMvcBuilders.standaloneSetup(new HealthController(mysql, redis))
+        controller=new HealthController(mysql,redis);
+        http = MockMvcBuilders.standaloneSetup(controller)
                 .setControllerAdvice(new GlobalExceptionHandler())
                 .addFilters(new TraceIdFilter()).build();
     }
@@ -101,6 +103,14 @@ class HealthControllerTest {
         verify(query).setQueryTimeout(1);
         verify(query).close();
         verify(mysqlConnection).close();
+    }
+
+    @Test void unavailableAuthenticatedMcpMarksReadinessDown() throws Exception {
+        var business=mock(com.example.report.mcp.BusinessMcpClient.class);
+        org.springframework.test.util.ReflectionTestUtils.setField(controller,"business",business);
+        when(business.available()).thenReturn(false);expectDown();
+        when(business.available()).thenReturn(true);
+        http.perform(get("/api/health/readiness")).andExpect(status().isOk());
     }
 
     private void expectDown() throws Exception {

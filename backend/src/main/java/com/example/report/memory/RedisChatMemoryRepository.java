@@ -122,6 +122,11 @@ public class RedisChatMemoryRepository implements ChatMemoryRepository {
         return "agent:memory:" + conversationId;
     }
 
+    /**
+     * 持久化工作记忆中的脱敏消息。
+     * @param role 消息角色：user、assistant、工具或卡片
+     * @param text 脱敏后文本或待处理的文本内容
+     */
     public record StoredMessage(String role, String text) {
     }
 }

@@ -5,7 +5,7 @@ function component(file, extras) {
   const source = fs.readFileSync(path.join(__dirname, '../src/components', file), 'utf8')
     .match(/<script>([\s\S]*?)<\/script>/)[1]
     .replace(/import[\s\S]*?from\s+['"][^'"]+['"]/g, '').replace('export default', 'result =')
-  const sandbox = { result: null, DispatchTrace: {}, ...extras }
+  const sandbox = { result: null, DispatchTrace: {}, resumePlanAction: async () => {}, ...extras }
   vm.runInNewContext(source, sandbox)
   return sandbox.result
 }

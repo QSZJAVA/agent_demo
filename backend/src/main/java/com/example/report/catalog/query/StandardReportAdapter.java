@@ -95,6 +95,9 @@ public class StandardReportAdapter implements ReportQueryAdapter, DispatchStatus
         return queryPending(tenantId, companies, 0, size, expression, afterId, true);
     }
 
+    /**
+     * 构建参数化且带租户、公司范围的有界待派单查询；游标和分页使用已验证的标识列，不接受用户输入的 SQL 标识符。
+     */
     private List<FactRow> queryPending(String tenantId, Set<String> companies, int offset, int size,
                                        String expression, String afterId, boolean cursor) {
         if (companies == null || companies.isEmpty() || !tenantUsable(tenantId)) {
@@ -164,6 +167,9 @@ public class StandardReportAdapter implements ReportQueryAdapter, DispatchStatus
         return pendingRowsAfterWithRule(tenantId, companies, afterId, size, null);
     }
 
+    /**
+     * 在业务事务内锁定来源记录，执行调用方复核后仅更新尚未派单的记录；锁覆盖检查与写入，消除先查后改的竞争窗口。
+     */
     @Override
     public boolean markDispatchedGuarded(String tenantId, String recordId, String companyCode,
                                          LocalDateTime dispatchedAt, java.util.function.Predicate<FactRow> eligible) {
@@ -229,9 +235,11 @@ public class StandardReportAdapter implements ReportQueryAdapter, DispatchStatus
         requireUniqueIdentity();
     }
 
-    /** RecordKey is (reportId, recordId): company-scoped IDs cannot be represented safely.
+    /**
+     * RecordKey is (reportId, recordId): company-scoped IDs cannot be represented safely.
      * Check at publish AND use, so previously published configurations and later schema changes fail closed.
-     * During a dispatch transaction the zero-row SELECT holds a metadata lock through the write. */
+     * During a dispatch transaction the zero-row SELECT holds a metadata lock through the write.  * 发布前确认记录标识在租户内唯一；不唯一会导致分页、记录复核和派单更新误关联，因此配置探测必须失败。
+     */
     private void requireUniqueIdentity() {
         Boolean unique = jdbc.getJdbcTemplate().execute((ConnectionCallback<Boolean>) connection -> {
             boolean nonNullId = false;
@@ -273,8 +281,10 @@ public class StandardReportAdapter implements ReportQueryAdapter, DispatchStatus
         if (!Boolean.TRUE.equals(unique)) throw new ApiException("标准报表 idColumn 必须非空，并有 ID 或租户+ID 唯一约束；其他复合主键请配置专用适配器");
     }
 
-    /** Read metadata for this query, so an external schema change cannot leave a cached proof stale.
-     * Unverified or lossy mappings still work, but their predicates are evaluated only in Java. */
+    /**
+     * Read metadata for this query, so an external schema change cannot leave a cached proof stale.
+     * Unverified or lossy mappings still work, but their predicates are evaluated only in Java.
+     */
     private Set<String> exactNumericFields() {
         Set<String> verified = jdbc.query(selectFrom + " WHERE 1 = 0", new MapSqlParameterSource(),
                 (org.springframework.jdbc.core.ResultSetExtractor<Set<String>>) rs -> {
@@ -285,11 +295,11 @@ public class StandardReportAdapter implements ReportQueryAdapter, DispatchStatus
                             if (field.column().equalsIgnoreCase(metadata.getColumnLabel(i))
                                     && exactNumericMapping(field.type(), metadata.getColumnType(i), metadata.isSigned(i))) {
                                 result.add(field.name());
-                            }
-                        }
                     }
+                }
+            }
                     return Set.copyOf(result);
-                });
+        });
         return verified == null ? Set.of() : verified;
     }
 
@@ -373,7 +383,7 @@ public class StandardReportAdapter implements ReportQueryAdapter, DispatchStatus
         }
     }
 
-    /** 标识符已按白名单校验，这里只负责加反引号；schema.table 分段加 */
+    /** 标识符已按白名单校验，这里只负责加反引号；schema.table 分段加*/
     static String quote(String identifier) {
         StringBuilder sb = new StringBuilder();
         for (String part : identifier.split("\\.")) {

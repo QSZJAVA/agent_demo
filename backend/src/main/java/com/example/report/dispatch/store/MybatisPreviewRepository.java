@@ -21,6 +21,10 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 
+/**
+ * MyBatis 预览快照仓储；会话请求序号与唯一生成列共同保护预览激活。
+ * 大量条目可分批写入 BUILDING 快照，只有完整结果且请求仍最新时才激活，避免展示半成品。
+ */
 @Repository
 public class MybatisPreviewRepository implements PreviewRepository {
 

@@ -17,13 +17,13 @@ public final class TextNormalizer {
 
     /** 在句子中出现即表示“全部报表”的说法 */
     static final Set<String> ALL_MENTIONS = Set.of("全部报表", "所有报表", "全部的报表", "所有的报表", "all");
-    /** 整句只有这些词时也表示全部报表（“全部”出现在句子中间多半是“全部派掉”，不能当成范围） */
+    /** 整句只有这些词时也表示全部报表（“全部”出现在句子中间多半是“全部派掉”，不能当成范围）*/
     static final Set<String> ALL_WHOLE = Set.of("全部", "所有", "全部的", "所有的", "*", "全部报表的", "所有报表的");
 
     /** 报表泛称：不单独构成报表名，但模糊匹配时保留（“销兽报表”要靠“报表”二字对上“销售报表”） */
     static final List<String> GENERIC_WORDS = sortedByLengthDesc(List.of("报表", "台账", "明细", "报告", "清单", "表"));
 
-    /** 查询语句里的通用词：模糊匹配和“未识别部分”分析前去掉 */
+    /** 查询语句里的通用词：模糊匹配和“未识别部分”分析前去掉*/
     static final List<String> QUERY_WORDS = sortedByLengthDesc(List.of(
             "帮我查一下", "帮我查询", "帮我看看", "帮我看下", "帮我查", "给我查", "请帮我", "麻烦",
             "查一下", "查询", "查下", "看一下", "看看", "看下", "列一下", "列出", "预览", "一下", "一遍", "一次",
@@ -48,7 +48,7 @@ public final class TextNormalizer {
         return WHITESPACE.matcher(n).replaceAll("");
     }
 
-    /** 去掉通用查询词后剩下的片段（按原顺序），泛称保留 */
+    /** 去掉通用查询词后剩下的片段（按原顺序），泛称保留*/
     static List<String> stripQueryWords(String normalized) {
         return chunks(normalized, QUERY_WORDS);
     }
@@ -76,7 +76,7 @@ public final class TextNormalizer {
         return (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || (c >= '0' && c <= '9');
     }
 
-    /** 英文词的组成字符：字母、数字、下划线（report_sales 里的 sales 不是一个独立的词） */
+    /** 英文词的组成字符：字母、数字、下划线（report_sales 里的 sales 不是一个独立的词）*/
     static boolean isAsciiWordChar(char c) {
         return isAsciiAlnum(c) || c == '_';
     }

@@ -91,7 +91,7 @@ public class CatalogController {
 
     @PutMapping("/{reportId}")
     public Result<ReportDefinition> update(@RequestHeader(PermissionService.USER_HEADER) String userId,
-                                           @PathVariable String reportId,
+    @PathVariable String reportId,
                                            @RequestBody ReportCatalogAdminService.DefinitionForm form) {
         CurrentUser user = admin(userId);
         return Result.ok(adminService.update(user, reportId, form));
@@ -111,7 +111,7 @@ public class CatalogController {
 
     @PostMapping("/{reportId}/aliases")
     public Result<ReportAlias> addAlias(@RequestHeader(PermissionService.USER_HEADER) String userId,
-                                        @PathVariable String reportId,
+    @PathVariable String reportId,
                                         @RequestBody ReportCatalogAdminService.AliasForm form) {
         return Result.ok(adminService.addAlias(admin(userId), reportId, form));
     }
@@ -130,12 +130,45 @@ public class CatalogController {
         return user;
     }
 
-    /** 普通用户看到的目录项：不含查询配置、权限码等内部信息 */
+    /**
+     * 普通用户看到的目录项：不含查询配置、权限码等内部信息
+     * @param reportId 稳定报表标识，关联报表目录
+     * @param reportCode 租户内报表接口编码
+     * @param reportName 报表展示名称
+     * @param domainCode 业务域编码
+     * @param description 业务用途或字段含义说明
+     * @param dispatchEnabled 是否允许派单，仍须验证发布状态及业务授权
+     * @param docNoLabel 单据号展示标签
+     * @param aliases 报表别名集合
+     * @param fields 报表事实字段契约集合
+     */
     public record CatalogView(String reportId, String reportCode, String reportName, String domainCode, String description,
                               boolean dispatchEnabled, String docNoLabel, List<String> aliases, List<FieldInfo> fields) {
     }
 
-    /** 管理员看到的完整定义 */
+    /**
+     * 管理员看到的完整定义
+     * @param reportId 稳定报表标识，关联报表目录
+     * @param reportCode 租户内报表接口编码
+     * @param reportName 报表展示名称
+     * @param domainCode 业务域编码
+     * @param description 业务用途或字段含义说明
+     * @param queryMode STANDARD字段映射或ADAPTER专用适配器
+     * @param queryConfig 服务器维护的查询映射JSON，不允许模型提供SQL
+     * @param dispatchEnabled 是否允许派单，仍须验证发布状态及业务授权
+     * @param status 当前业务状态，以所属状态机为准
+     * @param catalogVersion 目录版本或聚合指纹，用于发现预览后定义变更
+     * @param permissionCode 访问报表所需权限码
+     * @param sortOrder 展示及汇总排序值
+     * @param effectiveFrom 生效开始时间，含边界；为空不限制开始时间
+     * @param effectiveTo 生效结束时间，不含边界；为空不限制结束时间
+     * @param ownerUserId 报表负责人用户标识，未配置时为空
+     * @param updatedBy 最后修改人用户标识
+     * @param updatedAt 最后更新时间
+     * @param aliases 报表别名集合
+     * @param fields 报表事实字段契约集合
+     * @param configError 配置探测失败的摘要；无错误时为空
+     */
     public record CatalogAdminView(String reportId, String reportCode, String reportName, String domainCode,
                                    String description, String queryMode, Object queryConfig, boolean dispatchEnabled,
                                    String status, long catalogVersion, String permissionCode, int sortOrder,
@@ -144,6 +177,15 @@ public class CatalogController {
                                    List<FieldInfo> fields, String configError) {
     }
 
+    /**
+     * 报表名称解析结果，歧义和未识别部分必须供用户核对。
+     * @param matchType 名称匹配类型；歧义或未识别不能自动执行
+     * @param reports 当前用户可见的报表引用集合
+     * @param candidates 需用户确认的可见报表候选集合
+     * @param matchedTerms 在输入中命中的目录词条
+     * @param unrecognized 未被可靠解析的输入部分，不能静默丢弃
+     * @param noAccessibleReports 当前用户无可用报表的标记
+     */
     public record SearchResult(String matchType, List<ReportRef> reports, List<ReportRef> candidates,
                                List<String> matchedTerms, List<String> unrecognized, boolean noAccessibleReports) {
     }

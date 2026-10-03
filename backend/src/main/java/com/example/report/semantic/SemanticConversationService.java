@@ -21,7 +21,10 @@ import java.util.*;
 import java.util.function.Consumer;
 import static com.example.report.semantic.SemanticIntent.Target.*;
 
-/** Model interpretation -> authoritative state -> deterministic business services -> factual replies. */
+/**
+ * 真实模型语义对话编排：解析本轮原文、校验意图、更新权威状态，再调用确定性业务服务并发送事实卡片。
+ * 模型只能提出预览或生成待确认清单；真正派单仍需用户确认。SSE 断开、租约过期或删除会话时停止旧轮次写入。
+ */
 @Slf4j
 @Service
 public class SemanticConversationService {
@@ -47,6 +50,9 @@ public class SemanticConversationService {
     public String modelName(String fallback) {
         String configured=props.getSemantic().getModel();return configured==null || configured.isBlank()?fallback:configured;
     }
+    /**
+     * 建立用户所属会话的 SSE 处理流；对话租约和并发配额覆盖整轮处理，结束前释放。客户端断开后按守卫停止写入，已保存事实可刷新恢复。
+     */
     public Flux<ServerSentEvent<Object>> chat(CurrentUser user,String conversationId,String message,
             List<String> legacyExcludes,String uiPreviewId,List<RecordKey> excludedRecords,String model) {
         var conversation=conversationId==null || conversationId.isBlank() ? conversations.create(user,model) : conversations.getOwned(user,conversationId);
@@ -69,6 +75,9 @@ public class SemanticConversationService {
         return events.index().map(e -> ServerSentEvent.builder((Object)SensitiveData.typed(e.getT2().data()))
                 .id(requestId+":"+e.getT1()).event(e.getT2().type()).build());
     }
+    /**
+     * 本轮流程：恢复权威状态、解析并验证意图、合并期望范围、执行确定性业务、保存结果证据。失败只更新澄清/拒绝/失败阶段，不能把失败范围伪装成成功范围。
+     */
     private void turn(CurrentUser user,String id,String requestId,String message,List<String> legacyExcludes,
             String uiPreviewId,List<RecordKey> uiExcludes,String model,DialogueStore.Session session,Runnable guard,Consumer<AgentEvent> emit) {
         long started=System.nanoTime();
@@ -117,6 +126,9 @@ public class SemanticConversationService {
         emit.accept(new AgentEvent(AgentEvent.TEXT,Map.of("delta",reply)));
         emit.accept(new AgentEvent("selection",selection(state)));
     }
+    /**
+     * 仅在期望范围与已生效范围一致且预览仍有效时复用事实。记录排除绑定当前预览，重新查询后需重新对齐选择；生成清单仍不代表执行派单。
+     */
     private String query(CurrentUser user,String id,String requestId,long previewVersion,SemanticIntent intent,DialogueState state,
             DialogueStore.Session session,List<String> legacyExcludes,String uiPreviewId,List<RecordKey> uiExcludes,Runnable guard,Consumer<AgentEvent> emit) {
         planner.validate(user,state);

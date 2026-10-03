@@ -13,6 +13,8 @@ import java.util.List;
  *
  * @param expiredPlanIds 生成本清单时失效的旧清单
  * @param replayed       幂等键重复：返回的是第一次生成的清单，本次没有新建
+ * @param plan 持久化清单的权威状态
+ * @param items 所属预览或清单内的有序条目
  */
 public record PlanSnapshot(DispatchPlan plan, List<DispatchPlanItem> items, List<String> expiredPlanIds, boolean replayed) {
 

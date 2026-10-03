@@ -9,7 +9,10 @@ import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Component;
 import java.util.*;
 
-/** Structured interpretation, with at most one format repair; no business tools or assistant history. */
+/**
+ * 将用户原文和受控上下文提交模型，解析结构化意图并验证协议、原文证据及报表覆盖。
+ * 真实模型配置下最多进行一次格式修复；不注册业务工具，也不把上轮禁止或助手失败文本作为本轮指令。无法通过校验时抛错，交由对话服务澄清或报告失败。
+ */
 @Component
 public class ModelIntentParser implements IntentParser {
     static final String INSTRUCTIONS = """
@@ -85,6 +88,9 @@ public class ModelIntentParser implements IntentParser {
             fixtures = Map.copyOf(values);
         } catch (Exception error) { throw new IllegalStateException("模拟语义样本加载失败", error); }
     }
+    /**
+     * 真实模型调用禁用工具，输入仅包含脱敏本轮原文和受控状态。格式、原文证据或实体覆盖不合格时最多再调用一次；最终仍不合格则抛出 InvalidOutput，不能执行部分意图。
+     */
     @Override public SemanticIntent parse(String message, Context context) {
         if (props.getLlm().isMock()) return fixtures.getOrDefault(normalize(message), SemanticIntent.clarify(SemanticIntent.Clarify.ACTION));
         var options = OpenAiChatOptions.builder().temperature(0.0).maxTokens(props.getSemantic().isThinkingEnabled()?4096:2400)

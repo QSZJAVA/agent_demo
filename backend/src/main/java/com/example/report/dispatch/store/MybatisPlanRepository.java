@@ -22,6 +22,10 @@ import java.util.List;
 import java.util.Optional;
 import java.util.function.Supplier;
 
+/**
+ * MyBatis 清单状态仓储；认领、续租、结果保存和恢复均由数据库条件更新保护。
+ * 读取方法不代替业务权限校验，调用方必须先验证清单归属；涉及外部发送时持有清单锁并绑定执行轮次。
+ */
 @Repository
 public class MybatisPlanRepository implements PlanRepository {
     @org.springframework.beans.factory.annotation.Value("${business.remote.enabled:false}")
@@ -200,9 +204,20 @@ public class MybatisPlanRepository implements PlanRepository {
     @Override
     @Transactional
     public Optional<Long> claimRetry(String planId, LocalDateTime now) {
+        return claimRetryInternal(planId,null,now);
+    }
+
+    @Override
+    @Transactional
+    public Optional<Long> claimRetry(String planId, long expectedVersion, LocalDateTime now) {
+        return claimRetryInternal(planId,expectedVersion,now);
+    }
+
+    private Optional<Long> claimRetryInternal(String planId, Long expectedVersion, LocalDateTime now) {
         int changed = planMapper.update(null, new LambdaUpdateWrapper<DispatchPlan>()
                 .eq(DispatchPlan::getId, planId)
                 .eq(DispatchPlan::getStatus, DispatchPlan.EXECUTED)
+                .eq(expectedVersion!=null, DispatchPlan::getExecutionVersion, expectedVersion)
                 .gt(DispatchPlan::getFailedCount, 0)
                 .setSql("execution_version = execution_version + 1")
                 .set(DispatchPlan::getStatus, DispatchPlan.EXECUTING)

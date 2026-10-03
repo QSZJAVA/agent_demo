@@ -2,7 +2,22 @@
 
 本文只描述真实模型场景：前端 → Agent（`real,mcp`、语义 V2）→ 独立 MCP 业务服务 → MySQL/Redis。模型配置、用户认证、服务认证和业务事务均须按此链路落实。
 
-**当前仓库已有三个 Dockerfile，但尚未提供经过验收的双服务 Compose 编排。** 根目录现有 docker-compose.yml 与 deploy.sh 不覆盖本分支的完整部署，不能把其启动成功表述为真实模型双服务验收。已验证的本机启动方式见 [README](../README.md)，使用 tools/start-mcp.ps1 -Build -Frontend。
+2026-10-03 已补齐三个 Dockerfile、五项服务 Compose 和 deploy.sh。业务服务先执行迁移，Agent 等待其健康后启动，前端按当前会话认证转发 Authorization。配置与部署逻辑回归、隔离 HTTP MCP 验收通过；本机没有 Docker Engine，尚未实际构建和启动容器，生产部署仍待目标环境验收。
+
+Demo 自带账号问题与前端依赖升级按 [AGENTS.md](../AGENTS.md) 暂缓；正式认证系统尚未接入，服务凭据和业务权限校验继续生效。
+
+## Compose 入口
+
+在仓库根目录运行 `./deploy.sh up`。首次运行生成权限为 600 的 .env 和随机基础服务凭据；没有真实模型配置时会停止并提示缺失配置，填写实际 `LLM_API_KEY`、`LLM_MODEL`、`LLM_BASE_URL` 后再执行。脚本不会打印密码或模型密钥。
+
+也可先复制 `.env.example` 为 `.env`，设置真实模型配置、MySQL/Redis 密码、至少 32 位 `BUSINESS_SERVICE_TOKEN` 和至少 12 位 `AUTH_BOOTSTRAP_PASSWORD`，限制文件访问后执行：
+
+```bash
+docker compose --env-file .env config --quiet
+docker compose --env-file .env up -d --build
+```
+
+默认页面入口为 `http://127.0.0.1:8080`，使用应用登录。`AUTH_BOOTSTRAP_PASSWORD` 只在首次空库创建 admin 时生效，不能通过改环境变量重置已有账号。`./deploy.sh update` 按业务服务、Agent、前端顺序更新并等待健康；数据库与 Redis 不在其重建列表中。升级前先检查在途清单和备份，完成真实业务写入后的恢复仍依赖原请求号核对。
 
 ## 镜像构建
 
@@ -27,11 +42,12 @@ docker build -f frontend/Dockerfile -t report-frontend:2.0.0 .
 | 服务端口 | 显式指定 AGENT_PORT=8080 或 SERVER_PORT | 默认 8090，可显式指定 |
 | DB_HOST/DB_PORT/DB_NAME/DB_USERNAME/DB_PASSWORD | 访问编排和身份数据 | 当前与 Agent 共用 schema，并访问业务表 |
 | REDIS_HOST/REDIS_PORT/REDIS_PASSWORD | 配额、限流及缓存刷新 | 账号限流等共享设施 |
-| SPRING_FLYWAY_ENABLED | 业务服务迁移后设为 false | 负责执行 V1–V19 迁移 |
+| SPRING_FLYWAY_ENABLED | Compose 设为 false | 负责执行 V1–V20 迁移 |
 | AUTH_TENANT_ID | 与业务服务相同 | 当前服务凭据对应租户 |
 | AUTH_BOOTSTRAP_PASSWORD | 首次账号初始化需至少 12 位 | 相同初始身份数据配置，不写入镜像 |
 | BUSINESS_SERVICE_TOKEN | 至少 32 位服务凭据 | 与 Agent 一致 |
 | BUSINESS_MCP_URL | 实际可达的业务服务 base URL | 无需客户端配置 |
+| BUSINESS_REMOTE_ALLOW_INSECURE_HTTP | 默认 false；当前 Compose 专网显式设置 true | 不影响 Bearer 服务认证 |
 | LLM_BASE_URL/LLM_API_KEY/LLM_MODEL | 真实接口、密钥、验收过的模型 | 不注入模型密钥 |
 | SEMANTIC_MODE | active | 不运行语义解析 |
 | SEMANTIC_NATIVE_SCHEMA | 选定端点支持并验证后开启 | 不需要 |
@@ -44,11 +60,11 @@ docker build -f frontend/Dockerfile -t report-frontend:2.0.0 .
 
 ## 网络、TLS 与代理
 
-BusinessMcpClient 只允许回环地址使用 HTTP，其余业务服务 URL 必须为 HTTPS。因此容器之间不能直接照抄 http://business:8090 作为有效生产连接。部署方需提供容器可达的 HTTPS 业务入口、代理和证书信任配置，再用实际调用验证。
+BusinessMcpClient 默认只允许回环地址使用 HTTP，其余地址必须为 HTTPS。当前 Compose 将数据库、Redis、业务服务放在 `internal: true` 的 demo-private 网络，不映射其端口，并仅对该内部链路显式开启 `BUSINESS_REMOTE_ALLOW_INSECURE_HTTP=true`。跨主机业务服务保留默认 HTTPS 要求，需要实际证书信任和调用验收。此配置不是公网 HTTP 接入或 TLS 验收的证明。
 
 本机 profile 默认绑定回环地址；容器网络需调整监听地址并限制访问。浏览器只访问前端/API 入口，不持有 BUSINESS_SERVICE_TOKEN。
 
-现有前端 Nginx 模板包含独立入口认证。真实账号模式使用 Authorization Bearer，与同一入口直接要求另一种 Authorization 认证的方案会冲突；必须审查实际代理，不能宣称现有模板无需调整即可用于真实登录双服务。保留 SSE 的关闭缓冲和长连接配置，并正确转发 Authorization。
+前端 Nginx 模板已移除冲突的入口认证，原样转发 Authorization Bearer，保留 SSE 的关闭缓冲和长连接配置。页面默认只映射到本机 127.0.0.1；对外服务时由实际 HTTPS 入口转发，并配置实际绑定地址与可信代理范围。
 
 同源代理使用 /api 路径。分域访问配置准确 CORS 来源，真实请求仍要求会话。Agent 只信任 TRUSTED_PROXY_CIDRS 中的真实代理，不能把所有公网客户端配置为可信。
 
@@ -57,10 +73,10 @@ BusinessMcpClient 只允许回环地址使用 HTTP，其余业务服务 URL 必�
 1. 准备 MySQL、Redis、数据库权限、服务凭据和目标 schema，检查备份。
 2. 先启动业务服务，等待 Flyway 迁移并检查 GET /health。
 3. 用真实模型配置启动 Agent，开启 real,mcp，关闭 Agent 的重复迁移。
-4. 检查 GET /api/health/readiness。它验证数据库、Redis、业务服务连通性，不证明真实模型解析已成功。
+4. 检查 GET /api/health/readiness。它验证数据库、Redis、业务服务数据库、使用服务凭据的 MCP 初始化和工具发现；探测采用独立短超时连接，结果缓存 10 秒，不证明真实模型解析已成功。
 5. 启动前端与实际代理，验证 /api/auth/mode 要求登录，无会话访问受保护 API 返回 401。
 6. 验证真实登录、自然语言查询、SSE 预览、选择、生成 PENDING 清单的完整链路。
-7. 正式执行验收仅在专用验收库进行，验证结果、重复确认、原请求号查询及异常核对。
+7. 正式执行验收仅在专用验收库进行：确认请求通过 POST /api/dispatch/jobs 返回持久任务号，前端读取任务结果；验证稳定任务键重放、页面刷新、原派单请求号、未知结果核对与显式失败重试。排队超过 10 分钟的任务不会启动，运行中断不会自动重新入队。
 
 部分 REST 业务错误使用 HTTP 200 携带非零业务码。监控和验收同时检查 HTTP、业务码和 SSE 事件，不能只看页面可访问或连接成功。
 
@@ -84,4 +100,4 @@ BusinessMcpClient 只允许回环地址使用 HTTP，其余业务服务 URL 必�
 
 默认不重置已有业务数据；新库首次初始化示例数据不等于已接入正式来源。不能回删 Flyway 迁移来实现业务回滚。数据库 useSSL=false 等现有默认值需按实际跨主机安全要求调整和验证。
 
-双服务 Compose、真实容器构建、代理登录/TLS 链路以及容器升级/恢复仍需实际验收。本文不为未实现或未验证的能力编造一键部署结果。
+双服务编排与配置已实现；真实容器构建、代理登录/TLS 链路、容量和容器升级/恢复仍需实际验收。本文不将源码/配置回归等同于生产环境部署结果。

@@ -1,5 +1,13 @@
 # 当前版本的架构与完整任务流程
 
+2026-10-03 当前流程已加入持久派单任务、冻结执行版本和任务恢复：
+
+- [八页 HTML 阅读器](semantic-v2-2026-10-03/index.html)
+- [draw.io](semantic-v2-2026-10-03/semantic-v2.drawio) / [Mermaid](semantic-v2-2026-10-03/流程图.md)
+- [实现说明与证据范围](semantic-v2-2026-10-03/说明.md)
+
+生成器为 `build-semantic-flows.cjs`，运行 `node docs/diagrams/build-semantic-flows.cjs` 同步生成 HTML、SVG、Mermaid 和 draw.io。以下 2026-09-30 与 2026-09-29 的图表保留为历史版本。
+
 2026-09-30 新增用户输入和语义 V2 的七页详细流程：
 
 - [可分页、缩放的 HTML 阅读器](semantic-v2-2026-09-30/index.html)

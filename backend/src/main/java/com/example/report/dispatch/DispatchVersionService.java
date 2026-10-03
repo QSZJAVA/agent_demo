@@ -41,7 +41,7 @@ public class DispatchVersionService {
                 ruleCache.fingerprint(user.tenantId(), reportIds, companies), user.permissionVersion());
     }
 
-    /** 预览的版本与现在是否一致；不一致返回原因（{@link StateReason}），一致返回 null */
+    /** 预览的版本与现在是否一致；不一致返回原因（{@link StateReason}），一致返回 null*/
     public String verify(CurrentUser user, DispatchPreview preview) {
         if (!DispatchPreview.ACTIVE.equals(preview.getStatus())) {
             return preview.getStatusReason() == null ? StateReason.TTL : preview.getStatusReason();

@@ -1,0 +1,60 @@
+flowchart TD
+  input["用户输入自然语言<br/>Vue AgentChat.send"]:::ui
+  buttons["表格和卡片按钮<br/>结构化 REST；不经过模型"]:::ui
+  request["POST /api/agent/chat<br/>message + conversationId<br/>previewId + excludedRecords"]:::ui
+  auth{"CORS → 会话认证<br/>Bearer token → 数据库身份<br/>覆盖客户端 X-User-Id"}:::guard
+  badAuth["身份失效：拒绝请求<br/>HTTP 401；不解析语义"]:::error
+  inputCheck{"检查非空与长度<br/>trim；最多 2000 字符"}:::guard
+  badInput["输入不合法<br/>REST JSON 业务错误码 400<br/>尚未进入语义解析"]:::error
+  route{"进入 active V2 语义入口<br/>真实模型调用链"}:::guard
+  entry["SemanticConversationService<br/>新建或验证会话归属<br/>检查历史数据可读性"]:::agent
+  lease["配额 + 对话租约<br/>同会话串行；读取状态<br/>本轮 requestId/previewVersion"]:::store
+  leaseFail["配额或会话租约失败<br/>限流/依赖异常/同会话忙<br/>外层 SSE error + done"]:::error
+  semantic["解析本轮结构化语义<br/>保护实体；模型输出 V2 JSON<br/>详见第 02 页"]:::model
+  planner["校验并合并范围<br/>公司 / 报表 / 排除项<br/>详见第 03、04 页"]:::agent
+  reject["澄清 / 拒绝 / 失败<br/>记录 unresolved 和原因<br/>不回落旧范围执行业务"]:::error
+  action{"是哪一种 action？<br/>查询 / 建单 / 解释规则"}:::guard
+  other["HELP / CANCEL_PLAN / SHOW_RESULT<br/>服务端帮助、取消或读结果<br/>均不执行实际派单"]:::agent
+  query["确定性查询流程<br/>权限 + 当前目录/规则版本<br/>MCP report_records → 业务库"]:::business
+  preview["复用或生成预览<br/>本地规则求值；预览持久化<br/>排除项与预览绑定"]:::store
+  prepare{"PREPARE_DISPATCH？<br/>有效范围和排除项已确认"}:::guard
+  plan["创建 PENDING 清单<br/>语义幂等键 semantic:requestId<br/>没有调用 dispatch_submit"]:::store
+  sse["SSE / REST 返回前端<br/>自然语言：事实文本和卡片事件<br/>按钮：结构化 JSON 结果"]:::ui
+  wait["用户核对并点击确认<br/>POST /api/dispatch/jobs"]:::ui
+  execute["持久任务认领与复核<br/>DispatchJobService → DispatchService<br/>逐条 MCP 提交；详见第 06、08 页"]:::business
+  result["结果保存与展示<br/>SUCCESS / FAILED / SKIPPED<br/>UNKNOWN → REVIEW_REQUIRED"]:::store
+  input --> request
+  request --> auth
+  auth -->|"失效"| badAuth
+  auth -->|"有效"| inputCheck
+  inputCheck -->|"不合法"| badInput
+  inputCheck -->|"合法"| route
+  route -->|"active"| entry
+  entry --> lease
+  lease -->|"失败"| leaseFail
+  lease -->|"取得租约"| semantic
+  semantic --> planner
+  semantic -->|"不可靠"| reject
+  planner -->|"不确定/无权限"| reject
+  planner -->|"允许继续"| action
+  action -->|"辅助动作"| other
+  action -->|"查询类动作"| query
+  query --> preview
+  preview --> prepare
+  prepare -->|"是"| plan
+  prepare -->|"否"| sse
+  plan --> sse
+  other --> sse
+  reject --> sse
+  sse -->|"有清单"| wait
+  wait --> execute
+  execute --> result
+  buttons -->|"报表选择/预览"| query
+  buttons -->|"从固定预览建单"| plan
+  classDef ui fill:#eaf2ff,stroke:#386bc1,color:#1e354c
+  classDef agent fill:#edf5ff,stroke:#3778a8,color:#1e354c
+  classDef model fill:#f3edff,stroke:#8751bf,color:#1e354c
+  classDef business fill:#e8f7ef,stroke:#268255,color:#1e354c
+  classDef guard fill:#fff4dc,stroke:#b58022,color:#1e354c
+  classDef error fill:#fff0ef,stroke:#ba534e,color:#1e354c
+  classDef store fill:#edf1f5,stroke:#60768b,color:#1e354c

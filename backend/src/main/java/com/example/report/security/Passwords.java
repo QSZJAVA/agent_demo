@@ -6,6 +6,9 @@ import java.security.MessageDigest;
 import java.security.SecureRandom;
 import java.util.Base64;
 
+/**
+ * 当前 Demo 的密码派生与摘要比对工具；只保存派生摘要，禁止把原始密码写入日志或文档。
+ */
 public final class Passwords {
     private Passwords() {}
     public static String hash(String password) {

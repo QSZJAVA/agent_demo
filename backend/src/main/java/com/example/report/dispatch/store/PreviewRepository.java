@@ -16,7 +16,7 @@ public interface PreviewRepository {
     /** 在当前事务里锁住会话，串行化同一会话的状态变更 */
     void lockConversation(String conversationId);
 
-    /** Lock the source preview even when it has no conversation. */
+    /** Lock the source preview even when it has no conversation.*/
     default void lockPreview(String previewId) { }
 
     /** Allocate the order of a preview request before its potentially long scan starts. */
@@ -34,7 +34,7 @@ public interface PreviewRepository {
 
     default void deleteBuilding(String previewId) { throw new UnsupportedOperationException(); }
 
-    /** Cleanup rechecks both state and staleness while holding the activation row lock. */
+    /** Cleanup rechecks both state and staleness while holding the activation row lock.*/
     default void deleteBuildingBefore(String previewId, LocalDateTime cutoff) { throw new UnsupportedOperationException(); }
 
     Optional<DispatchPreview> find(String previewId);
@@ -52,7 +52,7 @@ public interface PreviewRepository {
     /** 本会话最近一次预览（不论状态），用于在上一轮范围上追加 / 排除报表 */
     Optional<DispatchPreview> latest(String tenantId, String userId, String conversationId);
 
-    /** 本会话当前 ACTIVE 的预览 */
+    /** 本会话当前 ACTIVE 的预览*/
     List<DispatchPreview> active(String conversationId);
 
     List<DispatchPreview> byConversation(String conversationId);

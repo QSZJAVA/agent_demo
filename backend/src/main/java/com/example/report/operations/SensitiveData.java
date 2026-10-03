@@ -9,7 +9,7 @@ import java.util.Locale;
 import java.util.Set;
 import java.util.regex.Pattern;
 
-/** Presentation and conversation boundary only; identifiers used for dispatch are never rewritten. */
+/** 展示与对话出口的脱敏工具；业务派单使用的机器标识保留原值，不能因展示脱敏改变实际写入目标。 */
 public final class SensitiveData {
     private static final com.fasterxml.jackson.databind.ObjectMapper MAPPER=JsonUtil.MAPPER.copy()
             .configure(com.fasterxml.jackson.databind.cfg.JsonNodeFeature.STRIP_TRAILING_BIGDECIMAL_ZEROES,false);
@@ -24,7 +24,11 @@ public final class SensitiveData {
         return EMAIL.matcher(ID.matcher(PHONE.matcher(text).replaceAll("[手机号已脱敏]")).replaceAll("[证件号已脱敏]")).replaceAll("[邮箱已脱敏]");
     }
     public static JsonNode value(Object value) { return clean(MAPPER.valueToTree(value), ""); }
-    /** Per-request reversible tokens; raw values stay local and never enter the model request. */
+    /**
+     * 单请求内的可恢复实体占位符；原始值只保留在本地，不进入模型请求。
+     * @param text 脱敏后文本或待处理的文本内容
+     * @param originals 受保护实体占位符到原文的本地映射；不能发给模型或写入日志
+     */
     public record ModelText(String text, java.util.Map<String,String> originals) {
         public String restore(String value) {
             if (value == null) return null;

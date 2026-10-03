@@ -14,6 +14,7 @@ import java.time.LocalDateTime;
 @TableName("dispatch_rule")
 public class DispatchRule {
 
+    /** 数据所属租户标识；查询和写入必须限定租户。 */
     private String tenantId;
 
     public static final String STATUS_PUBLISHED = "published";
@@ -21,25 +22,33 @@ public class DispatchRule {
     public static final String STATUS_DRAFT = "draft";
     public static final String ANY_COMPANY = "*";
 
+    /** 本表记录主键；数据库自增。*/
     @TableId(type = IdType.AUTO)
     private Long id;
-    /** 报表目录中的稳定标识 */
+    /** 关联 report_definition.report_id 的稳定报表标识。 */
     private String reportId;
-    /** 迁移前的 reportType（sales / receivable / expense），仅用于追溯；新规则为空 */
+    /** 历史 reportType 编码；新记录为空，仅用于存量追溯。*/
     private String legacyReportType;
-    /** * 通配；具体公司的规则优先于通配 */
+    /** 规则公司范围；*表示通配，具体公司规则优先。 */
     private String companyCode;
+    /** 规则展示名称。*/
     private String name;
-    /** 给人和模型看的规则说明 */
+    /** 供用户理解的规则说明；允许为空，表示尚无该项数据。 */
     private String description;
-    /** Aviator 表达式，在事实模型上求值 */
+    /** Aviator规则表达式，只在已验证的业务事实字段上求值。*/
     private String expression;
+    /** 规则整数版本；同租户、报表、公司范围内唯一。 */
     private Integer version;
-    /** draft / published / disabled */
+    /** 规则状态：draft草稿、published已发布、disabled停用。*/
     private String status;
+    /** 生效开始时间，含此时刻；空表示不限制开始时间。 */
     private LocalDateTime effectiveFrom;
+    /** 生效结束时间，不含此时刻；空表示不限制结束时间。*/
     private LocalDateTime effectiveTo;
+    /** 记录创建时间。 */
     private LocalDateTime createdAt;
+    /** 最后修改操作的用户标识；允许为空，表示尚无该项数据。*/
     private String updatedBy;
+    /** 记录最后更新时间；允许为空，表示尚无该项数据。 */
     private LocalDateTime updatedAt;
 }

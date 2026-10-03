@@ -36,6 +36,17 @@ public class PreviewJobService {
     private final Map<String, Future<?>> futures = new ConcurrentHashMap<>();
     private final Map<String, ResourceQuotaService.Permit> permits = new ConcurrentHashMap<>();
 
+    /**
+     * 持久化任务状态的展示快照；终态由服务端决定。
+     * @param id 持久化预览任务标识
+     * @param status QUEUED、RUNNING、SUCCEEDED、FAILED或CANCELLED
+     * @param stage 预览任务阶段，例如WAITING、SCANNING、DONE或失败原因阶段
+     * @param scannedRows 已扫描来源记录数，用于进度展示
+     * @param message 可展示的操作摘要或失败原因，禁止包含凭据
+     * @param previewId 预览标识，选择和建单必须绑定此快照
+     * @param createdAt 记录创建时间
+     * @param updatedAt 最后更新时间
+     */
     public record Job(String id, String status, String stage, int scannedRows, String message, String previewId,
                       LocalDateTime createdAt, LocalDateTime updatedAt) { }
 

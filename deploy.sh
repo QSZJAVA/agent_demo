@@ -10,7 +10,7 @@
 #   ./deploy.sh ps        查看状态
 #   ./deploy.sh update    重新构建前后端并更新（数据库不动）
 #   ./deploy.sh destroy   停止并删除容器 + 数据卷（会清空 MySQL/Redis 数据）
-#   ./deploy.sh start-mock / start-real  切到模拟模型 / 真实模型
+#   ./deploy.sh start-real  应用真实模型双服务配置
 # ============================================================
 set -euo pipefail
 
@@ -49,9 +49,9 @@ check_docker() {
 
 random_secret() {
   if command -v openssl >/dev/null 2>&1; then
-    openssl rand -hex 12
+    openssl rand -hex 32
   else
-    tr -dc 'a-f0-9' < /dev/urandom | head -c 24
+    od -An -N32 -tx1 /dev/urandom | tr -d ' \n'
   fi
 }
 
@@ -69,43 +69,44 @@ detect_server_name() {
 
 # ---------- 生成 .env ----------
 ensure_env() {
+  umask 077
   if [ -f "$ENV_FILE" ]; then
     c_info "沿用已有的 .env 配置。"
-    ensure_basic_auth
+    ensure_service_credentials
     return
   fi
 
-  local mysql_pwd redis_pwd web_pwd server_name
+  local mysql_pwd redis_pwd server_name
   mysql_pwd="$(random_secret)"
   redis_pwd="$(random_secret)"
-  web_pwd="$(random_secret)"
   server_name="$(detect_server_name)"
 
   sed -e "s|^MYSQL_ROOT_PASSWORD=.*|MYSQL_ROOT_PASSWORD=${mysql_pwd}|" \
       -e "s|^REDIS_PASSWORD=.*|REDIS_PASSWORD=${redis_pwd}|" \
-      -e "s|^BASIC_AUTH_PASSWORD=.*|BASIC_AUTH_PASSWORD=${web_pwd}|" \
       -e "s|^SERVER_NAME=.*|SERVER_NAME=${server_name}|" \
       "$ROOT_DIR/.env.example" > "$ENV_FILE"
 
   chmod 600 "$ENV_FILE" 2>/dev/null || true
   c_info "已按本机情况生成 .env（随机密码，请留存）"
-  c_warn "MySQL root 密码：${mysql_pwd}"
-  c_warn "Redis 密码：${redis_pwd}"
-  c_warn "网页访问口令：$(env_get BASIC_AUTH_USER demo) / ${web_pwd}"
+  ensure_service_credentials
+  c_info "凭据只保存在权限受限的 .env 文件中。"
 }
 
-# 旧版 .env 没有网页访问口令时补一个随机口令；仍是示例值时拒绝启动，避免带着公开口令上线
-ensure_basic_auth() {
-  local web_pwd
-  web_pwd="$(env_get BASIC_AUTH_PASSWORD)"
-  if [ -z "$web_pwd" ]; then
-    web_pwd="$(random_secret)"
-    set_env BASIC_AUTH_USER "$(env_get BASIC_AUTH_USER demo)"
-    set_env BASIC_AUTH_PASSWORD "$web_pwd"
-    c_warn "已为 .env 补充网页访问口令：$(env_get BASIC_AUTH_USER demo) / ${web_pwd}"
-  elif [ "$web_pwd" = "change-me-web" ]; then
-    c_error ".env 里的 BASIC_AUTH_PASSWORD 仍是示例值 change-me-web，请改成自己的口令后再执行。"
-    exit 1
+ensure_service_credentials() {
+  local key
+  for key in BUSINESS_SERVICE_TOKEN AUTH_BOOTSTRAP_PASSWORD; do
+    if [ -z "$(env_get "$key")" ]; then set_env "$key" "$(random_secret)"; fi
+  done
+  chmod 600 "$ENV_FILE"
+}
+
+validate_model() {
+  local key model
+  key="${LLM_API_KEY:-$(env_get LLM_API_KEY)}"
+  model="${LLM_MODEL:-$(env_get LLM_MODEL)}"
+  if [ -z "$key" ] || [ "$key" = sk-no-key-set ] || [ -z "$model" ]; then
+    c_error "请在环境变量或 .env 配置真实 LLM_API_KEY 和已验证的 LLM_MODEL，再重新启动。"
+    return 1
   fi
 }
 
@@ -123,20 +124,25 @@ env_get() {
 
 # 就地改写 .env 里某个键
 set_env() {
-  local key="$1" value="$2"
-  if grep -qE "^${key}=" "$ENV_FILE"; then
-    sed -i.bak -E "s|^${key}=.*|${key}=${value}|" "$ENV_FILE" && rm -f "${ENV_FILE}.bak"
-  else
-    echo "${key}=${value}" >> "$ENV_FILE"
-  fi
+  local key="$1" value="$2" temporary
+  [[ "$key" =~ ^[A-Z][A-Z0-9_]*$ && "$value" != *$'\n'* && "$value" != *$'\r'* ]] || return 1
+  temporary="$(mktemp "${ENV_FILE}.XXXXXX")"
+  chmod 600 "$temporary"
+  DEPLOY_ENV_KEY="$key" DEPLOY_ENV_VALUE="$value" awk '
+    BEGIN { key=ENVIRON["DEPLOY_ENV_KEY"]; value=ENVIRON["DEPLOY_ENV_VALUE"] }
+    index($0,key "=")==1 { if(!found) print key "=" value; found=1; next }
+    {print}
+    END {if(!found) print key "=" value}
+  ' "$ENV_FILE" > "$temporary"
+  mv -- "$temporary" "$ENV_FILE"
 }
 
 print_access() {
   local port server
-  port="$(env_get HTTP_PORT 80)"
+  port="$(env_get HTTP_PORT 8080)"
   server="$(env_get SERVER_NAME _)"
   if [ "$server" = "_" ] || [ -z "$server" ]; then
-    server="服务器IP"
+    server="$(env_get HTTP_BIND_ADDRESS 127.0.0.1)"
   fi
 
   echo
@@ -147,26 +153,27 @@ print_access() {
     echo "        http://${server}:${port}/"
   fi
   echo
-  echo "  · 打开页面会先弹出登录框：账号 $(env_get BASIC_AUTH_USER demo)，口令见 .env 的 BASIC_AUTH_PASSWORD"
-  echo "  · 演示身份在页面右上角切换：用户1 / 用户2 / 管理员"
-  echo "  · 浏览器请用服务器 IP 或域名访问，不要用 localhost"
-  echo "  · 云服务器记得放行 ${port} 端口（安全组 / 防火墙）"
+  echo "  · 应用账号：admin；初始密码见 .env 的 AUTH_BOOTSTRAP_PASSWORD（仅首次空库创建生效）"
+  echo "  · 默认仅绑定本机；跨主机访问需要配置 HTTPS 入口和实际监听地址。"
+  echo "  · 就绪检查验证数据库、Redis、认证 MCP 协议；真实模型输出需另行验收。"
   echo
   echo "  常用命令：./deploy.sh logs | ps | down"
   echo
 }
 
-# 仅检查当前 Compose 项目的四项服务；进程 running 不等于依赖已就绪。
+# 仅检查当前 Compose 项目的五项服务；进程 running 不等于依赖已就绪。
 wait_healthy() {
   c_info "等待服务就绪（首次启动 MySQL 初始化约 30~60 秒）..."
   local timeout=${DEPLOY_HEALTH_TIMEOUT_SECONDS:-240} elapsed=0 service id state ready
+  local services=("$@")
+  if [ "${#services[@]}" -eq 0 ]; then services=(mysql redis business-service backend frontend); fi
   if [[ ! "$timeout" =~ ^[1-9][0-9]*$ ]]; then
     c_error "DEPLOY_HEALTH_TIMEOUT_SECONDS 必须是正整数。"
     return 1
   fi
   while [ "$elapsed" -lt "$timeout" ]; do
     ready=true
-    for service in mysql redis backend frontend; do
+    for service in "${services[@]}"; do
       if ! id="$(compose ps --all --quiet "$service")"; then
         c_error "无法查询 ${service} 容器状态。"
         return 1
@@ -190,7 +197,7 @@ wait_healthy() {
       esac
     done
     if [ "$ready" = true ]; then
-      c_info "MySQL、Redis、后端、前端均已通过健康检查。"
+      c_info "指定服务已通过健康检查：${services[*]}。"
       return 0
     fi
     sleep 5
@@ -205,6 +212,7 @@ wait_healthy() {
 action_up() {
   check_docker
   ensure_env
+  validate_model
   c_info "开始构建镜像并启动服务（首次构建要下载依赖，请耐心等待）..."
   compose up -d --build
   compose restart frontend
@@ -215,6 +223,7 @@ action_up() {
 action_rebuild() {
   check_docker
   ensure_env
+  validate_model
   c_info "不使用缓存，强制重新构建镜像..."
   compose build --no-cache
   compose up -d --force-recreate
@@ -225,9 +234,14 @@ action_rebuild() {
 action_update() {
   check_docker
   ensure_env
+  validate_model
   c_info "重新构建前后端镜像并更新（MySQL / Redis 不动）..."
-  compose build backend frontend
-  compose up -d --no-deps --force-recreate backend frontend
+  compose build business-service backend frontend
+  compose up -d --no-deps --force-recreate business-service
+  wait_healthy business-service
+  compose up -d --no-deps --force-recreate backend
+  wait_healthy backend
+  compose up -d --no-deps --force-recreate frontend
   wait_healthy
   c_info "更新完成。"
 }
@@ -273,35 +287,16 @@ action_ps() {
   compose ps
 }
 
-action_start_mock() {
-  check_docker
-  ensure_env
-  set_env SPRING_ARGS "--spring.profiles.active=mock"
-  compose up -d --force-recreate backend
-  # Nginx 启动时解析 backend 地址，后端重建后重新解析，避免继续转发到旧容器 IP。
-  compose restart frontend
-  wait_healthy
-  c_info "已切到模拟模型（无需 API Key）。"
-}
-
 action_start_real() {
   check_docker
   ensure_env
-  local key base model
-  key="$(env_get LLM_API_KEY)"
-  if [ -z "$key" ] || [ "$key" = "sk-no-key-set" ]; then
-    c_error "LLM_API_KEY 还没填，请先编辑 .env 配置真实模型。"
-    exit 1
-  fi
-  base="$(env_get LLM_BASE_URL https://dashscope.aliyuncs.com/compatible-mode)"
-  model="$(env_get LLM_MODEL qwen3.7-plus)"
-  set_env SPRING_ARGS ""
-  set_env LLM_BASE_URL "$base"
-  set_env LLM_MODEL "$model"
-  compose up -d --force-recreate backend
+  validate_model
+  compose up -d --no-deps --force-recreate business-service
+  wait_healthy business-service
+  compose up -d --no-deps --force-recreate backend
   compose restart frontend
   wait_healthy
-  c_info "已切到真实模型：${model} @ ${base}"
+  c_info "真实模型双服务配置已启动；模型输出请通过实际对话验收。"
 }
 
 usage() {
@@ -318,7 +313,6 @@ case "${1:-up}" in
   restart)        action_restart ;;
   logs)           action_logs ;;
   ps|status)      action_ps ;;
-  start-mock)     action_start_mock ;;
   start-real)     action_start_real ;;
   help|-h|--help) usage ;;
   *)              c_error "未知命令：$1"; usage; exit 1 ;;

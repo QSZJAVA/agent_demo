@@ -131,11 +131,11 @@ public class AgentChatService {
                 .map(s -> {
                     reply.append(s);
                     return new AgentEvent(AgentEvent.TEXT, Map.of("delta", s));
-                })
+        })
                 .onErrorResume(e -> {
                     log.error("模型调用失败 conversation={}", convId, e);
                     return Flux.just(new AgentEvent(AgentEvent.ERROR, Map.of("message", friendly(e))));
-                });
+        });
 
         // 文本输出结束后执行，顺序很关键：
         // 1) 模型该刷新预览却没调工具时，服务端用已识别的范围补一次真实预览，保证卡片一定刷新；
@@ -292,14 +292,14 @@ public class AgentChatService {
     /** 模型没调工具却声称已生成清单时的兜底提示 */
     private static final String PLAN_CLAIM_HINT =
             "\n\n（系统提示：本轮没有生成新的待确认清单，请重新说明派单意图，或让我重新查询一次可派单记录。）";
-    /** 模型没调工具却声称预览已刷新时的兜底提示 */
+    /** 模型没调工具却声称预览已刷新时的兜底提示*/
     private static final String PREVIEW_CLAIM_HINT =
             "\n\n（系统提示：本轮没有生成新的预览，上方卡片仍是上一次查询的结果。"
                     + "请重新说明要查询的报表范围（例如只看某张报表、再加上另一张报表），或让我重新查询可派单记录。）";
     /** 模型提到了本轮不存在的预览编号时的兜底提示 */
     private static final String PREVIEW_ID_HINT =
             "\n\n（系统提示：上一条回复提到的预览编号不是本轮生成的预览，请以界面上的预览卡片为准。）";
-    /** 服务端兜底补出了卡片、而模型没调工具却给出了查询结论时的提示 */
+    /** 服务端兜底补出了卡片、而模型没调工具却给出了查询结论时的提示*/
     private static final String FALLBACK_RESULT_HINT =
             "\n\n（系统提示：上面回复中的条数和结论不是本轮查询得到的，请以下方卡片为准。）";
     private static final String QUERY_PENDING_HINT =
@@ -307,7 +307,7 @@ public class AgentChatService {
     /** 条数表述：0 条 / 共 4 条 */
     private static final Pattern COUNT_CLAIM = Pattern.compile("\\d+\\s*条");
     private static final Pattern PLAN_CLAIM = Pattern.compile("已.{0,60}?(生成|发起|更新|创建|提交)");
-    /** 完成态表述：已重查 / 已重新查询 / 已刷新… 用于识别"没调工具却宣称查过了" */
+    /** 完成态表述：已重查 / 已重新查询 / 已刷新… 用于识别"没调工具却宣称查过了"*/
     private static final Pattern RECHECK_CLAIM =
             Pattern.compile("(?:已经|已)(?:重新|再次)?(?:重查|查(?:询|过)?|刷新|更新|生成|载入|预览|拉取)");
     private static final Pattern PREVIEW_CLAIM =

@@ -9,11 +9,15 @@ import java.util.*;
 import static com.example.report.semantic.SemanticIntent.Operation.*;
 import static com.example.report.semantic.SemanticIntent.Target.*;
 
-/** Entity linking and delta reduction. This class never interprets whole sentences. */
+/**
+ * 将已校验的模型意图关联到可见目录并合并范围修改，不负责整句语义解析。
+ * 所有修改先在草稿状态求值；只有每一步都能唯一解析才更新期望范围，失败不能部分生效。
+ */
 @Component
 public class SemanticPlanner {
     private final ReportCatalogService catalog;
     public SemanticPlanner(ReportCatalogService catalog) { this.catalog=catalog; }
+    /** 拒绝本轮动作与禁止条件冲突；需要澄清时保留未解决标记，避免后续省略表达沿用旧范围。 */
     public void requireAction(DialogueState state,SemanticIntent intent) {
         if (intent.forbids(intent.action())) throw new ApiException(422,"本次动作与禁止条件冲突，请明确本轮操作");
         if (intent.action()!=SemanticIntent.Action.CLARIFY) return;
@@ -27,11 +31,12 @@ public class SemanticPlanner {
             default -> "请明确本次操作及公司、报表范围，例如：查询 A 公司销售报表";
         });
     }
+    /** 仅扫描用户可派单目录中的实体候选；词条命中本身不决定追加、移除或派单动作。*/
     public List<String> mentions(CurrentUser user,String message) {
         return catalog.terms().scan(TextNormalizer.normalize(message),catalog.dispatchableIds(user)).stream()
                 .filter(m -> !m.all()).map(TermIndex.Mention::text).distinct().toList();
     }
-    /** A coverage gate rejects omitted catalog entities; it never invents or executes a replacement intent. */
+    /** 要求模型意图覆盖本轮提到的目录实体；遗漏时澄清，不生成替代意图或执行已识别的部分。 */
     public void requireCoverage(DialogueState state,SemanticIntent intent,List<String> mentions) {
         if (!Set.of(SemanticIntent.Action.PREVIEW,SemanticIntent.Action.PREPARE_DISPATCH,SemanticIntent.Action.EXPLAIN_RULES).contains(intent.action())) return;
         if (!hasReportCoverage(intent,mentions)) {
@@ -44,6 +49,7 @@ public class SemanticPlanner {
         var captured=intent.changesFor(REPORTS).stream().flatMap(c -> c.mentions().stream()).map(TextNormalizer::normalize).toList();
         return mentions.stream().map(TextNormalizer::normalize).allMatch(m -> captured.stream().anyMatch(c -> c.contains(m) || m.contains(c)));
     }
+    /** 按协议顺序合并公司和报表范围；记录排除在最终事实快照上另行处理，失败保留原范围并标记待澄清。*/
     public void merge(CurrentUser user, DialogueState state, SemanticIntent intent) {
         requireAction(state,intent);
         // Commit scope only once all operations resolve; a later invalid operation cannot apply a partial program.
@@ -107,6 +113,7 @@ public class SemanticPlanner {
             state.setUnresolvedReports(false);
         }
     }
+    /** 查询或建单前校验期望范围的当前授权；不能因为期望范围失败而退回最近成功范围继续执行。 */
     public void validate(CurrentUser user, DialogueState state) {
         if (state.isUnresolvedCompany()) throw new ApiException(422,"公司范围尚未确定，请明确一家公司或说明查询全部可见公司");
         // Validate desired, never fall back to the last successful/effective scope.

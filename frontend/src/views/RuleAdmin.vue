@@ -126,6 +126,9 @@
 </template>
 
 <script>
+/**
+ * 规则维护页：编辑、校验、试算后发布，规则变更与历史记录由服务端事务管理。
+ */
 import {
   deleteDraft,
   disableRule,

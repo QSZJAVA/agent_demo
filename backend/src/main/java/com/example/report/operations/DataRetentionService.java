@@ -10,7 +10,7 @@ import org.springframework.transaction.support.TransactionOperations;
 import lombok.extern.slf4j.Slf4j;
 import java.util.*;
 
-/** Durable erasure requests, bounded batches, and operational holds for unresolved work. */
+/** 数据留存和会话清理服务：先保存删除墓碑，再有界分批清理；在途、失败或待核对任务保留恢复证据与永久防重标识。 */
 @Slf4j
 @Service
 public class DataRetentionService {
@@ -22,6 +22,9 @@ public class DataRetentionService {
     public DataRetentionService(JdbcTemplate jdbc,TransactionOperations tx,StringRedisTemplate redis,OperationsPolicy policies,OperationsAudit audit) {
         this.jdbc=jdbc;this.tx=tx;this.redis=redis;this.policies=policies;this.audit=audit;
     }
+    /**
+     * 先保存不可逆的删除墓碑并隐藏会话，再由定时任务分批清理；墓碑阻止在途消息、语义状态和工作记忆重新写回。
+     */
     public void request(CurrentUser user,String id,String reason) {
         OperationsPolicy.requireReason(reason);
         tx.executeWithoutResult(status -> {
@@ -41,6 +44,9 @@ public class DataRetentionService {
     public void requireWritable(String id) {
         if(erased(id)) throw new ApiException(409,"会话已进入删除流程");
     }
+    /**
+     * 按各租户保留策略有界清理；保留未完成执行和待核对证据。派单任务只清结果载荷，保留状态与幂等键避免旧请求重新写入。
+     */
     @Scheduled(fixedDelayString="${agent.retention-sweep-ms:60000}")
     public void sweep() {
         try {
@@ -54,6 +60,7 @@ public class DataRetentionService {
                 var system=new CurrentUser(tenant,"retention-service","数据留存服务",Set.of(),Set.of(),true);
                 for(String id:ids) request(system,id,"会话留存到期");
                 purgeResults(tenant,((Number)p.get("resultDays")).intValue());
+                jdbc.update("UPDATE dispatch_job SET result_json=NULL,message='任务结果保留期已到期' WHERE tenant_id=? AND status IN ('SUCCEEDED','FAILED') AND result_json IS NOT NULL AND updated_at<TIMESTAMPADD(DAY,?,NOW()) LIMIT 1000",tenant,-((Number)p.get("resultDays")).intValue());
                 jdbc.update("DELETE FROM business_metric WHERE tenant_id=? AND created_at<TIMESTAMPADD(DAY,?,NOW()) LIMIT 1000",tenant,-((Number)p.get("metricDays")).intValue());
                 jdbc.update("DELETE FROM operations_audit WHERE tenant_id=? AND created_at<TIMESTAMPADD(DAY,?,NOW()) LIMIT 1000",tenant,-((Number)p.get("auditDays")).intValue());
             }
@@ -82,6 +89,9 @@ public class DataRetentionService {
             }
         });
     }
+    /**
+     * 在途预览、未完成派单、失败或未知条目仍需证据支持恢复；命中任一条件时延后会话清理。
+     */
     private boolean held(String conversation) {
         return Boolean.TRUE.equals(jdbc.queryForObject("""
                 SELECT EXISTS(SELECT 1 FROM dispatch_plan WHERE conversation_id=? AND
@@ -89,6 +99,9 @@ public class DataRetentionService {
                   OR EXISTS(SELECT 1 FROM dispatch_preview_job WHERE conversation_id=? AND status IN ('QUEUED','RUNNING'))
                 """,Boolean.class,conversation,conversation));
     }
+    /**
+     * 结果到期后清理展示事实，保留清单条目终态和请求号以继续去重。与创建和认领共用预览锁，避免扫描后新任务出现而误删证据。
+     */
     private void purgeResults(String tenant,int days) {
         var ids=jdbc.queryForList("""
                 SELECT v.id FROM dispatch_preview v WHERE v.tenant_id=? AND v.expires_at<TIMESTAMPADD(DAY,?,NOW())

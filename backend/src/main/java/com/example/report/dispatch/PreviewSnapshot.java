@@ -10,6 +10,8 @@ import java.util.Map;
 
 /**
  * 预览快照：状态 + 记录
+ * @param preview 权威预览状态或其展示载荷
+ * @param items 所属预览或清单内的有序条目
  */
 public record PreviewSnapshot(DispatchPreview preview, List<DispatchPreviewItem> items) {
 

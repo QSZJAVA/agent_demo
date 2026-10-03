@@ -13,6 +13,6 @@ public interface CustomReportAdapter extends ReportQueryAdapter {
     @Override
     List<FactRow> pendingRowsByIds(String tenantId, Collection<String> recordIds);
 
-    /** 适配器编码，对应 query_config.adapter */
+    /** 适配器编码，对应 query_config.adapter*/
     String key();
 }

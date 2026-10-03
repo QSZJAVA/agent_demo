@@ -114,11 +114,14 @@ public class RuleAdminController {
         return Result.ok(ruleService.rollback(user, id));
     }
 
+    /** 规则校验与试算请求；试算只评估事实命中，不改变规则发布状态或执行派单。 */
     @Data
     public static class ExpressionRequest {
         /** 报表目录中的稳定标识 */
         private String reportId;
+        /** 试算公司范围；具体公司须有授权，*表示当前用户全部可见公司。 */
         private String companyCode;
+        /** Aviator规则表达式；语法和变量必须通过报表事实契约校验。 */
         private String expression;
     }
 }

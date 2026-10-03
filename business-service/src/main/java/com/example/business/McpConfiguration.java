@@ -16,6 +16,10 @@ import java.time.Duration;
 import java.util.*;
 import java.util.function.Function;
 
+/**
+ * 注册真实 HTTP MCP 的业务工具、JSON Schema 和返回信封。
+ * 服务间身份验证由过滤器执行，用户授权由业务查询与派单服务再次解析；只读工具不会调用业务写入。
+ */
 @Configuration
 public class McpConfiguration {
     private final ObjectMapper json;
@@ -32,6 +36,9 @@ public class McpConfiguration {
     @Bean public ServletRegistrationBean<HttpServletStatelessServerTransport> mcpServlet(HttpServletStatelessServerTransport transport) {
         return new ServletRegistrationBean<>(transport,"/mcp");
     }
+    /**
+     * 注册六个业务工具及严格字段契约；dispatch_submit 需要已确认清单和执行版本，report_probe 仅供受信服务发布前检查。
+     */
     @Bean(destroyMethod="close") public McpStatelessSyncServer mcpServer(HttpServletStatelessServerTransport transport) {
         var builder=McpServer.sync(transport).serverInfo("report-business-service","1.0.0")
                 .jsonMapper(new JacksonMcpJsonMapper(json)).requestTimeout(Duration.ofSeconds(70))
@@ -61,6 +68,9 @@ public class McpConfiguration {
         return builder.build();
     }
     private CurrentUser user(Map<String,Object> a) {return identities.resolve(string(a,"tenantId"),string(a,"operatorId"));}
+    /**
+     * 为工具统一添加服务端身份字段并验证参数白名单，业务异常转换为可识别的 MCP 错误；底层错误仅记录类型，不回传内部详情。
+     */
     private McpStatelessServerFeatures.SyncToolSpecification tool(String name,String description,boolean readOnly,
             Map<String,Object> properties,List<String> required,Function<Map<String,Object>,Object> action) {
         var all=new LinkedHashMap<>(properties); var req=new ArrayList<>(required);

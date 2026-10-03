@@ -58,6 +58,9 @@
 </template>
 
 <script>
+/**
+ * 预览事实与记录选择卡片；取消选择以报表和记录复合标识保存，只有对应快照有效时才允许生成清单。
+ */
 import { fetchPreviewItems } from '../../api/agent'
 // 预览状态只由服务端给出：ACTIVE 有效 / SUPERSEDED 已作废 / EXPIRED 已失效 / CONSUMED 已据此派单
 const STATUS_TAGS = {

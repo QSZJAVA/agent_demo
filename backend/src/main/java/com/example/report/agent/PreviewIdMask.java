@@ -24,12 +24,12 @@ class PreviewIdMask {
             "预览编号", "预览ID", "previewId", "preview id", "preview_id", "preview-id"
     };
     private static final Pattern KEYWORD = Pattern.compile("(?i)预览\\s*编号|预览\\s*id|preview[ _-]?id");
-    /** 编号两侧可能出现的包装字符：反引号、引号、冒号、空白（含换行）、markdown 强调符 */
+    /** 编号两侧可能出现的包装字符：反引号、引号、冒号、空白（含换行）、markdown 强调符*/
     private static final String WRAPPERS = " \t\r\n:：`'\"“”‘’*";
     /** 关键词之后最多暂存这么多字符，超出就放行，避免拖住正常输出 */
     private static final int HOLD_LIMIT = 48;
     private static final int ID_LENGTH = 32;
-    /** 替换文案：用户需要的是"去哪看"，而不是一个内部编号 */
+    /** 替换文案：用户需要的是"去哪看"，而不是一个内部编号*/
     static final String REPLACEMENT = "（见下方卡片）";
 
     /** 尚未确认安全的尾部文本；holding 为 true 时它一定以关键词开头 */
@@ -126,7 +126,7 @@ class PreviewIdMask {
         return List.of(text);
     }
 
-    /** 本次被掩掉的编号（小写），供服务端判断模型是不是在复述/编造编号 */
+    /** 本次被掩掉的编号（小写），供服务端判断模型是不是在复述/编造编号*/
     Set<String> maskedIds() {
         return Set.copyOf(maskedIds);
     }

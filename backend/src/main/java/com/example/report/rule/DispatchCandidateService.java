@@ -62,7 +62,7 @@ public class DispatchCandidateService {
         return qualified;
     }
 
-    /** 指定报表范围、公司范围内按各报表当前生效规则应派单的记录；结果按传入的报表顺序排列 */
+    /** 指定报表范围、公司范围内按各报表当前生效规则应派单的记录；结果按传入的报表顺序排列*/
     public List<Candidate> findCandidates(String tenantId, Set<String> companies, List<CatalogEntry> reports) {
         return findCandidates(tenantId, companies, reports, Integer.MAX_VALUE);
     }
@@ -86,8 +86,9 @@ public class DispatchCandidateService {
         return result;
     }
 
+    /** 有界游标扫描授权范围内的待派单事实并逐条输出匹配候选；进度表示扫描数，不能作为最终命中数量。 */
     public void scanCandidates(String tenantId, Set<String> companies, List<CatalogEntry> reports,
-                               List<String> excludes, java.util.function.IntConsumer progress,
+    List<String> excludes, java.util.function.IntConsumer progress,
                                java.util.function.Consumer<Candidate> consumer) {
         visitCandidates(tenantId, companies, reports, excludes, progress, candidate -> {
             consumer.accept(candidate);
@@ -95,6 +96,7 @@ public class DispatchCandidateService {
         });
     }
 
+    /** 每页最多500条并在本地完整复核规则；SQL下推只作安全粗筛，求值异常按未命中统计，不能错误派单。*/
     private void visitCandidates(String tenantId, Set<String> companies, List<CatalogEntry> reports,
                                  List<String> excludes, java.util.function.IntConsumer progress,
                                  java.util.function.Predicate<Candidate> visitor) {
@@ -186,7 +188,7 @@ public class DispatchCandidateService {
         }
     }
 
-    /** 单行求值出错按不命中处理：一行脏数据（例如空字段上调字符串函数）不能拖垮整次查询 */
+    /** 单行求值出错按不命中处理：一行脏数据（例如空字段上调字符串函数）不能拖垮整次查询*/
     private boolean matchesSafely(String expression, FactRow row, String ruleName, EvalErrors errors) {
         try {
             return ruleEngine.matches(expression, row.facts());
@@ -205,6 +207,11 @@ public class DispatchCandidateService {
     /**
      * 试算结果：范围内总条数、命中条数、样例；
      * errorCount / errorSample 是求值出错（已按不命中处理）的行数与第一条的单据号和原因
+     * @param total 授权范围内统计总数，不能用当前页长度代替
+     * @param hitCount 命中规则的来源记录数
+     * @param samples 有界试算命中样本，用于人工检查
+     * @param errorCount 规则求值失败的记录数
+     * @param errorSample 有界求值失败摘要，无错误时为空
      */
     public record DryRunResult(int total, int hitCount, List<Candidate> samples, int errorCount, String errorSample) {
     }

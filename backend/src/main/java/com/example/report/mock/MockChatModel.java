@@ -53,13 +53,13 @@ public class MockChatModel implements ChatModel {
     private static final Pattern COMPANY = Pattern.compile("(?i)(?:我|我的)?([A-Z][A-Z0-9_-]{0,31})公司");
     /** 排除意图词 */
     private static final Pattern REMOVE_WORD = Pattern.compile("(?:删掉|删除|去掉|移除|排除|不要)");
-    /** “把云服务删掉”“把应收报表删掉”里被删掉的对象 */
+    /** “把云服务删掉”“把应收报表删掉”里被删掉的对象*/
     private static final Pattern REMOVE_WITH_BA =
             Pattern.compile("(?:把|将)([^,，。;；\\s]{1,12}?)(?:的)?(?:也|都)?(?:删掉|删除|去掉|移除|排除)");
     /** 句首的对象：“应收的也删掉”“应收报表去掉” */
     private static final Pattern REMOVE_LEADING =
             Pattern.compile("^(?:那)?([^,，。;；\\s把将]{1,12}?)(?:的)?(?:也|都)?(?:删掉|删除|去掉|移除|排除)");
-    /** 前置语序：“不要费用报表”“排除应收报表” */
+    /** 前置语序：“不要费用报表”“排除应收报表”*/
     private static final Pattern REMOVE_TRAILING =
             Pattern.compile("(?:删掉|删除|去掉|移除|排除|不要)([^,，。;；\\s]{1,12}?)(?:的)?(?:吧)?$");
 

@@ -18,6 +18,10 @@ import java.time.*;
 import java.security.SecureRandom;
 import java.util.*;
 
+/**
+ * 当前 Demo 的用户、授权和会话数据库存储；提供业务侧身份解析。
+ * 真实外部认证接入与账号生命周期问题按仓库维护范围暂缓，本类注释不表示已完成接入或修复。
+ */
 @Service
 @ConditionalOnProperty(name="security.enabled",havingValue="true")
 public class IdentityStore {
@@ -95,6 +99,22 @@ public class IdentityStore {
     @Scheduled(fixedDelay=3600000) public void cleanup() { jdbc.update("DELETE FROM app_session WHERE expires_at<NOW() LIMIT 10000"); }
     private Set<String> strings(String value) { try{return json.readValue(value,new TypeReference<>() {});}catch(Exception e){throw new IllegalStateException("账号权限配置无效");} }
     private String write(Object value) { try{return json.writeValueAsString(value);}catch(Exception e){throw new IllegalStateException(e);} }
+    /**
+     * 当前Demo登录结果，令牌不得打印或持久化到版本库。
+     * @param token 当前Demo会话令牌，只返回给登录调用方，不得记录到日志
+     * @param expiresAt 有效期截止时间，到期后须重新校验或创建
+     * @param user 服务端解析的当前用户身份
+     */
     public record LoginResult(String token,LocalDateTime expiresAt,CurrentUser user) {}
+    /**
+     * 当前Demo用户与授权维护请求；账号生命周期修复暂缓。
+     * @param userId 租户内用户标识，来自服务端身份
+     * @param displayName 用户展示名称
+     * @param password 请求中的密码输入，仅用于当前Demo认证；不得保存或打印原文
+     * @param companies 授权公司代码集合；空集合表示无公司数据权限
+     * @param permissions 报表权限码集合，*表示全部报表权限
+     * @param admin 是否具有当前系统管理员权限，仍受租户与数据范围约束
+     * @param enabled 当前Demo账号是否启用
+     */
     public record UserForm(String userId,String displayName,String password,Set<String> companies,Set<String> permissions,boolean admin,boolean enabled) {}
 }

@@ -12,9 +12,10 @@ import org.springframework.transaction.support.TransactionTemplate;
 
 import java.util.List;
 
-/** Authoritative concurrency ledger; Redis resets cannot create extra capacity.
- * Admission serializes on the tenant/operation row. Independent transactions prevent
- * business rollbacks from reviving released permits. */
+/**
+ * 数据库并发配额账本；同租户同操作用范围锁串行化容量检查，Redis丢键不会释放真实配额。
+ * 采用独立事务，防止业务回滚恢复已释放租约；租约过期后不能续租复活。
+ */
 @Component
 public class QuotaLeaseStore {
     static final int LEASE_SECONDS = 300;
@@ -28,6 +29,9 @@ public class QuotaLeaseStore {
         tx.setTimeout(10);
     }
 
+    /**
+     * 独立事务内取得租户操作范围锁，清理过期租约并校验租户20个、单用户4个并发上限；成功后持久化唯一令牌。
+     */
     public void acquire(CurrentUser user, String operation, String token) {
         String scope = Digests.sha256(JsonUtil.toJson(List.of(user.tenantId(), operation)));
         tx.executeWithoutResult(status -> {
@@ -52,6 +56,9 @@ public class QuotaLeaseStore {
                 LEASE_SECONDS, token) == 1));
     }
 
+    /**
+     * 幂等删除本令牌的租约；独立提交，外层业务事务回滚也不能恢复配额占用。
+     */
     public void release(String token) {
         tx.executeWithoutResult(status -> jdbc.update("DELETE FROM resource_quota_lease WHERE token=?", token));
     }

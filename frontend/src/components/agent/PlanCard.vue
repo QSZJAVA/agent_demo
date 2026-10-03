@@ -46,12 +46,20 @@
         <span class="hint">{{ statusMessage || '外部结果待核对，不能重复派单。' }}</span>
         <el-button size="mini" :disabled="busy" @click="$emit('reconcile')">查询外部结果</el-button>
       </template>
+      <template v-else-if="state === 'executing'">
+        <span class="hint">清单正在后台执行，刷新页面后可继续读取结果。</span>
+        <el-button size="mini" :disabled="busy" @click="$emit('resume')">刷新执行结果</el-button>
+      </template>
       <span v-else-if="statusMessage" class="hint">{{ statusMessage }}</span>
     </div>
   </el-card>
 </template>
 
 <script>
+/**
+ * 待确认派单清单卡片；展示服务器状态，确认、核对、重试和恢复通过父组件执行。
+ * EXECUTING或待核对状态不能当作未执行；条目分页用序号阻止旧响应覆盖新状态。
+ */
 import { fetchPlanItems } from '../../api/agent'
 import DispatchTrace from './DispatchTrace.vue'
 // 清单状态只由服务端给出：PENDING / EXECUTING / EXECUTED / CANCELLED / EXPIRED；
@@ -103,6 +111,7 @@ export default {
     this.pageRequest++
   },
   methods: {
+    /** 条目分页请求绑定当前清单与序号；状态变化或切页后忽略旧响应，防止展示过期执行结果。 */
     async changePage(page) {
       if (this.disposed) return
       const request = ++this.pageRequest

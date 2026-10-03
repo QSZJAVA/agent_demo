@@ -7,20 +7,23 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
 import java.util.Map;
 
+/**
+ * 把已确认清单条目转换为真实 HTTP MCP 派单和核对调用。
+ * 执行版本直接沿用认领时的快照，禁止临发送时读取新版本来提升旧请求执行权；网络失败交由核对流程处理。
+ */
 @Component
 @ConditionalOnProperty(name="business.remote.enabled", havingValue="true")
 public class McpDispatchGateway implements com.example.report.dispatch.AuthenticatedDispatchGateway {
     private final BusinessMcpClient client;
-    private final org.springframework.jdbc.core.JdbcTemplate jdbc;
-    public McpDispatchGateway(BusinessMcpClient client, org.springframework.jdbc.core.JdbcTemplate jdbc) { this.client=client;this.jdbc=jdbc; }
+    public McpDispatchGateway(BusinessMcpClient client) { this.client=client; }
     @Override public Outcome dispatch(DispatchRequest request) {
         throw new IllegalStateException("MCP 派单必须绑定操作者");
     }
     @Override public Outcome dispatch(CurrentUser user, DispatchRequest request) {
         if (!user.tenantId().equals(request.tenantId())) throw new IllegalArgumentException("租户不匹配");
-        Long version=jdbc.queryForObject("SELECT p.execution_version FROM dispatch_plan p JOIN dispatch_plan_item i ON i.plan_id=p.id WHERE p.tenant_id=? AND p.user_id=? AND i.external_request_id=?",Long.class,user.tenantId(),user.userId(),request.externalRequestId());
+        if (request.executionVersion()<1) throw new IllegalArgumentException("MCP 派单缺少原认领执行版本");
         return client.call("dispatch_submit",user,Map.of("requestId",request.externalRequestId(),
-                "reportId",request.report().reportId(),"record",request.record(),"enforceRules",request.enforceRules(),"executionVersion",version),new TypeReference<>() {});
+                "reportId",request.report().reportId(),"record",request.record(),"enforceRules",request.enforceRules(),"executionVersion",request.executionVersion()),new TypeReference<>() {});
     }
     @Override public Lookup lookup(CurrentUser user,String requestId) {
         try { return client.call("dispatch_lookup",user,Map.of("requestId",requestId),new TypeReference<>() {}); }

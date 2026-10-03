@@ -46,7 +46,7 @@ public class RuleCache implements MessageListener {
     /** key = reportId|companyCode */
     private final AtomicReference<Map<String, DispatchRule>> rules = new AtomicReference<>(Map.of());
     private volatile String fingerprint = "";
-    /** 已发布规则中最近一个尚未到达的生效开始 / 结束时间；到点后需要重新加载，否则按时间生效或失效的规则不会改变指纹 */
+    /** 已发布规则中最近一个尚未到达的生效开始 / 结束时间；到点后需要重新加载，否则按时间生效或失效的规则不会改变指纹*/
     private volatile LocalDateTime nextBoundary;
 
     @org.springframework.beans.factory.annotation.Autowired
@@ -124,7 +124,7 @@ public class RuleCache implements MessageListener {
         return find(rules.get(), tenantId, reportId, companyCode);
     }
 
-    /** 修复 Redis pub/sub 断线期间遗漏的规则发布通知。 */
+    /** 修复 Redis pub/sub 断线期间遗漏的规则发布通知。*/
     @Scheduled(fixedDelayString = "${agent.rule-reconcile-ms:30000}")
     public void reconcile() {
         reload();

@@ -1,3 +1,6 @@
+/**
+ * 应用启动与全局组件注册入口；沿用当前 Vue 2 与 Element UI 依赖，业务身份和权限由服务端接口校验。
+ */
 import Vue from 'vue'
 import Alert from 'element-ui/lib/alert'
 import Aside from 'element-ui/lib/aside'

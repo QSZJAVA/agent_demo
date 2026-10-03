@@ -1,0 +1,47 @@
+flowchart TD
+  read["读取 DialogueState<br/>按会话、租户、操作者归属<br/>hydrate 新的显式 UI 预览"]:::store
+  coverage{"requireCoverage / requireAction<br/>CLARIFY 或禁止冲突立即阻断<br/>对应字段置 unresolved"}:::guard
+  draft["在临时 draft 上合并<br/>按 scopeChanges 原始顺序<br/>全部公司/报表操作成功才提交"]:::agent
+  company["COMPANY<br/>REPLACE：NFKC/去公司后缀/大写<br/>CLEAR：全部可见公司"]:::agent
+  reports["REPORTS<br/>REPLACE / ADD / REMOVE / CLEAR<br/>原话逐项映射到 reportId"]:::agent
+  records["RECORDS 暂不应用<br/>留到最终范围的预览完成<br/>详见第 05 页"]:::agent
+  reportGate{"报表链接必须可靠<br/>EXACT/唯一 ALIAS 可继续<br/>FUZZY/AMBIGUOUS/NONE 需澄清"}:::guard
+  merge["提交 desired 范围<br/>未提及字段保持不变<br/>清除已解决字段的未解标记"]:::store
+  noPartial["任一合并失败<br/>不提交部分 draft<br/>相关 unresolved 标记保留"]:::error
+  validate{"执行前 validate desired<br/>公司范围、报表可用与权限<br/>移除后为空 / 未解字段拒绝"}:::guard
+  action{"按 action 分支<br/>语义层没有 EXECUTE 动作"}:::guard
+  preview["PREVIEW / EXPLAIN_RULES<br/>刷新或复用预览<br/>规则说明来自实际预览"]:::business
+  prepare["PREPARE_DISPATCH<br/>复用或刷新相同范围预览<br/>恢复选择后生成 PENDING"]:::business
+  aux["HELP / CANCEL / SHOW_RESULT<br/>服务端文本或当前清单<br/>不靠模型生成业务结论"]:::agent
+  effective["仅查询成功后更新 effective<br/>previewId 对应成功数据范围<br/>建单成功更新 planId/PLAN_READY"]:::store
+  failure["失败记录 phase 和 lastReason<br/>422 → CLARIFY；其他业务拒绝<br/>基础设施异常 → FAILED"]:::store
+  next["下一轮继续<br/>这些/剩下的参考权威状态<br/>未解条件不能沿用旧数据建单"]:::ui
+  read --> coverage
+  coverage -->|"允许"| draft
+  coverage -->|"需澄清"| failure
+  draft --> company
+  draft --> reports
+  company --> merge
+  reports --> reportGate
+  reportGate -->|"全部成功"| merge
+  reportGate -->|"不可靠"| noPartial
+  draft -->|"跳过记录操作"| records
+  merge --> validate
+  validate -->|"有权且明确"| action
+  validate -->|"拒绝"| failure
+  noPartial --> failure
+  action -->|"查询/规则"| preview
+  action -->|"建单"| prepare
+  action -->|"辅助"| aux
+  preview --> effective
+  prepare --> effective
+  aux --> next
+  effective --> next
+  failure --> next
+  classDef ui fill:#eaf2ff,stroke:#386bc1,color:#1e354c
+  classDef agent fill:#edf5ff,stroke:#3778a8,color:#1e354c
+  classDef model fill:#f3edff,stroke:#8751bf,color:#1e354c
+  classDef business fill:#e8f7ef,stroke:#268255,color:#1e354c
+  classDef guard fill:#fff4dc,stroke:#b58022,color:#1e354c
+  classDef error fill:#fff0ef,stroke:#ba534e,color:#1e354c
+  classDef store fill:#edf1f5,stroke:#60768b,color:#1e354c

@@ -18,6 +18,12 @@ public class TraceReader {
 
     public TraceReader(JdbcTemplate jdbc) { this.jdbc = jdbc; }
 
+    /**
+     * 按当前授权范围查询的有界分页结果。
+     * @param records 当前对象的有界业务记录集合
+     * @param total 授权范围内统计总数，不能用当前页长度代替
+     * @param nextCursor 下一页查询游标；没有后续数据时为空
+     */
     public record Page(List<Map<String, Object>> records, long total, Long nextCursor) { }
 
     public Page page(DispatchPlan plan, String section, long afterId, int size) {

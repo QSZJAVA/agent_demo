@@ -29,7 +29,7 @@ import java.util.regex.Pattern;
  * @param statusColumn       派单状态列
  * @param pendingValue       待派单状态值
  * @param dispatchedValue    已派单状态值
- * @param dispatchedAtColumn 派单时间列（可选，模拟派单接口回写）
+ * @param dispatchedAtColumn 派单时间列（可选，由业务派单事务回写）
  * @param fields             规则可用的事实字段
  * @param derived            派生事实字段
  */
@@ -60,7 +60,7 @@ public record StandardQueryConfig(
     private static final Set<String> RESERVED = Set.of("nil", "true", "false", "lambda", "let", "fn", "if", "else",
             "elsif", "for", "while", "return", "new", "use", "try", "catch", "finally", "throw", "break", "continue", "end");
 
-    /** 配置解析不容忍未知字段：拼错的键（例如 dateColum）必须立刻暴露，而不是静默变成“没有日期列” */
+    /** 配置解析不容忍未知字段：拼错的键（例如 dateColum）必须立刻暴露，而不是静默变成“没有日期列”*/
     private static final ObjectMapper STRICT = JsonMapper.builder()
             .enable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
             .build();
@@ -70,11 +70,21 @@ public record StandardQueryConfig(
         derived = derived == null ? List.of() : List.copyOf(derived);
     }
 
+    /**
+     * 业务数据契约；字段含义及有效范围如下。
+     * @param name 事实变量名，必须与规则可用字段一致
+     * @param column 经验证的来源列名
+     * @param type 字段或事件类型标识，取值由所属协议定义
+     * @param description 业务用途或字段含义说明
+     */
     public record FieldSpec(String name, String column, String type, String description) {
     }
 
     /**
      * @param kind DAYS_SINCE（距该日期的天数）/ DAYS_UNTIL（到该日期还有几天）/ IS_PAST（该日期已过）/ DISPATCHED（是否已派单）
+     * @param name 事实变量名，必须与规则可用字段一致
+     * @param column 经验证的来源列名
+     * @param description 业务用途或字段含义说明
      */
     public record DerivedSpec(String name, String kind, String column, String description) {
     }

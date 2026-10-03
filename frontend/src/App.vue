@@ -70,6 +70,9 @@
 </template>
 
 <script>
+/**
+ * 应用外壳与当前用户导航；管理入口的显示控制用于交互，访问授权仍由服务端决定。
+ */
 import AgentChat from './components/agent/AgentChat.vue'
 import { fetchUsers } from './api/agent'
 import { fetchCatalog } from './api/catalog'

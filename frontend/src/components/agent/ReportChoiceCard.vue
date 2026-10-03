@@ -26,6 +26,9 @@
 </template>
 
 <script>
+/**
+ * 报表歧义选择卡片；候选来自可见目录，用户选择后由服务端重新验证当前业务授权。
+ */
 export default {
   name: 'ReportChoiceCard',
   props: {

@@ -16,6 +16,11 @@ final class RuleSqlPredicate {
     private static final Pattern COMPARISON = Pattern.compile(
             "\\s*([A-Za-z_][A-Za-z0-9_]*)\\s*(==|!=|>=|<=|>|<)\\s*(nil|true|false|-?[0-9]+(?:\\.[0-9]+)?|'[A-Za-z0-9 _-]{1,100}')\\s*");
 
+    /**
+     * 规则下推产生的SQL片段和参数绑定值。
+     * @param sql 由服务端规则编译器生成的参数化SQL片段
+     * @param values 与SQL占位符顺序一致的绑定值
+     */
     record Fragment(String sql, List<Object> values) { }
 
     static Optional<Fragment> compile(StandardQueryConfig config, String expression) {

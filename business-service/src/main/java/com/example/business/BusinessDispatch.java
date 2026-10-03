@@ -15,7 +15,10 @@ import org.springframework.transaction.annotation.*;
 import java.time.LocalDateTime;
 import java.util.*;
 
-/** Durable business mutation: identity + execution fence + rule/version + source write + result in one transaction. */
+/**
+ * 真实 HTTP MCP 业务派单的事务边界：复核当前授权、持久化确认、执行轮次、目录及规则，再写入来源业务状态和幂等结果。
+ * 同一请求号必须匹配相同操作者与负载；成功结果只回放，结果不明时应查询账本再决定后续操作。
+ */
 @Service
 public class BusinessDispatch {
     private final JdbcTemplate jdbc;
@@ -27,6 +30,10 @@ public class BusinessDispatch {
     public BusinessDispatch(JdbcTemplate jdbc,BusinessQueries queries,DispatchRuleMapper rules,RuleEngine engine,IdentityStore identities,ObjectMapper json) {
         this.jdbc=jdbc;this.queries=queries;this.rules=rules;this.engine=engine;this.identities=identities;this.json=json;
     }
+    /**
+     * 在 READ_COMMITTED 事务内锁定用户、幂等账本、清单与目录，复核后更新来源记录和最终结果。成功请求回放不再写业务表；执行权失效或负载不同立即拒绝。
+     * @param executionVersion 编排服务认领时冻结的执行轮次，必须匹配数据库已确认清单
+     */
     @Transactional(isolation=Isolation.READ_COMMITTED)
     public Outcome submit(CurrentUser caller,String requestId,String reportId,Candidate record,boolean enforceRules,long executionVersion) {
         if(requestId==null || !requestId.matches("[a-zA-Z0-9_-]{1,160}") || record==null
@@ -64,6 +71,9 @@ public class BusinessDispatch {
                 outcome.success()?"SUCCESS":"FAILED",outcome.errorCode(),outcome.message(),user.tenantId(),requestId);
         return outcome;
     }
+    /**
+     * 以持久化清单作为唯一执行授权：确认人、确认时间、EXECUTING状态、执行版本及条目快照必须全部匹配。模型或网络参数本身不能构成确认依据。
+     */
     private void verifyConfirmation(CurrentUser user,String requestId,Candidate record,boolean rulesRequired,long executionVersion) {
         var rows=jdbc.queryForList("SELECT i.plan_id FROM dispatch_plan_item i JOIN dispatch_plan p ON p.id=i.plan_id "
                 +"WHERE p.tenant_id=? AND p.user_id=? AND i.external_request_id=?",user.tenantId(),user.userId(),requestId);
@@ -90,6 +100,9 @@ public class BusinessDispatch {
                 .sorted(Comparator.<DispatchRule,Boolean>comparing(r->!company.equals(r.getCompanyCode())).thenComparing(DispatchRule::getVersion,Comparator.reverseOrder()))
                 .findFirst().orElse(null);
     }
+    /**
+     * 锁定读等待同请求的业务事务提交，避免把未提交的成功误判为 NOT_FOUND 并引发重发；只读取当前租户当前操作者的账本。
+     */
     @Transactional(isolation=Isolation.READ_COMMITTED)
     public Lookup lookup(CurrentUser user,String requestId) {
         // A locking read waits for an in-flight transaction; an uncommitted success must not
@@ -98,6 +111,9 @@ public class BusinessDispatch {
                 (rs,i)->new Lookup(switch(rs.getString("status")){case "SUCCESS"->LookupStatus.SUCCESS;case "FAILED"->LookupStatus.FAILED;default->LookupStatus.UNKNOWN;},rs.getString("error_code"),rs.getString("message")),user.tenantId(),requestId,user.userId())
                 .stream().findFirst().orElse(new Lookup(LookupStatus.NOT_FOUND,null,"请求未受理"));
     }
+    /**
+     * 管理员只能核对本租户已存在清单对应的请求，并须具备清单全部公司和报表权限；返回旧操作者账本，不重新激活原账号或执行派单。
+     */
     @Transactional(isolation=Isolation.READ_COMMITTED)
     public Lookup lookupForOperator(CurrentUser actor,String operatorId,String requestId) {
         if(!actor.admin()) throw ApiException.forbidden("仅管理员可代核对");

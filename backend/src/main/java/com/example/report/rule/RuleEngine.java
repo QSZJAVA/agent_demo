@@ -41,7 +41,7 @@ public class RuleEngine {
         }
     }
 
-    /** 表达式引用的变量名，用于和事实模型字段比对 */
+    /** 表达式引用的变量名，用于和事实模型字段比对*/
     public Set<String> variables(String expression) {
         validate(expression);
         Expression compiled = evaluator.compile(expression, true);

@@ -116,7 +116,7 @@ public class ReportCatalog implements MessageListener {
         reload();
     }
 
-    /** 全部报表（含草稿、停用），按目录顺序 */
+    /** 全部报表（含草稿、停用），按目录顺序*/
     public List<CatalogEntry> all() {
         return state.get().entries();
     }
@@ -131,7 +131,7 @@ public class ReportCatalog implements MessageListener {
                 : Optional.ofNullable(state.get().legacyCodes().get(legacyCode.trim().toLowerCase()));
     }
 
-    /** 已发布报表的说法索引（解析时再按用户可见范围过滤） */
+    /** 已发布报表的说法索引（解析时再按用户可见范围过滤）*/
     public TermIndex terms() {
         return state.get().terms();
     }

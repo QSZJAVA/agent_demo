@@ -1,3 +1,6 @@
+/**
+ * 业务页面路由与导航配置；页面可见性不能代替后端报表、公司和管理员权限检查。
+ */
 import Vue from 'vue'
 import VueRouter from 'vue-router'
 

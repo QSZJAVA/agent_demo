@@ -42,7 +42,7 @@ public class ReportCatalogService {
         catalog.reload();
     }
 
-    /** 已发布、在生效期、配置可用、用户有该报表的权限 */
+    /** 已发布、在生效期、配置可用、用户有该报表的权限*/
     public boolean isVisible(CurrentUser user, CatalogEntry entry) {
         return java.util.Objects.equals(user.tenantId(), entry.tenantId()) && entry.published() && entry.effectiveAt(LocalDateTime.now()) && entry.usable()
                 && user.hasPermission(entry.permissionCode())
@@ -74,7 +74,7 @@ public class ReportCatalogService {
         return catalog.find(reportId).filter(e -> isDispatchable(user, e)).map(e -> e.forUser(user)).orElseThrow(() -> ApiException.notFound(NOT_FOUND));
     }
 
-    /** 旧接口仍按 Demo 时期的 reportType 访问时，经映射表找到目录，再做同样的权限校验 */
+    /** 旧接口仍按 Demo 时期的 reportType 访问时，经映射表找到目录，再做同样的权限校验*/
     public CatalogEntry requireVisibleByLegacyCode(CurrentUser user, String legacyCode) {
         String reportId = catalog.reportIdForLegacyCode(legacyCode).orElseThrow(() -> ApiException.notFound(NOT_FOUND));
         return requireVisible(user, reportId);
@@ -92,7 +92,7 @@ public class ReportCatalogService {
         return requireVisibleByLegacyCode(user, key);
     }
 
-    /** 在当前用户可派单的报表范围内解析说法 */
+    /** 在当前用户可派单的报表范围内解析说法*/
     public ResolveResult resolve(CurrentUser user, String query) {
         List<ReportRef> visible = dispatchableReports(user).stream().map(CatalogEntry::ref).toList();
         long started = System.nanoTime();
@@ -124,7 +124,7 @@ public class ReportCatalogService {
         return catalog.find(reportId);
     }
 
-    /** 按目录顺序排列指定报表；不存在的 ID 被忽略 */
+    /** 按目录顺序排列指定报表；不存在的 ID 被忽略*/
     public List<CatalogEntry> inCatalogOrder(Collection<String> reportIds) {
         return catalog.all().stream().filter(e -> reportIds.contains(e.reportId())).toList();
     }
@@ -137,7 +137,7 @@ public class ReportCatalogService {
         return versions;
     }
 
-    /** 范围内报表目录版本的指纹：任何一张报表的定义变化、被停用或不再可见，指纹都会变 */
+    /** 范围内报表目录版本的指纹：任何一张报表的定义变化、被停用或不再可见，指纹都会变*/
     public static String fingerprint(Collection<CatalogEntry> entries) {
         String canonical = versions(entries).entrySet().stream()
                 .map(e -> e.getKey() + ":" + e.getValue())

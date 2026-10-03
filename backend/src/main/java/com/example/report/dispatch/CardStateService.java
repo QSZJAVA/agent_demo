@@ -35,10 +35,17 @@ public class CardStateService {
 
     /**
      * @param message 状态说明（失效原因等），前端直接展示
+     * @param status 当前业务状态，以所属状态机为准
+     * @param reason 操作原因或状态变更说明；保存前脱敏
      */
     public record CardState(String status, String reason, String message) {
     }
 
+    /**
+     * 会话内业务卡片的当前权威状态。
+     * @param previews 以预览标识为键的权威状态集合
+     * @param plans 清单或以清单标识为键的权威状态集合
+     */
     public record ConversationStates(Map<String, CardState> previews, Map<String, CardState> plans) {
     }
 

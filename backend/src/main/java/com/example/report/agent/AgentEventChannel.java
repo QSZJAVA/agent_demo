@@ -20,7 +20,7 @@ public class AgentEventChannel {
     /** 本轮已发出过的事件类型，供服务端兜底校验（例如判断是否真的生成过待确认清单） */
     private final Set<String> emittedTypes = ConcurrentHashMap.newKeySet();
 
-    /** 本轮真正生成过的预览编号，用来识别模型复述或编造的编号 */
+    /** 本轮真正生成过的预览编号，用来识别模型复述或编造的编号*/
     private final Set<String> previewIds = ConcurrentHashMap.newKeySet();
 
     /** 本轮被调用过的工具（不论结果），模型已经处理过的意图服务端不再兜底 */
@@ -34,7 +34,7 @@ public class AgentEventChannel {
         sink.tryEmitNext(new AgentEvent(type, data));
     }
 
-    /** 本轮是否发过某类结构化事件 */
+    /** 本轮是否发过某类结构化事件*/
     public boolean hasEmitted(String type) {
         return emittedTypes.contains(type);
     }

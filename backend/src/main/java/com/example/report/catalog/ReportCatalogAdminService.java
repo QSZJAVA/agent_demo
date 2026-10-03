@@ -88,7 +88,7 @@ public class ReportCatalogAdminService {
         return d;
     }
 
-    /** 修改定义：已发布的报表修改后立即生效，所以同样要通过发布前的校验 */
+    /** 修改定义：已发布的报表修改后立即生效，所以同样要通过发布前的校验*/
     @Transactional
     public ReportDefinition update(CurrentUser admin, String reportId, DefinitionForm form) {
         ReportDefinition d = require(admin, reportId);
@@ -112,6 +112,7 @@ public class ReportCatalogAdminService {
         return d;
     }
 
+    /** 发布前探测真实来源表、字段及唯一记录标识；通过后提升目录版本，保存快照并广播刷新。 */
     @Transactional
     public ReportDefinition publish(CurrentUser admin, String reportId) {
         ReportDefinition d = require(admin, reportId);
@@ -127,7 +128,7 @@ public class ReportCatalogAdminService {
         return d;
     }
 
-    /** 停用：立即从所有用户的可见目录中消失，基于它的预览与待确认清单随目录版本变化失效 */
+    /** 停用：立即从所有用户的可见目录中消失，基于它的预览与待确认清单随目录版本变化失效*/
     @Transactional
     public ReportDefinition disable(CurrentUser admin, String reportId) {
         ReportDefinition d = require(admin, reportId);
@@ -294,6 +295,7 @@ public class ReportCatalogAdminService {
                 .eq(ReportAlias::getTenantId,d.getTenantId()).eq(ReportAlias::getReportId,d.getReportId())));
     }
 
+    /** 在当前版本匹配时恢复历史定义及别名，重新校验来源配置并生成更高的新版本，不能回退版本号绕过旧预览失效。 */
     @Transactional
     public ReportDefinition rollback(CurrentUser admin, String reportId, long target, long expectedVersion) {
         ReportDefinition current = require(admin,reportId);
@@ -331,32 +333,47 @@ public class ReportCatalogAdminService {
         return s == null || s.isBlank();
     }
 
+    /** 报表定义维护请求；稳定标识创建后固定，更新绑定页面读取时的目录版本。*/
     @Data
     public static class DefinitionForm {
+        /** 页面读取时的目录版本；提交更新时用于发现并发管理员修改。 */
         private Long expectedVersion;
-        /** 可选，创建时指定稳定标识；之后不可修改 */
+        /** 可选，创建时指定稳定标识；之后不可修改*/
         private String reportId;
+        /** 租户内唯一接口编码，可维护但不改变reportId。 */
         private String reportCode;
+        /** 报表当前展示名称。*/
         private String reportName;
+        /** 业务域编码，例如sales、receivable或expense。 */
         private String domainCode;
+        /** 报表用途说明，可为空。*/
         private String description;
         /** STANDARD / ADAPTER */
         private String queryMode;
-        /** JSON 对象或 JSON 字符串 */
+        /** JSON 对象或 JSON 字符串*/
         private Object queryConfig;
+        /** 是否允许派单；发布状态、权限和当前记录状态仍须满足。 */
         private Boolean dispatchEnabled;
+        /** 访问报表必须具备的业务权限码。*/
         private String permissionCode;
+        /** 目录展示及汇总排序值。 */
         private Integer sortOrder;
+        /** 报表业务负责人用户标识，可为空。*/
         private String ownerUserId;
+        /** 生效开始时间，含边界；空表示不限制开始。 */
         private LocalDateTime effectiveFrom;
+        /** 生效结束时间，不含边界；空表示长期有效。*/
         private LocalDateTime effectiveTo;
     }
 
+    /** 目录别名维护请求；名称归一化后仍须校验冲突，不能把别名当作SQL输入。 */
     @Data
     public static class AliasForm {
+        /** 用户口语、简称或历史名称。*/
         private String alias;
         /** SHORT / COLLOQUIAL / ENGLISH / HISTORICAL / DEPARTMENT / TYPO */
         private String aliasType;
+        /** 解析候选排序权重；数值越大越优先。*/
         private Integer priority;
     }
 }

@@ -87,15 +87,29 @@ public class DispatchService {
 
     /** 确认执行一份待确认清单（前端确认按钮，或 require-confirm=false 时由工具直接调用） */
     public DispatchResultPayload confirm(CurrentUser user, String planId, String traceId) {
+        return confirm(user,planId,traceId,null);
+    }
+
+    /**
+     * 确认执行时取得并发配额；已结束清单回放结果。
+     * @param expectedVersion 异步任务提交时的执行版本；为空表示同步入口，非空时必须与认领前版本一致
+     * @return 逐条派单结果，包含失败、可重试数量及回放标记
+     */
+    public DispatchResultPayload confirm(CurrentUser user, String planId, String traceId, Long expectedVersion) {
         try (ResourceQuotaService.Permit permit = acquirePlanPermit(user, planId)) {
-            return confirmWithPermit(user, planId, traceId, permit);
+            return confirmWithPermit(user, planId, traceId, permit,expectedVersion);
         }
     }
 
     private DispatchResultPayload confirmWithPermit(CurrentUser user, String planId, String traceId, ResourceQuotaService.Permit permit) {
+        return confirmWithPermit(user,planId,traceId,permit,null);
+    }
+
+    private DispatchResultPayload confirmWithPermit(CurrentUser user, String planId, String traceId, ResourceQuotaService.Permit permit,Long expectedVersion) {
         ResourceQuotaService.check(permit);
         PlanSnapshot snapshot = planService.getOwned(user, planId);
         DispatchPlan plan = snapshot.plan();
+        requireExpectedVersion(plan,expectedVersion);
         if (DispatchPlan.EXECUTED.equals(plan.getStatus())) {
             return replay(snapshot);
         }
@@ -167,15 +181,23 @@ public class DispatchService {
 
     /** 仅重试外部接口明确返回失败的条目；SUCCESS/SKIPPED/UNKNOWN 绝不重发。 */
     public DispatchResultPayload retryFailed(CurrentUser user, String planId) {
+        return retryFailed(user,planId,null);
+    }
+
+    /**
+     * 仅重发业务接口已明确返回 FAILED 的条目；UNKNOWN 先核对，SUCCESS 与 SKIPPED 不重发。异步调用须绑定提交时的清单版本。
+     */
+    public DispatchResultPayload retryFailed(CurrentUser user, String planId, Long expectedVersion) {
         try (ResourceQuotaService.Permit permit = acquirePlanPermit(user, planId)) {
-            return retryFailedWithPermit(user, planId, permit);
+            return retryFailedWithPermit(user, planId, permit,expectedVersion);
         }
     }
 
-    private DispatchResultPayload retryFailedWithPermit(CurrentUser user, String planId, ResourceQuotaService.Permit permit) {
+    private DispatchResultPayload retryFailedWithPermit(CurrentUser user, String planId, ResourceQuotaService.Permit permit,Long expectedVersion) {
         ResourceQuotaService.check(permit);
         PlanSnapshot snapshot = planService.getOwned(user, planId);
         DispatchPlan plan = snapshot.plan();
+        requireExpectedVersion(plan,expectedVersion);
         if (!DispatchPlan.EXECUTED.equals(plan.getStatus()) || plan.getFailedCount() == null || plan.getFailedCount() == 0) {
             throw new ApiException(409, "该清单没有可重试的失败记录");
         }
@@ -186,7 +208,8 @@ public class DispatchService {
                 .orElseThrow(() -> ApiException.notFound("原预览不存在"));
         String reason = versions.verifyForRetry(user, preview);
         if (reason != null) throw new ApiException(409, "权限、报表或规则已变化，请重新预览后处理失败记录");
-        var claimedVersion = plans.claimRetry(planId, LocalDateTime.now());
+        var claimedVersion = expectedVersion==null ? plans.claimRetry(planId, LocalDateTime.now())
+                : plans.claimRetry(planId,expectedVersion,LocalDateTime.now());
         if (claimedVersion.isEmpty()) {
             throw new ApiException(409, "该清单正在处理或已被其他请求重试");
         }
@@ -225,8 +248,8 @@ public class DispatchService {
                 DispatchGateway.Outcome outcome = plans.withExecutionRight(planId, executionVersion,
                         () -> {
                             ResourceQuotaService.check(permit);
-                            return callGateway(user, requestId, report, c, !SOURCE_MANUAL.equals(preview.getSource()));
-                        });
+                            return callGateway(user, requestId, report, c, !SOURCE_MANUAL.equals(preview.getSource()), executionVersion);
+                });
                 String code = outcome.success() ? DispatchPlanItem.SUCCESS
                         : "RESULT_UNKNOWN".equals(outcome.errorCode()) ? DispatchPlanItem.UNKNOWN : DispatchPlanItem.FAILED;
                 uncertain |= DispatchPlanItem.UNKNOWN.equals(code);
@@ -261,6 +284,9 @@ public class DispatchService {
         }
     }
 
+    /**
+     * 按认领版本续写清单心跳，避免另一个执行轮次被旧定时器误续租；执行结束必须取消定时器。
+     */
     private ScheduledFuture<?> startHeartbeat(String planId, long executionVersion) {
         return executionHeartbeats.scheduleAtFixedRate(() -> {
             try {
@@ -271,10 +297,22 @@ public class DispatchService {
         }, 30, 30, TimeUnit.SECONDS);
     }
 
+    /**
+     * 每次外部写入前验证清单仍处于 EXECUTING 且版本属于本轮；旧轮次即使查询过事实也不能继续发送。
+     */
     private void requireExecution(String planId, long executionVersion) {
+        if(Thread.currentThread().isInterrupted()) throw new ApiException(409,"任务已中断，请刷新并核对持久结果");
         if (!plans.isExecuting(planId, executionVersion)) {
             throw new ApiException(409, "清单执行权已失效，请刷新并核对结果");
         }
+    }
+
+    /**
+     * 异步排队期间清单可能已核对或重试；版本不同拒绝这条旧命令，不将旧请求升级到最新轮次。
+     */
+    private static void requireExpectedVersion(DispatchPlan plan,Long expectedVersion) {
+        if(expectedVersion!=null && !Objects.equals(expectedVersion,plan.getExecutionVersion()))
+            throw new ApiException(409,"任务提交后清单执行版本已变化，请刷新后重新处理");
     }
 
     @jakarta.annotation.PreDestroy
@@ -289,7 +327,7 @@ public class DispatchService {
         }
     }
 
-    /** Read-only lookup delegated by an administrator; this path never submits or retries mutations. */
+    /** Read-only lookup delegated by an administrator; this path never submits or retries mutations.  * 管理员代核对使用真实操作者的幂等请求号；管理员身份用于服务端范围授权和审计，不能冒充原用户执行新的写入。*/
     public DispatchResultPayload reconcileForOperator(CurrentUser actor,String operatorId,String planId) {
         com.example.report.operations.OperationsPolicy.requireAdmin(actor);
         CurrentUser scope = new CurrentUser(actor.tenantId(),operatorId,actor.displayName(),actor.companies(),actor.permissions(),true);
@@ -397,10 +435,29 @@ public class DispatchService {
         return plan;
     }
 
-    /** 报表页手工派单：按记录主键，只允许操作可见报表中、用户可见公司的记录 */
+    /**
+     * 报表页手工派单：按记录主键，只允许操作可见报表中、用户可见公司的记录
+     * @param planId 派单清单标识，关联服务端持久化清单
+     * @param docNo 来源业务单据号，可空时表示来源未提供
+     * @param status 当前业务状态，以所属状态机为准
+     * @param retryableCount 业务接口已明确失败且允许重试的条目数；未知结果不能直接重发
+     * @param outcome 逐条业务结果：SUCCESS、FAILED、SKIPPED或UNKNOWN
+     * @param message 可展示的操作摘要或失败原因，禁止包含凭据
+     */
     public record ManualPlan(String planId, String docNo, String status, int retryableCount, String outcome, String message) { }
+    /**
+     * 人工记录派单的汇总与逐条清单结果。
+     * @param total 授权范围内统计总数，不能用当前页长度代替
+     * @param successCount 成功派单的记录数
+     * @param failedCount 非成功记录统计，具体结果见失败条目或待核对状态
+     * @param reviewCount 需要结果核对的记录数
+     * @param plans 清单或以清单标识为键的权威状态集合
+     */
     public record ManualResult(int total, int successCount, int failedCount, int reviewCount, List<ManualPlan> plans) { }
 
+    /**
+     * 人工选择入口为每条记录创建可追溯清单再执行；保留用户指定范围并校验当前业务授权，最多50条。返回每条清单及待核对数量。
+     */
     public ManualResult dispatchDirect(CurrentUser user, String reportIdOrLegacyCode, List<String> recordIds) {
         CatalogEntry report = catalogService.requireVisibleByIdOrLegacyCode(user, reportIdOrLegacyCode);
         report = catalogService.requireDispatchable(user, report.reportId());
@@ -465,6 +522,9 @@ public class DispatchService {
         return keys;
     }
 
+    /**
+     * 按当前权限、目录、规则和来源记录复核后逐条执行。发送前持久化 UNKNOWN，发送后仅保存本轮结果；连接中断保留未知状态等待核对，避免重复写入。
+     */
     private DispatchResultPayload execute(CurrentUser user, DispatchPlan plan, DispatchPreview preview,
                                           List<DispatchPlanItem> items, String traceId, long executionVersion,
                                           ResourceQuotaService.Permit permit) {
@@ -523,8 +583,8 @@ public class DispatchService {
                 DispatchGateway.Outcome outcome = plans.withExecutionRight(plan.getId(), executionVersion,
                         () -> {
                             ResourceQuotaService.check(permit);
-                            return callGateway(user, requestId, report, c, !SOURCE_MANUAL.equals(preview.getSource()));
-                        });
+                            return callGateway(user, requestId, report, c, !SOURCE_MANUAL.equals(preview.getSource()), executionVersion);
+                });
                 code = outcome.success() ? DispatchPlanItem.SUCCESS
                         : "RESULT_UNKNOWN".equals(outcome.errorCode()) ? DispatchPlanItem.UNKNOWN : DispatchPlanItem.FAILED;
                 uncertainOutcome |= DispatchPlanItem.UNKNOWN.equals(code);
@@ -578,10 +638,13 @@ public class DispatchService {
                 LinkedHashMap::new, Collectors.mapping(DispatchPlanItem::getRecordId, Collectors.toList())));
     }
 
+    /**
+     * 调用网关时携带认领瞬间冻结的执行版本；该调用无自动重试，传输异常不能当作业务明确失败。
+     */
     private DispatchGateway.Outcome callGateway(CurrentUser user, String requestId, CatalogEntry report, Candidate c,
-                                               boolean enforceRules) {
+                                               boolean enforceRules, long executionVersion) {
         try {
-            var request = new DispatchGateway.DispatchRequest(user.tenantId(), requestId, report, c, enforceRules);
+            var request = new DispatchGateway.DispatchRequest(user.tenantId(), requestId, report, c, enforceRules, executionVersion);
             return gateway instanceof AuthenticatedDispatchGateway authenticated ? authenticated.dispatch(user, request) : gateway.dispatch(request);
         } catch (Exception e) {
             log.warn("派单接口调用异常 {} {} {}", report.reportId(), c.docNo(), e.getMessage());
@@ -589,6 +652,9 @@ public class DispatchService {
         }
     }
 
+    /**
+     * 条目状态与审计证据在同一短事务保存，并绑定执行版本；数据库失败不能留下只有展示结果而没有权威状态的记录。
+     */
     private void persistItem(CurrentUser user, AuditService.Context ctx, DispatchPlanItem item,
                              long executionVersion, String phase) {
         tx.executeWithoutResult(status -> {

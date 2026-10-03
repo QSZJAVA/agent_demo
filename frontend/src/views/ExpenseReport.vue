@@ -17,6 +17,9 @@
 </template>
 
 <script>
+/**
+ * 费用报表页；共用分页状态与人工派单组件，数据范围和总数由服务端按当前权限计算。
+ */
 import ReportTable from '../components/ReportTable.vue'
 import { fetchExpenseReport } from '../api/report'
 import { pagedReport } from '../utils/pagedReport'

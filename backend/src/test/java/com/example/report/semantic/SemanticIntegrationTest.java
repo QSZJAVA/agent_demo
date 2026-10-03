@@ -123,8 +123,8 @@ class SemanticIntegrationTest {
         org.mockito.Mockito.doReturn(new SemanticIntent(2,SemanticIntent.Action.PREVIEW,List.of(
                 new SemanticIntent.ScopeChange(SemanticIntent.Target.REPORTS,SemanticIntent.Operation.REPLACE,List.of("费用报表"),"只查费用报表")),List.of(),SemanticIntent.Clarify.NONE))
                 .when(parser).parse(org.mockito.ArgumentMatchers.eq("只查费用报表"),org.mockito.ArgumentMatchers.any());
-        turn(id,"只查费用报表");
-        assertTrue(store.read(user(),id).isUnresolvedRecords());
+        var changed=turn(id,"只查费用报表");
+        assertTrue(store.read(user(),id).isUnresolvedRecords(),text(changed));
         assertFalse(turn(id,"剩下的帮我派单吧").stream().anyMatch(e->"plan".equals(e.event())));
         turn(id,"恢复全部记录");
         assertFalse(store.read(user(),id).isUnresolvedRecords());

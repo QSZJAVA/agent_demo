@@ -12,6 +12,10 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
 import java.util.*;
 
+/**
+ * 真实 HTTP MCP 的业务查询边界；每次依据当前身份检查租户、公司和报表权限。
+ * 仅提供有界分页、游标扫描、记录复核和配置探测，不能从工具参数接收任意 SQL。
+ */
 @Service
 public class BusinessQueries {
     private final ReportDefinitionMapper definitions;
@@ -20,6 +24,9 @@ public class BusinessQueries {
     public BusinessQueries(ReportDefinitionMapper definitions,QueryAdapterFactory adapters,ReportService reports) {
         this.definitions=definitions;this.adapters=adapters;this.reports=reports;
     }
+    /**
+     * 读取本租户报表并校验当前授权、发布和生效状态；写入流程可要求锁目录，以串行化配置变更和派单复核。
+     */
     public CatalogEntry require(CurrentUser user,String reportId,boolean lock) {
         var d=lock?definitions.lockById(reportId):definitions.selectById(reportId);
         if(d==null || !Objects.equals(d.getTenantId(),user.tenantId()) || !user.hasPermission(d.getPermissionCode())) throw ApiException.notFound("报表不存在或无权访问");
@@ -45,6 +52,9 @@ public class BusinessQueries {
         require(user,d.getReportId(),false);
         return switch(code) {case "sales"->reports.pageSales(user,page,size);case "receivable"->reports.pageReceivable(user,page,size);case "expense"->reports.pageExpense(user,page,size);default->throw new ApiException("请使用 report_records 查询目录扩展报表");};
     }
+    /**
+     * 查询模式限定在白名单并限制页大小；公司范围须属于当前用户，复核ID也只访问当前租户，不能扩大工具调用权限。
+     */
     public List<FactRow> records(CurrentUser user,String reportId,String mode,Set<String> companies,String afterId,int offset,int size,List<String> ids) {
         var entry=require(user,reportId,false);
         if(size<1 || size>500 || offset<0 || offset>1000000 || (afterId!=null && afterId.length()>128)) throw new ApiException("分页参数超出范围");
@@ -64,5 +74,8 @@ public class BusinessQueries {
         if(result.size()>500) throw new ApiException(502,"报表适配器未遵守分页上限");
         return result.stream().filter(row->scope.contains(row.companyCode())).toList();
     }
+    /**
+     * 仅探测来源表、字段和唯一标识配置，失败直接拒绝发布；不返回或执行真实业务记录。
+     */
     public boolean probe(String mode,String config) {adapters.createAndProbe(mode,config);return true;}
 }

@@ -11,6 +11,8 @@ import java.util.List;
  * @param matchedTerms        命中的说法原文
  * @param unrecognized        用户说了、但在可见目录里没有对应报表的片段（提示用，不影响已识别部分）
  * @param noAccessibleReports 当前账号没有任何可访问的可派单报表
+ * @param matchType 名称匹配类型；歧义或未识别不能自动执行
+ * @param query 用户对报表的说法或本次解析输入
  */
 public record ResolveResult(
         MatchType matchType,

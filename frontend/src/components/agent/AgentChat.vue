@@ -95,6 +95,7 @@
                 @confirm="confirmPlan(m)"
                 @cancel="cancelPlanCard(m)"
                 @reconcile="reconcilePlanCard(m)"
+                @resume="resumeDispatch(m)"
               />
             </template>
             <template v-else-if="m.role === 'card' && m.cardType === 'result'">
@@ -134,12 +135,17 @@
 </template>
 
 <script>
+/**
+ * 会话及结构化业务卡片交互；服务端语义状态决定查询范围，卡片动作绑定其来源预览或清单。
+ * 会话切换、组件销毁与登录变化后忽略旧请求；SSE和任务中断时读取已保存状态，再决定允许的用户动作。
+ */
 import PreviewCard from './PreviewCard.vue'
 import PlanCard from './PlanCard.vue'
 import ResultCard from './ResultCard.vue'
 import ReportChoiceCard from './ReportChoiceCard.vue'
 import { renderMarkdown } from '../../utils/markdown'
 import { getCurrentUserId } from '../../auth'
+import { resumePlanAction } from '../../api/dispatchJob'
 import {
   cancelPlan,
   confirmPlan,
@@ -264,6 +270,7 @@ export default {
       if (job.status !== 'SUCCEEDED') this.forgetPendingJob(jobId)
       return job
     },
+    /** 刷新后按会话恢复已存在的预览任务；完成窗口也从数据库查询，防止SSE丢失最后一帧导致卡片遗漏。 */
     async resumePendingJob(conversationId = null) {
       if (!this.isCurrentSession()) return
       if (this.currentJobId || this.sending || this.choosing) return
@@ -454,6 +461,7 @@ export default {
       this.uiPreviewId = data.previewId || null
       this.uiExcludes = Array.isArray(data.excludedRecords) ? data.excludedRecords : []
     },
+    /** 读取服务器权威选择；校验会话及请求版本后才写入页面，避免迟到响应把新会话范围覆盖。 */
     async restoreSelection(id, version) {
       try {
         const selection = await fetchDialogueSelection(id)
@@ -543,6 +551,7 @@ export default {
         this.loadConversations()
       }
     },
+    /** 发送本轮原文与当前预览选择；消费SSE事件，断流后恢复已持久化消息和卡片，不把断流当作授权重发的依据。 */
     async send(text) {
       if (!this.isCurrentSession()) return
       const message = (text || this.input || '').trim()
@@ -735,13 +744,14 @@ export default {
     },
 
     // ---------- 待确认清单 ----------
+    /** 确认按钮提交稳定幂等任务，处理中禁止重复动作；完成后刷新卡片权威状态，业务结果由服务器提供。 */
     async confirmPlan(m) {
       if (!this.isCurrentSession()) return
       if (this.busy || m.status !== 'PENDING') return
       const planId = m.payload.planId
       this.executingPlanId = planId
       try {
-        const result = await confirmPlan(planId)
+        const result = await confirmPlan(planId, () => this.refreshStates())
         if (!this.isCurrentSession()) return
         this.planRefreshVersion++
         this.push({ role: 'card', cardType: 'result', payload: result })
@@ -759,7 +769,7 @@ export default {
       if (this.busy || !m.payload.planId) return
       this.executingPlanId = m.payload.planId
       try {
-        const result = await retryFailedPlan(m.payload.planId)
+        const result = await retryFailedPlan(m.payload.planId, () => this.refreshStates())
         if (!this.isCurrentSession()) return
         this.planRefreshVersion++
         this.push({ role: 'card', cardType: 'result', payload: result })
@@ -776,7 +786,7 @@ export default {
       if (this.busy || !m.payload.planId) return
       this.executingPlanId = m.payload.planId
       try {
-        const result = await reconcilePlan(m.payload.planId)
+        const result = await reconcilePlan(m.payload.planId, () => this.refreshStates())
         if (!this.isCurrentSession()) return
         this.planRefreshVersion++
         this.push({ role: 'card', cardType: 'result', payload: result })
@@ -796,6 +806,19 @@ export default {
         /* 卡片状态以服务端为准 */
       }
       this.refreshStates()
+    },
+    /** 仅恢复并读取现有派单任务，不能创建新的CONFIRM或RETRY命令。 */
+    async resumeDispatch(m) {
+      if (!this.isCurrentSession() || this.busy || !m.payload.planId) return
+      this.executingPlanId = m.payload.planId
+      try {
+        const result = await resumePlanAction(m.payload.planId)
+        if (!this.isCurrentSession() || !result) return
+        this.planRefreshVersion++
+        this.push({ role: 'card', cardType: 'result', payload: result })
+        this.$emit('dispatched')
+      } catch (e) { /* 状态查询失败时保留清单，禁止自动发送。 */ }
+      finally { this.executingPlanId = null; this.refreshStates() }
     },
 
     // ---------- 工具 ----------

@@ -1,7 +1,12 @@
+/**
+ * 会话、预览、清单及追溯接口；对话使用 fetch 读取 SSE，派单动作提交持久化任务后读取终态。
+ * 卡片状态与选择从服务端恢复，流连接断开不代表业务未发生，恢复时不得重发写入。
+ */
 import http from './http'
 import { authHeaders, sessionExpired, getSessionToken } from '../auth'
+import { runDispatchJob } from './dispatchJob'
 
-/** demo 用户列表（模拟登录） */
+/** 当前Demo可登录用户列表；真实外部认证系统后续接入。 */
 export function fetchUsers() {
   return http.get('/auth/users')
 }
@@ -76,16 +81,16 @@ export function createPlan(request, idempotencyKey) {
 }
 
 /** 确认执行待确认清单；重复确认返回第一次的结果 */
-export function confirmPlan(planId) {
-  return http.post(`/dispatch/plans/${planId}/confirm`)
+export function confirmPlan(planId, onJob) {
+  return runDispatchJob({ planId, action: 'CONFIRM' }, onJob)
 }
 
-export function retryFailedPlan(planId) {
-  return http.post(`/dispatch/plans/${planId}/retry-failed`)
+export function retryFailedPlan(planId, onJob) {
+  return runDispatchJob({ planId, action: 'RETRY_FAILED' }, onJob)
 }
 
-export function reconcilePlan(planId) {
-  return http.post(`/dispatch/plans/${planId}/reconcile`)
+export function reconcilePlan(planId, onJob) {
+  return runDispatchJob({ planId, action: 'RECONCILE' }, onJob)
 }
 
 export function cancelPlan(planId) {
@@ -140,6 +145,7 @@ export function streamChat({ conversationId, message, excludeDocNos, excludedRec
     let requestId = null
     let lastSeq = -1
     let completed = false
+    /** 以请求ID和递增序号去重并检测丢帧；事件缺失或换请求时停止本流，交由会话恢复读取已保存事实。 */
     const deliver = (block) => {
       const event = parseBlock(block)
       if (!event) return

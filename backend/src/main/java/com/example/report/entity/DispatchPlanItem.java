@@ -10,7 +10,8 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 /**
- * 待确认清单条目与逐条执行结果：PENDING → SUCCESS / FAILED / SKIPPED（执行前复核不通过，未调用派单接口）
+ * 待确认清单条目与逐条执行结果：发送前保存 UNKNOWN，再更新为 SUCCESS / FAILED。
+ * 复核不通过则 SKIPPED；UNKNOWN 表示结果不明，必须先核对，不能直接重发。
  */
 @Data
 @TableName("dispatch_plan_item")
@@ -23,28 +24,49 @@ public class DispatchPlanItem {
     /** 网关超时或连接中断后无法判断外部系统是否已受理，禁止自动重试。 */
     public static final String UNKNOWN = "UNKNOWN";
 
+    /** 本表记录主键；数据库自增。*/
     @TableId(type = IdType.AUTO)
     private Long id;
-    /** 创建清单时冻结的规则原文，后续规则改名、停用或清理不影响追溯。 */
+    /** 规则快照JSON，含标识、版本、表达式及来源；空表示历史证据未核实。 */
     private String ruleSnapshot;
+    /** 关联 dispatch_plan.id 的派单清单标识。*/
     private String planId;
+    /** 所属快照或清单内的展示顺序。 */
     private Integer seq;
+    /** 关联 report_definition.report_id 的稳定报表标识。*/
     private String reportId;
+    /** 记录生成时的报表名称快照。 */
     private String reportName;
+    /** 该报表目录版本号；定义变化后旧快照需重新验证。*/
     private Long catalogVersion;
+    /** 来源业务表记录标识，以字符串保留原主键。 */
     private String recordId;
+    /** 来源业务单据号，用于展示和人工核对；允许为空，表示尚无该项数据。*/
     private String docNo;
+    /** 业务记录所属公司代码；用于公司权限隔离；允许为空，表示尚无该项数据。 */
     private String companyCode;
+    /** 业务记录展示摘要快照；允许为空，表示尚无该项数据。*/
     private String label;
+    /** 业务金额；小数精度2位，币种沿用来源业务账本；允许为空，表示尚无该项数据。 */
     private BigDecimal amount;
+    /** 业务发生日期；按来源报表日期字段取值；允许为空，表示尚无该项数据。*/
     private LocalDate bizDate;
+    /** 关联 dispatch_rule.id 的命中规则标识；允许为空，表示尚无该项数据。 */
     private Long ruleId;
+    /** 命中规则名称快照；允许为空，表示尚无该项数据。*/
     private String ruleName;
+    /** 命中规则的整数版本号；允许为空，表示尚无该项数据。 */
     private Integer ruleVersion;
+    /** 条目状态：PENDING待执行、SUCCESS成功、FAILED失败、SKIPPED未发送、UNKNOWN发送后结果不明。*/
     private String status;
+    /** 条目派单尝试次数；每次准备发送时递增。 */
     private Integer attemptCount;
+    /** 发往业务服务的稳定幂等请求号；核对和重试沿用此号；允许为空，表示尚无该项数据。*/
     private String externalRequestId;
+    /** 失败原因业务编码；允许为空，表示尚无该项数据。 */
     private String errorCode;
+    /** 失败详情摘要；供人工核对，不包含凭据；允许为空，表示尚无该项数据。*/
     private String errorMessage;
+    /** 记录最后更新时间。 */
     private LocalDateTime updatedAt;
 }

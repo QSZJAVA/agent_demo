@@ -104,7 +104,7 @@ public class RuleService {
         }
     }
 
-    /** 新建或修改草稿；已发布的规则不能直接改，只能新建版本 */
+    /** 新建或修改草稿；已发布的规则不能直接改，只能新建版本*/
     @Transactional
     public DispatchRule saveDraft(CurrentUser user, RuleForm form) {
         CatalogEntry report = report(user, form.getReportId());
@@ -148,6 +148,7 @@ public class RuleService {
     }
 
     /** 发布草稿：同范围之前已发布的版本自动停用 */
+    /** 在目录锁和规则锁保护下发布版本，停用同范围旧规则并保存历史；变更使旧预览版本校验失效。*/
     @Transactional
     public DispatchRule publish(CurrentUser user, Long id) {
         DispatchRule rule = ruleForUpdate(user, id);
@@ -238,8 +239,10 @@ public class RuleService {
         return authorizedRule(user, id == null ? null : ruleMapper.selectById(id));
     }
 
-    /** Lock order shared with directory edits: report first, then rule rows. Use current reads,
-     * because callers may already have an older REPEATABLE READ snapshot. */
+    /**
+     * Lock order shared with directory edits: report first, then rule rows. Use current reads,
+     * because callers may already have an older REPEATABLE READ snapshot.
+     */
     private DispatchRule ruleForUpdate(CurrentUser user, Long id) {
         DispatchRule reference = requireRule(user, id);
         lockReport(user, reference.getReportId());
@@ -282,7 +285,7 @@ public class RuleService {
         }
     }
 
-    /** 管理员可以为目录中任意报表（含草稿）维护规则；其他人只能访问可见报表 */
+    /** 管理员可以为目录中任意报表（含草稿）维护规则；其他人只能访问可见报表*/
     private CatalogEntry report(CurrentUser user, String reportId) {
         if (reportId == null || reportId.isBlank()) {
             throw new ApiException("请指定报表");
@@ -335,16 +338,24 @@ public class RuleService {
         return report.reportName() + scope + "规则 v" + rule.getVersion();
     }
 
+    /** 规则草稿维护请求；版本和发布状态由服务端控制，调用方不能直接指定。*/
     @Data
     public static class RuleForm {
+        /** 修改的草稿主键；创建新草稿时为空。 */
         private Long id;
-        /** 报表目录中的稳定标识 */
+        /** 报表目录中的稳定标识*/
         private String reportId;
+        /** 规则公司范围，*表示通配；须在操作者授权范围内。 */
         private String companyCode;
+        /** 规则展示名称，未指定时由服务端按报表和版本生成。*/
         private String name;
+        /** 供用户理解的规则说明，可为空。 */
         private String description;
+        /** Aviator表达式；变量必须属于当前报表事实字段。*/
         private String expression;
+        /** 生效开始时间，含边界；空表示不限制开始时间。 */
         private LocalDateTime effectiveFrom;
+        /** 生效结束时间，不含边界；空表示不限制结束时间。*/
         private LocalDateTime effectiveTo;
     }
 }

@@ -45,7 +45,7 @@ public class MockDispatchGateway implements DispatchGateway {
                             .filter(rule -> java.util.Objects.equals(rule.getId(), request.record().ruleId())
                                     && java.util.Objects.equals(rule.getVersion(), request.record().ruleVersion()))
                             .map(rule -> engine.matches(rule.getExpression(), row.facts())).orElse(false);
-                });
+        });
         Outcome outcome = success ? Outcome.ok() : Outcome.fail("RECORD_CHANGED", "记录已变化、已派单或不再满足派单条件");
         if (prior.status() == LookupStatus.FAILED) {
             jdbc.update("UPDATE dispatch_gateway_request SET status=?,error_code=?,message=? "

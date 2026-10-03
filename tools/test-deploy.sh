@@ -6,7 +6,7 @@ source "$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)/deploy.sh"
 compose() {
   if [[ "$*" == 'ps --all --quiet '* ]]; then
     [[ "$scenario" == inspect-query-failure ]] && return 1
-    [[ "$scenario" == missing && "$4" == backend ]] && return 0
+    [[ "$scenario" == missing && "$4" == "$tested_service" ]] && return 0
     printf '%s\n' "$4"
   fi
   return 0
@@ -15,7 +15,7 @@ compose() {
 docker() {
   [[ "$1" == inspect ]] || { echo "Unexpected Docker command" >&2; return 1; }
   [[ "$scenario" == inspect-failure ]] && return 1
-  if [[ "$4" == backend ]]; then
+  if [[ "$4" == "$tested_service" ]]; then
     case "$scenario" in
       starting) [[ "$sleeps" == 0 ]] && { echo 'running starting'; return; } ;;
       timeout) echo 'running starting'; return ;;
@@ -30,7 +30,7 @@ docker() {
 sleep() { sleeps=$((sleeps + 1)); }
 
 run_case() {
-  local scenario=$1 expected=$2 expected_sleeps=$3 sleeps=0 result=0
+  local scenario=$1 expected=$2 expected_sleeps=$3 sleeps=0 result=0 tested_service=${4:-backend}
   local DEPLOY_HEALTH_TIMEOUT_SECONDS=10
   [[ "$scenario" == invalid-timeout ]] && DEPLOY_HEALTH_TIMEOUT_SECONDS=invalid
   wait_healthy >/dev/null 2>&1 || result=$?
@@ -51,3 +51,5 @@ run_case missing 1 2
 run_case inspect-query-failure 1 0
 run_case inspect-failure 1 0
 run_case invalid-timeout 1 0
+run_case unhealthy 1 0 business-service
+run_case missing 1 2 business-service

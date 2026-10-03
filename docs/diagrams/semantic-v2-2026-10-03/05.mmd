@@ -1,0 +1,55 @@
+flowchart TD
+  scope{"校验最终 desired<br/>是否和 effective 相同？<br/>是否有 ACTIVE、版本有效预览？"}:::guard
+  reuse["符合条件：复用预览<br/>仅记录修改/建单可复用<br/>普通 PREVIEW 通常重新查"]:::store
+  new["需要重新查询<br/>PreviewCommand：明确范围<br/>先保存 QUERYING 状态"]:::agent
+  stamp{"查询前记录版本指纹<br/>目录 / 当前规则 / 权限<br/>配额与对话租约持续检查"}:::guard
+  mcp["MCP report_records(cursor)<br/>可信 tenantId/operatorId<br/>每批 500；按 ID 递增"]:::business
+  query["业务侧权限和粗筛<br/>账号当前权限 + 公司范围<br/>租户 / 未派单 / 游标条件"]:::business
+  rules["Agent 侧当前规则求值<br/>具体公司规则优先于通配<br/>Aviator Boolean；异常按未命中"]:::agent
+  persist["生成持久化预览<br/>超过 5000 → 分批持久化<br/>确认最新 requestVersion 后激活"]:::store
+  supersede["激活新预览时<br/>旧 ACTIVE → SUPERSEDED<br/>旧 PENDING 清单 → EXPIRED"]:::store
+  bind{"绑定最终预览及 UI 选择<br/>previewId 相同才接纳<br/>同范围刷新可迁移并重新验证"}:::guard
+  stale["旧选择不可恢复 / 范围变了<br/>设置 unresolvedRecords<br/>要求重新选择；不默认全部派"]:::error
+  rows{"需要记录修改时读取真实预览<br/>最多 5000 条；每页 100<br/>更多记录先缩小范围"}:::guard
+  match["SelectionResolver 依次匹配<br/>单据号精确 → 去类别前缀<br/>仍无命中 → label 包含匹配"]:::agent
+  unique{"是否恰好匹配一条？<br/>重复单据号或描述歧义拒绝"}:::guard
+  key["转换 RecordKey<br/>reportId + 字符串 recordId<br/>ADD 排除；REMOVE 恢复"]:::store
+  unclear["0 条或多条命中<br/>返回澄清提示<br/>请用表格精确勾选"]:::error
+  selection{"校验排除项都属于当前预览<br/>CLEAR 恢复全部<br/>REPLACE 替换排除集合"}:::guard
+  action{"PREPARE_DISPATCH？<br/>否则返回预览或规则说明"}:::guard
+  zero["0 条候选或仅查询<br/>不创建清单<br/>返回事实文本与 selection"]:::ui
+  plan["PlanService 创建清单<br/>固定预览 + 排除项 + 幂等键<br/>条数上限 5000；PENDING"]:::store
+  card["持久化卡片并 SSE 返回<br/>有效预览约 30 分钟<br/>待确认清单约 10 分钟"]:::ui
+  scope -->|"可复用"| reuse
+  scope -->|"需刷新"| new
+  new --> stamp
+  stamp --> mcp
+  mcp --> query
+  query --> rules
+  rules -->|"还有下一批"| mcp
+  rules -->|"扫描完成"| persist
+  persist --> supersede
+  persist --> bind
+  reuse --> bind
+  bind -->|"选择来源无效"| stale
+  bind -->|"修改或验证排除项"| rows
+  bind -->|"无需变更选择"| action
+  rows -->|"自然语言记录变更"| match
+  rows -->|"仅验证已有/UI键"| selection
+  match --> unique
+  unique -->|"非唯一"| unclear
+  unique -->|"唯一"| key
+  key --> selection
+  selection -->|"有缺失键"| stale
+  selection -->|"全部有效"| action
+  action -->|"查询/零候选"| zero
+  action -->|"生成清单"| plan
+  plan --> card
+  zero --> card
+  classDef ui fill:#eaf2ff,stroke:#386bc1,color:#1e354c
+  classDef agent fill:#edf5ff,stroke:#3778a8,color:#1e354c
+  classDef model fill:#f3edff,stroke:#8751bf,color:#1e354c
+  classDef business fill:#e8f7ef,stroke:#268255,color:#1e354c
+  classDef guard fill:#fff4dc,stroke:#b58022,color:#1e354c
+  classDef error fill:#fff0ef,stroke:#ba534e,color:#1e354c
+  classDef store fill:#edf1f5,stroke:#60768b,color:#1e354c

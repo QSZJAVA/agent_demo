@@ -1,9 +1,15 @@
+/**
+ * 租户运维接口：策略修改绑定读取时的版本和操作原因，异常清单动作通过持久化任务执行。
+ */
 import http from './http'
+import { runDispatchJob } from './dispatchJob'
 const root = '/operations'
 export const metrics = days => http.get(`${root}/metrics`, { params: { days } })
 export const workbench = after => http.get(`${root}/workbench`, { params: { after } })
 export const workItems = (id, page) => http.get(`${root}/workbench/${encodeURIComponent(id)}/items`, { params: { page } })
-export const act = (id, action, reason) => http.post(`${root}/workbench/${encodeURIComponent(id)}/${action}`, { reason })
+export const act = (id, action, reason) => ['retry-failed', 'reconcile'].includes(action)
+  ? runDispatchJob({ planId: id, action: action === 'retry-failed' ? 'OP_RETRY_FAILED' : 'OP_RECONCILE', reason })
+  : http.post(`${root}/workbench/${encodeURIComponent(id)}/${action}`, { reason })
 export const policy = key => http.get(`${root}/policies/${encodeURIComponent(key)}`)
 export const savePolicy = (key, value) => http.put(`${root}/policies/${encodeURIComponent(key)}`, value)
 export const policyHistory = key => http.get(`${root}/policies/${encodeURIComponent(key)}/history`)

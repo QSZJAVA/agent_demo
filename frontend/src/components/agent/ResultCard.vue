@@ -28,6 +28,9 @@
 </template>
 
 <script>
+/**
+ * 派单结果展示卡片；数量使用服务端汇总，记录列表为有界样本，完整执行事实从清单和追溯接口读取。
+ */
 export default {
   name: 'ResultCard',
   props: {

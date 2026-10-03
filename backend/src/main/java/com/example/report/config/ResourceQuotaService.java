@@ -20,7 +20,7 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
-/** Redis rate limits plus durable, independently committed MySQL concurrency leases. */
+/** Redis负责调用速率限制，MySQL独立事务租约负责真实并发配额；业务处理中持续续租，失去租约后必须停止旧任务。 */
 @Slf4j
 @Component
 public class ResourceQuotaService {
@@ -86,8 +86,9 @@ public class ResourceQuotaService {
         return new ApiException(503, "资源保护服务暂不可用，请稍后重试");
     }
 
-    /** Null is only used by service harnesses without the optional quota dependency. */
+    /** Null is only used by service harnesses without the optional quota dependency.*/
     public static void check(Permit permit) {
+        if(Thread.currentThread().isInterrupted()) throw new ApiException(409,"任务已中断，请刷新并核对结果");
         if (permit != null) permit.requireValid();
     }
 

@@ -8,7 +8,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import java.util.*;
 
-/** Read-through policies: all instances use the committed version, with CAS on writes and monotonic rollback. */
+/** 租户运维策略仓储；所有实例读取已提交版本，修改按期望版本条件更新，回滚生成更高的新版本。 */
 @Service
 public class OperationsPolicy {
     @org.springframework.beans.factory.annotation.Autowired(required=false)
@@ -16,7 +16,19 @@ public class OperationsPolicy {
     private final JdbcTemplate jdbc;
     private final OperationsAudit audit;
     public OperationsPolicy(JdbcTemplate jdbc, OperationsAudit audit) { this.jdbc=jdbc; this.audit=audit; }
+    /**
+     * 租户当前运维策略及版本。
+     * @param key 租户内运维策略类型标识
+     * @param version 当前类型的协议或乐观锁版本，按调用契约使用
+     * @param payload 该策略类型的当前配置JSON对象
+     */
     public record Policy(String key, long version, Map<String,Object> payload) { }
+    /**
+     * 范围或配置修改请求，保存前须校验相应协议。
+     * @param expectedVersion 修改前读取的版本，须与服务器当前版本匹配
+     * @param payload 经过策略类型白名单验证的新配置对象
+     * @param reason 操作原因或状态变更说明；保存前脱敏
+     */
     public record Change(long expectedVersion, Map<String,Object> payload, String reason) { }
     public Policy get(String tenant, String key) {
         var rows = jdbc.query("SELECT version,payload FROM operations_policy WHERE tenant_id=? AND policy_key=?",

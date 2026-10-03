@@ -47,7 +47,9 @@ class BusinessMcpIntegrationTest {
         reader=identities.resolve("T001","readerA");
     }
     static void boot() {
-        context=(ServletWebServerApplicationContext)new SpringApplicationBuilder(BusinessApplication.class).run(args);
+        context=(ServletWebServerApplicationContext)new SpringApplicationBuilder(BusinessApplication.class)
+                .properties("spring.ai.model.chat=none","spring.ai.model.embedding=none","spring.ai.model.image=none",
+                        "spring.ai.model.moderation=none","spring.ai.model.audio.speech=none","spring.ai.model.audio.transcription=none").run(args);
         jdbc=context.getBean(JdbcTemplate.class); json=context.getBean(ObjectMapper.class); identities=context.getBean(IdentityStore.class);
         base="http://127.0.0.1:"+context.getWebServer().getPort(); client=new BusinessMcpClient(json,base,secret);
     }
@@ -61,7 +63,7 @@ class BusinessMcpIntegrationTest {
     }
     @BeforeEach void reset() {
         assertEquals(schema,jdbc.queryForObject("SELECT DATABASE()",String.class));
-        jdbc.update("DELETE FROM business_dispatch_request");jdbc.update("DELETE FROM dispatch_plan_item");jdbc.update("DELETE FROM dispatch_plan");jdbc.update("DELETE FROM dispatch_preview");
+        jdbc.update("DELETE FROM dispatch_job");jdbc.update("DELETE FROM business_dispatch_request");jdbc.update("DELETE FROM dispatch_plan_item");jdbc.update("DELETE FROM dispatch_plan");jdbc.update("DELETE FROM dispatch_preview");
         jdbc.update("UPDATE report_sales SET dispatch_status=0,dispatched_at=NULL WHERE tenant_id='T001'");
         jdbc.update("UPDATE app_user SET enabled=true,companies_json='[\"A\"]',permissions_json='[\"report:sales\"]' WHERE user_id='readerA'");
         jdbc.update("UPDATE report_definition SET dispatch_enabled=true WHERE report_id=?",REPORT);
@@ -146,6 +148,56 @@ class BusinessMcpIntegrationTest {
         try(var sdk=io.modelcontextprotocol.client.McpClient.sync(transport).build()) {
             assertEquals("report-business-service",sdk.initialize().serverInfo().name());
             assertEquals(Set.of("report_catalog","report_page","report_records","report_probe","dispatch_submit","dispatch_lookup"),sdk.listTools().tools().stream().map(io.modelcontextprotocol.spec.McpSchema.Tool::name).collect(java.util.stream.Collectors.toSet()));
+        }
+    }
+
+    @Test void readinessRequiresAuthenticatedProtocolAndNeverMutatesBusinessData() {
+        assertTrue(client.available());
+        try(var invalid=new BusinessMcpClient(json,base,UUID.randomUUID()+"-"+UUID.randomUUID())) {
+            assertFalse(invalid.available(),"Public health alone must not hide an invalid service token");
+        }
+        assertEquals(0,status());
+        assertEquals(0,jdbc.queryForObject("SELECT COUNT(*) FROM business_dispatch_request",Integer.class));
+    }
+
+    @Test void delayedGatewayCannotAdoptAReplacementExecutionsVersion() {
+        String request=evidence(true);
+        var gateway=new com.example.report.mcp.McpDispatchGateway(client);
+        var candidate=json.convertValue(record(),com.example.report.rule.Candidate.class);
+        var report=context.getBean(BusinessQueries.class).require(reader,REPORT,false);
+        var delayed=new com.example.report.dispatch.DispatchGateway.DispatchRequest("T001",request,report,candidate,true,1);
+        jdbc.update("UPDATE dispatch_plan SET execution_version=2 WHERE id=(SELECT plan_id FROM dispatch_plan_item WHERE external_request_id=?)",request);
+        assertThrows(ApiException.class,()->gateway.dispatch(reader,delayed));
+        assertEquals(0,status());
+        assertEquals(0,jdbc.queryForObject("SELECT COUNT(*) FROM business_dispatch_request",Integer.class));
+        assertTrue(gateway.dispatch(reader,new com.example.report.dispatch.DispatchGateway.DispatchRequest("T001",request,report,candidate,true,2)).success());
+        assertEquals(1,status());
+    }
+
+    @Test void authenticatedAgentHttpJobUsesRealMcpAndReplaysWithoutRedispatch() throws Exception {
+        // The model bean is configured but never invoked; this checks HTTP jobs and business mutation only.
+        var agentArgs=java.util.stream.Stream.concat(Arrays.stream(args).filter(arg->!arg.startsWith("--business.remote.enabled=")),java.util.stream.Stream.of(
+                "--business.remote.enabled=true","--business.remote.url="+base,"--spring.flyway.enabled=false",
+                "--spring.ai.openai.api-key="+UUID.randomUUID(),"--spring.ai.openai.base-url=http://127.0.0.1:1",
+                "--agent.llm.mock=false","--agent.semantic.mode=active","--agent.dispatch-jobs-poll-ms=100")) .toArray(String[]::new);
+        try(var agent=(ServletWebServerApplicationContext)new SpringApplicationBuilder(com.example.report.ReportApplication.class).profiles("real","mcp").run(agentArgs)) {
+            String agentBase="http://127.0.0.1:"+agent.getWebServer().getPort();
+            var http=HttpClient.newHttpClient();
+            var login=http.send(HttpRequest.newBuilder(URI.create(agentBase+"/api/auth/login")).header("Content-Type","application/json")
+                    .POST(HttpRequest.BodyPublishers.ofString(json.writeValueAsString(Map.of("userId","readerA","password",password)))).build(),HttpResponse.BodyHandlers.ofString());
+            String token=json.readTree(login.body()).path("data").path("token").asText();assertFalse(token.isBlank());
+            String key=UUID.randomUUID().toString().replace("-","");
+            var post=HttpRequest.newBuilder(URI.create(agentBase+"/api/dispatch/jobs")).header("Authorization","Bearer "+token)
+                    .header("Content-Type","application/json").header("Idempotency-Key",key)
+                    .POST(HttpRequest.BodyPublishers.ofString(json.writeValueAsString(Map.of("action","DIRECT","reportId",REPORT,"recordIds",List.of("1"))))).build();
+            var created=json.readTree(http.send(post,HttpResponse.BodyHandlers.ofString()).body());assertEquals(0,created.path("code").asInt(-1),created.toString());
+            String id=created.path("data").path("id").asText();assertFalse(id.isBlank());
+            var get=HttpRequest.newBuilder(URI.create(agentBase+"/api/dispatch/jobs/"+id)).header("Authorization","Bearer "+token).GET().build();
+            com.fasterxml.jackson.databind.JsonNode job=null;long deadline=System.nanoTime()+TimeUnit.SECONDS.toNanos(15);
+            do { job=json.readTree(http.send(get,HttpResponse.BodyHandlers.ofString()).body()).path("data"); if(Set.of("SUCCEEDED","FAILED").contains(job.path("status").asText()))break;Thread.sleep(50); } while(System.nanoTime()<deadline);
+            assertEquals("SUCCEEDED",job.path("status").asText(),job.toString());assertEquals(1,job.path("result").path("successCount").asInt());
+            assertEquals(id,json.readTree(http.send(post,HttpResponse.BodyHandlers.ofString()).body()).path("data").path("id").asText());
+            assertEquals(1,status());assertEquals(1,jdbc.queryForObject("SELECT COUNT(*) FROM business_dispatch_request",Integer.class));
         }
     }
     @Test void requiresMachineCredentialAndRejectsBrowserOriginAndOversizedBodies() throws Exception {
