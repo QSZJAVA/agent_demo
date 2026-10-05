@@ -19,6 +19,8 @@ public class DataRetentionService {
     private final StringRedisTemplate redis;
     private final OperationsPolicy policies;
     private final OperationsAudit audit;
+    @org.springframework.beans.factory.annotation.Autowired(required=false)
+    private org.springframework.beans.factory.ObjectProvider<com.example.report.investigation.InvestigationService> investigations;
     public DataRetentionService(JdbcTemplate jdbc,TransactionOperations tx,StringRedisTemplate redis,OperationsPolicy policies,OperationsAudit audit) {
         this.jdbc=jdbc;this.tx=tx;this.redis=redis;this.policies=policies;this.audit=audit;
     }
@@ -76,6 +78,9 @@ public class DataRetentionService {
             if(rows.isEmpty() || !erased(id)) return;
             String tenant=rows.get(0).get("tenant_id").toString();
             if(held(id)) return;
+            // 会话墓碑已经生效；调查报告和证据不能在删除后形成孤立的可读记录。
+            var investigation=investigations==null?null:investigations.getIfAvailable();
+            if(investigation!=null) investigation.eraseConversation(tenant,id);
             jdbc.update("DELETE FROM semantic_dialogue WHERE tenant_id=? AND conversation_id=?",tenant,id);
             jdbc.update("DELETE FROM semantic_turn WHERE tenant_id=? AND conversation_id=? LIMIT 500",tenant,id);
             // Delete bounded batches; tombstone prevents replay from adding new messages.

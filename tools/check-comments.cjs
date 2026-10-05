@@ -69,7 +69,8 @@ for (const file of walk('frontend/src').filter(file => /\.(js|vue)$/.test(file))
   modules++
   if (!script?.trimStart().startsWith('/**')) problems.push(`${file}: 缺少模块职责注释`)
 }
-const specs = JSON.parse(read('backend/src/main/resources/db/migration/V21__schema_comments.json'))
+const specs = { ...JSON.parse(read('backend/src/main/resources/db/migration/V21__schema_comments.json')),
+  ...JSON.parse(read('backend/src/main/resources/investigation/schema-comments.json')) }
 const demo = read('backend/src/main/resources/db/demo/demo-data.sql')
 let columns = 0
 for (const [name, table] of Object.entries(specs)) {
@@ -78,13 +79,14 @@ for (const [name, table] of Object.entries(specs)) {
     columns++
     if (!comment?.trim() || comment.length > 1024) problems.push(`${name}.${column}: 注释为空或超过MySQL字段注释长度`)
   }
-  if (!table.optional) continue
-  const block = demo.match(new RegExp(`CREATE TABLE IF NOT EXISTS ${name}\\s*\\([\\s\\S]*?;`))?.[0] || ''
+  if (!table.optional && !table.initialization) continue
+  const initialization = table.initialization ? read(`backend/src/main/resources/${table.initialization}`) : demo
+  const block = initialization.match(new RegExp(`CREATE TABLE (?:IF NOT EXISTS )?${name}\\s*\\([\\s\\S]*?;`))?.[0] || ''
   const sqlLiteral = text => `'${text.replaceAll("'", "''")}'`
-  if (!block.includes(`COMMENT ${sqlLiteral(table.comment)}`)) problems.push(`${name}: 初始化表注释与V21不一致`)
+  if (!block.includes(`COMMENT ${sqlLiteral(table.comment)}`) && !block.includes(`COMMENT=${sqlLiteral(table.comment)}`)) problems.push(`${name}: 初始化表注释与当前清单不一致`)
   for (const [column, comment] of Object.entries(table.columns)) {
     const line = block.split(/\r?\n/).find(line => new RegExp(`^\\s*${column}\\s+`).test(line)) || ''
-    if (!line.includes(`COMMENT ${sqlLiteral(comment)}`)) problems.push(`${name}.${column}: 初始化字段注释与V21不一致`)
+    if (!line.includes(`COMMENT ${sqlLiteral(comment)}`)) problems.push(`${name}.${column}: 初始化字段注释与当前清单不一致`)
   }
 }
 const dictionary = spawnSync(process.execPath, [path.join(root, 'tools/generate-schema-dictionary.cjs'), '--check'], { encoding: 'utf8' })

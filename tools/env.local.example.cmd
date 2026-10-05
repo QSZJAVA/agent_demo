@@ -24,5 +24,9 @@ REM Enable only after verifying that the endpoint supports JSON Schema.
 set "SEMANTIC_NATIVE_SCHEMA=false"
 set "SEMANTIC_MODEL="
 set "SEMANTIC_THINKING_ENABLED=false"
+REM Investigation has its own bounded read-only tool loop; empty model follows LLM_MODEL.
+set "INVESTIGATION_MODEL="
+set "INVESTIGATION_NATIVE_SCHEMA=false"
+set "INVESTIGATION_THINKING_ENABLED=false"
 set "CORS_ALLOWED_ORIGINS="
 set "TRUSTED_PROXY_CIDRS="

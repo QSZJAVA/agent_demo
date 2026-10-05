@@ -1,0 +1,142 @@
+{
+  "date": "2026-10-05",
+  "scope": "F1_F5_FIXES_CURRENT_WORKSPACE",
+  "modelEvidenceScope": "REAL_MODEL_WITH_SYNTHETIC_READ_FACTS_NO_BUSINESS_DB",
+  "batchHandling": "Interrupted records and separately executed remaining cases; no merged configuration manifest",
+  "interruptedArchive": "backend/target/investigation-evaluation/interrupted-fixes-2026-10-05-cdc8e5ec",
+  "interruptedResults": 36,
+  "interruptedManifestAvailable": false,
+  "remainderArchive": "backend/target/investigation-evaluation/run-2026-10-05T10-04-40.440851900Z-6be43674",
+  "remainderResults": 12,
+  "remainderModel": "deepseek-v4.1-flash",
+  "remainderBackendArtifactHash": "24c1854184420b1b1c6e4d71658f959b5087cba36684bb817be97988c6257f3a",
+  "remainderEvaluationHarnessHash": "27984c5442a3cebe5f547d311118021330d261e0be5d414419b562c02f5e96c9",
+  "recordedRuns": 48,
+  "passed": 46,
+  "failed": 2,
+  "allRepeatsPassedCases": 14,
+  "metrics": {
+    "correctItems": 67.0,
+    "expectedItems": 69.0,
+    "supportedFacts": 166.0,
+    "assertedFacts": 166.0,
+    "legalCitations": 176.0,
+    "totalCitations": 176.0
+  },
+  "archivedRunUsage": {
+    "modelCalls": 222.0,
+    "toolCalls": 253.0,
+    "mcpCalls": 53.0
+  },
+  "unarchivedCallsDuringInterruption": "UNKNOWN_NOT_INCLUDED_IN_RECORDED_RUN_USAGE",
+  "tools": 253,
+  "toolsWithOriginalId": 253,
+  "toolsWithArguments": 253,
+  "failures": [
+    {
+      "caseId": "holdout_no_request_events",
+      "repeat": 1,
+      "error": "REPORT_INVALID",
+      "message": "缺原请求号导致不能核对，应使用EVIDENCE_MISSING/INSUFFICIENT并引用缺失证据",
+      "assessment": {
+        "passed": false,
+        "correctItems": 0,
+        "supportedFacts": 0,
+        "totalCitations": 0,
+        "legalCitations": 0,
+        "expectedItems": 1,
+        "assertedFacts": 0
+      }
+    },
+    {
+      "caseId": "holdout_large_id",
+      "repeat": 2,
+      "error": null,
+      "message": null,
+      "assessment": {
+        "correctItems": 1,
+        "passed": false,
+        "assertedFacts": 5,
+        "expectedItems": 2,
+        "legalCitations": 4,
+        "totalCitations": 4,
+        "supportedFacts": 5
+      }
+    }
+  ],
+  "regression": {
+    "frontendPassed": 84,
+    "finalDirectedPassed": 37,
+    "frontendBuild": "PASSED",
+    "fullScriptExitCode": 0,
+    "finalDirectedSkipped": 1
+  },
+  "jointPreviousArtifacts": "business-service/target/investigation-joint-before-fixes-eccc15ce",
+  "jointStatus": "PASSED_AFTER_STATUS_FEEDBACK",
+  "initial48CodeStage": "BEFORE_FINAL_STATUS_FEEDBACK",
+  "finalJoint": [
+    {
+      "scenario": "FAILED",
+      "passed": true,
+      "businessUnchanged": true,
+      "sameKeyReplayed": true,
+      "runId": "8c3f7d5167dd483c895798ab61aaab5b",
+      "reasonCode": "BUSINESS_REJECTED",
+      "promptHash": "cb84c53308fcf7117440e445ab70046835ac6bcd64fda03ebd55019260a89cc1",
+      "reportSchemaHash": "1a8f7fca395f779d49822a08ea195b52d299daf3f597f5c3dac4bf98fcce0b7d",
+      "artifactSha256": "ffae3130509759e81623ebc5adeaf6d9a06bfdb6c1b6408adc7ed621caafcdc3"
+    },
+    {
+      "scenario": "SUCCESS",
+      "passed": true,
+      "businessUnchanged": true,
+      "sameKeyReplayed": true,
+      "runId": "aea1d98c51dc4aee9d75d56a31b1fb43",
+      "reasonCode": "REMOTE_SUCCESS_LOCAL_UNRESOLVED",
+      "promptHash": "cb84c53308fcf7117440e445ab70046835ac6bcd64fda03ebd55019260a89cc1",
+      "reportSchemaHash": "1a8f7fca395f779d49822a08ea195b52d299daf3f597f5c3dac4bf98fcce0b7d",
+      "artifactSha256": "6ab79dbcfe2b0bcb6cea0aeb526c51a1a0c62a3461cdaf851e88283d239aed34"
+    },
+    {
+      "scenario": "UNKNOWN",
+      "passed": true,
+      "businessUnchanged": true,
+      "sameKeyReplayed": true,
+      "runId": "666c458f1508451ba069a7d4dc32e66d",
+      "reasonCode": "RESULT_UNKNOWN",
+      "promptHash": "cb84c53308fcf7117440e445ab70046835ac6bcd64fda03ebd55019260a89cc1",
+      "reportSchemaHash": "1a8f7fca395f779d49822a08ea195b52d299daf3f597f5c3dac4bf98fcce0b7d",
+      "artifactSha256": "8caf059527182434bd37cb7393bf96199f5a6ad5ee3c146ac5679ba89cd792b6"
+    }
+  ],
+  "priorJointAttempt": {
+    "failed": 1,
+    "archive": "business-service/target/investigation-joint-before-status-feedback-2026-10-05",
+    "executed": 3,
+    "passed": 2
+  },
+  "finalAffectedEvaluation": {
+    "archive": "backend/target/investigation-evaluation/run-2026-10-05T10-13-17.897054600Z-fc502971",
+    "model": "deepseek-v4.1-flash",
+    "nativeSchema": false,
+    "thinkingEnabled": false,
+    "executed": 6,
+    "passed": 6,
+    "failed": 0,
+    "correctItems": 9,
+    "expectedItems": 9,
+    "supportedFacts": 20,
+    "assertedFacts": 20,
+    "legalCitations": 26,
+    "totalCitations": 26,
+    "backendArtifactHash": "0a723120225a8bdca8950cdca3707560a3a2ef5e61e0d4cdc0cabb8257721459",
+    "evaluationHarnessHash": "ea124479575cc5d09e7858a6fbf6a38935c10b6f4a707cd3535e8e5eeabf7d39",
+    "graderVersion": 3,
+    "evidenceScope": "AFFECTED_CASES_ONLY_NOT_A_FULL_FINAL_HOLDOUT_RERUN"
+  },
+  "staticChecks": {
+    "comments": "PASSED",
+    "realModelDocs": "PASSED",
+    "diffWhitespace": "PASSED"
+  }
+}

@@ -42,8 +42,9 @@ public class ResourceQuotaService {
 
     public Permit acquire(CurrentUser user, String operation, Collection<String> reportIds) {
         String base = "quota:" + operation + ":" + user.tenantId() + ":";
-        checkRate(base + "minute:user:" + user.userId(), "chat".equals(operation) ? 30 : 12);
-        checkRate(base + "minute:tenant", "chat".equals(operation) ? 300 : 120);
+        // 调查使用独立操作命名空间，限制模型费用增长，不占用派单线程和配额槽。
+        checkRate(base + "minute:user:" + user.userId(), "chat".equals(operation) ? 30 : "investigation".equals(operation) ? 6 : 12);
+        checkRate(base + "minute:tenant", "chat".equals(operation) ? 300 : "investigation".equals(operation) ? 60 : 120);
         if (reportIds != null) {
             for (String reportId : reportIds) checkRate(base + "minute:report:" + reportId, 30);
         }

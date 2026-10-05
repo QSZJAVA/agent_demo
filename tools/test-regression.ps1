@@ -17,7 +17,10 @@ foreach($taskPair in @(@('TRACE_DB_HOST','DB_HOST'),@('TRACE_DB_PORT','DB_PORT')
 }
 $env:TRACE_IT='true';$env:P2_IT='true';$env:MCP_IT='true';$env:DEMO_IT='false';$env:P2_UI='false'
 $env:SEMANTIC_LIVE='false'
+$env:INVESTIGATION_LIVE='false';$env:INVESTIGATION_JOINT='false';$env:INVESTIGATION_UI='false'
 & node (Join-Path $taskRoot 'tools/check-comments.cjs')
+if($LASTEXITCODE -ne 0){exit $LASTEXITCODE}
+& node --test (Join-Path $taskRoot 'tools/compare-investigation-evaluations.test.cjs')
 if($LASTEXITCODE -ne 0){exit $LASTEXITCODE}
 & (Join-Path $taskRoot 'backend/mvnw.cmd') -f (Join-Path $taskRoot 'pom.xml') verify -q
 if($LASTEXITCODE -ne 0){exit $LASTEXITCODE}

@@ -10,6 +10,12 @@
 
 本阶段暂缓处理 Demo 自带账号实现的问题，后续接入正式认证系统时统一处理；前端保留当前框架和依赖版本。业务权限、服务认证、确认、幂等和执行版本保护继续有效，具体范围见 [AGENTS.md](AGENTS.md)。2026-10-03 的其他问题修复与证据见 [修复说明](docs/非账号问题修复与验收_2026-10-03.md)。
 
+后续设计与实现只面向最新数据结构和协议，不考虑历史数据兼容；需要时按明确的专用 Demo/测试库范围重建数据，当前版本运行期的状态恢复、审计和幂等保护仍然保留。详见 [Demo 数据与版本设计原则](AGENTS.md#demo-数据与版本设计原则)。
+
+已按 [异常调查 Agent 与评估体系详细设计](docs/异常调查Agent与评估体系详细设计_2026-10-05.md) 实现模型自主只读工具调用、持久调查任务和任务级评估。功能入口、配置、复现命令及实际证据范围见 [实施与验收](docs/异常调查Agent实施与验收_2026-10-05.md)。
+
+2026-10-06 修复版真实模型保留集 48/48、真实模型与 HTTP MCP 联合验收 3/3 通过，版本、首轮失败和验证边界见[真实模型复验报告](docs/review/异常调查Agent真实模型复验_2026-10-06.md)。
+
 ## 架构与完整流程
 
 当前包含持久异步派单的流程见 [八页 HTML 流程图](docs/diagrams/semantic-v2-2026-10-03/index.html) / [Mermaid](docs/diagrams/semantic-v2-2026-10-03/流程图.md)。下方整体架构图片保留 2026-09-29 的历史版本，具体实现以最新流程与修复说明为准。
@@ -40,7 +46,7 @@
 
 首次使用将 `tools/env.local.example.cmd` 复制为已被 Git 忽略的 `tools/env.local.cmd`，填写数据库、Redis 连接和真实模型的 `LLM_BASE_URL`、`LLM_MODEL`、`LLM_API_KEY`。已有私有配置请保留。也可通过进程环境变量或已忽略的 `.runtime/llm-credentials.json` 提供模型的 `apiKey`、`baseUrl`、`model`；配置优先级依次为进程环境、本机 CMD 配置、JSON 文件。私有文件应仅允许当前 Windows 用户访问，切勿提交凭据。
 
-一键脚本只读取允许的 `set NAME=value` 赋值，不执行私有 CMD 文件，不展开 `%变量%`。可读取 `JAVA_HOME`、`DB_*`、`REDIS_*`、`LLM_*`、`SEMANTIC_*` 和代理/CORS 配置；目标数据库由 `-Database` 指定，默认 `report_mcp`。
+一键脚本只读取允许的 `set NAME=value` 赋值，不执行私有 CMD 文件，不展开 `%变量%`。可读取 `JAVA_HOME`、`DB_*`、`REDIS_*`、`LLM_*`、`SEMANTIC_*`、`INVESTIGATION_*` 和代理/CORS 配置；目标数据库由 `-Database` 指定，默认 `report_mcp`。
 
 ```powershell
 # 只检查配置、工具、服务端口及 MySQL/Redis TCP 连接
@@ -181,6 +187,8 @@ Get-Content .runtime/demo-accounts.md
 | `SEMANTIC_NATIVE_SCHEMA` | 应用默认 false，`start-mcp.ps1` 会设为 true |
 | `SEMANTIC_MODEL` | 留空沿用 `LLM_MODEL`，可为语义解析单独指定模型 |
 | `SEMANTIC_THINKING_ENABLED` | 默认 false；需与端点支持的 thinking 参数匹配 |
+| `INVESTIGATION_MODEL` | 留空沿用 `LLM_MODEL`；调查使用独立客户端及五个只读工具 |
+| `INVESTIGATION_NATIVE_SCHEMA` / `INVESTIGATION_THINKING_ENABLED` | 默认均 false；工具调用和最终报告仍受应用校验，开启能力须验证真实端点 |
 
 真实语义解析温度为 0，默认最多输出 2400 tokens；格式、原文证据或报表覆盖校验失败时最多追加一次解析修复。端点不支持原生 Schema 时，使用一键脚本默认配置，或向 `start-mcp.ps1` 传入 `-NativeSchema 'false'`。
 
@@ -192,7 +200,7 @@ Get-Content .runtime/demo-accounts.md
 | 业务服务 | Spring Boot 3.5.16、MCP Java SDK 0.18.3；独立实现业务查询和派单事务 |
 | 数据访问 / 规则 | MyBatis-Plus 3.5.17、JdbcTemplate、Aviator 5.4.4 |
 | 前端 | Vue 2.7、Element UI、Vite 6.4.3 |
-| 数据结构 | Flyway V1–V21，包含 Java 迁移 V7、V21；V20 增加持久派单任务，V21 为仓库维护的表与字段补齐元数据注释 |
+| 数据结构 | Flyway V1–V22，包含 Java 迁移 V7、V21；V20 增加持久派单任务，V21 补齐注释，V22 增加调查运行、步骤、证据与准入互斥表 |
 
 默认启动不会重置已有数据；新空库由业务服务初始化示例报表、目录与规则，后续启动只迁移结构。使用默认库名不会迁移或修改原 `report_demo` 数据。应用保留演示重置开关，但一键 MCP 启动明确将其设为 false。
 
@@ -274,9 +282,9 @@ MCP 模式不接受 `X-User-Id` 作为身份凭据，过滤器用真实会话身
 
 ## 测试与验收
 
-两模块聚合回归与前端逻辑/构建、注释和文档检查的统一入口：`pwsh -File ./tools/test-regression.ps1`。它只使用隔离验收库，包含 HTTP MCP 测试及新库/V20升级的数据库注释与结构保持验证；真实模型回放仍单独执行，跳过项不计通过。
+两模块聚合回归与前端逻辑/构建、注释和文档检查的统一入口：`pwsh -File ./tools/test-regression.ps1`。它只使用隔离验收库，包含 HTTP MCP 测试及最新空库初始化、数据库注释覆盖和目标结构验证；真实模型回放仍单独执行，跳过项不计通过。
 
-表与字段语义见 [表结构字典](docs/db/表结构字典.md)，维护规范见 [AGENTS.md](AGENTS.md)。提交前运行 `node tools/check-comments.cjs`；字典内容修改后运行 `node tools/generate-schema-dictionary.cjs` 并检查产物一致性。V21 清单随历史迁移冻结，后续结构或注释变更另建迁移。
+表与字段语义见 [表结构字典](docs/db/表结构字典.md)，维护规范见 [AGENTS.md](AGENTS.md)。提交前运行 `node tools/check-comments.cjs`；字典内容修改后运行 `node tools/generate-schema-dictionary.cjs` 并检查产物一致性。当前生成器与检查器读取 V21 基础表和调查表注释清单；后续按最新 Demo 基线重整结构时，同步更新初始化来源、生成器和检查器，不要求保留历史数据或旧库升级路径。
 
 在仓库根目录依次执行：
 

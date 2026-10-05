@@ -95,6 +95,12 @@ mybatis-plus:
     map-underscore-to-camel-case: true
 
 agent:
+  investigation:
+    # 调查专用模型选项；留空沿用LLM_MODEL，工具调用和最终Schema能力分别验收。
+    model: ${INVESTIGATION_MODEL:}
+    native-schema: ${INVESTIGATION_NATIVE_SCHEMA:false}
+    thinking-enabled: ${INVESTIGATION_THINKING_ENABLED:false}
+    business-timezone: Asia/Shanghai
   semantic:
     mode: ${SEMANTIC_MODE:active}      # V2 统一模型语义入口；legacy 为显式回滚，不作为解析兜底
     native-schema: ${SEMANTIC_NATIVE_SCHEMA:false} # 仅端点支持 JSON Schema 时开启

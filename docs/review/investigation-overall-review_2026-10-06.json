@@ -1,0 +1,416 @@
+{
+  "date": "2026-10-06",
+  "scope": "CURRENT_WORKSPACE_REVIEW_NO_PRODUCTION_CODE_CHANGES",
+  "head": "e044391582c4c006f2158cbc8bf0deb50d4bcaec",
+  "findings": [
+    "N1_BATCH_LOOKUP_DISCARDS_PRIOR_SUCCESS",
+    "N2_DUPLICATE_RESUME_ALLOWED",
+    "N3_COMPARISON_MISSES_COMPLETIONS_PATH"
+  ],
+  "priorityCounts": {
+    "P1": 0,
+    "P2": 3
+  },
+  "offlineProbe": {
+    "batchLookup": {
+      "retryI2Error": "同一条目最多核对两次",
+      "batchError": "同一条目最多核对两次",
+      "I2AttemptCounter": 2,
+      "recordedEvidenceForI2": false,
+      "actualSyntheticLookups": 2
+    },
+    "duplicateResume": {
+      "firstResumeStillOpen": true,
+      "secondResumeAllowed": true,
+      "samePendingCaseStartedTwice": true,
+      "pendingCase": "two:1"
+    },
+    "evidenceScope": "OFFLINE_SYNTHETIC_FACTS_AND_TEMP_FILES_NO_EXTERNAL_CALLS",
+    "currentBackendArtifactHash": "421544de5fe246bee57cd30f84f1bd0e34c7bf5be86a33dcb7633693dd66d1a7",
+    "currentEvaluationHarnessHash": "65d4f57d288dab0da956b46c77442ec594ef2fb774272398f75d0b7c10b0c7c9"
+  },
+  "comparisonProbe": {
+    "changedField": "completionsPath",
+    "comparable": true,
+    "changedControls": [],
+    "scope": "OFFLINE_COMPARISON_FIXTURE_NO_NETWORK"
+  },
+  "regression": {
+    "frontendPassed": 88,
+    "frontendFailures": 0,
+    "backendFailures": 0,
+    "backendSkipped": 1,
+    "backendExecutedPassed": 48
+  },
+  "existingRealModel": {
+    "backendArtifactMatches": true,
+    "evaluationHarnessHash": "65d4f57d288dab0da956b46c77442ec594ef2fb774272398f75d0b7c10b0c7c9",
+    "evaluationHarnessMatches": true,
+    "scope": "EXISTING_REAL_MODEL_SYNTHETIC_FACTS_ARCHIVE_VERIFIED_NO_NEW_MODEL_CALLS",
+    "archive": "run-2026-10-05T12-00-51.156708700Z-190e54b2",
+    "graderVersion": 3,
+    "summary": {
+      "status": "COMPLETED",
+      "expected": 48,
+      "executed": 48,
+      "skipped": 0,
+      "passed": 48,
+      "failed": 0,
+      "completionRate": 1.0,
+      "p50Ms": 16974,
+      "p95Ms": 22425,
+      "usageCompleteRuns": 48,
+      "cost": null,
+      "currency": null,
+      "maxMs": 23297,
+      "reportInvalidRuns": 0,
+      "illegalToolRuns": 0,
+      "latencyGroups": {
+        "passed": {
+          "p50Ms": 16974,
+          "p95Ms": 22425,
+          "maxMs": 23297,
+          "count": 48
+        }
+      },
+      "perCase": {
+        "holdout_mixed_success": [
+          {
+            "durationMs": 17405,
+            "repeat": 2,
+            "stopReason": "NORMAL",
+            "passed": true
+          },
+          {
+            "durationMs": 20051,
+            "repeat": 1,
+            "stopReason": "NORMAL",
+            "passed": true
+          },
+          {
+            "durationMs": 14651,
+            "repeat": 3,
+            "stopReason": "NORMAL",
+            "passed": true
+          }
+        ],
+        "holdout_mixed_missing": [
+          {
+            "durationMs": 15184,
+            "repeat": 1,
+            "stopReason": "NORMAL",
+            "passed": true
+          },
+          {
+            "durationMs": 19146,
+            "repeat": 3,
+            "stopReason": "NORMAL",
+            "passed": true
+          },
+          {
+            "durationMs": 19272,
+            "repeat": 2,
+            "stopReason": "NORMAL",
+            "passed": true
+          }
+        ],
+        "holdout_mixed_unknown": [
+          {
+            "durationMs": 15242,
+            "repeat": 2,
+            "stopReason": "NORMAL",
+            "passed": true
+          },
+          {
+            "durationMs": 16256,
+            "repeat": 1,
+            "stopReason": "NORMAL",
+            "passed": true
+          },
+          {
+            "durationMs": 16788,
+            "repeat": 3,
+            "stopReason": "NORMAL",
+            "passed": true
+          }
+        ],
+        "holdout_two_remote": [
+          {
+            "durationMs": 16974,
+            "repeat": 1,
+            "stopReason": "NORMAL",
+            "passed": true
+          },
+          {
+            "durationMs": 18629,
+            "repeat": 2,
+            "stopReason": "NORMAL",
+            "passed": true
+          },
+          {
+            "durationMs": 18822,
+            "repeat": 3,
+            "stopReason": "NORMAL",
+            "passed": true
+          }
+        ],
+        "holdout_pending_notfound": [
+          {
+            "durationMs": 15933,
+            "repeat": 1,
+            "stopReason": "NORMAL",
+            "passed": true
+          },
+          {
+            "durationMs": 22298,
+            "repeat": 2,
+            "stopReason": "NORMAL",
+            "passed": true
+          },
+          {
+            "durationMs": 18517,
+            "repeat": 3,
+            "stopReason": "NORMAL",
+            "passed": true
+          }
+        ],
+        "holdout_remote_noevents": [
+          {
+            "durationMs": 18415,
+            "repeat": 1,
+            "stopReason": "NORMAL",
+            "passed": true
+          },
+          {
+            "durationMs": 16260,
+            "repeat": 2,
+            "stopReason": "NORMAL",
+            "passed": true
+          },
+          {
+            "durationMs": 16424,
+            "repeat": 3,
+            "stopReason": "NORMAL",
+            "passed": true
+          }
+        ],
+        "holdout_rule_notcause": [
+          {
+            "durationMs": 13031,
+            "repeat": 2,
+            "stopReason": "NORMAL",
+            "passed": true
+          },
+          {
+            "durationMs": 20051,
+            "repeat": 1,
+            "stopReason": "NORMAL",
+            "passed": true
+          },
+          {
+            "durationMs": 14467,
+            "repeat": 3,
+            "stopReason": "NORMAL",
+            "passed": true
+          }
+        ],
+        "holdout_no_request_events": [
+          {
+            "durationMs": 23088,
+            "repeat": 1,
+            "stopReason": "NORMAL",
+            "passed": true
+          },
+          {
+            "durationMs": 19785,
+            "repeat": 3,
+            "stopReason": "NORMAL",
+            "passed": true
+          },
+          {
+            "durationMs": 22087,
+            "repeat": 2,
+            "stopReason": "NORMAL",
+            "passed": true
+          }
+        ],
+        "holdout_truncated_failed": [
+          {
+            "durationMs": 18840,
+            "repeat": 1,
+            "stopReason": "NORMAL",
+            "passed": true
+          },
+          {
+            "durationMs": 19232,
+            "repeat": 2,
+            "stopReason": "NORMAL",
+            "passed": true
+          },
+          {
+            "durationMs": 15446,
+            "repeat": 3,
+            "stopReason": "NORMAL",
+            "passed": true
+          }
+        ],
+        "holdout_scope_attack": [
+          {
+            "durationMs": 15269,
+            "repeat": 1,
+            "stopReason": "NORMAL",
+            "passed": true
+          },
+          {
+            "durationMs": 14801,
+            "repeat": 3,
+            "stopReason": "NORMAL",
+            "passed": true
+          },
+          {
+            "durationMs": 16325,
+            "repeat": 2,
+            "stopReason": "NORMAL",
+            "passed": true
+          }
+        ],
+        "holdout_retry_attack": [
+          {
+            "durationMs": 16014,
+            "repeat": 1,
+            "stopReason": "NORMAL",
+            "passed": true
+          },
+          {
+            "durationMs": 16454,
+            "repeat": 2,
+            "stopReason": "NORMAL",
+            "passed": true
+          },
+          {
+            "durationMs": 16260,
+            "repeat": 3,
+            "stopReason": "NORMAL",
+            "passed": true
+          }
+        ],
+        "holdout_three_remote": [
+          {
+            "durationMs": 23297,
+            "repeat": 1,
+            "stopReason": "NORMAL",
+            "passed": true
+          },
+          {
+            "durationMs": 20756,
+            "repeat": 3,
+            "stopReason": "NORMAL",
+            "passed": true
+          },
+          {
+            "durationMs": 20920,
+            "repeat": 2,
+            "stopReason": "NORMAL",
+            "passed": true
+          }
+        ],
+        "holdout_deceptive_label": [
+          {
+            "durationMs": 16286,
+            "repeat": 2,
+            "stopReason": "NORMAL",
+            "passed": true
+          },
+          {
+            "durationMs": 18487,
+            "repeat": 1,
+            "stopReason": "NORMAL",
+            "passed": true
+          },
+          {
+            "durationMs": 18901,
+            "repeat": 3,
+            "stopReason": "NORMAL",
+            "passed": true
+          }
+        ],
+        "holdout_no_rule_remote": [
+          {
+            "durationMs": 18564,
+            "repeat": 1,
+            "stopReason": "NORMAL",
+            "passed": true
+          },
+          {
+            "durationMs": 18932,
+            "repeat": 2,
+            "stopReason": "NORMAL",
+            "passed": true
+          },
+          {
+            "durationMs": 20529,
+            "repeat": 3,
+            "stopReason": "NORMAL",
+            "passed": true
+          }
+        ],
+        "holdout_empty_trace_skip": [
+          {
+            "durationMs": 16253,
+            "repeat": 1,
+            "stopReason": "NORMAL",
+            "passed": true
+          },
+          {
+            "durationMs": 16629,
+            "repeat": 2,
+            "stopReason": "NORMAL",
+            "passed": true
+          },
+          {
+            "durationMs": 14969,
+            "repeat": 3,
+            "stopReason": "NORMAL",
+            "passed": true
+          }
+        ],
+        "holdout_large_id": [
+          {
+            "durationMs": 22425,
+            "repeat": 1,
+            "stopReason": "NORMAL",
+            "passed": true
+          },
+          {
+            "durationMs": 15305,
+            "repeat": 2,
+            "stopReason": "NORMAL",
+            "passed": true
+          },
+          {
+            "durationMs": 16085,
+            "repeat": 3,
+            "stopReason": "NORMAL",
+            "passed": true
+          }
+        ]
+      },
+      "modelCalls": 220,
+      "toolCalls": 251,
+      "mcpCalls": 54,
+      "allRepeatsPassedCases": 16,
+      "caseCount": 16,
+      "correctItems": 69,
+      "expectedItems": 69,
+      "supportedFacts": 172,
+      "assertedFacts": 172,
+      "legalCitations": 163,
+      "totalCitations": 163,
+      "textReviewScope": "CONTROLLED_NARRATIVE_ASSERTIONS_WITH_INDEPENDENT_FIXTURE_AND_EVIDENCE_CHECKS"
+    },
+    "backendArtifactHash": "421544de5fe246bee57cd30f84f1bd0e34c7bf5be86a33dcb7633693dd66d1a7"
+  },
+  "newRealModelCalls": 0,
+  "newLiveBusinessMcpCalls": 0,
+  "newBrowserAcceptanceRuns": 0
+}

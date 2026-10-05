@@ -10,5 +10,6 @@ if(Test-Path -LiteralPath $taskSettings) {
     }
 }
 $env:MCP_IT='true';$env:DEMO_IT='false';$env:TRACE_IT='false';$env:P2_IT='false'
+$env:INVESTIGATION_LIVE='false';$env:INVESTIGATION_JOINT='false';$env:INVESTIGATION_UI='false'
 & (Join-Path $taskRoot 'backend/mvnw.cmd') -f (Join-Path $taskRoot 'pom.xml') test "-Dtest=$Tests" '-Dsurefire.failIfNoSpecifiedTests=false' -q
 exit $LASTEXITCODE

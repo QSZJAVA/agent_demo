@@ -27,7 +27,7 @@ try {
     $taskSettings=Join-Path $PSScriptRoot 'env.local.cmd'
     if(Test-Path -LiteralPath $taskSettings) {
         foreach($taskLine in Get-Content -LiteralPath $taskSettings) {
-            if($taskLine -match '^\s*@?set\s+"?((?:DB|REDIS|LLM|SEMANTIC)_[A-Z_]+|JAVA_HOME|CORS_ALLOWED_ORIGINS|TRUSTED_PROXY_CIDRS)=(.*?)"?\s*$') {
+            if($taskLine -match '^\s*@?set\s+"?((?:DB|REDIS|LLM|SEMANTIC|INVESTIGATION)_[A-Z_]+|JAVA_HOME|CORS_ALLOWED_ORIGINS|TRUSTED_PROXY_CIDRS)=(.*?)"?\s*$') {
                 $taskName=$matches[1]; $taskValue=$matches[2]
                 if(-not [Environment]::GetEnvironmentVariable($taskName,'Process')){Set-AppEnvironment $taskName $taskValue}
             }

@@ -24,15 +24,20 @@
     <div v-if="payload.successCount > (payload.success || []).length || payload.failedCount > (payload.failed || []).length"
       class="replayed">这里只展示前 50 条成功和失败记录；完整结果可在清单卡片中分页查看。</div>
     <el-button v-if="canRetry" type="warning" size="mini" :disabled="busy" @click="$emit('retry')">重试明确失败项</el-button>
+    <el-button v-if="payload.planId && payload.failedCount" size="mini" type="text" @click="investigationVisible = true">分析异常</el-button>
+    <investigation-panel v-if="investigationVisible" :plan-id="payload.planId" @close="investigationVisible = false" />
   </el-card>
 </template>
 
 <script>
 /**
- * 派单结果展示卡片；数量使用服务端汇总，记录列表为有界样本，完整执行事实从清单和追溯接口读取。
+ * 派单结果展示卡片；数量使用服务端汇总，记录列表为有界样本，完整执行事实从清单和追溯接口读取；异常分析绑定该清单。
  */
 export default {
   name: 'ResultCard',
+  components: { InvestigationPanel: () => import('./InvestigationPanel.vue') },
+  data() { return { investigationVisible: false } },
+  watch: { 'payload.planId'() { this.investigationVisible = false } },
   props: {
     payload: { type: Object, required: true },
     busy: { type: Boolean, default: false }

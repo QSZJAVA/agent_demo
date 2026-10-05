@@ -30,7 +30,7 @@ public class QuotaLeaseStore {
     }
 
     /**
-     * 独立事务内取得租户操作范围锁，清理过期租约并校验租户20个、单用户4个并发上限；成功后持久化唯一令牌。
+     * 独立事务取得操作范围锁并持久化租约；普通操作租户20个、用户4个，调查独立限制租户4个、用户2个。
      */
     public void acquire(CurrentUser user, String operation, String token) {
         String scope = Digests.sha256(JsonUtil.toJson(List.of(user.tenantId(), operation)));
@@ -41,7 +41,8 @@ public class QuotaLeaseStore {
             jdbc.queryForObject("SELECT scope_key FROM resource_quota_scope WHERE scope_key=? FOR UPDATE", String.class, scope);
             jdbc.update("DELETE FROM resource_quota_lease WHERE scope_key=? AND expires_at<=NOW(6)", scope);
             List<String> users = jdbc.queryForList("SELECT user_id FROM resource_quota_lease WHERE scope_key=?", String.class, scope);
-            if (users.size() >= 20 || users.stream().filter(user.userId()::equals).count() >= 4) {
+            int tenantLimit="investigation".equals(operation)?4:20, userLimit="investigation".equals(operation)?2:4;
+            if (users.size() >= tenantLimit || users.stream().filter(user.userId()::equals).count() >= userLimit) {
                 throw new ApiException(429, "同时运行的任务过多，请稍后重试");
             }
             jdbc.update("INSERT INTO resource_quota_lease(token,scope_key,user_id,expires_at) "

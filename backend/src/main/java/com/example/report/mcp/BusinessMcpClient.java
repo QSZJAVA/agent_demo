@@ -90,6 +90,37 @@ public class BusinessMcpClient implements AutoCloseable {
     @PreDestroy public void close() { client.close(); }
 
     /**
+     * 调查专用短时只读连接，仅允许结果核对；初始化和读取分别分配剩余时限的一半，结束时关闭传输。
+     * 权限错误保持ApiException，不能被折叠成业务UNKNOWN；写入仍使用原连接和原超时语义。
+     */
+    public <T> T readOnlyCall(String tool,CurrentUser user,Map<String,Object> arguments,TypeReference<T> type,Duration timeout) {
+        if(!"dispatch_lookup".equals(tool) || user==null) throw new IllegalArgumentException("调查连接仅允许已绑定身份的结果核对");
+        if(timeout.toMillis()<100) throw new ApiException(504,"核对时限已到");
+        var transport=HttpClientStreamableHttpTransport.builder(url).endpoint("/mcp").jsonMapper(new JacksonMcpJsonMapper(json))
+                .connectTimeout(Duration.ofMillis(Math.min(2000,timeout.toMillis()/2)))
+                .requestBuilder(HttpRequest.newBuilder().timeout(timeout.dividedBy(2)).header("Authorization","Bearer "+token)).openConnectionOnStartup(false).resumableStreams(false).build();
+        try(var read=McpClient.sync(transport).requestTimeout(timeout.dividedBy(2)).build()) {
+            read.initialize();var input=new LinkedHashMap<>(arguments);input.put("operatorId",user.userId());input.put("tenantId",user.tenantId());
+            var result=read.callTool(new McpSchema.CallToolRequest(tool,input));
+            var text=result.content().stream().filter(McpSchema.TextContent.class::isInstance).map(McpSchema.TextContent.class::cast).findFirst().orElseThrow();
+            var envelope=json.readTree(text.text());
+            if(Boolean.TRUE.equals(result.isError())) throw new ApiException(envelope.path("code").asInt(502),envelope.path("message").asText("核对失败"));
+            if(!envelope.has("data")) throw new ApiException(502,"核对响应不完整");return json.convertValue(envelope.get("data"),type);
+        } catch(ApiException e) {throw e;}
+        catch(Exception e) {
+            // 当前SDK以传输异常包装HTTP拒绝；只识别本服务受控错误信封或明确状态，不记录响应正文。
+            for(Throwable cause=e;cause!=null;cause=cause.getCause()) {
+                String message=java.util.Objects.toString(cause.getMessage(),"");
+                if(message.startsWith("Failed to send message:") || message.startsWith("Invalid SSE response. Status code:")) {
+                    var status=java.util.regex.Pattern.compile("(?:Status code:\\s*|\"code\"\\s*:\\s*)(401|403)\\b").matcher(message);
+                    if(status.find()) throw new ApiException(Integer.parseInt(status.group(1)),"业务服务拒绝调查读取，请检查当前服务认证和权限");
+                }
+            }
+            throw new ApiException(503,"业务服务暂不可用，调查未获得明确核对结果");
+        }
+    }
+
+    /**
      * 缓存10秒的有界可用性检查；验证公开数据库健康和带认证的 MCP 工具列表，检查失败返回false，不触发业务写入。
      */
     public synchronized boolean available() {

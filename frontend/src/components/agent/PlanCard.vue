@@ -32,7 +32,9 @@
       :page-size="50" :total="payload.count" @current-change="changePage" />
 
     <el-button size="mini" type="text" @click="traceVisible = true">查看完整追溯</el-button>
+    <el-button v-if="state === 'executed' || state === 'review'" size="mini" type="text" @click="investigationVisible = true">分析异常</el-button>
     <dispatch-trace v-if="traceVisible" :plan-id="payload.planId" @close="traceVisible = false" />
+    <investigation-panel v-if="investigationVisible" :plan-id="payload.planId" @close="investigationVisible = false" />
     <div class="card-foot">
       <template v-if="state === 'pending'">
         <span class="hint">派单不可撤销，请核对后确认。{{ expiryText }}</span>
@@ -58,17 +60,16 @@
 <script>
 /**
  * 待确认派单清单卡片；展示服务器状态，确认、核对、重试和恢复通过父组件执行。
- * EXECUTING或待核对状态不能当作未执行；条目分页用序号阻止旧响应覆盖新状态。
+ * EXECUTING或待核对状态不能当作未执行；条目分页用序号阻止旧响应覆盖新状态，异常调查以当前清单显式绑定范围。
  */
 import { fetchPlanItems } from '../../api/agent'
 import DispatchTrace from './DispatchTrace.vue'
-// 清单状态只由服务端给出：PENDING / EXECUTING / EXECUTED / CANCELLED / EXPIRED；
-// 升级前的历史清单没有服务端状态，按已失效处理
+// 清单状态只由服务端给出，未知状态不能展示可执行操作。
 const STATES = { PENDING: 'pending', EXECUTING: 'executing', REVIEW_REQUIRED: 'review', EXECUTED: 'executed', CANCELLED: 'cancelled', EXPIRED: 'expired' }
 
 export default {
   name: 'PlanCard',
-  components: { DispatchTrace },
+  components: { DispatchTrace, InvestigationPanel: () => import('./InvestigationPanel.vue') },
   props: {
     payload: { type: Object, required: true },
     status: { type: String, default: null },
@@ -77,7 +78,7 @@ export default {
     refreshVersion: { type: Number, default: 0 }
   },
   data() {
-    return { page: 1, pageRecords: this.payload.records || [], traceVisible: false, pageRequest: 0, disposed: false }
+    return { page: 1, pageRecords: this.payload.records || [], traceVisible: false, investigationVisible: false, pageRequest: 0, disposed: false }
   },
   computed: {
     state() {
@@ -94,6 +95,7 @@ export default {
       this.page = 1
       this.pageRecords = []
       this.traceVisible = false
+      this.investigationVisible = false
       this.changePage(1)
     },
     state(value) {

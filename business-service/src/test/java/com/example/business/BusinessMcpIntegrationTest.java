@@ -19,12 +19,12 @@ import java.util.*;
 import java.util.concurrent.*;
 import static org.junit.jupiter.api.Assertions.*;
 
-/** Real MySQL + real HTTP MCP SDK contract tests. Never uses the developer's business schema. */
+/** UUID隔离库中的真实MySQL、会话和HTTP MCP契约验收；调查传输测试替身与真实模型联合验收分别记录。 */
 @EnabledIfEnvironmentVariable(named="MCP_IT",matches="true")
 class BusinessMcpIntegrationTest {
     static final String schema="mcp_it_"+UUID.randomUUID().toString().replace("-","");
     static final String secret=UUID.randomUUID()+"-"+UUID.randomUUID();
-    static final String password=UUID.randomUUID().toString();
+    static final String password="true".equals(System.getenv("INVESTIGATION_UI"))?setting("INVESTIGATION_UI_PASSWORD",UUID.randomUUID().toString()):UUID.randomUUID().toString();
     static final String REPORT="rpt-sales-order";
     static ServletWebServerApplicationContext context;
     static JdbcTemplate jdbc;
@@ -199,6 +199,164 @@ class BusinessMcpIntegrationTest {
             assertEquals(id,json.readTree(http.send(post,HttpResponse.BodyHandlers.ofString()).body()).path("data").path("id").asText());
             assertEquals(1,status());assertEquals(1,jdbc.queryForObject("SELECT COUNT(*) FROM business_dispatch_request",Integer.class));
         }
+    }
+
+    /** 真实会话→调查HTTP→当前Spring AI工具传输→真实HTTP MCP核对，模型响应由本机测试端点控制。 */
+    @Test void investigationHttpUsesReadOnlyMcpAndReplaysWithoutAnotherModelRun() throws Exception {
+        investigationHttp(false);
+    }
+
+    /** 需要有效真实端点时显式启用，不把本机传输响应计为真实模型结果。 */
+    @Test
+    @EnabledIfEnvironmentVariable(named="INVESTIGATION_JOINT",matches="true")
+    void investigationRealModelAndHttpMcpJointAcceptance() throws Exception {investigationHttp(true);}
+
+    @Test
+    @EnabledIfEnvironmentVariable(named="INVESTIGATION_JOINT",matches="true")
+    void investigationRealModelAndHttpMcpJointAcceptanceRejected() throws Exception {investigationHttp(true,"FAILED");}
+
+    @Test
+    @EnabledIfEnvironmentVariable(named="INVESTIGATION_JOINT",matches="true")
+    void investigationRealModelAndHttpMcpJointAcceptanceUnknown() throws Exception {investigationHttp(true,"UNKNOWN");}
+
+    /** 浏览器验证也限定到此UUID隔离库；通过本地停止标记关闭，不影响日常Demo账号和数据。 */
+    @Test
+    @EnabledIfEnvironmentVariable(named="INVESTIGATION_UI",matches="true")
+    void investigationBrowserSession() throws Exception {investigationBrowserFullWorkflow();}
+
+    /** 启动完整前端所用的真实链路；人工浏览器步骤只通过UI操作，文件命令仅用于隔离库故障准备和独立取证。 */
+    private void investigationBrowserFullWorkflow() throws Exception {
+        var directory=java.nio.file.Path.of("target","investigation-browser-"+UUID.randomUUID().toString());java.nio.file.Files.createDirectories(directory);
+        var ready=java.nio.file.Path.of("target","investigation-full-ui-ready.json");var command=java.nio.file.Path.of("target","investigation-full-ui-command.json");var response=java.nio.file.Path.of("target","investigation-full-ui-response.json");
+        java.nio.file.Files.deleteIfExists(ready);java.nio.file.Files.deleteIfExists(command);java.nio.file.Files.deleteIfExists(response);
+        var agentArgs=java.util.stream.Stream.concat(Arrays.stream(args).filter(a -> !a.startsWith("--business.remote.enabled=") && !a.startsWith("--server.port=")),java.util.stream.Stream.of(
+                "--server.port=18180","--business.remote.enabled=true","--business.remote.url="+base,"--spring.flyway.enabled=false",
+                "--spring.ai.openai.api-key="+setting("LLM_API_KEY",""),"--spring.ai.openai.base-url="+setting("LLM_BASE_URL",""),
+                "--spring.ai.openai.chat.options.model="+setting("LLM_MODEL","deepseek-v4.1-flash"),"--agent.llm.mock=false","--agent.semantic.mode=active",
+                "--agent.semantic.native-schema=false","--agent.semantic.thinking-enabled=false","--agent.investigation.poll-ms=100")).toArray(String[]::new);
+        try(var agent=(ServletWebServerApplicationContext)new SpringApplicationBuilder(com.example.report.ReportApplication.class).profiles("real","mcp").run(agentArgs)) {
+            java.nio.file.Files.writeString(ready,json.writeValueAsString(Map.of("agentUrl","http://127.0.0.1:18180","userId","readerA","schema",schema,"evidenceDirectory",directory.toAbsolutePath().toString())));
+            long deadline=System.nanoTime()+TimeUnit.HOURS.toNanos(2);var processed=new HashSet<String>();String beforeInvestigation=null;boolean finished=false;
+            while(!finished && System.nanoTime()<deadline) {
+                if(!java.nio.file.Files.exists(command)) {Thread.sleep(200);continue;}
+                var input=json.readTree(java.nio.file.Files.readString(command));String id=input.path("id").asText();if(!id.matches("[a-zA-Z0-9_-]{1,64}") || !processed.add(id)) {Thread.sleep(200);continue;}
+                // 每次操作验证连接确实属于本轮UUID专用库，不能对其他业务库准备故障。
+                assertTrue(schema.matches("mcp_it_[a-f0-9]{32}"));assertEquals(schema,jdbc.queryForObject("SELECT DATABASE()",String.class));
+                var output=new LinkedHashMap<String,Object>();output.put("commandId",id);
+                switch(input.path("type").asText()) {
+                    case "change_pending_source" -> {
+                        var plans=jdbc.queryForList("SELECT id FROM dispatch_plan WHERE tenant_id='T001' AND user_id='readerA' AND status='PENDING'");assertEquals(1,plans.size());
+                        String plan=plans.get(0).get("id").toString();var items=jdbc.queryForList("SELECT record_id FROM dispatch_plan_item WHERE plan_id=? AND report_id=? AND company_code='A' ORDER BY seq",plan,REPORT);assertTrue(items.size()>=2);
+                        String record=items.get(0).get("record_id").toString();assertTrue(record.matches("[1-9][0-9]*"));
+                        assertEquals(1,jdbc.update("UPDATE report_sales SET amount=1 WHERE id=? AND tenant_id='T001' AND company_code='A' AND dispatch_status=0",record));
+                        output.put("fixtureChange",Map.of("planId",plan,"recordId",record,"purpose","SOURCE_CHANGED_AFTER_UI_PLAN_BEFORE_UI_CONFIRM"));
+                    }
+                    case "before_investigation" -> {
+                        assertTrue(jdbc.queryForObject("SELECT COUNT(*) FROM dispatch_plan WHERE tenant_id='T001' AND user_id='readerA' AND confirmed_at IS NOT NULL AND success_count>0",Integer.class)>0);
+                        assertTrue(jdbc.queryForObject("SELECT COUNT(*) FROM dispatch_plan_item WHERE status='SKIPPED'",Integer.class)>0);
+                        beforeInvestigation=investigationBusinessSnapshot();output.put("businessHash",com.example.report.common.Digests.sha256(beforeInvestigation));
+                    }
+                    case "snapshot" -> { }
+                    case "finish" -> {
+                        assertNotNull(beforeInvestigation);assertEquals(beforeInvestigation,investigationBusinessSnapshot());
+                        assertTrue(jdbc.queryForObject("SELECT COUNT(*) FROM semantic_turn WHERE user_id='readerA' AND model IS NOT NULL AND latency_ms>0",Integer.class)>0);
+                        assertTrue(jdbc.queryForObject("SELECT COUNT(*) FROM agent_investigation_run WHERE actor_id='readerA' AND status='COMPLETED'",Integer.class)>0);
+                        assertTrue(jdbc.queryForObject("SELECT COUNT(*) FROM agent_investigation_run WHERE actor_id='readerA' AND status='CANCELLED'",Integer.class)>0);
+                        output.put("businessUnchangedDuringInvestigation",true);finished=true;
+                    }
+                    default -> throw new IllegalArgumentException("未允许的浏览器验收命令");
+                }
+                output.put("plans",jdbc.queryForList("SELECT id,conversation_id,status,success_count,failed_count,confirmed_at FROM dispatch_plan WHERE tenant_id='T001' AND user_id='readerA' ORDER BY created_at"));
+                output.put("items",jdbc.queryForList("SELECT plan_id,id,record_id,status,error_code,attempt_count FROM dispatch_plan_item ORDER BY id"));
+                output.put("investigations",jdbc.queryForList("SELECT id,status,stop_reason,model_calls,tool_calls,mcp_calls,created_at,finished_at FROM agent_investigation_run WHERE actor_id='readerA' ORDER BY created_at"));
+                output.put("semanticTurns",jdbc.queryForList("SELECT request_id,mode,outcome,model,latency_ms FROM semantic_turn WHERE user_id='readerA' ORDER BY created_at"));
+                java.nio.file.Files.writeString(response,json.writerWithDefaultPrettyPrinter().writeValueAsString(output));
+                java.nio.file.Files.writeString(directory.resolve(id+".json"),json.writerWithDefaultPrettyPrinter().writeValueAsString(output));
+            }
+            assertTrue(finished,"浏览器未完成全流程，不能将超时等待计为通过");
+        } finally {java.nio.file.Files.deleteIfExists(ready);}
+    }
+
+    private void investigationHttp(boolean realModel) throws Exception {investigationHttp(realModel,"SUCCESS");}
+
+    /** 在隔离库构造三种业务事实，调查前后比较业务表，实际联合报告保存在忽略的target目录。 */
+    private void investigationHttp(boolean realModel,String remote) throws Exception {
+        String request=evidence(true);
+        if("FAILED".equals(remote)) {
+            var amount=jdbc.queryForObject("SELECT amount FROM report_sales WHERE id=1",java.math.BigDecimal.class);
+            try {jdbc.update("UPDATE report_sales SET amount=1 WHERE id=1");assertFalse(submit(request).success());}
+            finally {jdbc.update("UPDATE report_sales SET amount=? WHERE id=1",amount);}
+        } else {
+            assertTrue(submit(request).success());
+            // 在隔离库中构造已受理但尚未给出终态的业务事实，UNKNOWN不能被报告为失败。
+            if("UNKNOWN".equals(remote)) jdbc.update("UPDATE business_dispatch_request SET status='PROCESSING' WHERE request_id=?",request);
+        }
+        var item=jdbc.queryForMap("SELECT plan_id,id FROM dispatch_plan_item WHERE external_request_id=?",request);
+        String plan=item.get("plan_id").toString();jdbc.update("UPDATE dispatch_plan SET status='REVIEW_REQUIRED',success_count=0,failed_count=1 WHERE id=?",plan);
+        // 模拟业务成功回执丢失，调查不得把本地UNKNOWN重新发送为派单写请求。
+        jdbc.update("UPDATE dispatch_plan_item SET status='UNKNOWN',error_code='TRANSPORT_TIMEOUT' WHERE plan_id=?",plan);
+        String businessBefore=investigationBusinessSnapshot();int sourceBefore=status();
+        var calls=new java.util.concurrent.atomic.AtomicInteger();
+        var wire=com.sun.net.httpserver.HttpServer.create(new java.net.InetSocketAddress("127.0.0.1",0),0);
+        wire.createContext("/v1/chat/completions",exchange -> {
+            exchange.getRequestBody().readAllBytes();int step=calls.incrementAndGet();
+            Map<String,Object> message;
+            if(step<=2) {
+                String tool=step==1?"investigation_plan_items":"investigation_dispatch_lookup";
+                String arguments=step==1?"{\"size\":20}":"{\"itemRefs\":[\"I1\"]}";
+                message=Map.of("role","assistant","content","","tool_calls",List.of(Map.of("id","call"+step,"type","function","function",Map.of("name",tool,"arguments",arguments))));
+            } else if(step==3) message=Map.of("role","assistant","content","查询完成");
+            else message=Map.of("role","assistant","content",json.writeValueAsString(Map.of("findings",List.of(Map.of("itemRef","I1","reasonCode","REMOTE_SUCCESS_LOCAL_UNRESOLVED","certainty","VERIFIED","evidenceIds",List.of("E1","E2"),"nextStep","USE_EXISTING_RECONCILE")),"unresolved",List.of())));
+            byte[] bytes=json.writeValueAsBytes(Map.of("id","test","object","chat.completion","created",1,"model","test","choices",List.of(Map.of("index",0,"finish_reason","stop","message",message)),"usage",Map.of("prompt_tokens",100,"completion_tokens",50,"total_tokens",150)));
+            exchange.getResponseHeaders().set("Content-Type","application/json");exchange.sendResponseHeaders(200,bytes.length);exchange.getResponseBody().write(bytes);exchange.close();
+        });wire.start();
+        String modelBase=realModel?setting("LLM_BASE_URL","https://dashscope.aliyuncs.com/compatible-mode"):"http://127.0.0.1:"+wire.getAddress().getPort();
+        String modelKey=realModel?setting("LLM_API_KEY",""):"local-test";
+        boolean browser="true".equals(System.getenv("INVESTIGATION_UI"));
+        var agentArgs=java.util.stream.Stream.concat(Arrays.stream(args).filter(arg -> !arg.startsWith("--business.remote.enabled=") && !arg.startsWith("--server.port=")),java.util.stream.Stream.of(
+                "--server.port="+(browser?18180:0),
+                "--agent.investigation.model="+setting("INVESTIGATION_MODEL",""),"--agent.investigation.native-schema="+setting("INVESTIGATION_NATIVE_SCHEMA","false"),"--agent.investigation.thinking-enabled="+setting("INVESTIGATION_THINKING_ENABLED","false"),
+                "--business.remote.enabled=true","--business.remote.url="+base,"--spring.flyway.enabled=false","--spring.ai.openai.api-key="+modelKey,"--spring.ai.openai.base-url="+modelBase,
+                "--spring.ai.openai.chat.options.model="+(realModel?setting("LLM_MODEL","deepseek-v4.1-flash"):"test"),"--agent.llm.mock=false","--agent.semantic.mode=active","--agent.investigation.poll-ms=100")).toArray(String[]::new);
+        try(var agent=(ServletWebServerApplicationContext)new SpringApplicationBuilder(com.example.report.ReportApplication.class).profiles("real","mcp").run(agentArgs)) {
+            String url="http://127.0.0.1:"+agent.getWebServer().getPort();var http=HttpClient.newHttpClient();
+            var session=identities.login("readerA",password,"investigation-"+UUID.randomUUID());String token=session.token();
+            String key=UUID.randomUUID().toString().replace("-","");
+            var post=HttpRequest.newBuilder(URI.create(url+"/api/investigations")).header("Authorization","Bearer "+token).header("Content-Type","application/json").header("Idempotency-Key",key)
+                    .POST(HttpRequest.BodyPublishers.ofString(json.writeValueAsString(Map.of("planId",plan,"question","调查未知结果，列出依据")))).build();
+            var created=http.send(post,HttpResponse.BodyHandlers.ofString());assertEquals(202,created.statusCode(),created.body());
+            String id=json.readTree(created.body()).path("data").path("run").path("id").asText();assertFalse(id.isEmpty());
+            var get=HttpRequest.newBuilder(URI.create(url+"/api/investigations/"+id)).header("Authorization","Bearer "+token).GET().build();
+            com.fasterxml.jackson.databind.JsonNode run=null;long deadline=System.nanoTime()+TimeUnit.SECONDS.toNanos(realModel?180:25);
+            do {run=json.readTree(http.send(get,HttpResponse.BodyHandlers.ofString()).body()).path("data");if(!Set.of("QUEUED","RUNNING").contains(run.path("status").asText())) break;Thread.sleep(100);} while(System.nanoTime()<deadline);
+            String expected=switch(remote) {case "FAILED" -> "BUSINESS_REJECTED";case "UNKNOWN" -> "RESULT_UNKNOWN";default -> "REMOTE_SUCCESS_LOCAL_UNRESOLVED";};
+            String replayed=json.readTree(http.send(post,HttpResponse.BodyHandlers.ofString()).body()).path("data").path("run").path("id").asText();
+            if(realModel) {
+                var output=new LinkedHashMap<String,Object>();output.put("evidenceScope","REAL_MODEL_SESSION_HTTP_MCP_ISOLATED_DB");output.put("scenario",remote);output.put("run",run);output.put("modelConfiguration",json.readTree(jdbc.queryForObject("SELECT config_json FROM agent_investigation_run WHERE id=?",String.class,id)));
+                output.put("businessBeforeHash",com.example.report.common.Digests.sha256(businessBefore));output.put("businessAfterHash",com.example.report.common.Digests.sha256(investigationBusinessSnapshot()));output.put("businessUnchanged",businessBefore.equals(investigationBusinessSnapshot()));output.put("sameKeyReplayed",id.equals(replayed));output.put("passed","COMPLETED".equals(run.path("status").asText()) && expected.equals(run.path("report").path("findings").path(0).path("reasonCode").asText()));
+                output.put("steps",jdbc.queryForList("SELECT seq,kind,status,tool_name,error_code,result_json,duration_ms FROM agent_investigation_step WHERE run_id=? ORDER BY seq",id));
+                output.put("evidence",jdbc.queryForList("SELECT evidence_ref,source_type,content_json,truncated FROM agent_investigation_evidence WHERE run_id=? ORDER BY evidence_ref",id));
+                var directory=java.nio.file.Path.of("target","investigation-joint");java.nio.file.Files.createDirectories(directory);java.nio.file.Files.writeString(directory.resolve(remote+".json"),json.writerWithDefaultPrettyPrinter().writeValueAsString(output));
+            }
+            assertEquals("COMPLETED",run.path("status").asText(),run.toString());assertEquals(expected,run.path("report").path("findings").get(0).path("reasonCode").asText());
+            assertEquals(id,replayed);if(!realModel) assertEquals(4,calls.get());
+            assertEquals(sourceBefore,status());assertEquals(businessBefore,investigationBusinessSnapshot());
+            var other=identities.login("readerB",password,"other-investigation-"+UUID.randomUUID());
+            var forbidden=HttpRequest.newBuilder(URI.create(url+"/api/investigations/"+id)).header("Authorization","Bearer "+other.token()).GET().build();assertEquals(404,http.send(forbidden,HttpResponse.BodyHandlers.discarding()).statusCode());
+            var bad=HttpRequest.newBuilder(URI.create(url+"/api/investigations")).header("Authorization","Bearer "+token).header("Content-Type","application/json").header("Idempotency-Key",key)
+                    .POST(HttpRequest.BodyPublishers.ofString(json.writeValueAsString(Map.of("planId",plan,"question","分析","tenantId","OTHER")))).build();assertEquals(400,http.send(bad,HttpResponse.BodyHandlers.discarding()).statusCode());
+            if(browser) {
+                var ready=java.nio.file.Path.of("target","investigation-ui-ready.json");var stop=java.nio.file.Path.of("target","investigation-ui-stop");java.nio.file.Files.deleteIfExists(stop);
+                java.nio.file.Files.writeString(ready,json.writeValueAsString(Map.of("agentUrl",url,"planId",plan,"runId",id,"userId","readerA")));
+                try {long limit=System.nanoTime()+TimeUnit.MINUTES.toNanos(10);while(!java.nio.file.Files.exists(stop) && System.nanoTime()<limit) Thread.sleep(250);}
+                finally {java.nio.file.Files.deleteIfExists(ready);java.nio.file.Files.deleteIfExists(stop);}
+            }
+        } finally {wire.stop(0);}
+    }
+    private String investigationBusinessSnapshot() throws Exception {
+        var tables=new LinkedHashMap<String,Object>();
+        for(String table:List.of("dispatch_plan","dispatch_plan_item","dispatch_preview","dispatch_rule","report_sales","business_dispatch_request","report_definition")) tables.put(table,jdbc.queryForList("SELECT * FROM "+table+" ORDER BY 1"));
+        return json.writeValueAsString(tables);
     }
     @Test void requiresMachineCredentialAndRejectsBrowserOriginAndOversizedBodies() throws Exception {
         var http=HttpClient.newHttpClient();
