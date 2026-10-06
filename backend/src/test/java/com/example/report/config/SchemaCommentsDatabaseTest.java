@@ -30,20 +30,17 @@ class SchemaCommentsDatabaseTest {
 
     @Test void freshDatabaseAndAfterMigrateBusinessTablesHaveCompleteComments() throws Exception {
         database((ds,jdbc) -> {
-            Flyway.configure().dataSource(ds).callbacks(new DemoDataResetCallback(false)).load().migrate();
+            Flyway.configure().dataSource(ds).load().migrate();
             assertComments(jdbc);
         });
     }
 
     private static void assertComments(JdbcTemplate jdbc) throws Exception {
         JsonNode specs;
-        try(var stream=SchemaCommentsDatabaseTest.class.getResourceAsStream("/db/migration/V21__schema_comments.json")) {
+        try(var stream=SchemaCommentsDatabaseTest.class.getResourceAsStream("/db/schema-comments.json")) {
             assertNotNull(stream); specs=JsonUtil.MAPPER.readTree(stream);
         }
-        try(var input=SchemaCommentsDatabaseTest.class.getResourceAsStream("/investigation/schema-comments.json")) {
-            ((com.fasterxml.jackson.databind.node.ObjectNode)specs).setAll((com.fasterxml.jackson.databind.node.ObjectNode)JsonUtil.MAPPER.readTree(input));
-        }
-        assertEquals(39,specs.size()); int checked=0;
+        assertEquals(38,specs.size()); int checked=0;
         var names=specs.fieldNames();
         while(names.hasNext()) {
             String table=names.next(); JsonNode spec=specs.get(table);
@@ -54,7 +51,7 @@ class SchemaCommentsDatabaseTest {
                 assertEquals(field.getValue().asText(),jdbc.queryForObject("SELECT COLUMN_COMMENT FROM information_schema.columns WHERE TABLE_SCHEMA=DATABASE() AND TABLE_NAME=? AND COLUMN_NAME=?",String.class,table,field.getKey()),table+"."+field.getKey()); checked++;
             }
         }
-        assertEquals(458,checked);
+        assertEquals(456,checked);
         assertEquals(0,jdbc.queryForObject("SELECT COUNT(*) FROM information_schema.columns WHERE TABLE_SCHEMA=DATABASE() AND TABLE_NAME NOT IN ('flyway_schema_history','external_business') AND COLUMN_COMMENT=''",Integer.class));
     }
 }

@@ -33,21 +33,22 @@ public record PlanSnapshot(DispatchPlan plan, List<DispatchPlanItem> items, List
         return items.stream().map(PlanSnapshot::toCandidate).toList();
     }
 
+    /** 读取当前清单冻结的排除摘要；缺失、null元素或损坏JSON均失败，禁止补造无排除状态。 */
     public List<String> excluded() {
         String json = plan.getExcludeJson();
         if (json == null || json.isBlank()) {
-            return List.of();
+            throw new IllegalStateException("清单排除快照缺失");
         }
         try {
-            return JsonUtil.MAPPER.readValue(json, STRING_LIST);
+            return List.copyOf(JsonUtil.MAPPER.readValue(json, STRING_LIST));
         } catch (Exception e) {
-            return List.of();
+            throw new IllegalStateException("清单排除快照损坏", e);
         }
     }
 
     public static Candidate toCandidate(DispatchPlanItem i) {
         return new Candidate(i.getReportId(), i.getReportName(), i.getRecordId(), i.getDocNo(), i.getCompanyCode(),
                 i.getLabel(), i.getAmount(), i.getBizDate(), i.getRuleId(), i.getRuleName(), i.getRuleVersion(), null,
-                i.getCatalogVersion());
+                i.getCatalogVersion(), com.example.report.rule.CounterpartyRef.fromSnapshot(i.getCounterpartyJson()), com.example.report.rule.FieldFact.restore(i.getFieldsJson()));
     }
 }

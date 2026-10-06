@@ -191,22 +191,6 @@ public class StandardReportAdapter implements ReportQueryAdapter, DispatchStatus
         return writeDispatched(tenantId, recordId, companyCode, dispatchedAt);
     }
 
-    @Override
-    public boolean markDispatched(String tenantId, String recordId, LocalDateTime dispatchedAt) {
-        if (recordId == null || !tenantUsable(tenantId)) {
-            return false;
-        }
-        requireWriteTransaction();
-        requireUniqueIdentity();
-        return writeDispatched(tenantId, recordId, null, dispatchedAt);
-    }
-
-    private static void requireWriteTransaction() {
-        if (!org.springframework.transaction.support.TransactionSynchronizationManager.isActualTransactionActive()) {
-            throw new IllegalStateException("派单回写必须在数据库事务内执行");
-        }
-    }
-
     private boolean writeDispatched(String tenantId, String recordId, String companyCode, LocalDateTime dispatchedAt) {
         MapSqlParameterSource params = new MapSqlParameterSource()
                 .addValue("id", recordId)
@@ -221,10 +205,9 @@ public class StandardReportAdapter implements ReportQueryAdapter, DispatchStatus
         sql.append(" WHERE ").append(quote(config.idColumn())).append(" = :id")
                 .append(" AND ").append(quote(config.statusColumn())).append(" = :pending");
         appendTenant(sql, params, tenantId);
-        if (companyCode != null) {
-            sql.append(" AND ").append(quote(config.companyColumn())).append(" = :company");
-            params.addValue("company", companyCode);
-        }
+        // 所有回写均来自已锁定并复核的公司记录，禁止省略公司条件。
+        sql.append(" AND ").append(quote(config.companyColumn())).append(" = :company");
+        params.addValue("company", companyCode);
         int changed = jdbc.update(sql.toString(), params);
         if (changed > 1) throw new IllegalStateException("派单记录标识不唯一，事务必须回滚");
         return changed == 1;

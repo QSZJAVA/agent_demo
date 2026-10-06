@@ -73,16 +73,14 @@ public class TraceReader {
         long missingAudits = count("SELECT COUNT(*) FROM dispatch_plan_item i JOIN dispatch_plan p ON p.id=i.plan_id "
                 + "WHERE p.tenant_id=? AND p.id=? AND i.status<>'PENDING' AND NOT EXISTS "
                 + "(SELECT 1 FROM trace_event e WHERE e.tenant_id=p.tenant_id AND e.plan_id=p.id AND e.plan_item_id=i.id "
-                + "AND e.event_type='AUDIT' AND e.attempt_count=COALESCE(i.attempt_count,0) AND e.outcome=i.status)", plan.getTenantId(), plan.getId());
+                + "AND e.event_type='AUDIT' AND e.attempt_count=i.attempt_count AND e.outcome=i.status)", plan.getTenantId(), plan.getId());
         long unresolved = count("SELECT COUNT(*) FROM dispatch_plan_item WHERE plan_id=? AND status IN ('UNKNOWN','PENDING')", plan.getId());
-        boolean legacy = plan.getEvidenceVersion() == null || plan.getEvidenceVersion() < 1;
         List<String> warnings = new ArrayList<>();
-        if (legacy) warnings.add("升级前的历史清单：可查看现存记录，无法证明当时未丢失事件。");
         if (missingRules > 0) warnings.add("有 " + missingRules + " 条记录缺少可核实的历史规则原文。");
         if (missingAudits > 0) warnings.add("有 " + missingAudits + " 条记录的当前状态缺少对应可靠审计事件，请人工核查。");
         if (pending > 0) warnings.add("有 " + pending + " 条可靠事件待同步到审计或历史展示表，原始事件已保存，可在事件页查看。");
         Map<String, Object> result = new LinkedHashMap<>();
-        result.put("status", missingRules > 0 || missingAudits > 0 ? "INCOMPLETE" : legacy ? "LEGACY" : pending > 0 ? "SYNCING" : "COMPLETE");
+        result.put("status", missingRules > 0 || missingAudits > 0 ? "INCOMPLETE" : pending > 0 ? "SYNCING" : "COMPLETE");
         result.put("pendingCount", pending);
         result.put("retryingCount", retrying);
         result.put("missingRules", missingRules);

@@ -7,7 +7,6 @@ import com.example.report.entity.DispatchPlan;
 import com.example.report.support.DispatchHarness;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
-import org.springframework.ai.chat.memory.ChatMemory;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -32,7 +31,7 @@ class DispatchOwnershipTest {
     private static DispatchService service(DispatchHarness h, PlanService plans, PlanRepository repository,
                                            DispatchGateway gateway) {
         return new DispatchService(plans, h.previews, repository, h.catalogService, h.candidates, h.versions,
-                gateway, mock(AuditService.class), mock(ConversationService.class), mock(ChatMemory.class),
+                gateway, mock(AuditService.class), mock(ConversationService.class),
                 org.springframework.transaction.support.TransactionOperations.withoutTransaction());
     }
 
@@ -42,7 +41,7 @@ class DispatchOwnershipTest {
         var record = candidate(SALES, "1", "SO1", "A", "item");
         var h = new DispatchHarness().put(SALES, record);
         var preview = h.previews.preview(USER1, "c1",
-                new PreviewCommand(null, "api", null, List.of(SALES), null, null, null)).snapshot();
+                new PreviewCommand(null, "api", null, List.of(SALES), null, null)).snapshot();
         String id = h.plans.create(USER1, "c1", preview.preview().getId(), List.of(), null).plan().getId();
         var gateway = mock(DispatchGateway.class);
         var current = service(h, h.plans, h.store.plans(), gateway);

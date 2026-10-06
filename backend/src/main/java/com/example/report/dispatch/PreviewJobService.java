@@ -30,6 +30,7 @@ public class PreviewJobService {
     private final PreviewService previews;
     private final ConversationCards cards;
     private final ResourceQuotaService quotas;
+    private final com.example.report.permission.PermissionService permissions;
     private final ThreadPoolExecutor workers = new ThreadPoolExecutor(2, 4, 60, TimeUnit.SECONDS,
             new ArrayBlockingQueue<>(40), new ThreadPoolExecutor.AbortPolicy());
     private final ScheduledExecutorService timer = Executors.newSingleThreadScheduledExecutor();
@@ -51,11 +52,12 @@ public class PreviewJobService {
                       LocalDateTime createdAt, LocalDateTime updatedAt) { }
 
     public PreviewJobService(JdbcTemplate jdbc, PreviewService previews, ConversationCards cards,
-                             ResourceQuotaService quotas) {
+                             ResourceQuotaService quotas, com.example.report.permission.PermissionService permissions) {
         this.jdbc = jdbc;
         this.previews = previews;
         this.cards = cards;
         this.quotas = quotas;
+        this.permissions = permissions;
     }
 
     public Job submit(CurrentUser user, String conversationId, PreviewCommand command) {
@@ -190,14 +192,16 @@ public class PreviewJobService {
     }
 
     @Scheduled(fixedDelayString = "${agent.preview-job-recovery-ms:60000}")
+    /** 只回收本实例租户的失联任务和未激活快照，避免共享库实例改写其他租户状态。 */
     public void recoverOrphans() {
+        String tenant=permissions.tenantId();
         jdbc.update("UPDATE dispatch_preview_job SET status='FAILED',stage='INTERRUPTED',"
                 + "message='查询任务中断，请重新发起',updated_at=NOW() "
-                + "WHERE status IN ('QUEUED','RUNNING') AND updated_at < DATE_SUB(NOW(), INTERVAL 3 MINUTE)");
+                + "WHERE tenant_id=? AND status IN ('QUEUED','RUNNING') AND updated_at < DATE_SUB(NOW(), INTERVAL 3 MINUTE)",tenant);
         // 进程在批量写入期间退出时，未激活的快照不会被前端读取，但其明细仍需回收。
         LocalDateTime cutoff = LocalDateTime.now().minusMinutes(10);
-        for (String id : jdbc.queryForList("SELECT id FROM dispatch_preview WHERE status='BUILDING' "
-                + "AND updated_at<? ORDER BY updated_at LIMIT 100", String.class, cutoff)) {
+        for (String id : jdbc.queryForList("SELECT id FROM dispatch_preview WHERE tenant_id=? AND status='BUILDING' "
+                + "AND updated_at<? ORDER BY updated_at LIMIT 100", String.class, tenant, cutoff)) {
             previews.deleteAbandonedBuilding(id, cutoff);
         }
     }

@@ -1,14 +1,115 @@
 package com.example.report.semantic;
 
 import com.example.report.catalog.TextNormalizer;
+import com.example.report.catalog.ReportCatalogService;
+import com.example.report.catalog.MatchType;
 import com.example.report.common.ApiException;
 import com.example.report.dispatch.RecordKey;
+import com.example.report.permission.CurrentUser;
 import com.example.report.rule.Candidate;
 import java.util.*;
 
-/** 将用户记录说法唯一关联到当前预览，并用报表与记录复合标识保存排除选择。 */
+/** 将记录说法及可选报表限定关联到当前授权预览；只修改排除集合，不查询新报表或执行派单。 */
 public final class SelectionResolver {
     private SelectionResolver() { }
+    /**
+     * 在当前完整快照内解析记录所属报表，限定范围内的修改不影响其他报表的选择。
+     * @param rows 已通过会话归属与业务权限检查的当前预览事实
+     * @param previous 当前排除集合；最终仍须在完整快照上校验
+     * @param change 已通过原文证据校验的RECORDS修改，报表名称由目录解析
+     * @param catalog 当前报表目录，不能按名称绕过可派单权限
+     * @param user 当前登录用户，决定可解析的报表集合
+     * @return 修改后的排除集合；无持久化或派单副作用
+     * @throws ApiException 限定报表不可用、不在当前预览或记录不唯一时要求澄清，原集合不变
+     */
+    public static List<RecordKey> apply(List<Candidate> rows, List<RecordKey> previous, SemanticIntent.ScopeChange change,
+                                        ReportCatalogService catalog, CurrentUser user) {
+        if (change.target()!=SemanticIntent.Target.RECORDS) throw new IllegalArgumentException("仅支持记录修改");
+        // 未限定报表的恢复全部/替换必须覆盖旧排除集合，才能从范围变化后的失配中恢复。
+        if (change.reportMentions().isEmpty()) return applySelection(rows,previous,change,catalog,user);
+
+        Set<String> reportIds=new LinkedHashSet<>();
+        for (String mention:change.reportMentions()) {
+            var resolved=catalog.resolve(user,mention);
+            if (!resolved.resolved() || resolved.matchType()==MatchType.FUZZY || resolved.matchType()==MatchType.ALL
+                    || !resolved.unrecognized().isEmpty())
+                throw new ApiException(422,"无法确定记录所属报表“"+mention+"”，请说明完整报表名称");
+            resolved.reportIds().forEach(id -> catalog.requireDispatchable(user,id));
+            reportIds.addAll(resolved.reportIds());
+        }
+        var available=rows.stream().map(Candidate::reportId).collect(java.util.stream.Collectors.toSet());
+        if (!available.containsAll(reportIds))
+            throw new ApiException(422,"限定报表在当前预览中没有记录，请先明确查询范围");
+        var scopedRows=rows.stream().filter(r -> reportIds.contains(r.reportId())).toList();
+        var scopedPrevious=previous.stream().filter(k -> reportIds.contains(k.reportId())).toList();
+        // REPLACE/CLEAR也只作用于限定报表；不能清除其他报表上已确认的排除选择。
+        Set<RecordKey> result=new LinkedHashSet<>(previous.stream().filter(k -> !reportIds.contains(k.reportId())).toList());
+        result.addAll(applySelection(scopedRows,scopedPrevious,change,catalog,user));
+        return List.copyOf(result);
+    }
+    /** 先为每个授权报表编译字段条件，完成全部求值后一次提交集合；任一类型/事实错误不能留下部分选择。 */
+    private static List<RecordKey> applySelection(List<Candidate> rows,List<RecordKey> previous,SemanticIntent.ScopeChange change,
+                                                 ReportCatalogService catalog,CurrentUser user) {
+        if(change.selectorKind()!=SemanticIntent.SelectorKind.FIELDS) return applyTyped(rows,previous,change);
+        Map<String,java.util.function.Predicate<Candidate>> filters=new HashMap<>();
+        for(String reportId:rows.stream().map(Candidate::reportId).distinct().toList())
+            filters.put(reportId,FieldSelection.compile(change.conditions(),catalog.requireDispatchable(user,reportId).fields()));
+        var matched=rows.stream().filter(row -> filters.get(row.reportId()).test(row)).map(row -> new RecordKey(row.reportId(),row.recordId())).toList();
+        if(change.quantifier()!=SemanticIntent.Quantifier.ALL && matched.size()!=1)
+            throw new ApiException(422,"条件匹配"+matched.size()+"条，请明确全部匹配或指定单据");
+        Set<RecordKey> result=new LinkedHashSet<>(change.operation()==SemanticIntent.Operation.REPLACE_EXCLUSIONS?List.of():previous);
+        if(change.operation()==SemanticIntent.Operation.KEEP_ONLY) {
+            result.clear();rows.stream().map(row -> new RecordKey(row.reportId(),row.recordId())).filter(key -> !matched.contains(key)).forEach(result::add);
+        } else if(change.operation()==SemanticIntent.Operation.RESTORE) result.removeAll(matched);else result.addAll(matched);
+        return List.copyOf(result);
+    }
+    /** 在完整授权快照中先解析实体再展开记录集合；多客户歧义不能用ALL绕过，任何一项失败整次选择不提交。 */
+    private static List<RecordKey> applyTyped(List<Candidate> rows,List<RecordKey> previous,SemanticIntent.ScopeChange change) {
+        if(change.operation()==SemanticIntent.Operation.RESTORE_ALL) return List.of();
+        Set<RecordKey> matched=new LinkedHashSet<>();
+        for(String mention:change.mentions()) {
+            String term=TextNormalizer.normalize(mention);
+            var entityTerms=entityTerms(term,change.selectorKind());
+            List<Candidate> found;
+            if(change.selectorKind()==SemanticIntent.SelectorKind.COUNTERPARTY) {
+                var entities=rows.stream().filter(r -> r.counterparty()!=null &&
+                        (entityTerms.contains(TextNormalizer.normalize(r.counterparty().name())) || r.counterparty().aliases().stream().anyMatch(a -> entityTerms.contains(TextNormalizer.normalize(a)))))
+                        .map(r -> List.of(r.companyCode(),r.counterparty().id())).distinct().toList();
+                if(entities.size()!=1) {
+                    String candidates=rows.stream().filter(r -> r.counterparty()!=null && term.equals(TextNormalizer.normalize(r.counterparty().name())))
+                            .limit(5).map(r -> r.counterparty().name()+"（公司"+r.companyCode()+"，单据"+r.docNo()+"）").distinct().collect(java.util.stream.Collectors.joining("、"));
+                    throw new ApiException(422,"“"+mention+"”未唯一定位客户，请提供已维护的客户全称、别名或单据号"+(candidates.isEmpty()?"":"；候选："+candidates));
+                }
+                var key=entities.get(0);
+                found=rows.stream().filter(r -> r.counterparty()!=null && Objects.equals(r.companyCode(),key.get(0)) && r.counterparty().id().equals(key.get(1))).toList();
+            } else {
+                found=rows.stream().filter(r -> entityTerms.contains(TextNormalizer.normalize(r.docNo()))).toList();
+                if(found.isEmpty() && change.selectorKind()==SemanticIntent.SelectorKind.DESCRIPTION)
+                    found=rows.stream().filter(r -> r.label()!=null && TextNormalizer.normalize(r.label()).contains(term)).toList();
+            }
+            if(found.isEmpty()) throw new ApiException(422,"“"+mention+"”在当前预览中没有匹配记录，请核对对象或重新查询");
+            if(found.size()>1 && (change.selectorKind()==SemanticIntent.SelectorKind.DOCUMENT || change.quantifier()!=SemanticIntent.Quantifier.ALL))
+                throw new ApiException(422,"“"+mention+"”匹配"+found.size()+"条记录，请说明全部匹配记录或指定单据号");
+            for(var row:found) matched.add(new RecordKey(row.reportId(),row.recordId()));
+        }
+        Set<RecordKey> result=new LinkedHashSet<>(change.operation()==SemanticIntent.Operation.REPLACE_EXCLUSIONS?List.of():previous);
+        if(change.operation()==SemanticIntent.Operation.RESTORE) result.removeAll(matched); else result.addAll(matched);
+        return List.copyOf(result);
+    }
+    /**
+     * 仅为已识别的实体类型生成至多一个去称谓候选，不解析动作、不截断公司名或模糊匹配。
+     * 原文与去称谓候选同时参与精确关联：若称谓恰好属于另一实体的真实名称，必须保留歧义，不能优先选中其中一家。
+     */
+    private static Set<String> entityTerms(String normalized,SemanticIntent.SelectorKind kind) {
+        String pattern=switch(kind) {
+            case COUNTERPARTY -> "^(?:交易对方|客户)";
+            case DOCUMENT -> "^(?:报销单号|单据号|订单号|发票号|报销单|单据|订单|发票)";
+            default -> null;
+        };
+        if(pattern==null) return Set.of(normalized);
+        String unwrapped=normalized.replaceFirst(pattern,"");
+        return unwrapped.isBlank() || unwrapped.equals(normalized)?Set.of(normalized):Set.of(normalized,unwrapped);
+    }
     /**
      * 在当前快照上修改排除集合：ADD排除，REMOVE恢复，REPLACE替换，CLEAR清空。
      * @param rows 当前成功预览的完整候选事实

@@ -15,7 +15,6 @@ public final class StateReason {
     public static final String PERMISSION_CHANGED = "PERMISSION_CHANGED";
     public static final String EXECUTED = "EXECUTED";
     public static final String USER_CANCELLED = "USER_CANCELLED";
-    public static final String DEMO_RESET = "DEMO_RESET";
     public static final String EXECUTION_INTERRUPTED = "EXECUTION_INTERRUPTED";
 
     private static final Map<String, String> MESSAGES = Map.of(
@@ -27,7 +26,6 @@ public final class StateReason {
             PERMISSION_CHANGED, "权限范围已变化，请重新查询",
             EXECUTED, "已据此执行派单",
             USER_CANCELLED, "已取消",
-            DEMO_RESET, "演示数据已重置，请重新查询",
             EXECUTION_INTERRUPTED, "执行结果待核对，请联系管理员按清单和外部请求号核对，勿重复派单");
 
     private StateReason() {

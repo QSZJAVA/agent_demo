@@ -14,8 +14,6 @@ import com.example.report.permission.CurrentUser;
 import com.example.report.rule.Candidate;
 import com.example.report.rule.DispatchCandidateService;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.ai.chat.memory.ChatMemory;
-import org.springframework.ai.chat.messages.AssistantMessage;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.support.TransactionOperations;
 
@@ -54,7 +52,6 @@ public class DispatchService {
     private final DispatchGateway gateway;
     private final AuditService auditService;
     private final ConversationService conversationService;
-    private final ChatMemory chatMemory;
     private final TransactionOperations tx;
     private final ScheduledExecutorService executionHeartbeats = Executors.newSingleThreadScheduledExecutor(task -> {
         Thread thread = new Thread(task, "dispatch-execution-heartbeat");
@@ -67,7 +64,7 @@ public class DispatchService {
     public DispatchService(PlanService planService, PreviewService previewService, PlanRepository plans,
                            ReportCatalogService catalogService, DispatchCandidateService candidateService,
                            DispatchVersionService versions, DispatchGateway gateway, AuditService auditService,
-                           ConversationService conversationService, ChatMemory chatMemory, TransactionOperations tx) {
+                           ConversationService conversationService, TransactionOperations tx) {
         this.planService = planService;
         this.previewService = previewService;
         this.plans = plans;
@@ -77,7 +74,6 @@ public class DispatchService {
         this.gateway = gateway;
         this.auditService = auditService;
         this.conversationService = conversationService;
-        this.chatMemory = chatMemory;
         this.tx = tx;
     }
 
@@ -85,7 +81,7 @@ public class DispatchService {
         return confirm(user, planId, TraceIds.current());
     }
 
-    /** 确认执行一份待确认清单（前端确认按钮，或 require-confirm=false 时由工具直接调用） */
+    /** 执行用户已确认的待确认清单；业务入口必须先验证确认与当前执行版本 */
     public DispatchResultPayload confirm(CurrentUser user, String planId, String traceId) {
         return confirm(user,planId,traceId,null);
     }
@@ -167,15 +163,6 @@ public class DispatchService {
         } finally {
             heartbeat.cancel(false);
         }
-        // 派单已经发生，下面的收尾失败只记日志：不能让用户看到 500 以为没派，再去重复操作
-        try {
-            if (plan.getConversationId() != null) {
-                // 让模型知道这份清单已经执行过（工作记忆），后续对话不会再拿它说事
-                chatMemory.add(plan.getConversationId(), new AssistantMessage(memoryNote(result)));
-            }
-        } catch (RuntimeException e) {
-            log.error("派单清单 {} 已执行（成功 {} 失败 {}），收尾记录失败", plan.getId(), result.successCount(), result.failedCount(), e);
-        }
         return result;
     }
 
@@ -239,7 +226,7 @@ public class DispatchService {
                 // 先留下可核对的状态。网关成功后进程崩溃时，不能让旧 FAILED 状态掩盖已发送的请求。
                 item.setStatus(DispatchPlanItem.UNKNOWN);
                 item.setExternalRequestId(requestId);
-                item.setAttemptCount((item.getAttemptCount() == null ? 0 : item.getAttemptCount()) + 1);
+                item.setAttemptCount((item.getAttemptCount()) + 1);
                 item.setErrorCode("RESULT_UNKNOWN");
                 item.setErrorMessage("重试请求结果待核对");
                 item.setUpdatedAt(LocalDateTime.now());
@@ -269,7 +256,7 @@ public class DispatchService {
                 }
                 persistResultCard(user, plan, result);
             });
-            recordUpdatedResult(user, plan, result);
+
             return result;
         } catch (RuntimeException e) {
             if (plans.isExecuting(planId, executionVersion)) {
@@ -393,7 +380,7 @@ public class DispatchService {
             }
             persistResultCard(user, snapshot.plan(), result);
         });
-        recordUpdatedResult(user, snapshot.plan(), result);
+
         return result;
     }
 
@@ -406,14 +393,6 @@ public class DispatchService {
         return quotas.acquire(user, "dispatch", DispatchVersionService.reportIds(preview));
     }
 
-    private void recordUpdatedResult(CurrentUser user, DispatchPlan plan, DispatchResultPayload result) {
-        if (plan.getConversationId() == null) return;
-        try {
-            chatMemory.add(plan.getConversationId(), new AssistantMessage(memoryNote(result)));
-        } catch (RuntimeException e) {
-            log.error("清单 {} 最新结果已落库，但会话记录写入失败", plan.getId(), e);
-        }
-    }
 
     private DispatchResultPayload currentResult(PlanSnapshot snapshot) {
         DispatchResultPayload result = replay(snapshot);
@@ -423,16 +402,7 @@ public class DispatchService {
 
     /** 取消一份待确认清单；已取消、已失效的重复取消不报错 */
     public DispatchPlan cancel(CurrentUser user, String planId) {
-        boolean wasPending = planService.findOwned(user, planId).map(p -> DispatchPlan.PENDING.equals(p.getStatus())).orElse(false);
-        DispatchPlan plan = planService.cancel(user, planId);
-        if (wasPending && DispatchPlan.CANCELLED.equals(plan.getStatus()) && plan.getConversationId() != null) {
-            try {
-                chatMemory.add(plan.getConversationId(), new AssistantMessage("（系统记录）用户取消了待确认的派单清单，未执行任何派单。"));
-            } catch (RuntimeException e) {
-                log.warn("取消清单 {} 的工作记忆写入失败", planId, e);
-            }
-        }
-        return plan;
+        return planService.cancel(user, planId);
     }
 
     /**
@@ -458,8 +428,8 @@ public class DispatchService {
     /**
      * 人工选择入口为每条记录创建可追溯清单再执行；保留用户指定范围并校验当前业务授权，最多50条。返回每条清单及待核对数量。
      */
-    public ManualResult dispatchDirect(CurrentUser user, String reportIdOrLegacyCode, List<String> recordIds) {
-        CatalogEntry report = catalogService.requireVisibleByIdOrLegacyCode(user, reportIdOrLegacyCode);
+    public ManualResult dispatchDirect(CurrentUser user, String reportId, List<String> recordIds) {
+        CatalogEntry report = catalogService.requireVisible(user, reportId);
         report = catalogService.requireDispatchable(user, report.reportId());
         List<String> ids = recordIds.stream().filter(Objects::nonNull).map(String::trim)
                 .filter(s -> !s.isEmpty()).distinct().toList();
@@ -501,7 +471,7 @@ public class DispatchService {
     }
 
     public List<ManualPlan> manualPlans(CurrentUser user, String reportCode, int page) {
-        CatalogEntry report = catalogService.requireVisibleByIdOrLegacyCode(user, reportCode);
+        CatalogEntry report = catalogService.requireVisible(user, reportCode);
         if (page < 1 || page > 100000) throw new ApiException("页码无效");
         return plans.manualPlans(user.tenantId(), user.userId(), report.reportId(), (page - 1) * 50, 50)
                 .stream().map(p -> manualView(planService.getOwned(user, p.getId()))).toList();
@@ -567,7 +537,7 @@ public class DispatchService {
                 // Persist the request number before sending; recovery can then reconcile an interrupted send.
                 item.setStatus(DispatchPlanItem.UNKNOWN);
                 item.setExternalRequestId(requestId);
-                item.setAttemptCount((item.getAttemptCount() == null ? 0 : item.getAttemptCount()) + 1);
+                item.setAttemptCount((item.getAttemptCount()) + 1);
                 item.setErrorCode("RESULT_UNKNOWN");
                 item.setErrorMessage("派单请求结果待核对");
                 item.setUpdatedAt(LocalDateTime.now());
@@ -596,7 +566,6 @@ public class DispatchService {
                 message = RECORD_CHANGED;
             }
             item.setStatus(code);
-            if (!sent) item.setAttemptCount(item.getAttemptCount() == null ? 0 : item.getAttemptCount());
             item.setExternalRequestId(sent ? requestId : null);
             item.setErrorCode(errorCode);
             item.setErrorMessage(DispatchPlanItem.SUCCESS.equals(code) ? null : message);
@@ -705,17 +674,4 @@ public class DispatchService {
         };
     }
 
-    private static String memoryNote(DispatchResultPayload r) {
-        StringBuilder sb = new StringBuilder("（系统记录）派单清单已执行：成功 ")
-                .append(r.successCount()).append(" 条，失败 ").append(r.failedCount()).append(" 条。");
-        if (!r.success().isEmpty()) {
-            sb.append("成功单据：");
-            r.success().forEach(c -> sb.append(c.docNo()).append(' '));
-        }
-        if (!r.failed().isEmpty()) {
-            sb.append("失败单据：");
-            r.failed().forEach(f -> sb.append(f.docNo()).append('(').append(f.message()).append(") "));
-        }
-        return sb.toString().trim();
-    }
 }

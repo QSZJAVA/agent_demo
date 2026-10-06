@@ -2,6 +2,9 @@ server:
   port: 8080
 
 spring:
+  jackson:
+    deserialization:
+      fail-on-unknown-properties: true
   application:
     name: report-demo
 
@@ -21,13 +24,11 @@ spring:
       # 单条报表查询的上限；整个异步预览任务另有 120 秒超时。
       query-timeout: 60s
 
-  # 表结构由 Flyway 版本化迁移维护（classpath:db/migration）。已有库第一次接入时以版本 0 建立基线，
-  # V1 全部 IF NOT EXISTS 只补缺失的表，之后 V2+ 把规则、审计迁移到报表目录 / report_id 模型
+  # 单一V1完整初始化；只面向当前结构，非空未基线库拒绝自动接管。
   flyway:
     enabled: true
     locations: classpath:db/migration
-    baseline-on-migrate: true
-    baseline-version: 0
+    baseline-on-migrate: false
 
   data:
     redis:
@@ -81,10 +82,6 @@ web:
   # 只信任实际反向代理的 IP/CIDR；留空忽略转发头，禁止公网客户端伪造限流身份。
   trusted-proxies: ${TRUSTED_PROXY_CIDRS:}
 
-demo:
-  # 首次空库初始化示例数据；普通重启保留报表、目录、规则和历史。
-  # 仅明确需要恢复演示数据时设为 true；执行完后恢复 false，避免下次重启再次清空。
-  reset-on-startup: ${DEMO_RESET_ON_STARTUP:false}
 
 mybatis-plus:
   global-config:
@@ -102,29 +99,25 @@ agent:
     thinking-enabled: ${INVESTIGATION_THINKING_ENABLED:false}
     business-timezone: Asia/Shanghai
   semantic:
-    mode: ${SEMANTIC_MODE:active}      # V2 统一模型语义入口；legacy 为显式回滚，不作为解析兜底
-    native-schema: ${SEMANTIC_NATIVE_SCHEMA:false} # 仅端点支持 JSON Schema 时开启
+    mode: ${SEMANTIC_MODE:active}      # V1 最终演示入口，仅支持 active
+    native-schema: ${SEMANTIC_NATIVE_SCHEMA:true} # 仅端点支持 JSON Schema 时开启
     model: ${SEMANTIC_MODEL:}         # 留空沿用 LLM_MODEL，可单独选择通过语义验收的模型
     thinking-enabled: ${SEMANTIC_THINKING_ENABLED:false} # 需端点支持 thinking.type=enabled
     turn-timeout-seconds: 180         # 跨实例租约与业务动作上限，不在模型调用期间持有事务
   llm:
-    # true 时使用本地关键词模拟模型（无需 API Key），配合 --spring.profiles.active=mock 使用
+    # 仅程序回归使用；正式真实模型入口关闭
     mock: false
-  dispatch:
-    require-confirm: true             # 派单前弹确认卡片；业务接受时可关闭
   preview:
     ttl-minutes: 30
+    max-scanned-rows: 100000           # 单轮总扫描上限，超限不返回部分预览
+    max-scan-seconds: 120              # 单轮扫描时间预算
     max-items: 5000                   # 预览转分批持久化的阈值，也是单份待确认清单的条数上限
   plan:
     ttl-minutes: 10
   resolver:
     fuzzy-threshold: 0.6              # 模糊匹配最低得分（0~1）
     ambiguity-margin: 0.15            # 第一名领先第二名不足该分差时视为歧义，让用户选择
-  memory:
-    ttl-minutes: 30
-    window-size: 20                   # Redis 工作记忆窗口，过期后从消息表回灌
   conversation:
-    retention-days: 365               # 旧兼容字段；实际清理天数由运营治理 retention 策略维护
     card-payload-max-rows: 2000       # 卡片载荷持久化行数上限，超出只存摘要
     title-max-length: 30              # 默认标题取首条用户消息前 N 字
 

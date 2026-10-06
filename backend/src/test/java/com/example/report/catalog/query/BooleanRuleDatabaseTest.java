@@ -14,7 +14,7 @@ import java.util.*;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
-/** Real JDBC boolean conversion vs preview predicate, in an isolated schema without app startup. */
+/** 在独立MySQL库核对JDBC布尔转换与预览谓词；目录字段必须与测试适配器保持一致。 */
 @EnabledIfEnvironmentVariable(named = "TRACE_IT", matches = "true")
 class BooleanRuleDatabaseTest {
     static String schema;
@@ -53,6 +53,7 @@ class BooleanRuleDatabaseTest {
     void previewAndTrialHaveIdenticalRecordSets(String expression) {
         var report = spy(new TestCatalog().get(TestCatalog.SALES));
         doReturn(adapter).when(report).adapter();
+        doReturn(adapter.fields()).when(report).fields();
         var rule = new DispatchRule(); rule.setId(1L); rule.setVersion(1); rule.setExpression(expression);
         var cache = mock(RuleCache.class);
         when(cache.find("T001", TestCatalog.SALES, "A")).thenReturn(Optional.of(rule));

@@ -3,6 +3,9 @@ server:
   port: ${BUSINESS_PORT:8090}
   max-http-request-header-size: 16KB
 spring:
+  jackson:
+    deserialization:
+      fail-on-unknown-properties: true
   application:
     name: report-business-service
   datasource:
@@ -17,8 +20,7 @@ spring:
       query-timeout: 60s
   flyway:
     locations: classpath:db/migration
-    baseline-on-migrate: true
-    baseline-version: 0
+    baseline-on-migrate: false
   data:
     redis:
       host: ${REDIS_HOST:localhost}
@@ -40,5 +42,3 @@ business:
     enabled: false
   service-token: ${BUSINESS_SERVICE_TOKEN}
   allowed-origins: ${BUSINESS_ALLOWED_ORIGINS:}
-demo:
-  reset-on-startup: false

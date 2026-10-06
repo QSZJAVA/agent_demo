@@ -9,7 +9,6 @@ import com.example.report.support.DispatchHarness;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
-import org.springframework.ai.chat.memory.ChatMemory;
 import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.transaction.support.TransactionOperations;
 import java.util.List;
@@ -28,7 +27,7 @@ class DispatchQuotaLossTest {
     final AtomicBoolean lost = new AtomicBoolean();
     final DispatchService service = new DispatchService(h.plans, h.previews, h.store.plans(), h.catalogService,
             h.candidates, h.versions, gateway, mock(AuditService.class), mock(ConversationService.class),
-            mock(ChatMemory.class), TransactionOperations.withoutTransaction());
+             TransactionOperations.withoutTransaction());
 
     @BeforeEach void setup() {
         ReflectionTestUtils.setField(service, "quotas", quotas);
@@ -38,7 +37,7 @@ class DispatchQuotaLossTest {
     @AfterEach void stop() { service.shutdownHeartbeats(); }
 
     String plan() {
-        var preview = h.previews.preview(USER1, "c1", new PreviewCommand(null, "api", null, List.of(SALES), null, null, null)).snapshot();
+        var preview = h.previews.preview(USER1, "c1", new PreviewCommand(null, "api", null, List.of(SALES), null, null)).snapshot();
         return h.plans.create(USER1, "c1", preview.preview().getId(), List.of(), null).plan().getId();
     }
 

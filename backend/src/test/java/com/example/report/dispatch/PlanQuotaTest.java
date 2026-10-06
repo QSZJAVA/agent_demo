@@ -21,7 +21,7 @@ class PlanQuotaTest {
 
     private String preview() {
         return h.previews.preview(USER1, "c1",
-                new PreviewCommand(null, "api", null, List.of(SALES), null, null, null))
+                new PreviewCommand(null, "api", null, List.of(SALES), null, null))
                 .snapshot().preview().getId();
     }
 
@@ -64,7 +64,7 @@ class PlanQuotaTest {
         when(h.quotas.acquire(eq(USER1), eq("plan-create"), eq(List.of(SALES)))).thenReturn(permit);
         h.plans.create(USER1, "c1", id, List.of(), null);
         verify(permit).close();
-        assertThrows(ApiException.class, () -> h.plans.create(USER1, "c1", id, List.of("missing"), null));
+        assertThrows(ApiException.class, () -> h.plans.create(USER1, "c1", id, List.of(new RecordKey("rpt-sales-order", "missing")), null));
         verify(permit, times(2)).close();
     }
 
@@ -73,10 +73,10 @@ class PlanQuotaTest {
         h.put(EXPENSE, candidate(EXPENSE, "1", "EX1", "A", "expense"));
         when(h.quotas.acquire(eq(USER1), eq("plan-create"), eq(List.of(SALES)))).thenAnswer(call -> {
             h.previews.preview(USER1, "c1",
-                    new PreviewCommand(null, "api", null, List.of(EXPENSE), null, null, null));
+                    new PreviewCommand(null, "api", null, List.of(EXPENSE), null, null));
             return null;
         });
-        assertThrows(ApiException.class, () -> h.plans.create(USER1, "c1", null, List.of(), null));
+        assertThrows(ApiException.class, () -> h.plans.create(USER1, "c1", id, List.of(), null));
         assertTrue(h.store.plans().pending("c1").isEmpty());
         assertEquals("SUPERSEDED", h.store.previews().find(id).orElseThrow().getStatus());
     }

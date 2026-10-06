@@ -1,0 +1,358 @@
+{
+  "date": "2026-10-06",
+  "timezone": "Asia/Shanghai",
+  "scope": "真实模型调用、合成调查事实、仓储和远端核对测试替身；非真实 HTTP MCP、业务库或浏览器验收",
+  "workflowScope": "USER_REQUESTED_PAGINATION_AND_READBACK_NOT_UNPROMPTED_TOOL_SELECTION",
+  "finding": "S1",
+  "findingStatus": "FIXED",
+  "command": "pwsh -NoProfile -File tools/test-investigation-live.ps1 -Context -Repeats 3",
+  "archive": "backend/target/investigation-context-evaluation/run-2026-10-06T06-58-57.705560100Z-fe5f2f54",
+  "manifest": {
+    "createdAt": "2026-10-06T06:58:57.577379300Z",
+    "evidenceScope": "REAL_MODEL_CONTEXT_WITH_SYNTHETIC_FACTS_NO_BUSINESS_DB",
+    "corpusHash": "4f585dcd44f2a263d6bc2cf821a675068da6ca0039e92ae59955697343fabd88",
+    "commit": "39f4bc19963ea33852d7e8308297fa253f49b1f9",
+    "workspaceDiffHash": "410105be69be50421e34aa51235303fca03cbd783f960303613bf5c095fb1478",
+    "workspaceStatusHash": "9859fca254b6c828f2b3c5bcc37c24230576d971342d811d1bd574bdd1007527",
+    "graderVersion": 5,
+    "fixtureVersion": 2,
+    "backendSourceHash": "a80704fa0ab691b4492f85da1c163d54747338c19e9f49bff8f76eb198d56f0f",
+    "contextAcceptanceVersion": 3,
+    "contextFixtureHash": "4f585dcd44f2a263d6bc2cf821a675068da6ca0039e92ae59955697343fabd88"
+  },
+  "configuration": {
+    "model": "deepseek-v4.1-flash",
+    "nativeSchema": false,
+    "thinkingEnabled": false,
+    "parserSource": "MODEL",
+    "promptHash": "89571afe3e44022a6167793bf0ce5899b08d4bb81a27f389e63b3de0c9f21aa0",
+    "toolSchemaHash": "d247d46cae75d6c99c0264573240e6ee7448e17b12da3dd4c24e2529ab4f4d5a",
+    "reportSchemaHash": "1a8f7fca395f779d49822a08ea195b52d299daf3f597f5c3dac4bf98fcce0b7d",
+    "contextVersion": "context-v2",
+    "budgets": {
+      "maxItems": 10,
+      "maxModelCalls": 8,
+      "maxCollectionCalls": 6,
+      "maxToolCalls": 16,
+      "maxMcpCalls": 20,
+      "maxOutputTokens": 2400,
+      "maxReportOutputTokens": 4096,
+      "maxInputUtf8Bytes": 98304,
+      "contextTargetUtf8Bytes": 24576,
+      "maxToolResultUtf8Bytes": 8192,
+      "runTimeoutSeconds": 180,
+      "modelTimeoutSeconds": 40,
+      "mcpTimeoutSeconds": 8,
+      "queueTimeoutSeconds": 120
+    },
+    "backendArtifactHash": "569545df22d586c779d98ad1021e8f8fe6f3b45aa2290c9cb1c0888fcdea6295",
+    "evaluationHarnessHash": "e6804c622aa8e3929b17d358ba0e05cb74494300442ca8b88ed662ade2986e35",
+    "evaluationParallelism": 1,
+    "evaluationMinBatchIntervalSeconds": 11
+  },
+  "summary": {
+    "status": "COMPLETED",
+    "expected": 3,
+    "executed": 3,
+    "skipped": 0,
+    "passed": 3,
+    "failed": 0,
+    "completionRate": 1.0,
+    "p50Ms": 25086,
+    "p95Ms": 27455,
+    "usageCompleteRuns": 3,
+    "cost": null,
+    "currency": null,
+    "maxMs": 27455,
+    "reportInvalidRuns": 0,
+    "illegalToolRuns": 0,
+    "latencyGroups": {
+      "passed": {
+        "count": 3,
+        "p50Ms": 25086,
+        "p95Ms": 27455,
+        "maxMs": 27455
+      }
+    },
+    "perCase": {
+      "context_long_events_readback": [
+        {
+          "stopReason": "NORMAL",
+          "passed": true,
+          "durationMs": 25086,
+          "repeat": 1
+        },
+        {
+          "stopReason": "NORMAL",
+          "passed": true,
+          "durationMs": 24328,
+          "repeat": 2
+        },
+        {
+          "stopReason": "NORMAL",
+          "passed": true,
+          "durationMs": 27455,
+          "repeat": 3
+        }
+      ]
+    },
+    "modelCalls": 18,
+    "toolCalls": 40,
+    "mcpCalls": 9,
+    "allRepeatsPassedCases": 1,
+    "caseCount": 1,
+    "correctItems": 12,
+    "expectedItems": 12,
+    "supportedFacts": 26,
+    "assertedFacts": 26,
+    "legalCitations": 25,
+    "totalCitations": 25,
+    "textReviewScope": "CONTROLLED_NARRATIVE_ASSERTIONS_WITH_INDEPENDENT_FIXTURE_AND_EVIDENCE_CHECKS"
+  },
+  "runs": [
+    {
+      "runId": "5543de23-2a9a-4e0c-b86b-6e5226506083",
+      "repeat": 1,
+      "passed": true,
+      "parserSource": "MODEL",
+      "stopReason": "NORMAL",
+      "durationMs": 25086,
+      "usage": {
+        "modelCalls": 6,
+        "toolCalls": 14,
+        "mcpCalls": 3,
+        "usageComplete": true,
+        "inputTokens": 47855,
+        "outputTokens": 1774,
+        "cost": null,
+        "currency": null,
+        "costComplete": false
+      },
+      "assessment": {
+        "correctItems": 4,
+        "supportedFacts": 9,
+        "totalCitations": 7,
+        "legalCitations": 7,
+        "expectedItems": 4,
+        "assertedFacts": 9,
+        "passed": true
+      },
+      "contextAssessment": {
+        "compactions": 3,
+        "allCompactionsSmaller": true,
+        "uniqueEventsRead": 80,
+        "oldEventEvidenceReadAfterCompaction": true,
+        "omittedEventDetailsRecalled": true,
+        "notesDeliveredToRealModel": true,
+        "readbackDeliveredToRealModel": true,
+        "protocolAndOriginalQuestionPreserved": true,
+        "passed": true
+      },
+      "compactions": [
+        {
+          "seq": 13,
+          "beforeBytes": 69259,
+          "afterBytes": 46812
+        },
+        {
+          "seq": 18,
+          "beforeBytes": 50178,
+          "afterBytes": 23287
+        },
+        {
+          "seq": 21,
+          "beforeBytes": 32074,
+          "afterBytes": 28708
+        }
+      ]
+    },
+    {
+      "runId": "b70f3125-a80f-4331-b681-e1b2fd85cbaa",
+      "repeat": 2,
+      "passed": true,
+      "parserSource": "MODEL",
+      "stopReason": "NORMAL",
+      "durationMs": 24328,
+      "usage": {
+        "modelCalls": 6,
+        "toolCalls": 13,
+        "mcpCalls": 3,
+        "usageComplete": true,
+        "inputTokens": 47696,
+        "outputTokens": 2129,
+        "cost": null,
+        "currency": null,
+        "costComplete": false
+      },
+      "assessment": {
+        "correctItems": 4,
+        "supportedFacts": 9,
+        "totalCitations": 8,
+        "legalCitations": 8,
+        "expectedItems": 4,
+        "assertedFacts": 9,
+        "passed": true
+      },
+      "contextAssessment": {
+        "compactions": 3,
+        "allCompactionsSmaller": true,
+        "uniqueEventsRead": 80,
+        "oldEventEvidenceReadAfterCompaction": true,
+        "omittedEventDetailsRecalled": true,
+        "notesDeliveredToRealModel": true,
+        "readbackDeliveredToRealModel": true,
+        "protocolAndOriginalQuestionPreserved": true,
+        "passed": true
+      },
+      "compactions": [
+        {
+          "seq": 14,
+          "beforeBytes": 70217,
+          "afterBytes": 48213
+        },
+        {
+          "seq": 17,
+          "beforeBytes": 49364,
+          "afterBytes": 21075
+        },
+        {
+          "seq": 20,
+          "beforeBytes": 29872,
+          "afterBytes": 28721
+        }
+      ]
+    },
+    {
+      "runId": "1980fcb3-66fe-4c6f-86ce-8ccd4b32949b",
+      "repeat": 3,
+      "passed": true,
+      "parserSource": "MODEL",
+      "stopReason": "NORMAL",
+      "durationMs": 27455,
+      "usage": {
+        "modelCalls": 6,
+        "toolCalls": 13,
+        "mcpCalls": 3,
+        "usageComplete": true,
+        "inputTokens": 43444,
+        "outputTokens": 2129,
+        "cost": null,
+        "currency": null,
+        "costComplete": false
+      },
+      "assessment": {
+        "correctItems": 4,
+        "supportedFacts": 8,
+        "totalCitations": 10,
+        "legalCitations": 10,
+        "expectedItems": 4,
+        "assertedFacts": 8,
+        "passed": true
+      },
+      "contextAssessment": {
+        "compactions": 2,
+        "allCompactionsSmaller": true,
+        "uniqueEventsRead": 80,
+        "oldEventEvidenceReadAfterCompaction": true,
+        "omittedEventDetailsRecalled": true,
+        "notesDeliveredToRealModel": true,
+        "readbackDeliveredToRealModel": true,
+        "protocolAndOriginalQuestionPreserved": true,
+        "passed": true
+      },
+      "compactions": [
+        {
+          "seq": 16,
+          "beforeBytes": 71298,
+          "afterBytes": 49259
+        },
+        {
+          "seq": 19,
+          "beforeBytes": 57998,
+          "afterBytes": 28663
+        }
+      ]
+    }
+  ],
+  "history": [
+    {
+      "batch": "run-2026-10-06T02-32-00.646753700Z-6097377d",
+      "contextVersion": "context-v1",
+      "acceptanceVersion": 1,
+      "executed": 1,
+      "passed": 1,
+      "failed": 0,
+      "contextFixtureHash": "6b7eb19efa4c3c2f007d162d87628c0ceffe4743a9bf0b3297448da07fb78ca2",
+      "corpusHash": "d104306692742db5707ebecdc8bf81eedfc399d88e57970c744208b5362661e8"
+    },
+    {
+      "batch": "run-2026-10-06T02-33-36.044576400Z-c6608721",
+      "contextVersion": "context-v1",
+      "acceptanceVersion": 2,
+      "executed": 3,
+      "passed": 2,
+      "failed": 1,
+      "contextFixtureHash": "6b7eb19efa4c3c2f007d162d87628c0ceffe4743a9bf0b3297448da07fb78ca2",
+      "corpusHash": "d104306692742db5707ebecdc8bf81eedfc399d88e57970c744208b5362661e8"
+    },
+    {
+      "batch": "run-2026-10-06T02-35-54.317373200Z-f47ed553",
+      "contextVersion": "context-v1",
+      "acceptanceVersion": 3,
+      "executed": 3,
+      "passed": 3,
+      "failed": 0,
+      "contextFixtureHash": "4f585dcd44f2a263d6bc2cf821a675068da6ca0039e92ae59955697343fabd88",
+      "corpusHash": "d104306692742db5707ebecdc8bf81eedfc399d88e57970c744208b5362661e8"
+    },
+    {
+      "batch": "run-2026-10-06T02-37-59.200379500Z-59a89cf8",
+      "contextVersion": "context-v1",
+      "acceptanceVersion": 3,
+      "executed": 1,
+      "passed": 0,
+      "failed": 1,
+      "contextFixtureHash": "4f585dcd44f2a263d6bc2cf821a675068da6ca0039e92ae59955697343fabd88",
+      "corpusHash": "4f585dcd44f2a263d6bc2cf821a675068da6ca0039e92ae59955697343fabd88"
+    },
+    {
+      "batch": "run-2026-10-06T06-58-57.705560100Z-fe5f2f54",
+      "contextVersion": "context-v2",
+      "acceptanceVersion": 3,
+      "executed": 3,
+      "passed": 3,
+      "failed": 0,
+      "contextFixtureHash": "4f585dcd44f2a263d6bc2cf821a675068da6ca0039e92ae59955697343fabd88",
+      "corpusHash": "4f585dcd44f2a263d6bc2cf821a675068da6ca0039e92ae59955697343fabd88"
+    }
+  ],
+  "historyCaveat": "不同版本与问题不合并成功率；前三批 corpusHash 沿用普通语料指纹，以 contextFixtureHash 识别专项事实，原始清单未改写",
+  "regression": {
+    "date": "2026-10-06",
+    "command": "pwsh -NoProfile -File tools/test-regression.ps1",
+    "exitCode": 0,
+    "backend": {
+      "tests": 733,
+      "failures": 0,
+      "passed": 715,
+      "errors": 0,
+      "skipped": 18
+    },
+    "businessService": {
+      "tests": 28,
+      "failures": 0,
+      "passed": 24,
+      "errors": 0,
+      "skipped": 4
+    },
+    "frontend": {
+      "passed": 88,
+      "build": "PASSED"
+    },
+    "comparisonCli": {
+      "passed": 4
+    },
+    "comments": "PASSED",
+    "docs": "PASSED"
+  }
+}

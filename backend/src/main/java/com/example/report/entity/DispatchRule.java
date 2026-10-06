@@ -27,8 +27,6 @@ public class DispatchRule {
     private Long id;
     /** 关联 report_definition.report_id 的稳定报表标识。 */
     private String reportId;
-    /** 历史 reportType 编码；新记录为空，仅用于存量追溯。*/
-    private String legacyReportType;
     /** 规则公司范围；*表示通配，具体公司规则优先。 */
     private String companyCode;
     /** 规则展示名称。*/

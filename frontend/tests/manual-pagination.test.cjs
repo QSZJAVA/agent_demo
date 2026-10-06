@@ -58,7 +58,7 @@ test('manual unknown is shown as pending reconciliation and recovered from serve
     fetchManualPlans: async () => plans,
     reconcilePlan: async id => { calls.push(['reconcile', id]); plans[0].status = 'EXECUTED' }
   })
-  const state = { ...c.data(), reportType: 'sales', docNoField: 'orderNo',
+  const state = { ...c.data(), reportId: 'rpt-sales-order', docNoField: 'orderNo',
     $message: { warning: text => warnings.push(text), info() { throw new Error('must not report ordinary failure') } },
     $confirm: async () => {}, $emit() {} }
   for (const [k, f] of Object.entries(c.methods)) state[k] = f.bind(state)
@@ -78,7 +78,7 @@ test('manual dispatch submits only the selected adjacent large ID as a string', 
     dispatchDirect: async (_, submitted) => { ids = submitted; return { successCount: 1, failedCount: 0 } }
   })
   const records = JSON.parse('[{"id":"9007199254740992","orderNo":"EVEN"},{"id":"9007199254740993","orderNo":"ODD"}]')
-  const state = { ...c.data(), reportType: 'sales', docNoField: 'orderNo',
+  const state = { ...c.data(), reportId: 'rpt-sales-order', docNoField: 'orderNo',
     $message: { info() {}, warning() {} }, $confirm: async () => {}, $emit() {} }
   for (const [key, fn] of Object.entries(c.methods)) state[key] = fn.bind(state)
   state.selectedRows = [records[1]]

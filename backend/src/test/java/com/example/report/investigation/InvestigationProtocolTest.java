@@ -83,7 +83,7 @@ class InvestigationProtocolTest {
         var two=InvestigationTestSupport.session(List.of(item("I1","UNKNOWN",null),item("I2","FAILED","RULE_REJECTED")),props);assertThrows(InvestigationFailure.class,() -> validator.validate(report("I1","UNDETERMINED","INSUFFICIENT",List.of()),"stop",two));
     }
     @Test void unsupportedBudgetConfigurationFailsEarly() {props.setMaxModelCalls(6);assertThrows(IllegalArgumentException.class,props::validate);}
-    @Test void toolSchemaContainsOnlyFiveReadToolsAndNoIdentityFields() {String schema=InvestigationTools.schemaJson();assertEquals(5,InvestigationTools.definitions().size());assertFalse(schema.contains("tenantId"));assertFalse(schema.contains("requestId"));assertFalse(InvestigationTools.allowed("dispatch_submit"));}
+    @Test void toolSchemaContainsOnlySixReadToolsAndNoIdentityFields() {String schema=InvestigationTools.schemaJson();assertEquals(6,InvestigationTools.definitions().size());assertFalse(schema.contains("tenantId"));assertFalse(schema.contains("requestId"));assertFalse(InvestigationTools.allowed("dispatch_submit"));}
     @Test void observedRemoteSuccessCannotBeHiddenByCitingOnlyLocalUnknown() {
         var s=session();s.evidence.put("E2",new InvestigationEvidenceStore.Evidence("MCP_LOOKUP",List.of("I1"),Map.of("items",List.of(Map.of("itemRef","I1","status","SUCCESS"))),false));
         assertThrows(InvestigationFailure.class,() -> validator.validate(report("I1","RESULT_UNKNOWN","INSUFFICIENT",List.of("E1")),"stop",s));

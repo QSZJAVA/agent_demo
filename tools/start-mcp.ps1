@@ -1,7 +1,11 @@
-param([int]$AgentPort=8080,[int]$BusinessPort=8090,[string]$Database='report_mcp',[switch]$Mock,[switch]$Build,[switch]$Frontend,[int]$FrontendPort=5173,[ValidateSet('true','false')][string]$NativeSchema='true')
+param([int]$AgentPort=8080,[int]$BusinessPort=8090,[string]$Database='',[switch]$Build,[switch]$Frontend,[int]$FrontendPort=5173,[ValidateSet('true','false')][string]$NativeSchema='true')
 $ErrorActionPreference='Stop'
 $taskRoot=Split-Path $PSScriptRoot -Parent
 $taskRuntime=Join-Path $taskRoot '.runtime'
+$taskBaseline=Get-Content (Join-Path $taskRoot 'demo-baseline.json') -Raw|ConvertFrom-Json
+if(-not $Database){$Database=$taskBaseline.database}
+# 演示库名称固定；禁止启动时另建带版本号或日期的新库。
+if($Database -ne 'report_demo'){throw 'Demo database is fixed to report_demo. Do not create another database without explicit user authorization.'}
 if ($Database -notmatch '^[a-zA-Z0-9_]+$') {throw 'Invalid database name.'}
 $taskPorts=@($AgentPort,$BusinessPort)
 if($Frontend){$taskPorts+= $FrontendPort}
@@ -42,13 +46,13 @@ $taskBusiness=$null; $taskAgent=$null; $taskUi=$null
 try {
     # Optional local runtime model configuration; never committed or echoed.
     $taskModelSecrets=Join-Path $taskRuntime 'llm-credentials.json'
-    if(-not $Mock -and -not $env:LLM_API_KEY -and (Test-Path -LiteralPath $taskModelSecrets)) {
+    if(-not $env:LLM_API_KEY -and (Test-Path -LiteralPath $taskModelSecrets)) {
         $taskModelCredentials=Get-Content -LiteralPath $taskModelSecrets -Raw | ConvertFrom-Json
         Set-TaskEnvironment 'LLM_API_KEY' $taskModelCredentials.apiKey
         if(-not $env:LLM_BASE_URL){Set-TaskEnvironment 'LLM_BASE_URL' $taskModelCredentials.baseUrl}
         if(-not $env:LLM_MODEL){Set-TaskEnvironment 'LLM_MODEL' $taskModelCredentials.model}
     }
-    if(-not $Mock -and -not $env:LLM_API_KEY){throw 'Set LLM_API_KEY, LLM_BASE_URL and LLM_MODEL, or configure .runtime/llm-credentials.json.'}
+    if(-not $env:LLM_API_KEY){throw 'Set LLM_API_KEY, LLM_BASE_URL and LLM_MODEL, or configure .runtime/llm-credentials.json.'}
     $taskLocal=Join-Path $PSScriptRoot 'env.local.cmd'
     if(Test-Path -LiteralPath $taskLocal) {
         Get-Content -LiteralPath $taskLocal | ForEach-Object {
@@ -60,10 +64,9 @@ try {
     Set-TaskEnvironment 'BUSINESS_SERVICE_TOKEN' $taskCredentials.serviceToken
     Set-TaskEnvironment 'AUTH_BOOTSTRAP_PASSWORD' $taskCredentials.adminPassword
     Set-TaskEnvironment 'BUSINESS_MCP_URL' "http://127.0.0.1:$BusinessPort"
-    Set-TaskEnvironment 'DEMO_RESET_ON_STARTUP' 'false'
     $taskModelKey=$env:LLM_API_KEY
     Set-TaskEnvironment 'LLM_API_KEY' ''
-    $taskBusinessJar=Join-Path $taskRoot 'business-service/target/business-service-2.0.0.jar'
+    $taskBusinessJar=Join-Path $taskRoot 'business-service/target/business-service-1.0.0.jar'
     $taskBusiness=Start-Process java.exe -WindowStyle Hidden -PassThru -WorkingDirectory $taskRoot `
         -ArgumentList @('-Dfile.encoding=UTF-8','-jar',"`"$taskBusinessJar`"","--server.port=$BusinessPort",'--server.address=127.0.0.1','--security.enabled=true') `
         -RedirectStandardOutput (Join-Path $taskRuntime 'business.stdout.log') -RedirectStandardError (Join-Path $taskRuntime 'business.stderr.log')
@@ -72,9 +75,9 @@ try {
     Set-TaskEnvironment 'LLM_API_KEY' $taskModelKey
     Set-TaskEnvironment 'SEMANTIC_NATIVE_SCHEMA' $NativeSchema
     if($env:LLM_BASE_URL){Set-TaskEnvironment 'LLM_BASE_URL' ($env:LLM_BASE_URL.TrimEnd('/') -replace '/v1$','')}
-    $taskProfiles=if($Mock){'mock,mcp'}else{'real,mcp'}
-    $taskModelArgs=if($Mock){@()}else{@('--agent.llm.mock=false')}
-    $taskAgentJar=Join-Path $taskRoot 'backend/target/report-demo-2.0.0.jar'
+    $taskProfiles='real,mcp'
+    $taskModelArgs=@('--agent.llm.mock=false')
+    $taskAgentJar=Join-Path $taskRoot 'backend/target/report-demo-1.0.0.jar'
     $taskAgent=Start-Process java.exe -WindowStyle Hidden -PassThru -WorkingDirectory $taskRoot `
         -ArgumentList (@('-Dfile.encoding=UTF-8','-jar',"`"$taskAgentJar`"","--server.port=$AgentPort",'--server.address=127.0.0.1',"--spring.profiles.active=$taskProfiles",'--security.enabled=true','--agent.semantic.mode=active','--spring.flyway.enabled=false') + $taskModelArgs) `
         -RedirectStandardOutput (Join-Path $taskRuntime 'agent.stdout.log') -RedirectStandardError (Join-Path $taskRuntime 'agent.stderr.log')

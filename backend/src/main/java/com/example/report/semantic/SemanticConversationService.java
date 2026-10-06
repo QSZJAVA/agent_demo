@@ -44,7 +44,7 @@ public class SemanticConversationService {
             ReportCatalogService catalog, ResourceQuotaService quotas, AgentProperties props) {
         this.parser=parser;this.codec=codec;this.store=store;this.planner=planner;this.conversations=conversations;
         this.previews=previews;this.plans=plans;this.planRepository=planRepository;this.catalog=catalog;this.quotas=quotas;this.props=props;
-        if (!Set.of("active","legacy").contains(props.getSemantic().getMode())) throw new IllegalArgumentException("agent.semantic.mode must be active or legacy");
+        if (!"active".equals(props.getSemantic().getMode())) throw new IllegalArgumentException("最终演示版仅支持 agent.semantic.mode=active");
     }
     public boolean enabled() { return "active".equals(props.getSemantic().getMode()); }
     public String modelName(String fallback) {
@@ -54,7 +54,7 @@ public class SemanticConversationService {
      * 建立用户所属会话的 SSE 处理流；对话租约和并发配额覆盖整轮处理，结束前释放。客户端断开后按守卫停止写入，已保存事实可刷新恢复。
      */
     public Flux<ServerSentEvent<Object>> chat(CurrentUser user,String conversationId,String message,
-            List<String> legacyExcludes,String uiPreviewId,List<RecordKey> excludedRecords,String model) {
+            String uiPreviewId,List<RecordKey> excludedRecords,String model) {
         var conversation=conversationId==null || conversationId.isBlank() ? conversations.create(user,model) : conversations.getOwned(user,conversationId);
         String id=conversation.getId(), requestId=JsonUtil.newId();
         previews.requireConversationReadable(user,id);
@@ -63,7 +63,7 @@ public class SemanticConversationService {
                 sink.next(new AgentEvent(AgentEvent.CONVERSATION,Map.of("conversationId",id,"requestId",requestId,"title",Objects.toString(conversation.getTitle(),""))));
                 Runnable guard=() -> { session.check(); ResourceQuotaService.check(permit); if (sink.isCancelled()) throw new ApiException(409,"对话连接已关闭"); };
                 Consumer<AgentEvent> emit=event -> { guard.run(); sink.next(event); };
-                turn(user,id,requestId,message,legacyExcludes,uiPreviewId,excludedRecords,model,session,guard,emit);
+                turn(user,id,requestId,message,uiPreviewId,excludedRecords,model,session,guard,emit);
             } catch (Exception failure) {
                 log.warn("语义对话未完成 conversation={} type={}",id,failure.getClass().getSimpleName());
                 sink.next(new AgentEvent(AgentEvent.ERROR,Map.of("message",friendly(failure))));
@@ -78,7 +78,7 @@ public class SemanticConversationService {
     /**
      * 本轮流程：恢复权威状态、解析并验证意图、合并期望范围、执行确定性业务、保存结果证据。失败只更新澄清/拒绝/失败阶段，不能把失败范围伪装成成功范围。
      */
-    private void turn(CurrentUser user,String id,String requestId,String message,List<String> legacyExcludes,
+    private void turn(CurrentUser user,String id,String requestId,String message,
             String uiPreviewId,List<RecordKey> uiExcludes,String model,DialogueStore.Session session,Runnable guard,Consumer<AgentEvent> emit) {
         long started=System.nanoTime();
         var state=session.state(); SemanticIntent intent=null; String reply;
@@ -87,11 +87,11 @@ public class SemanticConversationService {
         try {
             hydrate(user,id,state);
             state.setAttemptedAt(LocalDateTime.now());
-            // A new utterance supersedes queued legacy/UI work, even if this utterance is rejected later.
+            // 新消息使此前排队的界面查询失效；即使新意图被拒绝，也不能让迟到任务覆盖当前状态。
             long previewVersion=previews.beginRequest(id);
             catalog.refreshForValidation();
             var mentions=planner.mentions(user,message);
-            var interpreted=parser.interpret(message,new IntentParser.Context(state,catalog.dispatchableReports(user).stream().map(CatalogEntry::ref).toList(),mentions));
+            var interpreted=parser.interpret(message,new IntentParser.Context(state,catalog.dispatchableReports(user).stream().map(CatalogEntry::ref).toList(),mentions,SemanticCapabilities.selectors(catalog.dispatchableReports(user)),draft -> planner.validateModelDraft(user,state,draft),SemanticCapabilities.fields(catalog.dispatchableReports(user))));
             codec.validate(interpreted.intent(),message); guard.run();
             intent=interpreted.intent();state.setParserSource(interpreted.source());
             state.setPendingIntent(intent);
@@ -103,14 +103,14 @@ public class SemanticConversationService {
                 case HELP -> "可以查询某家公司或报表的可派单记录、追加或移除报表、排除单据、生成待确认清单，以及取消清单或查看结果。真正派单需要点击确认卡片。";
                 case CANCEL_PLAN -> cancel(user,id,state,session,guard);
                 case SHOW_RESULT -> result(user,id,state,emit);
-                case PREVIEW, PREPARE_DISPATCH, EXPLAIN_RULES -> query(user,id,requestId,previewVersion,intent,state,session,legacyExcludes,uiPreviewId,uiExcludes,guard,emit);
+                case PREVIEW, PREPARE_DISPATCH, EXPLAIN_RULES -> query(user,id,requestId,previewVersion,intent,state,session,uiPreviewId,uiExcludes,guard,emit);
                 default -> throw new ApiException(422,"请明确本次操作");
             };
-            state.setLastReason(null);
+            state.setLastReason(null);state.setUnresolvedRequest(false);
         } catch (Exception failure) {
             if (intent==null) {
-                // An unparsed request may have changed either scope; later ellipsis cannot execute against old data.
-                state.setUnresolvedCompany(true);state.setUnresolvedReports(true);
+                // 未解析的请求整轮不提交；阻止含糊建单，保留已确定范围以便下一轮明确纠正记录条件。
+                state.setUnresolvedRequest(true);
             }
             state.setPhase(failure instanceof ApiException api && api.getCode()==422 ? DialogueState.Phase.CLARIFY
                     : failure instanceof ApiException ? DialogueState.Phase.REJECTED : DialogueState.Phase.FAILED);
@@ -130,7 +130,7 @@ public class SemanticConversationService {
      * 仅在期望范围与已生效范围一致且预览仍有效时复用事实。记录排除绑定当前预览，重新查询后需重新对齐选择；生成清单仍不代表执行派单。
      */
     private String query(CurrentUser user,String id,String requestId,long previewVersion,SemanticIntent intent,DialogueState state,
-            DialogueStore.Session session,List<String> legacyExcludes,String uiPreviewId,List<RecordKey> uiExcludes,Runnable guard,Consumer<AgentEvent> emit) {
+            DialogueStore.Session session,String uiPreviewId,List<RecordKey> uiExcludes,Runnable guard,Consumer<AgentEvent> emit) {
         planner.validate(user,state);
         PreviewSnapshot snapshot=null;
         boolean sameScope=Objects.equals(state.getDesired(),state.getEffective());
@@ -138,7 +138,10 @@ public class SemanticConversationService {
             var saved=previews.getOwned(user,state.getPreviewId());
             if (DispatchPreview.ACTIVE.equals(saved.preview().getStatus())) snapshot=saved;
         }
-        boolean onlySelection=intent.changes(RECORDS) && !intent.changes(COMPANY) && !intent.changes(REPORTS);
+        boolean keepsReports=intent.reportConstraints().stream().anyMatch(c->c.role()==SemanticIntent.ReportRole.UNCHANGED || c.role()==SemanticIntent.ReportRole.UNCHANGED_OTHERS);
+        boolean onlySelection=(intent.changes(RECORDS) || keepsReports) && !intent.changes(COMPANY) && !intent.changes(REPORTS);
+        if(keepsReports && snapshot==null && state.getPreviewId()!=null)
+            throw new ApiException(422,"原预览已变化，无法保持原选择，请先重新查询再指定选择");
         String previousPreviewId=state.getPreviewId();
         boolean refreshed=false;
         boolean resetsRecords=intent.changesFor(RECORDS).stream().anyMatch(c ->
@@ -148,7 +151,7 @@ public class SemanticConversationService {
             // Stream factual progress; the final count only comes from the completed snapshot.
             emit.accept(new AgentEvent(AgentEvent.TEXT,Map.of("delta","正在查询可派单记录。\n")));
             var scope=state.getDesired();
-            var command=new PreviewCommand("PREVIEW","semantic",null,scope.allReports()?List.of():scope.reportIds(),new PreviewCommand.Filters(scope.companyCode()),List.of(),"replace");
+            var command=new PreviewCommand("PREVIEW", "semantic", null, scope.allReports()?List.of():scope.reportIds(), new PreviewCommand.Filters(scope.companyCode()), "replace");
             var outcome=previews.preview(user,id,command,n -> guard.run(),pid -> session.fenced(() -> { guard.run(); return null; }),previewVersion);
             if (outcome.status()!=PreviewOutcome.Status.OK) throw new ApiException(422,"当前范围没有可用报表，请重新指定报表名称");
             snapshot=outcome.snapshot();
@@ -178,13 +181,13 @@ public class SemanticConversationService {
         if (state.isUnresolvedRecords() && !intent.changes(RECORDS)
                 && (!uiMatches || uiExcludes==null || uiExcludes.equals(state.getExcludedRecords())))
             throw new ApiException(422,"上次排除记录尚未确定，请说明准确单据号、明确恢复全部记录，或在表格中重新选择");
-        if (intent.changes(RECORDS) || (uiMatches && uiExcludes!=null && !uiExcludes.isEmpty()) || (uiMatches && legacyExcludes!=null && !legacyExcludes.isEmpty())) {
+        if (intent.changes(RECORDS) || (uiMatches && uiExcludes!=null && !uiExcludes.isEmpty())) {
             state.setUnresolvedRecords(true);
             var rows=rows(user,snapshot);
             List<RecordKey> selected=uiMatches && uiExcludes!=null ? List.copyOf(uiExcludes) : state.getExcludedRecords();
-            if (uiMatches && legacyExcludes!=null && !legacyExcludes.isEmpty()) selected=SelectionResolver.apply(rows,selected,
-                    new SemanticIntent.Change(SemanticIntent.Operation.ADD,legacyExcludes,""));
-            for (var change:intent.changesFor(RECORDS)) selected=SelectionResolver.apply(rows,selected,change);
+            // 报表限定仅参与当前快照的记录定位；整轮成功后才提交选择，不能在中途丢失限定或部分排除。
+            for (var change:intent.scopeChanges()) if (change.target()==RECORDS)
+                selected=SelectionResolver.apply(rows,selected,change,catalog,user);
             SelectionResolver.validate(rows,selected);
             state.setExcludedRecords(selected);
             state.setUnresolvedRecords(false);
@@ -198,7 +201,7 @@ public class SemanticConversationService {
         }
         if (intent.action()==SemanticIntent.Action.PREPARE_DISPATCH) {
             if (snapshot.preview().getTotalCount()==0) return "当前查询结果为 0 条，没有可生成清单的记录。";
-            var plan=session.fenced(() -> { guard.run(); return plans.create(user,id,state.getPreviewId(),List.of(),"semantic:"+requestId,state.getExcludedRecords()); });
+            var plan=session.fenced(() -> { guard.run(); return plans.create(user,id,state.getPreviewId(),state.getExcludedRecords(),"semantic:"+requestId); });
             state.setPlanId(plan.plan().getId()); state.setPhase(DialogueState.Phase.PLAN_READY);
             var payload=PlanPayload.of(plan); conversations.logCard(id,user.userId(),"plan",payload,state.getPreviewId(),state.getPlanId());
             emit.accept(new AgentEvent(AgentEvent.PLAN,payload));
@@ -212,6 +215,9 @@ public class SemanticConversationService {
         for(int page=1;rows.size()<snapshot.preview().getTotalCount();page++) {
             var batch=previews.pageOwned(user,snapshot.preview().getId(),page,100); if(batch.isEmpty()) break; rows.addAll(batch);
         }
+        // “全部匹配”必须基于完整且不重复的快照；分页缺失不能被当成只匹配了少数记录。
+        if(rows.size()!=snapshot.preview().getTotalCount() || rows.stream().map(Candidate::key).distinct().count()!=rows.size())
+            throw new ApiException(422,"预览记录不完整，未应用本轮选择，请重新查询");
         return rows;
     }
     private void hydrate(CurrentUser user,String id,DialogueState state) {
@@ -253,6 +259,33 @@ public class SemanticConversationService {
     public Map<String,Object> selection(CurrentUser user,String id) {
         previews.requireConversationReadable(user,id);
         return selection(store.read(user,id));
+    }
+    /**
+     * 持久化界面手动选择；租约串行化当前会话，旧选择作为比较条件，避免迟到请求覆盖另一页面的修改。
+     * 仅允许当前有效、归属一致的预览；重复提交相同最终集合可重放，不调用模型、不建单、不执行派单。
+     */
+    public Map<String,Object> updateSelection(CurrentUser user,String id,String previewId,List<RecordKey> expected,List<RecordKey> next) {
+        if(previewId==null || previewId.isBlank() || expected==null || next==null || expected.size()>props.getPreview().getMaxItems() || next.size()>props.getPreview().getMaxItems())
+            throw new ApiException(422,"选择参数不完整或超过上限");
+        if(new HashSet<>(expected).size()!=expected.size() || new HashSet<>(next).size()!=next.size())
+            throw new ApiException(422,"选择记录不能重复");
+        previews.requireConversationReadable(user,id);
+        try(var session=store.acquire(user,id)) {
+            var state=session.state();hydrate(user,id,state);
+            if(!Objects.equals(previewId,state.getPreviewId()))throw new ApiException(409,"预览已变化，请重新读取选择");
+            var snapshot=previews.getOwned(user,previewId);
+            if(!Objects.equals(id,snapshot.preview().getConversationId()) || !DispatchPreview.ACTIVE.equals(snapshot.preview().getStatus()))
+                throw new ApiException(409,"预览已失效，请重新查询");
+            var records=rows(user,snapshot);SelectionResolver.validate(records,expected);SelectionResolver.validate(records,next);
+            var current=new HashSet<>(state.getExcludedRecords());var desired=new HashSet<>(next);
+            if(!current.equals(new HashSet<>(expected)) && !current.equals(desired))
+                throw new ApiException(409,"选择已在另一页面更新，请重新读取后再操作");
+            state.setExcludedRecords(List.copyOf(next));state.setUnresolvedRecords(false);
+            if(!state.isUnresolvedCompany() && !state.isUnresolvedReports()) {
+                state.setUnresolvedRequest(false);state.setPhase(DialogueState.Phase.READY);state.setLastReason(null);
+            }
+            session.save();return selection(state);
+        }
     }
     private static Map<String,Object> selection(DialogueState state) {
         Map<String,Object> value=new LinkedHashMap<>(); value.put("previewId",state.getPreviewId()); value.put("excludedRecords",state.getExcludedRecords()); value.put("phase",state.getPhase()); return value;

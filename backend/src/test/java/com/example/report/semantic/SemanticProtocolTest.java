@@ -17,17 +17,17 @@ import static org.junit.jupiter.api.Assertions.*;
 class SemanticProtocolTest {
     final IntentCodec codec=new IntentCodec();
     static Change change(Operation operation,String... mentions) { return new Change(operation,List.of(mentions),String.join("、",mentions)); }
-    static SemanticIntent intent(Change company,Change reports) { return new SemanticIntent(2,Action.PREVIEW,company,reports,Change.keep(),Clarify.NONE); }
+    static SemanticIntent intent(Change company,Change reports) { return new SemanticIntent(1,Action.PREVIEW,company,reports,Change.keep(),Clarify.NONE); }
     @Test void rejectsInventedGroundingExtraFieldsAndExecution() {
         var valid=intent(change(Operation.REPLACE,"A公司"),change(Operation.REPLACE,"销售报表"));
         String json=JsonUtil.toJson(valid);
         assertEquals(valid,codec.decode(json,"只查 A公司 销售报表"));
         assertThrows(ApiException.class,()->codec.decode(json,"只查 B公司 销售报表"));
         assertThrows(ApiException.class,()->codec.decode(json.replace("PREVIEW","EXECUTE"),"A公司销售报表"));
-        assertThrows(ApiException.class,()->codec.decode(json.replace("\"version\":2","\"version\":2,\"userId\":\"admin\""),"A公司销售报表"));
+        assertThrows(ApiException.class,()->codec.decode(json.replace("\"version\":1","\"version\":1,\"userId\":\"admin\""),"A公司销售报表"));
         assertThrows(ApiException.class,()->codec.decode(json+" {}","A公司销售报表"));
     }
-    @ParameterizedTest @ValueSource(strings={"{}","null","[]","{\"version\":2}","{\"version\":null}","not json"})
+    @ParameterizedTest @ValueSource(strings={"{}","null","[]","{\"version\":1}","{\"version\":null}","not json"})
     void invalidOutputsRequireClarification(String json) { assertThrows(ApiException.class,()->codec.decode(json,"查询")); }
     @Test void keepClearAndUnsupportedCompanyOperationsAreDistinct() {
         assertThrows(ApiException.class,()->codec.validate(intent(change(Operation.ADD,"A公司"),Change.keep()),"A公司"));

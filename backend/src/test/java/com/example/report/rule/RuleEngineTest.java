@@ -63,7 +63,7 @@ class RuleEngineTest {
     }
 
     @Test
-    void nonBooleanResultIsTreatedAsNoMatch() {
-        assertFalse(engine.matches("amount + 1", facts("1", "x")));
+    void nonBooleanResultIsAnExplicitEvaluationError() {
+        assertThrows(com.example.report.common.ApiException.class, () -> engine.matches("amount + 1", facts("1", "x")));
     }
 }

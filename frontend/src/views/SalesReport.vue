@@ -2,7 +2,7 @@
   <report-table
     title="销售报表"
     table-name="report_sales"
-    report-type="sales"
+    report-id="rpt-sales-order"
     doc-no-field="orderNo"
     :columns="columns"
     :data="list"

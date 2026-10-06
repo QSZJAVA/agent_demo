@@ -16,6 +16,7 @@ import java.sql.ResultSet;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -136,18 +137,19 @@ class StandardReportAdapterTest {
         assertEquals("T001", params.getValue().getValue("tenantId"));
         // 登录态没有租户时宁可查不到，也不能跨租户
         assertTrue(tenantAware.pendingRows(null, Set.of("A")).isEmpty());
-        assertFalse(tenantAware.markDispatched(null, "1", LocalDateTime.now()));
+        assertFalse(inTransaction(() -> tenantAware.markDispatchedGuarded(null, "1", "A", LocalDateTime.now(), row -> true)));
     }
 
     @Test
     void markDispatchedOnlyUpdatesRecordsThatAreStillPending() {
+        when(jdbc.query(anyString(), any(SqlParameterSource.class), any(RowMapper.class))).thenReturn(List.of(new FactRow("7", "SO7", "A", "sale", BigDecimal.ONE, LocalDate.now(), Map.of())));
         when(jdbc.update(anyString(), any(SqlParameterSource.class))).thenReturn(1);
-        assertTrue(inTransaction(() -> adapter.markDispatched("T001", "7", LocalDateTime.of(2026, 1, 1, 0, 0))));
+        assertTrue(inTransaction(() -> adapter.markDispatchedGuarded("T001", "7", "A", LocalDateTime.of(2026, 1, 1, 0, 0), row -> true)));
         ArgumentCaptor<String> sql = ArgumentCaptor.forClass(String.class);
         ArgumentCaptor<SqlParameterSource> params = ArgumentCaptor.forClass(SqlParameterSource.class);
         verify(jdbc).update(sql.capture(), params.capture());
         assertEquals("UPDATE `report_sales` SET `dispatch_status` = :dispatched, `dispatched_at` = :dispatchedAt"
-                + " WHERE `id` = :id AND `dispatch_status` = :pending AND `tenant_id` = :tenantId", sql.getValue());
+                + " WHERE `id` = :id AND `dispatch_status` = :pending AND `tenant_id` = :tenantId AND `company_code` = :company", sql.getValue());
         assertEquals("7", params.getValue().getValue("id"));
         assertEquals(1, params.getValue().getValue("dispatched"));
     }
@@ -155,7 +157,7 @@ class StandardReportAdapterTest {
     @Test
     void alreadyDispatchedRecordIsNotUpdatedTwice() {
         when(jdbc.update(anyString(), any(SqlParameterSource.class))).thenReturn(0);
-        assertFalse(inTransaction(() -> adapter.markDispatched("T001", "7", LocalDateTime.now())));
+        assertFalse(inTransaction(() -> adapter.markDispatchedGuarded("T001", "7", "A", LocalDateTime.now(), row -> true)));
     }
 
     @Test

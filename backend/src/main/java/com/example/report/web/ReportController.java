@@ -18,7 +18,7 @@ import com.example.report.report.ReportPage;
 import java.util.List;
 
 /**
- * 三张报表的查询页接口（接口路径不变）：先按报表目录校验报表权限（旧 reportType 经映射表找到目录），再按可见公司过滤
+ * 三张报表的查询页接口：按稳定报表标识校验目录权限，再按可见公司过滤
  */
 @RestController
 @RequestMapping("/api/report")
@@ -39,7 +39,7 @@ public class ReportController {
     public Result<ReportPage<SalesReport>> salesPage(@RequestHeader(PermissionService.USER_HEADER) String userId,
             @RequestParam(defaultValue="1") int page,@RequestParam(defaultValue="50") int size) {
         CurrentUser user=permissionService.resolve(userId);
-        catalogService.requireVisibleByLegacyCode(user,"sales");
+        catalogService.requireVisible(user,"rpt-sales-order");
         return Result.ok(reportService.pageSales(user,page,size));
     }
 
@@ -47,7 +47,7 @@ public class ReportController {
     public Result<ReportPage<ReceivableReport>> receivablePage(@RequestHeader(PermissionService.USER_HEADER) String userId,
             @RequestParam(defaultValue="1") int page,@RequestParam(defaultValue="50") int size) {
         CurrentUser user=permissionService.resolve(userId);
-        catalogService.requireVisibleByLegacyCode(user,"receivable");
+        catalogService.requireVisible(user,"rpt-ar-invoice");
         return Result.ok(reportService.pageReceivable(user,page,size));
     }
 
@@ -55,14 +55,14 @@ public class ReportController {
     public Result<ReportPage<ExpenseReport>> expensePage(@RequestHeader(PermissionService.USER_HEADER) String userId,
             @RequestParam(defaultValue="1") int page,@RequestParam(defaultValue="50") int size) {
         CurrentUser user=permissionService.resolve(userId);
-        catalogService.requireVisibleByLegacyCode(user,"expense");
+        catalogService.requireVisible(user,"rpt-expense-claim");
         return Result.ok(reportService.pageExpense(user,page,size));
     }
 
     @GetMapping("/sales")
     public Result<List<SalesReport>> sales(@RequestHeader(PermissionService.USER_HEADER) String userId) {
         CurrentUser user = permissionService.resolve(userId);
-        catalogService.requireVisibleByLegacyCode(user, "sales");
+        catalogService.requireVisible(user, "rpt-sales-order");
         return Result.ok(reportService.listSales(user));
     }
 
@@ -70,7 +70,7 @@ public class ReportController {
     @GetMapping("/receivable")
     public Result<List<ReceivableReport>> receivable(@RequestHeader(PermissionService.USER_HEADER) String userId) {
         CurrentUser user = permissionService.resolve(userId);
-        catalogService.requireVisibleByLegacyCode(user, "receivable");
+        catalogService.requireVisible(user, "rpt-ar-invoice");
         return Result.ok(reportService.listReceivable(user));
     }
 
@@ -78,7 +78,7 @@ public class ReportController {
     @GetMapping("/expense")
     public Result<List<ExpenseReport>> expense(@RequestHeader(PermissionService.USER_HEADER) String userId) {
         CurrentUser user = permissionService.resolve(userId);
-        catalogService.requireVisibleByLegacyCode(user, "expense");
+        catalogService.requireVisible(user, "rpt-expense-claim");
         return Result.ok(reportService.listExpense(user));
     }
 }

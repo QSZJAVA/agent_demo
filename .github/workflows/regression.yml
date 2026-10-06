@@ -40,6 +40,9 @@ jobs:
           cache: npm
           cache-dependency-path: frontend/package-lock.json
       - run: node tools/check-docs-real-model.cjs
+      - run: node tools/check-demo-baseline.cjs
+      - run: node tools/check-no-legacy-compat.cjs
+      - run: node tools/generate-schema-dictionary.cjs --check
       - run: node tools/check-comments.cjs
       - run: docker compose --env-file .env.example config --quiet
         env:

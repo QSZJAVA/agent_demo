@@ -49,7 +49,7 @@ public class AuditService {
 
         public Context forItem(DispatchPlanItem item, long version, String eventPhase) {
             return new Context(source, conversationId, previewId, planId, ruleFingerprint, permissionVersion, traceId,
-                    version, item.getAttemptCount() == null ? 0 : item.getAttemptCount(), eventPhase, item.getRuleSnapshot());
+                    version, item.getAttemptCount(), eventPhase, item.getRuleSnapshot());
         }
     }
 

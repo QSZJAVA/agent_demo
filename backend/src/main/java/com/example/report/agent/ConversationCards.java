@@ -5,31 +5,26 @@ import com.example.report.conversation.ConversationService;
 import com.example.report.dispatch.PlanSnapshot;
 import com.example.report.dispatch.PreviewOutcome;
 import com.example.report.permission.CurrentUser;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.ai.chat.memory.ChatMemory;
-import org.springframework.ai.chat.messages.AssistantMessage;
 import org.springframework.stereotype.Component;
 
 import java.util.stream.Collectors;
 
 /**
  * 不经过模型、由界面直接发起的操作（在报表选择卡片上选报表、通过接口生成清单）也要进入会话：
- * 卡片写进对话日志，历史记录里能看到；工作记忆里补一条系统记录，模型后续对话知道发生了什么。
+ * 卡片写入持久化会话日志；后续语义解析从当前权威状态及受限会话上下文读取。
  */
-@Slf4j
 @Component
 public class ConversationCards {
 
     private final ConversationService conversationService;
-    private final ChatMemory chatMemory;
     private final ReportCatalogService catalogService;
 
-    public ConversationCards(ConversationService conversationService, ChatMemory chatMemory, ReportCatalogService catalogService) {
+    public ConversationCards(ConversationService conversationService, ReportCatalogService catalogService) {
         this.conversationService = conversationService;
-        this.chatMemory = chatMemory;
         this.catalogService = catalogService;
     }
 
+    /** 记录用户选定报表后的权威预览；无会话时仅返回载荷，持久卡片用于刷新恢复。 */
     public PreviewPayload recordSelectionPreview(CurrentUser user, String conversationId, PreviewOutcome outcome) {
         PreviewPayload payload = PreviewPayload.of(outcome.snapshot(), catalogService);
         if (conversationId == null) {
@@ -38,37 +33,26 @@ public class ConversationCards {
         String names = payload.byReport().stream().map(PreviewPayload.ReportCount::reportName).collect(Collectors.joining("、"));
         conversationService.logUser(conversationId, user.userId(), "（选择报表）" + names);
         conversationService.logCard(conversationId, user.userId(), "preview", payload, payload.previewId(), null);
-        String counts = payload.byReport().stream().map(c -> c.reportName() + " " + c.count() + " 条")
-                .collect(Collectors.joining("，"));
-        remember(conversationId, "（系统记录）用户在报表选择卡片上选择了：" + names + "。已生成新的预览，共 "
-                + payload.total() + " 条（" + counts + "），之前的预览和待确认清单已作废。");
         return payload;
     }
 
+    /** 异步查询成功后持久化当前预览卡片；快照激活和权限验证由预览服务完成。 */
     public PreviewPayload recordAsyncPreview(CurrentUser user, String conversationId, PreviewOutcome outcome) {
         PreviewPayload payload = PreviewPayload.of(outcome.snapshot(), catalogService);
         if (conversationId != null) {
             conversationService.logCard(conversationId, user.userId(), "preview", payload, payload.previewId(), null);
-            remember(conversationId, "（系统记录）异步预览完成，共 " + payload.total() + " 条；之前的预览和待确认清单已作废。");
         }
         return payload;
     }
 
+    /** 将已创建的待确认清单写入会话；不确认或执行派单，返回同一清单载荷。 */
     public PlanPayload recordPlan(CurrentUser user, String conversationId, PlanSnapshot plan) {
         PlanPayload payload = PlanPayload.of(plan);
         if (conversationId == null) {
             return payload;
         }
         conversationService.logCard(conversationId, user.userId(), "plan", payload, plan.plan().getPreviewId(), plan.plan().getId());
-        remember(conversationId, "（系统记录）已生成待确认的派单清单，共 " + payload.count() + " 条，等待用户在界面上确认。");
         return payload;
     }
 
-    private void remember(String conversationId, String note) {
-        try {
-            chatMemory.add(conversationId, new AssistantMessage(note));
-        } catch (RuntimeException e) {
-            log.warn("工作记忆写入失败 conversation={}", conversationId, e);
-        }
-    }
 }

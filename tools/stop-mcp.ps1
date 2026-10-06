@@ -1,8 +1,8 @@
 $ErrorActionPreference='Stop'
 $taskRoot=Split-Path $PSScriptRoot -Parent
 $taskTargets=@{
-    agent=(Join-Path $taskRoot 'backend/target/report-demo-2.0.0.jar')
-    business=(Join-Path $taskRoot 'business-service/target/business-service-2.0.0.jar')
+    agent=(Join-Path $taskRoot 'backend/target/report-demo-1.0.0.jar')
+    business=(Join-Path $taskRoot 'business-service/target/business-service-1.0.0.jar')
     frontend=(Join-Path $taskRoot 'frontend/node_modules/vite/bin/vite.js')
 }
 foreach($taskName in $taskTargets.Keys) {

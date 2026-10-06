@@ -5,7 +5,7 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.stereotype.Component;
 
 /**
- * agent.* 配置项，与 docs/派单Agent技术选型.md 附录 B 一致
+ * agent.* 配置项，当前基线见 demo-baseline.json 与 README
  */
 @Data
 @Component
@@ -13,17 +13,15 @@ import org.springframework.stereotype.Component;
 public class AgentProperties {
 
     private Llm llm = new Llm();
-    private Dispatch dispatch = new Dispatch();
     private Preview preview = new Preview();
     private Plan plan = new Plan();
     private Resolver resolver = new Resolver();
-    private Memory memory = new Memory();
     private Conversation conversation = new Conversation();
     private Semantic semantic = new Semantic();
 
     @Data
     public static class Semantic {
-        /** active uses structured intents; legacy is an explicit rollback switch. */
+        /** 最终演示版仅允许 active，使用 V1 结构化意图。 */
         private String mode = "active";
         private boolean nativeSchema = false;
         private boolean thinkingEnabled = false;
@@ -33,15 +31,10 @@ public class AgentProperties {
 
         @Data
     public static class Llm {
-        /** true 时使用关键词模拟模型，不调用真实大模型*/
+        /** 仅程序回归使用的语义样本开关，正式入口关闭*/
         private boolean mock = false;
     }
 
-    @Data
-    public static class Dispatch {
-        /** 派单前是否需要前端确认卡片 */
-        private boolean requireConfirm = true;
-    }
 
         @Data
     public static class Preview {
@@ -63,15 +56,9 @@ public class AgentProperties {
         private double ambiguityMargin = 0.15;
     }
 
-    @Data
-    public static class Memory {
-        private int ttlMinutes = 30;
-        private int windowSize = 20;
-    }
 
     @Data
     public static class Conversation {
-        private int retentionDays = 365;
         private int cardPayloadMaxRows = 2000;
         private int titleMaxLength = 30;
     }

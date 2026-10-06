@@ -1,0 +1,23 @@
+flowchart TD
+  plan["生成待确认清单<br/>复制字段与客户快照、固定排除项"]:::store
+  confirm["用户核对并点击确认<br/>持久任务 + 稳定幂等键"]:::ui
+  gate{"归属、权限、TTL、版本<br/>按租户认领并冻结执行版本"}:::guard
+  intent["逐条持久化发送意图<br/>稳定requestId、UNKNOWN及审计"]:::store
+  mcp["dispatch_submit<br/>服务认证与用户当前权限"]:::business
+  lock{"业务事务与锁定复核<br/>行锁内复核全部确认字段及版本<br/>字段变化要求重新查询确认"}:::guard
+  write["原子提交状态与请求结果<br/>相同请求号及负载可重放"]:::store
+  result["持久结果回到页面<br/>刷新与断线不导致重新派单"]:::ui
+  plan --> confirm
+  confirm --> gate
+  gate --> intent
+  intent --> mcp
+  mcp --> lock
+  lock --> write
+  write --> result
+  classDef ui fill:#eaf2ff,stroke:#386bc1,color:#1e354c
+  classDef agent fill:#edf5ff,stroke:#3778a8,color:#1e354c
+  classDef model fill:#f3edff,stroke:#8751bf,color:#1e354c
+  classDef business fill:#e8f7ef,stroke:#268255,color:#1e354c
+  classDef guard fill:#fff4dc,stroke:#b58022,color:#1e354c
+  classDef error fill:#fff0ef,stroke:#ba534e,color:#1e354c
+  classDef store fill:#edf1f5,stroke:#60768b,color:#1e354c

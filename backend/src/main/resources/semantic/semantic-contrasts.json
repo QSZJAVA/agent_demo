@@ -1,0 +1,108 @@
+[
+  {
+    "context": "已有包含多张报表的完整预览；下列报表甲、客户甲、示例单据仅为结构占位符，不是业务数据。",
+    "currentMessage": "报表甲不要客户甲的全部记录",
+    "intent": {
+      "version": 1,
+      "action": "PREVIEW",
+      "scopeChanges": [
+        {
+          "target": "RECORDS",
+          "operation": "EXCLUDE",
+          "mentions": [
+            "客户甲"
+          ],
+          "evidence": "报表甲不要客户甲的全部记录",
+          "reportMentions": [
+            "报表甲"
+          ],
+          "selectorKind": "COUNTERPARTY",
+          "quantifier": "ALL",
+          "conditions": []
+        }
+      ],
+      "restrictions": [],
+      "reportConstraints": [],
+      "unsupportedConditions": [],
+      "clarify": "NONE"
+    }
+  },
+  {
+    "context": "已有包含多张报表的完整预览；下列报表甲、客户甲、示例单据仅为结构占位符，不是业务数据。",
+    "currentMessage": "只查询报表甲，不要客户甲的全部记录",
+    "intent": {
+      "version": 1,
+      "action": "PREVIEW",
+      "scopeChanges": [
+        {
+          "target": "REPORTS",
+          "operation": "REPLACE",
+          "mentions": [
+            "报表甲"
+          ],
+          "evidence": "只查询报表甲",
+          "reportMentions": [],
+          "selectorKind": "NONE",
+          "quantifier": "UNSPECIFIED",
+          "conditions": []
+        },
+        {
+          "target": "RECORDS",
+          "operation": "EXCLUDE",
+          "mentions": [
+            "客户甲"
+          ],
+          "evidence": "只查询报表甲，不要客户甲的全部记录",
+          "reportMentions": [
+            "报表甲"
+          ],
+          "selectorKind": "COUNTERPARTY",
+          "quantifier": "ALL",
+          "conditions": []
+        }
+      ],
+      "restrictions": [],
+      "reportConstraints": [],
+      "unsupportedConditions": [],
+      "clarify": "NONE"
+    }
+  },
+  {
+    "context": "已有包含多张报表的完整预览；下列报表甲、客户甲、示例单据仅为结构占位符，不是业务数据。",
+    "currentMessage": "先排除示例单据，再恢复示例单据",
+    "intent": {
+      "version": 1,
+      "action": "PREVIEW",
+      "scopeChanges": [
+        {
+          "target": "RECORDS",
+          "operation": "EXCLUDE",
+          "mentions": [
+            "示例单据"
+          ],
+          "evidence": "先排除示例单据",
+          "reportMentions": [],
+          "selectorKind": "DOCUMENT",
+          "quantifier": "ONE",
+          "conditions": []
+        },
+        {
+          "target": "RECORDS",
+          "operation": "RESTORE",
+          "mentions": [
+            "示例单据"
+          ],
+          "evidence": "再恢复示例单据",
+          "reportMentions": [],
+          "selectorKind": "DOCUMENT",
+          "quantifier": "ONE",
+          "conditions": []
+        }
+      ],
+      "restrictions": [],
+      "reportConstraints": [],
+      "unsupportedConditions": [],
+      "clarify": "NONE"
+    }
+  }
+]

@@ -62,6 +62,7 @@ class BusinessMcpIntegrationTest {
         }
     }
     @BeforeEach void reset() {
+        confirmedRecord=null;
         assertEquals(schema,jdbc.queryForObject("SELECT DATABASE()",String.class));
         jdbc.update("DELETE FROM dispatch_job");jdbc.update("DELETE FROM business_dispatch_request");jdbc.update("DELETE FROM dispatch_plan_item");jdbc.update("DELETE FROM dispatch_plan");jdbc.update("DELETE FROM dispatch_preview");
         jdbc.update("UPDATE report_sales SET dispatch_status=0,dispatched_at=NULL WHERE tenant_id='T001'");
@@ -70,25 +71,76 @@ class BusinessMcpIntegrationTest {
         jdbc.update("UPDATE dispatch_rule SET version=1 WHERE id=1");
     }
     <T>T call(String tool,CurrentUser user,Map<String,Object> args,TypeReference<T> type){return client.call(tool,user,args,type);}
-    Map<String,Object> record() {
-        return new LinkedHashMap<>(Map.of("reportId",REPORT,"reportName","销售报表","recordId","1","docNo","SO2026001","companyCode","A","amount",128000,"ruleId",1,"ruleVersion",1,"catalogVersion",1));
+    Map<String,Object> confirmedRecord;
+    Map<String,Object> sourceRecord(String id) {
+        var queries=context.getBean(BusinessQueries.class);var report=queries.require(reader,REPORT,false);
+        var row=queries.records(reader,REPORT,"ids",Set.of("A"),null,0,500,List.of(id)).get(0);
+        return json.convertValue(com.example.report.rule.DispatchCandidateService.toCandidate(report,row,1L,"销售规则",1,"amount > 20"),new TypeReference<LinkedHashMap<String,Object>>(){});
     }
+    Map<String,Object> record() { return new LinkedHashMap<>(confirmedRecord==null?sourceRecord("1"):confirmedRecord); }
     String evidence(boolean confirmed) {
+        confirmedRecord=sourceRecord("1");
         String plan=UUID.randomUUID().toString().replace("-","");String preview=UUID.randomUUID().toString().replace("-","");
         jdbc.update("INSERT INTO dispatch_preview(id,tenant_id,user_id,source,report_ids,company_codes,query_json,catalog_version,rule_version,permission_version,status,expires_at,created_at,updated_at) VALUES (?,'T001','readerA','agent','[]','[]','{}','v','v','v','ACTIVE',DATE_ADD(NOW(),INTERVAL 1 HOUR),NOW(),NOW())",preview);
         jdbc.update("INSERT INTO dispatch_plan(id,preview_id,tenant_id,user_id,status,item_count,idempotency_key,created_at,expires_at,confirmed_at,confirmed_by,updated_at,execution_version) VALUES (?,?,'T001','readerA',?,1,?,NOW(),DATE_ADD(NOW(),INTERVAL 1 HOUR),?, ?,NOW(),1)",plan,preview,confirmed?"EXECUTING":"PENDING",plan,confirmed?java.time.LocalDateTime.now():null,confirmed?"readerA":null);
         String request=plan+"-item";
-        jdbc.update("INSERT INTO dispatch_plan_item(plan_id,seq,report_id,report_name,catalog_version,record_id,company_code,rule_id,rule_version,status,external_request_id,updated_at) VALUES (?,1,?,'销售报表',1,'1','A',1,1,'UNKNOWN',?,NOW())",plan,REPORT,request);
+        jdbc.update("INSERT INTO dispatch_plan_item(fields_json,plan_id,seq,report_id,report_name,catalog_version,record_id,company_code,rule_id,rule_version,status,external_request_id,updated_at) VALUES ('[]',?,1,?,'销售报表',1,'1','A',1,1,'UNKNOWN',?,NOW())",plan,REPORT,request);
         jdbc.update("UPDATE dispatch_preview SET report_ids=?,company_codes='[\"A\"]' WHERE id=?","[\""+REPORT+"\"]",preview);
+        jdbc.update("UPDATE dispatch_plan_item SET amount=?,biz_date=?,fields_json=?,counterparty_json=? WHERE external_request_id=?",confirmedRecord.get("amount"),confirmedRecord.get("date"),com.example.report.common.JsonUtil.toJson(confirmedRecord.get("fields")),confirmedRecord.get("counterparty")==null?null:com.example.report.common.JsonUtil.toJson(confirmedRecord.get("counterparty")),request);
         return request;
     }
     Map<String,Object> submitArgs(String request){return new LinkedHashMap<>(Map.of("requestId",request,"reportId",REPORT,"record",record(),"enforceRules",true,"executionVersion",1));}
+    @Test void submittedFieldValuesMustEqualTheConfirmedSnapshot() {
+        String request=evidence(true);var args=submitArgs(request);var changed=record();
+        changed.put("fields",List.of(Map.of("name","amount","type","decimal","value","1")));args.put("record",changed);
+        assertThrows(ApiException.class,()->call("dispatch_submit",reader,args,new TypeReference<Outcome>(){}));
+        assertEquals(0,status());
+        jdbc.update("UPDATE dispatch_plan_item SET fields_json=? WHERE external_request_id=?",com.example.report.common.JsonUtil.toJson(changed.get("fields")),request);
+        assertFalse(call("dispatch_submit",reader,args,new TypeReference<Outcome>(){}).success(),"请求与清单一致仍必须复核真实来源");
+        assertEquals(0,status());
+        assertTrue(submit(evidence(true)).success(),"完整有效的重新确认仍可成功");
+    }
+    @org.junit.jupiter.params.ParameterizedTest
+    @org.junit.jupiter.params.provider.ValueSource(strings={"amount","date"})
+    void topLevelFactsCannotBeSubstitutedEvenWhenFieldsWereNotChanged(String field) {
+        String request=evidence(true);var args=submitArgs(request);var changed=record();
+        changed.put(field,field.equals("amount")?new java.math.BigDecimal("150000"):"2026-09-01");args.put("record",changed);
+        assertThrows(ApiException.class,()->call("dispatch_submit",reader,args,new TypeReference<Outcome>(){}));
+        assertEquals(0,status());
+    }
     Outcome submit(String request){return call("dispatch_submit",reader,submitArgs(request),new TypeReference<>(){});}
     Lookup lookup(String request){return call("dispatch_lookup",reader,Map.of("requestId",request),new TypeReference<>(){});}
     int status(){return jdbc.queryForObject("SELECT dispatch_status FROM report_sales WHERE id=1",Integer.class);}
 
     Lookup delegated(CurrentUser actor,String owner,String request) {
         return call("dispatch_lookup",actor,Map.of("requestId",request,"requestOperatorId",owner),new TypeReference<>(){});
+    }
+    @Test void customerFactsTravelOverAuthenticatedMcpAndCannotBroadenCompanyScope() {
+        List<com.example.report.catalog.query.FactRow> rows=call("report_records",admin,
+                Map.of("reportId","rpt-ar-invoice","mode","cursor","offset",0,"size",500,"companies",List.of("A")),new TypeReference<>(){});
+        var row=rows.stream().filter(r -> "INV-2026-0007".equals(r.docNo())).findFirst().orElseThrow();
+        var customer=com.example.report.rule.CounterpartyRef.fromFacts(row.facts());
+        assertEquals("CUST-003",customer.id());assertEquals("天津某某贸易有限公司",customer.name());
+        assertTrue(customer.aliases().contains("天津某某贸易"));assertTrue(rows.stream().allMatch(r -> "A".equals(r.companyCode())));
+        assertThrows(ApiException.class,()->call("report_records",reader,Map.of("reportId","rpt-ar-invoice","mode","cursor","offset",0,"size",50),new TypeReference<List<com.example.report.catalog.query.FactRow>>(){}));
+    }
+    @Test void submittedCustomerMustEqualConfirmedSnapshotAndLiveIdentity() throws Exception {
+        String request=evidence(true);var args=submitArgs(request);var payload=record();
+        payload.put("counterparty",Map.of("id","forged","name","伪造客户","aliases",List.of()));args.put("record",payload);
+        assertThrows(ApiException.class,()->call("dispatch_submit",reader,args,new TypeReference<Outcome>(){}));assertEquals(0,status());
+        String old=jdbc.queryForObject("SELECT query_config FROM report_definition WHERE report_id=?",String.class,REPORT);
+        try {
+            var config=(com.fasterxml.jackson.databind.node.ObjectNode)json.readTree(old);
+            var fields=(com.fasterxml.jackson.databind.node.ArrayNode)config.get("fields");
+            fields.addObject().put("name","counterpartyId").put("column","product_name").put("type","string").put("description","测试客户标识");
+            fields.addObject().put("name","counterpartyName").put("column","product_name").put("type","string").put("description","测试客户名称");
+            jdbc.update("UPDATE report_definition SET query_config=? WHERE report_id=?",json.writeValueAsString(config),REPORT);
+            var frozen=Map.of("id","different-customer","name","客户","aliases",List.of());
+            jdbc.update("UPDATE dispatch_plan_item SET counterparty_json=? WHERE external_request_id=?",json.writeValueAsString(frozen),request);
+            payload.put("counterparty",frozen);
+            Outcome result=call("dispatch_submit",reader,args,new TypeReference<>(){});
+            assertFalse(result.success());assertEquals("RECORD_CHANGED",result.errorCode());assertEquals(0,status());
+        } finally {jdbc.update("UPDATE report_definition SET query_config=? WHERE report_id=?",old,REPORT);}
     }
     @Test void adminCanLookupDisabledOwnerWithoutReactivationOrResend() {
         String request=evidence(true);assertTrue(submit(request).success());
@@ -133,8 +185,9 @@ class BusinessMcpIntegrationTest {
             assertTrue(records.stream().anyMatch(row->odd.equals(row.get("id"))));
             assertTrue(records.stream().allMatch(row->row.get("id") instanceof String));
             String request=evidence(true);
-            jdbc.update("UPDATE dispatch_plan_item SET record_id=? WHERE external_request_id=?",odd,request);
-            var args=submitArgs(request);var selected=record();selected.put("recordId",odd);selected.put("docNo","BIG-"+odd);args.put("record",selected);
+            confirmedRecord=sourceRecord(odd);
+            jdbc.update("UPDATE dispatch_plan_item SET record_id=?,fields_json=? WHERE external_request_id=?",odd,com.example.report.common.JsonUtil.toJson(confirmedRecord.get("fields")),request);
+            var args=submitArgs(request);
             Outcome result=call("dispatch_submit",reader,args,new TypeReference<>(){});
             assertTrue(result.success());
             assertEquals(1,jdbc.queryForObject("SELECT dispatch_status FROM report_sales WHERE id=?",Integer.class,odd));
@@ -393,6 +446,18 @@ class BusinessMcpIntegrationTest {
         assertThrows(ApiException.class,()->call("dispatch_submit",reader,args,new TypeReference<Outcome>(){}));
         args.put("executionVersion",1);args.put("enforceRules",false);
         assertThrows(ApiException.class,()->call("dispatch_submit",reader,args,new TypeReference<Outcome>(){}));assertEquals(0,status());
+    }
+    @org.junit.jupiter.params.ParameterizedTest
+    @org.junit.jupiter.params.provider.ValueSource(strings={"amount", "product_name", "sale_date"})
+    void changedConfirmedFactsAreRejectedEvenWhenTheRuleStillMatches(String column) {
+        Object before=jdbc.queryForObject("SELECT "+column+" FROM report_sales WHERE id=1",Object.class);
+        String request=evidence(true);
+        try {
+            Object value=switch(column){case "amount"->new java.math.BigDecimal("150000.00");case "sale_date"->java.sql.Date.valueOf("2026-09-01");default->"已修改的业务摘要";};
+            jdbc.update("UPDATE report_sales SET "+column+"=? WHERE id=1",value);
+            var refused=submit(request);assertFalse(refused.success());assertEquals("RECORD_CHANGED",refused.errorCode());assertEquals(0,status());
+            assertFalse(submit(request).success(),"明确失败重试仍不得绕过已确认事实");
+        } finally {jdbc.update("UPDATE report_sales SET "+column+"=? WHERE id=1",before);}
     }
     @Test void commitsSourceAndResultOnceUnderConcurrentDuplicates() throws Exception {
         String request=evidence(true);

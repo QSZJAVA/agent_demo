@@ -43,7 +43,7 @@ class DemoBootstrapDatabaseTest {
 
     @Test
     void initializesFreshDatabaseAndPreservesEditsAcrossRestart() {
-        migrate(false);
+        migrate();
         assertEquals(9, jdbc.queryForObject("SELECT COUNT(*) FROM report_sales", Integer.class));
         assertEquals(3, jdbc.queryForObject("SELECT COUNT(*) FROM report_definition", Integer.class));
         assertEquals(4, jdbc.queryForObject("SELECT COUNT(*) FROM dispatch_rule", Integer.class));
@@ -51,7 +51,7 @@ class DemoBootstrapDatabaseTest {
         jdbc.update("UPDATE report_definition SET report_name='preserved name',catalog_version=42 WHERE report_id='rpt-sales-order'");
         jdbc.update("UPDATE dispatch_rule SET expression='amount > 12345',version=42 WHERE report_id='rpt-sales-order' AND company_code='*'");
 
-        migrate(false);
+        migrate();
 
         assertEquals(new BigDecimal("555.00"), jdbc.queryForObject("SELECT amount FROM report_sales WHERE id=1", BigDecimal.class));
         assertEquals(1, jdbc.queryForObject("SELECT dispatch_status FROM report_sales WHERE id=1", Integer.class));
@@ -61,14 +61,14 @@ class DemoBootstrapDatabaseTest {
 
     @Test
     void emptyDirectoryInAnExistingDatabaseDoesNotCauseReset() {
-        migrate(false);
+        migrate();
         jdbc.update("DELETE FROM report_alias");
         jdbc.update("DELETE FROM report_definition");
         jdbc.update("UPDATE report_sales SET dispatch_status=1 WHERE id=1");
         jdbc.update("DELETE FROM dispatch_rule_history");
         jdbc.update("DELETE FROM dispatch_rule");
 
-        migrate(false);
+        migrate();
 
         assertEquals(0, jdbc.queryForObject("SELECT COUNT(*) FROM report_definition", Integer.class));
         assertEquals(0, jdbc.queryForObject("SELECT COUNT(*) FROM dispatch_rule", Integer.class));
@@ -80,34 +80,15 @@ class DemoBootstrapDatabaseTest {
         jdbc.execute("CREATE TABLE preserved_configuration (id INT PRIMARY KEY,value_text VARCHAR(64))");
         jdbc.update("INSERT INTO preserved_configuration VALUES (1,'existing business configuration')");
 
-        migrate(false);
+        assertThrows(org.flywaydb.core.api.FlywayException.class, this::migrate);
 
         assertEquals("existing business configuration", jdbc.queryForObject(
                 "SELECT value_text FROM preserved_configuration WHERE id=1", String.class));
         assertEquals(0, jdbc.queryForObject("SELECT COUNT(*) FROM information_schema.tables "
                 + "WHERE table_schema=DATABASE() AND table_name='report_sales'", Integer.class));
-        assertEquals(0, jdbc.queryForObject("SELECT COUNT(*) FROM dispatch_rule", Integer.class));
     }
 
-    @Test
-    void explicitResetStillRestoresDemoDataOnAnExistingDatabase() {
-        migrate(false);
-        jdbc.update("UPDATE report_sales SET amount=555,dispatch_status=1 WHERE id=1");
-        jdbc.update("DELETE FROM report_alias");
-        jdbc.update("DELETE FROM report_definition");
-        jdbc.update("DELETE FROM dispatch_rule_history");
-        jdbc.update("DELETE FROM dispatch_rule");
-
-        migrate(true);
-
-        assertEquals(new BigDecimal("128000.00"), jdbc.queryForObject("SELECT amount FROM report_sales WHERE id=1", BigDecimal.class));
-        assertEquals(0, jdbc.queryForObject("SELECT dispatch_status FROM report_sales WHERE id=1", Integer.class));
-        assertEquals(3, jdbc.queryForObject("SELECT COUNT(*) FROM report_definition", Integer.class));
-        assertEquals(4, jdbc.queryForObject("SELECT COUNT(*) FROM dispatch_rule", Integer.class));
-    }
-
-    private void migrate(boolean reset) {
-        Flyway.configure().dataSource(dataSource).baselineOnMigrate(true).baselineVersion("0")
-                .callbacks(new DemoDataResetCallback(reset)).load().migrate();
+    private void migrate() {
+        Flyway.configure().dataSource(dataSource).load().migrate();
     }
 }

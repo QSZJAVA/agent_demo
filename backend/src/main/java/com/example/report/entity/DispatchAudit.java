@@ -32,7 +32,7 @@ public class DispatchAudit {
     private Integer attemptCount;
     /** 产生证据时的业务阶段，例如发送或结果核对；允许为空，表示尚无该项数据。*/
     private String phase;
-    /** 规则快照JSON，含标识、版本、表达式及来源；空表示历史证据未核实。 */
+    /** 规则快照JSON，含标识、版本、表达式及来源；无规则的手工派单为空；命中规则时为空表示当前证据缺失。 */
     private String ruleSnapshot;
     /** 数据所属租户标识；查询和写入必须限定租户。*/
     private String tenantId;
@@ -52,8 +52,6 @@ public class DispatchAudit {
     private String reportId;
     /** 记录生成时的报表名称快照；允许为空，表示尚无该项数据。*/
     private String reportName;
-    /** 历史 reportType 编码；新记录为空，仅用于存量追溯。 */
-    private String legacyReportType;
     /** 来源业务表记录标识，以字符串保留原主键；允许为空，表示尚无该项数据。*/
     private String recordId;
     /** 来源业务单据号，用于展示和人工核对；允许为空，表示尚无该项数据。 */

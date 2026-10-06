@@ -69,9 +69,8 @@ for (const file of walk('frontend/src').filter(file => /\.(js|vue)$/.test(file))
   modules++
   if (!script?.trimStart().startsWith('/**')) problems.push(`${file}: 缺少模块职责注释`)
 }
-const specs = { ...JSON.parse(read('backend/src/main/resources/db/migration/V21__schema_comments.json')),
-  ...JSON.parse(read('backend/src/main/resources/investigation/schema-comments.json')) }
-const demo = read('backend/src/main/resources/db/demo/demo-data.sql')
+const specs = JSON.parse(read('backend/src/main/resources/db/schema-comments.json'))
+const demo = read('backend/src/main/resources/db/migration/V1__baseline.sql')
 let columns = 0
 for (const [name, table] of Object.entries(specs)) {
   if (!table.comment?.trim()) problems.push(`${name}: 表注释为空`)
@@ -81,11 +80,11 @@ for (const [name, table] of Object.entries(specs)) {
   }
   if (!table.optional && !table.initialization) continue
   const initialization = table.initialization ? read(`backend/src/main/resources/${table.initialization}`) : demo
-  const block = initialization.match(new RegExp(`CREATE TABLE (?:IF NOT EXISTS )?${name}\\s*\\([\\s\\S]*?;`))?.[0] || ''
+  const block = initialization.match(new RegExp(`CREATE TABLE (?:\\x60)?${name}(?:\\x60)?\\s*\\([\\s\\S]*?;`))?.[0] || ''
   const sqlLiteral = text => `'${text.replaceAll("'", "''")}'`
   if (!block.includes(`COMMENT ${sqlLiteral(table.comment)}`) && !block.includes(`COMMENT=${sqlLiteral(table.comment)}`)) problems.push(`${name}: 初始化表注释与当前清单不一致`)
   for (const [column, comment] of Object.entries(table.columns)) {
-    const line = block.split(/\r?\n/).find(line => new RegExp(`^\\s*${column}\\s+`).test(line)) || ''
+    const line = block.split(/\r?\n/).find(line => new RegExp(`^\\s*(?:\\x60)?${column}(?:\\x60)?\\s+`).test(line)) || ''
     if (!line.includes(`COMMENT ${sqlLiteral(comment)}`)) problems.push(`${name}.${column}: 初始化字段注释与当前清单不一致`)
   }
 }

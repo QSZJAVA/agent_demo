@@ -41,9 +41,9 @@ public class InvestigationWorker {
     public void poll() {
         if(closed) return;
         try {
-            repository.recover();
+            repository.recover(access.tenantId());
             for(int i=0;i<props.getWorkerCount() && workers.getActiveCount()<props.getWorkerCount();i++) {
-                var run=repository.claim();if(run==null) break;String id=run.get("id").toString();
+                var run=repository.claim(access.tenantId());if(run==null) break;String id=run.get("id").toString();
                 var future=new FutureTask<Void>(() -> {execute(run);return null;});running.put(id,future);
                 try {workers.execute(future);} catch(RejectedExecutionException e) {running.remove(id);fail(run,"INTERRUPTED","LEASE_LOST","调查工作槽已变化，请重新分析",null);}
             }
@@ -96,6 +96,6 @@ public class InvestigationWorker {
     }
     public void stop(String id) {var future=running.get(id);if(future!=null) future.cancel(true);}
     @Scheduled(fixedDelayString="${agent.investigation.clean-ms:60000}")
-    public void clean() {if(!closed) try {repository.clean();} catch(Exception e) {log.warn("调查清理暂未完成 type={}",e.getClass().getSimpleName());}}
+    public void clean() {if(!closed) try {repository.clean(access.tenantId());} catch(Exception e) {log.warn("调查清理暂未完成 type={}",e.getClass().getSimpleName());}}
     @PreDestroy public void close() {closed=true;running.values().forEach(f -> f.cancel(true));workers.shutdownNow();heartbeat.shutdownNow();}
 }

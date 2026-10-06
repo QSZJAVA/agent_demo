@@ -19,11 +19,11 @@ public interface DispatchPlanItemMapper extends BaseMapper<DispatchPlanItem> {
     @Insert("""
             <script>
             INSERT INTO dispatch_plan_item (plan_id, seq, report_id, report_name, catalog_version, record_id, doc_no,
-                company_code, label, amount, biz_date, rule_id, rule_name, rule_version, status, attempt_count, updated_at, rule_snapshot)
+                company_code, label, counterparty_json, fields_json, amount, biz_date, rule_id, rule_name, rule_version, status, attempt_count, updated_at, rule_snapshot)
             VALUES
             <foreach collection="items" item="i" separator=",">
               (#{i.planId}, #{i.seq}, #{i.reportId}, #{i.reportName}, #{i.catalogVersion}, #{i.recordId}, #{i.docNo},
-               #{i.companyCode}, #{i.label}, #{i.amount}, #{i.bizDate}, #{i.ruleId}, #{i.ruleName}, #{i.ruleVersion},
+               #{i.companyCode}, #{i.label}, #{i.counterpartyJson}, #{i.fieldsJson}, #{i.amount}, #{i.bizDate}, #{i.ruleId}, #{i.ruleName}, #{i.ruleVersion},
                #{i.status}, #{i.attemptCount}, #{i.updatedAt}, #{i.ruleSnapshot})
             </foreach>
             </script>

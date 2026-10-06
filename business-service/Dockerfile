@@ -12,7 +12,7 @@ WORKDIR /app
 ENV TZ=Asia/Shanghai SERVER_ADDRESS=0.0.0.0
 RUN apt-get update && apt-get install -y --no-install-recommends curl && rm -rf /var/lib/apt/lists/*
 RUN groupadd -r app && useradd -r -g app -d /app app
-COPY --from=build /build/business-service/target/business-service-2.0.0.jar /app/app.jar
+COPY --from=build /build/business-service/target/business-service-1.0.0.jar /app/app.jar
 USER app
 EXPOSE 8090
 HEALTHCHECK --interval=15s --timeout=5s --start-period=60s --retries=10 \

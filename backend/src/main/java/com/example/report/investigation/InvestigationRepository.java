@@ -55,10 +55,10 @@ public class InvestigationRepository {
     public Map<String,Object> replay(Map<String,Object> prior, String hash) {
         if(!hash.equals(prior.get("payload_hash"))) throw new ApiException(409,"调查幂等键对应不同负载");return prior;
     }
-    /** SKIP LOCKED使多实例只认领一份任务；不在内存堆积待执行队列。 */
-    public Map<String,Object> claim() {
+    /** 按部署租户使用SKIP LOCKED，使多实例只认领本租户的一份任务；不在内存堆积待执行队列。 */
+    public Map<String,Object> claim(String tenantId) {
         return tx.execute(s -> {
-            var rows=jdbc.queryForList("SELECT id FROM agent_investigation_run WHERE status='QUEUED' AND queue_expires_at>UTC_TIMESTAMP(3) ORDER BY created_at,id LIMIT 1 FOR UPDATE SKIP LOCKED");
+            var rows=jdbc.queryForList("SELECT id FROM agent_investigation_run WHERE tenant_id=? AND status='QUEUED' AND queue_expires_at>UTC_TIMESTAMP(3) ORDER BY created_at,id LIMIT 1 FOR UPDATE SKIP LOCKED",tenantId);
             if(rows.isEmpty()) return null;String id=rows.get(0).get("id").toString();
             jdbc.update("UPDATE agent_investigation_run SET status='RUNNING',claim_token=?,started_at=UTC_TIMESTAMP(3),updated_at=UTC_TIMESTAMP(3),lease_until=TIMESTAMPADD(SECOND,?,UTC_TIMESTAMP(3)),deadline_at=TIMESTAMPADD(SECOND,?,UTC_TIMESTAMP(3)),row_version=row_version+1 WHERE id=? AND status='QUEUED'",JsonUtil.newId(),props.getLeaseSeconds(),props.getRunTimeoutSeconds(),id);
             return find(id);
@@ -131,8 +131,8 @@ public class InvestigationRepository {
         jdbc.update("UPDATE agent_investigation_step SET status='FAILED',error_code=?,finished_at=UTC_TIMESTAMP(3),duration_ms=COALESCE(duration_ms,0) WHERE run_id=? AND status='STARTED'",reason,id);
     }
     /** 排队过期与执行失租只收尾，不自动重放模型；小批量避免锁住整个任务表。 */
-    public void recover() {
-        var ids=jdbc.queryForList("SELECT id FROM agent_investigation_run WHERE (status='QUEUED' AND queue_expires_at<=UTC_TIMESTAMP(3)) OR (status='RUNNING' AND (lease_until<=UTC_TIMESTAMP(3) OR deadline_at<=UTC_TIMESTAMP(3))) LIMIT 50",String.class);
+    public void recover(String tenantId) {
+        var ids=jdbc.queryForList("SELECT id FROM agent_investigation_run WHERE tenant_id=? AND ((status='QUEUED' AND queue_expires_at<=UTC_TIMESTAMP(3)) OR (status='RUNNING' AND (lease_until<=UTC_TIMESTAMP(3) OR deadline_at<=UTC_TIMESTAMP(3)))) LIMIT 50",String.class,tenantId);
         for(String id:ids) tx.executeWithoutResult(s -> {
             var run=jdbc.queryForMap("SELECT * FROM agent_investigation_run WHERE id=? FOR UPDATE",id);
             boolean queued="QUEUED".equals(run.get("status"));
@@ -157,8 +157,8 @@ public class InvestigationRepository {
         return jdbc.queryForList("SELECT id,status,stop_reason,created_at FROM agent_investigation_run WHERE tenant_id=? AND actor_id=? AND plan_id=?"+seek+" ORDER BY created_at DESC,id DESC LIMIT ?",args.toArray());
     }
     /** 保留期内保留幂等身份；到期只清理终态，外键要求子记录先删除。 */
-    public void clean() {
-        var ids=jdbc.queryForList("SELECT id FROM agent_investigation_run WHERE status NOT IN ('QUEUED','RUNNING') AND finished_at<TIMESTAMPADD(DAY,?,UTC_TIMESTAMP(3)) LIMIT 20",String.class,-props.getRetentionDays());
+    public void clean(String tenantId) {
+        var ids=jdbc.queryForList("SELECT id FROM agent_investigation_run WHERE tenant_id=? AND status NOT IN ('QUEUED','RUNNING') AND finished_at<TIMESTAMPADD(DAY,?,UTC_TIMESTAMP(3)) LIMIT 20",String.class,tenantId,-props.getRetentionDays());
         for(String id:ids) delete(id);
     }
     public void delete(String id) {

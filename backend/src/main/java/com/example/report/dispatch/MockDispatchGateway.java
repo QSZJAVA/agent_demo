@@ -39,7 +39,7 @@ public class MockDispatchGateway implements DispatchGateway {
         }
         boolean success = writer.markDispatchedGuarded(request.tenantId(), request.record().recordId(),
                 request.record().companyCode(), LocalDateTime.now(), row -> {
-                    if (!java.util.Objects.equals(row.companyCode(), request.record().companyCode())) return false;
+                    if (!com.example.report.rule.ConfirmedRecord.matches(request.record(),row,request.report().fields())) return false;
                     if (!request.enforceRules()) return true;
                     return rules.find(request.tenantId(), request.report().reportId(), row.companyCode())
                             .filter(rule -> java.util.Objects.equals(rule.getId(), request.record().ruleId())

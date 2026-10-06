@@ -21,6 +21,8 @@ public class InvestigationAccessPolicy {
     public InvestigationAccessPolicy(IdentityStore identities, PlanRepository plans, PreviewRepository previews, PreviewService previewService) {
         this.identities=identities; this.plans=plans; this.previews=previews; this.previewService=previewService;
     }
+    /** 当前部署实例负责的租户，供工作线程限定认领及恢复范围。 */
+    public String tenantId() { return identities.tenant(); }
     /** 解析当前启用身份；不能持续使用任务创建时的admin和权限副本。 */
     public CurrentUser current(String tenant, String actor) { return identities.resolve(tenant, actor); }
     /** 返回可读清单；同租户管理员仍须拥有全部公司、报表和会话范围权限。 */

@@ -21,7 +21,7 @@ class PlanSelectionIdempotencyTest {
 
     private String preview(String conversation) {
         return h.previews.preview(USER1, conversation,
-                new PreviewCommand(null, "api", null, List.of(SALES, EXPENSE), null, null, null))
+                new PreviewCommand(null, "api", null, List.of(SALES, EXPENSE), null, null))
                 .snapshot().preview().getId();
     }
 
@@ -31,19 +31,14 @@ class PlanSelectionIdempotencyTest {
     }
 
     @Test void sameDocumentNumberExcludesOnlyTheSelectedRecord() {
-        var plan = h.plans.create(USER1, "c1", preview("c1"), List.of(), null,
-                List.of(new RecordKey(SALES, "1")));
+        var plan = h.plans.create(USER1, "c1", preview("c1"), List.of(new RecordKey(SALES, "1")), null);
         assertEquals(1, plan.items().size());
         assertEquals(EXPENSE, plan.items().get(0).getReportId());
     }
 
-    @Test void rejectsForeignRecordAndAmbiguousDocumentNumber() {
+    @Test void rejectsForeignRecord() {
         String id = preview("c1");
-        assertThrows(ApiException.class, () -> h.plans.create(USER1, "c1", id, List.of(), null,
-                List.of(new RecordKey(SALES, "missing"))));
-        var error = assertThrows(ApiException.class,
-                () -> h.plans.create(USER1, "c1", id, List.of("DuP001"), null));
-        assertTrue(error.getMessage().contains("对应多条记录"));
+        assertThrows(ApiException.class, () -> h.plans.create(USER1, "c1", id, List.of(new RecordKey(SALES, "missing")), null));
         assertTrue(h.store.plans().pending("c1").isEmpty());
     }
 

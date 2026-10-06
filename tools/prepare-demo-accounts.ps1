@@ -5,14 +5,17 @@ $taskRuntime=Join-Path $taskRoot '.runtime'
 $taskAdmin=Get-Content -LiteralPath (Join-Path $taskRuntime 'mcp-credentials.json') -Raw | ConvertFrom-Json
 $taskPath=Join-Path $taskRuntime 'demo-accounts.json'
 $taskDefinitions=@(
+    @{userId='semantic_fields_a';displayName='字段筛选验收员';companies=@('A');permissions=@('report:sales','report:receivable','report:expense');admin=$false},
     @{userId='demo_admin';displayName='演示管理员';companies=@('A','B','C');permissions=@('*');admin=$true},
     @{userId='demo_a';displayName='A公司业务员';companies=@('A');permissions=@('report:sales','report:receivable','report:expense');admin=$false},
     @{userId='demo_b';displayName='B公司业务员';companies=@('B');permissions=@('report:sales','report:receivable','report:expense');admin=$false},
     @{userId='demo_sales';displayName='A公司销售业务员';companies=@('A');permissions=@('report:sales');admin=$false}
 )
 $taskStored=@{}
+$taskPrimaryPath=Join-Path $taskRuntime 'semantic-fields-account.json'
+if(Test-Path -LiteralPath $taskPrimaryPath){$taskPrimary=Get-Content -LiteralPath $taskPrimaryPath -Raw|ConvertFrom-Json;if($taskPrimary.userId -ne 'semantic_fields_a'){throw 'Unexpected primary Demo identity'};$taskStored[$taskPrimary.userId]=$taskPrimary.password}
 if(Test-Path -LiteralPath $taskPath) {
-    (Get-Content -LiteralPath $taskPath -Raw | ConvertFrom-Json).accounts | ForEach-Object {$taskStored[$_.userId]=$_.password}
+    (Get-Content -LiteralPath $taskPath -Raw | ConvertFrom-Json).accounts | ForEach-Object {if(-not $taskStored.ContainsKey($_.userId)){$taskStored[$_.userId]=$_.password}}
 }
 $taskAccounts=@()
 foreach($taskDefinition in $taskDefinitions) {
@@ -23,6 +26,7 @@ foreach($taskDefinition in $taskDefinitions) {
 }
 # Save credentials before mutation so an interrupted run can safely reuse the same accounts/passwords.
 @{baseUrl=$BaseUrl;createdAt=(Get-Date).ToString('o');accounts=$taskAccounts} | ConvertTo-Json -Depth 5 | Set-Content -LiteralPath $taskPath -Encoding utf8
+($taskAccounts|Where-Object {$_.userId -eq 'semantic_fields_a'})|ConvertTo-Json -Depth 5|Set-Content -LiteralPath $taskPrimaryPath -Encoding utf8
 function Invoke-DemoApi($Method,$Path,$Body,$Token) {
     $taskArguments=@{Method=$Method;Uri="$BaseUrl$Path";TimeoutSec=30;ContentType='application/json; charset=utf-8'}
     if($null -ne $Body){$taskArguments.Body=[Text.Encoding]::UTF8.GetBytes(($Body|ConvertTo-Json -Depth 6 -Compress))}

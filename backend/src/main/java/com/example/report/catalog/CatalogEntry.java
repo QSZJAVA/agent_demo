@@ -115,7 +115,7 @@ public record CatalogEntry(
     }
 
     public ReportRef ref() {
-        return new ReportRef(reportId, reportName, domainCode, description);
+        return new ReportRef(reportId, reportName, domainCode, description, activeAliases().stream().map(AliasView::alias).toList());
     }
 
     public CatalogEntry forUser(com.example.report.permission.CurrentUser user) {

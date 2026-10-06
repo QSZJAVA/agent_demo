@@ -87,13 +87,13 @@ public class DispatchController {
         boolean selection = request.getReportIds() != null && !request.getReportIds().isEmpty();
         PreviewCommand command = new PreviewCommand(PreviewCommand.OPERATION_PREVIEW, selection ? "selection" : "api",
                 request.getReportQuery(), request.getReportIds(), new PreviewCommand.Filters(request.getCompanyCode()),
-                request.getExcludeDocNos(), request.getScopeMode());
+                request.getScopeMode());
         PreviewOutcome outcome = previewService.preview(user, conversationId, command);
         return Result.ok(switch (outcome.status()) {
             case OK -> new PreviewResponse("ok", conversationCards.recordSelectionPreview(user, conversationId, outcome), null, null);
             case AMBIGUOUS -> new PreviewResponse("ambiguous", null, new ReportChoicePayload(request.getReportQuery(),
                     outcome.resolution().candidates(), outcome.resolution().preselected(), request.getCompanyCode(),
-                    request.getExcludeDocNos() == null ? List.of() : request.getExcludeDocNos(), command.scopeMode()),
+                    command.scopeMode()),
                     "找到多个相关报表，请选择");
             case NOT_FOUND -> new PreviewResponse("not_found", null, null, outcome.resolution().noAccessibleReports()
                     ? "当前账号没有可访问的可派单报表" : "没有找到匹配的报表，请补充名称或业务域");
@@ -109,7 +109,7 @@ public class DispatchController {
         boolean selection = request.getReportIds() != null && !request.getReportIds().isEmpty();
         PreviewCommand command = new PreviewCommand(PreviewCommand.OPERATION_PREVIEW, selection ? "selection" : "api",
                 request.getReportQuery(), request.getReportIds(), new PreviewCommand.Filters(request.getCompanyCode()),
-                request.getExcludeDocNos(), request.getScopeMode());
+                request.getScopeMode());
         return Result.ok(previewJobs.submit(user, conversationId, command));
     }
 
@@ -164,8 +164,7 @@ public class DispatchController {
         if (conversationId != null) {
             conversationService.getOwned(user, conversationId);
         }
-        PlanSnapshot plan = planService.create(user, conversationId, request.getPreviewId(), request.getExcludeDocNos(), idempotencyKey,
-                request.getExcludedRecords());
+        PlanSnapshot plan = planService.create(user, conversationId, request.getPreviewId(), request.getExcludedRecords(), idempotencyKey);
         // 幂等重放返回第一次的清单，卡片已经记过，不再重复写进会话
         return Result.ok(plan.replayed() ? PlanPayload.of(plan)
                 : conversationCards.recordPlan(user, plan.plan().getConversationId(), plan));
@@ -207,13 +206,6 @@ public class DispatchController {
         return Result.ok(dispatchService.reconcile(permissionService.resolve(userId), planId));
     }
 
-    /** 兼容旧前端的执行接口，等同于 confirm*/
-    @PostMapping("/plans/{planId}/execute")
-    public Result<DispatchResultPayload> execute(@RequestHeader(PermissionService.USER_HEADER) String userId,
-                                                 @PathVariable String planId) {
-        return confirm(userId, planId);
-    }
-
     @PostMapping("/plans/{planId}/cancel")
     public Result<CardStateService.CardState> cancel(@RequestHeader(PermissionService.USER_HEADER) String userId,
                                                      @PathVariable String planId) {
@@ -244,7 +236,7 @@ public class DispatchController {
         return Result.ok(traceService.retry(permissionService.resolve(userId), planId));
     }
 
-    /** 报表页手工派单：reportId 或旧 reportType 均可，按记录主键*/
+    /** 报表页手工派单：仅接受稳定reportId与来源记录主键*/
     @PostMapping("/direct")
     public Result<DispatchService.ManualResult> direct(@RequestHeader(PermissionService.USER_HEADER) String userId,
                                                 @RequestBody DirectRequest request) {
@@ -252,15 +244,14 @@ public class DispatchController {
         if (request.getIds() == null || request.getIds().isEmpty()) {
             throw new ApiException("请先勾选需要派单的记录");
         }
-        String report = blankToNull(request.getReportId()) != null ? request.getReportId() : request.getReportType();
-        return Result.ok(dispatchService.dispatchDirect(user, report, request.getIds()));
+        return Result.ok(dispatchService.dispatchDirect(user, request.getReportId(), request.getIds()));
     }
 
     @GetMapping("/direct/plans")
     public Result<List<DispatchService.ManualPlan>> manualPlans(
             @RequestHeader(PermissionService.USER_HEADER) String userId,
-            @RequestParam String reportType, @RequestParam(defaultValue = "1") int page) {
-        return Result.ok(dispatchService.manualPlans(permissionService.resolve(userId), reportType, page));
+            @RequestParam String reportId, @RequestParam(defaultValue = "1") int page) {
+        return Result.ok(dispatchService.manualPlans(permissionService.resolve(userId), reportId, page));
     }
 
     private static String blankToNull(String s) {
@@ -288,8 +279,6 @@ public class DispatchController {
         private String reportQuery;
         /** 用户明确指定的公司；空表示当前用户全部可见公司。 */
         private String companyCode;
-        /** 按单据号排除的记录；服务端只能在当前授权范围内应用。 */
-        private List<String> excludeDocNos;
         /** replace替换、append追加或remove移除报表范围；未指定时按服务端默认替换。 */
         private String scopeMode;
     }
@@ -303,17 +292,13 @@ public class DispatchController {
         private String previewId;
         /** 来源会话标识，服务端验证与预览会话及当前用户一致。 */
         private String conversationId;
-        /** 旧接口按单据号指定的排除项，不能与其他预览的选择混用。 */
-        private List<String> excludeDocNos;
     }
 
     /** 人工选择记录的派单接口输入；每条记录仍创建持久化清单以便结果核对及重试。 */
     @Data
     public static class DirectRequest {
-        /** 稳定报表标识；指定时优先于兼容reportType编码。 */
+        /** 稳定报表标识；不接受报表编码或旧字段。 */
         private String reportId;
-        /** 旧报表页仍传 sales / receivable / expense，经映射表转换 */
-        private String reportType;
         /** 人工选择的来源主键字符串，最多50条；写入前复核当前公司授权和待派单状态。 */
         private List<String> ids;
     }

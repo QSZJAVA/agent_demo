@@ -1,0 +1,25 @@
+flowchart TD
+  result{"读取条目持久结果"}:::guard
+  success["SUCCESS<br/>重放原结果，不重复写入"]:::store
+  unknown["UNKNOWN / REVIEW_REQUIRED<br/>先按原请求号核对"]:::store
+  failed["明确FAILED<br/>用户显式请求重试"]:::store
+  lookup["dispatch_lookup<br/>当前权限与原操作者检查"]:::business
+  retry{"复核当前规则和执行权<br/>沿用稳定请求号与冻结版本"}:::guard
+  remain["仍不确定或权限不足<br/>保留证据，不能自动重发"]:::error
+  execute["受控执行 / 结果归档<br/>幂等与版本保护继续生效"]:::business
+  result --> success
+  result --> unknown
+  result --> failed
+  unknown --> lookup
+  lookup -->|"已成功"| success
+  lookup -->|"仍不确定"| remain
+  lookup -->|"可确认重试"| retry
+  failed --> retry
+  retry --> execute
+  classDef ui fill:#eaf2ff,stroke:#386bc1,color:#1e354c
+  classDef agent fill:#edf5ff,stroke:#3778a8,color:#1e354c
+  classDef model fill:#f3edff,stroke:#8751bf,color:#1e354c
+  classDef business fill:#e8f7ef,stroke:#268255,color:#1e354c
+  classDef guard fill:#fff4dc,stroke:#b58022,color:#1e354c
+  classDef error fill:#fff0ef,stroke:#ba534e,color:#1e354c
+  classDef store fill:#edf1f5,stroke:#60768b,color:#1e354c

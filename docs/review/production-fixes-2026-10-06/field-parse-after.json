@@ -1,0 +1,99 @@
+[ {
+  "message" : "销售报表只保留金额在30000到100000之间的记录",
+  "intent" : {
+    "version" : 1,
+    "action" : "PREVIEW",
+    "scopeChanges" : [ {
+      "target" : "RECORDS",
+      "operation" : "KEEP_ONLY",
+      "mentions" : [ ],
+      "evidence" : "销售报表只保留金额在30000到100000之间的记录",
+      "reportMentions" : [ "销售报表" ],
+      "selectorKind" : "FIELDS",
+      "quantifier" : "ALL",
+      "conditions" : [ {
+        "allOf" : [ {
+          "field" : "amount",
+          "operator" : "GTE",
+          "values" : [ "30000" ],
+          "evidence" : "金额在30000到100000之间"
+        }, {
+          "field" : "amount",
+          "operator" : "LTE",
+          "values" : [ "100000" ],
+          "evidence" : "金额在30000到100000之间"
+        } ]
+      } ]
+    } ],
+    "restrictions" : [ ],
+    "reportConstraints" : [ ],
+    "unsupportedConditions" : [ ],
+    "clarify" : "NONE"
+  }
+}, {
+  "message" : "销售报表金额低于30000或者超过100000元的不要",
+  "intent" : {
+    "version" : 1,
+    "action" : "PREVIEW",
+    "scopeChanges" : [ {
+      "target" : "RECORDS",
+      "operation" : "EXCLUDE",
+      "mentions" : [ ],
+      "evidence" : "销售报表金额低于30000或者超过100000元的不要",
+      "reportMentions" : [ "销售报表" ],
+      "selectorKind" : "FIELDS",
+      "quantifier" : "ALL",
+      "conditions" : [ {
+        "allOf" : [ {
+          "field" : "amount",
+          "operator" : "LT",
+          "values" : [ "30000" ],
+          "evidence" : "金额低于30000"
+        } ]
+      }, {
+        "allOf" : [ {
+          "field" : "amount",
+          "operator" : "GT",
+          "values" : [ "100000" ],
+          "evidence" : "超过100000元"
+        } ]
+      } ]
+    } ],
+    "restrictions" : [ ],
+    "reportConstraints" : [ ],
+    "unsupportedConditions" : [ ],
+    "clarify" : "NONE"
+  }
+}, {
+  "message" : "销售报表仅留金额大于等于30000且小于等于100000的记录",
+  "intent" : {
+    "version" : 1,
+    "action" : "PREVIEW",
+    "scopeChanges" : [ {
+      "target" : "RECORDS",
+      "operation" : "KEEP_ONLY",
+      "mentions" : [ ],
+      "evidence" : "销售报表仅留金额大于等于30000且小于等于100000的记录",
+      "reportMentions" : [ "销售报表" ],
+      "selectorKind" : "FIELDS",
+      "quantifier" : "ALL",
+      "conditions" : [ {
+        "allOf" : [ {
+          "field" : "amount",
+          "operator" : "GTE",
+          "values" : [ "30000" ],
+          "evidence" : "金额大于等于30000且小于等于100000"
+        }, {
+          "field" : "amount",
+          "operator" : "LTE",
+          "values" : [ "100000" ],
+          "evidence" : "金额大于等于30000且小于等于100000"
+        } ]
+      } ]
+    } ],
+    "restrictions" : [ ],
+    "reportConstraints" : [ ],
+    "unsupportedConditions" : [ ],
+    "clarify" : "NONE"
+  }
+} ]

@@ -9,7 +9,6 @@ import com.example.report.entity.DispatchPreview;
 import com.example.report.support.DispatchHarness;
 import com.example.report.support.TestCatalog;
 import org.junit.jupiter.api.Test;
-import org.springframework.ai.chat.memory.ChatMemory;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
@@ -27,12 +26,12 @@ class DispatchSafetyTest {
 
     private DispatchService service(PlanRepository repository) {
         return new DispatchService(h.plans, h.previews, repository, h.catalogService,
-                h.candidates, h.versions, gateway, mock(AuditService.class), mock(ConversationService.class), mock(ChatMemory.class),
+                h.candidates, h.versions, gateway, mock(AuditService.class), mock(ConversationService.class),
                 org.springframework.transaction.support.TransactionOperations.withoutTransaction());
     }
 
     private PlanSnapshot plan() {
-        var preview = h.previews.preview(USER1, "c1", new PreviewCommand(null, "api", null, List.of(SALES), null, null, null)).snapshot();
+        var preview = h.previews.preview(USER1, "c1", new PreviewCommand(null, "api", null, List.of(SALES), null, null)).snapshot();
         return h.plans.create(USER1, "c1", preview.preview().getId(), List.of(), null);
     }
 
@@ -133,7 +132,7 @@ class DispatchSafetyTest {
         }
     }
 
-    @Test void manualDispatchRespectsDispatchSwitchForIdsAndLegacyCodes() {
+    @Test void manualDispatchRejectsDisabledReportsAndRetiredCodes() {
         h.catalog.replace(TestCatalog.with(h.catalog.get(SALES), 2, "PUBLISHED", false));
         var service = service(h.store.plans());
         assertThrows(ApiException.class, () -> service.dispatchDirect(USER1, SALES, List.of("1")));

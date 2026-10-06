@@ -6,7 +6,6 @@ import com.example.report.rule.*;
 import com.example.report.support.DispatchHarness;
 import com.example.report.conversation.ConversationService;
 import org.junit.jupiter.api.*;
-import org.springframework.ai.chat.memory.ChatMemory;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.namedparam.*;
@@ -38,7 +37,8 @@ class AtomicDispatchGuardTest {
                 null, "amount", null, "dispatched", 0, 1, null,
                 List.of(new StandardQueryConfig.FieldSpec("amount", "amount", "decimal", "amount")), List.of());
         var report = spy(h.catalog.get(SALES));
-        doReturn(new StandardReportAdapter(config, business)).when(report).adapter();
+        var source=new StandardReportAdapter(config,business);
+        doReturn(source).when(report).adapter();doReturn(source.fields()).when(report).fields();
         h.catalog.replace(report);
         var rule = new DispatchRule();
         rule.setId(1L); rule.setVersion(1); rule.setExpression("amount > 20");
@@ -62,7 +62,7 @@ class AtomicDispatchGuardTest {
             return 1;
         });
         service = new DispatchService(h.plans, h.previews, h.store.plans(), h.catalogService, h.candidates, h.versions,
-                gateway, mock(AuditService.class), mock(ConversationService.class), mock(ChatMemory.class),
+                gateway, mock(AuditService.class), mock(ConversationService.class),
                 TransactionOperations.withoutTransaction());
         // Unit test transaction marker only; SQL locking itself is verified by an opt-in database test.
         TransactionSynchronizationManager.setActualTransactionActive(true);
@@ -74,10 +74,12 @@ class AtomicDispatchGuardTest {
         return new FactRow(id, "SO" + id, company, "item", BigDecimal.valueOf(amount), null, Map.of("amount", amount));
     }
 
+    Candidate frozen(String id) { return DispatchCandidateService.toCandidate(h.catalog.get(SALES),rows.get(id),1L,"规则",1,"amount > 20"); }
+
     String plan() {
-        h.put(SALES, candidate(SALES, "1", "SO1", "A", "first"), candidate(SALES, "2", "SO2", "A", "second"));
         rows.put("1", row("1", "A", 2000)); rows.put("2", row("2", "A", 2000));
-        var p = h.previews.preview(USER1, "atomic", new PreviewCommand(null, "api", null, List.of(SALES), null, null, null)).snapshot();
+        h.put(SALES, frozen("1"), frozen("2"));
+        var p = h.previews.preview(USER1, "atomic", new PreviewCommand(null, "api", null, List.of(SALES), null, null)).snapshot();
         return h.plans.create(USER1, "atomic", p.preview().getId(), List.of(), null).plan().getId();
     }
 
@@ -103,7 +105,7 @@ class AtomicDispatchGuardTest {
 
     @Test void manualRequestSkipsRulesButStillChecksCompany() {
         rows.put("1", row("1", "A", 1));
-        var record = candidate(SALES, "1", "SO1", "A", "manual");
+        var record = frozen("1");
         assertTrue(gateway.dispatch(new DispatchGateway.DispatchRequest("T001", "m1", h.catalog.get(SALES), record, false)).success());
         rows.put("1", row("1", "B", 1));
         assertFalse(gateway.dispatch(new DispatchGateway.DispatchRequest("T001", "m2", h.catalog.get(SALES), record, false)).success());

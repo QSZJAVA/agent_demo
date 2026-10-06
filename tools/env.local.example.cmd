@@ -7,7 +7,7 @@ set "JAVA_HOME="
 
 set "DB_HOST=localhost"
 set "DB_PORT=3306"
-set "DB_NAME=report_mcp"
+set "DB_NAME=report_demo"
 set "DB_USERNAME=root"
 set "DB_PASSWORD="
 set "REDIS_HOST=localhost"
@@ -21,7 +21,7 @@ set "LLM_BASE_URL="
 set "LLM_MODEL="
 set "LLM_API_KEY="
 REM Enable only after verifying that the endpoint supports JSON Schema.
-set "SEMANTIC_NATIVE_SCHEMA=false"
+set "SEMANTIC_NATIVE_SCHEMA=true"
 set "SEMANTIC_MODEL="
 set "SEMANTIC_THINKING_ENABLED=false"
 REM Investigation has its own bounded read-only tool loop; empty model follows LLM_MODEL.

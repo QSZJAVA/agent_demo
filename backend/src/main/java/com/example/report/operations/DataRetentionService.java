@@ -25,7 +25,7 @@ public class DataRetentionService {
         this.jdbc=jdbc;this.tx=tx;this.redis=redis;this.policies=policies;this.audit=audit;
     }
     /**
-     * 先保存不可逆的删除墓碑并隐藏会话，再由定时任务分批清理；墓碑阻止在途消息、语义状态和工作记忆重新写回。
+     * 先保存不可逆的删除墓碑并隐藏会话，再由定时任务分批清理；墓碑阻止在途消息、语义状态重新写回。
      */
     public void request(CurrentUser user,String id,String reason) {
         OperationsPolicy.requireReason(reason);
@@ -72,7 +72,6 @@ public class DataRetentionService {
     }
     public void erase(String id) {
         // A late memory writer checks the tombstone both before and after SET.
-        redis.delete("agent:memory:"+id);
         tx.executeWithoutResult(status -> {
             var rows=jdbc.queryForList("SELECT tenant_id FROM agent_conversation WHERE id=? FOR UPDATE",id);
             if(rows.isEmpty() || !erased(id)) return;

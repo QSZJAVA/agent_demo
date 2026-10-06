@@ -48,14 +48,13 @@ public class RuleEngine {
         return new LinkedHashSet<>(compiled.getVariableNames());
     }
 
-    /** 在事实模型上求值；非布尔结果视为不命中 */
+    /** 在事实模型上求值；非布尔结果为规则错误，不得伪装成零匹配 */
     public boolean matches(String expression, Map<String, Object> facts) {
         Expression compiled = evaluator.compile(expression, true);
         Object result = compiled.execute(new HashMap<>(facts));
         if (result instanceof Boolean b) {
             return b;
         }
-        log.warn("规则表达式返回了非布尔值，按不命中处理：{} -> {}", expression, result);
-        return false;
+        throw new ApiException(422,"规则必须返回布尔结果");
     }
 }

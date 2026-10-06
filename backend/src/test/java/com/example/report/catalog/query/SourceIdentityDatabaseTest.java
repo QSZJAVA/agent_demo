@@ -49,10 +49,10 @@ class SourceIdentityDatabaseTest {
                 null,null,null,"dispatched",0,1,null,List.of(),List.of()), template);
     }
     DispatchGateway.Outcome dispatch(StandardReportAdapter adapter) {
-        var report = spy(new TestCatalog().get(TestCatalog.SALES)); doReturn(adapter).when(report).adapter();
+        var report = spy(new TestCatalog().get(TestCatalog.SALES)); doReturn(adapter).when(report).adapter(); doReturn(adapter.fields()).when(report).fields();
         var gateway = new MockDispatchGateway(jdbc, mock(RuleCache.class), new RuleEngine());
         return tx.execute(status -> gateway.dispatch(new DispatchGateway.DispatchRequest("T001","request",report,
-                candidate(TestCatalog.SALES,"7","SO-A","A","selected A"),false)));
+                com.example.report.rule.DispatchCandidateService.toCandidate(report,adapter.pendingRowsByIds("T001",List.of("7")).get(0),null,null,null,null),false)));
     }
 
     @Test void companyScopedCompositeKeyIsRejectedAtPublishReadAndWriteWithoutMutatingAnyCompany() {
@@ -106,12 +106,12 @@ class SourceIdentityDatabaseTest {
         assertEquals(0, jdbc.queryForObject("SELECT COUNT(*) FROM dispatch_gateway_request", Integer.class));
     }
 
-    @Test void guardedUpdateBindsCompanyAndLegacyWriteRequiresTransaction() {
+    @Test void guardedUpdateBindsCompanyAndRequiresTransaction() {
         table("INT NOT NULL", "PRIMARY KEY(id)");
         jdbc.update("INSERT INTO records VALUES ('T001','A',7,'SO-A',0)");
         var template = spy(new NamedParameterJdbcTemplate(jdbc));
         assertTrue(dispatch(adapter(template)).success());
         verify(template).update(contains("AND `company_code` = :company"), argThat((SqlParameterSource p) -> "A".equals(p.getValue("company"))));
-        assertThrows(IllegalStateException.class, () -> adapter().markDispatched("T001", "7", LocalDateTime.now()));
+        assertThrows(IllegalStateException.class, () -> adapter().markDispatchedGuarded("T001", "7", "A", LocalDateTime.now(), row -> true));
     }
 }

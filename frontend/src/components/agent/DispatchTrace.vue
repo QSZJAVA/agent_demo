@@ -70,7 +70,7 @@ export default {
   },
   computed: {
     current() { return this.trace ? this.trace[this.section] : emptyPage() },
-    integrityLabel() { return { COMPLETE: '证据完整', SYNCING: '证据已保存，展示待同步', LEGACY: '历史资料待核实', INCOMPLETE: '证据存在缺口' }[this.trace.integrity.status] },
+    integrityLabel() { return { COMPLETE: '证据完整', SYNCING: '证据已保存，展示待同步', INCOMPLETE: '证据存在缺口' }[this.trace.integrity.status] },
     integrityType() { return this.trace.integrity.status === 'COMPLETE' ? 'success' : 'warning' }
   },
   mounted() { this.load() },

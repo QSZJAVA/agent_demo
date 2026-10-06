@@ -24,9 +24,19 @@ class InvestigationTransportTest {
         try {
             var model=new InvestigationOpenAiModel(new InvestigationProperties(),"http://127.0.0.1:"+server.getAddress().getPort(),"local-test","test","/v1/chat/completions");
             var result=model.call(List.of(new UserMessage("查询当前绑定的范围")),InvestigationTools.definitions(),false,Duration.ofSeconds(5));
-            assertEquals(5,wire.get().get("tools").size());assertEquals("call1",result.message().getToolCalls().get(0).id());assertEquals(120,result.usage().get("inputTokens"));assertTrue((Boolean)result.usage().get("usageComplete"));
+            assertEquals(6,wire.get().get("tools").size());assertEquals("call1",result.message().getToolCalls().get(0).id());assertEquals(120,result.usage().get("inputTokens"));assertTrue((Boolean)result.usage().get("usageComplete"));
             assertFalse(wire.get().toString().contains("tenantId"));assertFalse(wire.get().toString().contains("dispatch_submit"));
             model.call(List.of(new UserMessage("输出报告")),List.of(),true,Duration.ofSeconds(5));assertTrue(!wire.get().has("tools") || wire.get().get("tools").isEmpty());
+            // 实际 HTTP 请求必须清理自由文本、机器字段及 FieldFact，同时保持工具调用配对。
+            var assistant=org.springframework.ai.chat.messages.AssistantMessage.builder().content("").toolCalls(List.of(
+                    new org.springframework.ai.chat.messages.AssistantMessage.ToolCall("bound-call","function","investigation_plan_summary","{}"))).build();
+            var evidence=org.springframework.ai.chat.messages.ToolResponseMessage.builder().responses(List.of(
+                    new org.springframework.ai.chat.messages.ToolResponseMessage.ToolResponse("bound-call","investigation_plan_summary",
+                            JsonUtil.toJson(Map.of("queryConfig","电话13812345678","fields",List.of(Map.of("name","bankAccount","type","string","value","6222999912345678")),"details","password=SyntheticCredential42"))))).build();
+            model.call(List.of(new UserMessage("核对金额与日期，联系 demo@example.test"),assistant,evidence),List.of(),true,Duration.ofSeconds(5));
+            String outbound=wire.get().toString();
+            for(String privateValue:List.of("13812345678","6222999912345678","SyntheticCredential42","demo@example.test"))assertFalse(outbound.contains(privateValue));
+            assertTrue(outbound.contains("bound-call"));assertTrue(outbound.contains("核对金额与日期"));
         } finally {server.stop(0);}
     }
     @Test void actualHttpReadIsBoundedAndInterruptedCallReleasesCaller() throws Exception {

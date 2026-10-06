@@ -60,8 +60,8 @@ public class DialogueStore {
         try {
             var node=JsonUtil.MAPPER.readTree(json);
             var pending=node.path("pendingIntent");
-            if (pending.path("version").asInt()==1)
-                ((com.fasterxml.jackson.databind.node.ObjectNode)node).set("pendingIntent",JsonUtil.MAPPER.valueToTree(IntentCodec.fromStoredV1(pending)));
+            if (!pending.isMissingNode() && !pending.isNull() && pending.path("version").asInt()!=SemanticIntent.VERSION)
+                throw new IllegalStateException("当前代码只读取V1会话，请使用最新Demo数据基线");
             return JsonUtil.MAPPER.treeToValue(node, DialogueState.class);
         }
         catch (Exception e) { throw new IllegalStateException("会话状态无法读取", e); }

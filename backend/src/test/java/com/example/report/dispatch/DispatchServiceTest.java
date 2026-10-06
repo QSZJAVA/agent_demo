@@ -14,7 +14,6 @@ import com.example.report.support.TestCatalog;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
-import org.springframework.ai.chat.memory.ChatMemory;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -55,17 +54,17 @@ class DispatchServiceTest {
         when(gateway.dispatch(any())).thenReturn(DispatchGateway.Outcome.ok());
         audit = mock(AuditService.class);
         service = new DispatchService(h.plans, h.previews, h.store.plans(), h.catalogService, h.candidates, h.versions,
-                gateway, audit, mock(ConversationService.class), mock(ChatMemory.class),
+                gateway, audit, mock(ConversationService.class),
                 org.springframework.transaction.support.TransactionOperations.withoutTransaction());
     }
 
     private PreviewSnapshot preview(CurrentUser user) {
-        return h.previews.preview(user, CONVERSATION, new PreviewCommand(null, "api", "销售报表", null, null, null, null)).snapshot();
+        return h.previews.preview(user, CONVERSATION, new PreviewCommand(null, "api", "销售报表", null, null, null)).snapshot();
     }
 
     private String plan(CurrentUser user) {
-        preview(user);
-        return h.plans.create(user, CONVERSATION, null, List.of(), null).plan().getId();
+        String previewId = preview(user).preview().getId();
+        return h.plans.create(user, CONVERSATION, previewId, List.of(), null).plan().getId();
     }
 
     private DispatchPlan planRow(String planId) {
@@ -82,7 +81,7 @@ class DispatchServiceTest {
         String request=h.store.plans().items(planId).get(0).getExternalRequestId();
         when(authenticated.lookupForOperator(admin,USER1.userId(),request)).thenReturn(new DispatchGateway.Lookup(DispatchGateway.LookupStatus.SUCCESS,null,null));
         service=new DispatchService(h.plans,h.previews,h.store.plans(),h.catalogService,h.candidates,h.versions,
-                authenticated,audit,mock(ConversationService.class),mock(ChatMemory.class),
+                authenticated,audit,mock(ConversationService.class),
                 org.springframework.transaction.support.TransactionOperations.withoutTransaction());
         assertThrows(ApiException.class,()->service.reconcileForOperator(USER1,USER1.userId(),planId));
         var foreign=new CurrentUser("T002","admin","",Set.of("A"),Set.of("*"),true);
@@ -335,7 +334,7 @@ class DispatchServiceTest {
             return inv.callRealMethod();
         }).when(unreliable).updateItem(any(), anyLong());
         service = new DispatchService(h.plans, h.previews, unreliable, h.catalogService, h.candidates, h.versions,
-                gateway, audit, mock(ConversationService.class), mock(ChatMemory.class),
+                gateway, audit, mock(ConversationService.class),
                 org.springframework.transaction.support.TransactionOperations.withoutTransaction());
         ExecutorService pool = Executors.newFixedThreadPool(2);
         try {
@@ -414,7 +413,7 @@ class DispatchServiceTest {
             return inv.callRealMethod();
         }).when(unreliable).updateItem(any(), anyLong());
         service = new DispatchService(h.plans, h.previews, unreliable, h.catalogService, h.candidates, h.versions,
-                gateway, audit, mock(ConversationService.class), mock(ChatMemory.class),
+                gateway, audit, mock(ConversationService.class),
                 org.springframework.transaction.support.TransactionOperations.withoutTransaction());
 
         assertThrows(ApiException.class, () -> service.retryFailed(USER1, planId));

@@ -1,0 +1,1951 @@
+{
+  "backendRestartObserved": true,
+  "selection": {
+    "previewId": "e3a716b247894d2a8e38eadb78646584",
+    "excludedRecords": [
+      {
+        "reportId": "rpt-ar-invoice",
+        "recordId": "11"
+      },
+      {
+        "reportId": "rpt-ar-invoice",
+        "recordId": "12"
+      }
+    ],
+    "phase": "PLAN_READY"
+  },
+  "trace": {
+    "plan": {
+      "id": "95d2d605e6e64cf2a425b83c195c7e6b",
+      "previewId": "e3a716b247894d2a8e38eadb78646584",
+      "tenantId": "T001",
+      "userId": "semantic_v3_a",
+      "conversationId": "b68b1d5b5d834f95b6cfee559632fd83",
+      "status": "PENDING",
+      "statusReason": null,
+      "executionVersion": 0,
+      "evidenceVersion": 1,
+      "excluded": [
+        "应收报表 / INV-V3-DEMO-1",
+        "应收报表 / INV-V3-DEMO-2"
+      ],
+      "itemCount": 7,
+      "successCount": 0,
+      "failedCount": 0,
+      "idempotencyKey": "semantic:9104844982af4bae84c44b0cad8f8919",
+      "createdAt": "2026-10-06T17:13:09.729",
+      "expiresAt": "2026-10-06T17:23:09.729",
+      "confirmedAt": null,
+      "confirmedBy": null,
+      "finishedAt": null
+    },
+    "preview": {
+      "id": "e3a716b247894d2a8e38eadb78646584",
+      "source": "semantic",
+      "status": "ACTIVE",
+      "statusReason": null,
+      "query": {
+        "source": "semantic",
+        "filters": {
+          "companyCode": null,
+          "companyCodes": [
+            "A"
+          ]
+        },
+        "excludes": [],
+        "matchType": "ALL",
+        "operation": "PREVIEW",
+        "reportIds": [
+          "rpt-sales-order",
+          "rpt-ar-invoice",
+          "rpt-expense-claim"
+        ],
+        "scopeMode": "replace",
+        "allReports": true,
+        "reportQuery": null,
+        "matchedTerms": [],
+        "unrecognized": [],
+        "catalogVersions": {
+          "rpt-ar-invoice": 1,
+          "rpt-sales-order": 1,
+          "rpt-expense-claim": 1
+        },
+        "requestedReportIds": []
+      },
+      "reportIds": [
+        "rpt-sales-order",
+        "rpt-ar-invoice",
+        "rpt-expense-claim"
+      ],
+      "companyCodes": [
+        "A"
+      ],
+      "catalogVersion": "9e17a7dd43527519b3d0d7c51febab66659f147fae30e483db06aa68c072064c",
+      "ruleVersion": "cd905c7ea7f1a76f57c12cd83446c3a6943e45cd89a51ddd0fa8053201aa66c0",
+      "permissionVersion": "45ef137c29450aa895a7c219978bdb22",
+      "totalCount": 9,
+      "totalAmount": 267843.5,
+      "createdAt": "2026-10-06T17:11:39.304",
+      "expiresAt": "2026-10-06T17:41:39.304"
+    },
+    "rules": [
+      {
+        "name": "销售报表默认规则",
+        "ruleId": 1,
+        "version": 1,
+        "reportId": "rpt-sales-order",
+        "expression": "amount > 20",
+        "companyCode": "*",
+        "description": "销售订单金额大于 20 元需要派单"
+      },
+      {
+        "name": "应收报表默认规则",
+        "ruleId": 3,
+        "version": 1,
+        "reportId": "rpt-ar-invoice",
+        "expression": "amount < 20",
+        "companyCode": "*",
+        "description": "应收发票金额小于 20 元需要派单（小额应收集中催收）"
+      },
+      {
+        "name": "费用报表默认规则",
+        "ruleId": 4,
+        "version": 1,
+        "reportId": "rpt-expense-claim",
+        "expression": "amount > 1000",
+        "companyCode": "*",
+        "description": "报销单金额大于 1000 元需要派单"
+      }
+    ],
+    "integrity": {
+      "status": "COMPLETE",
+      "pendingCount": 0,
+      "retryingCount": 0,
+      "missingRules": 0,
+      "missingAudits": 0,
+      "unresolvedItems": 7,
+      "warnings": []
+    },
+    "items": {
+      "records": [
+        {
+          "id": 8,
+          "plan_id": "95d2d605e6e64cf2a425b83c195c7e6b",
+          "seq": 0,
+          "report_id": "rpt-sales-order",
+          "report_name": "销售报表",
+          "catalog_version": 1,
+          "record_id": "1",
+          "doc_no": "SO2026001",
+          "company_code": "A",
+          "label": "服务器",
+          "counterparty_json": null,
+          "amount": 128000.0,
+          "biz_date": "2026-01-15",
+          "rule_id": 1,
+          "rule_name": "销售报表默认规则",
+          "rule_version": 1,
+          "status": "PENDING",
+          "attempt_count": 0,
+          "external_request_id": null,
+          "error_code": null,
+          "error_message": null,
+          "updated_at": "2026-10-06T17:13:09.729",
+          "rule_snapshot": {
+            "name": "销售报表默认规则",
+            "ruleId": 1,
+            "version": 1,
+            "reportId": "rpt-sales-order",
+            "expression": "amount > 20",
+            "companyCode": "*",
+            "description": "销售订单金额大于 20 元需要派单"
+          }
+        },
+        {
+          "id": 9,
+          "plan_id": "95d2d605e6e64cf2a425b83c195c7e6b",
+          "seq": 1,
+          "report_id": "rpt-sales-order",
+          "report_name": "销售报表",
+          "catalog_version": 1,
+          "record_id": "2",
+          "doc_no": "SO2026002",
+          "company_code": "A",
+          "label": "交换机",
+          "counterparty_json": null,
+          "amount": 32000.0,
+          "biz_date": "2026-02-08",
+          "rule_id": 1,
+          "rule_name": "销售报表默认规则",
+          "rule_version": 1,
+          "status": "PENDING",
+          "attempt_count": 0,
+          "external_request_id": null,
+          "error_code": null,
+          "error_message": null,
+          "updated_at": "2026-10-06T17:13:09.729",
+          "rule_snapshot": {
+            "name": "销售报表默认规则",
+            "ruleId": 1,
+            "version": 1,
+            "reportId": "rpt-sales-order",
+            "expression": "amount > 20",
+            "companyCode": "*",
+            "description": "销售订单金额大于 20 元需要派单"
+          }
+        },
+        {
+          "id": 10,
+          "plan_id": "95d2d605e6e64cf2a425b83c195c7e6b",
+          "seq": 2,
+          "report_id": "rpt-sales-order",
+          "report_name": "销售报表",
+          "catalog_version": 1,
+          "record_id": "3",
+          "doc_no": "SO2026007",
+          "company_code": "A",
+          "label": "云服务",
+          "counterparty_json": null,
+          "amount": 96000.0,
+          "biz_date": "2026-04-05",
+          "rule_id": 1,
+          "rule_name": "销售报表默认规则",
+          "rule_version": 1,
+          "status": "PENDING",
+          "attempt_count": 0,
+          "external_request_id": null,
+          "error_code": null,
+          "error_message": null,
+          "updated_at": "2026-10-06T17:13:09.729",
+          "rule_snapshot": {
+            "name": "销售报表默认规则",
+            "ruleId": 1,
+            "version": 1,
+            "reportId": "rpt-sales-order",
+            "expression": "amount > 20",
+            "companyCode": "*",
+            "description": "销售订单金额大于 20 元需要派单"
+          }
+        },
+        {
+          "id": 11,
+          "plan_id": "95d2d605e6e64cf2a425b83c195c7e6b",
+          "seq": 3,
+          "report_id": "rpt-ar-invoice",
+          "report_name": "应收报表",
+          "catalog_version": 1,
+          "record_id": "3",
+          "doc_no": "INV-2026-0007",
+          "company_code": "A",
+          "label": "天津某某贸易有限公司",
+          "counterparty_json": "{\"id\": \"CUST-003\", \"name\": \"天津某某贸易有限公司\", \"aliases\": [\"天津某某贸易\"]}",
+          "amount": 12.5,
+          "biz_date": "2026-05-10",
+          "rule_id": 3,
+          "rule_name": "应收报表默认规则",
+          "rule_version": 1,
+          "status": "PENDING",
+          "attempt_count": 0,
+          "external_request_id": null,
+          "error_code": null,
+          "error_message": null,
+          "updated_at": "2026-10-06T17:13:09.729",
+          "rule_snapshot": {
+            "name": "应收报表默认规则",
+            "ruleId": 3,
+            "version": 1,
+            "reportId": "rpt-ar-invoice",
+            "expression": "amount < 20",
+            "companyCode": "*",
+            "description": "应收发票金额小于 20 元需要派单（小额应收集中催收）"
+          }
+        },
+        {
+          "id": 12,
+          "plan_id": "95d2d605e6e64cf2a425b83c195c7e6b",
+          "seq": 4,
+          "report_id": "rpt-ar-invoice",
+          "report_name": "应收报表",
+          "catalog_version": 1,
+          "record_id": "4",
+          "doc_no": "INV-2026-0008",
+          "company_code": "A",
+          "label": "北京某某咨询有限公司",
+          "counterparty_json": "{\"id\": \"CUST-004\", \"name\": \"北京某某咨询有限公司\", \"aliases\": [\"北京某某咨询\"]}",
+          "amount": 8.0,
+          "biz_date": "2026-06-01",
+          "rule_id": 3,
+          "rule_name": "应收报表默认规则",
+          "rule_version": 1,
+          "status": "PENDING",
+          "attempt_count": 0,
+          "external_request_id": null,
+          "error_code": null,
+          "error_message": null,
+          "updated_at": "2026-10-06T17:13:09.729",
+          "rule_snapshot": {
+            "name": "应收报表默认规则",
+            "ruleId": 3,
+            "version": 1,
+            "reportId": "rpt-ar-invoice",
+            "expression": "amount < 20",
+            "companyCode": "*",
+            "description": "应收发票金额小于 20 元需要派单（小额应收集中催收）"
+          }
+        },
+        {
+          "id": 13,
+          "plan_id": "95d2d605e6e64cf2a425b83c195c7e6b",
+          "seq": 5,
+          "report_id": "rpt-expense-claim",
+          "report_name": "费用报表",
+          "catalog_version": 1,
+          "record_id": "1",
+          "doc_no": "EXP-2026-0001",
+          "company_code": "A",
+          "label": "差旅费",
+          "counterparty_json": null,
+          "amount": 8600.0,
+          "biz_date": "2026-01-09",
+          "rule_id": 4,
+          "rule_name": "费用报表默认规则",
+          "rule_version": 1,
+          "status": "PENDING",
+          "attempt_count": 0,
+          "external_request_id": null,
+          "error_code": null,
+          "error_message": null,
+          "updated_at": "2026-10-06T17:13:09.729",
+          "rule_snapshot": {
+            "name": "费用报表默认规则",
+            "ruleId": 4,
+            "version": 1,
+            "reportId": "rpt-expense-claim",
+            "expression": "amount > 1000",
+            "companyCode": "*",
+            "description": "报销单金额大于 1000 元需要派单"
+          }
+        },
+        {
+          "id": 14,
+          "plan_id": "95d2d605e6e64cf2a425b83c195c7e6b",
+          "seq": 6,
+          "report_id": "rpt-expense-claim",
+          "report_name": "费用报表",
+          "catalog_version": 1,
+          "record_id": "2",
+          "doc_no": "EXP-2026-0002",
+          "company_code": "A",
+          "label": "业务招待费",
+          "counterparty_json": null,
+          "amount": 3200.0,
+          "biz_date": "2026-02-14",
+          "rule_id": 4,
+          "rule_name": "费用报表默认规则",
+          "rule_version": 1,
+          "status": "PENDING",
+          "attempt_count": 0,
+          "external_request_id": null,
+          "error_code": null,
+          "error_message": null,
+          "updated_at": "2026-10-06T17:13:09.729",
+          "rule_snapshot": {
+            "name": "费用报表默认规则",
+            "ruleId": 4,
+            "version": 1,
+            "reportId": "rpt-expense-claim",
+            "expression": "amount > 1000",
+            "companyCode": "*",
+            "description": "报销单金额大于 1000 元需要派单"
+          }
+        }
+      ],
+      "total": 7,
+      "nextCursor": null
+    },
+    "audits": {
+      "records": [],
+      "total": 0,
+      "nextCursor": null
+    },
+    "messages": {
+      "records": [
+        {
+          "id": 14,
+          "conversation_id": "b68b1d5b5d834f95b6cfee559632fd83",
+          "user_id": "semantic_v3_a",
+          "role": "user",
+          "content": "查一下我有哪些可以派单",
+          "card_type": null,
+          "payload": null,
+          "tool_name": null,
+          "preview_id": null,
+          "plan_id": null,
+          "model": null,
+          "prompt_tokens": null,
+          "completion_tokens": null,
+          "latency_ms": null,
+          "created_at": "2026-10-06T17:11:36.265",
+          "tenant_id": "T001",
+          "evidence_id": 18,
+          "trace_id": null
+        },
+        {
+          "id": 15,
+          "conversation_id": "b68b1d5b5d834f95b6cfee559632fd83",
+          "user_id": "semantic_v3_a",
+          "role": "card",
+          "content": null,
+          "card_type": "preview",
+          "payload": {
+            "total": 9,
+            "status": "ACTIVE",
+            "records": [
+              {
+                "date": "2026-01-15",
+                "docNo": "SO2026001",
+                "label": "服务器",
+                "amount": 128000.0,
+                "ruleId": 1,
+                "recordId": "1",
+                "reportId": "rpt-sales-order",
+                "ruleName": "销售报表默认规则",
+                "reportName": "销售报表",
+                "companyCode": "A",
+                "ruleVersion": 1,
+                "counterparty": null,
+                "catalogVersion": 1,
+                "ruleDescription": "销售订单金额大于 20 元需要派单"
+              },
+              {
+                "date": "2026-02-08",
+                "docNo": "SO2026002",
+                "label": "交换机",
+                "amount": 32000.0,
+                "ruleId": 1,
+                "recordId": "2",
+                "reportId": "rpt-sales-order",
+                "ruleName": "销售报表默认规则",
+                "reportName": "销售报表",
+                "companyCode": "A",
+                "ruleVersion": 1,
+                "counterparty": null,
+                "catalogVersion": 1,
+                "ruleDescription": "销售订单金额大于 20 元需要派单"
+              },
+              {
+                "date": "2026-04-05",
+                "docNo": "SO2026007",
+                "label": "云服务",
+                "amount": 96000.0,
+                "ruleId": 1,
+                "recordId": "3",
+                "reportId": "rpt-sales-order",
+                "ruleName": "销售报表默认规则",
+                "reportName": "销售报表",
+                "companyCode": "A",
+                "ruleVersion": 1,
+                "counterparty": null,
+                "catalogVersion": 1,
+                "ruleDescription": "销售订单金额大于 20 元需要派单"
+              },
+              {
+                "date": "2026-05-10",
+                "docNo": "INV-2026-0007",
+                "label": "天津某某贸易有限公司",
+                "amount": 12.5,
+                "ruleId": 3,
+                "recordId": "3",
+                "reportId": "rpt-ar-invoice",
+                "ruleName": "应收报表默认规则",
+                "reportName": "应收报表",
+                "companyCode": "A",
+                "ruleVersion": 1,
+                "counterparty": {
+                  "id": "CUST-003",
+                  "name": "天津某某贸易有限公司",
+                  "aliases": [
+                    "天津某某贸易"
+                  ]
+                },
+                "catalogVersion": 1,
+                "ruleDescription": "应收发票金额小于 20 元需要派单（小额应收集中催收）"
+              },
+              {
+                "date": "2026-06-01",
+                "docNo": "INV-2026-0008",
+                "label": "北京某某咨询有限公司",
+                "amount": 8,
+                "ruleId": 3,
+                "recordId": "4",
+                "reportId": "rpt-ar-invoice",
+                "ruleName": "应收报表默认规则",
+                "reportName": "应收报表",
+                "companyCode": "A",
+                "ruleVersion": 1,
+                "counterparty": {
+                  "id": "CUST-004",
+                  "name": "北京某某咨询有限公司",
+                  "aliases": [
+                    "北京某某咨询"
+                  ]
+                },
+                "catalogVersion": 1,
+                "ruleDescription": "应收发票金额小于 20 元需要派单（小额应收集中催收）"
+              },
+              {
+                "date": "2026-10-06",
+                "docNo": "INV-V3-DEMO-1",
+                "label": "青岚设备有限公司",
+                "amount": 11,
+                "ruleId": 3,
+                "recordId": "11",
+                "reportId": "rpt-ar-invoice",
+                "ruleName": "应收报表默认规则",
+                "reportName": "应收报表",
+                "companyCode": "A",
+                "ruleVersion": 1,
+                "counterparty": {
+                  "id": "DEMO-V3-QINGLAN",
+                  "name": "青岚设备有限公司",
+                  "aliases": [
+                    "青岚设备"
+                  ]
+                },
+                "catalogVersion": 1,
+                "ruleDescription": "应收发票金额小于 20 元需要派单（小额应收集中催收）"
+              },
+              {
+                "date": "2026-10-06",
+                "docNo": "INV-V3-DEMO-2",
+                "label": "青岚设备有限公司",
+                "amount": 12,
+                "ruleId": 3,
+                "recordId": "12",
+                "reportId": "rpt-ar-invoice",
+                "ruleName": "应收报表默认规则",
+                "reportName": "应收报表",
+                "companyCode": "A",
+                "ruleVersion": 1,
+                "counterparty": {
+                  "id": "DEMO-V3-QINGLAN",
+                  "name": "青岚设备有限公司",
+                  "aliases": [
+                    "青岚设备"
+                  ]
+                },
+                "catalogVersion": 1,
+                "ruleDescription": "应收发票金额小于 20 元需要派单（小额应收集中催收）"
+              },
+              {
+                "date": "2026-01-09",
+                "docNo": "EXP-2026-0001",
+                "label": "差旅费",
+                "amount": 8600.0,
+                "ruleId": 4,
+                "recordId": "1",
+                "reportId": "rpt-expense-claim",
+                "ruleName": "费用报表默认规则",
+                "reportName": "费用报表",
+                "companyCode": "A",
+                "ruleVersion": 1,
+                "counterparty": null,
+                "catalogVersion": 1,
+                "ruleDescription": "报销单金额大于 1000 元需要派单"
+              },
+              {
+                "date": "2026-02-14",
+                "docNo": "EXP-2026-0002",
+                "label": "业务招待费",
+                "amount": 3200.0,
+                "ruleId": 4,
+                "recordId": "2",
+                "reportId": "rpt-expense-claim",
+                "ruleName": "费用报表默认规则",
+                "reportName": "费用报表",
+                "companyCode": "A",
+                "ruleVersion": 1,
+                "counterparty": null,
+                "catalogVersion": 1,
+                "ruleDescription": "报销单金额大于 1000 元需要派单"
+              }
+            ],
+            "byReport": [
+              {
+                "count": 3,
+                "amount": 256000,
+                "reportId": "rpt-sales-order",
+                "reportName": "销售报表"
+              },
+              {
+                "count": 4,
+                "amount": 43.5,
+                "reportId": "rpt-ar-invoice",
+                "reportName": "应收报表"
+              },
+              {
+                "count": 2,
+                "amount": 11800,
+                "reportId": "rpt-expense-claim",
+                "reportName": "费用报表"
+              }
+            ],
+            "createdAt": "2026-10-06T17:11:39.3039959",
+            "expiresAt": "2026-10-06T17:41:39.3039959",
+            "previewId": "e3a716b247894d2a8e38eadb78646584",
+            "resolution": {
+              "query": null,
+              "matchType": "ALL",
+              "matchedTerms": [],
+              "unrecognized": []
+            },
+            "totalAmount": 267843.5,
+            "ruleDescriptions": {
+              "rpt-ar-invoice": "应收发票金额小于 20 元需要派单（小额应收集中催收）",
+              "rpt-sales-order": "销售订单金额大于 20 元需要派单",
+              "rpt-expense-claim": "报销单金额大于 1000 元需要派单"
+            }
+          },
+          "tool_name": null,
+          "preview_id": "e3a716b247894d2a8e38eadb78646584",
+          "plan_id": null,
+          "model": null,
+          "prompt_tokens": null,
+          "completion_tokens": null,
+          "latency_ms": null,
+          "created_at": "2026-10-06T17:11:39.304",
+          "tenant_id": "T001",
+          "evidence_id": 19,
+          "trace_id": null
+        },
+        {
+          "id": 16,
+          "conversation_id": "b68b1d5b5d834f95b6cfee559632fd83",
+          "user_id": "semantic_v3_a",
+          "role": "assistant",
+          "content": "当前预览共 9 条，已排除 0 条。",
+          "card_type": null,
+          "payload": null,
+          "tool_name": null,
+          "preview_id": null,
+          "plan_id": null,
+          "model": null,
+          "prompt_tokens": null,
+          "completion_tokens": null,
+          "latency_ms": 3139,
+          "created_at": "2026-10-06T17:11:39.404",
+          "tenant_id": "T001",
+          "evidence_id": 21,
+          "trace_id": null
+        },
+        {
+          "id": 22,
+          "conversation_id": "b68b1d5b5d834f95b6cfee559632fd83",
+          "user_id": "semantic_v3_a",
+          "role": "user",
+          "content": "应收里面青岚设备的单子这轮都不要，其他照旧",
+          "card_type": null,
+          "payload": null,
+          "tool_name": null,
+          "preview_id": null,
+          "plan_id": null,
+          "model": null,
+          "prompt_tokens": null,
+          "completion_tokens": null,
+          "latency_ms": null,
+          "created_at": "2026-10-06T17:12:07.39",
+          "tenant_id": "T001",
+          "evidence_id": 28,
+          "trace_id": null
+        },
+        {
+          "id": 23,
+          "conversation_id": "b68b1d5b5d834f95b6cfee559632fd83",
+          "user_id": "semantic_v3_a",
+          "role": "assistant",
+          "content": "当前预览共 9 条，已排除 2 条。",
+          "card_type": null,
+          "payload": null,
+          "tool_name": null,
+          "preview_id": null,
+          "plan_id": null,
+          "model": null,
+          "prompt_tokens": null,
+          "completion_tokens": null,
+          "latency_ms": 2382,
+          "created_at": "2026-10-06T17:12:09.773",
+          "tenant_id": "T001",
+          "evidence_id": 29,
+          "trace_id": null
+        },
+        {
+          "id": 24,
+          "conversation_id": "b68b1d5b5d834f95b6cfee559632fd83",
+          "user_id": "semantic_v3_a",
+          "role": "user",
+          "content": "给剩下的记录生成待确认派单清单",
+          "card_type": null,
+          "payload": null,
+          "tool_name": null,
+          "preview_id": null,
+          "plan_id": null,
+          "model": null,
+          "prompt_tokens": null,
+          "completion_tokens": null,
+          "latency_ms": null,
+          "created_at": "2026-10-06T17:13:07.108",
+          "tenant_id": "T001",
+          "evidence_id": 30,
+          "trace_id": null
+        },
+        {
+          "id": 25,
+          "conversation_id": "b68b1d5b5d834f95b6cfee559632fd83",
+          "user_id": "semantic_v3_a",
+          "role": "card",
+          "content": null,
+          "card_type": "plan",
+          "payload": {
+            "count": 7,
+            "planId": "95d2d605e6e64cf2a425b83c195c7e6b",
+            "status": "PENDING",
+            "records": [
+              {
+                "date": "2026-01-15",
+                "docNo": "SO2026001",
+                "label": "服务器",
+                "amount": 128000.0,
+                "ruleId": 1,
+                "recordId": "1",
+                "reportId": "rpt-sales-order",
+                "ruleName": "销售报表默认规则",
+                "reportName": "销售报表",
+                "companyCode": "A",
+                "ruleVersion": 1,
+                "counterparty": null,
+                "catalogVersion": 1,
+                "ruleDescription": null
+              },
+              {
+                "date": "2026-02-08",
+                "docNo": "SO2026002",
+                "label": "交换机",
+                "amount": 32000.0,
+                "ruleId": 1,
+                "recordId": "2",
+                "reportId": "rpt-sales-order",
+                "ruleName": "销售报表默认规则",
+                "reportName": "销售报表",
+                "companyCode": "A",
+                "ruleVersion": 1,
+                "counterparty": null,
+                "catalogVersion": 1,
+                "ruleDescription": null
+              },
+              {
+                "date": "2026-04-05",
+                "docNo": "SO2026007",
+                "label": "云服务",
+                "amount": 96000.0,
+                "ruleId": 1,
+                "recordId": "3",
+                "reportId": "rpt-sales-order",
+                "ruleName": "销售报表默认规则",
+                "reportName": "销售报表",
+                "companyCode": "A",
+                "ruleVersion": 1,
+                "counterparty": null,
+                "catalogVersion": 1,
+                "ruleDescription": null
+              },
+              {
+                "date": "2026-05-10",
+                "docNo": "INV-2026-0007",
+                "label": "天津某某贸易有限公司",
+                "amount": 12.5,
+                "ruleId": 3,
+                "recordId": "3",
+                "reportId": "rpt-ar-invoice",
+                "ruleName": "应收报表默认规则",
+                "reportName": "应收报表",
+                "companyCode": "A",
+                "ruleVersion": 1,
+                "counterparty": {
+                  "id": "CUST-003",
+                  "name": "天津某某贸易有限公司",
+                  "aliases": [
+                    "天津某某贸易"
+                  ]
+                },
+                "catalogVersion": 1,
+                "ruleDescription": null
+              },
+              {
+                "date": "2026-06-01",
+                "docNo": "INV-2026-0008",
+                "label": "北京某某咨询有限公司",
+                "amount": 8.0,
+                "ruleId": 3,
+                "recordId": "4",
+                "reportId": "rpt-ar-invoice",
+                "ruleName": "应收报表默认规则",
+                "reportName": "应收报表",
+                "companyCode": "A",
+                "ruleVersion": 1,
+                "counterparty": {
+                  "id": "CUST-004",
+                  "name": "北京某某咨询有限公司",
+                  "aliases": [
+                    "北京某某咨询"
+                  ]
+                },
+                "catalogVersion": 1,
+                "ruleDescription": null
+              },
+              {
+                "date": "2026-01-09",
+                "docNo": "EXP-2026-0001",
+                "label": "差旅费",
+                "amount": 8600.0,
+                "ruleId": 4,
+                "recordId": "1",
+                "reportId": "rpt-expense-claim",
+                "ruleName": "费用报表默认规则",
+                "reportName": "费用报表",
+                "companyCode": "A",
+                "ruleVersion": 1,
+                "counterparty": null,
+                "catalogVersion": 1,
+                "ruleDescription": null
+              },
+              {
+                "date": "2026-02-14",
+                "docNo": "EXP-2026-0002",
+                "label": "业务招待费",
+                "amount": 3200.0,
+                "ruleId": 4,
+                "recordId": "2",
+                "reportId": "rpt-expense-claim",
+                "ruleName": "费用报表默认规则",
+                "reportName": "费用报表",
+                "companyCode": "A",
+                "ruleVersion": 1,
+                "counterparty": null,
+                "catalogVersion": 1,
+                "ruleDescription": null
+              }
+            ],
+            "excluded": [
+              "应收报表 / INV-V3-DEMO-1",
+              "应收报表 / INV-V3-DEMO-2"
+            ],
+            "expiresAt": "2026-10-06T17:23:09.7287874",
+            "previewId": "e3a716b247894d2a8e38eadb78646584"
+          },
+          "tool_name": null,
+          "preview_id": "e3a716b247894d2a8e38eadb78646584",
+          "plan_id": "95d2d605e6e64cf2a425b83c195c7e6b",
+          "model": null,
+          "prompt_tokens": null,
+          "completion_tokens": null,
+          "latency_ms": null,
+          "created_at": "2026-10-06T17:13:09.729",
+          "tenant_id": "T001",
+          "evidence_id": 32,
+          "trace_id": null
+        },
+        {
+          "id": 26,
+          "conversation_id": "b68b1d5b5d834f95b6cfee559632fd83",
+          "user_id": "semantic_v3_a",
+          "role": "assistant",
+          "content": "已生成待确认清单，共 7 条。请核对卡片并点击“确认派单”后执行。",
+          "card_type": null,
+          "payload": null,
+          "tool_name": null,
+          "preview_id": null,
+          "plan_id": null,
+          "model": null,
+          "prompt_tokens": null,
+          "completion_tokens": null,
+          "latency_ms": 2689,
+          "created_at": "2026-10-06T17:13:09.797",
+          "tenant_id": "T001",
+          "evidence_id": 34,
+          "trace_id": null
+        }
+      ],
+      "total": 8,
+      "nextCursor": null
+    },
+    "events": {
+      "records": [
+        {
+          "id": 18,
+          "event_key": "9db69a4343284af1c8c901bd4628d4a96483c57acb583cd378fca57cf73b87f0",
+          "tenant_id": "T001",
+          "user_id": "semantic_v3_a",
+          "conversation_id": "b68b1d5b5d834f95b6cfee559632fd83",
+          "preview_id": null,
+          "plan_id": null,
+          "event_type": "MESSAGE",
+          "plan_item_id": null,
+          "execution_version": null,
+          "attempt_count": null,
+          "phase": null,
+          "outcome": null,
+          "payload": {
+            "message": {
+              "id": null,
+              "role": "user",
+              "model": null,
+              "planId": null,
+              "userId": "semantic_v3_a",
+              "content": "查一下我有哪些可以派单",
+              "payload": null,
+              "traceId": null,
+              "cardType": null,
+              "tenantId": "T001",
+              "toolName": null,
+              "createdAt": "2026-10-06T17:11:36.264775",
+              "latencyMs": null,
+              "previewId": null,
+              "evidenceId": null,
+              "promptTokens": null,
+              "conversationId": "b68b1d5b5d834f95b6cfee559632fd83",
+              "completionTokens": null
+            },
+            "maybeTitle": true
+          },
+          "created_at": "2026-10-06T17:11:36.265",
+          "delivery_status": "DELIVERED",
+          "delivery_attempts": 0,
+          "next_attempt_at": "2026-10-06T17:11:36.267",
+          "delivered_at": "2026-10-06T17:11:36.279"
+        },
+        {
+          "id": 19,
+          "event_key": "000010ab304bbe19dcc93cae6b84e3862d451eb97eda85aac21a352ac2ea079b",
+          "tenant_id": "T001",
+          "user_id": "semantic_v3_a",
+          "conversation_id": "b68b1d5b5d834f95b6cfee559632fd83",
+          "preview_id": "e3a716b247894d2a8e38eadb78646584",
+          "plan_id": null,
+          "event_type": "MESSAGE",
+          "plan_item_id": null,
+          "execution_version": null,
+          "attempt_count": null,
+          "phase": null,
+          "outcome": null,
+          "payload": {
+            "message": {
+              "id": null,
+              "role": "card",
+              "model": null,
+              "planId": null,
+              "userId": "semantic_v3_a",
+              "content": null,
+              "payload": "{\"previewId\":\"e3a716b247894d2a8e38eadb78646584\",\"status\":\"ACTIVE\",\"total\":9,\"totalAmount\":267843.5,\"byReport\":[{\"reportId\":\"rpt-sales-order\",\"reportName\":\"销售报表\",\"count\":3,\"amount\":256000},{\"reportId\":\"rpt-ar-invoice\",\"reportName\":\"应收报表\",\"count\":4,\"amount\":43.5},{\"reportId\":\"rpt-expense-claim\",\"reportName\":\"费用报表\",\"count\":2,\"amount\":11800}],\"records\":[{\"reportId\":\"rpt-sales-order\",\"reportName\":\"销售报表\",\"recordId\":\"1\",\"docNo\":\"SO2026001\",\"companyCode\":\"A\",\"label\":\"服务器\",\"amount\":1.28E+5,\"date\":\"2026-01-15\",\"ruleId\":1,\"ruleName\":\"销售报表默认规则\",\"ruleVersion\":1,\"ruleDescription\":\"销售订单金额大于 20 元需要派单\",\"catalogVersion\":1,\"counterparty\":null},{\"reportId\":\"rpt-sales-order\",\"reportName\":\"销售报表\",\"recordId\":\"2\",\"docNo\":\"SO2026002\",\"companyCode\":\"A\",\"label\":\"交换机\",\"amount\":3.2E+4,\"date\":\"2026-02-08\",\"ruleId\":1,\"ruleName\":\"销售报表默认规则\",\"ruleVersion\":1,\"ruleDescription\":\"销售订单金额大于 20 元需要派单\",\"catalogVersion\":1,\"counterparty\":null},{\"reportId\":\"rpt-sales-order\",\"reportName\":\"销售报表\",\"recordId\":\"3\",\"docNo\":\"SO2026007\",\"companyCode\":\"A\",\"label\":\"云服务\",\"amount\":9.6E+4,\"date\":\"2026-04-05\",\"ruleId\":1,\"ruleName\":\"销售报表默认规则\",\"ruleVersion\":1,\"ruleDescription\":\"销售订单金额大于 20 元需要派单\",\"catalogVersion\":1,\"counterparty\":null},{\"reportId\":\"rpt-ar-invoice\",\"reportName\":\"应收报表\",\"recordId\":\"3\",\"docNo\":\"INV-2026-0007\",\"companyCode\":\"A\",\"label\":\"天津某某贸易有限公司\",\"amount\":12.5,\"date\":\"2026-05-10\",\"ruleId\":3,\"ruleName\":\"应收报表默认规则\",\"ruleVersion\":1,\"ruleDescription\":\"应收发票金额小于 20 元需要派单（小额应收集中催收）\",\"catalogVersion\":1,\"counterparty\":{\"id\":\"CUST-003\",\"name\":\"天津某某贸易有限公司\",\"aliases\":[\"天津某某贸易\"]}},{\"reportId\":\"rpt-ar-invoice\",\"reportName\":\"应收报表\",\"recordId\":\"4\",\"docNo\":\"INV-2026-0008\",\"companyCode\":\"A\",\"label\":\"北京某某咨询有限公司\",\"amount\":8,\"date\":\"2026-06-01\",\"ruleId\":3,\"ruleName\":\"应收报表默认规则\",\"ruleVersion\":1,\"ruleDescription\":\"应收发票金额小于 20 元需要派单（小额应收集中催收）\",\"catalogVersion\":1,\"counterparty\":{\"id\":\"CUST-004\",\"name\":\"北京某某咨询有限公司\",\"aliases\":[\"北京某某咨询\"]}},{\"reportId\":\"rpt-ar-invoice\",\"reportName\":\"应收报表\",\"recordId\":\"11\",\"docNo\":\"INV-V3-DEMO-1\",\"companyCode\":\"A\",\"label\":\"青岚设备有限公司\",\"amount\":11,\"date\":\"2026-10-06\",\"ruleId\":3,\"ruleName\":\"应收报表默认规则\",\"ruleVersion\":1,\"ruleDescription\":\"应收发票金额小于 20 元需要派单（小额应收集中催收）\",\"catalogVersion\":1,\"counterparty\":{\"id\":\"DEMO-V3-QINGLAN\",\"name\":\"青岚设备有限公司\",\"aliases\":[\"青岚设备\"]}},{\"reportId\":\"rpt-ar-invoice\",\"reportName\":\"应收报表\",\"recordId\":\"12\",\"docNo\":\"INV-V3-DEMO-2\",\"companyCode\":\"A\",\"label\":\"青岚设备有限公司\",\"amount\":12,\"date\":\"2026-10-06\",\"ruleId\":3,\"ruleName\":\"应收报表默认规则\",\"ruleVersion\":1,\"ruleDescription\":\"应收发票金额小于 20 元需要派单（小额应收集中催收）\",\"catalogVersion\":1,\"counterparty\":{\"id\":\"DEMO-V3-QINGLAN\",\"name\":\"青岚设备有限公司\",\"aliases\":[\"青岚设备\"]}},{\"reportId\":\"rpt-expense-claim\",\"reportName\":\"费用报表\",\"recordId\":\"1\",\"docNo\":\"EXP-2026-0001\",\"companyCode\":\"A\",\"label\":\"差旅费\",\"amount\":8.6E+3,\"date\":\"2026-01-09\",\"ruleId\":4,\"ruleName\":\"费用报表默认规则\",\"ruleVersion\":1,\"ruleDescription\":\"报销单金额大于 1000 元需要派单\",\"catalogVersion\":1,\"counterparty\":null},{\"reportId\":\"rpt-expense-claim\",\"reportName\":\"费用报表\",\"recordId\":\"2\",\"docNo\":\"EXP-2026-0002\",\"companyCode\":\"A\",\"label\":\"业务招待费\",\"amount\":3.2E+3,\"date\":\"2026-02-14\",\"ruleId\":4,\"ruleName\":\"费用报表默认规则\",\"ruleVersion\":1,\"ruleDescription\":\"报销单金额大于 1000 元需要派单\",\"catalogVersion\":1,\"counterparty\":null}],\"ruleDescriptions\":{\"rpt-sales-order\":\"销售订单金额大于 20 元需要派单\",\"rpt-ar-invoice\":\"应收发票金额小于 20 元需要派单（小额应收集中催收）\",\"rpt-expense-claim\":\"报销单金额大于 1000 元需要派单\"},\"resolution\":{\"matchType\":\"ALL\",\"query\":null,\"matchedTerms\":[],\"unrecognized\":[]},\"createdAt\":\"2026-10-06T17:11:39.3039959\",\"expiresAt\":\"2026-10-06T17:41:39.3039959\"}",
+              "traceId": null,
+              "cardType": "preview",
+              "tenantId": "T001",
+              "toolName": null,
+              "createdAt": "2026-10-06T17:11:39.3039959",
+              "latencyMs": null,
+              "previewId": "e3a716b247894d2a8e38eadb78646584",
+              "evidenceId": null,
+              "promptTokens": null,
+              "conversationId": "b68b1d5b5d834f95b6cfee559632fd83",
+              "completionTokens": null
+            },
+            "maybeTitle": false
+          },
+          "created_at": "2026-10-06T17:11:39.304",
+          "delivery_status": "DELIVERED",
+          "delivery_attempts": 0,
+          "next_attempt_at": "2026-10-06T17:11:39.323",
+          "delivered_at": "2026-10-06T17:11:39.383"
+        },
+        {
+          "id": 21,
+          "event_key": "eee5ffcebbfaae45f794b8bfb49f8b94155f027046dd072f05e1d52e5f77f292",
+          "tenant_id": "T001",
+          "user_id": "semantic_v3_a",
+          "conversation_id": "b68b1d5b5d834f95b6cfee559632fd83",
+          "preview_id": null,
+          "plan_id": null,
+          "event_type": "MESSAGE",
+          "plan_item_id": null,
+          "execution_version": null,
+          "attempt_count": null,
+          "phase": null,
+          "outcome": null,
+          "payload": {
+            "message": {
+              "id": null,
+              "role": "assistant",
+              "model": null,
+              "planId": null,
+              "userId": "semantic_v3_a",
+              "content": "当前预览共 9 条，已排除 0 条。",
+              "payload": null,
+              "traceId": null,
+              "cardType": null,
+              "tenantId": "T001",
+              "toolName": null,
+              "createdAt": "2026-10-06T17:11:39.4040001",
+              "latencyMs": 3139,
+              "previewId": null,
+              "evidenceId": null,
+              "promptTokens": null,
+              "conversationId": "b68b1d5b5d834f95b6cfee559632fd83",
+              "completionTokens": null
+            },
+            "maybeTitle": false
+          },
+          "created_at": "2026-10-06T17:11:39.404",
+          "delivery_status": "DELIVERED",
+          "delivery_attempts": 0,
+          "next_attempt_at": "2026-10-06T17:11:39.405",
+          "delivered_at": "2026-10-06T17:11:39.413"
+        },
+        {
+          "id": 28,
+          "event_key": "85c720d968c433ea063e9f29924690ba2618500001f53122551c1ca039a33c86",
+          "tenant_id": "T001",
+          "user_id": "semantic_v3_a",
+          "conversation_id": "b68b1d5b5d834f95b6cfee559632fd83",
+          "preview_id": null,
+          "plan_id": null,
+          "event_type": "MESSAGE",
+          "plan_item_id": null,
+          "execution_version": null,
+          "attempt_count": null,
+          "phase": null,
+          "outcome": null,
+          "payload": {
+            "message": {
+              "id": null,
+              "role": "user",
+              "model": null,
+              "planId": null,
+              "userId": "semantic_v3_a",
+              "content": "应收里面青岚设备的单子这轮都不要，其他照旧",
+              "payload": null,
+              "traceId": null,
+              "cardType": null,
+              "tenantId": "T001",
+              "toolName": null,
+              "createdAt": "2026-10-06T17:12:07.3899071",
+              "latencyMs": null,
+              "previewId": null,
+              "evidenceId": null,
+              "promptTokens": null,
+              "conversationId": "b68b1d5b5d834f95b6cfee559632fd83",
+              "completionTokens": null
+            },
+            "maybeTitle": true
+          },
+          "created_at": "2026-10-06T17:12:07.39",
+          "delivery_status": "DELIVERED",
+          "delivery_attempts": 0,
+          "next_attempt_at": "2026-10-06T17:12:07.391",
+          "delivered_at": "2026-10-06T17:12:07.398"
+        },
+        {
+          "id": 29,
+          "event_key": "c5bb2b225ad7c856e8aec600d355b1daaf2f0d3eb266700c66b3d3a501cb79bb",
+          "tenant_id": "T001",
+          "user_id": "semantic_v3_a",
+          "conversation_id": "b68b1d5b5d834f95b6cfee559632fd83",
+          "preview_id": null,
+          "plan_id": null,
+          "event_type": "MESSAGE",
+          "plan_item_id": null,
+          "execution_version": null,
+          "attempt_count": null,
+          "phase": null,
+          "outcome": null,
+          "payload": {
+            "message": {
+              "id": null,
+              "role": "assistant",
+              "model": null,
+              "planId": null,
+              "userId": "semantic_v3_a",
+              "content": "当前预览共 9 条，已排除 2 条。",
+              "payload": null,
+              "traceId": null,
+              "cardType": null,
+              "tenantId": "T001",
+              "toolName": null,
+              "createdAt": "2026-10-06T17:12:09.7729112",
+              "latencyMs": 2382,
+              "previewId": null,
+              "evidenceId": null,
+              "promptTokens": null,
+              "conversationId": "b68b1d5b5d834f95b6cfee559632fd83",
+              "completionTokens": null
+            },
+            "maybeTitle": false
+          },
+          "created_at": "2026-10-06T17:12:09.773",
+          "delivery_status": "DELIVERED",
+          "delivery_attempts": 0,
+          "next_attempt_at": "2026-10-06T17:12:09.773",
+          "delivered_at": "2026-10-06T17:12:09.781"
+        },
+        {
+          "id": 30,
+          "event_key": "264e371dd8a2a5b18feee0c0fa67851cd7b1aaf1cfc4a5e86efd5136264e34df",
+          "tenant_id": "T001",
+          "user_id": "semantic_v3_a",
+          "conversation_id": "b68b1d5b5d834f95b6cfee559632fd83",
+          "preview_id": null,
+          "plan_id": null,
+          "event_type": "MESSAGE",
+          "plan_item_id": null,
+          "execution_version": null,
+          "attempt_count": null,
+          "phase": null,
+          "outcome": null,
+          "payload": {
+            "message": {
+              "id": null,
+              "role": "user",
+              "model": null,
+              "planId": null,
+              "userId": "semantic_v3_a",
+              "content": "给剩下的记录生成待确认派单清单",
+              "payload": null,
+              "traceId": null,
+              "cardType": null,
+              "tenantId": "T001",
+              "toolName": null,
+              "createdAt": "2026-10-06T17:13:07.107897",
+              "latencyMs": null,
+              "previewId": null,
+              "evidenceId": null,
+              "promptTokens": null,
+              "conversationId": "b68b1d5b5d834f95b6cfee559632fd83",
+              "completionTokens": null
+            },
+            "maybeTitle": true
+          },
+          "created_at": "2026-10-06T17:13:07.108",
+          "delivery_status": "DELIVERED",
+          "delivery_attempts": 0,
+          "next_attempt_at": "2026-10-06T17:13:07.11",
+          "delivered_at": "2026-10-06T17:13:07.124"
+        },
+        {
+          "id": 31,
+          "event_key": "509b50a22012a6f51ea63fdd84e1ed71fcfdd1e4b9b530d0ba8d1cacdabf3146",
+          "tenant_id": "T001",
+          "user_id": "semantic_v3_a",
+          "conversation_id": "b68b1d5b5d834f95b6cfee559632fd83",
+          "preview_id": "e3a716b247894d2a8e38eadb78646584",
+          "plan_id": "95d2d605e6e64cf2a425b83c195c7e6b",
+          "event_type": "PLAN",
+          "plan_item_id": null,
+          "execution_version": null,
+          "attempt_count": null,
+          "phase": null,
+          "outcome": null,
+          "payload": {
+            "plan": {
+              "id": "95d2d605e6e64cf2a425b83c195c7e6b",
+              "status": "PENDING",
+              "userId": "semantic_v3_a",
+              "tenantId": "T001",
+              "createdAt": "2026-10-06T17:13:09.7287874",
+              "expiresAt": "2026-10-06T17:23:09.7287874",
+              "itemCount": 7,
+              "previewId": "e3a716b247894d2a8e38eadb78646584",
+              "updatedAt": "2026-10-06T17:13:09.7287874",
+              "finishedAt": null,
+              "confirmedAt": null,
+              "confirmedBy": null,
+              "excludeJson": "[\"应收报表 / INV-V3-DEMO-1\",\"应收报表 / INV-V3-DEMO-2\"]",
+              "failedCount": 0,
+              "statusReason": null,
+              "successCount": 0,
+              "conversationId": "b68b1d5b5d834f95b6cfee559632fd83",
+              "idempotencyKey": "semantic:9104844982af4bae84c44b0cad8f8919",
+              "evidenceVersion": 1,
+              "executionVersion": 0
+            },
+            "action": "CREATED"
+          },
+          "created_at": "2026-10-06T17:13:09.746",
+          "delivery_status": "DELIVERED",
+          "delivery_attempts": 0,
+          "next_attempt_at": "2026-10-06T17:13:09.747",
+          "delivered_at": null
+        },
+        {
+          "id": 32,
+          "event_key": "2c0f87854c3c196fa41b72fe0ca869f7ace0535ed87fc17c2b65f14525c0d480",
+          "tenant_id": "T001",
+          "user_id": "semantic_v3_a",
+          "conversation_id": "b68b1d5b5d834f95b6cfee559632fd83",
+          "preview_id": "e3a716b247894d2a8e38eadb78646584",
+          "plan_id": "95d2d605e6e64cf2a425b83c195c7e6b",
+          "event_type": "MESSAGE",
+          "plan_item_id": null,
+          "execution_version": null,
+          "attempt_count": null,
+          "phase": null,
+          "outcome": null,
+          "payload": {
+            "message": {
+              "id": null,
+              "role": "card",
+              "model": null,
+              "planId": "95d2d605e6e64cf2a425b83c195c7e6b",
+              "userId": "semantic_v3_a",
+              "content": null,
+              "payload": "{\"planId\":\"95d2d605e6e64cf2a425b83c195c7e6b\",\"previewId\":\"e3a716b247894d2a8e38eadb78646584\",\"status\":\"PENDING\",\"count\":7,\"excluded\":[\"应收报表 / INV-V3-DEMO-1\",\"应收报表 / INV-V3-DEMO-2\"],\"records\":[{\"reportId\":\"rpt-sales-order\",\"reportName\":\"销售报表\",\"recordId\":\"1\",\"docNo\":\"SO2026001\",\"companyCode\":\"A\",\"label\":\"服务器\",\"amount\":128000.00,\"date\":\"2026-01-15\",\"ruleId\":1,\"ruleName\":\"销售报表默认规则\",\"ruleVersion\":1,\"ruleDescription\":null,\"catalogVersion\":1,\"counterparty\":null},{\"reportId\":\"rpt-sales-order\",\"reportName\":\"销售报表\",\"recordId\":\"2\",\"docNo\":\"SO2026002\",\"companyCode\":\"A\",\"label\":\"交换机\",\"amount\":32000.00,\"date\":\"2026-02-08\",\"ruleId\":1,\"ruleName\":\"销售报表默认规则\",\"ruleVersion\":1,\"ruleDescription\":null,\"catalogVersion\":1,\"counterparty\":null},{\"reportId\":\"rpt-sales-order\",\"reportName\":\"销售报表\",\"recordId\":\"3\",\"docNo\":\"SO2026007\",\"companyCode\":\"A\",\"label\":\"云服务\",\"amount\":96000.00,\"date\":\"2026-04-05\",\"ruleId\":1,\"ruleName\":\"销售报表默认规则\",\"ruleVersion\":1,\"ruleDescription\":null,\"catalogVersion\":1,\"counterparty\":null},{\"reportId\":\"rpt-ar-invoice\",\"reportName\":\"应收报表\",\"recordId\":\"3\",\"docNo\":\"INV-2026-0007\",\"companyCode\":\"A\",\"label\":\"天津某某贸易有限公司\",\"amount\":12.50,\"date\":\"2026-05-10\",\"ruleId\":3,\"ruleName\":\"应收报表默认规则\",\"ruleVersion\":1,\"ruleDescription\":null,\"catalogVersion\":1,\"counterparty\":{\"id\":\"CUST-003\",\"name\":\"天津某某贸易有限公司\",\"aliases\":[\"天津某某贸易\"]}},{\"reportId\":\"rpt-ar-invoice\",\"reportName\":\"应收报表\",\"recordId\":\"4\",\"docNo\":\"INV-2026-0008\",\"companyCode\":\"A\",\"label\":\"北京某某咨询有限公司\",\"amount\":8.00,\"date\":\"2026-06-01\",\"ruleId\":3,\"ruleName\":\"应收报表默认规则\",\"ruleVersion\":1,\"ruleDescription\":null,\"catalogVersion\":1,\"counterparty\":{\"id\":\"CUST-004\",\"name\":\"北京某某咨询有限公司\",\"aliases\":[\"北京某某咨询\"]}},{\"reportId\":\"rpt-expense-claim\",\"reportName\":\"费用报表\",\"recordId\":\"1\",\"docNo\":\"EXP-2026-0001\",\"companyCode\":\"A\",\"label\":\"差旅费\",\"amount\":8600.00,\"date\":\"2026-01-09\",\"ruleId\":4,\"ruleName\":\"费用报表默认规则\",\"ruleVersion\":1,\"ruleDescription\":null,\"catalogVersion\":1,\"counterparty\":null},{\"reportId\":\"rpt-expense-claim\",\"reportName\":\"费用报表\",\"recordId\":\"2\",\"docNo\":\"EXP-2026-0002\",\"companyCode\":\"A\",\"label\":\"业务招待费\",\"amount\":3200.00,\"date\":\"2026-02-14\",\"ruleId\":4,\"ruleName\":\"费用报表默认规则\",\"ruleVersion\":1,\"ruleDescription\":null,\"catalogVersion\":1,\"counterparty\":null}],\"expiresAt\":\"2026-10-06T17:23:09.7287874\"}",
+              "traceId": null,
+              "cardType": "plan",
+              "tenantId": "T001",
+              "toolName": null,
+              "createdAt": "2026-10-06T17:13:09.7287874",
+              "latencyMs": null,
+              "previewId": "e3a716b247894d2a8e38eadb78646584",
+              "evidenceId": null,
+              "promptTokens": null,
+              "conversationId": "b68b1d5b5d834f95b6cfee559632fd83",
+              "completionTokens": null
+            },
+            "maybeTitle": false
+          },
+          "created_at": "2026-10-06T17:13:09.729",
+          "delivery_status": "DELIVERED",
+          "delivery_attempts": 0,
+          "next_attempt_at": "2026-10-06T17:13:09.752",
+          "delivered_at": "2026-10-06T17:13:09.775"
+        },
+        {
+          "id": 34,
+          "event_key": "574eec1a1dc54c8f970a1ec1631d8922dd6668ec0db3feb7664f27584e077e43",
+          "tenant_id": "T001",
+          "user_id": "semantic_v3_a",
+          "conversation_id": "b68b1d5b5d834f95b6cfee559632fd83",
+          "preview_id": null,
+          "plan_id": null,
+          "event_type": "MESSAGE",
+          "plan_item_id": null,
+          "execution_version": null,
+          "attempt_count": null,
+          "phase": null,
+          "outcome": null,
+          "payload": {
+            "message": {
+              "id": null,
+              "role": "assistant",
+              "model": null,
+              "planId": null,
+              "userId": "semantic_v3_a",
+              "content": "已生成待确认清单，共 7 条。请核对卡片并点击“确认派单”后执行。",
+              "payload": null,
+              "traceId": null,
+              "cardType": null,
+              "tenantId": "T001",
+              "toolName": null,
+              "createdAt": "2026-10-06T17:13:09.7973378",
+              "latencyMs": 2689,
+              "previewId": null,
+              "evidenceId": null,
+              "promptTokens": null,
+              "conversationId": "b68b1d5b5d834f95b6cfee559632fd83",
+              "completionTokens": null
+            },
+            "maybeTitle": false
+          },
+          "created_at": "2026-10-06T17:13:09.797",
+          "delivery_status": "DELIVERED",
+          "delivery_attempts": 0,
+          "next_attempt_at": "2026-10-06T17:13:09.798",
+          "delivered_at": "2026-10-06T17:13:09.806"
+        }
+      ],
+      "total": 9,
+      "nextCursor": null
+    }
+  },
+  "checks": [
+    {
+      "name": "Only current customer records are excluded by stable identity",
+      "passed": true
+    },
+    {
+      "name": "All reports and original preview remain active",
+      "passed": true
+    },
+    {
+      "name": "Plan contains exactly seven remaining records",
+      "passed": true
+    },
+    {
+      "name": "No dispatch confirmation or attempts",
+      "passed": true
+    }
+  ],
+  "scope": "Browser real-model and authenticated HTTP MCP on dedicated V3 Demo database",
+  "date": "2026-10-06",
+  "preview": {
+    "previewId": "e3a716b247894d2a8e38eadb78646584",
+    "status": "ACTIVE",
+    "total": 9,
+    "totalAmount": 267843.5,
+    "byReport": [
+      {
+        "reportId": "rpt-sales-order",
+        "reportName": "销售报表",
+        "count": 3,
+        "amount": 256000
+      },
+      {
+        "reportId": "rpt-ar-invoice",
+        "reportName": "应收报表",
+        "count": 4,
+        "amount": 43.5
+      },
+      {
+        "reportId": "rpt-expense-claim",
+        "reportName": "费用报表",
+        "count": 2,
+        "amount": 11800
+      }
+    ],
+    "records": [
+      {
+        "reportId": "rpt-sales-order",
+        "reportName": "销售报表",
+        "recordId": "1",
+        "docNo": "SO2026001",
+        "companyCode": "A",
+        "label": "服务器",
+        "amount": 128000.0,
+        "date": "2026-01-15",
+        "ruleId": 1,
+        "ruleName": "销售报表默认规则",
+        "ruleVersion": 1,
+        "ruleDescription": "销售订单金额大于 20 元需要派单",
+        "catalogVersion": 1,
+        "counterparty": null
+      },
+      {
+        "reportId": "rpt-sales-order",
+        "reportName": "销售报表",
+        "recordId": "2",
+        "docNo": "SO2026002",
+        "companyCode": "A",
+        "label": "交换机",
+        "amount": 32000.0,
+        "date": "2026-02-08",
+        "ruleId": 1,
+        "ruleName": "销售报表默认规则",
+        "ruleVersion": 1,
+        "ruleDescription": "销售订单金额大于 20 元需要派单",
+        "catalogVersion": 1,
+        "counterparty": null
+      },
+      {
+        "reportId": "rpt-sales-order",
+        "reportName": "销售报表",
+        "recordId": "3",
+        "docNo": "SO2026007",
+        "companyCode": "A",
+        "label": "云服务",
+        "amount": 96000.0,
+        "date": "2026-04-05",
+        "ruleId": 1,
+        "ruleName": "销售报表默认规则",
+        "ruleVersion": 1,
+        "ruleDescription": "销售订单金额大于 20 元需要派单",
+        "catalogVersion": 1,
+        "counterparty": null
+      },
+      {
+        "reportId": "rpt-ar-invoice",
+        "reportName": "应收报表",
+        "recordId": "3",
+        "docNo": "INV-2026-0007",
+        "companyCode": "A",
+        "label": "天津某某贸易有限公司",
+        "amount": 12.5,
+        "date": "2026-05-10",
+        "ruleId": 3,
+        "ruleName": "应收报表默认规则",
+        "ruleVersion": 1,
+        "ruleDescription": "应收发票金额小于 20 元需要派单（小额应收集中催收）",
+        "catalogVersion": 1,
+        "counterparty": {
+          "id": "CUST-003",
+          "name": "天津某某贸易有限公司",
+          "aliases": [
+            "天津某某贸易"
+          ]
+        }
+      },
+      {
+        "reportId": "rpt-ar-invoice",
+        "reportName": "应收报表",
+        "recordId": "4",
+        "docNo": "INV-2026-0008",
+        "companyCode": "A",
+        "label": "北京某某咨询有限公司",
+        "amount": 8.0,
+        "date": "2026-06-01",
+        "ruleId": 3,
+        "ruleName": "应收报表默认规则",
+        "ruleVersion": 1,
+        "ruleDescription": "应收发票金额小于 20 元需要派单（小额应收集中催收）",
+        "catalogVersion": 1,
+        "counterparty": {
+          "id": "CUST-004",
+          "name": "北京某某咨询有限公司",
+          "aliases": [
+            "北京某某咨询"
+          ]
+        }
+      },
+      {
+        "reportId": "rpt-ar-invoice",
+        "reportName": "应收报表",
+        "recordId": "11",
+        "docNo": "INV-V3-DEMO-1",
+        "companyCode": "A",
+        "label": "青岚设备有限公司",
+        "amount": 11.0,
+        "date": "2026-10-06",
+        "ruleId": 3,
+        "ruleName": "应收报表默认规则",
+        "ruleVersion": 1,
+        "ruleDescription": "应收发票金额小于 20 元需要派单（小额应收集中催收）",
+        "catalogVersion": 1,
+        "counterparty": {
+          "id": "DEMO-V3-QINGLAN",
+          "name": "青岚设备有限公司",
+          "aliases": [
+            "青岚设备"
+          ]
+        }
+      },
+      {
+        "reportId": "rpt-ar-invoice",
+        "reportName": "应收报表",
+        "recordId": "12",
+        "docNo": "INV-V3-DEMO-2",
+        "companyCode": "A",
+        "label": "青岚设备有限公司",
+        "amount": 12.0,
+        "date": "2026-10-06",
+        "ruleId": 3,
+        "ruleName": "应收报表默认规则",
+        "ruleVersion": 1,
+        "ruleDescription": "应收发票金额小于 20 元需要派单（小额应收集中催收）",
+        "catalogVersion": 1,
+        "counterparty": {
+          "id": "DEMO-V3-QINGLAN",
+          "name": "青岚设备有限公司",
+          "aliases": [
+            "青岚设备"
+          ]
+        }
+      },
+      {
+        "reportId": "rpt-expense-claim",
+        "reportName": "费用报表",
+        "recordId": "1",
+        "docNo": "EXP-2026-0001",
+        "companyCode": "A",
+        "label": "差旅费",
+        "amount": 8600.0,
+        "date": "2026-01-09",
+        "ruleId": 4,
+        "ruleName": "费用报表默认规则",
+        "ruleVersion": 1,
+        "ruleDescription": "报销单金额大于 1000 元需要派单",
+        "catalogVersion": 1,
+        "counterparty": null
+      },
+      {
+        "reportId": "rpt-expense-claim",
+        "reportName": "费用报表",
+        "recordId": "2",
+        "docNo": "EXP-2026-0002",
+        "companyCode": "A",
+        "label": "业务招待费",
+        "amount": 3200.0,
+        "date": "2026-02-14",
+        "ruleId": 4,
+        "ruleName": "费用报表默认规则",
+        "ruleVersion": 1,
+        "ruleDescription": "报销单金额大于 1000 元需要派单",
+        "catalogVersion": 1,
+        "counterparty": null
+      }
+    ],
+    "ruleDescriptions": {
+      "rpt-ar-invoice": "应收发票金额小于 20 元需要派单（小额应收集中催收）",
+      "rpt-sales-order": "销售订单金额大于 20 元需要派单",
+      "rpt-expense-claim": "报销单金额大于 1000 元需要派单"
+    },
+    "resolution": {
+      "matchType": "ALL",
+      "query": null,
+      "matchedTerms": [],
+      "unrecognized": []
+    },
+    "createdAt": "2026-10-06T17:11:39.304",
+    "expiresAt": "2026-10-06T17:41:39.304"
+  },
+  "messages": [
+    {
+      "id": 14,
+      "role": "user",
+      "content": "查一下我有哪些可以派单",
+      "cardType": null,
+      "payload": null,
+      "previewId": null,
+      "planId": null,
+      "createdAt": "2026-10-06T17:11:36.265",
+      "status": null,
+      "statusMessage": null
+    },
+    {
+      "id": 15,
+      "role": "card",
+      "content": null,
+      "cardType": "preview",
+      "payload": {
+        "total": 9,
+        "status": "ACTIVE",
+        "records": [
+          {
+            "date": "2026-01-15",
+            "docNo": "SO2026001",
+            "label": "服务器",
+            "amount": 128000.0,
+            "ruleId": 1,
+            "recordId": "1",
+            "reportId": "rpt-sales-order",
+            "ruleName": "销售报表默认规则",
+            "reportName": "销售报表",
+            "companyCode": "A",
+            "ruleVersion": 1,
+            "counterparty": null,
+            "catalogVersion": 1,
+            "ruleDescription": "销售订单金额大于 20 元需要派单"
+          },
+          {
+            "date": "2026-02-08",
+            "docNo": "SO2026002",
+            "label": "交换机",
+            "amount": 32000.0,
+            "ruleId": 1,
+            "recordId": "2",
+            "reportId": "rpt-sales-order",
+            "ruleName": "销售报表默认规则",
+            "reportName": "销售报表",
+            "companyCode": "A",
+            "ruleVersion": 1,
+            "counterparty": null,
+            "catalogVersion": 1,
+            "ruleDescription": "销售订单金额大于 20 元需要派单"
+          },
+          {
+            "date": "2026-04-05",
+            "docNo": "SO2026007",
+            "label": "云服务",
+            "amount": 96000.0,
+            "ruleId": 1,
+            "recordId": "3",
+            "reportId": "rpt-sales-order",
+            "ruleName": "销售报表默认规则",
+            "reportName": "销售报表",
+            "companyCode": "A",
+            "ruleVersion": 1,
+            "counterparty": null,
+            "catalogVersion": 1,
+            "ruleDescription": "销售订单金额大于 20 元需要派单"
+          },
+          {
+            "date": "2026-05-10",
+            "docNo": "INV-2026-0007",
+            "label": "天津某某贸易有限公司",
+            "amount": 12.5,
+            "ruleId": 3,
+            "recordId": "3",
+            "reportId": "rpt-ar-invoice",
+            "ruleName": "应收报表默认规则",
+            "reportName": "应收报表",
+            "companyCode": "A",
+            "ruleVersion": 1,
+            "counterparty": {
+              "id": "CUST-003",
+              "name": "天津某某贸易有限公司",
+              "aliases": [
+                "天津某某贸易"
+              ]
+            },
+            "catalogVersion": 1,
+            "ruleDescription": "应收发票金额小于 20 元需要派单（小额应收集中催收）"
+          },
+          {
+            "date": "2026-06-01",
+            "docNo": "INV-2026-0008",
+            "label": "北京某某咨询有限公司",
+            "amount": 8,
+            "ruleId": 3,
+            "recordId": "4",
+            "reportId": "rpt-ar-invoice",
+            "ruleName": "应收报表默认规则",
+            "reportName": "应收报表",
+            "companyCode": "A",
+            "ruleVersion": 1,
+            "counterparty": {
+              "id": "CUST-004",
+              "name": "北京某某咨询有限公司",
+              "aliases": [
+                "北京某某咨询"
+              ]
+            },
+            "catalogVersion": 1,
+            "ruleDescription": "应收发票金额小于 20 元需要派单（小额应收集中催收）"
+          },
+          {
+            "date": "2026-10-06",
+            "docNo": "INV-V3-DEMO-1",
+            "label": "青岚设备有限公司",
+            "amount": 11,
+            "ruleId": 3,
+            "recordId": "11",
+            "reportId": "rpt-ar-invoice",
+            "ruleName": "应收报表默认规则",
+            "reportName": "应收报表",
+            "companyCode": "A",
+            "ruleVersion": 1,
+            "counterparty": {
+              "id": "DEMO-V3-QINGLAN",
+              "name": "青岚设备有限公司",
+              "aliases": [
+                "青岚设备"
+              ]
+            },
+            "catalogVersion": 1,
+            "ruleDescription": "应收发票金额小于 20 元需要派单（小额应收集中催收）"
+          },
+          {
+            "date": "2026-10-06",
+            "docNo": "INV-V3-DEMO-2",
+            "label": "青岚设备有限公司",
+            "amount": 12,
+            "ruleId": 3,
+            "recordId": "12",
+            "reportId": "rpt-ar-invoice",
+            "ruleName": "应收报表默认规则",
+            "reportName": "应收报表",
+            "companyCode": "A",
+            "ruleVersion": 1,
+            "counterparty": {
+              "id": "DEMO-V3-QINGLAN",
+              "name": "青岚设备有限公司",
+              "aliases": [
+                "青岚设备"
+              ]
+            },
+            "catalogVersion": 1,
+            "ruleDescription": "应收发票金额小于 20 元需要派单（小额应收集中催收）"
+          },
+          {
+            "date": "2026-01-09",
+            "docNo": "EXP-2026-0001",
+            "label": "差旅费",
+            "amount": 8600.0,
+            "ruleId": 4,
+            "recordId": "1",
+            "reportId": "rpt-expense-claim",
+            "ruleName": "费用报表默认规则",
+            "reportName": "费用报表",
+            "companyCode": "A",
+            "ruleVersion": 1,
+            "counterparty": null,
+            "catalogVersion": 1,
+            "ruleDescription": "报销单金额大于 1000 元需要派单"
+          },
+          {
+            "date": "2026-02-14",
+            "docNo": "EXP-2026-0002",
+            "label": "业务招待费",
+            "amount": 3200.0,
+            "ruleId": 4,
+            "recordId": "2",
+            "reportId": "rpt-expense-claim",
+            "ruleName": "费用报表默认规则",
+            "reportName": "费用报表",
+            "companyCode": "A",
+            "ruleVersion": 1,
+            "counterparty": null,
+            "catalogVersion": 1,
+            "ruleDescription": "报销单金额大于 1000 元需要派单"
+          }
+        ],
+        "byReport": [
+          {
+            "count": 3,
+            "amount": 256000,
+            "reportId": "rpt-sales-order",
+            "reportName": "销售报表"
+          },
+          {
+            "count": 4,
+            "amount": 43.5,
+            "reportId": "rpt-ar-invoice",
+            "reportName": "应收报表"
+          },
+          {
+            "count": 2,
+            "amount": 11800,
+            "reportId": "rpt-expense-claim",
+            "reportName": "费用报表"
+          }
+        ],
+        "createdAt": "2026-10-06T17:11:39.3039959",
+        "expiresAt": "2026-10-06T17:41:39.3039959",
+        "previewId": "e3a716b247894d2a8e38eadb78646584",
+        "resolution": {
+          "query": null,
+          "matchType": "ALL",
+          "matchedTerms": [],
+          "unrecognized": []
+        },
+        "totalAmount": 267843.5,
+        "ruleDescriptions": {
+          "rpt-ar-invoice": "应收发票金额小于 20 元需要派单（小额应收集中催收）",
+          "rpt-sales-order": "销售订单金额大于 20 元需要派单",
+          "rpt-expense-claim": "报销单金额大于 1000 元需要派单"
+        }
+      },
+      "previewId": "e3a716b247894d2a8e38eadb78646584",
+      "planId": null,
+      "createdAt": "2026-10-06T17:11:39.304",
+      "status": "ACTIVE",
+      "statusMessage": null
+    },
+    {
+      "id": 16,
+      "role": "assistant",
+      "content": "当前预览共 9 条，已排除 0 条。",
+      "cardType": null,
+      "payload": null,
+      "previewId": null,
+      "planId": null,
+      "createdAt": "2026-10-06T17:11:39.404",
+      "status": null,
+      "statusMessage": null
+    },
+    {
+      "id": 22,
+      "role": "user",
+      "content": "应收里面青岚设备的单子这轮都不要，其他照旧",
+      "cardType": null,
+      "payload": null,
+      "previewId": null,
+      "planId": null,
+      "createdAt": "2026-10-06T17:12:07.39",
+      "status": null,
+      "statusMessage": null
+    },
+    {
+      "id": 23,
+      "role": "assistant",
+      "content": "当前预览共 9 条，已排除 2 条。",
+      "cardType": null,
+      "payload": null,
+      "previewId": null,
+      "planId": null,
+      "createdAt": "2026-10-06T17:12:09.773",
+      "status": null,
+      "statusMessage": null
+    },
+    {
+      "id": 24,
+      "role": "user",
+      "content": "给剩下的记录生成待确认派单清单",
+      "cardType": null,
+      "payload": null,
+      "previewId": null,
+      "planId": null,
+      "createdAt": "2026-10-06T17:13:07.108",
+      "status": null,
+      "statusMessage": null
+    },
+    {
+      "id": 25,
+      "role": "card",
+      "content": null,
+      "cardType": "plan",
+      "payload": {
+        "count": 7,
+        "planId": "95d2d605e6e64cf2a425b83c195c7e6b",
+        "status": "PENDING",
+        "records": [
+          {
+            "date": "2026-01-15",
+            "docNo": "SO2026001",
+            "label": "服务器",
+            "amount": 128000.0,
+            "ruleId": 1,
+            "recordId": "1",
+            "reportId": "rpt-sales-order",
+            "ruleName": "销售报表默认规则",
+            "reportName": "销售报表",
+            "companyCode": "A",
+            "ruleVersion": 1,
+            "counterparty": null,
+            "catalogVersion": 1,
+            "ruleDescription": null
+          },
+          {
+            "date": "2026-02-08",
+            "docNo": "SO2026002",
+            "label": "交换机",
+            "amount": 32000.0,
+            "ruleId": 1,
+            "recordId": "2",
+            "reportId": "rpt-sales-order",
+            "ruleName": "销售报表默认规则",
+            "reportName": "销售报表",
+            "companyCode": "A",
+            "ruleVersion": 1,
+            "counterparty": null,
+            "catalogVersion": 1,
+            "ruleDescription": null
+          },
+          {
+            "date": "2026-04-05",
+            "docNo": "SO2026007",
+            "label": "云服务",
+            "amount": 96000.0,
+            "ruleId": 1,
+            "recordId": "3",
+            "reportId": "rpt-sales-order",
+            "ruleName": "销售报表默认规则",
+            "reportName": "销售报表",
+            "companyCode": "A",
+            "ruleVersion": 1,
+            "counterparty": null,
+            "catalogVersion": 1,
+            "ruleDescription": null
+          },
+          {
+            "date": "2026-05-10",
+            "docNo": "INV-2026-0007",
+            "label": "天津某某贸易有限公司",
+            "amount": 12.5,
+            "ruleId": 3,
+            "recordId": "3",
+            "reportId": "rpt-ar-invoice",
+            "ruleName": "应收报表默认规则",
+            "reportName": "应收报表",
+            "companyCode": "A",
+            "ruleVersion": 1,
+            "counterparty": {
+              "id": "CUST-003",
+              "name": "天津某某贸易有限公司",
+              "aliases": [
+                "天津某某贸易"
+              ]
+            },
+            "catalogVersion": 1,
+            "ruleDescription": null
+          },
+          {
+            "date": "2026-06-01",
+            "docNo": "INV-2026-0008",
+            "label": "北京某某咨询有限公司",
+            "amount": 8.0,
+            "ruleId": 3,
+            "recordId": "4",
+            "reportId": "rpt-ar-invoice",
+            "ruleName": "应收报表默认规则",
+            "reportName": "应收报表",
+            "companyCode": "A",
+            "ruleVersion": 1,
+            "counterparty": {
+              "id": "CUST-004",
+              "name": "北京某某咨询有限公司",
+              "aliases": [
+                "北京某某咨询"
+              ]
+            },
+            "catalogVersion": 1,
+            "ruleDescription": null
+          },
+          {
+            "date": "2026-01-09",
+            "docNo": "EXP-2026-0001",
+            "label": "差旅费",
+            "amount": 8600.0,
+            "ruleId": 4,
+            "recordId": "1",
+            "reportId": "rpt-expense-claim",
+            "ruleName": "费用报表默认规则",
+            "reportName": "费用报表",
+            "companyCode": "A",
+            "ruleVersion": 1,
+            "counterparty": null,
+            "catalogVersion": 1,
+            "ruleDescription": null
+          },
+          {
+            "date": "2026-02-14",
+            "docNo": "EXP-2026-0002",
+            "label": "业务招待费",
+            "amount": 3200.0,
+            "ruleId": 4,
+            "recordId": "2",
+            "reportId": "rpt-expense-claim",
+            "ruleName": "费用报表默认规则",
+            "reportName": "费用报表",
+            "companyCode": "A",
+            "ruleVersion": 1,
+            "counterparty": null,
+            "catalogVersion": 1,
+            "ruleDescription": null
+          }
+        ],
+        "excluded": [
+          "应收报表 / INV-V3-DEMO-1",
+          "应收报表 / INV-V3-DEMO-2"
+        ],
+        "expiresAt": "2026-10-06T17:23:09.7287874",
+        "previewId": "e3a716b247894d2a8e38eadb78646584"
+      },
+      "previewId": "e3a716b247894d2a8e38eadb78646584",
+      "planId": "95d2d605e6e64cf2a425b83c195c7e6b",
+      "createdAt": "2026-10-06T17:13:09.729",
+      "status": "PENDING",
+      "statusMessage": null
+    },
+    {
+      "id": 26,
+      "role": "assistant",
+      "content": "已生成待确认清单，共 7 条。请核对卡片并点击“确认派单”后执行。",
+      "cardType": null,
+      "payload": null,
+      "previewId": null,
+      "planId": null,
+      "createdAt": "2026-10-06T17:13:09.797",
+      "status": null,
+      "statusMessage": null
+    }
+  ],
+  "confirmedDispatches": 0,
+  "conversationId": "b68b1d5b5d834f95b6cfee559632fd83",
+  "browserReloadObserved": true
+}

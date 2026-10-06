@@ -106,6 +106,12 @@ public class McpConfiguration {
         Map<String,Object> p=new LinkedHashMap<>();
         for(String k:List.of("reportId","reportName","recordId","docNo","companyCode","label","date","ruleName","ruleDescription")) p.put(k,Map.of("type",List.of("string","null"),"maxLength",2000));
         for(String k:List.of("amount","ruleId","ruleVersion","catalogVersion")) p.put(k,Map.of("type",List.of("number","null")));
-        return Map.of("type","object","properties",p,"additionalProperties",false,"required",List.of("reportId","recordId","companyCode","catalogVersion"));
+        // 客户实体来自已确认快照，提交时再次核对；别名不是模型生成的执行标识。
+        p.put("counterparty",Map.of("type",List.of("object","null"),"properties",props("id",str(),"name",str(),"aliases",array(32)),
+                "additionalProperties",false,"required",List.of("id","name","aliases")));
+        // 字段事实随确认清单冻结，业务服务对照原始快照拒绝提交方篡改。
+        p.put("fields",Map.of("type","array","maxItems",128,"items",Map.of("type","object","additionalProperties",false,
+                "properties",props("name",str(),"type",str(),"value",Map.of("type",List.of("string","null"),"maxLength",4096)),"required",List.of("name","type","value"))));
+        return Map.of("type","object","properties",p,"additionalProperties",false,"required",List.of("reportId","recordId","companyCode","catalogVersion","fields"));
     }
 }

@@ -23,6 +23,10 @@ import java.util.Collection;
 @Service
 public class DispatchCandidateService {
 
+    @org.springframework.beans.factory.annotation.Value("${agent.preview.max-scanned-rows:100000}")
+    private int maxScannedRows = 100000;
+    @org.springframework.beans.factory.annotation.Value("${agent.preview.max-scan-seconds:120}")
+    private int maxScanSeconds = 120;
     private final RuleCache ruleCache;
     private final RuleEngine ruleEngine;
 
@@ -35,11 +39,10 @@ public class DispatchCandidateService {
         return report.fields();
     }
 
-    /** Recheck only the IDs in an already bounded plan, without scanning the entire report. */
+    /** 仅复核有界清单中的记录；规则异常必须上抛，不能把不完整资格集合用于执行。 */
     public Set<String> qualifiedPlanKeys(String tenantId, Set<String> companies, List<CatalogEntry> reports,
                                          Map<String, ? extends Collection<String>> recordIds) {
         Set<String> qualified = new HashSet<>();
-        EvalErrors errors = new EvalErrors();
         for (CatalogEntry report : reports) {
             if (!java.util.Objects.equals(tenantId, report.tenantId()) || !report.usable()) continue;
             Collection<String> ids = recordIds.get(report.reportId());
@@ -51,14 +54,13 @@ public class DispatchCandidateService {
                 for (FactRow row : rows) {
                     if (!companies.contains(row.companyCode())) continue;
                     Optional<DispatchRule> rule = ruleCache.find(tenantId, report.reportId(), row.companyCode());
-                    if (rule.isPresent() && matchesSafely(rule.get().getExpression(), row, rule.get().getName(), errors)) {
+                    if (rule.isPresent() && matchesRequired(rule.get().getExpression(), row)) {
                         qualified.add(toCandidate(report, row, rule.get().getId(), rule.get().getName(),
                                 rule.get().getVersion(), rule.get().getDescription()).key());
                     }
                 }
             }
         }
-        if (errors.count > 0) log.warn("派单复核规则求值失败 {} 行，首条：{}", errors.count, errors.sample);
         return qualified;
     }
 
@@ -68,18 +70,14 @@ public class DispatchCandidateService {
     }
 
     public List<Candidate> findCandidates(String tenantId, Set<String> companies, List<CatalogEntry> reports, int maxMatches) {
-        return findCandidates(tenantId, companies, reports, maxMatches, List.of());
+        return findCandidates(tenantId, companies, reports, maxMatches, scanned -> { });
     }
 
-    public List<Candidate> findCandidates(String tenantId, Set<String> companies, List<CatalogEntry> reports,
-                                          int maxMatches, List<String> excludes) {
-        return findCandidates(tenantId, companies, reports, maxMatches, excludes, scanned -> { });
-    }
 
     public List<Candidate> findCandidates(String tenantId, Set<String> companies, List<CatalogEntry> reports,
-                                          int maxMatches, List<String> excludes, java.util.function.IntConsumer progress) {
+                                          int maxMatches, java.util.function.IntConsumer progress) {
         List<Candidate> result = new ArrayList<>();
-        visitCandidates(tenantId, companies, reports, excludes, progress, candidate -> {
+        visitCandidates(tenantId, companies, reports, progress, candidate -> {
             result.add(candidate);
             return result.size() < maxMatches;
         });
@@ -88,22 +86,21 @@ public class DispatchCandidateService {
 
     /** 有界游标扫描授权范围内的待派单事实并逐条输出匹配候选；进度表示扫描数，不能作为最终命中数量。 */
     public void scanCandidates(String tenantId, Set<String> companies, List<CatalogEntry> reports,
-    List<String> excludes, java.util.function.IntConsumer progress,
+    java.util.function.IntConsumer progress,
                                java.util.function.Consumer<Candidate> consumer) {
-        visitCandidates(tenantId, companies, reports, excludes, progress, candidate -> {
+        visitCandidates(tenantId, companies, reports, progress, candidate -> {
             consumer.accept(candidate);
             return true;
         });
     }
 
-    /** 每页最多500条并在本地完整复核规则；SQL下推只作安全粗筛，求值异常按未命中统计，不能错误派单。*/
+    /** 全部扫描受行数和时限预算约束；任一行规则求值失败即终止，部分候选不能激活为完整预览。 */
     private void visitCandidates(String tenantId, Set<String> companies, List<CatalogEntry> reports,
-                                 List<String> excludes, java.util.function.IntConsumer progress,
+                                 java.util.function.IntConsumer progress,
                                  java.util.function.Predicate<Candidate> visitor) {
         int scanned = 0;
-        List<String> keys = excludes == null ? List.of() : excludes.stream().filter(java.util.Objects::nonNull)
-                .map(String::trim).filter(s -> !s.isEmpty()).toList();
-        EvalErrors errors = new EvalErrors();
+        if(maxScannedRows<1 || maxScanSeconds<1)throw new IllegalStateException("查询预算必须为正数");
+        long deadline=System.nanoTime()+java.util.concurrent.TimeUnit.SECONDS.toNanos(maxScanSeconds);
         outer:
         for (CatalogEntry report : reports) {
             if (!java.util.Objects.equals(tenantId, report.tenantId()) || !report.usable()) {
@@ -114,29 +111,47 @@ public class DispatchCandidateService {
                 if (rule.isEmpty()) continue;
                 DispatchRule active = rule.get();
                 String afterId = null;
+                Set<String> cursors=new HashSet<>();
+                // 扫描预算同时限制该集合内存；拒绝跨页重复，不能重复计数或构造重复清单。
+                Set<String> seenIds=new HashSet<>();
                 while (true) {
-                    if (Thread.currentThread().isInterrupted()) throw new IllegalStateException("查询已取消");
+                    checkScanBudget(deadline,scanned);
                     List<FactRow> page = report.adapter().pendingRowsAfterWithRule(tenantId, Set.of(company),
                             afterId, 500, active.getExpression());
-                    scanned += page.size();
+                    if(page.size()>500)throw new com.example.report.common.ApiException(502,"报表来源未遵守分页上限，未生成预览");
+                    scanned = Math.addExact(scanned,page.size());
+                    checkScanBudget(deadline,scanned);
                     progress.accept(scanned);
                     for (FactRow row : page) {
-                        if (!company.equals(row.companyCode())) continue;
-                        if (matchesSafely(active.getExpression(), row, active.getName(), errors)) {
-                            if (keys.stream().anyMatch(k -> k.equalsIgnoreCase(row.docNo())
-                                    || (row.label() != null && row.label().contains(k)))) continue;
+                        checkScanBudget(deadline,scanned);
+                        if(row.recordId()==null || row.recordId().isBlank() || !seenIds.add(row.recordId()) || !company.equals(row.companyCode()))
+                            throw new com.example.report.common.ApiException(502,"报表来源记录标识或范围无效，未生成预览");
+                        if (matchesRequired(active.getExpression(), row)) {
                             if (!visitor.test(toCandidate(report, row, active.getId(), active.getName(),
                                     active.getVersion(), active.getDescription()))) break outer;
                         }
                     }
                     if (page.size() < 500) break;
-                    afterId = page.get(page.size() - 1).recordId();
+                    String next=page.get(page.size() - 1).recordId();
+                    if(!cursors.add(next))throw new com.example.report.common.ApiException(502,"报表来源游标未前进，未生成预览");
+                    afterId = next;
                 }
             }
         }
-        if (errors.count > 0) {
-            // 只汇总告警一次，避免逐行刷日志
-            log.warn("派单规则求值失败 {} 行，已按不命中处理，首条：{}", errors.count, errors.sample);
+        checkScanBudget(deadline,scanned);
+    }
+
+    /** 超限只报告失败；部分扫描结果不具有业务完整性，不能返回给用户继续建单。 */
+    private void checkScanBudget(long deadline,int scanned) {
+        if(Thread.currentThread().isInterrupted() || System.nanoTime()-deadline>=0)
+            throw new com.example.report.common.ApiException(408,"查询超时或已取消，未生成完整预览，请缩小范围后重试");
+        if(scanned>maxScannedRows)throw new com.example.report.common.ApiException(422,"查询扫描量超过限制，未生成完整预览，请缩小范围后重试");
+    }
+    /** 规则失败与不命中必须分开；只允许正常布尔结果决定业务记录是否入选。 */
+    private boolean matchesRequired(String expression,FactRow row) {
+        try { return ruleEngine.matches(expression,row.facts()); }
+        catch(RuntimeException invalid) {
+            throw new com.example.report.common.ApiException(422,"来源字段或规则计算异常，查询结果不完整，请联系管理员检查规则或数据后重新查询");
         }
     }
 
@@ -188,7 +203,7 @@ public class DispatchCandidateService {
         }
     }
 
-    /** 单行求值出错按不命中处理：一行脏数据（例如空字段上调字符串函数）不能拖垮整次查询*/
+    /** 仅供管理员试算收集求值错误；调用方必须展示错误数，普通业务预览不得使用此路径。 */
     private boolean matchesSafely(String expression, FactRow row, String ruleName, EvalErrors errors) {
         try {
             return ruleEngine.matches(expression, row.facts());
@@ -201,7 +216,7 @@ public class DispatchCandidateService {
     public static Candidate toCandidate(CatalogEntry report, FactRow row, Long ruleId, String ruleName, Integer ruleVersion,
                                         String description) {
         return new Candidate(report.reportId(), report.reportName(), row.recordId(), row.docNo(), row.companyCode(),
-                row.label(), row.amount(), row.date(), ruleId, ruleName, ruleVersion, description, report.catalogVersion());
+                row.label(), row.amount(), row.date(), ruleId, ruleName, ruleVersion, description, report.catalogVersion(), CounterpartyRef.fromFacts(row.facts()), FieldFact.capture(report.fields(),row.facts()));
     }
 
     /**

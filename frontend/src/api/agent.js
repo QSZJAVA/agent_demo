@@ -42,9 +42,14 @@ export function fetchDialogueSelection(conversationId) {
   return http.get(`/agent/conversations/${conversationId}/selection`)
 }
 
+/** 保存绑定预览的手动选择；旧集合用于并发比较，不允许迟到请求覆盖其他页面。 */
+export function saveDialogueSelection(conversationId, selection) {
+  return http.put(`/agent/conversations/${conversationId}/selection`, selection)
+}
+
 /** 在报表选择卡片上选定报表后创建预览（服务端重新按权限校验） */
-export function createPreview({ conversationId, reportIds, companyCode, excludeDocNos, scopeMode }) {
-  return http.post('/dispatch/previews', { conversationId, reportIds, companyCode, excludeDocNos, scopeMode })
+export function createPreview({ conversationId, reportIds, companyCode, scopeMode }) {
+  return http.post('/dispatch/previews', { conversationId, reportIds, companyCode, scopeMode })
 }
 
 export function fetchPreviewItems(previewId, page = 1, size = 50) {
@@ -112,9 +117,9 @@ export function retryTraceDelivery(planId) {
 /**
  * 对话（SSE over fetch）。axios 不支持流式响应，这里用原生 fetch 读 ReadableStream。
  * onEvent(type, data) 逐个事件回调；返回 abort 函数。
- * excludeDocNos 是 previewId 那张预览卡片上取消勾选的单据号，服务端只在派单用的正是这张预览时才采用。
+ * excludedRecords 是绑定 previewId 的复合记录键，服务端验证其快照归属。
  */
-export function streamChat({ conversationId, message, excludeDocNos, excludedRecords, previewId }, onEvent) {
+export function streamChat({ conversationId, message, excludedRecords, previewId }, onEvent) {
   const controller = new AbortController()
   const run = async () => {
     const sessionToken = getSessionToken()
@@ -125,7 +130,7 @@ export function streamChat({ conversationId, message, excludeDocNos, excludedRec
         Accept: 'text/event-stream',
         ...authHeaders()
       },
-      body: JSON.stringify({ conversationId, message, excludeDocNos, excludedRecords, previewId }),
+      body: JSON.stringify({ conversationId, message, excludedRecords, previewId }),
       signal: controller.signal
     })
     if (!response.ok) {

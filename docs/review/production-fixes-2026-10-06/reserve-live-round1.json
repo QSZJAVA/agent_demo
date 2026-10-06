@@ -1,0 +1,549 @@
+{
+  "wrongReadyCount": 0,
+  "passed": 8,
+  "scope": "Real model and authenticated HTTP MCP; dedicated Demo records, no dispatch confirmation",
+  "date": "2026-10-06T21:51:39.5765041+08:00",
+  "initialPreviews": [
+    {
+      "previewId": "2d1fb8d2fca948f3bc4312d983e340b3",
+      "documents": [
+        "SO2026001",
+        "SO2026002",
+        "SO2026007",
+        "INV-2026-0007",
+        "INV-2026-0008",
+        "INV-V3-DEMO-1",
+        "INV-V3-DEMO-2",
+        "EXP-2026-0001",
+        "EXP-2026-0002"
+      ],
+      "scenario": "新问法-逐次排除与边界包含"
+    },
+    {
+      "previewId": "89d6fa463c3249a6b40564fa9117347d",
+      "documents": [
+        "SO2026001",
+        "SO2026002",
+        "SO2026007",
+        "INV-2026-0007",
+        "INV-2026-0008",
+        "INV-V3-DEMO-1",
+        "INV-V3-DEMO-2",
+        "EXP-2026-0001",
+        "EXP-2026-0002"
+      ],
+      "scenario": "新问法-限定保留与重新选上"
+    },
+    {
+      "previewId": "41e6e572a5264160a14954276884acca",
+      "documents": [
+        "SO2026001",
+        "SO2026002",
+        "SO2026007",
+        "INV-2026-0007",
+        "INV-2026-0008",
+        "INV-V3-DEMO-1",
+        "INV-V3-DEMO-2",
+        "EXP-2026-0001",
+        "EXP-2026-0002"
+      ],
+      "scenario": "新问法-金额及客户累计"
+    },
+    {
+      "previewId": "81445ec25b96406ebe5ce1723c732d7c",
+      "documents": [
+        "SO2026001",
+        "SO2026002",
+        "SO2026007",
+        "INV-2026-0007",
+        "INV-2026-0008",
+        "INV-V3-DEMO-1",
+        "INV-V3-DEMO-2",
+        "EXP-2026-0001",
+        "EXP-2026-0002"
+      ],
+      "scenario": "新问法-区间及本轮禁止建单"
+    }
+  ],
+  "cases": [
+    {
+      "actualDocuments": [
+        "SO2026002"
+      ],
+      "expectedDocuments": [
+        "SO2026002"
+      ],
+      "selection": {
+        "previewId": "2d1fb8d2fca948f3bc4312d983e340b3",
+        "excludedRecords": [
+          {
+            "reportId": "rpt-sales-order",
+            "recordId": "2"
+          }
+        ],
+        "phase": "READY"
+      },
+      "passed": true,
+      "expectedPhase": "READY",
+      "conversationId": "989f409dbbf1438b8ffc766547b00466",
+      "message": "销售报表金额不到三万三的别选，九万六千元整的仍然保留",
+      "previewId": "2d1fb8d2fca948f3bc4312d983e340b3",
+      "events": [
+        {
+          "data": {
+            "conversationId": "989f409dbbf1438b8ffc766547b00466",
+            "title": "查一下我有哪些可以派单",
+            "requestId": "8cc7fb0a079844aa89d0eefdb927e481"
+          },
+          "type": "conversation"
+        },
+        {
+          "data": {
+            "delta": "当前预览共 9 条，已排除 1 条。"
+          },
+          "type": "text"
+        },
+        {
+          "data": {
+            "previewId": "2d1fb8d2fca948f3bc4312d983e340b3",
+            "excludedRecords": [
+              {
+                "reportId": "rpt-sales-order",
+                "recordId": "2"
+              }
+            ],
+            "phase": "READY"
+          },
+          "type": "selection"
+        },
+        {
+          "data": {},
+          "type": "done"
+        }
+      ],
+      "scenario": "新问法-逐次排除与边界包含"
+    },
+    {
+      "actualDocuments": [
+        "SO2026001",
+        "SO2026002"
+      ],
+      "expectedDocuments": [
+        "SO2026001",
+        "SO2026002"
+      ],
+      "selection": {
+        "previewId": "2d1fb8d2fca948f3bc4312d983e340b3",
+        "excludedRecords": [
+          {
+            "reportId": "rpt-sales-order",
+            "recordId": "2"
+          },
+          {
+            "reportId": "rpt-sales-order",
+            "recordId": "1"
+          }
+        ],
+        "phase": "READY"
+      },
+      "passed": true,
+      "expectedPhase": "READY",
+      "conversationId": "989f409dbbf1438b8ffc766547b00466",
+      "message": "销售报表中金额为128000元的也不选",
+      "previewId": "2d1fb8d2fca948f3bc4312d983e340b3",
+      "events": [
+        {
+          "data": {
+            "conversationId": "989f409dbbf1438b8ffc766547b00466",
+            "title": "查一下我有哪些可以派单",
+            "requestId": "73c79968a96d48d6aaba79fdb1fde50f"
+          },
+          "type": "conversation"
+        },
+        {
+          "data": {
+            "delta": "当前预览共 9 条，已排除 2 条。"
+          },
+          "type": "text"
+        },
+        {
+          "data": {
+            "previewId": "2d1fb8d2fca948f3bc4312d983e340b3",
+            "excludedRecords": [
+              {
+                "reportId": "rpt-sales-order",
+                "recordId": "2"
+              },
+              {
+                "reportId": "rpt-sales-order",
+                "recordId": "1"
+              }
+            ],
+            "phase": "READY"
+          },
+          "type": "selection"
+        },
+        {
+          "data": {},
+          "type": "done"
+        }
+      ],
+      "scenario": "新问法-逐次排除与边界包含"
+    },
+    {
+      "actualDocuments": [
+        "EXP-2026-0001"
+      ],
+      "expectedDocuments": [
+        "EXP-2026-0001"
+      ],
+      "selection": {
+        "previewId": "89d6fa463c3249a6b40564fa9117347d",
+        "excludedRecords": [
+          {
+            "reportId": "rpt-expense-claim",
+            "recordId": "1"
+          }
+        ],
+        "phase": "READY"
+      },
+      "passed": true,
+      "expectedPhase": "READY",
+      "conversationId": "ae6104cb5df0413d91deeb7b37a1e8fb",
+      "message": "费用报表只选金额等于三千二百元的记录",
+      "previewId": "89d6fa463c3249a6b40564fa9117347d",
+      "events": [
+        {
+          "data": {
+            "conversationId": "ae6104cb5df0413d91deeb7b37a1e8fb",
+            "title": "查一下我有哪些可以派单",
+            "requestId": "18a2115d987a4364a97a55e681d81b3f"
+          },
+          "type": "conversation"
+        },
+        {
+          "data": {
+            "delta": "当前预览共 9 条，已排除 1 条。"
+          },
+          "type": "text"
+        },
+        {
+          "data": {
+            "previewId": "89d6fa463c3249a6b40564fa9117347d",
+            "excludedRecords": [
+              {
+                "reportId": "rpt-expense-claim",
+                "recordId": "1"
+              }
+            ],
+            "phase": "READY"
+          },
+          "type": "selection"
+        },
+        {
+          "data": {},
+          "type": "done"
+        }
+      ],
+      "scenario": "新问法-限定保留与重新选上"
+    },
+    {
+      "actualDocuments": [],
+      "expectedDocuments": [],
+      "selection": {
+        "previewId": "89d6fa463c3249a6b40564fa9117347d",
+        "excludedRecords": [],
+        "phase": "READY"
+      },
+      "passed": true,
+      "expectedPhase": "READY",
+      "conversationId": "ae6104cb5df0413d91deeb7b37a1e8fb",
+      "message": "把费用报表里所有记录重新选上",
+      "previewId": "89d6fa463c3249a6b40564fa9117347d",
+      "events": [
+        {
+          "data": {
+            "conversationId": "ae6104cb5df0413d91deeb7b37a1e8fb",
+            "title": "查一下我有哪些可以派单",
+            "requestId": "5285bca2a6c34bc58857d691a4fed5f8"
+          },
+          "type": "conversation"
+        },
+        {
+          "data": {
+            "delta": "当前预览共 9 条，已排除 0 条。"
+          },
+          "type": "text"
+        },
+        {
+          "data": {
+            "previewId": "89d6fa463c3249a6b40564fa9117347d",
+            "excludedRecords": [],
+            "phase": "READY"
+          },
+          "type": "selection"
+        },
+        {
+          "data": {},
+          "type": "done"
+        }
+      ],
+      "scenario": "新问法-限定保留与重新选上"
+    },
+    {
+      "actualDocuments": [
+        "INV-2026-0008"
+      ],
+      "expectedDocuments": [
+        "INV-2026-0008"
+      ],
+      "selection": {
+        "previewId": "41e6e572a5264160a14954276884acca",
+        "excludedRecords": [
+          {
+            "reportId": "rpt-ar-invoice",
+            "recordId": "4"
+          }
+        ],
+        "phase": "READY"
+      },
+      "passed": true,
+      "expectedPhase": "READY",
+      "conversationId": "a940883161964347ae6237538b08c03c",
+      "message": "应收报表金额不足十元的取消勾选",
+      "previewId": "41e6e572a5264160a14954276884acca",
+      "events": [
+        {
+          "data": {
+            "conversationId": "a940883161964347ae6237538b08c03c",
+            "title": "查一下我有哪些可以派单",
+            "requestId": "54c0251e874540a98c13ddfd3fcf648d"
+          },
+          "type": "conversation"
+        },
+        {
+          "data": {
+            "delta": "当前预览共 9 条，已排除 1 条。"
+          },
+          "type": "text"
+        },
+        {
+          "data": {
+            "previewId": "41e6e572a5264160a14954276884acca",
+            "excludedRecords": [
+              {
+                "reportId": "rpt-ar-invoice",
+                "recordId": "4"
+              }
+            ],
+            "phase": "READY"
+          },
+          "type": "selection"
+        },
+        {
+          "data": {},
+          "type": "done"
+        }
+      ],
+      "scenario": "新问法-金额及客户累计"
+    },
+    {
+      "actualDocuments": [
+        "INV-2026-0007",
+        "INV-2026-0008"
+      ],
+      "expectedDocuments": [
+        "INV-2026-0007",
+        "INV-2026-0008"
+      ],
+      "selection": {
+        "previewId": "41e6e572a5264160a14954276884acca",
+        "excludedRecords": [
+          {
+            "reportId": "rpt-ar-invoice",
+            "recordId": "4"
+          },
+          {
+            "reportId": "rpt-ar-invoice",
+            "recordId": "3"
+          }
+        ],
+        "phase": "READY"
+      },
+      "passed": true,
+      "expectedPhase": "READY",
+      "conversationId": "a940883161964347ae6237538b08c03c",
+      "message": "应收报表里天津某某贸易有限公司的发票也取消勾选",
+      "previewId": "41e6e572a5264160a14954276884acca",
+      "events": [
+        {
+          "data": {
+            "conversationId": "a940883161964347ae6237538b08c03c",
+            "title": "查一下我有哪些可以派单",
+            "requestId": "65c986db5ee94eeba4bf0bfba5179b6d"
+          },
+          "type": "conversation"
+        },
+        {
+          "data": {
+            "delta": "当前预览共 9 条，已排除 2 条。"
+          },
+          "type": "text"
+        },
+        {
+          "data": {
+            "previewId": "41e6e572a5264160a14954276884acca",
+            "excludedRecords": [
+              {
+                "reportId": "rpt-ar-invoice",
+                "recordId": "4"
+              },
+              {
+                "reportId": "rpt-ar-invoice",
+                "recordId": "3"
+              }
+            ],
+            "phase": "READY"
+          },
+          "type": "selection"
+        },
+        {
+          "data": {},
+          "type": "done"
+        }
+      ],
+      "scenario": "新问法-金额及客户累计"
+    },
+    {
+      "actualDocuments": [
+        "SO2026002",
+        "SO2026007"
+      ],
+      "expectedDocuments": [
+        "SO2026002",
+        "SO2026007"
+      ],
+      "selection": {
+        "previewId": "81445ec25b96406ebe5ce1723c732d7c",
+        "excludedRecords": [
+          {
+            "reportId": "rpt-sales-order",
+            "recordId": "2"
+          },
+          {
+            "reportId": "rpt-sales-order",
+            "recordId": "3"
+          }
+        ],
+        "phase": "READY"
+      },
+      "passed": true,
+      "expectedPhase": "READY",
+      "conversationId": "d495c5b802c841b7aebfcb54b76668f7",
+      "message": "销售报表金额在三万元到十万元之间的先不要，不要生成派单清单",
+      "previewId": "81445ec25b96406ebe5ce1723c732d7c",
+      "events": [
+        {
+          "data": {
+            "conversationId": "d495c5b802c841b7aebfcb54b76668f7",
+            "title": "查一下我有哪些可以派单",
+            "requestId": "9588403068ab418298f029ba8d8e2623"
+          },
+          "type": "conversation"
+        },
+        {
+          "data": {
+            "delta": "当前预览共 9 条，已排除 2 条。"
+          },
+          "type": "text"
+        },
+        {
+          "data": {
+            "previewId": "81445ec25b96406ebe5ce1723c732d7c",
+            "excludedRecords": [
+              {
+                "reportId": "rpt-sales-order",
+                "recordId": "2"
+              },
+              {
+                "reportId": "rpt-sales-order",
+                "recordId": "3"
+              }
+            ],
+            "phase": "READY"
+          },
+          "type": "selection"
+        },
+        {
+          "data": {},
+          "type": "done"
+        }
+      ],
+      "scenario": "新问法-区间及本轮禁止建单"
+    },
+    {
+      "actualDocuments": [
+        "SO2026007"
+      ],
+      "expectedDocuments": [
+        "SO2026007"
+      ],
+      "selection": {
+        "previewId": "81445ec25b96406ebe5ce1723c732d7c",
+        "excludedRecords": [
+          {
+            "reportId": "rpt-sales-order",
+            "recordId": "3"
+          }
+        ],
+        "phase": "READY"
+      },
+      "passed": true,
+      "expectedPhase": "READY",
+      "conversationId": "d495c5b802c841b7aebfcb54b76668f7",
+      "message": "销售报表中金额等于32000元的恢复选择",
+      "previewId": "81445ec25b96406ebe5ce1723c732d7c",
+      "events": [
+        {
+          "data": {
+            "conversationId": "d495c5b802c841b7aebfcb54b76668f7",
+            "title": "查一下我有哪些可以派单",
+            "requestId": "355912689a024caab56aeef82fe94842"
+          },
+          "type": "conversation"
+        },
+        {
+          "data": {
+            "delta": "当前预览共 9 条，已排除 1 条。"
+          },
+          "type": "text"
+        },
+        {
+          "data": {
+            "previewId": "81445ec25b96406ebe5ce1723c732d7c",
+            "excludedRecords": [
+              {
+                "reportId": "rpt-sales-order",
+                "recordId": "3"
+              }
+            ],
+            "phase": "READY"
+          },
+          "type": "selection"
+        },
+        {
+          "data": {},
+          "type": "done"
+        }
+      ],
+      "scenario": "新问法-区间及本轮禁止建单"
+    }
+  ],
+  "businessCases": 8,
+  "businessPassed": 8,
+  "safeRefusals": 0,
+  "expectedClarifications": 0,
+  "corpusSha256": "65723F7B2CB4C4972008941D080E1139E8664ED3FE194CDBAC6449FC05683F2E",
+  "corpus": "tools/fixtures/semantic-production-reserve.json",
+  "total": 8
+}

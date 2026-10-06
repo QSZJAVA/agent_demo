@@ -35,7 +35,7 @@ class ReportCatalogServiceTest {
         assertTrue(service.visibleReports(other).isEmpty());
         assertTrue(service.resolve(other, "销售台账").reports().isEmpty());
         assertThrows(ApiException.class, () -> service.requireVisible(other, SALES));
-        assertThrows(ApiException.class, () -> service.requireVisibleByLegacyCode(other, "sales"));
+        assertThrows(ApiException.class, () -> service.requireVisible(other, SALES));
     }
 
     @Test
@@ -78,9 +78,9 @@ class ReportCatalogServiceTest {
         ApiException missing = assertThrows(ApiException.class, () -> service.requireVisible(USER3, "rpt-nope"));
         assertEquals(hidden.getCode(), missing.getCode());
         assertEquals(hidden.getMessage(), missing.getMessage());
-        assertThrows(ApiException.class, () -> service.requireVisibleByLegacyCode(USER3, "receivable"));
-        assertEquals(SALES, service.requireVisibleByLegacyCode(USER3, "sales").reportId());
-        assertEquals(EXPENSE, service.requireVisibleByIdOrLegacyCode(USER3, EXPENSE).reportId());
+        assertThrows(ApiException.class, () -> service.requireVisible(USER3, RECEIVABLE));
+        assertEquals(SALES, service.requireVisible(USER3, SALES).reportId());
+        assertEquals(EXPENSE, service.requireVisible(USER3, EXPENSE).reportId());
     }
 
     @Test

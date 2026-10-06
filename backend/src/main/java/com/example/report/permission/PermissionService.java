@@ -10,15 +10,16 @@ import java.util.Objects;
 import java.util.Set;
 
 /**
- * 现有权限接口的模拟实现：真实系统替换这一层即可。
- * demo 用户都属于租户 T001：user1 只看 A 公司，user2 只看 B 公司，user3 看 B 公司但没有应收报表权限，
- * admin 看 A/B/C 公司、拥有全部报表权限，并可维护规则与报表目录。
- * 用户身份由请求头 X-User-Id 模拟登录态。
+ * 当前操作者的业务权限解析与归属检查；真实链路由已认证的 IdentityStore 读取本部署租户身份。
+ * 没有身份存储的隔离测试使用 T001 合成身份；正式外部认证系统仍待接入。
+ * 后台任务必须使用同一租户边界；公司与报表授权不会因为任务由后台执行而省略。
  */
 @Service
 public class PermissionService {
     @org.springframework.beans.factory.annotation.Autowired(required=false)
     private com.example.report.security.IdentityStore identities;
+    /** 当前部署实例负责的租户；后台任务认领和恢复必须绑定此范围。 */
+    public String tenantId() { return identities==null?DEMO_TENANT:identities.tenant(); }
     public boolean isSecure() { return identities!=null; }
 
     public static final String USER_HEADER = "X-User-Id";

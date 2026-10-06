@@ -59,7 +59,7 @@ services:
     build:
       context: .
       dockerfile: business-service/Dockerfile
-    image: report-demo-business:2.0.0
+    image: report-demo-business:1.0.0
     restart: unless-stopped
     depends_on:
       mysql:
@@ -88,7 +88,7 @@ services:
     build:
       context: .
       dockerfile: backend/Dockerfile
-    image: report-demo-backend:2.0.0
+    image: report-demo-backend:1.0.0
     container_name: report-demo-backend
     restart: unless-stopped
     depends_on:
@@ -116,9 +116,8 @@ services:
       DB_NAME: ${DB_NAME:-report_demo}
       DB_USERNAME: root
       DB_PASSWORD: ${MYSQL_ROOT_PASSWORD}
-      DEMO_RESET_ON_STARTUP: "false"
       SEMANTIC_MODE: active
-      SEMANTIC_NATIVE_SCHEMA: ${SEMANTIC_NATIVE_SCHEMA:-false}
+      SEMANTIC_NATIVE_SCHEMA: ${SEMANTIC_NATIVE_SCHEMA:-true}
       SEMANTIC_MODEL: ${SEMANTIC_MODEL:-}
       SEMANTIC_THINKING_ENABLED: ${SEMANTIC_THINKING_ENABLED:-false}
       CORS_ALLOWED_ORIGINS: ${CORS_ALLOWED_ORIGINS:-}
@@ -139,7 +138,7 @@ services:
     build:
       context: .
       dockerfile: frontend/Dockerfile
-    image: report-demo-frontend:2.0.0
+    image: report-demo-frontend:1.0.0
     container_name: report-demo-frontend
     restart: unless-stopped
     depends_on:

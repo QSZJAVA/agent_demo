@@ -1,5 +1,7 @@
-param([switch]$BackendOnly)
+param([switch]$BackendOnly,[switch]$AllowIsolatedDatabases)
 $ErrorActionPreference='Stop'
+# 完整回归会创建并清理多个独立测试库，必须由用户明确授权后再传入开关。
+if(-not $AllowIsolatedDatabases){throw 'This regression creates isolated databases. Obtain explicit user authorization, then pass -AllowIsolatedDatabases.'}
 $taskRoot=Split-Path $PSScriptRoot -Parent
 $taskSettings=Join-Path $PSScriptRoot 'env.local.cmd'
 if(Test-Path -LiteralPath $taskSettings) {
@@ -17,12 +19,16 @@ foreach($taskPair in @(@('TRACE_DB_HOST','DB_HOST'),@('TRACE_DB_PORT','DB_PORT')
 }
 $env:TRACE_IT='true';$env:P2_IT='true';$env:MCP_IT='true';$env:DEMO_IT='false';$env:P2_UI='false'
 $env:SEMANTIC_LIVE='false'
-$env:INVESTIGATION_LIVE='false';$env:INVESTIGATION_JOINT='false';$env:INVESTIGATION_UI='false'
+$env:INVESTIGATION_LIVE='false';$env:INVESTIGATION_CONTEXT_LIVE='false';$env:INVESTIGATION_JOINT='false';$env:INVESTIGATION_UI='false'
+& node (Join-Path $taskRoot 'tools/check-demo-baseline.cjs')
+if($LASTEXITCODE -ne 0){exit $LASTEXITCODE}
+& node (Join-Path $taskRoot 'tools/check-no-legacy-compat.cjs')
+if($LASTEXITCODE -ne 0){exit $LASTEXITCODE}
 & node (Join-Path $taskRoot 'tools/check-comments.cjs')
 if($LASTEXITCODE -ne 0){exit $LASTEXITCODE}
 & node --test (Join-Path $taskRoot 'tools/compare-investigation-evaluations.test.cjs')
 if($LASTEXITCODE -ne 0){exit $LASTEXITCODE}
-& (Join-Path $taskRoot 'backend/mvnw.cmd') -f (Join-Path $taskRoot 'pom.xml') verify -q
+& (Join-Path $taskRoot 'backend/mvnw.cmd') -f (Join-Path $taskRoot 'pom.xml') clean verify -q
 if($LASTEXITCODE -ne 0){exit $LASTEXITCODE}
 if(-not $BackendOnly) {
     & npm.cmd --prefix (Join-Path $taskRoot 'frontend') test

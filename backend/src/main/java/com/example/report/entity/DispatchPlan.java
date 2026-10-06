@@ -25,8 +25,6 @@ public class DispatchPlan {
     /** 服务端生成的派单清单主键。 */
     @TableId(type = IdType.INPUT)
     private String id;
-    /** 证据持久化协议版本：0历史清单，1状态与追溯事件原子保存。*/
-    private Integer evidenceVersion = 0;
     /** 关联 dispatch_preview.id 的预览快照标识。 */
     private String previewId;
     /** 数据所属租户标识；查询和写入必须限定租户。*/

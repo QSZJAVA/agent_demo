@@ -6,7 +6,6 @@ import com.example.report.config.AgentProperties;
 import com.example.report.conversation.ConversationService;
 import com.example.report.dispatch.*;
 import com.example.report.entity.*;
-import com.example.report.memory.RedisChatMemoryRepository;
 import com.example.report.permission.*;
 import com.example.report.rule.RuleService;
 import org.junit.jupiter.api.*;
@@ -24,7 +23,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 /** Real Spring wiring, Flyway and SQL in a UUID database; never touches report_demo. */
 @EnabledIfEnvironmentVariable(named="P2_IT",matches="true")
-@SpringBootTest(webEnvironment=SpringBootTest.WebEnvironment.RANDOM_PORT,properties={"demo.reset-on-startup=true","agent.retention-sweep-ms=3600000","spring.data.redis.database=15"})
+@SpringBootTest(webEnvironment=SpringBootTest.WebEnvironment.RANDOM_PORT,properties={"agent.retention-sweep-ms=3600000","spring.data.redis.database=15"})
 @ActiveProfiles("mock")
 @DirtiesContext
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
@@ -47,7 +46,6 @@ class OperationsIntegrationTest {
     @Autowired PermissionService permissions;
     @Autowired ConversationService conversations;
     @Autowired DataRetentionService retention;
-    @Autowired RedisChatMemoryRepository memory;
     @Autowired PreviewService previews;
     @Autowired PlanService plans;
     @Autowired DispatchService dispatch;
@@ -75,7 +73,7 @@ class OperationsIntegrationTest {
         assertEquals(HttpStatus.OK,accepted.getStatusCode());assertTrue(accepted.getBody().contains("samples"));
     }
     @Test @Order(2) void policyCasRollbackAndCatalogGateInvalidateOldPreview() {
-        var preview=previews.preview(user(),null,new PreviewCommand(null,"api","销售报表",null,null,null,null)).snapshot();
+        var preview=previews.preview(user(),null,new PreviewCommand(null, "api", "销售报表", null, null, null)).snapshot();
         var initial=policies.get(admin().tenantId(),"catalog:"+REPORT);
         var off=policies.save(admin(),initial.key(),new OperationsPolicy.Change(initial.version(),Map.of("percent",0),"灰度关闭"));
         assertThrows(ApiException.class,()->catalog.requireDispatchable(user(),REPORT));
@@ -102,23 +100,19 @@ class OperationsIntegrationTest {
         assertTrue(metrics.summary(other,7).isEmpty());assertTrue(audit.list(other,0).isEmpty());
         assertNotNull(metrics.dispatch(admin(),7));
     }
-    @Test @Order(5) void erasureRemovesMessagesAndMemoryAndPreventsLateRepopulation() {
+    @Test @Order(5) void erasureRemovesMessagesAndPreventsLateRepopulation() {
         var c=conversations.create(user(),"mock");
         conversations.logUser(c.getId(),user().userId(),"电话13812345678，邮箱a@example.com");
         String content=jdbc.queryForObject("SELECT content FROM agent_message WHERE conversation_id=?",String.class,c.getId());
         assertFalse(content.contains("13812345678"));
-        memory.saveAll(c.getId(),List.of(new UserMessage("电话13812345678")));
         retention.request(user(),c.getId(),"用户删除");retention.erase(c.getId());
-        assertTrue(memory.findByConversationId(c.getId()).isEmpty());
-        memory.saveAll(c.getId(),List.of(new UserMessage("late")));
-        assertTrue(memory.findByConversationId(c.getId()).isEmpty());
         conversations.logUser(c.getId(),user().userId(),"late");
         assertEquals(0,jdbc.queryForObject("SELECT COUNT(*) FROM agent_message WHERE conversation_id=?",Integer.class,c.getId()));
         assertEquals("COMPLETED",jdbc.queryForObject("SELECT status FROM conversation_erasure WHERE conversation_id=?",String.class,c.getId()));
     }
     @Test @Order(6) void unresolvedPlanHoldsErasureAndAppearsInWorkbench() {
         var c=conversations.create(user(),"mock");conversations.logUser(c.getId(),user().userId(),"查询销售");
-        var p=previews.preview(user(),c.getId(),new PreviewCommand(null,"api","销售报表",null,null,null,null)).snapshot();
+        var p=previews.preview(user(),c.getId(),new PreviewCommand(null, "api", "销售报表", null, null, null)).snapshot();
         var plan=plans.create(user(),c.getId(),p.preview().getId(),List.of(),"workbench").plan();
         jdbc.update("UPDATE dispatch_plan SET status='REVIEW_REQUIRED' WHERE id=?",plan.getId());
         retention.request(user(),c.getId(),"删除但保留核对依据");retention.erase(c.getId());
@@ -130,7 +124,7 @@ class OperationsIntegrationTest {
         assertTrue(workbench.list(limited,null).rows().isEmpty());
     }
     @Test @Order(7) void retentionSweepExecutesRealSqlWithoutTouchingUnresolvedWork() {
-        var p=previews.preview(user(),null,new PreviewCommand(null,"api","费用报表",null,null,null,null)).snapshot();
+        var p=previews.preview(user(),null,new PreviewCommand(null, "api", "费用报表", null, null, null)).snapshot();
         jdbc.update("UPDATE dispatch_preview SET expires_at=TIMESTAMPADD(DAY,-400,NOW()) WHERE id=?",p.preview().getId());
         retention.sweep();
         assertEquals("DATA_PURGED",jdbc.queryForObject("SELECT status_reason FROM dispatch_preview WHERE id=?",String.class,p.preview().getId()));
@@ -172,7 +166,7 @@ class OperationsIntegrationTest {
     }
     @Test @Order(11) void operatorCanRetryOnlyDefiniteFailuresUsingOriginalRequestIds() {
         var c=conversations.create(user(),"mock");
-        var preview=previews.preview(user(),c.getId(),new PreviewCommand(null,"api","费用报表",null,null,null,null)).snapshot();
+        var preview=previews.preview(user(),c.getId(),new PreviewCommand(null, "api", "费用报表", null, null, null)).snapshot();
         var plan=plans.create(user(),c.getId(),preview.preview().getId(),List.of(),"operator-retry").plan();
         var failing=org.mockito.Mockito.mock(DispatchGateway.class);
         org.mockito.Mockito.when(failing.dispatch(org.mockito.ArgumentMatchers.any())).thenReturn(DispatchGateway.Outcome.fail("TEMPORARY","暂时失败"));
@@ -188,7 +182,7 @@ class OperationsIntegrationTest {
         assertEquals("COMPLETED",jdbc.queryForObject("SELECT status FROM conversation_erasure WHERE conversation_id=?",String.class,c.getId()));
     }
     @Test @Order(12) void closingKnownFailureNeverDispatchesAndCannotCloseUnknownWork() {
-        var preview=previews.preview(user(),null,new PreviewCommand(null,"api","应收报表",null,null,null,null)).snapshot();
+        var preview=previews.preview(user(),null,new PreviewCommand(null, "api", "应收报表", null, null, null)).snapshot();
         var plan=plans.create(user(),null,preview.preview().getId(),List.of(),"operator-close").plan();
         jdbc.update("UPDATE dispatch_plan SET status='REVIEW_REQUIRED' WHERE id=?",plan.getId());
         assertThrows(ApiException.class,()->workbench.act(admin(),plan.getId(),"close","禁止猜测"));

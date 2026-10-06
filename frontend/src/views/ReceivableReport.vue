@@ -2,7 +2,7 @@
   <report-table
     title="应收报表"
     table-name="report_receivable"
-    report-type="receivable"
+    report-id="rpt-ar-invoice"
     doc-no-field="invoiceNo"
     :columns="columns"
     :data="list"

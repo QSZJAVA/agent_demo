@@ -22,7 +22,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 /**
- * 测试用报表目录：与 V2 迁移中的三张种子报表、别名一致，可以在测试中途替换（模拟新增 / 停用 / 修改报表）。
+ * 测试用报表目录：与当前基线中的三张种子报表、别名一致，可以在测试中途替换（模拟新增 / 停用 / 修改报表）。
  */
 public final class TestCatalog {
 
@@ -71,8 +71,6 @@ public final class TestCatalog {
         when(catalog.find(any())).thenAnswer(inv -> entries.get().stream()
                 .filter(e -> e.reportId().equals(inv.getArgument(0))).findFirst());
         when(catalog.terms()).thenAnswer(inv -> terms(entries.get()));
-        Map<String, String> legacy = Map.of("sales", SALES, "receivable", RECEIVABLE, "expense", EXPENSE);
-        when(catalog.reportIdForLegacyCode(any())).thenAnswer(inv -> Optional.ofNullable(legacy.get((String) inv.getArgument(0))));
     }
 
     public ReportCatalog catalog() {

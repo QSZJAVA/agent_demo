@@ -32,7 +32,7 @@ class DispatchStateTest {
     private final CardStateService cards = new CardStateService(h.previews, h.plans, h.store.previews(), h.store.plans());
 
     private PreviewOutcome preview(String conversationId, String reportQuery) {
-        return h.previews.preview(USER1, conversationId, new PreviewCommand(null, "api", reportQuery, null, null, null, null));
+        return h.previews.preview(USER1, conversationId, new PreviewCommand(null, "api", reportQuery, null, null, null));
     }
 
     private DispatchPreview row(String previewId) {
@@ -76,7 +76,7 @@ class DispatchStateTest {
     void newPreviewSupersedesTheOldOneAndExpiresItsPendingPlan() {
         // T-PREVIEW-07：新预览使同会话旧预览变为 SUPERSEDED；5.3.3：生成新预览时待确认清单失效
         String first = preview("c1", null).snapshot().preview().getId();
-        String plan = h.plans.create(USER1, "c1", null, List.of(), null).plan().getId();
+        String plan = h.plans.create(USER1, "c1", h.previews.latest(USER1, "c1").orElseThrow().getId(), List.of(), null).plan().getId();
         PreviewOutcome second = preview("c1", "销售报表");
         assertEquals(List.of(first), second.supersededPreviewIds());
         assertEquals(List.of(plan), second.expiredPlanIds());
@@ -104,7 +104,7 @@ class DispatchStateTest {
     void cancelledJobCannotSupersedeExistingPreviewOrPlan() {
         String first = preview("c1", "销售报表").snapshot().preview().getId();
         String plan = h.plans.create(USER1, "c1", first, List.of(), null).plan().getId();
-        PreviewCommand command = new PreviewCommand(null, "selection", "费用报表", null, null, null, null);
+        PreviewCommand command = new PreviewCommand(null, "selection", "费用报表", null, null, null);
 
         assertThrows(ApiException.class, () -> h.previews.preview(USER1, "c1", command,
                 scanned -> { }, id -> { throw new ApiException(409, "查询任务已取消"); }));
@@ -120,19 +120,19 @@ class DispatchStateTest {
         preview("c1", "销售报表");
         assertEquals(DispatchPreview.SUPERSEDED, row(a).getStatus());
         assertEquals(DispatchPreview.ACTIVE, row(b).getStatus());
-        assertEquals(PlanSnapshot.class, h.plans.create(USER1, "c2", null, List.of(), null).getClass());
+        assertEquals(PlanSnapshot.class, h.plans.create(USER1, "c2", h.previews.latest(USER1, "c2").orElseThrow().getId(), List.of(), null).getClass());
     }
 
     @Test
     void onlyOnePendingPlanPerConversation() {
         // 5.3.2：同一会话同一时刻只能有一份 PENDING 清单
         preview("c1", null);
-        String first = h.plans.create(USER1, "c1", null, List.of(), null).plan().getId();
-        PlanSnapshot second = h.plans.create(USER1, "c1", null, List.of("SO2026002"), null);
+        String first = h.plans.create(USER1, "c1", h.previews.latest(USER1, "c1").orElseThrow().getId(), List.of(), null).plan().getId();
+        PlanSnapshot second = h.plans.create(USER1, "c1", h.previews.latest(USER1, "c1").orElseThrow().getId(), List.of(new RecordKey(SALES, "2")), null);
         assertEquals(List.of(first), second.expiredPlanIds());
         assertEquals(DispatchPlan.EXPIRED, planRow(first).getStatus());
         assertEquals(StateReason.NEW_PLAN, planRow(first).getStatusReason());
-        assertEquals(List.of("SO2026002"), second.excluded());
+        assertEquals(List.of("销售报表 / SO2026002"), second.excluded());
         assertEquals(2, second.items().size());
     }
 
@@ -141,18 +141,17 @@ class DispatchStateTest {
         // T-DISPATCH-01
         preview("c1", null);
         ApiException e = assertThrows(ApiException.class,
-                () -> h.plans.create(USER1, "c1", null, List.of("so2026002", "INV-9999"), null));
-        assertTrue(e.getMessage().contains("INV-9999"));
-        assertFalse(e.getMessage().contains("so2026002"), "单据号不区分大小写");
-        assertThrows(ApiException.class, () -> h.plans.create(USER1, "c1", null,
-                List.of("SO2026001", "SO2026002", "EXP-2026-0001"), null), "全部排除后没有需要派单的记录");
+                () -> h.plans.create(USER1, "c1", h.previews.latest(USER1, "c1").orElseThrow().getId(), List.of(new RecordKey(SALES, "2"),new RecordKey(RECEIVABLE, "missing")), null));
+        assertTrue(e.getMessage().contains("不属于该预览"));
+        assertThrows(ApiException.class, () -> h.plans.create(USER1, "c1", h.previews.latest(USER1, "c1").orElseThrow().getId(),
+                List.of(new RecordKey(SALES, "1"),new RecordKey(SALES, "2"),new RecordKey(EXPENSE, "1")), null), "全部排除后没有需要派单的记录");
     }
 
     @Test
     void idempotencyKeyReturnsTheFirstPlan() {
         preview("c1", null);
-        PlanSnapshot first = h.plans.create(USER1, "c1", null, List.of(), "key-1");
-        PlanSnapshot again = h.plans.create(USER1, "c1", null, List.of("SO2026001"), "key-1");
+        PlanSnapshot first = h.plans.create(USER1, "c1", h.previews.latest(USER1, "c1").orElseThrow().getId(), List.of(), "key-1");
+        PlanSnapshot again = h.plans.create(USER1, "c1", h.previews.latest(USER1, "c1").orElseThrow().getId(), List.of(new RecordKey(SALES, "1")), "key-1");
         assertFalse(first.replayed());
         assertTrue(again.replayed());
         assertEquals(first.plan().getId(), again.plan().getId());
@@ -163,14 +162,14 @@ class DispatchStateTest {
     @Test
     void cancelIsIdempotentButExecutedPlansCannotBeCancelled() {
         preview("c1", null);
-        String planId = h.plans.create(USER1, "c1", null, List.of(), null).plan().getId();
+        String planId = h.plans.create(USER1, "c1", h.previews.latest(USER1, "c1").orElseThrow().getId(), List.of(), null).plan().getId();
         assertEquals(DispatchPlan.CANCELLED, h.plans.cancel(USER1, planId).getStatus());
         assertEquals(DispatchPlan.CANCELLED, h.plans.cancel(USER1, planId).getStatus());
         assertEquals(StateReason.USER_CANCELLED, planRow(planId).getStatusReason());
         assertEquals(404, assertThrows(ApiException.class, () -> h.plans.cancel(TestCatalog.USER2, planId)).getCode());
 
         preview("c1", null);
-        String executed = h.plans.create(USER1, "c1", null, List.of(), null).plan().getId();
+        String executed = h.plans.create(USER1, "c1", h.previews.latest(USER1, "c1").orElseThrow().getId(), List.of(), null).plan().getId();
         h.store.updatePlan(executed, p -> p.setStatus(DispatchPlan.EXECUTED));
         assertThrows(ApiException.class, () -> h.plans.cancel(USER1, executed));
     }
@@ -178,7 +177,7 @@ class DispatchStateTest {
     @Test
     void ttlExpiryIsAppliedWhenTheStateIsRead() {
         String previewId = preview("c1", null).snapshot().preview().getId();
-        String planId = h.plans.create(USER1, "c1", null, List.of(), null).plan().getId();
+        String planId = h.plans.create(USER1, "c1", h.previews.latest(USER1, "c1").orElseThrow().getId(), List.of(), null).plan().getId();
         h.store.updatePreview(previewId, p -> p.setExpiresAt(LocalDateTime.now().minusMinutes(1)));
         h.store.updatePlan(planId, p -> p.setExpiresAt(LocalDateTime.now().minusMinutes(1)));
         Map<String, CardStateService.CardState> previews = cards.previewStates(USER1, List.of(previewId));
@@ -193,7 +192,7 @@ class DispatchStateTest {
     void cardStatesComeFromTheServerAndOnlyForTheOwner() {
         // T-UI-01 / T-UI-02：旧卡片作废、状态以服务端为准；别人的卡片不返回
         String old = preview("c1", null).snapshot().preview().getId();
-        String plan = h.plans.create(USER1, "c1", null, List.of(), null).plan().getId();
+        String plan = h.plans.create(USER1, "c1", h.previews.latest(USER1, "c1").orElseThrow().getId(), List.of(), null).plan().getId();
         String fresh = preview("c1", "销售报表").snapshot().preview().getId();
         CardStateService.ConversationStates states = cards.conversationStates(USER1, "c1");
         assertEquals(DispatchPreview.SUPERSEDED, states.previews().get(old).status());
@@ -210,18 +209,18 @@ class DispatchStateTest {
     void explicitReportIdsAreCheckedAgainstPermissions() {
         // 选择卡片 / REST 直接传 report_id：同样按权限校验，无权限与不存在表现一致
         ApiException e = assertThrows(ApiException.class, () -> h.previews.preview(USER3, null,
-                new PreviewCommand(null, "selection", null, List.of(RECEIVABLE), null, null, null)));
+                new PreviewCommand(null, "selection", null, List.of(RECEIVABLE), null, null)));
         assertEquals(404, e.getCode());
         assertEquals(404, assertThrows(ApiException.class, () -> h.previews.preview(USER1, null,
-                new PreviewCommand(null, "selection", null, List.of("report_sales"), null, null, null))).getCode());
+                new PreviewCommand(null, "selection", null, List.of("report_sales"), null, null))).getCode());
     }
 
     @Test
     void companyFilterMustStayInsideTheUsersScope() {
         assertThrows(ApiException.class, () -> h.previews.preview(USER1, null,
-                new PreviewCommand(null, "api", null, null, new PreviewCommand.Filters("C"), null, null)));
+                new PreviewCommand(null, "api", null, null, new PreviewCommand.Filters("C"), null)));
         PreviewSnapshot own = h.previews.preview(USER1, null,
-                new PreviewCommand(null, "api", null, null, new PreviewCommand.Filters("a"), null, null)).snapshot();
+                new PreviewCommand(null, "api", null, null, new PreviewCommand.Filters("a"), null)).snapshot();
         assertEquals(List.of("A"), ((Map<?, ?>) own.query().get("filters")).get("companyCodes"));
     }
 
@@ -244,7 +243,7 @@ class DispatchStateTest {
     @Test
     void oldReviewCannotFinishAfterRetryReturnsToReviewRequired() {
         preview("c1", null);
-        String id = h.plans.create(USER1, "c1", null, List.of(), null).plan().getId();
+        String id = h.plans.create(USER1, "c1", h.previews.latest(USER1, "c1").orElseThrow().getId(), List.of(), null).plan().getId();
         var repository = h.store.plans();
         var now = LocalDateTime.now();
         assertTrue(repository.claim(id, USER1.userId(), now).isPresent());

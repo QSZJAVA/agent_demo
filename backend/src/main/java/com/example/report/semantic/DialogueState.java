@@ -44,6 +44,8 @@ public class DialogueState {
     private boolean unresolvedCompany;
     /** 记录选择未澄清标记；生成清单前必须解决。 */
     private boolean unresolvedRecords;
+    /** 上轮请求整体未完成；不污染已确定的公司/报表，裸建单须先明确新请求。 */
+    private boolean unresolvedRequest;
     /** 最近澄清、拒绝或失败原因；成功轮次清空。 */
     private String lastReason;
     /** 最近一次尝试处理的应用时间。 */

@@ -8,7 +8,6 @@ import com.example.report.support.DispatchHarness;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
-import org.springframework.ai.chat.memory.ChatMemory;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -29,7 +28,7 @@ class ManualDispatchSafetyTest {
         adapter = mock(ReportQueryAdapter.class);
         when(adapter.rowsByIds(anyString(), anyCollection())).thenAnswer(call -> {
             java.util.Collection<String> ids = call.getArgument(1);
-            return ids.stream().map(id -> new FactRow(id, "SO" + id, "A", "manual", BigDecimal.TEN, null, Map.of())).toList();
+            return ids.stream().map(id -> new FactRow(id, "SO" + id, "A", "manual", BigDecimal.TEN, null, Map.of("amount",BigDecimal.TEN,"companyCode","A"))).toList();
         });
         when(adapter.pendingRowsByIds(anyString(), anyCollection())).thenAnswer(call -> adapter.rowsByIds(call.getArgument(0), call.getArgument(1)));
         var report = spy(h.catalog.get(SALES));
@@ -38,7 +37,7 @@ class ManualDispatchSafetyTest {
         gateway = mock(DispatchGateway.class);
         doReturn(DispatchGateway.Outcome.ok()).when(gateway).dispatch(any());
         service = new DispatchService(h.plans, h.previews, h.store.plans(), h.catalogService, h.candidates, h.versions,
-                gateway, mock(AuditService.class), mock(ConversationService.class), mock(ChatMemory.class),
+                gateway, mock(AuditService.class), mock(ConversationService.class),
                 org.springframework.transaction.support.TransactionOperations.withoutTransaction());
     }
     @AfterEach void close() { service.shutdownHeartbeats(); }

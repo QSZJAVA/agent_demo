@@ -51,7 +51,7 @@ class DispatchTraceAuthorizationTest {
     }
 
     private static PreviewCommand command(String reportId, String company) {
-        return new PreviewCommand(null, "api", null, List.of(reportId), new PreviewCommand.Filters(company), null, null);
+        return new PreviewCommand(null, "api", null, List.of(reportId), new PreviewCommand.Filters(company), null);
     }
 
     static Stream<CurrentUser> restrictedReaders() {

@@ -14,7 +14,6 @@ import org.flywaydb.core.Flyway;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.condition.EnabledIfEnvironmentVariable;
 import org.mybatis.spring.SqlSessionTemplate;
-import org.springframework.ai.chat.memory.ChatMemory;
 import org.springframework.aop.framework.ProxyFactory;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.datasource.DataSourceTransactionManager;
@@ -72,13 +71,7 @@ class TracePersistenceIntegrationTest {
         jdbc = new JdbcTemplate(dataSource);
         manager = new DataSourceTransactionManager(dataSource);
         tx = new TransactionTemplate(manager);
-        // 模拟升级前会话，然后执行 V15，验证历史记录没有被重写或清理。
-        Flyway.configure().dataSource(dataSource).target("14").load().migrate();
-        jdbc.update("INSERT INTO agent_conversation(id,tenant_id,user_id,status,created_at,updated_at) VALUES ('legacy','T001','user1','active',NOW(),NOW())");
-        jdbc.update("INSERT INTO agent_message(conversation_id,tenant_id,user_id,role,content,created_at) VALUES ('legacy','T001','user1','user','升级前的原话',NOW())");
         Flyway.configure().dataSource(dataSource).load().migrate();
-        assertEquals("升级前的原话", jdbc.queryForObject("SELECT content FROM agent_message WHERE conversation_id='legacy'", String.class));
-        assertNull(jdbc.queryForObject("SELECT evidence_id FROM agent_message WHERE conversation_id='legacy'", Long.class));
         MybatisConfiguration configuration = new MybatisConfiguration();
         configuration.setMapUnderscoreToCamelCase(true);
         for (Class<?> mapper : List.of(DispatchAuditMapper.class, AgentMessageMapper.class, AgentConversationMapper.class,
@@ -118,7 +111,7 @@ class TracePersistenceIntegrationTest {
         gateway = mock(DispatchGateway.class);
         when(gateway.dispatch(any())).thenReturn(DispatchGateway.Outcome.ok());
         dispatch = new DispatchService(planService, previewService, plans, h.catalogService, h.candidates, h.versions,
-                gateway, new AuditService(journal, projector), conversations, mock(ChatMemory.class), tx);
+                gateway, new AuditService(journal, projector), conversations,  tx);
         reader = new TraceReader(jdbc);
     }
 
@@ -134,7 +127,7 @@ class TracePersistenceIntegrationTest {
         var conversation = conversations.create(USER1, "mock");
         conversations.logUser(conversation.getId(), USER1.userId(), "查询销售并派单");
         var preview = previewService.preview(USER1, conversation.getId(),
-                new PreviewCommand(null, "api", null, List.of(SALES), null, null, null)).snapshot();
+                new PreviewCommand(null, "api", null, List.of(SALES), null, null)).snapshot();
         return planService.create(USER1, conversation.getId(), preview.preview().getId(), List.of(), null).plan();
     }
 
@@ -296,7 +289,7 @@ class TracePersistenceIntegrationTest {
         };
         var service = new PreviewService(h.catalogService, h.candidates, h.versions, previews, plans, h.props, lostAck);
         assertThrows(TransactionSystemException.class, () -> service.preview(USER1, conversation.getId(),
-                new PreviewCommand(null,"api",null,List.of(SALES),null,null,null)));
+                new PreviewCommand(null, "api", null, List.of(SALES), null, null)));
         assertEquals("ACTIVE", jdbc.queryForObject("SELECT status FROM dispatch_preview", String.class));
         assertEquals(2, count("dispatch_preview_item"));
         assertEquals(2, jdbc.queryForObject("SELECT total_count FROM dispatch_preview", Integer.class));
@@ -314,13 +307,13 @@ class TracePersistenceIntegrationTest {
         };
         var service = new PreviewService(h.catalogService, h.candidates, h.versions, previews, plans, h.props, rollback);
         assertThrows(IllegalStateException.class, () -> service.preview(USER1, conversation.getId(),
-                new PreviewCommand(null,"api",null,List.of(SALES),null,null,null)));
+                new PreviewCommand(null, "api", null, List.of(SALES), null, null)));
         assertEquals(0, count("dispatch_preview")); assertEquals(0, count("dispatch_preview_item"));
     }
 
     private String buildingFixture() {
         var conversation = conversations.create(USER1, "mock");
-        var outcome = previewService.preview(USER1, conversation.getId(), new PreviewCommand(null,"api",null,List.of(SALES),null,null,null));
+        var outcome = previewService.preview(USER1, conversation.getId(), new PreviewCommand(null, "api", null, List.of(SALES), null, null));
         String id = outcome.snapshot().preview().getId();
         jdbc.update("UPDATE dispatch_preview SET status='BUILDING',updated_at=DATE_SUB(NOW(),INTERVAL 11 MINUTE) WHERE id=?", id);
         return id;

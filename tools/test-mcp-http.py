@@ -1,6 +1,6 @@
 """Live-model acceptance for the local MCP stack. --confirm-dispatch mutates ONE demo row.
 
-Use only with the dedicated report_mcp demo database. Credentials and session tokens
+Use only with the dedicated report_demo_v1_20261006 demo database. Credentials and session tokens
 are read locally and are never included in the evidence file or console output.
 """
 import argparse

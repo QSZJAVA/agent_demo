@@ -11,14 +11,14 @@ import java.util.Map;
 import java.util.UUID;
 
 /**
- * JSON 与 ID 小工具：Redis 快照、卡片载荷、工具日志共用一个 ObjectMapper
+ * 当前协议的 JSON 与 ID 工具：持久化快照、卡片载荷和调查日志共用严格 ObjectMapper；不接受未知旧字段
  */
 public final class JsonUtil {
 
     public static final ObjectMapper MAPPER = JsonMapper.builder()
             .addModule(new JavaTimeModule())
             .disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
-            .disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
+            .enable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
             .build();
 
     private static final TypeReference<Map<String, Object>> MAP_TYPE = new TypeReference<>() {
@@ -50,7 +50,7 @@ public final class JsonUtil {
         try {
             return MAPPER.readValue(json, MAP_TYPE);
         } catch (Exception e) {
-            return Map.of("raw", json);
+            throw new IllegalStateException("JSON对象不符合当前格式", e);
         }
     }
 

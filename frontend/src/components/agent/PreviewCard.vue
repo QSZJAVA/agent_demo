@@ -7,7 +7,7 @@
         <el-tag v-if="statusTag" size="mini" :type="statusTag.type">{{ statusTag.label }}</el-tag>
       </span>
       <span class="card-sub">
-        <span v-for="r in payload.byReport" :key="r.reportId || r.reportType" class="count">
+        <span v-for="r in payload.byReport" :key="r.reportId" class="count">
           {{ r.reportName }} {{ r.count }} 条
         </span>
       </span>
@@ -66,15 +66,14 @@ import { fetchPreviewItems } from '../../api/agent'
 const STATUS_TAGS = {
   SUPERSEDED: { label: '已作废', type: 'info' },
   EXPIRED: { label: '已失效', type: 'info' },
-  CONSUMED: { label: '已派单', type: 'success' },
-  LEGACY: { label: '历史快照', type: '' }
+  CONSUMED: { label: '已派单', type: 'success' }
 }
 
 export default {
   name: 'PreviewCard',
   props: {
     payload: { type: Object, required: true },
-    // 服务端状态；升级前的历史快照没有服务端状态，按只读处理
+    // 服务端状态；当前接口必须提供状态，未知状态保持禁用
     status: { type: String, default: null },
     // 状态说明（失效原因等），由服务端给出
     statusMessage: { type: String, default: null },
@@ -94,7 +93,7 @@ export default {
   },
   computed: {
     effectiveStatus() {
-      return this.status || 'LEGACY'
+      return this.status
     },
     readonly() {
       return this.effectiveStatus !== 'ACTIVE'
@@ -103,7 +102,6 @@ export default {
       return STATUS_TAGS[this.effectiveStatus] || null
     },
     readonlyHint() {
-      if (this.effectiveStatus === 'LEGACY') return '历史快照仅供查看，如需派单请重新查询。'
       if (this.statusMessage) return this.statusMessage
       return '该预览已不可用，如需派单请重新查询。'
     },

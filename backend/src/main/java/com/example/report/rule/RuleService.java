@@ -314,7 +314,6 @@ public class RuleService {
         h.setRuleId(rule.getId());
         h.setTenantId(rule.getTenantId());
         h.setReportId(rule.getReportId());
-        h.setLegacyReportType(rule.getLegacyReportType());
         h.setCompanyCode(rule.getCompanyCode());
         h.setVersion(rule.getVersion());
         h.setName(rule.getName());

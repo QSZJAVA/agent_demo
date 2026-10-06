@@ -3,16 +3,12 @@ package com.example.report.catalog.query;
 import java.time.LocalDateTime;
 
 /**
- * 能把记录标记为已派单的适配器（模拟派单接口用）。真实系统由派单接口负责状态回写，不需要实现它。
+ * 本仓库业务表的派单状态写入边界；仅允许在业务事务内锁定记录、复核当前条件并回写。
  */
 public interface DispatchStatusWriter {
 
-    /** 在调用方事务内更新唯一的待派单记录；非唯一影响行数必须抛异常回滚。 */
-    boolean markDispatched(String tenantId, String recordId, LocalDateTime dispatchedAt);
-
     /**
-     * Lock the source row, check fresh facts and write within the caller's transaction.
-     * Adapters without this guarantee must not fall back to an unchecked write.
+     * 在调用方事务中锁定唯一来源记录，强制租户与公司范围并执行当前事实复核；不支持时拒绝写入。
      */
     default boolean markDispatchedGuarded(String tenantId, String recordId, String companyCode,
                                           LocalDateTime dispatchedAt, java.util.function.Predicate<FactRow> eligible) {

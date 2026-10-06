@@ -9,7 +9,7 @@ import static com.example.report.investigation.InvestigationTestSupport.*;
 
 /** 当前格式任务级评估；真实模型使用合成只读事实，判断条目结论和必要证据，不规定唯一工具顺序。 */
 final class InvestigationEvaluation {
-    static final int GRADER_VERSION=3;
+    static final int GRADER_VERSION=5;
     /** 与Node对比工具共享控制变量契约；评估变更项允许对比，但同一次续跑也必须保持一致。 */
     static List<String> controls(String group) {
         try(var in=InvestigationEvaluation.class.getResourceAsStream("/investigation/evaluation-controls.json")) {
@@ -37,8 +37,7 @@ final class InvestigationEvaluation {
     }
     @SuppressWarnings("unchecked")
     static Map<String,Object> run(Map<String,Object> test,InvestigationModel model,InvestigationProperties props,int repeat) {
-        var result=new LinkedHashMap<String,Object>();result.put("runId",UUID.randomUUID().toString());result.put("startedAt",Instant.now().toString());result.put("caseId",test.get("caseId"));result.put("split",test.get("split"));result.put("repeat",repeat);result.put("passed",false);result.put("parserSource","MODEL");
-        var repo=repository();var sourceItems=new ArrayList<Map<String,Object>>();var remote=new HashMap<String,Lookup>();int index=0;
+        var sourceItems=new ArrayList<Map<String,Object>>();var remote=new HashMap<String,Lookup>();int index=0;
         for(var value:(List<Map<String,Object>>)test.get("items")) {
             String ref="I"+(++index);var row=item(ref,value.get("status").toString(),(String)value.get("errorCode"));
             if(Boolean.TRUE.equals(test.get("missingRequest"))) row.put("requestId",null);
@@ -53,7 +52,13 @@ final class InvestigationEvaluation {
             sourceItems.add(row);
             if(value.get("lookup")!=null) remote.put("req-"+ref,new Lookup(LookupStatus.valueOf(value.get("lookup").toString()),"FAILED".equals(value.get("lookup"))?"BUSINESS_REJECTED":null,"核对事实"));
         }
-        var session=session(sourceItems,props);result.put("factsHash",InvestigationJson.hash(session.snapshot));var tools=tools(repo,props,remote);long start=System.nanoTime();
+        return runWithFacts(test,model,props,repeat,sourceItems,remote);
+    }
+    /** 专项评估复用正式Agent、工具与独立评分；调用方提供合成事实，事实哈希和逐步轨迹仍完整归档。 */
+    static Map<String,Object> runWithFacts(Map<String,Object> test,InvestigationModel model,InvestigationProperties props,int repeat,
+            List<Map<String,Object>> sourceItems,Map<String,Lookup> remote) {
+        var result=new LinkedHashMap<String,Object>();result.put("runId",UUID.randomUUID().toString());result.put("startedAt",Instant.now().toString());result.put("caseId",test.get("caseId"));result.put("split",test.get("split"));result.put("repeat",repeat);result.put("passed",false);result.put("parserSource","MODEL");
+        var repo=repository();var session=session(sourceItems,props);result.put("factsHash",InvestigationJson.hash(session.snapshot));var tools=tools(repo,props,remote);long start=System.nanoTime();
         var traces=new TreeMap<Integer,Map<String,Object>>();
         org.mockito.Mockito.when(repo.startStep(org.mockito.ArgumentMatchers.anyString(),org.mockito.ArgumentMatchers.anyString(),org.mockito.ArgumentMatchers.anyString(),org.mockito.ArgumentMatchers.nullable(String.class),org.mockito.ArgumentMatchers.nullable(String.class),org.mockito.ArgumentMatchers.any())).thenAnswer(call -> {
             int seq=traces.size()+1;var trace=new LinkedHashMap<String,Object>();

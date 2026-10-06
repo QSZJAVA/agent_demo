@@ -1,0 +1,1258 @@
+{
+  "passed" : 31,
+  "protocol" : 3,
+  "nativeSchema" : true,
+  "total" : 35,
+  "corpora" : [ "generalization-reserve.json" ],
+  "parserSources" : {
+    "MODEL" : 33
+  },
+  "model" : "deepseek-v4.1-flash",
+  "thinkingEnabled" : false,
+  "cases" : [ {
+    "scenario" : "保留集B-客户与表达-1",
+    "message" : "先预览我有权限派的全部记录",
+    "passed" : true,
+    "parserSource" : "MODEL",
+    "intent" : {
+      "version" : 3,
+      "action" : "PREVIEW",
+      "scopeChanges" : [ ],
+      "restrictions" : [ ],
+      "reportConstraints" : [ ],
+      "unsupportedConditions" : [ ],
+      "clarify" : "NONE"
+    },
+    "expected" : {
+      "message" : "先预览我有权限派的全部记录",
+      "action" : "PREVIEW",
+      "company" : null,
+      "outcome" : "READY",
+      "allReports" : true,
+      "excludedIds" : [ ]
+    },
+    "outcome" : "READY",
+    "reason" : null,
+    "scope" : {
+      "companyCode" : null,
+      "allReports" : true,
+      "reportIds" : [ ]
+    },
+    "excludedRecords" : [ ],
+    "latencyMs" : 2650
+  }, {
+    "scenario" : "保留集B-客户与表达-1",
+    "message" : "别动其他报表，应收里客户晟远机械有限公司的所有单据都取消选择",
+    "passed" : false,
+    "error" : "InvalidOutput",
+    "invalidOutput" : "{\n  \"version\": 3,\n  \"action\": \"PREVIEW\",\n  \"scopeChanges\": [\n    {\n      \"target\": \"REPORTS\",\n      \"operation\": \"REPLACE\",\n      \"mentions\": [\n        \"应收\"\n      ],\n      \"evidence\": \"应收里客户晟远机械有限公司的所有单据都取消选择\",\n      \"reportMentions\": [],\n      \"selectorKind\": \"NONE\",\n      \"quantifier\": \"UNSPECIFIED\"\n    },\n    {\n      \"target\": \"RECORDS\",\n      \"operation\": \"EXCLUDE\",\n      \"mentions\": [\n        \"晟远机械有限公司\"\n      ],\n      \"evidence\": \"应收里客户晟远机械有限公司的所有单据都取消选择\",\n      \"reportMentions\": [\n        \"应收\"\n      ],\n      \"selectorKind\": \"COUNTERPARTY\",\n      \"quantifier\": \"ALL\"\n    }\n  ],\n  \"restrictions\": [],\n  \"clarify\": \"NONE\",\n  \"reportConstraints\": [],\n  \"unsupportedConditions\": []\n}",
+    "latencyMs" : 5017
+  }, {
+    "scenario" : "保留集B-客户与表达-1",
+    "message" : "将客户晟远机械有限公司的应收单据全部恢复选择",
+    "passed" : false,
+    "parserSource" : "MODEL",
+    "intent" : {
+      "version" : 3,
+      "action" : "PREVIEW",
+      "scopeChanges" : [ {
+        "target" : "RECORDS",
+        "operation" : "RESTORE",
+        "mentions" : [ "晟远机械有限公司" ],
+        "evidence" : "将客户晟远机械有限公司的应收单据全部恢复选择",
+        "reportMentions" : [ "应收" ],
+        "selectorKind" : "COUNTERPARTY",
+        "quantifier" : "ALL"
+      } ],
+      "restrictions" : [ ],
+      "reportConstraints" : [ ],
+      "unsupportedConditions" : [ ],
+      "clarify" : "NONE"
+    },
+    "expected" : {
+      "message" : "将客户晟远机械有限公司的应收单据全部恢复选择",
+      "action" : "PREVIEW",
+      "company" : null,
+      "outcome" : "READY",
+      "allReports" : true,
+      "excludedIds" : [ ]
+    },
+    "outcome" : "CLARIFY",
+    "reason" : "公司范围尚未确定，请明确一家公司或说明查询全部可见公司",
+    "scope" : {
+      "companyCode" : null,
+      "allReports" : true,
+      "reportIds" : [ ]
+    },
+    "excludedRecords" : [ ],
+    "latencyMs" : 2119
+  }, {
+    "scenario" : "保留集B-客户与表达-1",
+    "message" : "就当前选择生成一份等待确认的派单清单",
+    "passed" : false,
+    "parserSource" : "MODEL",
+    "intent" : {
+      "version" : 3,
+      "action" : "PREPARE_DISPATCH",
+      "scopeChanges" : [ ],
+      "restrictions" : [ ],
+      "reportConstraints" : [ ],
+      "unsupportedConditions" : [ ],
+      "clarify" : "NONE"
+    },
+    "expected" : {
+      "message" : "就当前选择生成一份等待确认的派单清单",
+      "action" : "PREPARE_DISPATCH",
+      "company" : null,
+      "outcome" : "READY",
+      "allReports" : true,
+      "excludedIds" : [ ]
+    },
+    "outcome" : "CLARIFY",
+    "reason" : "公司范围尚未确定，请明确一家公司或说明查询全部可见公司",
+    "scope" : {
+      "companyCode" : null,
+      "allReports" : true,
+      "reportIds" : [ ]
+    },
+    "excludedRecords" : [ ],
+    "latencyMs" : 2285
+  }, {
+    "scenario" : "保留集B-客户与表达-2",
+    "message" : "先预览我有权限派的全部记录",
+    "passed" : true,
+    "parserSource" : "MODEL",
+    "intent" : {
+      "version" : 3,
+      "action" : "PREVIEW",
+      "scopeChanges" : [ ],
+      "restrictions" : [ ],
+      "reportConstraints" : [ ],
+      "unsupportedConditions" : [ ],
+      "clarify" : "NONE"
+    },
+    "expected" : {
+      "message" : "先预览我有权限派的全部记录",
+      "action" : "PREVIEW",
+      "company" : null,
+      "outcome" : "READY",
+      "allReports" : true,
+      "excludedIds" : [ ]
+    },
+    "outcome" : "READY",
+    "reason" : null,
+    "scope" : {
+      "companyCode" : null,
+      "allReports" : true,
+      "reportIds" : [ ]
+    },
+    "excludedRecords" : [ ],
+    "latencyMs" : 1932
+  }, {
+    "scenario" : "保留集B-客户与表达-2",
+    "message" : "本次所有锦榆的应收单据一律不选",
+    "passed" : true,
+    "parserSource" : "MODEL",
+    "intent" : {
+      "version" : 3,
+      "action" : "PREVIEW",
+      "scopeChanges" : [ {
+        "target" : "RECORDS",
+        "operation" : "EXCLUDE",
+        "mentions" : [ "锦榆" ],
+        "evidence" : "本次所有锦榆的应收单据一律不选",
+        "reportMentions" : [ "应收" ],
+        "selectorKind" : "COUNTERPARTY",
+        "quantifier" : "ALL"
+      } ],
+      "restrictions" : [ ],
+      "reportConstraints" : [ ],
+      "unsupportedConditions" : [ ],
+      "clarify" : "NONE"
+    },
+    "expected" : {
+      "message" : "本次所有锦榆的应收单据一律不选",
+      "action" : "PREVIEW",
+      "company" : null,
+      "outcome" : "READY",
+      "allReports" : true,
+      "excludedIds" : [ "a1", "a2" ]
+    },
+    "outcome" : "READY",
+    "reason" : null,
+    "scope" : {
+      "companyCode" : null,
+      "allReports" : true,
+      "reportIds" : [ ]
+    },
+    "excludedRecords" : [ {
+      "reportId" : "rpt-ar-invoice",
+      "recordId" : "a1"
+    }, {
+      "reportId" : "rpt-ar-invoice",
+      "recordId" : "a2"
+    } ],
+    "latencyMs" : 2225
+  }, {
+    "scenario" : "保留集B-客户与表达-2",
+    "message" : "将客户锦榆咨询有限公司的应收单据全部恢复选择",
+    "passed" : true,
+    "parserSource" : "MODEL",
+    "intent" : {
+      "version" : 3,
+      "action" : "PREVIEW",
+      "scopeChanges" : [ {
+        "target" : "RECORDS",
+        "operation" : "RESTORE",
+        "mentions" : [ "锦榆咨询有限公司" ],
+        "evidence" : "将客户锦榆咨询有限公司的应收单据全部恢复选择",
+        "reportMentions" : [ "应收" ],
+        "selectorKind" : "COUNTERPARTY",
+        "quantifier" : "ALL"
+      } ],
+      "restrictions" : [ ],
+      "reportConstraints" : [ ],
+      "unsupportedConditions" : [ ],
+      "clarify" : "NONE"
+    },
+    "expected" : {
+      "message" : "将客户锦榆咨询有限公司的应收单据全部恢复选择",
+      "action" : "PREVIEW",
+      "company" : null,
+      "outcome" : "READY",
+      "allReports" : true,
+      "excludedIds" : [ ]
+    },
+    "outcome" : "READY",
+    "reason" : null,
+    "scope" : {
+      "companyCode" : null,
+      "allReports" : true,
+      "reportIds" : [ ]
+    },
+    "excludedRecords" : [ ],
+    "latencyMs" : 2111
+  }, {
+    "scenario" : "保留集B-客户与表达-2",
+    "message" : "就当前选择生成一份等待确认的派单清单",
+    "passed" : true,
+    "parserSource" : "MODEL",
+    "intent" : {
+      "version" : 3,
+      "action" : "PREPARE_DISPATCH",
+      "scopeChanges" : [ ],
+      "restrictions" : [ ],
+      "reportConstraints" : [ ],
+      "unsupportedConditions" : [ ],
+      "clarify" : "NONE"
+    },
+    "expected" : {
+      "message" : "就当前选择生成一份等待确认的派单清单",
+      "action" : "PREPARE_DISPATCH",
+      "company" : null,
+      "outcome" : "READY",
+      "allReports" : true,
+      "excludedIds" : [ ]
+    },
+    "outcome" : "READY",
+    "reason" : null,
+    "scope" : {
+      "companyCode" : null,
+      "allReports" : true,
+      "reportIds" : [ ]
+    },
+    "excludedRecords" : [ ],
+    "latencyMs" : 2178
+  }, {
+    "scenario" : "保留集B-客户与表达-3",
+    "message" : "先预览我有权限派的全部记录",
+    "passed" : true,
+    "parserSource" : "MODEL",
+    "intent" : {
+      "version" : 3,
+      "action" : "PREVIEW",
+      "scopeChanges" : [ ],
+      "restrictions" : [ ],
+      "reportConstraints" : [ ],
+      "unsupportedConditions" : [ ],
+      "clarify" : "NONE"
+    },
+    "expected" : {
+      "message" : "先预览我有权限派的全部记录",
+      "action" : "PREVIEW",
+      "company" : null,
+      "outcome" : "READY",
+      "allReports" : true,
+      "excludedIds" : [ ]
+    },
+    "outcome" : "READY",
+    "reason" : null,
+    "scope" : {
+      "companyCode" : null,
+      "allReports" : true,
+      "reportIds" : [ ]
+    },
+    "excludedRecords" : [ ],
+    "latencyMs" : 2449
+  }, {
+    "scenario" : "保留集B-客户与表达-3",
+    "message" : "清樾材料有限公司名下的应收记录，一笔也不要选",
+    "passed" : true,
+    "parserSource" : "MODEL",
+    "intent" : {
+      "version" : 3,
+      "action" : "PREVIEW",
+      "scopeChanges" : [ {
+        "target" : "RECORDS",
+        "operation" : "EXCLUDE",
+        "mentions" : [ "清樾材料有限公司" ],
+        "evidence" : "清樾材料有限公司名下的应收记录，一笔也不要选",
+        "reportMentions" : [ "应收" ],
+        "selectorKind" : "COUNTERPARTY",
+        "quantifier" : "ALL"
+      } ],
+      "restrictions" : [ ],
+      "reportConstraints" : [ ],
+      "unsupportedConditions" : [ ],
+      "clarify" : "NONE"
+    },
+    "expected" : {
+      "message" : "清樾材料有限公司名下的应收记录，一笔也不要选",
+      "action" : "PREVIEW",
+      "company" : null,
+      "outcome" : "READY",
+      "allReports" : true,
+      "excludedIds" : [ "a1", "a2" ]
+    },
+    "outcome" : "READY",
+    "reason" : null,
+    "scope" : {
+      "companyCode" : null,
+      "allReports" : true,
+      "reportIds" : [ ]
+    },
+    "excludedRecords" : [ {
+      "reportId" : "rpt-ar-invoice",
+      "recordId" : "a1"
+    }, {
+      "reportId" : "rpt-ar-invoice",
+      "recordId" : "a2"
+    } ],
+    "latencyMs" : 2491
+  }, {
+    "scenario" : "保留集B-客户与表达-3",
+    "message" : "将客户清樾材料有限公司的应收单据全部恢复选择",
+    "passed" : true,
+    "parserSource" : "MODEL",
+    "intent" : {
+      "version" : 3,
+      "action" : "PREVIEW",
+      "scopeChanges" : [ {
+        "target" : "RECORDS",
+        "operation" : "RESTORE",
+        "mentions" : [ "清樾材料有限公司" ],
+        "evidence" : "将客户清樾材料有限公司的应收单据全部恢复选择",
+        "reportMentions" : [ "应收" ],
+        "selectorKind" : "COUNTERPARTY",
+        "quantifier" : "ALL"
+      } ],
+      "restrictions" : [ ],
+      "reportConstraints" : [ ],
+      "unsupportedConditions" : [ ],
+      "clarify" : "NONE"
+    },
+    "expected" : {
+      "message" : "将客户清樾材料有限公司的应收单据全部恢复选择",
+      "action" : "PREVIEW",
+      "company" : null,
+      "outcome" : "READY",
+      "allReports" : true,
+      "excludedIds" : [ ]
+    },
+    "outcome" : "READY",
+    "reason" : null,
+    "scope" : {
+      "companyCode" : null,
+      "allReports" : true,
+      "reportIds" : [ ]
+    },
+    "excludedRecords" : [ ],
+    "latencyMs" : 1957
+  }, {
+    "scenario" : "保留集B-客户与表达-3",
+    "message" : "就当前选择生成一份等待确认的派单清单",
+    "passed" : true,
+    "parserSource" : "MODEL",
+    "intent" : {
+      "version" : 3,
+      "action" : "PREPARE_DISPATCH",
+      "scopeChanges" : [ ],
+      "restrictions" : [ ],
+      "reportConstraints" : [ ],
+      "unsupportedConditions" : [ ],
+      "clarify" : "NONE"
+    },
+    "expected" : {
+      "message" : "就当前选择生成一份等待确认的派单清单",
+      "action" : "PREPARE_DISPATCH",
+      "company" : null,
+      "outcome" : "READY",
+      "allReports" : true,
+      "excludedIds" : [ ]
+    },
+    "outcome" : "READY",
+    "reason" : null,
+    "scope" : {
+      "companyCode" : null,
+      "allReports" : true,
+      "reportIds" : [ ]
+    },
+    "excludedRecords" : [ ],
+    "latencyMs" : 1916
+  }, {
+    "scenario" : "保留集B-客户与表达-4",
+    "message" : "先预览我有权限派的全部记录",
+    "passed" : true,
+    "parserSource" : "MODEL",
+    "intent" : {
+      "version" : 3,
+      "action" : "PREVIEW",
+      "scopeChanges" : [ ],
+      "restrictions" : [ ],
+      "reportConstraints" : [ ],
+      "unsupportedConditions" : [ ],
+      "clarify" : "NONE"
+    },
+    "expected" : {
+      "message" : "先预览我有权限派的全部记录",
+      "action" : "PREVIEW",
+      "company" : null,
+      "outcome" : "READY",
+      "allReports" : true,
+      "excludedIds" : [ ]
+    },
+    "outcome" : "READY",
+    "reason" : null,
+    "scope" : {
+      "companyCode" : null,
+      "allReports" : true,
+      "reportIds" : [ ]
+    },
+    "excludedRecords" : [ ],
+    "latencyMs" : 2276
+  }, {
+    "scenario" : "保留集B-客户与表达-4",
+    "message" : "当前预览中，把栖岳的应收记录全部剔除",
+    "passed" : true,
+    "parserSource" : "MODEL",
+    "intent" : {
+      "version" : 3,
+      "action" : "PREVIEW",
+      "scopeChanges" : [ {
+        "target" : "RECORDS",
+        "operation" : "EXCLUDE",
+        "mentions" : [ "栖岳" ],
+        "evidence" : "当前预览中，把栖岳的应收记录全部剔除",
+        "reportMentions" : [ "应收" ],
+        "selectorKind" : "COUNTERPARTY",
+        "quantifier" : "ALL"
+      } ],
+      "restrictions" : [ ],
+      "reportConstraints" : [ {
+        "mention" : "应收",
+        "role" : "RECORD_SCOPE",
+        "evidence" : "当前预览中，把栖岳的应收记录全部剔除"
+      } ],
+      "unsupportedConditions" : [ ],
+      "clarify" : "NONE"
+    },
+    "expected" : {
+      "message" : "当前预览中，把栖岳的应收记录全部剔除",
+      "action" : "PREVIEW",
+      "company" : null,
+      "outcome" : "READY",
+      "allReports" : true,
+      "excludedIds" : [ "a1", "a2" ]
+    },
+    "outcome" : "READY",
+    "reason" : null,
+    "scope" : {
+      "companyCode" : null,
+      "allReports" : true,
+      "reportIds" : [ ]
+    },
+    "excludedRecords" : [ {
+      "reportId" : "rpt-ar-invoice",
+      "recordId" : "a1"
+    }, {
+      "reportId" : "rpt-ar-invoice",
+      "recordId" : "a2"
+    } ],
+    "latencyMs" : 2419
+  }, {
+    "scenario" : "保留集B-客户与表达-4",
+    "message" : "将客户栖岳物流有限公司的应收单据全部恢复选择",
+    "passed" : true,
+    "parserSource" : "MODEL",
+    "intent" : {
+      "version" : 3,
+      "action" : "PREVIEW",
+      "scopeChanges" : [ {
+        "target" : "RECORDS",
+        "operation" : "RESTORE",
+        "mentions" : [ "栖岳物流有限公司" ],
+        "evidence" : "将客户栖岳物流有限公司的应收单据全部恢复选择",
+        "reportMentions" : [ "应收" ],
+        "selectorKind" : "COUNTERPARTY",
+        "quantifier" : "ALL"
+      } ],
+      "restrictions" : [ ],
+      "reportConstraints" : [ ],
+      "unsupportedConditions" : [ ],
+      "clarify" : "NONE"
+    },
+    "expected" : {
+      "message" : "将客户栖岳物流有限公司的应收单据全部恢复选择",
+      "action" : "PREVIEW",
+      "company" : null,
+      "outcome" : "READY",
+      "allReports" : true,
+      "excludedIds" : [ ]
+    },
+    "outcome" : "READY",
+    "reason" : null,
+    "scope" : {
+      "companyCode" : null,
+      "allReports" : true,
+      "reportIds" : [ ]
+    },
+    "excludedRecords" : [ ],
+    "latencyMs" : 2535
+  }, {
+    "scenario" : "保留集B-客户与表达-4",
+    "message" : "就当前选择生成一份等待确认的派单清单",
+    "passed" : true,
+    "parserSource" : "MODEL",
+    "intent" : {
+      "version" : 3,
+      "action" : "PREPARE_DISPATCH",
+      "scopeChanges" : [ ],
+      "restrictions" : [ ],
+      "reportConstraints" : [ ],
+      "unsupportedConditions" : [ ],
+      "clarify" : "NONE"
+    },
+    "expected" : {
+      "message" : "就当前选择生成一份等待确认的派单清单",
+      "action" : "PREPARE_DISPATCH",
+      "company" : null,
+      "outcome" : "READY",
+      "allReports" : true,
+      "excludedIds" : [ ]
+    },
+    "outcome" : "READY",
+    "reason" : null,
+    "scope" : {
+      "companyCode" : null,
+      "allReports" : true,
+      "reportIds" : [ ]
+    },
+    "excludedRecords" : [ ],
+    "latencyMs" : 2907
+  }, {
+    "scenario" : "保留集B-客户与表达-5",
+    "message" : "先预览我有权限派的全部记录",
+    "passed" : true,
+    "parserSource" : "MODEL",
+    "intent" : {
+      "version" : 3,
+      "action" : "PREVIEW",
+      "scopeChanges" : [ ],
+      "restrictions" : [ ],
+      "reportConstraints" : [ ],
+      "unsupportedConditions" : [ ],
+      "clarify" : "NONE"
+    },
+    "expected" : {
+      "message" : "先预览我有权限派的全部记录",
+      "action" : "PREVIEW",
+      "company" : null,
+      "outcome" : "READY",
+      "allReports" : true,
+      "excludedIds" : [ ]
+    },
+    "outcome" : "READY",
+    "reason" : null,
+    "scope" : {
+      "companyCode" : null,
+      "allReports" : true,
+      "reportIds" : [ ]
+    },
+    "excludedRecords" : [ ],
+    "latencyMs" : 2120
+  }, {
+    "scenario" : "保留集B-客户与表达-5",
+    "message" : "应收那些归沧禾商贸有限公司的全都不参与，其他范围照旧",
+    "passed" : true,
+    "parserSource" : "MODEL",
+    "intent" : {
+      "version" : 3,
+      "action" : "PREVIEW",
+      "scopeChanges" : [ {
+        "target" : "RECORDS",
+        "operation" : "EXCLUDE",
+        "mentions" : [ "沧禾商贸有限公司" ],
+        "evidence" : "应收那些归沧禾商贸有限公司的全都不参与，其他范围照旧",
+        "reportMentions" : [ "应收" ],
+        "selectorKind" : "COUNTERPARTY",
+        "quantifier" : "ALL"
+      } ],
+      "restrictions" : [ ],
+      "reportConstraints" : [ ],
+      "unsupportedConditions" : [ ],
+      "clarify" : "NONE"
+    },
+    "expected" : {
+      "message" : "应收那些归沧禾商贸有限公司的全都不参与，其他范围照旧",
+      "action" : "PREVIEW",
+      "company" : null,
+      "outcome" : "READY",
+      "allReports" : true,
+      "excludedIds" : [ "a1", "a2" ]
+    },
+    "outcome" : "READY",
+    "reason" : null,
+    "scope" : {
+      "companyCode" : null,
+      "allReports" : true,
+      "reportIds" : [ ]
+    },
+    "excludedRecords" : [ {
+      "reportId" : "rpt-ar-invoice",
+      "recordId" : "a1"
+    }, {
+      "reportId" : "rpt-ar-invoice",
+      "recordId" : "a2"
+    } ],
+    "latencyMs" : 2875
+  }, {
+    "scenario" : "保留集B-客户与表达-5",
+    "message" : "将客户沧禾商贸有限公司的应收单据全部恢复选择",
+    "passed" : true,
+    "parserSource" : "MODEL",
+    "intent" : {
+      "version" : 3,
+      "action" : "PREVIEW",
+      "scopeChanges" : [ {
+        "target" : "RECORDS",
+        "operation" : "RESTORE",
+        "mentions" : [ "沧禾商贸有限公司" ],
+        "evidence" : "将客户沧禾商贸有限公司的应收单据全部恢复选择",
+        "reportMentions" : [ "应收" ],
+        "selectorKind" : "COUNTERPARTY",
+        "quantifier" : "ALL"
+      } ],
+      "restrictions" : [ ],
+      "reportConstraints" : [ ],
+      "unsupportedConditions" : [ ],
+      "clarify" : "NONE"
+    },
+    "expected" : {
+      "message" : "将客户沧禾商贸有限公司的应收单据全部恢复选择",
+      "action" : "PREVIEW",
+      "company" : null,
+      "outcome" : "READY",
+      "allReports" : true,
+      "excludedIds" : [ ]
+    },
+    "outcome" : "READY",
+    "reason" : null,
+    "scope" : {
+      "companyCode" : null,
+      "allReports" : true,
+      "reportIds" : [ ]
+    },
+    "excludedRecords" : [ ],
+    "latencyMs" : 2452
+  }, {
+    "scenario" : "保留集B-客户与表达-5",
+    "message" : "就当前选择生成一份等待确认的派单清单",
+    "passed" : true,
+    "parserSource" : "MODEL",
+    "intent" : {
+      "version" : 3,
+      "action" : "PREPARE_DISPATCH",
+      "scopeChanges" : [ ],
+      "restrictions" : [ ],
+      "reportConstraints" : [ ],
+      "unsupportedConditions" : [ ],
+      "clarify" : "NONE"
+    },
+    "expected" : {
+      "message" : "就当前选择生成一份等待确认的派单清单",
+      "action" : "PREPARE_DISPATCH",
+      "company" : null,
+      "outcome" : "READY",
+      "allReports" : true,
+      "excludedIds" : [ ]
+    },
+    "outcome" : "READY",
+    "reason" : null,
+    "scope" : {
+      "companyCode" : null,
+      "allReports" : true,
+      "reportIds" : [ ]
+    },
+    "excludedRecords" : [ ],
+    "latencyMs" : 2413
+  }, {
+    "scenario" : "保留集B-客户与表达-6",
+    "message" : "先预览我有权限派的全部记录",
+    "passed" : true,
+    "parserSource" : "MODEL",
+    "intent" : {
+      "version" : 3,
+      "action" : "PREVIEW",
+      "scopeChanges" : [ ],
+      "restrictions" : [ ],
+      "reportConstraints" : [ ],
+      "unsupportedConditions" : [ ],
+      "clarify" : "NONE"
+    },
+    "expected" : {
+      "message" : "先预览我有权限派的全部记录",
+      "action" : "PREVIEW",
+      "company" : null,
+      "outcome" : "READY",
+      "allReports" : true,
+      "excludedIds" : [ ]
+    },
+    "outcome" : "READY",
+    "reason" : null,
+    "scope" : {
+      "companyCode" : null,
+      "allReports" : true,
+      "reportIds" : [ ]
+    },
+    "excludedRecords" : [ ],
+    "latencyMs" : 2101
+  }, {
+    "scenario" : "保留集B-客户与表达-6",
+    "message" : "其他记录保留，所有铂衡名下的应收记录去掉",
+    "passed" : true,
+    "parserSource" : "MODEL",
+    "intent" : {
+      "version" : 3,
+      "action" : "PREVIEW",
+      "scopeChanges" : [ {
+        "target" : "RECORDS",
+        "operation" : "EXCLUDE",
+        "mentions" : [ "铂衡" ],
+        "evidence" : "其他记录保留，所有铂衡名下的应收记录去掉",
+        "reportMentions" : [ "应收" ],
+        "selectorKind" : "COUNTERPARTY",
+        "quantifier" : "ALL"
+      } ],
+      "restrictions" : [ ],
+      "reportConstraints" : [ ],
+      "unsupportedConditions" : [ ],
+      "clarify" : "NONE"
+    },
+    "expected" : {
+      "message" : "其他记录保留，所有铂衡名下的应收记录去掉",
+      "action" : "PREVIEW",
+      "company" : null,
+      "outcome" : "READY",
+      "allReports" : true,
+      "excludedIds" : [ "a1", "a2" ]
+    },
+    "outcome" : "READY",
+    "reason" : null,
+    "scope" : {
+      "companyCode" : null,
+      "allReports" : true,
+      "reportIds" : [ ]
+    },
+    "excludedRecords" : [ {
+      "reportId" : "rpt-ar-invoice",
+      "recordId" : "a1"
+    }, {
+      "reportId" : "rpt-ar-invoice",
+      "recordId" : "a2"
+    } ],
+    "latencyMs" : 2239
+  }, {
+    "scenario" : "保留集B-客户与表达-6",
+    "message" : "将客户铂衡电子有限公司的应收单据全部恢复选择",
+    "passed" : true,
+    "parserSource" : "MODEL",
+    "intent" : {
+      "version" : 3,
+      "action" : "PREVIEW",
+      "scopeChanges" : [ {
+        "target" : "RECORDS",
+        "operation" : "RESTORE",
+        "mentions" : [ "铂衡电子有限公司" ],
+        "evidence" : "将客户铂衡电子有限公司的应收单据全部恢复选择",
+        "reportMentions" : [ "应收" ],
+        "selectorKind" : "COUNTERPARTY",
+        "quantifier" : "ALL"
+      } ],
+      "restrictions" : [ ],
+      "reportConstraints" : [ ],
+      "unsupportedConditions" : [ ],
+      "clarify" : "NONE"
+    },
+    "expected" : {
+      "message" : "将客户铂衡电子有限公司的应收单据全部恢复选择",
+      "action" : "PREVIEW",
+      "company" : null,
+      "outcome" : "READY",
+      "allReports" : true,
+      "excludedIds" : [ ]
+    },
+    "outcome" : "READY",
+    "reason" : null,
+    "scope" : {
+      "companyCode" : null,
+      "allReports" : true,
+      "reportIds" : [ ]
+    },
+    "excludedRecords" : [ ],
+    "latencyMs" : 2660
+  }, {
+    "scenario" : "保留集B-客户与表达-6",
+    "message" : "就当前选择生成一份等待确认的派单清单",
+    "passed" : true,
+    "parserSource" : "MODEL",
+    "intent" : {
+      "version" : 3,
+      "action" : "PREPARE_DISPATCH",
+      "scopeChanges" : [ ],
+      "restrictions" : [ ],
+      "reportConstraints" : [ ],
+      "unsupportedConditions" : [ ],
+      "clarify" : "NONE"
+    },
+    "expected" : {
+      "message" : "就当前选择生成一份等待确认的派单清单",
+      "action" : "PREPARE_DISPATCH",
+      "company" : null,
+      "outcome" : "READY",
+      "allReports" : true,
+      "excludedIds" : [ ]
+    },
+    "outcome" : "READY",
+    "reason" : null,
+    "scope" : {
+      "companyCode" : null,
+      "allReports" : true,
+      "reportIds" : [ ]
+    },
+    "excludedRecords" : [ ],
+    "latencyMs" : 2341
+  }, {
+    "scenario" : "保留集B-单笔与全部不能混淆",
+    "message" : "把目前能处理的可派单记录列给我看看",
+    "passed" : true,
+    "parserSource" : "MODEL",
+    "intent" : {
+      "version" : 3,
+      "action" : "PREVIEW",
+      "scopeChanges" : [ ],
+      "restrictions" : [ ],
+      "reportConstraints" : [ ],
+      "unsupportedConditions" : [ ],
+      "clarify" : "NONE"
+    },
+    "expected" : {
+      "message" : "把目前能处理的可派单记录列给我看看",
+      "action" : "PREVIEW",
+      "company" : null,
+      "outcome" : "READY",
+      "allReports" : true,
+      "excludedIds" : [ ]
+    },
+    "outcome" : "READY",
+    "reason" : null,
+    "scope" : {
+      "companyCode" : null,
+      "allReports" : true,
+      "reportIds" : [ ]
+    },
+    "excludedRecords" : [ ],
+    "latencyMs" : 2251
+  }, {
+    "scenario" : "保留集B-单笔与全部不能混淆",
+    "message" : "应收里晟远机械有限公司那一笔不要了",
+    "passed" : true,
+    "parserSource" : "MODEL",
+    "intent" : {
+      "version" : 3,
+      "action" : "PREVIEW",
+      "scopeChanges" : [ {
+        "target" : "RECORDS",
+        "operation" : "EXCLUDE",
+        "mentions" : [ "晟远机械有限公司" ],
+        "evidence" : "应收里晟远机械有限公司那一笔不要了",
+        "reportMentions" : [ "应收" ],
+        "selectorKind" : "COUNTERPARTY",
+        "quantifier" : "ONE"
+      } ],
+      "restrictions" : [ ],
+      "reportConstraints" : [ ],
+      "unsupportedConditions" : [ ],
+      "clarify" : "NONE"
+    },
+    "expected" : {
+      "message" : "应收里晟远机械有限公司那一笔不要了",
+      "action" : "PREVIEW",
+      "company" : null,
+      "outcome" : "CLARIFY",
+      "allReports" : true,
+      "excludedIds" : [ ]
+    },
+    "outcome" : "CLARIFY",
+    "reason" : "“晟远机械有限公司”匹配2条记录，请说明全部匹配记录或指定单据号",
+    "scope" : {
+      "companyCode" : null,
+      "allReports" : true,
+      "reportIds" : [ ]
+    },
+    "excludedRecords" : [ ],
+    "latencyMs" : 2464
+  }, {
+    "scenario" : "保留集B-单笔与全部不能混淆",
+    "message" : "明确排除应收中发票AR-271，其他保留",
+    "passed" : true,
+    "parserSource" : "MODEL",
+    "intent" : {
+      "version" : 3,
+      "action" : "PREVIEW",
+      "scopeChanges" : [ {
+        "target" : "RECORDS",
+        "operation" : "EXCLUDE",
+        "mentions" : [ "AR-271" ],
+        "evidence" : "明确排除应收中发票AR-271，其他保留",
+        "reportMentions" : [ "应收" ],
+        "selectorKind" : "DOCUMENT",
+        "quantifier" : "ONE"
+      } ],
+      "restrictions" : [ ],
+      "reportConstraints" : [ ],
+      "unsupportedConditions" : [ ],
+      "clarify" : "NONE"
+    },
+    "expected" : {
+      "message" : "明确排除应收中发票AR-271，其他保留",
+      "action" : "PREVIEW",
+      "company" : null,
+      "outcome" : "READY",
+      "allReports" : true,
+      "excludedIds" : [ "a1" ]
+    },
+    "outcome" : "READY",
+    "reason" : "“晟远机械有限公司”匹配2条记录，请说明全部匹配记录或指定单据号",
+    "scope" : {
+      "companyCode" : null,
+      "allReports" : true,
+      "reportIds" : [ ]
+    },
+    "excludedRecords" : [ {
+      "reportId" : "rpt-ar-invoice",
+      "recordId" : "a1"
+    } ],
+    "latencyMs" : 2386
+  }, {
+    "scenario" : "保留集B-同名客户不能用全部绕过歧义",
+    "message" : "把目前能处理的可派单记录列给我看看",
+    "passed" : true,
+    "parserSource" : "MODEL",
+    "intent" : {
+      "version" : 3,
+      "action" : "PREVIEW",
+      "scopeChanges" : [ ],
+      "restrictions" : [ ],
+      "reportConstraints" : [ ],
+      "unsupportedConditions" : [ ],
+      "clarify" : "NONE"
+    },
+    "expected" : {
+      "message" : "把目前能处理的可派单记录列给我看看",
+      "action" : "PREVIEW",
+      "company" : null,
+      "outcome" : "READY",
+      "allReports" : true,
+      "excludedIds" : [ ]
+    },
+    "outcome" : "READY",
+    "reason" : null,
+    "scope" : {
+      "companyCode" : null,
+      "allReports" : true,
+      "reportIds" : [ ]
+    },
+    "excludedRecords" : [ ],
+    "latencyMs" : 2457
+  }, {
+    "scenario" : "保留集B-同名客户不能用全部绕过歧义",
+    "message" : "晟远机械有限公司的应收记录全不派",
+    "passed" : true,
+    "parserSource" : "MODEL",
+    "intent" : {
+      "version" : 3,
+      "action" : "PREVIEW",
+      "scopeChanges" : [ {
+        "target" : "RECORDS",
+        "operation" : "EXCLUDE",
+        "mentions" : [ "晟远机械有限公司" ],
+        "evidence" : "晟远机械有限公司的应收记录全不派",
+        "reportMentions" : [ "应收" ],
+        "selectorKind" : "COUNTERPARTY",
+        "quantifier" : "ALL"
+      } ],
+      "restrictions" : [ ],
+      "reportConstraints" : [ ],
+      "unsupportedConditions" : [ ],
+      "clarify" : "NONE"
+    },
+    "expected" : {
+      "message" : "晟远机械有限公司的应收记录全不派",
+      "action" : "PREVIEW",
+      "company" : null,
+      "outcome" : "CLARIFY",
+      "excludedIds" : [ ]
+    },
+    "outcome" : "CLARIFY",
+    "reason" : "“晟远机械有限公司”未唯一定位客户，请提供已维护的客户全称、别名或单据号；候选：晟远机械有限公司（公司A，单据AR-271）、晟远机械有限公司（公司A，单据AR-828）、晟远机械有限公司（公司A，单据AR-182）",
+    "scope" : {
+      "companyCode" : null,
+      "allReports" : true,
+      "reportIds" : [ ]
+    },
+    "excludedRecords" : [ ],
+    "latencyMs" : 2624
+  }, {
+    "scenario" : "保留集B-范围等价归并与记录定位",
+    "message" : "把目前能处理的可派单记录列给我看看",
+    "passed" : true,
+    "parserSource" : "MODEL",
+    "intent" : {
+      "version" : 3,
+      "action" : "PREVIEW",
+      "scopeChanges" : [ ],
+      "restrictions" : [ ],
+      "reportConstraints" : [ ],
+      "unsupportedConditions" : [ ],
+      "clarify" : "NONE"
+    },
+    "expected" : {
+      "message" : "把目前能处理的可派单记录列给我看看",
+      "action" : "PREVIEW",
+      "company" : null,
+      "outcome" : "READY",
+      "allReports" : true,
+      "excludedIds" : [ ]
+    },
+    "outcome" : "READY",
+    "reason" : null,
+    "scope" : {
+      "companyCode" : null,
+      "allReports" : true,
+      "reportIds" : [ ]
+    },
+    "excludedRecords" : [ ],
+    "latencyMs" : 2057
+  }, {
+    "scenario" : "保留集B-范围等价归并与记录定位",
+    "message" : "把费用报表去掉，最终仅保留销售报表",
+    "passed" : true,
+    "parserSource" : "MODEL",
+    "intent" : {
+      "version" : 3,
+      "action" : "PREVIEW",
+      "scopeChanges" : [ {
+        "target" : "REPORTS",
+        "operation" : "REPLACE",
+        "mentions" : [ "销售报表" ],
+        "evidence" : "最终仅保留销售报表",
+        "reportMentions" : [ ],
+        "selectorKind" : "NONE",
+        "quantifier" : "UNSPECIFIED"
+      } ],
+      "restrictions" : [ ],
+      "reportConstraints" : [ {
+        "mention" : "费用报表",
+        "role" : "EXCLUDED",
+        "evidence" : "把费用报表去掉，最终仅保留销售报表"
+      }, {
+        "mention" : "销售报表",
+        "role" : "INCLUDED",
+        "evidence" : "最终仅保留销售报表"
+      } ],
+      "unsupportedConditions" : [ ],
+      "clarify" : "NONE"
+    },
+    "expected" : {
+      "message" : "把费用报表去掉，最终仅保留销售报表",
+      "action" : "PREVIEW",
+      "company" : null,
+      "outcome" : "READY",
+      "allReports" : false,
+      "reportIds" : [ "rpt-sales-order" ]
+    },
+    "outcome" : "READY",
+    "reason" : null,
+    "scope" : {
+      "companyCode" : null,
+      "allReports" : false,
+      "reportIds" : [ "rpt-sales-order" ]
+    },
+    "excludedRecords" : [ ],
+    "latencyMs" : 4793
+  }, {
+    "scenario" : "保留集B-范围等价归并与记录定位",
+    "message" : "重新查询全部授权公司的所有报表",
+    "passed" : true,
+    "parserSource" : "MODEL",
+    "intent" : {
+      "version" : 3,
+      "action" : "PREVIEW",
+      "scopeChanges" : [ {
+        "target" : "COMPANY",
+        "operation" : "CLEAR",
+        "mentions" : [ ],
+        "evidence" : "重新查询全部授权公司的所有报表",
+        "reportMentions" : [ ],
+        "selectorKind" : "NONE",
+        "quantifier" : "UNSPECIFIED"
+      }, {
+        "target" : "REPORTS",
+        "operation" : "CLEAR",
+        "mentions" : [ ],
+        "evidence" : "重新查询全部授权公司的所有报表",
+        "reportMentions" : [ ],
+        "selectorKind" : "NONE",
+        "quantifier" : "UNSPECIFIED"
+      } ],
+      "restrictions" : [ ],
+      "reportConstraints" : [ ],
+      "unsupportedConditions" : [ ],
+      "clarify" : "NONE"
+    },
+    "expected" : {
+      "message" : "重新查询全部授权公司的所有报表",
+      "action" : "PREVIEW",
+      "company" : null,
+      "outcome" : "READY",
+      "allReports" : true
+    },
+    "outcome" : "READY",
+    "reason" : null,
+    "scope" : {
+      "companyCode" : null,
+      "allReports" : true,
+      "reportIds" : [ ]
+    },
+    "excludedRecords" : [ ],
+    "latencyMs" : 2282
+  }, {
+    "scenario" : "保留集B-范围等价归并与记录定位",
+    "message" : "此次仅看应收，晟远机械有限公司的相关记录全排除",
+    "passed" : true,
+    "parserSource" : "MODEL",
+    "intent" : {
+      "version" : 3,
+      "action" : "PREVIEW",
+      "scopeChanges" : [ {
+        "target" : "REPORTS",
+        "operation" : "REPLACE",
+        "mentions" : [ "应收" ],
+        "evidence" : "此次仅看应收",
+        "reportMentions" : [ ],
+        "selectorKind" : "NONE",
+        "quantifier" : "UNSPECIFIED"
+      }, {
+        "target" : "RECORDS",
+        "operation" : "EXCLUDE",
+        "mentions" : [ "晟远机械有限公司" ],
+        "evidence" : "晟远机械有限公司的相关记录全排除",
+        "reportMentions" : [ ],
+        "selectorKind" : "COUNTERPARTY",
+        "quantifier" : "ALL"
+      } ],
+      "restrictions" : [ ],
+      "reportConstraints" : [ ],
+      "unsupportedConditions" : [ ],
+      "clarify" : "NONE"
+    },
+    "expected" : {
+      "message" : "此次仅看应收，晟远机械有限公司的相关记录全排除",
+      "action" : "PREVIEW",
+      "company" : null,
+      "outcome" : "READY",
+      "reportIds" : [ "rpt-ar-invoice" ],
+      "allReports" : false,
+      "excludedIds" : [ "a1", "a2" ]
+    },
+    "outcome" : "READY",
+    "reason" : null,
+    "scope" : {
+      "companyCode" : null,
+      "allReports" : false,
+      "reportIds" : [ "rpt-ar-invoice" ]
+    },
+    "excludedRecords" : [ {
+      "reportId" : "rpt-ar-invoice",
+      "recordId" : "a1"
+    }, {
+      "reportId" : "rpt-ar-invoice",
+      "recordId" : "a2"
+    } ],
+    "latencyMs" : 2469
+  }, {
+    "scenario" : "保留集B-未支持条件不能部分执行",
+    "message" : "把目前能处理的可派单记录列给我看看",
+    "passed" : true,
+    "parserSource" : "MODEL",
+    "intent" : {
+      "version" : 3,
+      "action" : "PREVIEW",
+      "scopeChanges" : [ ],
+      "restrictions" : [ ],
+      "reportConstraints" : [ ],
+      "unsupportedConditions" : [ ],
+      "clarify" : "NONE"
+    },
+    "expected" : {
+      "message" : "把目前能处理的可派单记录列给我看看",
+      "action" : "PREVIEW",
+      "company" : null,
+      "outcome" : "READY",
+      "allReports" : true,
+      "excludedIds" : [ ]
+    },
+    "outcome" : "READY",
+    "reason" : null,
+    "scope" : {
+      "companyCode" : null,
+      "allReports" : true,
+      "reportIds" : [ ]
+    },
+    "excludedRecords" : [ ],
+    "latencyMs" : 2269
+  }, {
+    "scenario" : "保留集B-未支持条件不能部分执行",
+    "message" : "仅保留应收里昨天发生的记录，再去掉晟远的",
+    "passed" : false,
+    "error" : "InvalidOutput",
+    "invalidOutput" : "{\n  \"version\": 3,\n  \"action\": \"PREVIEW\",\n  \"scopeChanges\": [\n    {\n      \"target\": \"REPORTS\",\n      \"operation\": \"REPLACE\",\n      \"mentions\": [\n        \"应收\"\n      ],\n      \"evidence\": \"仅保留应收里昨天发生的记录\",\n      \"reportMentions\": [],\n      \"selectorKind\": \"NONE\",\n      \"quantifier\": \"UNSPECIFIED\"\n    },\n    {\n      \"target\": \"RECORDS\",\n      \"operation\": \"EXCLUDE\",\n      \"mentions\": [\n        \"晟远\"\n      ],\n      \"evidence\": \"再去掉晟远的\",\n      \"reportMentions\": [\n        \"应收\"\n      ],\n      \"selectorKind\": \"COUNTERPARTY\",\n      \"quantifier\": \"UNSPECIFIED\"\n    }\n  ],\n  \"restrictions\": [],\n  \"clarify\": \"NONE\",\n  \"reportConstraints\": [],\n  \"unsupportedConditions\": [\n    \"昨天发生的\"\n  ]\n}",
+    "latencyMs" : 5151
+  } ],
+  "wrongReadyCount" : 0,
+  "clarificationCount" : 4,
+  "scope" : "held-out names and phrasing, synthetic facts, no business execution",
+  "modelCalls" : 38,
+  "formatRepairs" : 3,
+  "promptSha256" : "0b2c56296821a419087d46cd46eeb4ded506736463d183d04776b17234ecca61"
+}

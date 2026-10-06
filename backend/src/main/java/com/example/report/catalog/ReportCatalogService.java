@@ -74,24 +74,6 @@ public class ReportCatalogService {
         return catalog.find(reportId).filter(e -> isDispatchable(user, e)).map(e -> e.forUser(user)).orElseThrow(() -> ApiException.notFound(NOT_FOUND));
     }
 
-    /** 旧接口仍按 Demo 时期的 reportType 访问时，经映射表找到目录，再做同样的权限校验*/
-    public CatalogEntry requireVisibleByLegacyCode(CurrentUser user, String legacyCode) {
-        String reportId = catalog.reportIdForLegacyCode(legacyCode).orElseThrow(() -> ApiException.notFound(NOT_FOUND));
-        return requireVisible(user, reportId);
-    }
-
-    /** 报表 ID 或旧编码都接受，统一转成可见报表 */
-    public CatalogEntry requireVisibleByIdOrLegacyCode(CurrentUser user, String reportIdOrCode) {
-        if (reportIdOrCode == null || reportIdOrCode.isBlank()) {
-            throw new ApiException("报表不能为空");
-        }
-        String key = reportIdOrCode.trim();
-        if (catalog.find(key).isPresent()) {
-            return requireVisible(user, key);
-        }
-        return requireVisibleByLegacyCode(user, key);
-    }
-
     /** 在当前用户可派单的报表范围内解析说法*/
     public ResolveResult resolve(CurrentUser user, String query) {
         List<ReportRef> visible = dispatchableReports(user).stream().map(CatalogEntry::ref).toList();

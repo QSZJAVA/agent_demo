@@ -16,7 +16,7 @@ import java.util.stream.Stream;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
-/** Real SQL prefilter vs JDBC/Aviator, including lossy mappings and double literal rounding. */
+/** 在独立MySQL库核对SQL预筛选与规则试算；覆盖有损类型映射和浮点字面量舍入。 */
 @EnabledIfEnvironmentVariable(named = "TRACE_IT", matches = "true")
 class NumericRuleDatabaseTest {
     static String schema;
@@ -66,6 +66,7 @@ class NumericRuleDatabaseTest {
         adapter.probe();
         var report = spy(new TestCatalog().get(TestCatalog.SALES));
         doReturn(adapter).when(report).adapter();
+        doReturn(adapter.fields()).when(report).fields();
         var rule = new DispatchRule(); rule.setId(1L); rule.setVersion(1); rule.setExpression(expression);
         var cache = mock(RuleCache.class);
         when(cache.find("T001", TestCatalog.SALES, "A")).thenReturn(Optional.of(rule));

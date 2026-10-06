@@ -25,6 +25,19 @@ public class GlobalExceptionHandler {
         return ResponseEntity.ok(Result.fail(400, "缺少请求头 " + e.getHeaderName()));
     }
 
+    /** 当前请求字段或JSON结构无效时返回400；不回显原始请求，客户端应按当前协议重新提交。 */
+    @ExceptionHandler(org.springframework.http.converter.HttpMessageNotReadableException.class)
+    public ResponseEntity<Result<Void>> handleMalformedRequest(Exception e) {
+        return ResponseEntity.badRequest().body(Result.fail(400, "请求格式不符合当前接口协议"));
+    }
+
+    /** 已移除或不存在的接口返回404，不作为服务器故障重试。 */
+    @ExceptionHandler({org.springframework.web.servlet.resource.NoResourceFoundException.class,
+            org.springframework.web.servlet.NoHandlerFoundException.class})
+    public ResponseEntity<Result<Void>> handleMissingEndpoint(Exception e) {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Result.fail(404, "接口不存在"));
+    }
+
     @ExceptionHandler(Exception.class)
     public ResponseEntity<Result<Void>> handleOther(Exception e) {
         log.error("未处理异常", e);

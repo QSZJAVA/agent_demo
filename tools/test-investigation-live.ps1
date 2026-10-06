@@ -1,7 +1,7 @@
-param([ValidateSet('development','holdout','all')][string]$Split='holdout', [ValidateRange(1,10)][int]$Repeats=3, [string]$CaseFilter='', [string]$ResumeFrom='', [ValidateRange(1,2)][int]$Parallelism=2, [switch]$NativeSchema, [switch]$Thinking, [switch]$Joint, [switch]$Browser)
+param([ValidateSet('development','holdout','all')][string]$Split='holdout', [ValidateRange(1,10)][int]$Repeats=3, [string]$CaseFilter='', [string]$ResumeFrom='', [ValidateRange(1,2)][int]$Parallelism=2, [switch]$NativeSchema, [switch]$Thinking, [switch]$Joint, [switch]$Browser, [switch]$Context)
 $ErrorActionPreference='Stop'
 $taskRoot=Split-Path $PSScriptRoot -Parent
-$taskNames=@('LLM_BASE_URL','LLM_API_KEY','LLM_MODEL','INVESTIGATION_MODEL','INVESTIGATION_LIVE','INVESTIGATION_SPLIT','INVESTIGATION_REPEATS','INVESTIGATION_CASE_FILTER','INVESTIGATION_RESUME','INVESTIGATION_NATIVE_SCHEMA','INVESTIGATION_THINKING_ENABLED','INVESTIGATION_PARALLELISM','INVESTIGATION_JOINT','INVESTIGATION_UI','INVESTIGATION_UI_PASSWORD','MCP_IT','DEMO_IT','TRACE_IT','P2_IT','DB_HOST','DB_PORT','DB_USERNAME','DB_PASSWORD','REDIS_HOST','REDIS_PORT','REDIS_PASSWORD')
+$taskNames=@('LLM_BASE_URL','LLM_API_KEY','LLM_MODEL','INVESTIGATION_MODEL','INVESTIGATION_LIVE','INVESTIGATION_CONTEXT_LIVE','INVESTIGATION_SPLIT','INVESTIGATION_REPEATS','INVESTIGATION_CASE_FILTER','INVESTIGATION_RESUME','INVESTIGATION_NATIVE_SCHEMA','INVESTIGATION_THINKING_ENABLED','INVESTIGATION_PARALLELISM','INVESTIGATION_JOINT','INVESTIGATION_UI','INVESTIGATION_UI_PASSWORD','MCP_IT','DEMO_IT','TRACE_IT','P2_IT','DB_HOST','DB_PORT','DB_USERNAME','DB_PASSWORD','REDIS_HOST','REDIS_PORT','REDIS_PASSWORD')
 $taskOriginal=@{}
 foreach($taskName in $taskNames) { $taskOriginal[$taskName]=[Environment]::GetEnvironmentVariable($taskName) }
 $taskExit=0
@@ -26,7 +26,12 @@ try {
     $env:INVESTIGATION_PARALLELISM=[string]$Parallelism
     $env:INVESTIGATION_RESUME=if($ResumeFrom){(Resolve-Path -LiteralPath $ResumeFrom).Path}else{''}
     $env:INVESTIGATION_NATIVE_SCHEMA=if($NativeSchema){'true'}else{'false'};$env:INVESTIGATION_THINKING_ENABLED=if($Thinking){'true'}else{'false'}
-    if($Joint -or $Browser) {
+    $env:INVESTIGATION_CONTEXT_LIVE='false'
+    if($Context) {
+        if($Joint -or $Browser -or $ResumeFrom -or $CaseFilter){throw '-Context is an independent fresh acceptance batch; do not combine it with Joint, Browser, ResumeFrom or CaseFilter.'}
+        $env:INVESTIGATION_LIVE='false';$env:INVESTIGATION_CONTEXT_LIVE='true'
+        & (Join-Path $taskRoot 'backend/mvnw.cmd') -f (Join-Path $taskRoot 'backend/pom.xml') test -q '-Dtest=InvestigationContextLiveTest'
+    } elseif($Joint -or $Browser) {
         if($Joint -and $Browser){throw 'Choose either -Joint or -Browser.'}
         $env:INVESTIGATION_LIVE='false';$env:INVESTIGATION_JOINT=if($Joint){'true'}else{'false'};$env:INVESTIGATION_UI=if($Browser){'true'}else{'false'};$env:MCP_IT='true';$env:DEMO_IT='false';$env:TRACE_IT='false';$env:P2_IT='false'
         if($Browser -and -not $env:INVESTIGATION_UI_PASSWORD){$env:INVESTIGATION_UI_PASSWORD=[guid]::NewGuid().ToString();Write-Output 'Set INVESTIGATION_UI_PASSWORD before -Browser to use your own temporary isolated-test password.'}

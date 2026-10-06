@@ -20,15 +20,25 @@ public class SemanticPlanner {
     /** 拒绝本轮动作与禁止条件冲突；需要澄清时保留未解决标记，避免后续省略表达沿用旧范围。 */
     public void requireAction(DialogueState state,SemanticIntent intent) {
         if (intent.forbids(intent.action())) throw new ApiException(422,"本次动作与禁止条件冲突，请明确本轮操作");
-        if (intent.action()!=SemanticIntent.Action.CLARIFY) return;
-        if (Set.of(SemanticIntent.Clarify.COMPANY,SemanticIntent.Clarify.ACTION).contains(intent.clarify())) state.setUnresolvedCompany(true);
-        if (Set.of(SemanticIntent.Clarify.REPORTS,SemanticIntent.Clarify.ACTION).contains(intent.clarify())) state.setUnresolvedReports(true);
+        if (intent.action()!=SemanticIntent.Action.CLARIFY) {
+            // 优先保留具体公司/报表/记录歧义的恢复提示；只有没有更具体阻断原因时使用整轮未完成提示。
+            if(state.isUnresolvedRequest() && !state.isUnresolvedCompany() && !state.isUnresolvedReports() && !state.isUnresolvedRecords()
+                    && intent.action()==SemanticIntent.Action.PREPARE_DISPATCH && intent.scopeChanges().isEmpty())
+                throw new ApiException(422,"上次请求未完成，请先明确新的查询或记录选择，再生成清单");
+            return;
+        }
+        state.setUnresolvedRequest(true);
+        // CLARIFY中的候选修改仅供证据保存，尚未归并；不能仅因候选包含范围修改就污染既有范围。
+        // 仅明确的实体歧义设置范围标记；整轮未完成由unresolvedRequest阻止省略建单。
+        if (intent.clarify()==SemanticIntent.Clarify.COMPANY) state.setUnresolvedCompany(true);
+        if (intent.clarify()==SemanticIntent.Clarify.REPORTS) state.setUnresolvedReports(true);
         if (intent.clarify()==SemanticIntent.Clarify.RECORDS) state.setUnresolvedRecords(true);
         throw new ApiException(422,switch(intent.clarify()) {
             case COMPANY -> "请明确要查询的一家公司，或说明查询全部可见公司";
             case REPORTS -> "请说明要查询的完整报表名称";
             case RECORDS -> "请说明单据号，或在预览表格中选择记录";
-            default -> "请明确本次操作及公司、报表范围，例如：查询 A 公司销售报表";
+            default -> intent.unsupportedConditions().isEmpty()?"本轮操作尚未确定，未应用任何修改。请明确新的查询或记录选择，再生成清单。"
+                    :"本轮条件暂无法执行："+String.join("、",intent.unsupportedConditions())+"。未应用本轮修改；可重新说明已配置字段条件或指定单据。";
         });
     }
     /** 仅扫描用户可派单目录中的实体候选；词条命中本身不决定追加、移除或派单动作。*/
@@ -36,7 +46,7 @@ public class SemanticPlanner {
         return catalog.terms().scan(TextNormalizer.normalize(message),catalog.dispatchableIds(user)).stream()
                 .filter(m -> !m.all()).map(TermIndex.Mention::text).distinct().toList();
     }
-    /** 要求模型意图覆盖本轮提到的目录实体；遗漏时澄清，不生成替代意图或执行已识别的部分。 */
+    /** 要求范围修改或记录报表限定覆盖本轮目录实体；遗漏时澄清，不强制把定位限定变成范围修改。 */
     public void requireCoverage(DialogueState state,SemanticIntent intent,List<String> mentions) {
         if (!Set.of(SemanticIntent.Action.PREVIEW,SemanticIntent.Action.PREPARE_DISPATCH,SemanticIntent.Action.EXPLAIN_RULES).contains(intent.action())) return;
         if (!hasReportCoverage(intent,mentions)) {
@@ -46,8 +56,19 @@ public class SemanticPlanner {
     }
     static boolean hasReportCoverage(SemanticIntent intent,List<String> mentions) {
         if (!Set.of(SemanticIntent.Action.PREVIEW,SemanticIntent.Action.PREPARE_DISPATCH,SemanticIntent.Action.EXPLAIN_RULES).contains(intent.action())) return true;
-        var captured=intent.changesFor(REPORTS).stream().flatMap(c -> c.mentions().stream()).map(TextNormalizer::normalize).toList();
+        // 操作已表达的实体不要求再输出一遍角色；归并省略的实体可用最终约束解释，记录限定也能覆盖。
+        var captured=java.util.stream.Stream.concat(intent.reportConstraints().stream().map(SemanticIntent.ReportConstraint::mention),
+                intent.scopeChanges().stream().flatMap(c -> (c.target()==REPORTS?c.mentions():c.reportMentions()).stream()))
+                .map(TextNormalizer::normalize).toList();
         return mentions.stream().map(TextNormalizer::normalize).allMatch(m -> captured.stream().anyMatch(c -> c.contains(m) || m.contains(c)));
+    }
+    /** 在独立草稿中检查计划自相矛盾，供一次模型修正；不写会话，不把权限拒绝或未知实体转为模型改写指令。 */
+    public void validateModelDraft(CurrentUser user,DialogueState state,SemanticIntent intent) {
+        if(!Set.of(SemanticIntent.Action.PREVIEW,SemanticIntent.Action.PREPARE_DISPATCH,SemanticIntent.Action.EXPLAIN_RULES).contains(intent.action())) return;
+        var draft=new DialogueState();draft.setDesired(state.getDesired());
+        try {merge(user,draft,intent);}
+        catch(IntentCodec.InvalidOutput inconsistency) {throw inconsistency;}
+        catch(ApiException businessRefusal) { /* 业务拒绝由正式流程处理，模型不能替用户换成可访问的实体。 */ }
     }
     /** 按协议顺序合并公司和报表范围；记录排除在最终事实快照上另行处理，失败保留原范围并标记待澄清。*/
     public void merge(CurrentUser user, DialogueState state, SemanticIntent intent) {
@@ -62,15 +83,70 @@ public class SemanticPlanner {
                 if(scoped.target()==RECORDS) continue;
                 mergeChange(user,draft,scoped);
             }
+            validateReportRoles(user,state,draft,intent);
         } catch (RuntimeException error) {
             // Preserve the requested scope, but prevent ellipsis from using an older effective preview.
             if(intent.changes(COMPANY)) state.setUnresolvedCompany(true);
-            if(intent.changes(REPORTS)) state.setUnresolvedReports(true);
+            if(intent.changes(REPORTS) || intent.reportConstraints().stream().anyMatch(c->c.role()==SemanticIntent.ReportRole.INCLUDED || c.role()==SemanticIntent.ReportRole.EXCLUDED)) state.setUnresolvedReports(true);
+            state.setUnresolvedRequest(true);
             throw error;
         }
         state.setDesired(draft.getDesired());
         state.setUnresolvedCompany(draft.isUnresolvedCompany());
         state.setUnresolvedReports(draft.isUnresolvedReports());
+    }
+    /** 在提交草稿前校验最终报表集合满足实体角色；等价操作无需重复，错误角色不能放宽范围。 */
+    private void validateReportRoles(CurrentUser user,DialogueState previous,DialogueState draft,SemanticIntent intent) {
+        if(!Set.of(SemanticIntent.Action.PREVIEW,SemanticIntent.Action.PREPARE_DISPATCH,SemanticIntent.Action.EXPLAIN_RULES).contains(intent.action())) return;
+        var ids=draft.getDesired().allReports()?catalog.dispatchableIds(user):new HashSet<>(draft.getDesired().reportIds());
+        for(var constraint:intent.reportConstraints()) {
+            if(constraint.role()==SemanticIntent.ReportRole.UNCHANGED_OTHERS) {
+                // “其余”是明确操作范围的补集，不是目录名称；只有范围固定且每个记录操作有具名边界才能证明其余不变。
+                if(intent.changes(COMPANY) || intent.changes(REPORTS) || !intent.changes(RECORDS))
+                    throw new IntentCodec.InvalidOutput("","UNCHANGED_OTHERS_REQUIRES_FIXED_SCOPE_AND_NAMED_RECORD_OPERATIONS");
+                for(var change:intent.scopeChanges())if(change.target()==RECORDS) {
+                    if(change.reportMentions().isEmpty())throw new IntentCodec.InvalidOutput("","UNCHANGED_OTHERS_FORBIDS_UNSCOPED_RECORD_OPERATIONS");
+                    for(String mention:change.reportMentions()) {
+                        var target=catalog.resolve(user,mention);
+                        if(!target.resolved())throw new ApiException(422,"记录所属报表尚未确定");
+                        target.reportIds().forEach(id->catalog.requireDispatchable(user,id));
+                    }
+                }
+                continue;
+            }
+            var resolved=catalog.resolve(user,constraint.mention());
+            if(!resolved.resolved() || resolved.matchType()==MatchType.FUZZY || resolved.matchType()==MatchType.ALL || !resolved.unrecognized().isEmpty())
+                throw new ApiException(422,"报表含义尚未确定，请说明完整报表名称");
+            resolved.reportIds().forEach(id -> catalog.requireDispatchable(user,id));
+            if(constraint.role()==SemanticIntent.ReportRole.UNCHANGED) {
+                var before=previous.getDesired().allReports()?catalog.dispatchableIds(user):new HashSet<>(previous.getDesired().reportIds());
+                if(!Objects.equals(previous.getDesired().companyCode(),draft.getDesired().companyCode())
+                        || resolved.reportIds().stream().anyMatch(id->before.contains(id)!=ids.contains(id)))
+                    throw new IntentCodec.InvalidOutput("","UNCHANGED_REPORT_SCOPE_MUST_STAY_UNCHANGED");
+                // 未限定报表的记录操作会覆盖最终范围，不能绕过显式保持不变的报表。
+                for(var change:intent.scopeChanges()) if(change.target()==RECORDS) {
+                    Set<String> affected=new HashSet<>();
+                    if(change.reportMentions().isEmpty())affected.addAll(ids);
+                    else for(String mention:change.reportMentions()) {
+                        var target=catalog.resolve(user,mention);
+                        if(!target.resolved())throw new ApiException(422,"记录所属报表尚未确定");
+                        affected.addAll(target.reportIds());
+                    }
+                    if(resolved.reportIds().stream().anyMatch(affected::contains))
+                        throw new IntentCodec.InvalidOutput("","UNCHANGED_REPORT_MUST_NOT_HAVE_RECORD_OPERATIONS");
+                }
+                continue;
+            }
+            boolean included=ids.containsAll(resolved.reportIds());
+            if(constraint.role()==SemanticIntent.ReportRole.EXCLUDED ? resolved.reportIds().stream().anyMatch(ids::contains) : !included)
+                throw new IntentCodec.InvalidOutput("","REPORT_ROLE_CONFLICTS_WITH_RESULT_SCOPE");
+        }
+        if(intent.changes(REPORTS)) for(var change:intent.scopeChanges()) if(change.target()==RECORDS)
+            for(String mention:change.reportMentions()) {
+                var resolved=catalog.resolve(user,mention);
+                if(resolved.resolved() && !ids.containsAll(resolved.reportIds()))
+                    throw new IntentCodec.InvalidOutput("","RECORD_QUALIFIER_OUTSIDE_RESULT_SCOPE_CHECK_UNNECESSARY_REPORT_REPLACEMENT");
+            }
     }
     private void mergeChange(CurrentUser user,DialogueState state,SemanticIntent.ScopeChange scoped) {
         var previous = state.getDesired();

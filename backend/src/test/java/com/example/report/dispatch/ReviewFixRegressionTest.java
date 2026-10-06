@@ -22,7 +22,7 @@ import static org.mockito.Mockito.when;
 
 class ReviewFixRegressionTest {
     private static PreviewCommand command(String reportId) {
-        return new PreviewCommand(null, "api", null, List.of(reportId), null, null, null);
+        return new PreviewCommand(null, "api", null, List.of(reportId), null, null);
     }
 
     @Test
@@ -69,7 +69,7 @@ class ReviewFixRegressionTest {
                 .put(EXPENSE, candidate(EXPENSE, "2", "EX1", "A", "expense"));
         CountDownLatch started = new CountDownLatch(1);
         CountDownLatch release = new CountDownLatch(1);
-        when(h.candidates.findCandidates(anyString(), anySet(), anyList(), anyInt(), anyList(),
+        when(h.candidates.findCandidates(anyString(), anySet(), anyList(), anyInt(),
                 any(java.util.function.IntConsumer.class))).thenAnswer(call -> {
             List<com.example.report.catalog.CatalogEntry> reports = call.getArgument(2);
             if (SALES.equals(reports.get(0).reportId())) {

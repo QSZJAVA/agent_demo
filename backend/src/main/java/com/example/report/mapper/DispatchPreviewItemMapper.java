@@ -22,11 +22,11 @@ public interface DispatchPreviewItemMapper extends BaseMapper<DispatchPreviewIte
     @Insert("""
             <script>
             INSERT INTO dispatch_preview_item (preview_id, seq, report_id, report_name, catalog_version, record_id, doc_no,
-                company_code, label, amount, biz_date, rule_id, rule_name, rule_version, rule_description)
+                company_code, label, counterparty_json, fields_json, amount, biz_date, rule_id, rule_name, rule_version, rule_description)
             VALUES
             <foreach collection="items" item="i" separator=",">
               (#{i.previewId}, #{i.seq}, #{i.reportId}, #{i.reportName}, #{i.catalogVersion}, #{i.recordId}, #{i.docNo},
-               #{i.companyCode}, #{i.label}, #{i.amount}, #{i.bizDate}, #{i.ruleId}, #{i.ruleName}, #{i.ruleVersion},
+               #{i.companyCode}, #{i.label}, #{i.counterpartyJson}, #{i.fieldsJson}, #{i.amount}, #{i.bizDate}, #{i.ruleId}, #{i.ruleName}, #{i.ruleVersion},
                #{i.ruleDescription})
             </foreach>
             </script>

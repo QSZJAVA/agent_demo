@@ -1,0 +1,909 @@
+{
+  "businessCases": 13,
+  "corpus": "",
+  "passed": 14,
+  "total": 14,
+  "scope": "Real model and authenticated HTTP MCP; dedicated Demo records, no dispatch confirmation",
+  "corpusSha256": "D6ED6191EAB799185F60AD44B14FD3FF2B95CE457EE915DF103326AEA9252D44",
+  "wrongReadyCount": 0,
+  "expectedClarifications": 1,
+  "date": "2026-10-06T22:07:17.6832693+08:00",
+  "initialPreviews": [
+    {
+      "scenario": "用户原始连续两句",
+      "previewId": "ca3b7c9ba17649548893501c1c531479",
+      "documents": [
+        "SO2026001",
+        "SO2026002",
+        "SO2026007",
+        "INV-2026-0007",
+        "INV-2026-0008",
+        "INV-V3-DEMO-1",
+        "INV-V3-DEMO-2",
+        "EXP-2026-0001",
+        "EXP-2026-0002"
+      ]
+    },
+    {
+      "scenario": "含等号边界及恢复",
+      "previewId": "81ae5cb6747a4158911b4e9eabc82b7e",
+      "documents": [
+        "SO2026001",
+        "SO2026002",
+        "SO2026007",
+        "INV-2026-0007",
+        "INV-2026-0008",
+        "INV-V3-DEMO-1",
+        "INV-V3-DEMO-2",
+        "EXP-2026-0001",
+        "EXP-2026-0002"
+      ]
+    },
+    {
+      "scenario": "区间保留及限定恢复",
+      "previewId": "6f93f1a33e3e4d62943f83366f91e913",
+      "documents": [
+        "SO2026001",
+        "SO2026002",
+        "SO2026007",
+        "INV-2026-0007",
+        "INV-2026-0008",
+        "INV-V3-DEMO-1",
+        "INV-V3-DEMO-2",
+        "EXP-2026-0001",
+        "EXP-2026-0002"
+      ]
+    },
+    {
+      "scenario": "日期和文本筛选",
+      "previewId": "fa0466c4746345b2af705ac207753d2e",
+      "documents": [
+        "SO2026001",
+        "SO2026002",
+        "SO2026007",
+        "INV-2026-0007",
+        "INV-2026-0008",
+        "INV-V3-DEMO-1",
+        "INV-V3-DEMO-2",
+        "EXP-2026-0001",
+        "EXP-2026-0002"
+      ]
+    },
+    {
+      "scenario": "与或组合",
+      "previewId": "d06942f4aee0486899962237fc7e09e2",
+      "documents": [
+        "SO2026001",
+        "SO2026002",
+        "SO2026007",
+        "INV-2026-0007",
+        "INV-2026-0008",
+        "INV-V3-DEMO-1",
+        "INV-V3-DEMO-2",
+        "EXP-2026-0001",
+        "EXP-2026-0002"
+      ]
+    },
+    {
+      "scenario": "布尔零匹配与失败恢复",
+      "previewId": "74cba50f7f35453a91726588e859288b",
+      "documents": [
+        "SO2026001",
+        "SO2026002",
+        "SO2026007",
+        "INV-2026-0007",
+        "INV-2026-0008",
+        "INV-V3-DEMO-1",
+        "INV-V3-DEMO-2",
+        "EXP-2026-0001",
+        "EXP-2026-0002"
+      ]
+    }
+  ],
+  "businessPassed": 13,
+  "safeRefusals": 0,
+  "cases": [
+    {
+      "selection": {
+        "previewId": "ca3b7c9ba17649548893501c1c531479",
+        "excludedRecords": [
+          {
+            "reportId": "rpt-sales-order",
+            "recordId": "1"
+          }
+        ],
+        "phase": "READY"
+      },
+      "previewId": "ca3b7c9ba17649548893501c1c531479",
+      "expectedPhase": "READY",
+      "conversationId": "9553a73753d946e2830761325b002b07",
+      "passed": true,
+      "scenario": "用户原始连续两句",
+      "actualDocuments": [
+        "SO2026001"
+      ],
+      "events": [
+        {
+          "data": {
+            "requestId": "8be4b7dc64f34f06b386804e83d9ab89",
+            "title": "查一下我有哪些可以派单",
+            "conversationId": "9553a73753d946e2830761325b002b07"
+          },
+          "type": "conversation"
+        },
+        {
+          "data": {
+            "delta": "当前预览共 9 条，已排除 1 条。"
+          },
+          "type": "text"
+        },
+        {
+          "data": {
+            "previewId": "ca3b7c9ba17649548893501c1c531479",
+            "excludedRecords": [
+              {
+                "reportId": "rpt-sales-order",
+                "recordId": "1"
+              }
+            ],
+            "phase": "READY"
+          },
+          "type": "selection"
+        },
+        {
+          "data": {},
+          "type": "done"
+        }
+      ],
+      "expectedDocuments": [
+        "SO2026001"
+      ],
+      "message": "销售报表金额大于96000的不要"
+    },
+    {
+      "selection": {
+        "previewId": "ca3b7c9ba17649548893501c1c531479",
+        "excludedRecords": [
+          {
+            "reportId": "rpt-sales-order",
+            "recordId": "1"
+          },
+          {
+            "reportId": "rpt-sales-order",
+            "recordId": "2"
+          }
+        ],
+        "phase": "READY"
+      },
+      "previewId": "ca3b7c9ba17649548893501c1c531479",
+      "expectedPhase": "READY",
+      "conversationId": "9553a73753d946e2830761325b002b07",
+      "passed": true,
+      "scenario": "用户原始连续两句",
+      "actualDocuments": [
+        "SO2026001",
+        "SO2026002"
+      ],
+      "events": [
+        {
+          "data": {
+            "requestId": "91402ff4f7654e0db7a76d938b90e6cf",
+            "title": "查一下我有哪些可以派单",
+            "conversationId": "9553a73753d946e2830761325b002b07"
+          },
+          "type": "conversation"
+        },
+        {
+          "data": {
+            "delta": "当前预览共 9 条，已排除 2 条。"
+          },
+          "type": "text"
+        },
+        {
+          "data": {
+            "previewId": "ca3b7c9ba17649548893501c1c531479",
+            "excludedRecords": [
+              {
+                "reportId": "rpt-sales-order",
+                "recordId": "1"
+              },
+              {
+                "reportId": "rpt-sales-order",
+                "recordId": "2"
+              }
+            ],
+            "phase": "READY"
+          },
+          "type": "selection"
+        },
+        {
+          "data": {},
+          "type": "done"
+        }
+      ],
+      "expectedDocuments": [
+        "SO2026001",
+        "SO2026002"
+      ],
+      "message": "销售报表SO2026002不要"
+    },
+    {
+      "selection": {
+        "previewId": "81ae5cb6747a4158911b4e9eabc82b7e",
+        "excludedRecords": [
+          {
+            "reportId": "rpt-sales-order",
+            "recordId": "1"
+          },
+          {
+            "reportId": "rpt-sales-order",
+            "recordId": "3"
+          }
+        ],
+        "phase": "READY"
+      },
+      "previewId": "81ae5cb6747a4158911b4e9eabc82b7e",
+      "expectedPhase": "READY",
+      "conversationId": "38f643e7cfdc406ca799835a93219075",
+      "passed": true,
+      "scenario": "含等号边界及恢复",
+      "actualDocuments": [
+        "SO2026001",
+        "SO2026007"
+      ],
+      "events": [
+        {
+          "data": {
+            "requestId": "b1b98b05b8d84105b3ee513f2c47ba13",
+            "title": "查一下我有哪些可以派单",
+            "conversationId": "38f643e7cfdc406ca799835a93219075"
+          },
+          "type": "conversation"
+        },
+        {
+          "data": {
+            "delta": "当前预览共 9 条，已排除 2 条。"
+          },
+          "type": "text"
+        },
+        {
+          "data": {
+            "previewId": "81ae5cb6747a4158911b4e9eabc82b7e",
+            "excludedRecords": [
+              {
+                "reportId": "rpt-sales-order",
+                "recordId": "1"
+              },
+              {
+                "reportId": "rpt-sales-order",
+                "recordId": "3"
+              }
+            ],
+            "phase": "READY"
+          },
+          "type": "selection"
+        },
+        {
+          "data": {},
+          "type": "done"
+        }
+      ],
+      "expectedDocuments": [
+        "SO2026001",
+        "SO2026007"
+      ],
+      "message": "销售报表金额至少96000元的先不要"
+    },
+    {
+      "selection": {
+        "previewId": "81ae5cb6747a4158911b4e9eabc82b7e",
+        "excludedRecords": [
+          {
+            "reportId": "rpt-sales-order",
+            "recordId": "1"
+          }
+        ],
+        "phase": "READY"
+      },
+      "previewId": "81ae5cb6747a4158911b4e9eabc82b7e",
+      "expectedPhase": "READY",
+      "conversationId": "38f643e7cfdc406ca799835a93219075",
+      "passed": true,
+      "scenario": "含等号边界及恢复",
+      "actualDocuments": [
+        "SO2026001"
+      ],
+      "events": [
+        {
+          "data": {
+            "requestId": "acf1ade3d18a4b78b1da5ce06f5fd893",
+            "title": "查一下我有哪些可以派单",
+            "conversationId": "38f643e7cfdc406ca799835a93219075"
+          },
+          "type": "conversation"
+        },
+        {
+          "data": {
+            "delta": "当前预览共 9 条，已排除 1 条。"
+          },
+          "type": "text"
+        },
+        {
+          "data": {
+            "previewId": "81ae5cb6747a4158911b4e9eabc82b7e",
+            "excludedRecords": [
+              {
+                "reportId": "rpt-sales-order",
+                "recordId": "1"
+              }
+            ],
+            "phase": "READY"
+          },
+          "type": "selection"
+        },
+        {
+          "data": {},
+          "type": "done"
+        }
+      ],
+      "expectedDocuments": [
+        "SO2026001"
+      ],
+      "message": "销售报表金额等于96000的恢复"
+    },
+    {
+      "selection": {
+        "previewId": "6f93f1a33e3e4d62943f83366f91e913",
+        "excludedRecords": [
+          {
+            "reportId": "rpt-sales-order",
+            "recordId": "1"
+          }
+        ],
+        "phase": "READY"
+      },
+      "previewId": "6f93f1a33e3e4d62943f83366f91e913",
+      "expectedPhase": "READY",
+      "conversationId": "665534aa09de4d10be37b49652024d35",
+      "passed": true,
+      "scenario": "区间保留及限定恢复",
+      "actualDocuments": [
+        "SO2026001"
+      ],
+      "events": [
+        {
+          "data": {
+            "requestId": "0bb8db6378324b35bd9ad91c4a58e738",
+            "title": "查一下我有哪些可以派单",
+            "conversationId": "665534aa09de4d10be37b49652024d35"
+          },
+          "type": "conversation"
+        },
+        {
+          "data": {
+            "delta": "当前预览共 9 条，已排除 1 条。"
+          },
+          "type": "text"
+        },
+        {
+          "data": {
+            "previewId": "6f93f1a33e3e4d62943f83366f91e913",
+            "excludedRecords": [
+              {
+                "reportId": "rpt-sales-order",
+                "recordId": "1"
+              }
+            ],
+            "phase": "READY"
+          },
+          "type": "selection"
+        },
+        {
+          "data": {},
+          "type": "done"
+        }
+      ],
+      "expectedDocuments": [
+        "SO2026001"
+      ],
+      "message": "销售报表只保留金额在30000到100000之间的记录"
+    },
+    {
+      "selection": {
+        "previewId": "6f93f1a33e3e4d62943f83366f91e913",
+        "excludedRecords": [],
+        "phase": "READY"
+      },
+      "previewId": "6f93f1a33e3e4d62943f83366f91e913",
+      "expectedPhase": "READY",
+      "conversationId": "665534aa09de4d10be37b49652024d35",
+      "passed": true,
+      "scenario": "区间保留及限定恢复",
+      "actualDocuments": [],
+      "events": [
+        {
+          "data": {
+            "requestId": "630d63b0a4ed439bae00cef84e0d03f0",
+            "title": "查一下我有哪些可以派单",
+            "conversationId": "665534aa09de4d10be37b49652024d35"
+          },
+          "type": "conversation"
+        },
+        {
+          "data": {
+            "delta": "当前预览共 9 条，已排除 0 条。"
+          },
+          "type": "text"
+        },
+        {
+          "data": {
+            "previewId": "6f93f1a33e3e4d62943f83366f91e913",
+            "excludedRecords": [],
+            "phase": "READY"
+          },
+          "type": "selection"
+        },
+        {
+          "data": {},
+          "type": "done"
+        }
+      ],
+      "expectedDocuments": [],
+      "message": "销售报表的记录全部恢复"
+    },
+    {
+      "selection": {
+        "previewId": "fa0466c4746345b2af705ac207753d2e",
+        "excludedRecords": [
+          {
+            "reportId": "rpt-sales-order",
+            "recordId": "1"
+          },
+          {
+            "reportId": "rpt-sales-order",
+            "recordId": "2"
+          }
+        ],
+        "phase": "READY"
+      },
+      "previewId": "fa0466c4746345b2af705ac207753d2e",
+      "expectedPhase": "READY",
+      "conversationId": "e21c4985004e4fdfb4ed761cf1b7bc5d",
+      "passed": true,
+      "scenario": "日期和文本筛选",
+      "actualDocuments": [
+        "SO2026001",
+        "SO2026002"
+      ],
+      "events": [
+        {
+          "data": {
+            "requestId": "2cb86b0ef11d4ec79b82b20b38107d87",
+            "title": "查一下我有哪些可以派单",
+            "conversationId": "e21c4985004e4fdfb4ed761cf1b7bc5d"
+          },
+          "type": "conversation"
+        },
+        {
+          "data": {
+            "delta": "当前预览共 9 条，已排除 2 条。"
+          },
+          "type": "text"
+        },
+        {
+          "data": {
+            "previewId": "fa0466c4746345b2af705ac207753d2e",
+            "excludedRecords": [
+              {
+                "reportId": "rpt-sales-order",
+                "recordId": "1"
+              },
+              {
+                "reportId": "rpt-sales-order",
+                "recordId": "2"
+              }
+            ],
+            "phase": "READY"
+          },
+          "type": "selection"
+        },
+        {
+          "data": {},
+          "type": "done"
+        }
+      ],
+      "expectedDocuments": [
+        "SO2026001",
+        "SO2026002"
+      ],
+      "message": "销售报表销售日期早于2026-04-01的不要"
+    },
+    {
+      "selection": {
+        "previewId": "fa0466c4746345b2af705ac207753d2e",
+        "excludedRecords": [
+          {
+            "reportId": "rpt-sales-order",
+            "recordId": "1"
+          },
+          {
+            "reportId": "rpt-sales-order",
+            "recordId": "2"
+          },
+          {
+            "reportId": "rpt-sales-order",
+            "recordId": "3"
+          }
+        ],
+        "phase": "READY"
+      },
+      "previewId": "fa0466c4746345b2af705ac207753d2e",
+      "expectedPhase": "READY",
+      "conversationId": "e21c4985004e4fdfb4ed761cf1b7bc5d",
+      "passed": true,
+      "scenario": "日期和文本筛选",
+      "actualDocuments": [
+        "SO2026001",
+        "SO2026002",
+        "SO2026007"
+      ],
+      "events": [
+        {
+          "data": {
+            "requestId": "1efa3c4fe7be49839dd4838936b899be",
+            "title": "查一下我有哪些可以派单",
+            "conversationId": "e21c4985004e4fdfb4ed761cf1b7bc5d"
+          },
+          "type": "conversation"
+        },
+        {
+          "data": {
+            "delta": "当前预览共 9 条，已排除 3 条。"
+          },
+          "type": "text"
+        },
+        {
+          "data": {
+            "previewId": "fa0466c4746345b2af705ac207753d2e",
+            "excludedRecords": [
+              {
+                "reportId": "rpt-sales-order",
+                "recordId": "1"
+              },
+              {
+                "reportId": "rpt-sales-order",
+                "recordId": "2"
+              },
+              {
+                "reportId": "rpt-sales-order",
+                "recordId": "3"
+              }
+            ],
+            "phase": "READY"
+          },
+          "type": "selection"
+        },
+        {
+          "data": {},
+          "type": "done"
+        }
+      ],
+      "expectedDocuments": [
+        "SO2026001",
+        "SO2026002",
+        "SO2026007"
+      ],
+      "message": "销售报表产品名称包含云的也不要"
+    },
+    {
+      "selection": {
+        "previewId": "d06942f4aee0486899962237fc7e09e2",
+        "excludedRecords": [
+          {
+            "reportId": "rpt-sales-order",
+            "recordId": "3"
+          }
+        ],
+        "phase": "READY"
+      },
+      "previewId": "d06942f4aee0486899962237fc7e09e2",
+      "expectedPhase": "READY",
+      "conversationId": "b78396c36cc248fdaf6a89e03c93605b",
+      "passed": true,
+      "scenario": "与或组合",
+      "actualDocuments": [
+        "SO2026007"
+      ],
+      "events": [
+        {
+          "data": {
+            "requestId": "458be0b292be429d9cb73c288bd5fed4",
+            "title": "查一下我有哪些可以派单",
+            "conversationId": "b78396c36cc248fdaf6a89e03c93605b"
+          },
+          "type": "conversation"
+        },
+        {
+          "data": {
+            "delta": "当前预览共 9 条，已排除 1 条。"
+          },
+          "type": "text"
+        },
+        {
+          "data": {
+            "previewId": "d06942f4aee0486899962237fc7e09e2",
+            "excludedRecords": [
+              {
+                "reportId": "rpt-sales-order",
+                "recordId": "3"
+              }
+            ],
+            "phase": "READY"
+          },
+          "type": "selection"
+        },
+        {
+          "data": {},
+          "type": "done"
+        }
+      ],
+      "expectedDocuments": [
+        "SO2026007"
+      ],
+      "message": "销售报表金额大于30000而且产品名称包含云的都不要"
+    },
+    {
+      "selection": {
+        "previewId": "d06942f4aee0486899962237fc7e09e2",
+        "excludedRecords": [],
+        "phase": "READY"
+      },
+      "previewId": "d06942f4aee0486899962237fc7e09e2",
+      "expectedPhase": "READY",
+      "conversationId": "b78396c36cc248fdaf6a89e03c93605b",
+      "passed": true,
+      "scenario": "与或组合",
+      "actualDocuments": [],
+      "events": [
+        {
+          "data": {
+            "requestId": "9b7cd6f8041b4a729b9f6235daacae07",
+            "title": "查一下我有哪些可以派单",
+            "conversationId": "b78396c36cc248fdaf6a89e03c93605b"
+          },
+          "type": "conversation"
+        },
+        {
+          "data": {
+            "delta": "当前预览共 9 条，已排除 0 条。"
+          },
+          "type": "text"
+        },
+        {
+          "data": {
+            "previewId": "d06942f4aee0486899962237fc7e09e2",
+            "excludedRecords": [],
+            "phase": "READY"
+          },
+          "type": "selection"
+        },
+        {
+          "data": {},
+          "type": "done"
+        }
+      ],
+      "expectedDocuments": [],
+      "message": "恢复销售报表全部记录"
+    },
+    {
+      "selection": {
+        "previewId": "d06942f4aee0486899962237fc7e09e2",
+        "excludedRecords": [
+          {
+            "reportId": "rpt-sales-order",
+            "recordId": "1"
+          },
+          {
+            "reportId": "rpt-sales-order",
+            "recordId": "2"
+          }
+        ],
+        "phase": "READY"
+      },
+      "previewId": "d06942f4aee0486899962237fc7e09e2",
+      "expectedPhase": "READY",
+      "conversationId": "b78396c36cc248fdaf6a89e03c93605b",
+      "passed": true,
+      "scenario": "与或组合",
+      "actualDocuments": [
+        "SO2026001",
+        "SO2026002"
+      ],
+      "events": [
+        {
+          "data": {
+            "requestId": "ad9fa9a73ccd4b4699267a8f33857d58",
+            "title": "查一下我有哪些可以派单",
+            "conversationId": "b78396c36cc248fdaf6a89e03c93605b"
+          },
+          "type": "conversation"
+        },
+        {
+          "data": {
+            "delta": "当前预览共 9 条，已排除 2 条。"
+          },
+          "type": "text"
+        },
+        {
+          "data": {
+            "previewId": "d06942f4aee0486899962237fc7e09e2",
+            "excludedRecords": [
+              {
+                "reportId": "rpt-sales-order",
+                "recordId": "1"
+              },
+              {
+                "reportId": "rpt-sales-order",
+                "recordId": "2"
+              }
+            ],
+            "phase": "READY"
+          },
+          "type": "selection"
+        },
+        {
+          "data": {},
+          "type": "done"
+        }
+      ],
+      "expectedDocuments": [
+        "SO2026001",
+        "SO2026002"
+      ],
+      "message": "销售报表金额大于100000或者产品名称等于交换机的都不要"
+    },
+    {
+      "selection": {
+        "previewId": "74cba50f7f35453a91726588e859288b",
+        "excludedRecords": [],
+        "phase": "READY"
+      },
+      "previewId": "74cba50f7f35453a91726588e859288b",
+      "expectedPhase": "READY",
+      "conversationId": "2093e87b2478469fa09138c63ca0eea5",
+      "passed": true,
+      "scenario": "布尔零匹配与失败恢复",
+      "actualDocuments": [],
+      "events": [
+        {
+          "data": {
+            "requestId": "42195bd47aef42fe8494522c36d49662",
+            "title": "查一下我有哪些可以派单",
+            "conversationId": "2093e87b2478469fa09138c63ca0eea5"
+          },
+          "type": "conversation"
+        },
+        {
+          "data": {
+            "delta": "当前预览共 9 条，已排除 0 条。"
+          },
+          "type": "text"
+        },
+        {
+          "data": {
+            "previewId": "74cba50f7f35453a91726588e859288b",
+            "excludedRecords": [],
+            "phase": "READY"
+          },
+          "type": "selection"
+        },
+        {
+          "data": {},
+          "type": "done"
+        }
+      ],
+      "expectedDocuments": [],
+      "message": "销售报表已派单标志为true的记录不要"
+    },
+    {
+      "selection": {
+        "previewId": "74cba50f7f35453a91726588e859288b",
+        "excludedRecords": [],
+        "phase": "CLARIFY"
+      },
+      "previewId": "74cba50f7f35453a91726588e859288b",
+      "expectedPhase": "CLARIFY",
+      "conversationId": "2093e87b2478469fa09138c63ca0eea5",
+      "passed": true,
+      "scenario": "布尔零匹配与失败恢复",
+      "actualDocuments": [],
+      "events": [
+        {
+          "data": {
+            "requestId": "b3de34df07844c87b2154052d46231cf",
+            "title": "查一下我有哪些可以派单",
+            "conversationId": "2093e87b2478469fa09138c63ca0eea5"
+          },
+          "type": "conversation"
+        },
+        {
+          "data": {
+            "delta": "本轮条件暂无法执行：按信用评分排序。未应用本轮修改；可重新说明已配置字段条件或指定单据。"
+          },
+          "type": "text"
+        },
+        {
+          "data": {
+            "previewId": "74cba50f7f35453a91726588e859288b",
+            "excludedRecords": [],
+            "phase": "CLARIFY"
+          },
+          "type": "selection"
+        },
+        {
+          "data": {},
+          "type": "done"
+        }
+      ],
+      "expectedDocuments": [],
+      "message": "按信用评分排序"
+    },
+    {
+      "selection": {
+        "previewId": "74cba50f7f35453a91726588e859288b",
+        "excludedRecords": [
+          {
+            "reportId": "rpt-sales-order",
+            "recordId": "2"
+          }
+        ],
+        "phase": "READY"
+      },
+      "previewId": "74cba50f7f35453a91726588e859288b",
+      "expectedPhase": "READY",
+      "conversationId": "2093e87b2478469fa09138c63ca0eea5",
+      "passed": true,
+      "scenario": "布尔零匹配与失败恢复",
+      "actualDocuments": [
+        "SO2026002"
+      ],
+      "events": [
+        {
+          "data": {
+            "requestId": "15ff66fff560453d97589f1ee9244755",
+            "title": "查一下我有哪些可以派单",
+            "conversationId": "2093e87b2478469fa09138c63ca0eea5"
+          },
+          "type": "conversation"
+        },
+        {
+          "data": {
+            "delta": "当前预览共 9 条，已排除 1 条。"
+          },
+          "type": "text"
+        },
+        {
+          "data": {
+            "previewId": "74cba50f7f35453a91726588e859288b",
+            "excludedRecords": [
+              {
+                "reportId": "rpt-sales-order",
+                "recordId": "2"
+              }
+            ],
+            "phase": "READY"
+          },
+          "type": "selection"
+        },
+        {
+          "data": {},
+          "type": "done"
+        }
+      ],
+      "expectedDocuments": [
+        "SO2026002"
+      ],
+      "message": "销售报表SO2026002不要"
+    }
+  ]
+}

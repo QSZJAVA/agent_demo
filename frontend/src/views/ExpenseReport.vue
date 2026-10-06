@@ -2,7 +2,7 @@
   <report-table
     title="费用报表"
     table-name="report_expense"
-    report-type="expense"
+    report-id="rpt-expense-claim"
     doc-no-field="expenseNo"
     :columns="columns"
     :data="list"

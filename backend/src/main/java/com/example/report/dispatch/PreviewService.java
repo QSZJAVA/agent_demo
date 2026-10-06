@@ -86,7 +86,7 @@ public class PreviewService {
         var records = List.of(DispatchCandidateService.toCandidate(report, row, null, "手工派单", null, null));
         var reports = List.of(report);
         var companies = Set.of(row.companyCode());
-        var command = new PreviewCommand(null, "manual", null, List.of(report.reportId()), null, null, null);
+        var command = new PreviewCommand(null, "manual", null, List.of(report.reportId()), null, null);
         var resolution = new ResolveResult(MatchType.EXACT, null, List.of(report.ref()), null, null, null, null, false);
         var p = newPreview(user, null, command, resolution, new Scope(Set.of(report.reportId()), false),
                 reports, companies, versions.stamp(user, reports, companies), SCOPE_REPLACE, records, LocalDateTime.now());
@@ -179,7 +179,7 @@ public class PreviewService {
             VersionStamp stamp = versions.stamp(user, reports, companies);
             int maxItems = props.getPreview().getMaxItems();
             List<Candidate> candidates = candidateService.findCandidates(user.tenantId(), companies, reports,
-                maxItems + 1, command.excludes(), guardedProgress);
+                maxItems + 1, guardedProgress);
             if (candidates.size() > maxItems) {
                 return previewLarge(user, conversationId, command, resolution, scope, reports, companies, stamp,
                     scopeMode, guardedProgress, guardedActivation, requestVersion);
@@ -400,25 +400,6 @@ public class PreviewService {
     }
 
     /** 预览阶段的排除项：优先按单据号精确匹配，未命中再按摘要关键词模糊匹配（用户常只说"云服务"这类描述）*/
-    public static List<Candidate> applyExcludes(List<Candidate> candidates, List<String> excludes) {
-        if (candidates.isEmpty() || excludes == null || excludes.isEmpty()) {
-            return candidates;
-        }
-        List<String> keys = excludes.stream().filter(Objects::nonNull).map(String::trim).filter(s -> !s.isEmpty()).toList();
-        if (keys.isEmpty()) {
-            return candidates;
-        }
-        Set<String> docNos = new LinkedHashSet<>();
-        keys.forEach(k -> docNos.add(k.toUpperCase(Locale.ROOT)));
-        return candidates.stream().filter(c -> {
-            if (c.docNo() != null && docNos.contains(c.docNo().toUpperCase(Locale.ROOT))) {
-                return false;
-            }
-            String label = c.label() == null ? "" : c.label();
-            return keys.stream().noneMatch(label::contains);
-        }).toList();
-    }
-
     private DispatchPreview newPreview(CurrentUser user, String conversationId, PreviewCommand command, ResolveResult resolution,
                                        Scope scope, List<CatalogEntry> reports, Set<String> companies, VersionStamp stamp,
                                        String scopeMode, List<Candidate> candidates, LocalDateTime now) {
@@ -438,7 +419,6 @@ public class PreviewService {
         query.put("reportIds", reportIds);
         query.put("allReports", scope.allReports());
         query.put("filters", filters);
-        query.put("excludes", command.excludes());
         query.put("catalogVersions", stamp.catalogVersions());
 
         DispatchPreview p = new DispatchPreview();
@@ -474,6 +454,8 @@ public class PreviewService {
         i.setDocNo(truncate(c.docNo(), DOC_NO_MAX));
         i.setCompanyCode(c.companyCode());
         i.setLabel(truncate(c.label(), LABEL_MAX));
+        i.setCounterpartyJson(c.counterparty()==null?null:JsonUtil.toJson(c.counterparty()));
+        i.setFieldsJson(JsonUtil.toJson(c.fields()));
         i.setAmount(c.amount());
         i.setBizDate(c.date());
         i.setRuleId(c.ruleId());
@@ -501,7 +483,7 @@ public class PreviewService {
         List<String> superseded = new ArrayList<>();
         List<String> expiredPlans = new ArrayList<>();
         try {
-            candidateService.scanCandidates(user.tenantId(), companies, reports, command.excludes(), progress, c -> {
+            candidateService.scanCandidates(user.tenantId(), companies, reports, progress, c -> {
                 DispatchPreviewItem item = toItem(preview.getId(), sequence[0]++, c);
                 if (firstPage.size() < 50) firstPage.add(item);
                 batch.add(item);

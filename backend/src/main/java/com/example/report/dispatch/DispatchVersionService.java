@@ -89,10 +89,10 @@ public class DispatchVersionService {
 
     private static List<String> readList(String json) {
         if (json == null || json.isBlank()) {
-            return List.of();
+            throw new IllegalStateException("预览范围数据缺失");
         }
         try {
-            return JsonUtil.MAPPER.readValue(json, STRING_LIST);
+            return List.copyOf(JsonUtil.MAPPER.readValue(json, STRING_LIST));
         } catch (Exception e) {
             throw new IllegalStateException("预览范围数据损坏：" + json, e);
         }

@@ -101,7 +101,7 @@ export default {
     title: { type: String, default: '' },
     tableName: { type: String, default: '' },
     // 后端报表类型：sales / receivable / expense
-    reportType: { type: String, default: '' },
+    reportId: { type: String, default: '' },
     columns: { type: Array, default: () => [] },
     data: { type: Array, default: () => [] },
     loading: { type: Boolean, default: false },
@@ -147,7 +147,7 @@ export default {
       if (!this.isCurrentSession()) return
       const request = ++this.manualRequest
       try {
-        const plans = await fetchManualPlans(this.reportType, page)
+        const plans = await fetchManualPlans(this.reportId, page)
         if (!this.isCurrentSession() || request !== this.manualRequest) return
         this.manualPlans = plans
         this.manualPage = page
@@ -209,7 +209,7 @@ export default {
       }
       if (!this.isCurrentSession()) return
       try {
-        const result = await dispatchDirect(this.reportType, ids)
+        const result = await dispatchDirect(this.reportId, ids)
         if (!this.isCurrentSession()) return
         if (result.reviewCount) this.$message.warning(`有 ${result.reviewCount} 条结果待核对，请在派单记录中核对，勿重复提交`)
         else this.$message.info(`本次处理：成功 ${result.successCount} 条，未成功 ${result.failedCount} 条；详情见派单记录`)

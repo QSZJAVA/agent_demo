@@ -1,0 +1,1221 @@
+{
+  "thinkingEnabled" : false,
+  "cases" : [ {
+    "scenario" : "未知客户与表达-1",
+    "message" : "把目前能处理的可派单记录列给我看看",
+    "passed" : true,
+    "parserSource" : "MODEL",
+    "intent" : {
+      "version" : 3,
+      "action" : "PREVIEW",
+      "scopeChanges" : [ ],
+      "restrictions" : [ ],
+      "reportConstraints" : [ ],
+      "unsupportedConditions" : [ ],
+      "clarify" : "NONE"
+    },
+    "expected" : {
+      "message" : "把目前能处理的可派单记录列给我看看",
+      "action" : "PREVIEW",
+      "company" : null,
+      "outcome" : "READY",
+      "allReports" : true,
+      "excludedIds" : [ ]
+    },
+    "outcome" : "READY",
+    "reason" : null,
+    "scope" : {
+      "companyCode" : null,
+      "allReports" : true,
+      "reportIds" : [ ]
+    },
+    "excludedRecords" : [ ],
+    "latencyMs" : 3244
+  }, {
+    "scenario" : "未知客户与表达-1",
+    "message" : "应收里面，泽川物流有限公司名下的先全部拿掉，别动其他报表",
+    "passed" : false,
+    "parserSource" : "MODEL",
+    "intent" : {
+      "version" : 3,
+      "action" : "PREVIEW",
+      "scopeChanges" : [ {
+        "target" : "RECORDS",
+        "operation" : "EXCLUDE",
+        "mentions" : [ "泽川物流有限公司" ],
+        "evidence" : "应收里面，泽川物流有限公司名下的先全部拿掉，别动其他报表",
+        "reportMentions" : [ "应收" ],
+        "selectorKind" : "COUNTERPARTY",
+        "quantifier" : "ALL"
+      } ],
+      "restrictions" : [ ],
+      "reportConstraints" : [ {
+        "mention" : "应收",
+        "role" : "RECORD_SCOPE",
+        "evidence" : "应收里面，泽川物流有限公司名下的先全部拿掉，别动其他报表"
+      }, {
+        "mention" : "其他报表",
+        "role" : "EXCLUDED",
+        "evidence" : "应收里面，泽川物流有限公司名下的先全部拿掉，别动其他报表"
+      } ],
+      "unsupportedConditions" : [ ],
+      "clarify" : "NONE"
+    },
+    "expected" : {
+      "message" : "应收里面，泽川物流有限公司名下的先全部拿掉，别动其他报表",
+      "action" : "PREVIEW",
+      "company" : null,
+      "outcome" : "READY",
+      "allReports" : true,
+      "excludedIds" : [ "a1", "a2" ]
+    },
+    "outcome" : "CLARIFY",
+    "reason" : "报表含义尚未确定，请说明完整报表名称",
+    "scope" : {
+      "companyCode" : null,
+      "allReports" : true,
+      "reportIds" : [ ]
+    },
+    "excludedRecords" : [ ],
+    "latencyMs" : 5204
+  }, {
+    "scenario" : "未知客户与表达-1",
+    "message" : "把泽川那些应收记录全部重新勾回来",
+    "passed" : false,
+    "parserSource" : "MODEL",
+    "intent" : {
+      "version" : 3,
+      "action" : "PREVIEW",
+      "scopeChanges" : [ {
+        "target" : "RECORDS",
+        "operation" : "RESTORE",
+        "mentions" : [ "泽川" ],
+        "evidence" : "把泽川那些应收记录全部重新勾回来",
+        "reportMentions" : [ "应收" ],
+        "selectorKind" : "COUNTERPARTY",
+        "quantifier" : "ALL"
+      } ],
+      "restrictions" : [ ],
+      "reportConstraints" : [ ],
+      "unsupportedConditions" : [ ],
+      "clarify" : "NONE"
+    },
+    "expected" : {
+      "message" : "把泽川那些应收记录全部重新勾回来",
+      "action" : "PREVIEW",
+      "company" : null,
+      "outcome" : "READY",
+      "allReports" : true,
+      "excludedIds" : [ ]
+    },
+    "outcome" : "CLARIFY",
+    "reason" : "上次报表范围尚未确定，请重新说明报表名称",
+    "scope" : {
+      "companyCode" : null,
+      "allReports" : true,
+      "reportIds" : [ ]
+    },
+    "excludedRecords" : [ ],
+    "latencyMs" : 2325
+  }, {
+    "scenario" : "未知客户与表达-1",
+    "message" : "为当前选中的记录生成待确认清单",
+    "passed" : false,
+    "parserSource" : "MODEL",
+    "intent" : {
+      "version" : 3,
+      "action" : "PREPARE_DISPATCH",
+      "scopeChanges" : [ ],
+      "restrictions" : [ ],
+      "reportConstraints" : [ ],
+      "unsupportedConditions" : [ ],
+      "clarify" : "NONE"
+    },
+    "expected" : {
+      "message" : "为当前选中的记录生成待确认清单",
+      "action" : "PREPARE_DISPATCH",
+      "company" : null,
+      "outcome" : "READY",
+      "allReports" : true,
+      "excludedIds" : [ ]
+    },
+    "outcome" : "CLARIFY",
+    "reason" : "上次报表范围尚未确定，请重新说明报表名称",
+    "scope" : {
+      "companyCode" : null,
+      "allReports" : true,
+      "reportIds" : [ ]
+    },
+    "excludedRecords" : [ ],
+    "latencyMs" : 2073
+  }, {
+    "scenario" : "未知客户与表达-2",
+    "message" : "把目前能处理的可派单记录列给我看看",
+    "passed" : true,
+    "parserSource" : "MODEL",
+    "intent" : {
+      "version" : 3,
+      "action" : "PREVIEW",
+      "scopeChanges" : [ ],
+      "restrictions" : [ ],
+      "reportConstraints" : [ ],
+      "unsupportedConditions" : [ ],
+      "clarify" : "NONE"
+    },
+    "expected" : {
+      "message" : "把目前能处理的可派单记录列给我看看",
+      "action" : "PREVIEW",
+      "company" : null,
+      "outcome" : "READY",
+      "allReports" : true,
+      "excludedIds" : [ ]
+    },
+    "outcome" : "READY",
+    "reason" : null,
+    "scope" : {
+      "companyCode" : null,
+      "allReports" : true,
+      "reportIds" : [ ]
+    },
+    "excludedRecords" : [ ],
+    "latencyMs" : 2058
+  }, {
+    "scenario" : "未知客户与表达-2",
+    "message" : "销售和费用照旧；澜杉在应收里的所有单子这轮都不派",
+    "passed" : false,
+    "error" : "InvalidOutput",
+    "invalidOutput" : "{\"version\":3,\"action\":\"PREVIEW\",\"scopeChanges\":[{\"target\":\"REPORTS\",\"operation\":\"CLEAR\",\"mentions\":[],\"evidence\":\"销售和费用照旧\",\"reportMentions\":[],\"selectorKind\":\"NONE\",\"quantifier\":\"UNSPECIFIED\"},{\"target\":\"RECORDS\",\"operation\":\"EXCLUDE\",\"mentions\":[\"澜杉\"],\"evidence\":\"澜杉在应收里的所有单子这轮都不派\",\"reportMentions\":[\"应收\"],\"selectorKind\":\"COUNTERPARTY\",\"quantifier\":\"ALL\"}],\"restrictions\":[{\"action\":\"PREPARE_DISPATCH\",\"scope\":\"THIS_TURN\",\"evidence\":\"澜杉在应收里的所有单子这轮都不派\"}],\"clarify\":\"NONE\",\"reportConstraints\":[{\"mention\":\"应收\",\"role\":\"RECORD_SCOPE\",\"evidence\":\"澜杉在应收里的所有单子这轮都不派\"}],\"unsupportedConditions\":[]}",
+    "latencyMs" : 4634
+  }, {
+    "scenario" : "未知客户与表达-2",
+    "message" : "把澜杉那些应收记录全部重新勾回来",
+    "passed" : false,
+    "parserSource" : "MODEL",
+    "intent" : {
+      "version" : 3,
+      "action" : "PREVIEW",
+      "scopeChanges" : [ {
+        "target" : "RECORDS",
+        "operation" : "RESTORE",
+        "mentions" : [ "澜杉" ],
+        "evidence" : "把澜杉那些应收记录全部重新勾回来",
+        "reportMentions" : [ "应收" ],
+        "selectorKind" : "COUNTERPARTY",
+        "quantifier" : "ALL"
+      } ],
+      "restrictions" : [ ],
+      "reportConstraints" : [ ],
+      "unsupportedConditions" : [ ],
+      "clarify" : "NONE"
+    },
+    "expected" : {
+      "message" : "把澜杉那些应收记录全部重新勾回来",
+      "action" : "PREVIEW",
+      "company" : null,
+      "outcome" : "READY",
+      "allReports" : true,
+      "excludedIds" : [ ]
+    },
+    "outcome" : "CLARIFY",
+    "reason" : "公司范围尚未确定，请明确一家公司或说明查询全部可见公司",
+    "scope" : {
+      "companyCode" : null,
+      "allReports" : true,
+      "reportIds" : [ ]
+    },
+    "excludedRecords" : [ ],
+    "latencyMs" : 2002
+  }, {
+    "scenario" : "未知客户与表达-2",
+    "message" : "为当前选中的记录生成待确认清单",
+    "passed" : false,
+    "parserSource" : "MODEL",
+    "intent" : {
+      "version" : 3,
+      "action" : "PREPARE_DISPATCH",
+      "scopeChanges" : [ ],
+      "restrictions" : [ ],
+      "reportConstraints" : [ ],
+      "unsupportedConditions" : [ ],
+      "clarify" : "NONE"
+    },
+    "expected" : {
+      "message" : "为当前选中的记录生成待确认清单",
+      "action" : "PREPARE_DISPATCH",
+      "company" : null,
+      "outcome" : "READY",
+      "allReports" : true,
+      "excludedIds" : [ ]
+    },
+    "outcome" : "CLARIFY",
+    "reason" : "公司范围尚未确定，请明确一家公司或说明查询全部可见公司",
+    "scope" : {
+      "companyCode" : null,
+      "allReports" : true,
+      "reportIds" : [ ]
+    },
+    "excludedRecords" : [ ],
+    "latencyMs" : 2427
+  }, {
+    "scenario" : "未知客户与表达-3",
+    "message" : "把目前能处理的可派单记录列给我看看",
+    "passed" : true,
+    "parserSource" : "MODEL",
+    "intent" : {
+      "version" : 3,
+      "action" : "PREVIEW",
+      "scopeChanges" : [ ],
+      "restrictions" : [ ],
+      "reportConstraints" : [ ],
+      "unsupportedConditions" : [ ],
+      "clarify" : "NONE"
+    },
+    "expected" : {
+      "message" : "把目前能处理的可派单记录列给我看看",
+      "action" : "PREVIEW",
+      "company" : null,
+      "outcome" : "READY",
+      "allReports" : true,
+      "excludedIds" : [ ]
+    },
+    "outcome" : "READY",
+    "reason" : null,
+    "scope" : {
+      "companyCode" : null,
+      "allReports" : true,
+      "reportIds" : [ ]
+    },
+    "excludedRecords" : [ ],
+    "latencyMs" : 2368
+  }, {
+    "scenario" : "未知客户与表达-3",
+    "message" : "启衡材料有限公司的应收单据全都取消勾选",
+    "passed" : true,
+    "parserSource" : "MODEL",
+    "intent" : {
+      "version" : 3,
+      "action" : "PREVIEW",
+      "scopeChanges" : [ {
+        "target" : "RECORDS",
+        "operation" : "EXCLUDE",
+        "mentions" : [ "启衡材料有限公司" ],
+        "evidence" : "启衡材料有限公司的应收单据全都取消勾选",
+        "reportMentions" : [ "应收" ],
+        "selectorKind" : "COUNTERPARTY",
+        "quantifier" : "ALL"
+      } ],
+      "restrictions" : [ ],
+      "reportConstraints" : [ ],
+      "unsupportedConditions" : [ ],
+      "clarify" : "NONE"
+    },
+    "expected" : {
+      "message" : "启衡材料有限公司的应收单据全都取消勾选",
+      "action" : "PREVIEW",
+      "company" : null,
+      "outcome" : "READY",
+      "allReports" : true,
+      "excludedIds" : [ "a1", "a2" ]
+    },
+    "outcome" : "READY",
+    "reason" : null,
+    "scope" : {
+      "companyCode" : null,
+      "allReports" : true,
+      "reportIds" : [ ]
+    },
+    "excludedRecords" : [ {
+      "reportId" : "rpt-ar-invoice",
+      "recordId" : "a1"
+    }, {
+      "reportId" : "rpt-ar-invoice",
+      "recordId" : "a2"
+    } ],
+    "latencyMs" : 2345
+  }, {
+    "scenario" : "未知客户与表达-3",
+    "message" : "把启衡那些应收记录全部重新勾回来",
+    "passed" : true,
+    "parserSource" : "MODEL",
+    "intent" : {
+      "version" : 3,
+      "action" : "PREVIEW",
+      "scopeChanges" : [ {
+        "target" : "RECORDS",
+        "operation" : "RESTORE",
+        "mentions" : [ "启衡" ],
+        "evidence" : "把启衡那些应收记录全部重新勾回来",
+        "reportMentions" : [ "应收" ],
+        "selectorKind" : "COUNTERPARTY",
+        "quantifier" : "ALL"
+      } ],
+      "restrictions" : [ ],
+      "reportConstraints" : [ ],
+      "unsupportedConditions" : [ ],
+      "clarify" : "NONE"
+    },
+    "expected" : {
+      "message" : "把启衡那些应收记录全部重新勾回来",
+      "action" : "PREVIEW",
+      "company" : null,
+      "outcome" : "READY",
+      "allReports" : true,
+      "excludedIds" : [ ]
+    },
+    "outcome" : "READY",
+    "reason" : null,
+    "scope" : {
+      "companyCode" : null,
+      "allReports" : true,
+      "reportIds" : [ ]
+    },
+    "excludedRecords" : [ ],
+    "latencyMs" : 3303
+  }, {
+    "scenario" : "未知客户与表达-3",
+    "message" : "为当前选中的记录生成待确认清单",
+    "passed" : true,
+    "parserSource" : "MODEL",
+    "intent" : {
+      "version" : 3,
+      "action" : "PREPARE_DISPATCH",
+      "scopeChanges" : [ ],
+      "restrictions" : [ ],
+      "reportConstraints" : [ ],
+      "unsupportedConditions" : [ ],
+      "clarify" : "NONE"
+    },
+    "expected" : {
+      "message" : "为当前选中的记录生成待确认清单",
+      "action" : "PREPARE_DISPATCH",
+      "company" : null,
+      "outcome" : "READY",
+      "allReports" : true,
+      "excludedIds" : [ ]
+    },
+    "outcome" : "READY",
+    "reason" : null,
+    "scope" : {
+      "companyCode" : null,
+      "allReports" : true,
+      "reportIds" : [ ]
+    },
+    "excludedRecords" : [ ],
+    "latencyMs" : 2204
+  }, {
+    "scenario" : "未知客户与表达-4",
+    "message" : "把目前能处理的可派单记录列给我看看",
+    "passed" : true,
+    "parserSource" : "MODEL",
+    "intent" : {
+      "version" : 3,
+      "action" : "PREVIEW",
+      "scopeChanges" : [ ],
+      "restrictions" : [ ],
+      "reportConstraints" : [ ],
+      "unsupportedConditions" : [ ],
+      "clarify" : "NONE"
+    },
+    "expected" : {
+      "message" : "把目前能处理的可派单记录列给我看看",
+      "action" : "PREVIEW",
+      "company" : null,
+      "outcome" : "READY",
+      "allReports" : true,
+      "excludedIds" : [ ]
+    },
+    "outcome" : "READY",
+    "reason" : null,
+    "scope" : {
+      "companyCode" : null,
+      "allReports" : true,
+      "reportIds" : [ ]
+    },
+    "excludedRecords" : [ ],
+    "latencyMs" : 2656
+  }, {
+    "scenario" : "未知客户与表达-4",
+    "message" : "保留其他选择，把应收中客户星麓咨询有限公司相关记录全部排除",
+    "passed" : true,
+    "parserSource" : "MODEL",
+    "intent" : {
+      "version" : 3,
+      "action" : "PREVIEW",
+      "scopeChanges" : [ {
+        "target" : "RECORDS",
+        "operation" : "EXCLUDE",
+        "mentions" : [ "星麓咨询有限公司" ],
+        "evidence" : "保留其他选择，把应收中客户星麓咨询有限公司相关记录全部排除",
+        "reportMentions" : [ "应收" ],
+        "selectorKind" : "COUNTERPARTY",
+        "quantifier" : "ALL"
+      } ],
+      "restrictions" : [ ],
+      "reportConstraints" : [ ],
+      "unsupportedConditions" : [ ],
+      "clarify" : "NONE"
+    },
+    "expected" : {
+      "message" : "保留其他选择，把应收中客户星麓咨询有限公司相关记录全部排除",
+      "action" : "PREVIEW",
+      "company" : null,
+      "outcome" : "READY",
+      "allReports" : true,
+      "excludedIds" : [ "a1", "a2" ]
+    },
+    "outcome" : "READY",
+    "reason" : null,
+    "scope" : {
+      "companyCode" : null,
+      "allReports" : true,
+      "reportIds" : [ ]
+    },
+    "excludedRecords" : [ {
+      "reportId" : "rpt-ar-invoice",
+      "recordId" : "a1"
+    }, {
+      "reportId" : "rpt-ar-invoice",
+      "recordId" : "a2"
+    } ],
+    "latencyMs" : 2570
+  }, {
+    "scenario" : "未知客户与表达-4",
+    "message" : "把星麓那些应收记录全部重新勾回来",
+    "passed" : true,
+    "parserSource" : "MODEL",
+    "intent" : {
+      "version" : 3,
+      "action" : "PREVIEW",
+      "scopeChanges" : [ {
+        "target" : "RECORDS",
+        "operation" : "RESTORE",
+        "mentions" : [ "星麓" ],
+        "evidence" : "把星麓那些应收记录全部重新勾回来",
+        "reportMentions" : [ "应收" ],
+        "selectorKind" : "COUNTERPARTY",
+        "quantifier" : "ALL"
+      } ],
+      "restrictions" : [ ],
+      "reportConstraints" : [ ],
+      "unsupportedConditions" : [ ],
+      "clarify" : "NONE"
+    },
+    "expected" : {
+      "message" : "把星麓那些应收记录全部重新勾回来",
+      "action" : "PREVIEW",
+      "company" : null,
+      "outcome" : "READY",
+      "allReports" : true,
+      "excludedIds" : [ ]
+    },
+    "outcome" : "READY",
+    "reason" : null,
+    "scope" : {
+      "companyCode" : null,
+      "allReports" : true,
+      "reportIds" : [ ]
+    },
+    "excludedRecords" : [ ],
+    "latencyMs" : 2506
+  }, {
+    "scenario" : "未知客户与表达-4",
+    "message" : "为当前选中的记录生成待确认清单",
+    "passed" : true,
+    "parserSource" : "MODEL",
+    "intent" : {
+      "version" : 3,
+      "action" : "PREPARE_DISPATCH",
+      "scopeChanges" : [ ],
+      "restrictions" : [ ],
+      "reportConstraints" : [ ],
+      "unsupportedConditions" : [ ],
+      "clarify" : "NONE"
+    },
+    "expected" : {
+      "message" : "为当前选中的记录生成待确认清单",
+      "action" : "PREPARE_DISPATCH",
+      "company" : null,
+      "outcome" : "READY",
+      "allReports" : true,
+      "excludedIds" : [ ]
+    },
+    "outcome" : "READY",
+    "reason" : null,
+    "scope" : {
+      "companyCode" : null,
+      "allReports" : true,
+      "reportIds" : [ ]
+    },
+    "excludedRecords" : [ ],
+    "latencyMs" : 2121
+  }, {
+    "scenario" : "未知客户与表达-5",
+    "message" : "把目前能处理的可派单记录列给我看看",
+    "passed" : true,
+    "parserSource" : "MODEL",
+    "intent" : {
+      "version" : 3,
+      "action" : "PREVIEW",
+      "scopeChanges" : [ ],
+      "restrictions" : [ ],
+      "reportConstraints" : [ ],
+      "unsupportedConditions" : [ ],
+      "clarify" : "NONE"
+    },
+    "expected" : {
+      "message" : "把目前能处理的可派单记录列给我看看",
+      "action" : "PREVIEW",
+      "company" : null,
+      "outcome" : "READY",
+      "allReports" : true,
+      "excludedIds" : [ ]
+    },
+    "outcome" : "READY",
+    "reason" : null,
+    "scope" : {
+      "companyCode" : null,
+      "allReports" : true,
+      "reportIds" : [ ]
+    },
+    "excludedRecords" : [ ],
+    "latencyMs" : 2002
+  }, {
+    "scenario" : "未知客户与表达-5",
+    "message" : "应收报表属于沐禾的记录都先跳过",
+    "passed" : true,
+    "parserSource" : "MODEL",
+    "intent" : {
+      "version" : 3,
+      "action" : "PREVIEW",
+      "scopeChanges" : [ {
+        "target" : "RECORDS",
+        "operation" : "EXCLUDE",
+        "mentions" : [ "沐禾" ],
+        "evidence" : "应收报表属于沐禾的记录都先跳过",
+        "reportMentions" : [ "应收报表" ],
+        "selectorKind" : "COUNTERPARTY",
+        "quantifier" : "ALL"
+      } ],
+      "restrictions" : [ ],
+      "reportConstraints" : [ ],
+      "unsupportedConditions" : [ ],
+      "clarify" : "NONE"
+    },
+    "expected" : {
+      "message" : "应收报表属于沐禾的记录都先跳过",
+      "action" : "PREVIEW",
+      "company" : null,
+      "outcome" : "READY",
+      "allReports" : true,
+      "excludedIds" : [ "a1", "a2" ]
+    },
+    "outcome" : "READY",
+    "reason" : null,
+    "scope" : {
+      "companyCode" : null,
+      "allReports" : true,
+      "reportIds" : [ ]
+    },
+    "excludedRecords" : [ {
+      "reportId" : "rpt-ar-invoice",
+      "recordId" : "a1"
+    }, {
+      "reportId" : "rpt-ar-invoice",
+      "recordId" : "a2"
+    } ],
+    "latencyMs" : 2199
+  }, {
+    "scenario" : "未知客户与表达-5",
+    "message" : "把沐禾那些应收记录全部重新勾回来",
+    "passed" : true,
+    "parserSource" : "MODEL",
+    "intent" : {
+      "version" : 3,
+      "action" : "PREVIEW",
+      "scopeChanges" : [ {
+        "target" : "RECORDS",
+        "operation" : "RESTORE",
+        "mentions" : [ "沐禾" ],
+        "evidence" : "把沐禾那些应收记录全部重新勾回来",
+        "reportMentions" : [ "应收" ],
+        "selectorKind" : "COUNTERPARTY",
+        "quantifier" : "ALL"
+      } ],
+      "restrictions" : [ ],
+      "reportConstraints" : [ ],
+      "unsupportedConditions" : [ ],
+      "clarify" : "NONE"
+    },
+    "expected" : {
+      "message" : "把沐禾那些应收记录全部重新勾回来",
+      "action" : "PREVIEW",
+      "company" : null,
+      "outcome" : "READY",
+      "allReports" : true,
+      "excludedIds" : [ ]
+    },
+    "outcome" : "READY",
+    "reason" : null,
+    "scope" : {
+      "companyCode" : null,
+      "allReports" : true,
+      "reportIds" : [ ]
+    },
+    "excludedRecords" : [ ],
+    "latencyMs" : 2538
+  }, {
+    "scenario" : "未知客户与表达-5",
+    "message" : "为当前选中的记录生成待确认清单",
+    "passed" : true,
+    "parserSource" : "MODEL",
+    "intent" : {
+      "version" : 3,
+      "action" : "PREPARE_DISPATCH",
+      "scopeChanges" : [ ],
+      "restrictions" : [ ],
+      "reportConstraints" : [ ],
+      "unsupportedConditions" : [ ],
+      "clarify" : "NONE"
+    },
+    "expected" : {
+      "message" : "为当前选中的记录生成待确认清单",
+      "action" : "PREPARE_DISPATCH",
+      "company" : null,
+      "outcome" : "READY",
+      "allReports" : true,
+      "excludedIds" : [ ]
+    },
+    "outcome" : "READY",
+    "reason" : null,
+    "scope" : {
+      "companyCode" : null,
+      "allReports" : true,
+      "reportIds" : [ ]
+    },
+    "excludedRecords" : [ ],
+    "latencyMs" : 2278
+  }, {
+    "scenario" : "未知客户与表达-6",
+    "message" : "把目前能处理的可派单记录列给我看看",
+    "passed" : true,
+    "parserSource" : "MODEL",
+    "intent" : {
+      "version" : 3,
+      "action" : "PREVIEW",
+      "scopeChanges" : [ ],
+      "restrictions" : [ ],
+      "reportConstraints" : [ ],
+      "unsupportedConditions" : [ ],
+      "clarify" : "NONE"
+    },
+    "expected" : {
+      "message" : "把目前能处理的可派单记录列给我看看",
+      "action" : "PREVIEW",
+      "company" : null,
+      "outcome" : "READY",
+      "allReports" : true,
+      "excludedIds" : [ ]
+    },
+    "outcome" : "READY",
+    "reason" : null,
+    "scope" : {
+      "companyCode" : null,
+      "allReports" : true,
+      "reportIds" : [ ]
+    },
+    "excludedRecords" : [ ],
+    "latencyMs" : 2163
+  }, {
+    "scenario" : "未知客户与表达-6",
+    "message" : "这次不处理砺峰科技有限公司的所有应收记录，其他的维持原样",
+    "passed" : true,
+    "parserSource" : "MODEL",
+    "intent" : {
+      "version" : 3,
+      "action" : "PREVIEW",
+      "scopeChanges" : [ {
+        "target" : "RECORDS",
+        "operation" : "EXCLUDE",
+        "mentions" : [ "砺峰科技有限公司" ],
+        "evidence" : "这次不处理砺峰科技有限公司的所有应收记录，其他的维持原样",
+        "reportMentions" : [ "应收" ],
+        "selectorKind" : "COUNTERPARTY",
+        "quantifier" : "ALL"
+      } ],
+      "restrictions" : [ ],
+      "reportConstraints" : [ ],
+      "unsupportedConditions" : [ ],
+      "clarify" : "NONE"
+    },
+    "expected" : {
+      "message" : "这次不处理砺峰科技有限公司的所有应收记录，其他的维持原样",
+      "action" : "PREVIEW",
+      "company" : null,
+      "outcome" : "READY",
+      "allReports" : true,
+      "excludedIds" : [ "a1", "a2" ]
+    },
+    "outcome" : "READY",
+    "reason" : null,
+    "scope" : {
+      "companyCode" : null,
+      "allReports" : true,
+      "reportIds" : [ ]
+    },
+    "excludedRecords" : [ {
+      "reportId" : "rpt-ar-invoice",
+      "recordId" : "a1"
+    }, {
+      "reportId" : "rpt-ar-invoice",
+      "recordId" : "a2"
+    } ],
+    "latencyMs" : 2194
+  }, {
+    "scenario" : "未知客户与表达-6",
+    "message" : "把砺峰那些应收记录全部重新勾回来",
+    "passed" : true,
+    "parserSource" : "MODEL",
+    "intent" : {
+      "version" : 3,
+      "action" : "PREVIEW",
+      "scopeChanges" : [ {
+        "target" : "RECORDS",
+        "operation" : "RESTORE",
+        "mentions" : [ "砺峰" ],
+        "evidence" : "把砺峰那些应收记录全部重新勾回来",
+        "reportMentions" : [ "应收" ],
+        "selectorKind" : "COUNTERPARTY",
+        "quantifier" : "ALL"
+      } ],
+      "restrictions" : [ ],
+      "reportConstraints" : [ {
+        "mention" : "应收",
+        "role" : "RECORD_SCOPE",
+        "evidence" : "把砺峰那些应收记录全部重新勾回来"
+      } ],
+      "unsupportedConditions" : [ ],
+      "clarify" : "NONE"
+    },
+    "expected" : {
+      "message" : "把砺峰那些应收记录全部重新勾回来",
+      "action" : "PREVIEW",
+      "company" : null,
+      "outcome" : "READY",
+      "allReports" : true,
+      "excludedIds" : [ ]
+    },
+    "outcome" : "READY",
+    "reason" : null,
+    "scope" : {
+      "companyCode" : null,
+      "allReports" : true,
+      "reportIds" : [ ]
+    },
+    "excludedRecords" : [ ],
+    "latencyMs" : 3110
+  }, {
+    "scenario" : "未知客户与表达-6",
+    "message" : "为当前选中的记录生成待确认清单",
+    "passed" : true,
+    "parserSource" : "MODEL",
+    "intent" : {
+      "version" : 3,
+      "action" : "PREPARE_DISPATCH",
+      "scopeChanges" : [ ],
+      "restrictions" : [ ],
+      "reportConstraints" : [ ],
+      "unsupportedConditions" : [ ],
+      "clarify" : "NONE"
+    },
+    "expected" : {
+      "message" : "为当前选中的记录生成待确认清单",
+      "action" : "PREPARE_DISPATCH",
+      "company" : null,
+      "outcome" : "READY",
+      "allReports" : true,
+      "excludedIds" : [ ]
+    },
+    "outcome" : "READY",
+    "reason" : null,
+    "scope" : {
+      "companyCode" : null,
+      "allReports" : true,
+      "reportIds" : [ ]
+    },
+    "excludedRecords" : [ ],
+    "latencyMs" : 2088
+  }, {
+    "scenario" : "单笔与全部不能混淆",
+    "message" : "把目前能处理的可派单记录列给我看看",
+    "passed" : true,
+    "parserSource" : "MODEL",
+    "intent" : {
+      "version" : 3,
+      "action" : "PREVIEW",
+      "scopeChanges" : [ ],
+      "restrictions" : [ ],
+      "reportConstraints" : [ ],
+      "unsupportedConditions" : [ ],
+      "clarify" : "NONE"
+    },
+    "expected" : {
+      "message" : "把目前能处理的可派单记录列给我看看",
+      "action" : "PREVIEW",
+      "company" : null,
+      "outcome" : "READY",
+      "allReports" : true,
+      "excludedIds" : [ ]
+    },
+    "outcome" : "READY",
+    "reason" : null,
+    "scope" : {
+      "companyCode" : null,
+      "allReports" : true,
+      "reportIds" : [ ]
+    },
+    "excludedRecords" : [ ],
+    "latencyMs" : 2482
+  }, {
+    "scenario" : "单笔与全部不能混淆",
+    "message" : "应收里泽川物流有限公司那一笔不要了",
+    "passed" : true,
+    "parserSource" : "MODEL",
+    "intent" : {
+      "version" : 3,
+      "action" : "PREVIEW",
+      "scopeChanges" : [ {
+        "target" : "RECORDS",
+        "operation" : "EXCLUDE",
+        "mentions" : [ "泽川物流有限公司" ],
+        "evidence" : "应收里泽川物流有限公司那一笔不要了",
+        "reportMentions" : [ "应收" ],
+        "selectorKind" : "COUNTERPARTY",
+        "quantifier" : "ONE"
+      } ],
+      "restrictions" : [ ],
+      "reportConstraints" : [ ],
+      "unsupportedConditions" : [ ],
+      "clarify" : "NONE"
+    },
+    "expected" : {
+      "message" : "应收里泽川物流有限公司那一笔不要了",
+      "action" : "PREVIEW",
+      "company" : null,
+      "outcome" : "CLARIFY",
+      "allReports" : true,
+      "excludedIds" : [ ]
+    },
+    "outcome" : "CLARIFY",
+    "reason" : "“泽川物流有限公司”匹配2条记录，请说明全部匹配记录或指定单据号",
+    "scope" : {
+      "companyCode" : null,
+      "allReports" : true,
+      "reportIds" : [ ]
+    },
+    "excludedRecords" : [ ],
+    "latencyMs" : 2311
+  }, {
+    "scenario" : "单笔与全部不能混淆",
+    "message" : "明确排除应收中发票AR-271，其他保留",
+    "passed" : false,
+    "error" : "InvalidOutput",
+    "invalidOutput" : "{\n  \"version\": 3,\n  \"action\": \"PREVIEW\",\n  \"scopeChanges\": [\n    {\n      \"target\": \"RECORDS\",\n      \"operation\": \"EXCLUDE\",\n      \"mentions\": [\n        \"AR-271\"\n      ],\n      \"evidence\": \"明确排除应收中发票AR-271，其他保留\",\n      \"reportMentions\": [\n        \"应收\"\n      ],\n      \"selectorKind\": \"DOCUMENT\",\n      \"quantifier\": \"ONE\"\n    }\n  ],\n  \"restrictions\": [],\n  \"clarify\": \"NONE\",\n  \"reportConstraints\": [\n    {\n      \"mention\": \"应收\",\n      \"role\": \"RECORD_SCOPE\",\n      \"evidence\": \"明确排除应收中发票AR-271，其他保留\"\n    }\n  ],\n  \"unsupportedConditions\": []\n}",
+    "latencyMs" : 4759
+  }, {
+    "scenario" : "同名客户不能用全部绕过歧义",
+    "message" : "把目前能处理的可派单记录列给我看看",
+    "passed" : true,
+    "parserSource" : "MODEL",
+    "intent" : {
+      "version" : 3,
+      "action" : "PREVIEW",
+      "scopeChanges" : [ ],
+      "restrictions" : [ ],
+      "reportConstraints" : [ ],
+      "unsupportedConditions" : [ ],
+      "clarify" : "NONE"
+    },
+    "expected" : {
+      "message" : "把目前能处理的可派单记录列给我看看",
+      "action" : "PREVIEW",
+      "company" : null,
+      "outcome" : "READY",
+      "allReports" : true,
+      "excludedIds" : [ ]
+    },
+    "outcome" : "READY",
+    "reason" : null,
+    "scope" : {
+      "companyCode" : null,
+      "allReports" : true,
+      "reportIds" : [ ]
+    },
+    "excludedRecords" : [ ],
+    "latencyMs" : 2113
+  }, {
+    "scenario" : "同名客户不能用全部绕过歧义",
+    "message" : "泽川物流有限公司的应收记录全不派",
+    "passed" : true,
+    "parserSource" : "MODEL",
+    "intent" : {
+      "version" : 3,
+      "action" : "PREVIEW",
+      "scopeChanges" : [ {
+        "target" : "RECORDS",
+        "operation" : "EXCLUDE",
+        "mentions" : [ "泽川物流有限公司" ],
+        "evidence" : "泽川物流有限公司的应收记录全不派",
+        "reportMentions" : [ "应收" ],
+        "selectorKind" : "COUNTERPARTY",
+        "quantifier" : "ALL"
+      } ],
+      "restrictions" : [ ],
+      "reportConstraints" : [ ],
+      "unsupportedConditions" : [ ],
+      "clarify" : "NONE"
+    },
+    "expected" : {
+      "message" : "泽川物流有限公司的应收记录全不派",
+      "action" : "PREVIEW",
+      "company" : null,
+      "outcome" : "CLARIFY",
+      "excludedIds" : [ ]
+    },
+    "outcome" : "CLARIFY",
+    "reason" : "“泽川物流有限公司”未唯一定位客户，请提供已维护的客户全称、别名或单据号；候选：泽川物流有限公司（公司A，单据AR-271）、泽川物流有限公司（公司A，单据AR-828）、泽川物流有限公司（公司A，单据AR-182）",
+    "scope" : {
+      "companyCode" : null,
+      "allReports" : true,
+      "reportIds" : [ ]
+    },
+    "excludedRecords" : [ ],
+    "latencyMs" : 2237
+  }, {
+    "scenario" : "范围等价归并与记录定位",
+    "message" : "把目前能处理的可派单记录列给我看看",
+    "passed" : true,
+    "parserSource" : "MODEL",
+    "intent" : {
+      "version" : 3,
+      "action" : "PREVIEW",
+      "scopeChanges" : [ ],
+      "restrictions" : [ ],
+      "reportConstraints" : [ ],
+      "unsupportedConditions" : [ ],
+      "clarify" : "NONE"
+    },
+    "expected" : {
+      "message" : "把目前能处理的可派单记录列给我看看",
+      "action" : "PREVIEW",
+      "company" : null,
+      "outcome" : "READY",
+      "allReports" : true,
+      "excludedIds" : [ ]
+    },
+    "outcome" : "READY",
+    "reason" : null,
+    "scope" : {
+      "companyCode" : null,
+      "allReports" : true,
+      "reportIds" : [ ]
+    },
+    "excludedRecords" : [ ],
+    "latencyMs" : 2053
+  }, {
+    "scenario" : "范围等价归并与记录定位",
+    "message" : "把费用报表去掉，最终仅保留销售报表",
+    "passed" : true,
+    "parserSource" : "MODEL",
+    "intent" : {
+      "version" : 3,
+      "action" : "PREVIEW",
+      "scopeChanges" : [ {
+        "target" : "REPORTS",
+        "operation" : "REPLACE",
+        "mentions" : [ "销售报表" ],
+        "evidence" : "最终仅保留销售报表",
+        "reportMentions" : [ ],
+        "selectorKind" : "NONE",
+        "quantifier" : "UNSPECIFIED"
+      } ],
+      "restrictions" : [ ],
+      "reportConstraints" : [ {
+        "mention" : "费用报表",
+        "role" : "EXCLUDED",
+        "evidence" : "把费用报表去掉，最终仅保留销售报表"
+      } ],
+      "unsupportedConditions" : [ ],
+      "clarify" : "NONE"
+    },
+    "expected" : {
+      "message" : "把费用报表去掉，最终仅保留销售报表",
+      "action" : "PREVIEW",
+      "company" : null,
+      "outcome" : "READY",
+      "allReports" : false,
+      "reportIds" : [ "rpt-sales-order" ]
+    },
+    "outcome" : "READY",
+    "reason" : null,
+    "scope" : {
+      "companyCode" : null,
+      "allReports" : false,
+      "reportIds" : [ "rpt-sales-order" ]
+    },
+    "excludedRecords" : [ ],
+    "latencyMs" : 5955
+  }, {
+    "scenario" : "范围等价归并与记录定位",
+    "message" : "重新查询全部授权公司的所有报表",
+    "passed" : true,
+    "parserSource" : "MODEL",
+    "intent" : {
+      "version" : 3,
+      "action" : "PREVIEW",
+      "scopeChanges" : [ {
+        "target" : "COMPANY",
+        "operation" : "CLEAR",
+        "mentions" : [ ],
+        "evidence" : "重新查询全部授权公司的所有报表",
+        "reportMentions" : [ ],
+        "selectorKind" : "NONE",
+        "quantifier" : "UNSPECIFIED"
+      }, {
+        "target" : "REPORTS",
+        "operation" : "CLEAR",
+        "mentions" : [ ],
+        "evidence" : "重新查询全部授权公司的所有报表",
+        "reportMentions" : [ ],
+        "selectorKind" : "NONE",
+        "quantifier" : "UNSPECIFIED"
+      } ],
+      "restrictions" : [ ],
+      "reportConstraints" : [ ],
+      "unsupportedConditions" : [ ],
+      "clarify" : "NONE"
+    },
+    "expected" : {
+      "message" : "重新查询全部授权公司的所有报表",
+      "action" : "PREVIEW",
+      "company" : null,
+      "outcome" : "READY",
+      "allReports" : true
+    },
+    "outcome" : "READY",
+    "reason" : null,
+    "scope" : {
+      "companyCode" : null,
+      "allReports" : true,
+      "reportIds" : [ ]
+    },
+    "excludedRecords" : [ ],
+    "latencyMs" : 2331
+  }, {
+    "scenario" : "范围等价归并与记录定位",
+    "message" : "此次仅看应收，泽川物流有限公司的相关记录全排除",
+    "passed" : true,
+    "parserSource" : "MODEL",
+    "intent" : {
+      "version" : 3,
+      "action" : "PREVIEW",
+      "scopeChanges" : [ {
+        "target" : "REPORTS",
+        "operation" : "REPLACE",
+        "mentions" : [ "应收" ],
+        "evidence" : "此次仅看应收",
+        "reportMentions" : [ ],
+        "selectorKind" : "NONE",
+        "quantifier" : "UNSPECIFIED"
+      }, {
+        "target" : "RECORDS",
+        "operation" : "EXCLUDE",
+        "mentions" : [ "泽川物流有限公司" ],
+        "evidence" : "泽川物流有限公司的相关记录全排除",
+        "reportMentions" : [ ],
+        "selectorKind" : "COUNTERPARTY",
+        "quantifier" : "ALL"
+      } ],
+      "restrictions" : [ ],
+      "reportConstraints" : [ ],
+      "unsupportedConditions" : [ ],
+      "clarify" : "NONE"
+    },
+    "expected" : {
+      "message" : "此次仅看应收，泽川物流有限公司的相关记录全排除",
+      "action" : "PREVIEW",
+      "company" : null,
+      "outcome" : "READY",
+      "reportIds" : [ "rpt-ar-invoice" ],
+      "allReports" : false,
+      "excludedIds" : [ "a1", "a2" ]
+    },
+    "outcome" : "READY",
+    "reason" : null,
+    "scope" : {
+      "companyCode" : null,
+      "allReports" : false,
+      "reportIds" : [ "rpt-ar-invoice" ]
+    },
+    "excludedRecords" : [ {
+      "reportId" : "rpt-ar-invoice",
+      "recordId" : "a1"
+    }, {
+      "reportId" : "rpt-ar-invoice",
+      "recordId" : "a2"
+    } ],
+    "latencyMs" : 2192
+  }, {
+    "scenario" : "未支持条件不能部分执行",
+    "message" : "把目前能处理的可派单记录列给我看看",
+    "passed" : true,
+    "parserSource" : "MODEL",
+    "intent" : {
+      "version" : 3,
+      "action" : "PREVIEW",
+      "scopeChanges" : [ ],
+      "restrictions" : [ ],
+      "reportConstraints" : [ ],
+      "unsupportedConditions" : [ ],
+      "clarify" : "NONE"
+    },
+    "expected" : {
+      "message" : "把目前能处理的可派单记录列给我看看",
+      "action" : "PREVIEW",
+      "company" : null,
+      "outcome" : "READY",
+      "allReports" : true,
+      "excludedIds" : [ ]
+    },
+    "outcome" : "READY",
+    "reason" : null,
+    "scope" : {
+      "companyCode" : null,
+      "allReports" : true,
+      "reportIds" : [ ]
+    },
+    "excludedRecords" : [ ],
+    "latencyMs" : 2045
+  }, {
+    "scenario" : "未支持条件不能部分执行",
+    "message" : "仅保留应收里昨天发生的记录，再去掉泽川的",
+    "passed" : false,
+    "error" : "InvalidOutput",
+    "invalidOutput" : "{\n  \"version\": 3,\n  \"action\": \"CLARIFY\",\n  \"scopeChanges\": [\n    {\n      \"target\": \"REPORTS\",\n      \"operation\": \"REPLACE\",\n      \"mentions\": [\n        \"应收\"\n      ],\n      \"evidence\": \"仅保留应收里昨天发生的记录，再去掉泽川的\",\n      \"reportMentions\": [],\n      \"selectorKind\": \"NONE\",\n      \"quantifier\": \"UNSPECIFIED\"\n    }\n  ],\n  \"restrictions\": [],\n  \"clarify\": \"ACTION\",\n  \"reportConstraints\": [\n    {\n      \"mention\": \"应收\",\n      \"role\": \"RECORD_SCOPE\",\n      \"evidence\": \"仅保留应收里昨天发生的记录，再去掉泽川的\"\n    }\n  ],\n  \"unsupportedConditions\": [\n    \"昨天发生的记录\"\n  ]\n}",
+    "latencyMs" : 4902
+  } ],
+  "passed" : 27,
+  "protocol" : 3,
+  "nativeSchema" : true,
+  "total" : 35,
+  "corpora" : [ "generalization-holdout.json" ],
+  "parserSources" : {
+    "MODEL" : 32
+  },
+  "model" : "deepseek-v4.1-flash",
+  "wrongReadyCount" : 0,
+  "clarificationCount" : 7,
+  "scope" : "held-out names and phrasing, synthetic facts, no business execution",
+  "modelCalls" : 40,
+  "formatRepairs" : 5,
+  "promptSha256" : "84d6650f10dda87b3cbbd1feef6411ffaafbebadfa75fb95ff0bc7ebb5c70a5e"
+}

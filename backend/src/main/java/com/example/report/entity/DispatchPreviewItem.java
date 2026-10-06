@@ -36,6 +36,10 @@ public class DispatchPreviewItem {
     private String companyCode;
     /** 业务记录展示摘要快照；允许为空，表示尚无该项数据。*/
     private String label;
+    /** 交易对方实体快照JSON，结构为id、name、aliases；标识在所属租户和公司内稳定；空表示来源未提供客户实体。 */
+    private String counterpartyJson;
+    /** 已配置标量字段快照JSON数组，元素为name、type、value；value为空表示来源空值；随预览或清单保留，不重新读取来源。 */
+    private String fieldsJson = "[]";
     /** 业务金额；小数精度2位，币种沿用来源业务账本；允许为空，表示尚无该项数据。 */
     private BigDecimal amount;
     /** 业务发生日期；按来源报表日期字段取值；允许为空，表示尚无该项数据。*/

@@ -30,6 +30,6 @@ public record PreviewSnapshot(DispatchPreview preview, List<DispatchPreviewItem>
     public static Candidate toCandidate(DispatchPreviewItem i) {
         return new Candidate(i.getReportId(), i.getReportName(), i.getRecordId(), i.getDocNo(), i.getCompanyCode(),
                 i.getLabel(), i.getAmount(), i.getBizDate(), i.getRuleId(), i.getRuleName(), i.getRuleVersion(),
-                i.getRuleDescription(), i.getCatalogVersion());
+                i.getRuleDescription(), i.getCatalogVersion(), com.example.report.rule.CounterpartyRef.fromSnapshot(i.getCounterpartyJson()), com.example.report.rule.FieldFact.restore(i.getFieldsJson()));
     }
 }

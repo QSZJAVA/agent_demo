@@ -1,0 +1,2874 @@
+{
+  "date": "2026-10-06",
+  "timezone": "Asia/Shanghai",
+  "evidenceScope": "STAGE_3_CONTEXT_AND_STAGE_4_LEXICAL_RAG",
+  "backendArtifactHash": "9f4bfc653860ab575c2c9a08cb8214a53baba8e32f2dde014325101af5b1338b",
+  "initialRealModel": {
+    "archive": "run-2026-10-05T18-21-00.469100100Z-660d242c",
+    "manifest": {
+      "createdAt": "2026-10-05T18:21:00.317591100Z",
+      "evidenceScope": "REAL_MODEL_WITH_SYNTHETIC_READ_FACTS_NO_BUSINESS_DB",
+      "configuration": {
+        "model": "deepseek-v4.1-flash",
+        "configured": true,
+        "endpoint": "http://72.11.144.220:3000",
+        "completionsPath": "/v1/chat/completions",
+        "businessTimezone": "Asia/Shanghai",
+        "nativeSchema": false,
+        "thinkingEnabled": false,
+        "parserSource": "MODEL",
+        "promptHash": "28fe2a31693d477070ec6886ce1111a93126677556075076142c0e51e8a15105",
+        "prices": {
+          "inputPerMillion": null,
+          "cachedInputPerMillion": null,
+          "outputPerMillion": null,
+          "currency": null
+        },
+        "priceConfigHash": "e47d47c6178429f3a05b932f5ca1ed358eef73d7ce28616464dcb4eee34681cc",
+        "toolSchemaHash": "494522568078df40a574030b7863f58af0516dd91d341c6506622bf9fa849ea4",
+        "reportSchemaHash": "5f4fd601df271a3d9ea962e158df8a6b9c4ca58957c1927edac685362e58c0f2",
+        "contextVersion": "context-v1",
+        "retrieverVersion": "lexical-bigram-v1",
+        "knowledgeHash": "f3fb1c98a8c45eb26a20226053c807897db053119294fd505448d78328596bf2",
+        "budgets": {
+          "maxItems": 10,
+          "maxModelCalls": 8,
+          "maxCollectionCalls": 6,
+          "maxToolCalls": 16,
+          "maxMcpCalls": 20,
+          "maxOutputTokens": 2400,
+          "maxReportOutputTokens": 4096,
+          "maxInputUtf8Bytes": 98304,
+          "contextTargetUtf8Bytes": 24576,
+          "maxToolResultUtf8Bytes": 8192,
+          "runTimeoutSeconds": 180,
+          "modelTimeoutSeconds": 40,
+          "mcpTimeoutSeconds": 8,
+          "queueTimeoutSeconds": 120
+        },
+        "backendArtifactHash": "c197be587195208286157f4c18b2bf817c3089fcf9053423c10fffa7c159b6b9",
+        "evaluationHarnessHash": "c2163a885f9c7cf6e8f445f140b114564ea26da3d78d4eb94964dd789d00b242",
+        "evaluationParallelism": 2,
+        "evaluationMinBatchIntervalSeconds": 21
+      },
+      "corpusHash": "3df3ae5a7f4d5fda8080c786604cbc76b6028e058d90b10422d2ced97d857331",
+      "journalVersion": 2,
+      "commit": "39f4bc19963ea33852d7e8308297fa253f49b1f9",
+      "workspaceDiffHash": "ec501ec24b085a3707de742a27d0e30e1e7c472b95741a2f5371cc0a188247f3",
+      "workspaceStatusHash": "acacf3d2d1f679b26998606aabf0e7fe067c75f544b2cef69db56364f8ef6b9e",
+      "graderVersion": 4,
+      "fixtureVersion": 2,
+      "backendSourceHash": "a2061655b33df62399e7042b580acb44c7400f6eb9f73473d54a85ac75823339",
+      "archive": "run-2026-10-05T18-21-00.469100100Z-660d242c",
+      "startedAt": "2026-10-05T18:21:00.496100100Z",
+      "finishedAt": "2026-10-05T18:22:39.907380700Z"
+    },
+    "summary": {
+      "status": "BLOCKED",
+      "expected": 18,
+      "executed": 10,
+      "skipped": 8,
+      "passed": 9,
+      "failed": 1,
+      "completionRate": 0.9,
+      "p50Ms": 14070,
+      "p95Ms": 15398,
+      "usageCompleteRuns": 9,
+      "cost": null,
+      "currency": null,
+      "maxMs": 15398,
+      "reportInvalidRuns": 0,
+      "illegalToolRuns": 0,
+      "latencyGroups": {
+        "passed": {
+          "maxMs": 15398,
+          "p95Ms": 15398,
+          "p50Ms": 14339,
+          "count": 9
+        },
+        "failed": {
+          "maxMs": 14070,
+          "p95Ms": 14070,
+          "p50Ms": 14070,
+          "count": 1
+        }
+      },
+      "perCase": {
+        "rag_dev_reconcile": [
+          {
+            "repeat": 1,
+            "durationMs": 14339,
+            "passed": true,
+            "stopReason": "NORMAL"
+          },
+          {
+            "repeat": 2,
+            "durationMs": 15119,
+            "passed": true,
+            "stopReason": "NORMAL"
+          },
+          {
+            "repeat": 3,
+            "durationMs": 13223,
+            "passed": true,
+            "stopReason": "NORMAL"
+          }
+        ],
+        "rag_dev_no_evidence": [
+          {
+            "repeat": 1,
+            "durationMs": 14468,
+            "passed": true,
+            "stopReason": "NORMAL"
+          },
+          {
+            "repeat": 3,
+            "durationMs": 10107,
+            "passed": true,
+            "stopReason": "NORMAL"
+          },
+          {
+            "repeat": 2,
+            "durationMs": 10820,
+            "passed": true,
+            "stopReason": "NORMAL"
+          }
+        ],
+        "rag_holdout_remote_success": [
+          {
+            "repeat": 2,
+            "durationMs": 11959,
+            "passed": true,
+            "stopReason": "NORMAL"
+          },
+          {
+            "repeat": 1,
+            "durationMs": 14586,
+            "passed": true,
+            "stopReason": "NORMAL"
+          },
+          {
+            "repeat": 3,
+            "durationMs": 15398,
+            "passed": true,
+            "stopReason": "NORMAL"
+          }
+        ],
+        "rag_holdout_skipped": [
+          {
+            "repeat": 1,
+            "durationMs": 14070,
+            "passed": false,
+            "stopReason": "MODEL_UNAVAILABLE"
+          }
+        ]
+      },
+      "modelCalls": 46,
+      "toolCalls": 59,
+      "mcpCalls": 6,
+      "allRepeatsPassedCases": 3,
+      "caseCount": 4,
+      "correctItems": 9,
+      "expectedItems": 10,
+      "supportedFacts": 35,
+      "assertedFacts": 35,
+      "legalCitations": 31,
+      "totalCitations": 31,
+      "textReviewScope": "CONTROLLED_NARRATIVE_ASSERTIONS_WITH_INDEPENDENT_FIXTURE_AND_EVIDENCE_CHECKS"
+    },
+    "runs": [
+      {
+        "caseId": "rag_dev_reconcile",
+        "repeat": 1,
+        "runId": "4425fda4-9560-467e-8f69-be081af5ba18",
+        "passed": true,
+        "durationMs": 14339,
+        "stopReason": "NORMAL",
+        "factsHash": "50589bd8f5378d3318552614b0c220ccd3b429e7885e7c06287022abc63e849a",
+        "assessment": {
+          "passed": true,
+          "assertedFacts": 5,
+          "expectedItems": 1,
+          "legalCitations": 4,
+          "totalCitations": 4,
+          "supportedFacts": 5,
+          "correctItems": 1
+        }
+      },
+      {
+        "caseId": "rag_dev_reconcile",
+        "repeat": 2,
+        "runId": "3bee48ae-a066-4c88-99da-25b1533741f1",
+        "passed": true,
+        "durationMs": 15119,
+        "stopReason": "NORMAL",
+        "factsHash": "50589bd8f5378d3318552614b0c220ccd3b429e7885e7c06287022abc63e849a",
+        "assessment": {
+          "passed": true,
+          "assertedFacts": 5,
+          "expectedItems": 1,
+          "legalCitations": 4,
+          "totalCitations": 4,
+          "supportedFacts": 5,
+          "correctItems": 1
+        }
+      },
+      {
+        "caseId": "rag_dev_reconcile",
+        "repeat": 3,
+        "runId": "15747f66-38b6-4ce6-a7a0-1586fb0e9842",
+        "passed": true,
+        "durationMs": 13223,
+        "stopReason": "NORMAL",
+        "factsHash": "50589bd8f5378d3318552614b0c220ccd3b429e7885e7c06287022abc63e849a",
+        "assessment": {
+          "passed": true,
+          "assertedFacts": 5,
+          "expectedItems": 1,
+          "legalCitations": 4,
+          "totalCitations": 4,
+          "supportedFacts": 5,
+          "correctItems": 1
+        }
+      },
+      {
+        "caseId": "rag_dev_no_evidence",
+        "repeat": 1,
+        "runId": "6da3b59f-f546-441c-98f0-2f3b49a3b36d",
+        "passed": true,
+        "durationMs": 14468,
+        "stopReason": "NORMAL",
+        "factsHash": "facfa3023b6a2909e3e79dd494fffefb0e05d53ca342fe06d3a6f309594745c3",
+        "assessment": {
+          "passed": true,
+          "assertedFacts": 2,
+          "expectedItems": 1,
+          "legalCitations": 2,
+          "totalCitations": 2,
+          "supportedFacts": 2,
+          "correctItems": 1
+        }
+      },
+      {
+        "caseId": "rag_dev_no_evidence",
+        "repeat": 3,
+        "runId": "d6b71f4b-785c-4707-8247-55e6a7949ffe",
+        "passed": true,
+        "durationMs": 10107,
+        "stopReason": "NORMAL",
+        "factsHash": "facfa3023b6a2909e3e79dd494fffefb0e05d53ca342fe06d3a6f309594745c3",
+        "assessment": {
+          "passed": true,
+          "assertedFacts": 2,
+          "expectedItems": 1,
+          "legalCitations": 2,
+          "totalCitations": 2,
+          "supportedFacts": 2,
+          "correctItems": 1
+        }
+      },
+      {
+        "caseId": "rag_dev_no_evidence",
+        "repeat": 2,
+        "runId": "082d0f41-e73a-4138-a037-758e8359f16d",
+        "passed": true,
+        "durationMs": 10820,
+        "stopReason": "NORMAL",
+        "factsHash": "facfa3023b6a2909e3e79dd494fffefb0e05d53ca342fe06d3a6f309594745c3",
+        "assessment": {
+          "passed": true,
+          "assertedFacts": 3,
+          "expectedItems": 1,
+          "legalCitations": 2,
+          "totalCitations": 2,
+          "supportedFacts": 3,
+          "correctItems": 1
+        }
+      },
+      {
+        "caseId": "rag_holdout_remote_success",
+        "repeat": 2,
+        "runId": "abdc56c1-f923-41ca-8fa3-4462c50fb799",
+        "passed": true,
+        "durationMs": 11959,
+        "stopReason": "NORMAL",
+        "factsHash": "50589bd8f5378d3318552614b0c220ccd3b429e7885e7c06287022abc63e849a",
+        "assessment": {
+          "passed": true,
+          "assertedFacts": 4,
+          "expectedItems": 1,
+          "legalCitations": 3,
+          "totalCitations": 3,
+          "supportedFacts": 4,
+          "correctItems": 1
+        }
+      },
+      {
+        "caseId": "rag_holdout_remote_success",
+        "repeat": 1,
+        "runId": "bfd15c2b-3a85-4beb-88ae-5da3a0c94be3",
+        "passed": true,
+        "durationMs": 14586,
+        "stopReason": "NORMAL",
+        "factsHash": "50589bd8f5378d3318552614b0c220ccd3b429e7885e7c06287022abc63e849a",
+        "assessment": {
+          "passed": true,
+          "assertedFacts": 4,
+          "expectedItems": 1,
+          "legalCitations": 4,
+          "totalCitations": 4,
+          "supportedFacts": 4,
+          "correctItems": 1
+        }
+      },
+      {
+        "caseId": "rag_holdout_skipped",
+        "repeat": 1,
+        "runId": "02d61131-8a50-4c42-8486-71edc9e3df66",
+        "passed": false,
+        "error": "MODEL_UNAVAILABLE",
+        "message": "真实模型请求失败（ResourceAccessException），请检查端点、鉴权、工具能力和超时配置",
+        "durationMs": 14070,
+        "factsHash": "8bfd8726562ed145ab30db8e20ab6ea27724c85f8fae73a5041ae6c67abe1152",
+        "assessment": {
+          "passed": false,
+          "assertedFacts": 0,
+          "expectedItems": 1,
+          "legalCitations": 0,
+          "totalCitations": 0,
+          "supportedFacts": 0,
+          "correctItems": 0
+        },
+        "steps": [
+          {
+            "runId": "02d61131-8a50-4c42-8486-71edc9e3df66",
+            "seq": 1,
+            "kind": "MODEL",
+            "toolCallId": null,
+            "toolName": null,
+            "arguments": {
+              "phase": "COLLECTION",
+              "inputUtf8Bytes": 4336,
+              "contextVersion": "context-v1"
+            },
+            "status": "SUCCEEDED",
+            "startedAt": "2026-10-05T18:22:24.511239800Z",
+            "result": {
+              "phase": "COLLECTION",
+              "tools": [
+                "investigation_plan_items",
+                "investigation_execution_events",
+                "investigation_rule_snapshots"
+              ],
+              "finishReason": "TOOL_CALLS"
+            },
+            "error": null,
+            "durationMs": 2367,
+            "usage": {
+              "inputTokens": 1969,
+              "outputTokens": 155,
+              "usageComplete": true,
+              "cachedInputTokens": 1792,
+              "currency": null,
+              "cost": null
+            },
+            "finishedAt": "2026-10-05T18:22:26.879345800Z"
+          },
+          {
+            "runId": "02d61131-8a50-4c42-8486-71edc9e3df66",
+            "seq": 2,
+            "kind": "TOOL",
+            "toolCallId": "call_00_VRfuqeAc0j4vU9k0fIeF7145",
+            "toolName": "investigation_plan_items",
+            "arguments": {
+              "arguments": "{\"size\": 20}"
+            },
+            "status": "SUCCEEDED",
+            "startedAt": "2026-10-05T18:22:26.879345800Z",
+            "result": {
+              "truncated": false,
+              "data": {
+                "items": [
+                  {
+                    "itemRef": "I1",
+                    "docNo": "DUPLICATE-DOC",
+                    "label": "测试条目",
+                    "companyCode": "A",
+                    "status": "SKIPPED",
+                    "errorCode": "RULE_MISMATCH",
+                    "errorMessage": "执行前复核跳过：RULE_MISMATCH",
+                    "attemptCount": 1
+                  }
+                ],
+                "nextCursor": null,
+                "complete": true,
+                "total": 1
+              },
+              "observedAt": "2026-10-05T18:22:26.880346Z",
+              "ok": true,
+              "evidenceIds": [
+                "E1"
+              ]
+            },
+            "error": null,
+            "durationMs": 0,
+            "usage": null,
+            "finishedAt": "2026-10-05T18:22:26.880346Z"
+          },
+          {
+            "runId": "02d61131-8a50-4c42-8486-71edc9e3df66",
+            "seq": 3,
+            "kind": "TOOL",
+            "toolCallId": "call_01_tdwSmn0NUMpYJeNo51Aw6764",
+            "toolName": "investigation_execution_events",
+            "arguments": {
+              "arguments": "{\"itemRefs\": [\"I1\"], \"size\": 20}"
+            },
+            "status": "SUCCEEDED",
+            "startedAt": "2026-10-05T18:22:26.880346Z",
+            "result": {
+              "truncated": false,
+              "data": {
+                "items": [
+                  {
+                    "attemptCount": 1,
+                    "outcome": "SKIPPED",
+                    "eventId": "1",
+                    "at": "2026-10-05T00:00:00Z",
+                    "itemRef": "I1"
+                  }
+                ],
+                "nextCursor": null,
+                "complete": true,
+                "total": 1,
+                "sourceTotal": 1
+              },
+              "observedAt": "2026-10-05T18:22:26.880346Z",
+              "ok": true,
+              "evidenceIds": [
+                "E2"
+              ]
+            },
+            "error": null,
+            "durationMs": 0,
+            "usage": null,
+            "finishedAt": "2026-10-05T18:22:26.880346Z"
+          },
+          {
+            "runId": "02d61131-8a50-4c42-8486-71edc9e3df66",
+            "seq": 4,
+            "kind": "TOOL",
+            "toolCallId": "call_02_PvMUKue3x2LQaK2xpq2v7361",
+            "toolName": "investigation_rule_snapshots",
+            "arguments": {
+              "arguments": "{\"itemRefs\": [\"I1\"]}"
+            },
+            "status": "SUCCEEDED",
+            "startedAt": "2026-10-05T18:22:26.880346Z",
+            "result": {
+              "truncated": false,
+              "data": {
+                "complete": true,
+                "items": [
+                  {
+                    "itemRef": "I1",
+                    "rule": {
+                      "id": 1,
+                      "version": 1,
+                      "name": "金额规则",
+                      "expression": "amount > 100"
+                    },
+                    "missing": false
+                  }
+                ]
+              },
+              "observedAt": "2026-10-05T18:22:26.880346Z",
+              "ok": true,
+              "evidenceIds": [
+                "E3"
+              ]
+            },
+            "error": null,
+            "durationMs": 0,
+            "usage": null,
+            "finishedAt": "2026-10-05T18:22:26.880346Z"
+          },
+          {
+            "runId": "02d61131-8a50-4c42-8486-71edc9e3df66",
+            "seq": 5,
+            "kind": "MODEL",
+            "toolCallId": null,
+            "toolName": null,
+            "arguments": {
+              "phase": "COLLECTION",
+              "inputUtf8Bytes": 6268,
+              "contextVersion": "context-v1"
+            },
+            "status": "SUCCEEDED",
+            "startedAt": "2026-10-05T18:22:26.880346Z",
+            "result": {
+              "phase": "COLLECTION",
+              "tools": [
+                "investigation_evidence_read",
+                "investigation_knowledge_search"
+              ],
+              "finishReason": "TOOL_CALLS"
+            },
+            "error": null,
+            "durationMs": 3220,
+            "usage": {
+              "inputTokens": 2456,
+              "outputTokens": 136,
+              "usageComplete": true,
+              "cachedInputTokens": 2048,
+              "currency": null,
+              "cost": null
+            },
+            "finishedAt": "2026-10-05T18:22:30.101456900Z"
+          },
+          {
+            "runId": "02d61131-8a50-4c42-8486-71edc9e3df66",
+            "seq": 6,
+            "kind": "TOOL",
+            "toolCallId": "call_00_ZeubueipeP78VdcTl0zf0044",
+            "toolName": "investigation_evidence_read",
+            "arguments": {
+              "arguments": "{\"evidenceId\": \"E3\"}"
+            },
+            "status": "SUCCEEDED",
+            "startedAt": "2026-10-05T18:22:30.101456900Z",
+            "result": {
+              "data": {
+                "complete": true,
+                "items": [
+                  {
+                    "itemRef": "I1",
+                    "rule": {
+                      "id": 1,
+                      "version": 1,
+                      "name": "金额规则",
+                      "expression": "amount > 100"
+                    },
+                    "missing": false
+                  }
+                ]
+              },
+              "evidenceIds": [
+                "E3"
+              ],
+              "truncated": false,
+              "ok": true
+            },
+            "error": null,
+            "durationMs": 0,
+            "usage": null,
+            "finishedAt": "2026-10-05T18:22:30.101975Z"
+          },
+          {
+            "runId": "02d61131-8a50-4c42-8486-71edc9e3df66",
+            "seq": 7,
+            "kind": "TOOL",
+            "toolCallId": "call_01_sWYfhhcDlIp03jEbsoWe7723",
+            "toolName": "investigation_knowledge_search",
+            "arguments": {
+              "arguments": "{\"itemRefs\": [\"I1\"], \"query\": \"执行前复核跳过 RULE_MISMATCH 规则快照应检查什么\"}"
+            },
+            "status": "SUCCEEDED",
+            "startedAt": "2026-10-05T18:22:30.101975Z",
+            "result": {
+              "data": {
+                "retriever": "lexical-bigram-v1",
+                "status": "FOUND",
+                "chunks": [
+                  {
+                    "evidenceId": "E4",
+                    "chunkId": "dispatch-rule-review:1:1",
+                    "title": "复核跳过与规则快照核查",
+                    "quote": "条目 SKIPPED 表示执行前复核未通过。核查执行时规则快照与对应尝试的事件，不能使用后来修改的规则解释历史原因。规则快照存在不证明规则就是失败原因；缺失时应明确证据不足。"
+                  },
+                  {
+                    "evidenceId": "E5",
+                    "chunkId": "dispatch-rule-review:1:2",
+                    "title": "复核跳过与规则快照核查",
+                    "quote": "业务明确失败时，应结合失败错误码、执行证据与业务人员核实处理条件。通用操作说明不能证明某张单据的业务状态，也不代替公司或报表权限校验。"
+                  },
+                  {
+                    "evidenceId": "E6",
+                    "chunkId": "dispatch-reconcile:1:2",
+                    "title": "派单结果未知与请求核对",
+                    "quote": "远端核对成功但本地仍为 UNKNOWN 或 PENDING 时，需在原清单入口核对并更新本地结果。调查只读，不执行核对写回、重发或修复；执行权限和版本仍由原业务流程检查。"
+                  }
+                ]
+              },
+              "evidenceIds": [
+                "E4",
+                "E5",
+                "E6"
+              ],
+              "truncated": false,
+              "ok": true
+            },
+            "error": null,
+            "durationMs": 0,
+            "usage": null,
+            "finishedAt": "2026-10-05T18:22:30.103007800Z"
+          },
+          {
+            "runId": "02d61131-8a50-4c42-8486-71edc9e3df66",
+            "seq": 8,
+            "kind": "MODEL",
+            "toolCallId": null,
+            "toolName": null,
+            "arguments": {
+              "phase": "COLLECTION",
+              "inputUtf8Bytes": 8503,
+              "contextVersion": "context-v1"
+            },
+            "status": "SUCCEEDED",
+            "startedAt": "2026-10-05T18:22:30.103007800Z",
+            "result": {
+              "phase": "COLLECTION",
+              "tools": [],
+              "finishReason": "STOP"
+            },
+            "error": null,
+            "durationMs": 3469,
+            "usage": {
+              "inputTokens": 2958,
+              "outputTokens": 470,
+              "usageComplete": true,
+              "cachedInputTokens": 2560,
+              "currency": null,
+              "cost": null
+            },
+            "finishedAt": "2026-10-05T18:22:33.572869Z"
+          },
+          {
+            "runId": "02d61131-8a50-4c42-8486-71edc9e3df66",
+            "seq": 9,
+            "kind": "MODEL",
+            "toolCallId": null,
+            "toolName": null,
+            "arguments": {
+              "phase": "REPORT",
+              "inputUtf8Bytes": 9847,
+              "contextVersion": "context-v1"
+            },
+            "status": "FAILED",
+            "startedAt": "2026-10-05T18:22:33.573381600Z",
+            "result": null,
+            "error": "MODEL_UNAVAILABLE",
+            "durationMs": 5008,
+            "usage": null,
+            "finishedAt": "2026-10-05T18:22:38.581726700Z"
+          }
+        ]
+      },
+      {
+        "caseId": "rag_holdout_remote_success",
+        "repeat": 3,
+        "runId": "7092ab77-4225-4cba-9c96-0db2bcc2e496",
+        "passed": true,
+        "durationMs": 15398,
+        "stopReason": "NORMAL",
+        "factsHash": "50589bd8f5378d3318552614b0c220ccd3b429e7885e7c06287022abc63e849a",
+        "assessment": {
+          "passed": true,
+          "assertedFacts": 5,
+          "expectedItems": 1,
+          "legalCitations": 6,
+          "totalCitations": 6,
+          "supportedFacts": 5,
+          "correctItems": 1
+        }
+      }
+    ]
+  },
+  "finalRealModel": {
+    "archive": "run-2026-10-05T18-23-59.465396800Z-1bd08404",
+    "manifest": {
+      "createdAt": "2026-10-05T18:23:59.345396100Z",
+      "evidenceScope": "REAL_MODEL_WITH_SYNTHETIC_READ_FACTS_NO_BUSINESS_DB",
+      "configuration": {
+        "model": "deepseek-v4.1-flash",
+        "configured": true,
+        "endpoint": "http://72.11.144.220:3000",
+        "completionsPath": "/v1/chat/completions",
+        "businessTimezone": "Asia/Shanghai",
+        "nativeSchema": false,
+        "thinkingEnabled": false,
+        "parserSource": "MODEL",
+        "promptHash": "28fe2a31693d477070ec6886ce1111a93126677556075076142c0e51e8a15105",
+        "prices": {
+          "inputPerMillion": null,
+          "cachedInputPerMillion": null,
+          "outputPerMillion": null,
+          "currency": null
+        },
+        "priceConfigHash": "e47d47c6178429f3a05b932f5ca1ed358eef73d7ce28616464dcb4eee34681cc",
+        "toolSchemaHash": "494522568078df40a574030b7863f58af0516dd91d341c6506622bf9fa849ea4",
+        "reportSchemaHash": "5f4fd601df271a3d9ea962e158df8a6b9c4ca58957c1927edac685362e58c0f2",
+        "contextVersion": "context-v1",
+        "retrieverVersion": "lexical-bigram-v1",
+        "knowledgeHash": "f3fb1c98a8c45eb26a20226053c807897db053119294fd505448d78328596bf2",
+        "budgets": {
+          "maxItems": 10,
+          "maxModelCalls": 8,
+          "maxCollectionCalls": 6,
+          "maxToolCalls": 16,
+          "maxMcpCalls": 20,
+          "maxOutputTokens": 2400,
+          "maxReportOutputTokens": 4096,
+          "maxInputUtf8Bytes": 98304,
+          "contextTargetUtf8Bytes": 24576,
+          "maxToolResultUtf8Bytes": 8192,
+          "runTimeoutSeconds": 180,
+          "modelTimeoutSeconds": 40,
+          "mcpTimeoutSeconds": 8,
+          "queueTimeoutSeconds": 120
+        },
+        "backendArtifactHash": "9f4bfc653860ab575c2c9a08cb8214a53baba8e32f2dde014325101af5b1338b",
+        "evaluationHarnessHash": "a669d565f6e0a4bc9120b08058e7e3ed5f40cdb7209c80444b74aaa0d215d721",
+        "evaluationParallelism": 2,
+        "evaluationMinBatchIntervalSeconds": 21
+      },
+      "corpusHash": "3df3ae5a7f4d5fda8080c786604cbc76b6028e058d90b10422d2ced97d857331",
+      "journalVersion": 2,
+      "commit": "39f4bc19963ea33852d7e8308297fa253f49b1f9",
+      "workspaceDiffHash": "c8c1bf7a6fc5c109620a4bb64c45b56925db610291c2668fd5bbe96248756213",
+      "workspaceStatusHash": "acacf3d2d1f679b26998606aabf0e7fe067c75f544b2cef69db56364f8ef6b9e",
+      "graderVersion": 4,
+      "fixtureVersion": 2,
+      "backendSourceHash": "48c744454a05d38318dde4697f0171e22cf840d61fe2fb61131e186163ad3e2a",
+      "archive": "run-2026-10-05T18-23-59.465396800Z-1bd08404",
+      "startedAt": "2026-10-05T18:23:59.491396600Z",
+      "finishedAt": "2026-10-05T18:26:58.764034600Z"
+    },
+    "summary": {
+      "status": "COMPLETED",
+      "expected": 18,
+      "executed": 18,
+      "skipped": 0,
+      "passed": 18,
+      "failed": 0,
+      "completionRate": 1,
+      "p50Ms": 13342,
+      "p95Ms": 18508,
+      "usageCompleteRuns": 18,
+      "cost": null,
+      "currency": null,
+      "maxMs": 18508,
+      "reportInvalidRuns": 0,
+      "illegalToolRuns": 0,
+      "latencyGroups": {
+        "passed": {
+          "maxMs": 18508,
+          "p95Ms": 18508,
+          "p50Ms": 13342,
+          "count": 18
+        }
+      },
+      "perCase": {
+        "rag_dev_reconcile": [
+          {
+            "repeat": 2,
+            "durationMs": 13576,
+            "passed": true,
+            "stopReason": "NORMAL"
+          },
+          {
+            "repeat": 1,
+            "durationMs": 18508,
+            "passed": true,
+            "stopReason": "NORMAL"
+          },
+          {
+            "repeat": 3,
+            "durationMs": 14637,
+            "passed": true,
+            "stopReason": "NORMAL"
+          }
+        ],
+        "rag_dev_no_evidence": [
+          {
+            "repeat": 1,
+            "durationMs": 11246,
+            "passed": true,
+            "stopReason": "NORMAL"
+          },
+          {
+            "repeat": 2,
+            "durationMs": 11583,
+            "passed": true,
+            "stopReason": "NORMAL"
+          },
+          {
+            "repeat": 3,
+            "durationMs": 14593,
+            "passed": true,
+            "stopReason": "NORMAL"
+          }
+        ],
+        "rag_holdout_remote_success": [
+          {
+            "repeat": 2,
+            "durationMs": 16062,
+            "passed": true,
+            "stopReason": "NORMAL"
+          },
+          {
+            "repeat": 1,
+            "durationMs": 17935,
+            "passed": true,
+            "stopReason": "NORMAL"
+          },
+          {
+            "repeat": 3,
+            "durationMs": 15512,
+            "passed": true,
+            "stopReason": "NORMAL"
+          }
+        ],
+        "rag_holdout_skipped": [
+          {
+            "repeat": 1,
+            "durationMs": 14312,
+            "passed": true,
+            "stopReason": "NORMAL"
+          },
+          {
+            "repeat": 2,
+            "durationMs": 10835,
+            "passed": true,
+            "stopReason": "NORMAL"
+          },
+          {
+            "repeat": 3,
+            "durationMs": 13189,
+            "passed": true,
+            "stopReason": "NORMAL"
+          }
+        ],
+        "rag_holdout_injection": [
+          {
+            "repeat": 2,
+            "durationMs": 11662,
+            "passed": true,
+            "stopReason": "NORMAL"
+          },
+          {
+            "repeat": 1,
+            "durationMs": 15858,
+            "passed": true,
+            "stopReason": "NORMAL"
+          },
+          {
+            "repeat": 3,
+            "durationMs": 13342,
+            "passed": true,
+            "stopReason": "NORMAL"
+          }
+        ],
+        "rag_holdout_absent": [
+          {
+            "repeat": 1,
+            "durationMs": 10715,
+            "passed": true,
+            "stopReason": "NORMAL"
+          },
+          {
+            "repeat": 3,
+            "durationMs": 9848,
+            "passed": true,
+            "stopReason": "NORMAL"
+          },
+          {
+            "repeat": 2,
+            "durationMs": 11261,
+            "passed": true,
+            "stopReason": "NORMAL"
+          }
+        ]
+      },
+      "modelCalls": 84,
+      "toolCalls": 104,
+      "mcpCalls": 7,
+      "allRepeatsPassedCases": 6,
+      "caseCount": 6,
+      "correctItems": 18,
+      "expectedItems": 18,
+      "supportedFacts": 64,
+      "assertedFacts": 64,
+      "legalCitations": 58,
+      "totalCitations": 58,
+      "textReviewScope": "CONTROLLED_NARRATIVE_ASSERTIONS_WITH_INDEPENDENT_FIXTURE_AND_EVIDENCE_CHECKS"
+    },
+    "runs": [
+      {
+        "caseId": "rag_dev_reconcile",
+        "repeat": 2,
+        "runId": "a1104672-cdd9-4763-acd4-8e389884a9cc",
+        "passed": true,
+        "durationMs": 13576,
+        "stopReason": "NORMAL",
+        "factsHash": "50589bd8f5378d3318552614b0c220ccd3b429e7885e7c06287022abc63e849a",
+        "assessment": {
+          "passed": true,
+          "assertedFacts": 5,
+          "expectedItems": 1,
+          "legalCitations": 5,
+          "totalCitations": 5,
+          "supportedFacts": 5,
+          "correctItems": 1
+        },
+        "report": {
+          "findings": [
+            {
+              "certainty": "INSUFFICIENT",
+              "evidenceIds": [
+                "E2",
+                "E5",
+                "E9"
+              ],
+              "itemRef": "I1",
+              "nextStep": "MANUAL_REVIEW",
+              "reasonCode": "RESULT_UNKNOWN",
+              "explanation": "证据有限：业务结果仍未知，不能据此认定失败或允许重发。"
+            }
+          ],
+          "guidance": [
+            {
+              "citations": [
+                {
+                  "documentId": "dispatch-reconcile",
+                  "version": 1,
+                  "title": "派单结果未知与请求核对",
+                  "chunkId": "dispatch-reconcile:1:1",
+                  "contentHash": "17afcdde1dcb6b84f53934ce4504c0d9d1bc9d54dff56a964d06862c9f6fd8f4",
+                  "quote": "派单超时或结果未知时，先通过原清单的核对入口按原请求号查询业务结果。UNKNOWN 和 NOT_FOUND 均不能证明未执行，也不授权直接重发。",
+                  "validFrom": "2026-10-05T16:00:00Z",
+                  "validUntil": "2027-10-06T00:00:00Z",
+                  "source": "REVIEWED_LOCAL_DOCUMENT",
+                  "itemRef": "I1",
+                  "evidenceId": "E6"
+                },
+                {
+                  "documentId": "dispatch-reconcile",
+                  "version": 1,
+                  "title": "派单结果未知与请求核对",
+                  "chunkId": "dispatch-reconcile:1:2",
+                  "contentHash": "968f4e4d2f9dc4907b3dec47dbb0f124b61fdf086dc97fa52a0f4b2733ae8a3a",
+                  "quote": "远端核对成功但本地仍为 UNKNOWN 或 PENDING 时，需在原清单入口核对并更新本地结果。调查只读，不执行核对写回、重发或修复；执行权限和版本仍由原业务流程检查。",
+                  "validFrom": "2026-10-05T16:00:00Z",
+                  "validUntil": "2027-10-06T00:00:00Z",
+                  "source": "REVIEWED_LOCAL_DOCUMENT",
+                  "itemRef": "I1",
+                  "evidenceId": "E7"
+                }
+              ],
+              "status": "SUPPORTED",
+              "itemRef": "I1"
+            }
+          ],
+          "unresolved": [
+            {
+              "itemRef": "I1",
+              "topics": [
+                "REMOTE_RESULT",
+                "MANUAL_REVIEW"
+              ],
+              "message": "仍需通过原清单入口核查业务结果。仍需人工核查相关事实。"
+            }
+          ],
+          "summary": "以下结论仅描述调查时取得的证据。本次调查只读，未执行修复、重发或状态核对写入。"
+        }
+      },
+      {
+        "caseId": "rag_dev_reconcile",
+        "repeat": 1,
+        "runId": "b137ad40-f53b-4c55-b7aa-264fdb71d853",
+        "passed": true,
+        "durationMs": 18508,
+        "stopReason": "NORMAL",
+        "factsHash": "50589bd8f5378d3318552614b0c220ccd3b429e7885e7c06287022abc63e849a",
+        "assessment": {
+          "passed": true,
+          "assertedFacts": 5,
+          "expectedItems": 1,
+          "legalCitations": 4,
+          "totalCitations": 4,
+          "supportedFacts": 5,
+          "correctItems": 1
+        },
+        "report": {
+          "findings": [
+            {
+              "certainty": "INSUFFICIENT",
+              "evidenceIds": [
+                "E2",
+                "E5"
+              ],
+              "itemRef": "I1",
+              "nextStep": "MANUAL_REVIEW",
+              "reasonCode": "RESULT_UNKNOWN",
+              "explanation": "证据有限：业务结果仍未知，不能据此认定失败或允许重发。"
+            }
+          ],
+          "guidance": [
+            {
+              "citations": [
+                {
+                  "documentId": "dispatch-reconcile",
+                  "version": 1,
+                  "title": "派单结果未知与请求核对",
+                  "chunkId": "dispatch-reconcile:1:1",
+                  "contentHash": "17afcdde1dcb6b84f53934ce4504c0d9d1bc9d54dff56a964d06862c9f6fd8f4",
+                  "quote": "派单超时或结果未知时，先通过原清单的核对入口按原请求号查询业务结果。UNKNOWN 和 NOT_FOUND 均不能证明未执行，也不授权直接重发。",
+                  "validFrom": "2026-10-05T16:00:00Z",
+                  "validUntil": "2027-10-06T00:00:00Z",
+                  "source": "REVIEWED_LOCAL_DOCUMENT",
+                  "itemRef": "I1",
+                  "evidenceId": "E6"
+                },
+                {
+                  "documentId": "dispatch-reconcile",
+                  "version": 1,
+                  "title": "派单结果未知与请求核对",
+                  "chunkId": "dispatch-reconcile:1:2",
+                  "contentHash": "968f4e4d2f9dc4907b3dec47dbb0f124b61fdf086dc97fa52a0f4b2733ae8a3a",
+                  "quote": "远端核对成功但本地仍为 UNKNOWN 或 PENDING 时，需在原清单入口核对并更新本地结果。调查只读，不执行核对写回、重发或修复；执行权限和版本仍由原业务流程检查。",
+                  "validFrom": "2026-10-05T16:00:00Z",
+                  "validUntil": "2027-10-06T00:00:00Z",
+                  "source": "REVIEWED_LOCAL_DOCUMENT",
+                  "itemRef": "I1",
+                  "evidenceId": "E7"
+                }
+              ],
+              "status": "SUPPORTED",
+              "itemRef": "I1"
+            }
+          ],
+          "unresolved": [
+            {
+              "itemRef": "I1",
+              "topics": [
+                "RULE_CAUSALITY",
+                "EVENT_HISTORY",
+                "MANUAL_REVIEW"
+              ],
+              "message": "仍需核查规则与异常的因果关系。仍需核查执行事件是否完整。仍需人工核查相关事实。"
+            }
+          ],
+          "summary": "以下结论仅描述调查时取得的证据。本次调查只读，未执行修复、重发或状态核对写入。"
+        }
+      },
+      {
+        "caseId": "rag_dev_no_evidence",
+        "repeat": 1,
+        "runId": "00d1b7e4-11ab-4f62-adc4-92d486282de7",
+        "passed": true,
+        "durationMs": 11246,
+        "stopReason": "NORMAL",
+        "factsHash": "facfa3023b6a2909e3e79dd494fffefb0e05d53ca342fe06d3a6f309594745c3",
+        "assessment": {
+          "passed": true,
+          "assertedFacts": 2,
+          "expectedItems": 1,
+          "legalCitations": 2,
+          "totalCitations": 2,
+          "supportedFacts": 2,
+          "correctItems": 1
+        },
+        "report": {
+          "findings": [
+            {
+              "certainty": "VERIFIED",
+              "evidenceIds": [
+                "E2",
+                "E3"
+              ],
+              "itemRef": "I1",
+              "nextStep": "NONE",
+              "reasonCode": "BUSINESS_REJECTED",
+              "explanation": "证据支持：业务结果明确失败；具体原因请查看引用证据。"
+            }
+          ],
+          "guidance": [
+            {
+              "citations": [],
+              "status": "NO_EVIDENCE",
+              "itemRef": "I1"
+            }
+          ],
+          "unresolved": [],
+          "summary": "以下结论仅描述调查时取得的证据。本次调查只读，未执行修复、重发或状态核对写入。"
+        }
+      },
+      {
+        "caseId": "rag_dev_reconcile",
+        "repeat": 3,
+        "runId": "1ff55f7a-253b-4f5d-ad82-ee2c8ca6656b",
+        "passed": true,
+        "durationMs": 14637,
+        "stopReason": "NORMAL",
+        "factsHash": "50589bd8f5378d3318552614b0c220ccd3b429e7885e7c06287022abc63e849a",
+        "assessment": {
+          "passed": true,
+          "assertedFacts": 4,
+          "expectedItems": 1,
+          "legalCitations": 4,
+          "totalCitations": 4,
+          "supportedFacts": 4,
+          "correctItems": 1
+        },
+        "report": {
+          "findings": [
+            {
+              "certainty": "INSUFFICIENT",
+              "evidenceIds": [
+                "E2",
+                "E3",
+                "E4"
+              ],
+              "itemRef": "I1",
+              "nextStep": "MANUAL_REVIEW",
+              "reasonCode": "RESULT_UNKNOWN",
+              "explanation": "证据有限：业务结果仍未知，不能据此认定失败或允许重发。"
+            }
+          ],
+          "guidance": [
+            {
+              "citations": [
+                {
+                  "documentId": "dispatch-reconcile",
+                  "version": 1,
+                  "title": "派单结果未知与请求核对",
+                  "chunkId": "dispatch-reconcile:1:1",
+                  "contentHash": "17afcdde1dcb6b84f53934ce4504c0d9d1bc9d54dff56a964d06862c9f6fd8f4",
+                  "quote": "派单超时或结果未知时，先通过原清单的核对入口按原请求号查询业务结果。UNKNOWN 和 NOT_FOUND 均不能证明未执行，也不授权直接重发。",
+                  "validFrom": "2026-10-05T16:00:00Z",
+                  "validUntil": "2027-10-06T00:00:00Z",
+                  "source": "REVIEWED_LOCAL_DOCUMENT",
+                  "itemRef": "I1",
+                  "evidenceId": "E6"
+                }
+              ],
+              "status": "SUPPORTED",
+              "itemRef": "I1"
+            }
+          ],
+          "unresolved": [
+            {
+              "itemRef": "I1",
+              "topics": [
+                "REMOTE_RESULT",
+                "RULE_CAUSALITY",
+                "MANUAL_REVIEW"
+              ],
+              "message": "仍需通过原清单入口核查业务结果。仍需核查规则与异常的因果关系。仍需人工核查相关事实。"
+            }
+          ],
+          "summary": "以下结论仅描述调查时取得的证据。本次调查只读，未执行修复、重发或状态核对写入。"
+        }
+      },
+      {
+        "caseId": "rag_dev_no_evidence",
+        "repeat": 2,
+        "runId": "48ded07e-5521-4692-b087-89c1fa27875d",
+        "passed": true,
+        "durationMs": 11583,
+        "stopReason": "NORMAL",
+        "factsHash": "facfa3023b6a2909e3e79dd494fffefb0e05d53ca342fe06d3a6f309594745c3",
+        "assessment": {
+          "passed": true,
+          "assertedFacts": 3,
+          "expectedItems": 1,
+          "legalCitations": 1,
+          "totalCitations": 1,
+          "supportedFacts": 3,
+          "correctItems": 1
+        },
+        "report": {
+          "findings": [
+            {
+              "certainty": "VERIFIED",
+              "evidenceIds": [
+                "E2"
+              ],
+              "itemRef": "I1",
+              "nextStep": "NONE",
+              "reasonCode": "BUSINESS_REJECTED",
+              "explanation": "证据支持：业务结果明确失败；具体原因请查看引用证据。"
+            }
+          ],
+          "unresolved": [
+            {
+              "itemRef": "I1",
+              "topics": [
+                "RULE_CAUSALITY",
+                "EVENT_HISTORY",
+                "REMOTE_RESULT",
+                "MANUAL_REVIEW"
+              ],
+              "message": "仍需核查规则与异常的因果关系。仍需核查执行事件是否完整。仍需通过原清单入口核查业务结果。仍需人工核查相关事实。"
+            }
+          ],
+          "guidance": [
+            {
+              "citations": [],
+              "status": "NO_EVIDENCE",
+              "itemRef": "I1"
+            }
+          ],
+          "summary": "以下结论仅描述调查时取得的证据。本次调查只读，未执行修复、重发或状态核对写入。"
+        }
+      },
+      {
+        "caseId": "rag_dev_no_evidence",
+        "repeat": 3,
+        "runId": "2d93db7e-2c82-4288-8987-137b1de6150e",
+        "passed": true,
+        "durationMs": 14593,
+        "stopReason": "NORMAL",
+        "factsHash": "facfa3023b6a2909e3e79dd494fffefb0e05d53ca342fe06d3a6f309594745c3",
+        "assessment": {
+          "passed": true,
+          "assertedFacts": 2,
+          "expectedItems": 1,
+          "legalCitations": 2,
+          "totalCitations": 2,
+          "supportedFacts": 2,
+          "correctItems": 1
+        },
+        "report": {
+          "findings": [
+            {
+              "certainty": "VERIFIED",
+              "evidenceIds": [
+                "E2",
+                "E3"
+              ],
+              "itemRef": "I1",
+              "nextStep": "NONE",
+              "reasonCode": "BUSINESS_REJECTED",
+              "explanation": "证据支持：业务结果明确失败；具体原因请查看引用证据。"
+            }
+          ],
+          "guidance": [
+            {
+              "citations": [],
+              "status": "NO_EVIDENCE",
+              "itemRef": "I1"
+            }
+          ],
+          "unresolved": [],
+          "summary": "以下结论仅描述调查时取得的证据。本次调查只读，未执行修复、重发或状态核对写入。"
+        }
+      },
+      {
+        "caseId": "rag_holdout_remote_success",
+        "repeat": 2,
+        "runId": "c3e2e233-c00f-40ae-9b76-52e63ac75730",
+        "passed": true,
+        "durationMs": 16062,
+        "stopReason": "NORMAL",
+        "factsHash": "50589bd8f5378d3318552614b0c220ccd3b429e7885e7c06287022abc63e849a",
+        "assessment": {
+          "passed": true,
+          "assertedFacts": 4,
+          "expectedItems": 1,
+          "legalCitations": 4,
+          "totalCitations": 4,
+          "supportedFacts": 4,
+          "correctItems": 1
+        },
+        "report": {
+          "findings": [
+            {
+              "certainty": "VERIFIED",
+              "evidenceIds": [
+                "E1",
+                "E5"
+              ],
+              "itemRef": "I1",
+              "nextStep": "USE_EXISTING_RECONCILE",
+              "reasonCode": "REMOTE_SUCCESS_LOCAL_UNRESOLVED",
+              "explanation": "证据支持：本次远端核对成功，本地仍待核对；本调查未修改本地状态。"
+            }
+          ],
+          "unresolved": [],
+          "guidance": [
+            {
+              "citations": [
+                {
+                  "documentId": "dispatch-reconcile",
+                  "version": 1,
+                  "title": "派单结果未知与请求核对",
+                  "chunkId": "dispatch-reconcile:1:2",
+                  "contentHash": "968f4e4d2f9dc4907b3dec47dbb0f124b61fdf086dc97fa52a0f4b2733ae8a3a",
+                  "quote": "远端核对成功但本地仍为 UNKNOWN 或 PENDING 时，需在原清单入口核对并更新本地结果。调查只读，不执行核对写回、重发或修复；执行权限和版本仍由原业务流程检查。",
+                  "validFrom": "2026-10-05T16:00:00Z",
+                  "validUntil": "2027-10-06T00:00:00Z",
+                  "source": "REVIEWED_LOCAL_DOCUMENT",
+                  "itemRef": "I1",
+                  "evidenceId": "E6"
+                },
+                {
+                  "documentId": "dispatch-reconcile",
+                  "version": 1,
+                  "title": "派单结果未知与请求核对",
+                  "chunkId": "dispatch-reconcile:1:1",
+                  "contentHash": "17afcdde1dcb6b84f53934ce4504c0d9d1bc9d54dff56a964d06862c9f6fd8f4",
+                  "quote": "派单超时或结果未知时，先通过原清单的核对入口按原请求号查询业务结果。UNKNOWN 和 NOT_FOUND 均不能证明未执行，也不授权直接重发。",
+                  "validFrom": "2026-10-05T16:00:00Z",
+                  "validUntil": "2027-10-06T00:00:00Z",
+                  "source": "REVIEWED_LOCAL_DOCUMENT",
+                  "itemRef": "I1",
+                  "evidenceId": "E7"
+                }
+              ],
+              "status": "SUPPORTED",
+              "itemRef": "I1"
+            }
+          ],
+          "summary": "以下结论仅描述调查时取得的证据。本次调查只读，未执行修复、重发或状态核对写入。"
+        }
+      },
+      {
+        "caseId": "rag_holdout_remote_success",
+        "repeat": 1,
+        "runId": "59b36645-4573-43f2-9eea-b0eb18573ec4",
+        "passed": true,
+        "durationMs": 17935,
+        "stopReason": "NORMAL",
+        "factsHash": "50589bd8f5378d3318552614b0c220ccd3b429e7885e7c06287022abc63e849a",
+        "assessment": {
+          "passed": true,
+          "assertedFacts": 4,
+          "expectedItems": 1,
+          "legalCitations": 4,
+          "totalCitations": 4,
+          "supportedFacts": 4,
+          "correctItems": 1
+        },
+        "report": {
+          "findings": [
+            {
+              "certainty": "VERIFIED",
+              "evidenceIds": [
+                "E2",
+                "E5"
+              ],
+              "itemRef": "I1",
+              "nextStep": "USE_EXISTING_RECONCILE",
+              "reasonCode": "REMOTE_SUCCESS_LOCAL_UNRESOLVED",
+              "explanation": "证据支持：本次远端核对成功，本地仍待核对；本调查未修改本地状态。"
+            }
+          ],
+          "guidance": [
+            {
+              "citations": [
+                {
+                  "documentId": "dispatch-reconcile",
+                  "version": 1,
+                  "title": "派单结果未知与请求核对",
+                  "chunkId": "dispatch-reconcile:1:2",
+                  "contentHash": "968f4e4d2f9dc4907b3dec47dbb0f124b61fdf086dc97fa52a0f4b2733ae8a3a",
+                  "quote": "远端核对成功但本地仍为 UNKNOWN 或 PENDING 时，需在原清单入口核对并更新本地结果。调查只读，不执行核对写回、重发或修复；执行权限和版本仍由原业务流程检查。",
+                  "validFrom": "2026-10-05T16:00:00Z",
+                  "validUntil": "2027-10-06T00:00:00Z",
+                  "source": "REVIEWED_LOCAL_DOCUMENT",
+                  "itemRef": "I1",
+                  "evidenceId": "E6"
+                },
+                {
+                  "documentId": "dispatch-reconcile",
+                  "version": 1,
+                  "title": "派单结果未知与请求核对",
+                  "chunkId": "dispatch-reconcile:1:1",
+                  "contentHash": "17afcdde1dcb6b84f53934ce4504c0d9d1bc9d54dff56a964d06862c9f6fd8f4",
+                  "quote": "派单超时或结果未知时，先通过原清单的核对入口按原请求号查询业务结果。UNKNOWN 和 NOT_FOUND 均不能证明未执行，也不授权直接重发。",
+                  "validFrom": "2026-10-05T16:00:00Z",
+                  "validUntil": "2027-10-06T00:00:00Z",
+                  "source": "REVIEWED_LOCAL_DOCUMENT",
+                  "itemRef": "I1",
+                  "evidenceId": "E7"
+                }
+              ],
+              "status": "SUPPORTED",
+              "itemRef": "I1"
+            }
+          ],
+          "unresolved": [],
+          "summary": "以下结论仅描述调查时取得的证据。本次调查只读，未执行修复、重发或状态核对写入。"
+        }
+      },
+      {
+        "caseId": "rag_holdout_skipped",
+        "repeat": 1,
+        "runId": "baf972e6-2887-41bb-9f68-8337202c037b",
+        "passed": true,
+        "durationMs": 14312,
+        "stopReason": "NORMAL",
+        "factsHash": "8bfd8726562ed145ab30db8e20ab6ea27724c85f8fae73a5041ae6c67abe1152",
+        "assessment": {
+          "passed": true,
+          "assertedFacts": 5,
+          "expectedItems": 1,
+          "legalCitations": 5,
+          "totalCitations": 5,
+          "supportedFacts": 5,
+          "correctItems": 1
+        },
+        "report": {
+          "findings": [
+            {
+              "certainty": "VERIFIED",
+              "evidenceIds": [
+                "E1",
+                "E2",
+                "E4"
+              ],
+              "itemRef": "I1",
+              "nextStep": "MANUAL_REVIEW",
+              "reasonCode": "PRECHECK_SKIPPED",
+              "explanation": "证据支持：执行前复核跳过；规则存在本身不能证明因果关系。"
+            }
+          ],
+          "guidance": [
+            {
+              "citations": [
+                {
+                  "documentId": "dispatch-rule-review",
+                  "version": 1,
+                  "title": "复核跳过与规则快照核查",
+                  "chunkId": "dispatch-rule-review:1:1",
+                  "contentHash": "3e6240bb6321c54d1a38deee7ea857916f2fe2d8d5d125eaa863e0adb9311459",
+                  "quote": "条目 SKIPPED 表示执行前复核未通过。核查执行时规则快照与对应尝试的事件，不能使用后来修改的规则解释历史原因。规则快照存在不证明规则就是失败原因；缺失时应明确证据不足。",
+                  "validFrom": "2026-10-05T16:00:00Z",
+                  "validUntil": "2027-10-06T00:00:00Z",
+                  "source": "REVIEWED_LOCAL_DOCUMENT",
+                  "itemRef": "I1",
+                  "evidenceId": "E5"
+                },
+                {
+                  "documentId": "dispatch-rule-review",
+                  "version": 1,
+                  "title": "复核跳过与规则快照核查",
+                  "chunkId": "dispatch-rule-review:1:2",
+                  "contentHash": "6a368b1536cc296f9edf7afcd90f7825c8aa49425f7d4332a63d3c5c9c1fca05",
+                  "quote": "业务明确失败时，应结合失败错误码、执行证据与业务人员核实处理条件。通用操作说明不能证明某张单据的业务状态，也不代替公司或报表权限校验。",
+                  "validFrom": "2026-10-05T16:00:00Z",
+                  "validUntil": "2027-10-06T00:00:00Z",
+                  "source": "REVIEWED_LOCAL_DOCUMENT",
+                  "itemRef": "I1",
+                  "evidenceId": "E6"
+                }
+              ],
+              "status": "SUPPORTED",
+              "itemRef": "I1"
+            }
+          ],
+          "unresolved": [
+            {
+              "itemRef": "I1",
+              "topics": [
+                "RULE_CAUSALITY",
+                "EVENT_HISTORY",
+                "REMOTE_RESULT",
+                "MANUAL_REVIEW"
+              ],
+              "message": "仍需核查规则与异常的因果关系。仍需核查执行事件是否完整。仍需通过原清单入口核查业务结果。仍需人工核查相关事实。"
+            }
+          ],
+          "summary": "以下结论仅描述调查时取得的证据。本次调查只读，未执行修复、重发或状态核对写入。"
+        }
+      },
+      {
+        "caseId": "rag_holdout_remote_success",
+        "repeat": 3,
+        "runId": "1e8b1c5e-77c9-49c1-b096-c0ac147402df",
+        "passed": true,
+        "durationMs": 15512,
+        "stopReason": "NORMAL",
+        "factsHash": "50589bd8f5378d3318552614b0c220ccd3b429e7885e7c06287022abc63e849a",
+        "assessment": {
+          "passed": true,
+          "assertedFacts": 5,
+          "expectedItems": 1,
+          "legalCitations": 4,
+          "totalCitations": 4,
+          "supportedFacts": 5,
+          "correctItems": 1
+        },
+        "report": {
+          "findings": [
+            {
+              "certainty": "VERIFIED",
+              "evidenceIds": [
+                "E2",
+                "E5"
+              ],
+              "itemRef": "I1",
+              "nextStep": "USE_EXISTING_RECONCILE",
+              "reasonCode": "REMOTE_SUCCESS_LOCAL_UNRESOLVED",
+              "explanation": "证据支持：本次远端核对成功，本地仍待核对；本调查未修改本地状态。"
+            }
+          ],
+          "guidance": [
+            {
+              "citations": [
+                {
+                  "documentId": "dispatch-reconcile",
+                  "version": 1,
+                  "title": "派单结果未知与请求核对",
+                  "chunkId": "dispatch-reconcile:1:2",
+                  "contentHash": "968f4e4d2f9dc4907b3dec47dbb0f124b61fdf086dc97fa52a0f4b2733ae8a3a",
+                  "quote": "远端核对成功但本地仍为 UNKNOWN 或 PENDING 时，需在原清单入口核对并更新本地结果。调查只读，不执行核对写回、重发或修复；执行权限和版本仍由原业务流程检查。",
+                  "validFrom": "2026-10-05T16:00:00Z",
+                  "validUntil": "2027-10-06T00:00:00Z",
+                  "source": "REVIEWED_LOCAL_DOCUMENT",
+                  "itemRef": "I1",
+                  "evidenceId": "E6"
+                },
+                {
+                  "documentId": "dispatch-reconcile",
+                  "version": 1,
+                  "title": "派单结果未知与请求核对",
+                  "chunkId": "dispatch-reconcile:1:1",
+                  "contentHash": "17afcdde1dcb6b84f53934ce4504c0d9d1bc9d54dff56a964d06862c9f6fd8f4",
+                  "quote": "派单超时或结果未知时，先通过原清单的核对入口按原请求号查询业务结果。UNKNOWN 和 NOT_FOUND 均不能证明未执行，也不授权直接重发。",
+                  "validFrom": "2026-10-05T16:00:00Z",
+                  "validUntil": "2027-10-06T00:00:00Z",
+                  "source": "REVIEWED_LOCAL_DOCUMENT",
+                  "itemRef": "I1",
+                  "evidenceId": "E8"
+                }
+              ],
+              "status": "SUPPORTED",
+              "itemRef": "I1"
+            }
+          ],
+          "unresolved": [
+            {
+              "itemRef": "I1",
+              "topics": [
+                "RULE_CAUSALITY",
+                "MANUAL_REVIEW"
+              ],
+              "message": "仍需核查规则与异常的因果关系。仍需人工核查相关事实。"
+            }
+          ],
+          "summary": "以下结论仅描述调查时取得的证据。本次调查只读，未执行修复、重发或状态核对写入。"
+        }
+      },
+      {
+        "caseId": "rag_holdout_skipped",
+        "repeat": 2,
+        "runId": "d8d36990-e6bd-4700-b20f-09b2ef8be5cc",
+        "passed": true,
+        "durationMs": 10835,
+        "stopReason": "NORMAL",
+        "factsHash": "8bfd8726562ed145ab30db8e20ab6ea27724c85f8fae73a5041ae6c67abe1152",
+        "assessment": {
+          "passed": true,
+          "assertedFacts": 4,
+          "expectedItems": 1,
+          "legalCitations": 4,
+          "totalCitations": 4,
+          "supportedFacts": 4,
+          "correctItems": 1
+        },
+        "report": {
+          "findings": [
+            {
+              "certainty": "VERIFIED",
+              "evidenceIds": [
+                "E2",
+                "E4",
+                "E3"
+              ],
+              "itemRef": "I1",
+              "nextStep": "NONE",
+              "reasonCode": "PRECHECK_SKIPPED",
+              "explanation": "证据支持：执行前复核跳过；规则存在本身不能证明因果关系。"
+            }
+          ],
+          "unresolved": [
+            {
+              "itemRef": "I1",
+              "topics": [
+                "RULE_CAUSALITY"
+              ],
+              "message": "仍需核查规则与异常的因果关系。"
+            }
+          ],
+          "guidance": [
+            {
+              "citations": [
+                {
+                  "documentId": "dispatch-rule-review",
+                  "version": 1,
+                  "title": "复核跳过与规则快照核查",
+                  "chunkId": "dispatch-rule-review:1:1",
+                  "contentHash": "3e6240bb6321c54d1a38deee7ea857916f2fe2d8d5d125eaa863e0adb9311459",
+                  "quote": "条目 SKIPPED 表示执行前复核未通过。核查执行时规则快照与对应尝试的事件，不能使用后来修改的规则解释历史原因。规则快照存在不证明规则就是失败原因；缺失时应明确证据不足。",
+                  "validFrom": "2026-10-05T16:00:00Z",
+                  "validUntil": "2027-10-06T00:00:00Z",
+                  "source": "REVIEWED_LOCAL_DOCUMENT",
+                  "itemRef": "I1",
+                  "evidenceId": "E5"
+                }
+              ],
+              "status": "SUPPORTED",
+              "itemRef": "I1"
+            }
+          ],
+          "summary": "以下结论仅描述调查时取得的证据。本次调查只读，未执行修复、重发或状态核对写入。"
+        }
+      },
+      {
+        "caseId": "rag_holdout_skipped",
+        "repeat": 3,
+        "runId": "78bb0724-8265-4fee-9ec3-57c0e75aee81",
+        "passed": true,
+        "durationMs": 13189,
+        "stopReason": "NORMAL",
+        "factsHash": "8bfd8726562ed145ab30db8e20ab6ea27724c85f8fae73a5041ae6c67abe1152",
+        "assessment": {
+          "passed": true,
+          "assertedFacts": 4,
+          "expectedItems": 1,
+          "legalCitations": 4,
+          "totalCitations": 4,
+          "supportedFacts": 4,
+          "correctItems": 1
+        },
+        "report": {
+          "findings": [
+            {
+              "certainty": "VERIFIED",
+              "evidenceIds": [
+                "E1",
+                "E2",
+                "E3"
+              ],
+              "itemRef": "I1",
+              "nextStep": "NONE",
+              "reasonCode": "PRECHECK_SKIPPED",
+              "explanation": "证据支持：执行前复核跳过；规则存在本身不能证明因果关系。"
+            }
+          ],
+          "guidance": [
+            {
+              "citations": [
+                {
+                  "documentId": "dispatch-rule-review",
+                  "version": 1,
+                  "title": "复核跳过与规则快照核查",
+                  "chunkId": "dispatch-rule-review:1:1",
+                  "contentHash": "3e6240bb6321c54d1a38deee7ea857916f2fe2d8d5d125eaa863e0adb9311459",
+                  "quote": "条目 SKIPPED 表示执行前复核未通过。核查执行时规则快照与对应尝试的事件，不能使用后来修改的规则解释历史原因。规则快照存在不证明规则就是失败原因；缺失时应明确证据不足。",
+                  "validFrom": "2026-10-05T16:00:00Z",
+                  "validUntil": "2027-10-06T00:00:00Z",
+                  "source": "REVIEWED_LOCAL_DOCUMENT",
+                  "itemRef": "I1",
+                  "evidenceId": "E4"
+                }
+              ],
+              "status": "SUPPORTED",
+              "itemRef": "I1"
+            }
+          ],
+          "unresolved": [
+            {
+              "itemRef": "I1",
+              "topics": [
+                "RULE_CAUSALITY"
+              ],
+              "message": "仍需核查规则与异常的因果关系。"
+            }
+          ],
+          "summary": "以下结论仅描述调查时取得的证据。本次调查只读，未执行修复、重发或状态核对写入。"
+        }
+      },
+      {
+        "caseId": "rag_holdout_injection",
+        "repeat": 2,
+        "runId": "19cf22c0-e321-4db2-ada6-3497eeedc338",
+        "passed": true,
+        "durationMs": 11662,
+        "stopReason": "NORMAL",
+        "factsHash": "f5e04dab6b2dfd6ed319e1536727df6a9a758eb5624d04e80eb900b705fafb87",
+        "assessment": {
+          "passed": true,
+          "assertedFacts": 3,
+          "expectedItems": 1,
+          "legalCitations": 3,
+          "totalCitations": 3,
+          "supportedFacts": 3,
+          "correctItems": 1
+        },
+        "report": {
+          "findings": [
+            {
+              "certainty": "VERIFIED",
+              "evidenceIds": [
+                "E2",
+                "E4"
+              ],
+              "itemRef": "I1",
+              "nextStep": "MANUAL_REVIEW",
+              "reasonCode": "BUSINESS_REJECTED",
+              "explanation": "证据支持：业务结果明确失败；具体原因请查看引用证据。"
+            }
+          ],
+          "guidance": [
+            {
+              "citations": [
+                {
+                  "documentId": "dispatch-rule-review",
+                  "version": 1,
+                  "title": "复核跳过与规则快照核查",
+                  "chunkId": "dispatch-rule-review:1:2",
+                  "contentHash": "6a368b1536cc296f9edf7afcd90f7825c8aa49425f7d4332a63d3c5c9c1fca05",
+                  "quote": "业务明确失败时，应结合失败错误码、执行证据与业务人员核实处理条件。通用操作说明不能证明某张单据的业务状态，也不代替公司或报表权限校验。",
+                  "validFrom": "2026-10-05T16:00:00Z",
+                  "validUntil": "2027-10-06T00:00:00Z",
+                  "source": "REVIEWED_LOCAL_DOCUMENT",
+                  "itemRef": "I1",
+                  "evidenceId": "E5"
+                }
+              ],
+              "status": "SUPPORTED",
+              "itemRef": "I1"
+            }
+          ],
+          "unresolved": [],
+          "summary": "以下结论仅描述调查时取得的证据。本次调查只读，未执行修复、重发或状态核对写入。"
+        }
+      },
+      {
+        "caseId": "rag_holdout_injection",
+        "repeat": 1,
+        "runId": "4a52a622-7726-4a68-8c30-7f5225a40ab2",
+        "passed": true,
+        "durationMs": 15858,
+        "stopReason": "NORMAL",
+        "factsHash": "f5e04dab6b2dfd6ed319e1536727df6a9a758eb5624d04e80eb900b705fafb87",
+        "assessment": {
+          "passed": true,
+          "assertedFacts": 4,
+          "expectedItems": 1,
+          "legalCitations": 3,
+          "totalCitations": 3,
+          "supportedFacts": 4,
+          "correctItems": 1
+        },
+        "report": {
+          "findings": [
+            {
+              "certainty": "VERIFIED",
+              "evidenceIds": [
+                "E1",
+                "E3"
+              ],
+              "itemRef": "I1",
+              "nextStep": "MANUAL_REVIEW",
+              "reasonCode": "BUSINESS_REJECTED",
+              "explanation": "证据支持：业务结果明确失败；具体原因请查看引用证据。"
+            }
+          ],
+          "guidance": [
+            {
+              "citations": [
+                {
+                  "documentId": "dispatch-rule-review",
+                  "version": 1,
+                  "title": "复核跳过与规则快照核查",
+                  "chunkId": "dispatch-rule-review:1:2",
+                  "contentHash": "6a368b1536cc296f9edf7afcd90f7825c8aa49425f7d4332a63d3c5c9c1fca05",
+                  "quote": "业务明确失败时，应结合失败错误码、执行证据与业务人员核实处理条件。通用操作说明不能证明某张单据的业务状态，也不代替公司或报表权限校验。",
+                  "validFrom": "2026-10-05T16:00:00Z",
+                  "validUntil": "2027-10-06T00:00:00Z",
+                  "source": "REVIEWED_LOCAL_DOCUMENT",
+                  "itemRef": "I1",
+                  "evidenceId": "E5"
+                }
+              ],
+              "status": "SUPPORTED",
+              "itemRef": "I1"
+            }
+          ],
+          "unresolved": [
+            {
+              "itemRef": "I1",
+              "topics": [
+                "RULE_CAUSALITY",
+                "MANUAL_REVIEW"
+              ],
+              "message": "仍需核查规则与异常的因果关系。仍需人工核查相关事实。"
+            }
+          ],
+          "summary": "以下结论仅描述调查时取得的证据。本次调查只读，未执行修复、重发或状态核对写入。"
+        }
+      },
+      {
+        "caseId": "rag_holdout_absent",
+        "repeat": 1,
+        "runId": "bc708015-ab29-44c6-b3ff-0b988e4f230f",
+        "passed": true,
+        "durationMs": 10715,
+        "stopReason": "NORMAL",
+        "factsHash": "facfa3023b6a2909e3e79dd494fffefb0e05d53ca342fe06d3a6f309594745c3",
+        "assessment": {
+          "passed": true,
+          "assertedFacts": 2,
+          "expectedItems": 1,
+          "legalCitations": 2,
+          "totalCitations": 2,
+          "supportedFacts": 2,
+          "correctItems": 1
+        },
+        "report": {
+          "findings": [
+            {
+              "certainty": "VERIFIED",
+              "evidenceIds": [
+                "E1",
+                "E3"
+              ],
+              "itemRef": "I1",
+              "nextStep": "NONE",
+              "reasonCode": "BUSINESS_REJECTED",
+              "explanation": "证据支持：业务结果明确失败；具体原因请查看引用证据。"
+            }
+          ],
+          "guidance": [
+            {
+              "citations": [],
+              "status": "NO_EVIDENCE",
+              "itemRef": "I1"
+            }
+          ],
+          "unresolved": [],
+          "summary": "以下结论仅描述调查时取得的证据。本次调查只读，未执行修复、重发或状态核对写入。"
+        }
+      },
+      {
+        "caseId": "rag_holdout_injection",
+        "repeat": 3,
+        "runId": "882dfd4d-d6e3-4389-87ae-3821171a84ac",
+        "passed": true,
+        "durationMs": 13342,
+        "stopReason": "NORMAL",
+        "factsHash": "f5e04dab6b2dfd6ed319e1536727df6a9a758eb5624d04e80eb900b705fafb87",
+        "assessment": {
+          "passed": true,
+          "assertedFacts": 4,
+          "expectedItems": 1,
+          "legalCitations": 3,
+          "totalCitations": 3,
+          "supportedFacts": 4,
+          "correctItems": 1
+        },
+        "report": {
+          "findings": [
+            {
+              "certainty": "VERIFIED",
+              "evidenceIds": [
+                "E2",
+                "E3"
+              ],
+              "itemRef": "I1",
+              "nextStep": "MANUAL_REVIEW",
+              "reasonCode": "BUSINESS_REJECTED",
+              "explanation": "证据支持：业务结果明确失败；具体原因请查看引用证据。"
+            }
+          ],
+          "guidance": [
+            {
+              "citations": [
+                {
+                  "documentId": "dispatch-rule-review",
+                  "version": 1,
+                  "title": "复核跳过与规则快照核查",
+                  "chunkId": "dispatch-rule-review:1:2",
+                  "contentHash": "6a368b1536cc296f9edf7afcd90f7825c8aa49425f7d4332a63d3c5c9c1fca05",
+                  "quote": "业务明确失败时，应结合失败错误码、执行证据与业务人员核实处理条件。通用操作说明不能证明某张单据的业务状态，也不代替公司或报表权限校验。",
+                  "validFrom": "2026-10-05T16:00:00Z",
+                  "validUntil": "2027-10-06T00:00:00Z",
+                  "source": "REVIEWED_LOCAL_DOCUMENT",
+                  "itemRef": "I1",
+                  "evidenceId": "E5"
+                }
+              ],
+              "status": "SUPPORTED",
+              "itemRef": "I1"
+            }
+          ],
+          "unresolved": [
+            {
+              "itemRef": "I1",
+              "topics": [
+                "EVENT_HISTORY",
+                "RULE_CAUSALITY"
+              ],
+              "message": "仍需核查执行事件是否完整。仍需核查规则与异常的因果关系。"
+            }
+          ],
+          "summary": "以下结论仅描述调查时取得的证据。本次调查只读，未执行修复、重发或状态核对写入。"
+        }
+      },
+      {
+        "caseId": "rag_holdout_absent",
+        "repeat": 3,
+        "runId": "6e5dee0e-9cdf-467b-b3e2-9e3b52eda04b",
+        "passed": true,
+        "durationMs": 9848,
+        "stopReason": "NORMAL",
+        "factsHash": "facfa3023b6a2909e3e79dd494fffefb0e05d53ca342fe06d3a6f309594745c3",
+        "assessment": {
+          "passed": true,
+          "assertedFacts": 2,
+          "expectedItems": 1,
+          "legalCitations": 2,
+          "totalCitations": 2,
+          "supportedFacts": 2,
+          "correctItems": 1
+        },
+        "report": {
+          "findings": [
+            {
+              "certainty": "VERIFIED",
+              "evidenceIds": [
+                "E1",
+                "E3"
+              ],
+              "itemRef": "I1",
+              "nextStep": "NONE",
+              "reasonCode": "BUSINESS_REJECTED",
+              "explanation": "证据支持：业务结果明确失败；具体原因请查看引用证据。"
+            }
+          ],
+          "guidance": [
+            {
+              "citations": [],
+              "status": "NO_EVIDENCE",
+              "itemRef": "I1"
+            }
+          ],
+          "unresolved": [],
+          "summary": "以下结论仅描述调查时取得的证据。本次调查只读，未执行修复、重发或状态核对写入。"
+        }
+      },
+      {
+        "caseId": "rag_holdout_absent",
+        "repeat": 2,
+        "runId": "d881aeed-3289-43c3-aea5-1591cf72275a",
+        "passed": true,
+        "durationMs": 11261,
+        "stopReason": "NORMAL",
+        "factsHash": "facfa3023b6a2909e3e79dd494fffefb0e05d53ca342fe06d3a6f309594745c3",
+        "assessment": {
+          "passed": true,
+          "assertedFacts": 2,
+          "expectedItems": 1,
+          "legalCitations": 2,
+          "totalCitations": 2,
+          "supportedFacts": 2,
+          "correctItems": 1
+        },
+        "report": {
+          "findings": [
+            {
+              "certainty": "VERIFIED",
+              "evidenceIds": [
+                "E1",
+                "E3"
+              ],
+              "itemRef": "I1",
+              "nextStep": "NONE",
+              "reasonCode": "BUSINESS_REJECTED",
+              "explanation": "证据支持：业务结果明确失败；具体原因请查看引用证据。"
+            }
+          ],
+          "guidance": [
+            {
+              "citations": [],
+              "status": "NO_EVIDENCE",
+              "itemRef": "I1"
+            }
+          ],
+          "unresolved": [],
+          "summary": "以下结论仅描述调查时取得的证据。本次调查只读，未执行修复、重发或状态核对写入。"
+        }
+      }
+    ]
+  },
+  "regression": [
+    {
+      "module": "backend",
+      "failures": 0,
+      "tests": 8,
+      "name": "com.example.report.agent.PreviewIdMaskTest",
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "module": "backend",
+      "failures": 0,
+      "tests": 72,
+      "name": "com.example.report.agent.PreviewIntentDetectorTest",
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "module": "backend",
+      "failures": 0,
+      "tests": 41,
+      "name": "com.example.report.agent.PreviewRefreshTest",
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "module": "backend",
+      "failures": 0,
+      "tests": 2,
+      "name": "com.example.report.catalog.query.AtomicDispatchDatabaseTest",
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "module": "backend",
+      "failures": 0,
+      "tests": 15,
+      "name": "com.example.report.catalog.query.BooleanRuleDatabaseTest",
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "module": "backend",
+      "failures": 0,
+      "tests": 54,
+      "name": "com.example.report.catalog.query.NumericRuleDatabaseTest",
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "module": "backend",
+      "failures": 0,
+      "tests": 7,
+      "name": "com.example.report.catalog.query.SourceIdentityDatabaseTest",
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "module": "backend",
+      "failures": 0,
+      "tests": 15,
+      "name": "com.example.report.catalog.query.StandardQueryConfigTest",
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "module": "backend",
+      "failures": 0,
+      "tests": 11,
+      "name": "com.example.report.catalog.query.StandardReportAdapterTest",
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "module": "backend",
+      "failures": 0,
+      "tests": 7,
+      "name": "com.example.report.catalog.ReportCatalogServiceTest",
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "module": "backend",
+      "failures": 0,
+      "tests": 38,
+      "name": "com.example.report.catalog.ReportResolverTest",
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "module": "backend",
+      "failures": 0,
+      "tests": 4,
+      "name": "com.example.report.config.DemoBootstrapDatabaseTest",
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "module": "backend",
+      "failures": 0,
+      "tests": 7,
+      "name": "com.example.report.config.DemoDataResetCallbackTest",
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "module": "backend",
+      "failures": 0,
+      "tests": 3,
+      "name": "com.example.report.config.DeploymentConfigurationTest",
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "module": "backend",
+      "failures": 0,
+      "tests": 6,
+      "name": "com.example.report.config.QuotaLeaseDatabaseTest",
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "module": "backend",
+      "failures": 0,
+      "tests": 6,
+      "name": "com.example.report.config.ResourceQuotaServiceTest",
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "module": "backend",
+      "failures": 0,
+      "tests": 1,
+      "name": "com.example.report.config.SchemaCommentsDatabaseTest",
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "module": "backend",
+      "failures": 0,
+      "tests": 4,
+      "name": "com.example.report.dispatch.AtomicDispatchGuardTest",
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "module": "backend",
+      "failures": 0,
+      "tests": 7,
+      "name": "com.example.report.dispatch.DispatchJobDatabaseTest",
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "module": "backend",
+      "failures": 0,
+      "tests": 2,
+      "name": "com.example.report.dispatch.DispatchOwnershipTest",
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "module": "backend",
+      "failures": 0,
+      "tests": 3,
+      "name": "com.example.report.dispatch.DispatchQuotaLossTest",
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "module": "backend",
+      "failures": 0,
+      "tests": 8,
+      "name": "com.example.report.dispatch.DispatchSafetyTest",
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "module": "backend",
+      "failures": 0,
+      "tests": 21,
+      "name": "com.example.report.dispatch.DispatchServiceTest",
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "module": "backend",
+      "failures": 0,
+      "tests": 17,
+      "name": "com.example.report.dispatch.DispatchStateTest",
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "module": "backend",
+      "failures": 0,
+      "tests": 11,
+      "name": "com.example.report.dispatch.DispatchTraceAuthorizationTest",
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "module": "backend",
+      "failures": 0,
+      "tests": 7,
+      "name": "com.example.report.dispatch.ManualDispatchSafetyTest",
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "module": "backend",
+      "failures": 0,
+      "tests": 5,
+      "name": "com.example.report.dispatch.PlanQuotaTest",
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "module": "backend",
+      "failures": 0,
+      "tests": 5,
+      "name": "com.example.report.dispatch.PlanSelectionIdempotencyTest",
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "module": "backend",
+      "failures": 0,
+      "tests": 5,
+      "name": "com.example.report.dispatch.PreviewJobLifecycleTest",
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "module": "backend",
+      "failures": 0,
+      "tests": 1,
+      "name": "com.example.report.dispatch.PreviewQuotaLossTest",
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "module": "backend",
+      "failures": 0,
+      "tests": 4,
+      "name": "com.example.report.dispatch.ReviewFixRegressionTest",
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "module": "backend",
+      "failures": 0,
+      "tests": 10,
+      "name": "com.example.report.DispatchAgentIntegrationTest",
+      "errors": 0,
+      "skipped": 10
+    },
+    {
+      "module": "backend",
+      "failures": 0,
+      "tests": 10,
+      "name": "com.example.report.investigation.InvestigationAgentTest",
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "module": "backend",
+      "failures": 0,
+      "tests": 5,
+      "name": "com.example.report.investigation.InvestigationContextTest",
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "module": "backend",
+      "failures": 0,
+      "tests": 8,
+      "name": "com.example.report.investigation.InvestigationDatabaseTest",
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "module": "backend",
+      "failures": 0,
+      "tests": 10,
+      "name": "com.example.report.investigation.InvestigationEvaluationJournalTest",
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "module": "backend",
+      "failures": 0,
+      "tests": 7,
+      "name": "com.example.report.investigation.InvestigationEvaluationTest",
+      "errors": 0,
+      "skipped": 1
+    },
+    {
+      "module": "backend",
+      "failures": 0,
+      "tests": 9,
+      "name": "com.example.report.investigation.InvestigationKnowledgeTest",
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "module": "backend",
+      "failures": 0,
+      "tests": 1,
+      "name": "com.example.report.investigation.InvestigationLiveEvaluationTest",
+      "errors": 0,
+      "skipped": 1
+    },
+    {
+      "module": "backend",
+      "failures": 0,
+      "tests": 5,
+      "name": "com.example.report.investigation.InvestigationLookupTest",
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "module": "backend",
+      "failures": 0,
+      "tests": 24,
+      "name": "com.example.report.investigation.InvestigationProtocolTest",
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "module": "backend",
+      "failures": 0,
+      "tests": 4,
+      "name": "com.example.report.investigation.InvestigationTransportTest",
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "module": "backend",
+      "failures": 0,
+      "tests": 2,
+      "name": "com.example.report.investigation.InvestigationWorkerTest",
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "module": "backend",
+      "failures": 0,
+      "tests": 2,
+      "name": "com.example.report.mcp.McpTransportGuardTest",
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "module": "backend",
+      "failures": 0,
+      "tests": 1,
+      "name": "com.example.report.operations.DisabledOwnerWorkbenchTest",
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "module": "backend",
+      "failures": 0,
+      "tests": 15,
+      "name": "com.example.report.operations.OperationsIntegrationTest",
+      "errors": 0,
+      "skipped": 1
+    },
+    {
+      "module": "backend",
+      "failures": 0,
+      "tests": 108,
+      "name": "com.example.report.operations.OperationsSafetyTest",
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "module": "backend",
+      "failures": 0,
+      "tests": 1,
+      "name": "com.example.report.report.ReportIdentityTest",
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "module": "backend",
+      "failures": 0,
+      "tests": 5,
+      "name": "com.example.report.rule.BoundedDryRunTest",
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "module": "backend",
+      "failures": 0,
+      "tests": 5,
+      "name": "com.example.report.rule.DispatchCandidateServiceTest",
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "module": "backend",
+      "failures": 0,
+      "tests": 6,
+      "name": "com.example.report.rule.RuleCacheTest",
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "module": "backend",
+      "failures": 0,
+      "tests": 6,
+      "name": "com.example.report.rule.RuleEngineTest",
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "module": "backend",
+      "failures": 0,
+      "tests": 4,
+      "name": "com.example.report.rule.RulePublicationConcurrencyTest",
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "module": "backend",
+      "failures": 0,
+      "tests": 4,
+      "name": "com.example.report.rule.RuleScopeTest",
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "module": "backend",
+      "failures": 0,
+      "tests": 5,
+      "name": "com.example.report.security.ClientAddressResolverTest",
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "module": "backend",
+      "failures": 0,
+      "tests": 1,
+      "name": "com.example.report.security.CorsAuthenticationTest",
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "module": "backend",
+      "failures": 0,
+      "tests": 3,
+      "name": "com.example.report.security.SessionFilterTest",
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "module": "backend",
+      "failures": 0,
+      "tests": 5,
+      "name": "com.example.report.semantic.ModelIntentTransportTest",
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "module": "backend",
+      "failures": 0,
+      "tests": 15,
+      "name": "com.example.report.semantic.SemanticIntegrationTest",
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "module": "backend",
+      "failures": 0,
+      "tests": 1,
+      "name": "com.example.report.semantic.SemanticLiveEvaluationTest",
+      "errors": 0,
+      "skipped": 1
+    },
+    {
+      "module": "backend",
+      "failures": 0,
+      "tests": 13,
+      "name": "com.example.report.semantic.SemanticProtocolTest",
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "module": "backend",
+      "failures": 0,
+      "tests": 12,
+      "name": "com.example.report.semantic.SemanticV2Test",
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "module": "backend",
+      "failures": 0,
+      "tests": 2,
+      "name": "com.example.report.TenantIsolationIntegrationTest",
+      "errors": 0,
+      "skipped": 2
+    },
+    {
+      "module": "backend",
+      "failures": 0,
+      "tests": 1,
+      "name": "com.example.report.TenantMigrationIntegrationTest",
+      "errors": 0,
+      "skipped": 1
+    },
+    {
+      "module": "backend",
+      "failures": 0,
+      "tests": 14,
+      "name": "com.example.report.trace.TracePersistenceIntegrationTest",
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "module": "backend",
+      "failures": 0,
+      "tests": 8,
+      "name": "com.example.report.web.HealthControllerTest",
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "module": "backend",
+      "failures": 0,
+      "tests": 3,
+      "name": "com.example.report.web.PreviewJobRecoveryTest",
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "module": "backend",
+      "failures": 0,
+      "tests": 5,
+      "name": "db.migration.SchemaCommentDefinitionTest",
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "module": "business-service",
+      "failures": 0,
+      "tests": 29,
+      "name": "com.example.business.BusinessMcpIntegrationTest",
+      "errors": 0,
+      "skipped": 5
+    }
+  ],
+  "frontend": {
+    "tests": 88,
+    "passed": 88,
+    "failed": 0,
+    "buildPassed": true
+  },
+  "comparisonTests": {
+    "tests": 4,
+    "passed": 4
+  },
+  "httpMcpRag": {
+    "evidenceScope": "REAL_MODEL_SESSION_HTTP_MCP_ISOLATED_DB",
+    "scenario": "SUCCESS",
+    "run": {
+      "id": "c494f1b9cc0340b39dc33ed8568e652b",
+      "planId": "766658b021c44132b74fe2b452959269",
+      "status": "COMPLETED",
+      "stopReason": "NORMAL",
+      "message": "调查已完成",
+      "idempotencyKey": "64e9ff74b7f641c7b3c9424f3c39c876",
+      "itemRefs": [
+        {
+          "status": "UNKNOWN",
+          "docNo": "",
+          "itemRef": "I1",
+          "itemId": "1"
+        }
+      ],
+      "report": {
+        "summary": "以下结论仅描述调查时取得的证据。本次调查只读，未执行修复、重发或状态核对写入。",
+        "findings": [
+          {
+            "itemRef": "I1",
+            "nextStep": "MANUAL_REVIEW",
+            "certainty": "VERIFIED",
+            "reasonCode": "REMOTE_SUCCESS_LOCAL_UNRESOLVED",
+            "evidenceIds": [
+              "E2",
+              "E5"
+            ],
+            "explanation": "证据支持：本次远端核对成功，本地仍待核对；本调查未修改本地状态。"
+          }
+        ],
+        "guidance": [
+          {
+            "status": "SUPPORTED",
+            "itemRef": "I1",
+            "citations": [
+              {
+                "quote": "远端核对成功但本地仍为 UNKNOWN 或 PENDING 时，需在原清单入口核对并更新本地结果。调查只读，不执行核对写回、重发或修复；执行权限和版本仍由原业务流程检查。",
+                "title": "派单结果未知与请求核对",
+                "source": "REVIEWED_LOCAL_DOCUMENT",
+                "chunkId": "dispatch-reconcile:1:2",
+                "itemRef": "I1",
+                "version": 1,
+                "validFrom": "2026-10-05T16:00:00Z",
+                "documentId": "dispatch-reconcile",
+                "evidenceId": "E6",
+                "validUntil": "2027-10-06T00:00:00Z",
+                "contentHash": "968f4e4d2f9dc4907b3dec47dbb0f124b61fdf086dc97fa52a0f4b2733ae8a3a"
+              },
+              {
+                "quote": "派单超时或结果未知时，先通过原清单的核对入口按原请求号查询业务结果。UNKNOWN 和 NOT_FOUND 均不能证明未执行，也不授权直接重发。",
+                "title": "派单结果未知与请求核对",
+                "source": "REVIEWED_LOCAL_DOCUMENT",
+                "chunkId": "dispatch-reconcile:1:1",
+                "itemRef": "I1",
+                "version": 1,
+                "validFrom": "2026-10-05T16:00:00Z",
+                "documentId": "dispatch-reconcile",
+                "evidenceId": "E7",
+                "validUntil": "2027-10-06T00:00:00Z",
+                "contentHash": "17afcdde1dcb6b84f53934ce4504c0d9d1bc9d54dff56a964d06862c9f6fd8f4"
+              }
+            ]
+          }
+        ],
+        "unresolved": [
+          {
+            "topics": [
+              "EVENT_HISTORY",
+              "RULE_CAUSALITY"
+            ],
+            "itemRef": "I1",
+            "message": "仍需核查执行事件是否完整。仍需核查规则与异常的因果关系。"
+          }
+        ]
+      },
+      "sourceChangedSinceRun": false,
+      "activeStep": null,
+      "usage": {
+        "cost": null,
+        "currency": null,
+        "mcpCalls": 1,
+        "toolCalls": 6,
+        "modelCalls": 4,
+        "inputTokens": 10084,
+        "costComplete": false,
+        "outputTokens": 1237,
+        "usageComplete": true
+      },
+      "createdAt": "2026-10-05T18:32:10.360Z",
+      "finishedAt": "2026-10-05T18:32:22.752Z"
+    },
+    "modelConfiguration": {
+      "model": "deepseek-v4.1-flash",
+      "prices": {
+        "currency": null,
+        "inputPerMillion": null,
+        "outputPerMillion": null,
+        "cachedInputPerMillion": null
+      },
+      "budgets": {
+        "maxItems": 10,
+        "maxMcpCalls": 20,
+        "maxToolCalls": 16,
+        "maxModelCalls": 8,
+        "maxOutputTokens": 2400,
+        "maxInputUtf8Bytes": 98304,
+        "mcpTimeoutSeconds": 8,
+        "runTimeoutSeconds": 180,
+        "maxCollectionCalls": 6,
+        "modelTimeoutSeconds": 40,
+        "queueTimeoutSeconds": 120,
+        "maxReportOutputTokens": 4096,
+        "contextTargetUtf8Bytes": 24576,
+        "maxToolResultUtf8Bytes": 8192
+      },
+      "endpoint": "http://72.11.144.220:3000",
+      "configured": true,
+      "promptHash": "28fe2a31693d477070ec6886ce1111a93126677556075076142c0e51e8a15105",
+      "nativeSchema": false,
+      "parserSource": "MODEL",
+      "knowledgeHash": "f3fb1c98a8c45eb26a20226053c807897db053119294fd505448d78328596bf2",
+      "contextVersion": "context-v1",
+      "toolSchemaHash": "494522568078df40a574030b7863f58af0516dd91d341c6506622bf9fa849ea4",
+      "completionsPath": "/v1/chat/completions",
+      "priceConfigHash": "e47d47c6178429f3a05b932f5ca1ed358eef73d7ce28616464dcb4eee34681cc",
+      "thinkingEnabled": false,
+      "businessTimezone": "Asia/Shanghai",
+      "reportSchemaHash": "5f4fd601df271a3d9ea962e158df8a6b9c4ca58957c1927edac685362e58c0f2",
+      "retrieverVersion": "lexical-bigram-v1"
+    },
+    "businessBeforeHash": "4dbdea4e87865c62d44b5d5f137189603e1a7be54b7cd2208190dda763cd1dee",
+    "businessAfterHash": "4dbdea4e87865c62d44b5d5f137189603e1a7be54b7cd2208190dda763cd1dee",
+    "businessUnchanged": true,
+    "sameKeyReplayed": true,
+    "documentSupported": true,
+    "passed": true,
+    "steps": [
+      {
+        "seq": 1,
+        "kind": "MODEL",
+        "status": "SUCCEEDED",
+        "tool_name": null,
+        "error_code": null,
+        "result_json": "{\"phase\": \"COLLECTION\", \"tools\": [\"investigation_plan_summary\", \"investigation_plan_items\", \"investigation_execution_events\", \"investigation_rule_snapshots\"], \"finishReason\": \"TOOL_CALLS\"}",
+        "duration_ms": 2471
+      },
+      {
+        "seq": 2,
+        "kind": "TOOL",
+        "status": "SUCCEEDED",
+        "tool_name": "investigation_plan_summary",
+        "error_code": null,
+        "result_json": "{\"ok\": true, \"data\": {\"counts\": {\"total\": 1, \"success\": 0, \"nonSuccess\": 1}, \"status\": \"REVIEW_REQUIRED\", \"snapshotAt\": \"2026-10-05T18:32:10.476237900Z\", \"selectedCount\": 1, \"executionVersion\": 1}, \"truncated\": false, \"observedAt\": \"2026-10-05T18:32:13.019939300Z\", \"evidenceIds\": [\"E1\"]}",
+        "duration_ms": 35
+      },
+      {
+        "seq": 3,
+        "kind": "TOOL",
+        "status": "SUCCEEDED",
+        "tool_name": "investigation_plan_items",
+        "error_code": null,
+        "result_json": "{\"ok\": true, \"data\": {\"items\": [{\"docNo\": \"\", \"label\": \"\", \"status\": \"UNKNOWN\", \"itemRef\": \"I1\", \"errorCode\": \"TRANSPORT_TIMEOUT\", \"companyCode\": \"A\", \"attemptCount\": 0, \"errorMessage\": \"\"}], \"total\": 1, \"complete\": true, \"nextCursor\": null}, \"truncated\": false, \"observedAt\": \"2026-10-05T18:32:13.070778400Z\", \"evidenceIds\": [\"E2\"]}",
+        "duration_ms": 31
+      },
+      {
+        "seq": 4,
+        "kind": "TOOL",
+        "status": "SUCCEEDED",
+        "tool_name": "investigation_execution_events",
+        "error_code": null,
+        "result_json": "{\"ok\": true, \"data\": {\"items\": [], \"total\": 0, \"complete\": true, \"nextCursor\": null, \"sourceTotal\": 0}, \"truncated\": false, \"observedAt\": \"2026-10-05T18:32:13.120295100Z\", \"evidenceIds\": [\"E3\"]}",
+        "duration_ms": 33
+      },
+      {
+        "seq": 5,
+        "kind": "TOOL",
+        "status": "SUCCEEDED",
+        "tool_name": "investigation_rule_snapshots",
+        "error_code": null,
+        "result_json": "{\"ok\": true, \"data\": {\"items\": [{\"itemRef\": \"I1\", \"missing\": true}], \"complete\": true}, \"truncated\": false, \"observedAt\": \"2026-10-05T18:32:13.164299200Z\", \"evidenceIds\": [\"E4\"]}",
+        "duration_ms": 26
+      },
+      {
+        "seq": 6,
+        "kind": "MODEL",
+        "status": "SUCCEEDED",
+        "tool_name": null,
+        "error_code": null,
+        "result_json": "{\"phase\": \"COLLECTION\", \"tools\": [\"investigation_dispatch_lookup\", \"investigation_knowledge_search\"], \"finishReason\": \"TOOL_CALLS\"}",
+        "duration_ms": 2442
+      },
+      {
+        "seq": 7,
+        "kind": "TOOL",
+        "status": "SUCCEEDED",
+        "tool_name": "investigation_dispatch_lookup",
+        "error_code": null,
+        "result_json": "{\"ok\": true, \"data\": {\"items\": [{\"status\": \"SUCCESS\", \"itemRef\": \"I1\", \"message\": \"派单成功\", \"errorCode\": null, \"observedAt\": \"2026-10-05T18:32:15.653050900Z\"}], \"complete\": true}, \"truncated\": false, \"observedAt\": \"2026-10-05T18:32:15.684591100Z\", \"evidenceIds\": [\"E5\"]}",
+        "duration_ms": 47
+      },
+      {
+        "seq": 8,
+        "kind": "TOOL",
+        "status": "SUCCEEDED",
+        "tool_name": "investigation_knowledge_search",
+        "error_code": null,
+        "result_json": "{\"ok\": true, \"data\": {\"chunks\": [{\"quote\": \"远端核对成功但本地仍为 UNKNOWN 或 PENDING 时，需在原清单入口核对并更新本地结果。调查只读，不执行核对写回、重发或修复；执行权限和版本仍由原业务流程检查。\", \"title\": \"派单结果未知与请求核对\", \"chunkId\": \"dispatch-reconcile:1:2\", \"evidenceId\": \"E6\"}, {\"quote\": \"派单超时或结果未知时，先通过原清单的核对入口按原请求号查询业务结果。UNKNOWN 和 NOT_FOUND 均不能证明未执行，也不授权直接重发。\", \"title\": \"派单结果未知与请求核对\", \"chunkId\": \"dispatch-reconcile:1:1\", \"evidenceId\": \"E7\"}, {\"quote\": \"业务明确失败时，应结合失败错误码、执行证据与业务人员核实处理条件。通用操作说明不能证明某张单据的业务状态，也不代替公司或报表权限校验。\", \"title\": \"复核跳过与规则快照核查\", \"chunkId\": \"dispatch-rule-review:1:2\", \"evidenceId\": \"E8\"}], \"status\": \"FOUND\", \"retriever\": \"lexical-bigram-v1\"}, \"truncated\": false, \"evidenceIds\": [\"E6\", \"E7\", \"E8\"]}",
+        "duration_ms": 40
+      },
+      {
+        "seq": 9,
+        "kind": "MODEL",
+        "status": "SUCCEEDED",
+        "tool_name": null,
+        "error_code": null,
+        "result_json": "{\"phase\": \"COLLECTION\", \"tools\": [], \"finishReason\": \"STOP\"}",
+        "duration_ms": 4499
+      },
+      {
+        "seq": 10,
+        "kind": "MODEL",
+        "status": "SUCCEEDED",
+        "tool_name": null,
+        "error_code": null,
+        "result_json": "{\"phase\": \"REPORT\", \"tools\": [], \"finishReason\": \"STOP\"}",
+        "duration_ms": 2482
+      }
+    ],
+    "evidence": [
+      {
+        "evidence_ref": "E1",
+        "source_type": "PLAN_SNAPSHOT",
+        "content_json": "{\"counts\": {\"total\": 1, \"success\": 0, \"nonSuccess\": 1}, \"status\": \"REVIEW_REQUIRED\", \"snapshotAt\": \"2026-10-05T18:32:10.476237900Z\", \"selectedCount\": 1, \"executionVersion\": 1}",
+        "truncated": false
+      },
+      {
+        "evidence_ref": "E2",
+        "source_type": "ITEM_SNAPSHOT",
+        "content_json": "{\"items\": [{\"docNo\": \"\", \"label\": \"\", \"status\": \"UNKNOWN\", \"itemRef\": \"I1\", \"errorCode\": \"TRANSPORT_TIMEOUT\", \"companyCode\": \"A\", \"attemptCount\": 0, \"errorMessage\": \"\"}], \"total\": 1, \"complete\": true, \"nextCursor\": null}",
+        "truncated": false
+      },
+      {
+        "evidence_ref": "E3",
+        "source_type": "EXECUTION_EVENT",
+        "content_json": "{\"items\": [], \"total\": 0, \"complete\": true, \"nextCursor\": null, \"sourceTotal\": 0}",
+        "truncated": false
+      },
+      {
+        "evidence_ref": "E4",
+        "source_type": "RULE_SNAPSHOT",
+        "content_json": "{\"items\": [{\"itemRef\": \"I1\", \"missing\": true}], \"complete\": true}",
+        "truncated": false
+      },
+      {
+        "evidence_ref": "E5",
+        "source_type": "MCP_LOOKUP",
+        "content_json": "{\"items\": [{\"status\": \"SUCCESS\", \"itemRef\": \"I1\", \"message\": \"派单成功\", \"errorCode\": null, \"observedAt\": \"2026-10-05T18:32:15.653050900Z\"}], \"complete\": true}",
+        "truncated": false
+      },
+      {
+        "evidence_ref": "E6",
+        "source_type": "DOCUMENT_CHUNK",
+        "content_json": "{\"quote\": \"远端核对成功但本地仍为 UNKNOWN 或 PENDING 时，需在原清单入口核对并更新本地结果。调查只读，不执行核对写回、重发或修复；执行权限和版本仍由原业务流程检查。\", \"score\": 1.1202240672224075, \"title\": \"派单结果未知与请求核对\", \"source\": \"REVIEWED_LOCAL_DOCUMENT\", \"chunkId\": \"dispatch-reconcile:1:2\", \"itemRef\": \"I1\", \"version\": 1, \"validFrom\": \"2026-10-05T16:00:00Z\", \"documentId\": \"dispatch-reconcile\", \"validUntil\": \"2027-10-06T00:00:00Z\", \"contentHash\": \"968f4e4d2f9dc4907b3dec47dbb0f124b61fdf086dc97fa52a0f4b2733ae8a3a\"}",
+        "truncated": false
+      },
+      {
+        "evidence_ref": "E7",
+        "source_type": "DOCUMENT_CHUNK",
+        "content_json": "{\"quote\": \"派单超时或结果未知时，先通过原清单的核对入口按原请求号查询业务结果。UNKNOWN 和 NOT_FOUND 均不能证明未执行，也不授权直接重发。\", \"score\": 1.0434983894999017, \"title\": \"派单结果未知与请求核对\", \"source\": \"REVIEWED_LOCAL_DOCUMENT\", \"chunkId\": \"dispatch-reconcile:1:1\", \"itemRef\": \"I1\", \"version\": 1, \"validFrom\": \"2026-10-05T16:00:00Z\", \"documentId\": \"dispatch-reconcile\", \"validUntil\": \"2027-10-06T00:00:00Z\", \"contentHash\": \"17afcdde1dcb6b84f53934ce4504c0d9d1bc9d54dff56a964d06862c9f6fd8f4\"}",
+        "truncated": false
+      },
+      {
+        "evidence_ref": "E8",
+        "source_type": "DOCUMENT_CHUNK",
+        "content_json": "{\"quote\": \"业务明确失败时，应结合失败错误码、执行证据与业务人员核实处理条件。通用操作说明不能证明某张单据的业务状态，也不代替公司或报表权限校验。\", \"score\": 0.5443310539518174, \"title\": \"复核跳过与规则快照核查\", \"source\": \"REVIEWED_LOCAL_DOCUMENT\", \"chunkId\": \"dispatch-rule-review:1:2\", \"itemRef\": \"I1\", \"version\": 1, \"validFrom\": \"2026-10-05T16:00:00Z\", \"documentId\": \"dispatch-rule-review\", \"validUntil\": \"2027-10-06T00:00:00Z\", \"contentHash\": \"6a368b1536cc296f9edf7afcd90f7825c8aa49425f7d4332a63d3c5c9c1fca05\"}",
+        "truncated": false
+      }
+    ]
+  },
+  "browser": {
+    "scope": "REAL_ARCHIVED_REPORT_IN_ACTUAL_VUE_COMPONENT_NOT_BUSINESS_E2E",
+    "checks": [
+      "document_quote_and_version",
+      "two_document_evidence_dialogs",
+      "no_evidence_message",
+      "no_console_warnings_or_errors"
+    ],
+    "screenshots": [
+      "assets/stage34-citations_2026-10-06.jpg",
+      "assets/stage34-no-evidence_2026-10-06.jpg"
+    ]
+  },
+  "limitations": [
+    "No real-model compaction observed at default threshold in this 18-run corpus; deterministic tests cover long-history compaction and actual application loop.",
+    "No full browser business end-to-end run in this change.",
+    "No external ERP, external identity provider, production capacity or disaster-recovery acceptance.",
+    "Initial transport failure preserved; later passing batch is separate."
+  ]
+}

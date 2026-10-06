@@ -106,8 +106,8 @@
 
         <div class="chat-input">
           <div v-if="selectionRestoreFailed" class="job-progress" role="alert">
-            未能恢复之前的勾选，恢复成功后才能继续查询或生成清单。
-            <el-button type="text" size="mini" :loading="openingHistory" @click="retrySelectionRestore">重试恢复勾选</el-button>
+            勾选状态未能保存或恢复，重新读取成功后才能继续操作。
+            <el-button type="text" size="mini" :loading="openingHistory" @click="retrySelectionRestore">重新读取勾选</el-button>
           </div>
           <div v-if="choosing" class="job-progress">{{ jobStage }}
             <el-button type="text" size="mini" @click="cancelCurrentJob">取消查询</el-button>
@@ -160,6 +160,7 @@ import {
   deleteConversation,
   fetchCardStates,
   fetchDialogueSelection,
+  saveDialogueSelection,
   fetchConversations,
   fetchMessages,
   fetchModel,
@@ -187,6 +188,7 @@ export default {
       historyLoading: false,
       openingHistory: false,
       selectionRestoreFailed: false,
+      savingSelection: false,
       historyVersion: 0,
       oldestMessageId: null,
       modelName: '',
@@ -210,7 +212,7 @@ export default {
   },
   computed: {
     busy() {
-      return this.sending || this.creatingPlan || this.choosing || this.openingHistory || !!this.executingPlanId
+      return this.sending || this.creatingPlan || this.choosing || this.openingHistory || this.savingSelection || !!this.executingPlanId
     }
   },
   watch: {
@@ -292,7 +294,7 @@ export default {
         const job = await this.pollPreviewJob(pending.jobId)
         if (!this.isCurrentSession()) return
         if (job.status === 'SUCCEEDED' && !this.messages.some((m) => m.cardType === 'preview' &&
-            (m.payload?.previewId || m.previewId) === job.previewId)) {
+            (m.payload?.previewId) === job.previewId)) {
           const preview = await fetchPreview(job.previewId)
           if (!this.isCurrentSession()) return
           this.clearSelection()
@@ -443,8 +445,8 @@ export default {
       this.messages.forEach((m) => {
         if (m.role !== 'card' || !m.payload) return
         let state = null
-        if (m.cardType === 'preview') state = states.previews[m.payload.previewId || m.previewId]
-        else if (m.cardType === 'plan') state = states.plans[m.payload.planId || m.planId]
+        if (m.cardType === 'preview') state = states.previews[m.payload.previewId]
+        else if (m.cardType === 'plan') state = states.plans[m.payload.planId]
         if (state) {
           this.$set(m, 'status', state.status)
           this.$set(m, 'statusMessage', state.message)
@@ -458,8 +460,13 @@ export default {
       this.uiPreviewId = null
     },
     applySelection(data) {
+      // 当前协议的损坏选择必须显式失败，不能恢复成全部选中。
+      if (!data || !Array.isArray(data.excludedRecords) || data.excludedRecords.some(r => !r || typeof r.reportId !== 'string' || typeof r.recordId !== 'string')) {
+        this.selectionRestoreFailed = true
+        throw new Error('选择状态格式无效，请刷新重试')
+      }
       this.uiPreviewId = data.previewId || null
-      this.uiExcludes = Array.isArray(data.excludedRecords) ? data.excludedRecords : []
+      this.uiExcludes = data.excludedRecords
     },
     /** 读取服务器权威选择；校验会话及请求版本后才写入页面，避免迟到响应把新会话范围覆盖。 */
     async restoreSelection(id, version) {
@@ -519,10 +526,21 @@ export default {
       flush()
       return result
     },
-    onPreviewSelection(m, excludedRecords) {
-      if (m.status !== 'ACTIVE' || this.selectionRestoreFailed || this.openingHistory) return
-      this.uiExcludes = excludedRecords
-      this.uiPreviewId = m.payload.previewId
+    /** 手动选择立即持久化；保存期间阻止建单和新轮次，失败则暂停操作并要求重读，不以本地状态冒充已保存。 */
+    async onPreviewSelection(m, excludedRecords) {
+      if (!this.isCurrentSession() || this.busy || m.status !== 'ACTIVE' || this.selectionRestoreFailed || !this.activeId) return
+      const id = this.activeId, version = this.historyVersion, previewId = m.payload.previewId
+      const expectedExclusions = this.uiPreviewId === previewId ? this.uiExcludes.slice() : []
+      this.savingSelection = true
+      try {
+        const saved = await saveDialogueSelection(id, { previewId, expectedExclusions, excludedRecords: excludedRecords.slice() })
+        if (!this.isCurrentSession() || this.activeId !== id || this.historyVersion !== version) return
+        this.applySelection(saved)
+      } catch (e) {
+        if (this.isCurrentSession() && this.activeId === id && this.historyVersion === version) this.selectionRestoreFailed = true
+      } finally {
+        this.savingSelection = false
+      }
     },
     async dispatchSelected(m) {
       if (!this.isCurrentSession() || this.busy || this.selectionRestoreFailed || m.status !== 'ACTIVE' || !m.payload.previewId) return
@@ -583,7 +601,7 @@ export default {
             break
           case 'preview':
             this.clearSelection()
-            cards.push({ role: 'card', cardType: 'preview', payload: data, status: data.status || 'ACTIVE', statusMessage: null })
+            cards.push({ role: 'card', cardType: 'preview', payload: data, status: data.status, statusMessage: null })
             break
           case 'preview_job':
             pendingJobId = data.jobId
@@ -599,7 +617,7 @@ export default {
             cards.push({ role: 'card', cardType: 'choice', payload: data, chosen: '' })
             break
           case 'plan':
-            cards.push({ role: 'card', cardType: 'plan', payload: data, status: data.status || 'PENDING', statusMessage: null })
+            cards.push({ role: 'card', cardType: 'plan', payload: data, status: data.status, statusMessage: null })
             break
           case 'result':
             this.clearSelection()
@@ -644,7 +662,7 @@ export default {
             const latest = await fetchLatestPreviewJob(this.activeId)
             if (!this.isCurrentSession()) return
             if (latest && !this.messages.some((m) => m.cardType === 'preview' &&
-                (m.payload?.previewId || m.previewId) === latest.previewId)) {
+                (m.payload?.previewId) === latest.previewId)) {
               pendingJobId = latest.id
               this.rememberPendingJob(pendingJobId)
             }
@@ -709,7 +727,6 @@ export default {
           conversationId: this.activeId,
           reportIds,
           companyCode: m.payload.companyCode,
-          excludeDocNos: m.payload.excludeDocNos,
           scopeMode: m.payload.scopeMode
         })
         if (!this.isCurrentSession()) return

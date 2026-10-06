@@ -1,0 +1,144 @@
+{
+  "date": "2026-10-06T19:02:31.1552756+08:00",
+  "scope": "Real model and authenticated HTTP MCP; dedicated Demo records, no dispatch confirmation",
+  "total": 1,
+  "cases": [
+    {
+      "stage": "INITIAL_PREVIEW",
+      "passed": false,
+      "scenario": "用户原始连续两句",
+      "expectedTotal": 9,
+      "actualTotal": 1,
+      "events": [
+        {
+          "type": "conversation",
+          "data": {
+            "conversationId": "4c4155fc2ec84613b921daabebd76cd0",
+            "title": "",
+            "requestId": "8b545e71da6348b78795d5916e0fbde3"
+          }
+        },
+        {
+          "type": "text",
+          "data": {
+            "delta": "正在查询可派单记录。\n"
+          }
+        },
+        {
+          "type": "preview",
+          "data": {
+            "previewId": "fa9619717e9348068d3c997ddd239899",
+            "status": "ACTIVE",
+            "total": 1,
+            "totalAmount": 8600,
+            "byReport": [
+              {
+                "reportId": "rpt-sales-order",
+                "reportName": "销售报表",
+                "count": 0,
+                "amount": 0
+              },
+              {
+                "reportId": "rpt-ar-invoice",
+                "reportName": "应收报表",
+                "count": 0,
+                "amount": 0
+              },
+              {
+                "reportId": "rpt-expense-claim",
+                "reportName": "费用报表",
+                "count": 1,
+                "amount": 8600
+              }
+            ],
+            "records": [
+              {
+                "reportId": "rpt-expense-claim",
+                "reportName": "费用报表",
+                "recordId": "1",
+                "docNo": "EXP-2026-0001",
+                "companyCode": "A",
+                "label": "差旅费",
+                "amount": 8600.0,
+                "date": "2026-01-09",
+                "ruleId": 4,
+                "ruleName": "费用报表默认规则",
+                "ruleVersion": 1,
+                "ruleDescription": "报销单金额大于 1000 元需要派单",
+                "catalogVersion": 1,
+                "counterparty": null,
+                "fields": [
+                  {
+                    "name": "companyCode",
+                    "type": "string",
+                    "value": "A"
+                  },
+                  {
+                    "name": "expenseNo",
+                    "type": "string",
+                    "value": "EXP-2026-0001"
+                  },
+                  {
+                    "name": "expenseType",
+                    "type": "string",
+                    "value": "差旅费"
+                  },
+                  {
+                    "name": "amount",
+                    "type": "decimal",
+                    "value": "8600"
+                  },
+                  {
+                    "name": "expenseDate",
+                    "type": "date",
+                    "value": "2026-01-09"
+                  },
+                  {
+                    "name": "daysSinceExpense",
+                    "type": "long",
+                    "value": "270"
+                  },
+                  {
+                    "name": "dispatched",
+                    "type": "boolean",
+                    "value": "false"
+                  }
+                ]
+              }
+            ],
+            "ruleDescriptions": {
+              "rpt-expense-claim": "报销单金额大于 1000 元需要派单"
+            },
+            "resolution": {
+              "matchType": "ALL",
+              "query": null,
+              "matchedTerms": [],
+              "unrecognized": []
+            },
+            "createdAt": "2026-10-06T19:02:31.011831",
+            "expiresAt": "2026-10-06T19:32:31.011831"
+          }
+        },
+        {
+          "type": "text",
+          "data": {
+            "delta": "当前预览共 1 条，已排除 0 条。"
+          }
+        },
+        {
+          "type": "selection",
+          "data": {
+            "previewId": "fa9619717e9348068d3c997ddd239899",
+            "excludedRecords": [],
+            "phase": "READY"
+          }
+        },
+        {
+          "type": "done",
+          "data": {}
+        }
+      ]
+    }
+  ],
+  "passed": 0
+}

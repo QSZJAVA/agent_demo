@@ -3,12 +3,16 @@ param(
     [ValidateRange(1,65535)][int]$AgentPort=8080,
     [ValidateRange(1,65535)][int]$BusinessPort=8090,
     [ValidateRange(1,65535)][int]$FrontendPort=5173,
-    [ValidatePattern('^[a-zA-Z0-9_]+$')][string]$Database='report_mcp',
+    [ValidatePattern('^[a-zA-Z0-9_]+$')][string]$Database='',
     [switch]$SkipBuild,
     [switch]$CheckOnly
 )
 $ErrorActionPreference='Stop'
 $taskRoot=Split-Path $PSScriptRoot -Parent
+$taskBaseline=Get-Content (Join-Path $taskRoot 'demo-baseline.json') -Raw|ConvertFrom-Json
+if(-not $Database){$Database=$taskBaseline.database}
+# 演示库名称固定；禁止启动时另建带版本号或日期的新库。
+if($Database -ne 'report_demo'){throw 'Demo database is fixed to report_demo. Do not create another database without explicit user authorization.'}
 $taskSaved=@{}
 function Set-AppEnvironment([string]$Name,[string]$Value) {
     if(-not $taskSaved.ContainsKey($Name)){$taskSaved[$Name]=[Environment]::GetEnvironmentVariable($Name,'Process')}
@@ -56,7 +60,7 @@ try {
     }
     Test-AppConnection $(if($env:DB_HOST){$env:DB_HOST}else{'localhost'}) $(if($env:DB_PORT){[int]$env:DB_PORT}else{3306}) 'MySQL'
     Test-AppConnection $(if($env:REDIS_HOST){$env:REDIS_HOST}else{'localhost'}) $(if($env:REDIS_PORT){[int]$env:REDIS_PORT}else{6379}) 'Redis'
-    $taskSchema=if($env:SEMANTIC_NATIVE_SCHEMA){$env:SEMANTIC_NATIVE_SCHEMA}else{'false'}
+    $taskSchema=if($env:SEMANTIC_NATIVE_SCHEMA){$env:SEMANTIC_NATIVE_SCHEMA}else{'true'}
     if($taskSchema -notin @('true','false')){throw 'SEMANTIC_NATIVE_SCHEMA must be true or false.'}
     if($CheckOnly){Write-Output 'Configuration and dependency checks passed. Model authentication and output have not been verified.';return}
     if(-not $SkipBuild) {
@@ -64,7 +68,7 @@ try {
         & (Join-Path $taskRoot 'backend/mvnw.cmd') -f (Join-Path $taskRoot 'pom.xml') package '-DskipTests' -q
         if($LASTEXITCODE -ne 0){throw 'Backend build failed.'}
     }
-    foreach($taskJar in @('backend/target/report-demo-2.0.0.jar','business-service/target/business-service-2.0.0.jar')) {
+    foreach($taskJar in @('backend/target/report-demo-1.0.0.jar','business-service/target/business-service-1.0.0.jar')) {
         if(-not (Test-Path -LiteralPath (Join-Path $taskRoot $taskJar))){throw "Missing $taskJar. Start without -SkipBuild."}
     }
     if(-not (Test-Path -LiteralPath (Join-Path $taskRoot 'frontend/node_modules/vite/bin/vite.js'))) {

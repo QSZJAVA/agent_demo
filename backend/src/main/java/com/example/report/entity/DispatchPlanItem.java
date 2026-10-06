@@ -27,7 +27,7 @@ public class DispatchPlanItem {
     /** 本表记录主键；数据库自增。*/
     @TableId(type = IdType.AUTO)
     private Long id;
-    /** 规则快照JSON，含标识、版本、表达式及来源；空表示历史证据未核实。 */
+    /** 规则快照JSON，含标识、版本、表达式及来源；无规则的手工派单为空；命中规则时为空表示当前证据缺失。 */
     private String ruleSnapshot;
     /** 关联 dispatch_plan.id 的派单清单标识。*/
     private String planId;
@@ -47,6 +47,10 @@ public class DispatchPlanItem {
     private String companyCode;
     /** 业务记录展示摘要快照；允许为空，表示尚无该项数据。*/
     private String label;
+    /** 交易对方实体快照JSON，结构为id、name、aliases；标识在所属租户和公司内稳定；空表示来源未提供客户实体。 */
+    private String counterpartyJson;
+    /** 已配置标量字段快照JSON数组，元素为name、type、value；value为空表示来源空值；随预览或清单保留，不重新读取来源。 */
+    private String fieldsJson = "[]";
     /** 业务金额；小数精度2位，币种沿用来源业务账本；允许为空，表示尚无该项数据。 */
     private BigDecimal amount;
     /** 业务发生日期；按来源报表日期字段取值；允许为空，表示尚无该项数据。*/
@@ -60,7 +64,7 @@ public class DispatchPlanItem {
     /** 条目状态：PENDING待执行、SUCCESS成功、FAILED失败、SKIPPED未发送、UNKNOWN发送后结果不明。*/
     private String status;
     /** 条目派单尝试次数；每次准备发送时递增。 */
-    private Integer attemptCount;
+    private Integer attemptCount = 0;
     /** 发往业务服务的稳定幂等请求号；核对和重试沿用此号；允许为空，表示尚无该项数据。*/
     private String externalRequestId;
     /** 失败原因业务编码；允许为空，表示尚无该项数据。 */

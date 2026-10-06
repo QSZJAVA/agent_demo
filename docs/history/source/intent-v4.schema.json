@@ -1,0 +1,554 @@
+{
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "version": {
+      "type": "integer",
+      "enum": [
+        4
+      ]
+    },
+    "action": {
+      "type": "string",
+      "enum": [
+        "PREVIEW",
+        "PREPARE_DISPATCH",
+        "CANCEL_PLAN",
+        "SHOW_RESULT",
+        "EXPLAIN_RULES",
+        "CLARIFY",
+        "HELP"
+      ]
+    },
+    "scopeChanges": {
+      "type": "array",
+      "maxItems": 8,
+      "items": {
+        "anyOf": [
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "target": {
+                "type": "string",
+                "enum": [
+                  "COMPANY"
+                ]
+              },
+              "operation": {
+                "type": "string",
+                "enum": [
+                  "REPLACE",
+                  "CLEAR"
+                ]
+              },
+              "mentions": {
+                "type": "array",
+                "maxItems": 1,
+                "items": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 160
+                }
+              },
+              "evidence": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 1000
+              },
+              "reportMentions": {
+                "type": "array",
+                "maxItems": 0,
+                "items": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 160
+                }
+              },
+              "selectorKind": {
+                "type": "string",
+                "enum": [
+                  "NONE"
+                ]
+              },
+              "quantifier": {
+                "type": "string",
+                "enum": [
+                  "UNSPECIFIED"
+                ]
+              },
+              "conditions": {
+                "type": "array",
+                "maxItems": 0,
+                "items": {
+                  "type": "object"
+                }
+              }
+            },
+            "required": [
+              "target",
+              "operation",
+              "mentions",
+              "evidence",
+              "reportMentions",
+              "selectorKind",
+              "quantifier",
+              "conditions"
+            ]
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "target": {
+                "type": "string",
+                "enum": [
+                  "REPORTS"
+                ]
+              },
+              "operation": {
+                "type": "string",
+                "enum": [
+                  "REPLACE",
+                  "ADD",
+                  "REMOVE",
+                  "CLEAR"
+                ]
+              },
+              "mentions": {
+                "type": "array",
+                "maxItems": 20,
+                "items": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 160
+                }
+              },
+              "evidence": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 1000
+              },
+              "reportMentions": {
+                "type": "array",
+                "maxItems": 0,
+                "items": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 160
+                }
+              },
+              "selectorKind": {
+                "type": "string",
+                "enum": [
+                  "NONE"
+                ]
+              },
+              "quantifier": {
+                "type": "string",
+                "enum": [
+                  "UNSPECIFIED"
+                ]
+              },
+              "conditions": {
+                "type": "array",
+                "maxItems": 0,
+                "items": {
+                  "type": "object"
+                }
+              }
+            },
+            "required": [
+              "target",
+              "operation",
+              "mentions",
+              "evidence",
+              "reportMentions",
+              "selectorKind",
+              "quantifier",
+              "conditions"
+            ]
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "target": {
+                "type": "string",
+                "enum": [
+                  "RECORDS"
+                ]
+              },
+              "operation": {
+                "type": "string",
+                "enum": [
+                  "EXCLUDE",
+                  "RESTORE",
+                  "REPLACE_EXCLUSIONS"
+                ]
+              },
+              "mentions": {
+                "type": "array",
+                "maxItems": 20,
+                "items": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 160
+                },
+                "minItems": 1
+              },
+              "evidence": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 1000
+              },
+              "reportMentions": {
+                "type": "array",
+                "maxItems": 20,
+                "items": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 160
+                }
+              },
+              "selectorKind": {
+                "type": "string",
+                "enum": [
+                  "DOCUMENT",
+                  "DESCRIPTION",
+                  "COUNTERPARTY"
+                ]
+              },
+              "quantifier": {
+                "type": "string",
+                "enum": [
+                  "UNSPECIFIED",
+                  "ONE",
+                  "ALL"
+                ]
+              },
+              "conditions": {
+                "type": "array",
+                "maxItems": 0,
+                "items": {
+                  "type": "object"
+                }
+              }
+            },
+            "required": [
+              "target",
+              "operation",
+              "mentions",
+              "evidence",
+              "reportMentions",
+              "selectorKind",
+              "quantifier",
+              "conditions"
+            ]
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "target": {
+                "type": "string",
+                "enum": [
+                  "RECORDS"
+                ]
+              },
+              "operation": {
+                "type": "string",
+                "enum": [
+                  "RESTORE_ALL"
+                ]
+              },
+              "mentions": {
+                "type": "array",
+                "maxItems": 0,
+                "items": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 160
+                }
+              },
+              "evidence": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 1000
+              },
+              "reportMentions": {
+                "type": "array",
+                "maxItems": 20,
+                "items": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 160
+                }
+              },
+              "selectorKind": {
+                "type": "string",
+                "enum": [
+                  "NONE"
+                ]
+              },
+              "quantifier": {
+                "type": "string",
+                "enum": [
+                  "UNSPECIFIED"
+                ]
+              },
+              "conditions": {
+                "type": "array",
+                "maxItems": 0,
+                "items": {
+                  "type": "object"
+                }
+              }
+            },
+            "required": [
+              "target",
+              "operation",
+              "mentions",
+              "evidence",
+              "reportMentions",
+              "selectorKind",
+              "quantifier",
+              "conditions"
+            ]
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "target": {
+                "type": "string",
+                "enum": [
+                  "RECORDS"
+                ]
+              },
+              "operation": {
+                "type": "string",
+                "enum": [
+                  "EXCLUDE",
+                  "RESTORE",
+                  "REPLACE_EXCLUSIONS",
+                  "KEEP_ONLY"
+                ]
+              },
+              "mentions": {
+                "type": "array",
+                "maxItems": 0,
+                "items": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 160
+                }
+              },
+              "evidence": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 1000
+              },
+              "reportMentions": {
+                "type": "array",
+                "maxItems": 20,
+                "items": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 160
+                }
+              },
+              "selectorKind": {
+                "type": "string",
+                "enum": [
+                  "FIELDS"
+                ]
+              },
+              "quantifier": {
+                "type": "string",
+                "enum": [
+                  "ALL",
+                  "ONE",
+                  "UNSPECIFIED"
+                ]
+              },
+              "conditions": {
+                "type": "array",
+                "minItems": 1,
+                "maxItems": 4,
+                "items": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "properties": {
+                    "allOf": {
+                      "type": "array",
+                      "minItems": 1,
+                      "maxItems": 8,
+                      "items": {
+                        "type": "object",
+                        "additionalProperties": false,
+                        "properties": {
+                          "field": {
+                            "type": "string",
+                            "pattern": "^[A-Za-z_][A-Za-z0-9_]{0,63}$"
+                          },
+                          "operator": {
+                            "type": "string",
+                            "enum": [
+                              "EQ",
+                              "NE",
+                              "GT",
+                              "GTE",
+                              "LT",
+                              "LTE",
+                              "CONTAINS",
+                              "STARTS_WITH",
+                              "IN",
+                              "NOT_IN",
+                              "IS_NULL",
+                              "NOT_NULL"
+                            ]
+                          },
+                          "values": {
+                            "type": "array",
+                            "maxItems": 20,
+                            "items": {
+                              "type": "string",
+                              "maxLength": 4096
+                            }
+                          },
+                          "evidence": {
+                            "type": "string",
+                            "minLength": 1,
+                            "maxLength": 1000
+                          }
+                        },
+                        "required": [
+                          "field",
+                          "operator",
+                          "values",
+                          "evidence"
+                        ]
+                      }
+                    }
+                  },
+                  "required": [
+                    "allOf"
+                  ]
+                }
+              }
+            },
+            "required": [
+              "target",
+              "operation",
+              "mentions",
+              "evidence",
+              "reportMentions",
+              "selectorKind",
+              "quantifier",
+              "conditions"
+            ]
+          }
+        ]
+      }
+    },
+    "restrictions": {
+      "type": "array",
+      "maxItems": 7,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "action": {
+            "type": "string",
+            "enum": [
+              "PREVIEW",
+              "PREPARE_DISPATCH",
+              "CANCEL_PLAN",
+              "SHOW_RESULT",
+              "EXPLAIN_RULES",
+              "HELP"
+            ]
+          },
+          "scope": {
+            "type": "string",
+            "enum": [
+              "THIS_TURN"
+            ]
+          },
+          "evidence": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 1000
+          }
+        },
+        "required": [
+          "action",
+          "scope",
+          "evidence"
+        ]
+      }
+    },
+    "clarify": {
+      "type": "string",
+      "enum": [
+        "NONE",
+        "COMPANY",
+        "REPORTS",
+        "RECORDS",
+        "ACTION"
+      ]
+    },
+    "reportConstraints": {
+      "type": "array",
+      "maxItems": 20,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "mention": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 160
+          },
+          "role": {
+            "type": "string",
+            "enum": [
+              "INCLUDED",
+              "EXCLUDED",
+              "RECORD_SCOPE"
+            ]
+          },
+          "evidence": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 1000
+          }
+        },
+        "required": [
+          "mention",
+          "role",
+          "evidence"
+        ]
+      }
+    },
+    "unsupportedConditions": {
+      "type": "array",
+      "maxItems": 20,
+      "items": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 1000
+      }
+    }
+  },
+  "required": [
+    "version",
+    "action",
+    "scopeChanges",
+    "restrictions",
+    "clarify",
+    "reportConstraints",
+    "unsupportedConditions"
+  ]
+}

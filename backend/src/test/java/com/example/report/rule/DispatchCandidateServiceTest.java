@@ -29,7 +29,7 @@ import static org.mockito.ArgumentMatchers.anySet;
 import static org.mockito.ArgumentMatchers.anyCollection;
 
 /**
- * 候选记录查找：报表来自目录，查询走适配器；规则求值出错的行按不命中处理，不能拖垮整次查询
+ * 候选记录查找回归：报表来自目录，规则求值错误拒绝整次查询，显式空值条件仍正常工作。
  */
 class DispatchCandidateServiceTest {
 
@@ -42,7 +42,7 @@ class DispatchCandidateServiceTest {
             new SalesRows(), null);
 
     @Test
-    void rowThatFailsToEvaluateIsSkippedInsteadOfFailingThePreview() {
+    void rowThatFailsToEvaluateRejectsTheEntirePreview() {
         DispatchRule rule = new DispatchRule();
         rule.setTenantId("T001");
         rule.setId(7L);
@@ -51,7 +51,15 @@ class DispatchCandidateServiceTest {
         rule.setExpression(CONTAINS_CLOUD);
         when(ruleCache.find(eq("T001"), eq("rpt-sales-order"), anyString())).thenReturn(Optional.of(rule));
 
-        List<Candidate> result = service.findCandidates("T001", Set.of("A"), List.of(sales));
+        var error = org.junit.jupiter.api.Assertions.assertThrows(com.example.report.common.ApiException.class, () -> service.findCandidates("T001", Set.of("A"), List.of(sales)));
+        assertEquals(422,error.getCode());
+        assertTrue(error.getMessage().contains("不完整"));
+    }
+
+    @Test void explicitNullGuardStillAllowsCompleteQueries() {
+        DispatchRule rule=new DispatchRule();rule.setId(7L);rule.setName("销售规则");rule.setVersion(2);rule.setExpression("productName != nil && string.contains(productName, '云')");
+        when(ruleCache.find(eq("T001"),eq("rpt-sales-order"),anyString())).thenReturn(Optional.of(rule));
+        List<Candidate> result=service.findCandidates("T001",Set.of("A"),List.of(sales));
         assertEquals(List.of("SO1"), result.stream().map(Candidate::docNo).toList());
         Candidate hit = result.get(0);
         assertEquals("rpt-sales-order", hit.reportId());

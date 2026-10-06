@@ -116,7 +116,7 @@ public class DispatchJobService {
             if(input.planId()!=null || input.recordIds()==null || input.recordIds().isEmpty() || input.recordIds().size()>50)
                 throw new ApiException("每次请选择 1～50 条记录");
             if(input.recordIds().stream().anyMatch(id->id==null || id.isBlank() || id.length()>128)) throw new ApiException("记录 ID 无效");
-            var report=catalog.requireVisibleByIdOrLegacyCode(user,input.reportId());
+            var report=catalog.requireVisible(user,input.reportId());
             catalog.requireDispatchable(user,report.reportId());
             return new Request(null,"DIRECT",report.reportId(),input.recordIds().stream().map(String::trim).distinct().sorted().toList(),null);
         }
@@ -195,11 +195,11 @@ public class DispatchJobService {
     }
 
     /**
-     * 事务内用 SKIP LOCKED 认领一条未超时排队任务，生成独占认领令牌和5分钟租约；其他实例不能同时取得此任务。
+     * 事务内按本实例租户用 SKIP LOCKED 认领一条未超时排队任务，生成独占认领令牌和5分钟租约；其他实例不能同时取得此任务。
      */
     private Map<String,Object> claim() {
         return tx.execute(status->{
-            var rows=jdbc.queryForList("SELECT * FROM dispatch_job WHERE status='QUEUED' AND expires_at>NOW(3) ORDER BY created_at,id LIMIT 1 FOR UPDATE SKIP LOCKED");
+            var rows=jdbc.queryForList("SELECT * FROM dispatch_job WHERE tenant_id=? AND status='QUEUED' AND expires_at>NOW(3) ORDER BY created_at,id LIMIT 1 FOR UPDATE SKIP LOCKED",permissions.tenantId());
             if(rows.isEmpty()) return null;
             var row=rows.get(0); String token=JsonUtil.newId();
             jdbc.update("UPDATE dispatch_job SET status='RUNNING',claim_token=?,lease_until=TIMESTAMPADD(SECOND,300,NOW(3)),updated_at=NOW(3) WHERE id=? AND status='QUEUED'",token,row.get("id"));
@@ -261,8 +261,8 @@ public class DispatchJobService {
      * 排队超10分钟直接失败；运行租约过期时只提示核对，不回到队列。清单自身心跳也过期后才交由恢复处理，避免撤销其他健康执行。
      */
     public void recover() {
-        jdbc.update("UPDATE dispatch_job SET status='FAILED',message='任务排队超过10分钟，尚未启动；请刷新后重新确认',updated_at=NOW(3) WHERE status='QUEUED' AND expires_at<=NOW(3) LIMIT 100");
-        var rows=jdbc.queryForList("SELECT id,plan_id,expected_version,claim_token FROM dispatch_job WHERE status='RUNNING' AND lease_until<=NOW(3) ORDER BY lease_until LIMIT 20");
+        jdbc.update("UPDATE dispatch_job SET status='FAILED',message='任务排队超过10分钟，尚未启动；请刷新后重新确认',updated_at=NOW(3) WHERE tenant_id=? AND status='QUEUED' AND expires_at<=NOW(3) LIMIT 100",permissions.tenantId());
+        var rows=jdbc.queryForList("SELECT id,plan_id,expected_version,claim_token FROM dispatch_job WHERE tenant_id=? AND status='RUNNING' AND lease_until<=NOW(3) ORDER BY lease_until LIMIT 20",permissions.tenantId());
         for(var row:rows) tx.executeWithoutResult(status->{
             String plan=(String)row.get("plan_id");
             if(plan!=null) jdbc.queryForList("SELECT id FROM dispatch_plan WHERE id=? FOR UPDATE",plan);

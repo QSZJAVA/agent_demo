@@ -175,18 +175,6 @@ public class ConversationService {
                 m.getCardType(), m.getPreviewId(), m.getPlanId(), m.getCreatedAt())).toList();
     }
 
-    /** 工作记忆回灌用：最近 N 条用户 / 助手文本消息（按时间正序） */
-    public List<AgentMessage> recentTextMessages(String conversationId, int limit) {
-        List<AgentMessage> list = messageMapper.selectList(new LambdaQueryWrapper<AgentMessage>()
-                .eq(AgentMessage::getTenantId, conversationTenant(conversationId))
-                .eq(AgentMessage::getConversationId, conversationId)
-                .in(AgentMessage::getRole, AgentMessage.ROLE_USER, AgentMessage.ROLE_ASSISTANT)
-                .orderByDesc(AgentMessage::getId)
-                .last("LIMIT " + limit));
-        Collections.reverse(list);
-        return list;
-    }
-
     private String conversationTenant(String conversationId) {
         AgentConversation owner = conversationMapper.selectById(conversationId);
         if (owner == null) throw ApiException.notFound("会话不存在");

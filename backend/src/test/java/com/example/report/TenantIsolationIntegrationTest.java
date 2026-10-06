@@ -19,7 +19,7 @@ import java.util.Set;
 import static org.junit.jupiter.api.Assertions.*;
 
 @EnabledIfEnvironmentVariable(named = "DEMO_IT", matches = "true")
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT, properties = "demo.reset-on-startup=true")
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @ActiveProfiles("mock")
 class TenantIsolationIntegrationTest {
     @Autowired JdbcTemplate jdbc;
@@ -94,8 +94,8 @@ class TenantIsolationIntegrationTest {
             var adapter = catalogService.requireVisible(second, id).adapter();
             assertEquals(List.of(secondId), adapter.rowsByIds("T002", List.of(firstId, secondId)).stream().map(r -> r.recordId()).toList());
             assertEquals(List.of(prefix + "2"), adapter.pendingRows("T002", Set.of("A")).stream().map(r -> r.docNo()).toList());
-            assertFalse(((DispatchStatusWriter) adapter).markDispatched("T002", firstId, LocalDateTime.now()));
-            assertTrue(((DispatchStatusWriter) adapter).markDispatched("T002", secondId, LocalDateTime.now()));
+            assertFalse(((DispatchStatusWriter) adapter).markDispatchedGuarded("T002", firstId, "A", LocalDateTime.now(), row -> true));
+            assertTrue(((DispatchStatusWriter) adapter).markDispatchedGuarded("T002", secondId, "A", LocalDateTime.now(), row -> true));
             assertEquals(List.of(prefix + "2"), reports.listSales(second).stream().map(r -> r.getOrderNo()).toList());
         } finally {
             jdbc.update("DELETE FROM report_sales WHERE order_no IN (?, ?)", prefix + "1", prefix + "2");

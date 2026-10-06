@@ -1,0 +1,128 @@
+[
+  {
+    "name": "截图追问仅排除应收记录并保留其他报表",
+    "turns": [
+      {
+        "message": "查一下我有哪些可以派单",
+        "action": "PREVIEW",
+        "company": null,
+        "outcome": "READY",
+        "allReports": true,
+        "reportIds": [],
+        "excludedIds": []
+      },
+      {
+        "message": "应收报表不要天津某某贸易有限公司的",
+        "action": "PREVIEW",
+        "company": null,
+        "outcome": "READY",
+        "allReports": true,
+        "reportIds": [],
+        "excludedIds": [
+          "7"
+        ],
+        "reportsOperation": "KEEP",
+        "exclusionsOperation": "ADD"
+      },
+      {
+        "message": "剩下的帮我派单吧",
+        "action": "PREPARE_DISPATCH",
+        "company": null,
+        "outcome": "READY",
+        "allReports": true,
+        "reportIds": [],
+        "excludedIds": [
+          "7"
+        ]
+      },
+      {
+        "message": "恢复应收报表的天津某某贸易有限公司那条",
+        "action": "PREVIEW",
+        "company": null,
+        "outcome": "READY",
+        "allReports": true,
+        "reportIds": [],
+        "excludedIds": [],
+        "reportsOperation": "KEEP",
+        "exclusionsOperation": "REMOVE"
+      }
+    ]
+  },
+  {
+    "name": "明确只查应收仍须同时排除客户",
+    "turns": [
+      {
+        "message": "查一下我有哪些可以派单",
+        "action": "PREVIEW",
+        "company": null,
+        "outcome": "READY",
+        "allReports": true,
+        "reportIds": []
+      },
+      {
+        "message": "只查应收报表，不要天津某某贸易有限公司的",
+        "action": "PREVIEW",
+        "company": null,
+        "outcome": "READY",
+        "allReports": false,
+        "reportIds": [
+          "rpt-ar-invoice"
+        ],
+        "excludedIds": [
+          "7"
+        ],
+        "reportsOperation": "REPLACE",
+        "exclusionsOperation": "ADD"
+      }
+    ]
+  },
+  {
+    "name": "不同记录描述与报表范围排除的边界",
+    "turns": [
+      {
+        "message": "查一下我有哪些可以派单",
+        "action": "PREVIEW",
+        "company": null,
+        "outcome": "READY",
+        "allReports": true,
+        "reportIds": []
+      },
+      {
+        "message": "应收报表里北京某某咨询有限公司那条先不派",
+        "action": "PREVIEW",
+        "company": null,
+        "outcome": "READY",
+        "allReports": true,
+        "reportIds": [],
+        "excludedIds": [
+          "8"
+        ],
+        "reportsOperation": "KEEP",
+        "exclusionsOperation": "ADD"
+      },
+      {
+        "message": "恢复所有记录",
+        "action": "PREVIEW",
+        "company": null,
+        "outcome": "READY",
+        "allReports": true,
+        "reportIds": [],
+        "excludedIds": [],
+        "exclusionsOperation": "CLEAR"
+      },
+      {
+        "message": "不要应收报表",
+        "action": "PREVIEW",
+        "company": null,
+        "outcome": "READY",
+        "allReports": false,
+        "reportIds": [
+          "rpt-sales-order",
+          "rpt-expense-claim"
+        ],
+        "reportsOperation": "REMOVE",
+        "excludedIds": []
+      }
+    ]
+  }
+]

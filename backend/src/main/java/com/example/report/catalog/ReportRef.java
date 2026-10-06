@@ -6,6 +6,11 @@ package com.example.report.catalog;
  * @param reportName 当前展示名称
  * @param domainCode 业务域编码
  * @param description 报表业务说明，未配置时可为空
+ * @param aliases 当前目录维护的可用别名；空集合表示没有别名，不由模型猜测维护
  */
-public record ReportRef(String reportId, String reportName, String domainCode, String description) {
+public record ReportRef(String reportId, String reportName, String domainCode, String description, java.util.List<String> aliases) {
+    /** 无别名的报表引用构造器；适用于当前未配置别名的目录或测试。 */
+    public ReportRef(String reportId,String reportName,String domainCode,String description) {
+        this(reportId,reportName,domainCode,description,java.util.List.of());
+    }
 }

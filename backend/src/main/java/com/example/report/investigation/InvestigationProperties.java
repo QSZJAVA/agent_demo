@@ -17,6 +17,8 @@ public class InvestigationProperties {
     private int maxOutputTokens = 2400;
     private int maxReportOutputTokens = 4096;
     private int maxInputUtf8Bytes = 98304;
+    /** 收集阶段超过此UTF-8字节数时整理笔记；不是硬截断阈值，实际HTTP上限仍独立生效。 */
+    private int contextTargetUtf8Bytes = 24576;
     private int maxToolResultUtf8Bytes = 8192;
     private int runTimeoutSeconds = 180;
     private int modelTimeoutSeconds = 40;
@@ -45,7 +47,7 @@ public class InvestigationProperties {
         if(currency!=null && !currency.matches("[A-Z]{3}")) throw new IllegalArgumentException("调查计费币种须使用三位大写代码");
         if (maxItems < 1 || maxItems > 10 || maxCollectionCalls < 1 || maxModelCalls < maxCollectionCalls + 2
                 || maxToolCalls < 1 || maxMcpCalls < 1 || maxOutputTokens < 1 || maxReportOutputTokens < 1
-                || maxInputUtf8Bytes < 1024 || maxToolResultUtf8Bytes < 512 || runTimeoutSeconds < 1
+                || maxInputUtf8Bytes < 1024 || contextTargetUtf8Bytes < 1024 || maxToolResultUtf8Bytes < 512 || runTimeoutSeconds < 1
                 || modelTimeoutSeconds < 1 || mcpTimeoutSeconds < 1 || queueTimeoutSeconds < 1
                 || workerCount < 1 || workerCount > 4 || maxActivePerUser < 1 || maxActivePerTenant < maxActivePerUser
                 || heartbeatSeconds < 1 || leaseSeconds < heartbeatSeconds * 3 || retentionDays < 1)

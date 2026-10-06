@@ -14,6 +14,7 @@ import static org.mockito.Mockito.*;
 import static org.mockito.ArgumentMatchers.*;
 import static org.junit.jupiter.api.Assertions.*;
 
+/** 核对有界试算的分页、扫描配额与中断；合成目录只声明实际提供的金额事实。 */
 class BoundedDryRunTest {
     final ReportQueryAdapter adapter = mock(ReportQueryAdapter.class);
     final CatalogEntry report = spy(new TestCatalog().get(SALES));
@@ -21,6 +22,7 @@ class BoundedDryRunTest {
 
     void data(int count) {
         doReturn(adapter).when(report).adapter();
+        doReturn(List.of(new FieldInfo("amount", "decimal", "金额"))).when(report).fields();
         when(adapter.dryRunRowsAfter(eq("T001"), eq(Set.of("A")), nullable(String.class), eq(500))).thenAnswer(call -> {
             String cursor = call.getArgument(2);
             int start = cursor == null ? 0 : Integer.parseInt(cursor);

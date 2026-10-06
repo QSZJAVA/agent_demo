@@ -56,17 +56,11 @@ public class PlanService {
     }
 
     /**
-     * @param previewId      为空时使用本会话最近一次预览
-     * @param excludes       排除的单据号（不区分大小写），必须都在预览结果中
-     * @param idempotencyKey 可选：同租户同一个键只生成一份清单，重复请求返回第一次的清单
+     * 从明确绑定的预览建立清单；排除项只接受报表与记录复合标识，且必须完整属于快照。
+     * 相同幂等键重放原清单；任何权限、版本或记录校验失败均不产生部分清单。
      */
-    public PlanSnapshot create(CurrentUser user, String conversationId, String previewId, List<String> excludes,
-                               String idempotencyKey) {
-        return create(user, conversationId, previewId, excludes, idempotencyKey, List.of());
-    }
-
-    public PlanSnapshot create(CurrentUser user, String conversationId, String previewId, List<String> excludes,
-                               String idempotencyKey, List<RecordKey> excludedRecords) {
+    public PlanSnapshot create(CurrentUser user, String conversationId, String previewId,
+                               List<RecordKey> excludedRecords, String idempotencyKey) {
         if (idempotencyKey != null && (idempotencyKey.trim().toLowerCase(Locale.ROOT).startsWith("manual:")
                 || idempotencyKey.trim().toLowerCase(Locale.ROOT).startsWith("retired:"))) {
             throw new ApiException("该幂等键前缀由系统保留，请更换后重试");
@@ -76,13 +70,12 @@ public class PlanService {
             if (existing.isPresent()) return replayOwned(user, existing.get());
         }
         // 仅读取归属及报表范围；取得配额前不能懒惰作废清单、读取全量明细或开始写事务。
-        DispatchPreview source = (previewId == null || previewId.isBlank()
-                ? previewService.latest(user, conversationId)
-                : previewService.findOwned(user, previewId.trim()))
+        if (previewId == null || previewId.isBlank()) throw new ApiException("请指定预览");
+        DispatchPreview source = previewService.findOwned(user, previewId.trim())
                 .orElseThrow(() -> ApiException.notFound("没有可用的预览，请重新查询"));
         try (var permit = quotas.acquire(user, "plan-create", DispatchVersionService.reportIds(source))) {
             ResourceQuotaService.check(permit);
-            return createInternal(user, conversationId, source.getId(), excludes, idempotencyKey, excludedRecords, permit);
+            return createInternal(user, conversationId, source.getId(), idempotencyKey, excludedRecords, permit);
         } catch (org.springframework.dao.DuplicateKeyException conflict) {
             // 插入事务已回滚；跨会话同键竞争也在这里返回赢家，其他唯一键冲突继续抛出。
             if (idempotencyKey != null && !idempotencyKey.isBlank()) {
@@ -126,19 +119,19 @@ public class PlanService {
                     }
                 }
                 var preview = previewService.manualPreview(user, report, recordId);
-                return createInternal(user, null, preview.preview().getId(), List.of(), key, List.of());
+                return createInternal(user, null, preview.preview().getId(), key, List.of());
             });
         } catch (org.springframework.dao.DuplicateKeyException e) {
             return replayOwned(user, plans.findByIdempotencyKey(user.tenantId(), key).orElseThrow(() -> e));
         }
     }
 
-    private PlanSnapshot createInternal(CurrentUser user, String conversationId, String previewId, List<String> excludes,
+    private PlanSnapshot createInternal(CurrentUser user, String conversationId, String previewId,
     String idempotencyKey, List<RecordKey> excludedRecords) {
-        return createInternal(user, conversationId, previewId, excludes, idempotencyKey, excludedRecords, null);
+        return createInternal(user, conversationId, previewId, idempotencyKey, excludedRecords, null);
     }
 
-    private PlanSnapshot createInternal(CurrentUser user, String conversationId, String previewId, List<String> excludes,
+    private PlanSnapshot createInternal(CurrentUser user, String conversationId, String previewId,
                                         String idempotencyKey, List<RecordKey> excludedRecords, ResourceQuotaService.Permit permit) {
         if (idempotencyKey != null && !idempotencyKey.isBlank()) {
             Optional<DispatchPlan> existing = plans.findByIdempotencyKey(user.tenantId(), idempotencyKey.trim());
@@ -159,31 +152,9 @@ public class PlanService {
                 .collect(java.util.stream.Collectors.toSet());
         if (!available.containsAll(recordExcludes)) throw new ApiException("排除的记录不属于该预览，请刷新后重新选择");
 
-        Set<String> excludeKeys = new LinkedHashSet<>();
-        if (excludes != null) {
-            excludes.stream().filter(Objects::nonNull).map(String::trim).filter(s -> !s.isEmpty())
-                    .forEach(e -> excludeKeys.add(e.toUpperCase(Locale.ROOT)));
-        }
-        Map<String, DispatchPreviewItem> byDocNo = new LinkedHashMap<>();
-        previewItems.stream().filter(i -> i.getDocNo() != null)
-                .forEach(i -> byDocNo.putIfAbsent(i.getDocNo().toUpperCase(Locale.ROOT), i));
-        List<String> unmatched = excludes == null ? List.of() : excludes.stream()
-                .filter(Objects::nonNull).map(String::trim).filter(s -> !s.isEmpty())
-                .filter(e -> !byDocNo.containsKey(e.toUpperCase(Locale.ROOT)))
-                .distinct().toList();
-        if (!unmatched.isEmpty()) {
-            throw new ApiException("以下单据号不在预览结果中，请确认：" + String.join("、", unmatched));
-        }
-        for (String key : excludeKeys) {
-            if (previewItems.stream().filter(i -> i.getDocNo() != null && key.equals(i.getDocNo().toUpperCase(Locale.ROOT))).count() > 1) {
-                throw new ApiException("单据号 " + key + " 对应多条记录，请在预览中逐条取消勾选");
-            }
-        }
         List<DispatchPreviewItem> remaining = previewItems.stream()
-                .filter(i -> !recordExcludes.contains(new RecordKey(i.getReportId(), i.getRecordId())))
-                .filter(i -> i.getDocNo() == null || !excludeKeys.contains(i.getDocNo().toUpperCase(Locale.ROOT)))
-                .toList();
-        List<String> excluded = new ArrayList<>(excludeKeys.stream().map(k -> byDocNo.get(k).getDocNo()).toList());
+                .filter(i -> !recordExcludes.contains(new RecordKey(i.getReportId(), i.getRecordId()))).toList();
+        List<String> excluded = new ArrayList<>();
         previewItems.stream().filter(i -> recordExcludes.contains(new RecordKey(i.getReportId(), i.getRecordId())))
                 .forEach(i -> excluded.add(i.getReportName() + " / " + (i.getDocNo() == null ? i.getRecordId() : i.getDocNo())));
         if (remaining.isEmpty()) {
@@ -396,6 +367,8 @@ public class PlanService {
         i.setDocNo(p.getDocNo());
         i.setCompanyCode(p.getCompanyCode());
         i.setLabel(p.getLabel());
+        i.setCounterpartyJson(p.getCounterpartyJson());
+        i.setFieldsJson(p.getFieldsJson());
         i.setAmount(p.getAmount());
         i.setBizDate(p.getBizDate());
         i.setRuleId(p.getRuleId());

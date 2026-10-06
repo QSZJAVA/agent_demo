@@ -55,7 +55,7 @@ public class AgentController {
             throw new ApiException("消息不能为空");
         }
         if (request.getMessage().length() > 2000) throw new ApiException("消息不能超过 2000 字");
-        return chatService.chat(user, request.getConversationId(), request.getMessage().trim(), request.getExcludeDocNos(),
+        return chatService.chat(user, request.getConversationId(), request.getMessage().trim(),
                 request.getPreviewId(), request.getExcludedRecords());
     }
 
@@ -79,8 +79,6 @@ public class AgentController {
         private String conversationId;
         /** 本轮用户原文；按接口长度边界校验后交由语义解析。 */
         private String message;
-        /** 前端预览表格中取消勾选的单据号*/
-        private List<String> excludeDocNos;
         /** 按报表与记录复合标识保存的排除项；服务端验证全部属于当前预览。 */
         private List<com.example.report.dispatch.RecordKey> excludedRecords;
         /** 取消勾选所在的预览卡片；与本轮派单用的预览不一致时勾选项不生效 */

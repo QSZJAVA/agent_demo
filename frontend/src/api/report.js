@@ -20,10 +20,10 @@ export function fetchExpenseReport(page = 1, size = 50) {
 }
 
 /** 报表页手工派单 */
-export function dispatchDirect(reportType, ids) {
-  return runDispatchJob({ action: 'DIRECT', reportId: reportType, recordIds: ids.map(String).sort() })
+export function dispatchDirect(reportId, ids) {
+  return runDispatchJob({ action: 'DIRECT', reportId: reportId, recordIds: ids.map(String).sort() })
 }
 
-export function fetchManualPlans(reportType, page = 1) {
-  return http.get('/dispatch/direct/plans', { params: { reportType, page } })
+export function fetchManualPlans(reportId, page = 1) {
+  return http.get('/dispatch/direct/plans', { params: { reportId, page } })
 }

@@ -40,11 +40,7 @@ class QuotaLeaseDatabaseTest {
                 System.getenv().getOrDefault("TRACE_DB_USER", "root"), System.getenv().getOrDefault("TRACE_DB_PASSWORD", ""));
         jdbc = new JdbcTemplate(ds);
         manager = new DataSourceTransactionManager(ds);
-        Flyway.configure().dataSource(ds).target("15").load().migrate();
-        jdbc.update("INSERT INTO agent_conversation(id,tenant_id,user_id,status,created_at,updated_at) "
-                + "VALUES ('legacy','T001','user1','active',NOW(),NOW())");
         Flyway.configure().dataSource(ds).load().migrate();
-        assertEquals(1, jdbc.queryForObject("SELECT COUNT(*) FROM agent_conversation WHERE id='legacy'", Integer.class));
         var config = new RedisStandaloneConfiguration(System.getenv().getOrDefault("TRACE_REDIS_HOST", "127.0.0.1"),
                 Integer.parseInt(System.getenv().getOrDefault("TRACE_REDIS_PORT", "6379")));
         String password = System.getenv("TRACE_REDIS_PASSWORD");

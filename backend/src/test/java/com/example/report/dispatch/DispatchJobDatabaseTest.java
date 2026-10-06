@@ -40,10 +40,10 @@ class DispatchJobDatabaseTest {
     }
     @BeforeEach void setup() {
         jdbc.update("DELETE FROM dispatch_job");
-        var permissions=mock(PermissionService.class);when(permissions.resolve(user.userId())).thenReturn(user);
+        var permissions=mock(PermissionService.class);when(permissions.tenantId()).thenReturn(user.tenantId());when(permissions.resolve(user.userId())).thenReturn(user);
         plans=mock(PlanService.class);repository=mock(PlanRepository.class);dispatch=mock(DispatchService.class);
         var catalog=mock(ReportCatalogService.class);var report=new TestCatalog().get(TestCatalog.SALES);
-        when(catalog.requireVisibleByIdOrLegacyCode(eq(user),anyString())).thenReturn(report);
+        when(catalog.requireVisible(eq(user),anyString())).thenReturn(report);
         when(catalog.requireDispatchable(eq(user),anyString())).thenReturn(report);
         when(catalog.find(report.reportId())).thenReturn(Optional.of(report));
         var workbench=mock(OperationsWorkbench.class);
@@ -70,6 +70,31 @@ class DispatchJobDatabaseTest {
         assertThrows(ApiException.class,()->first.get(TestCatalog.USER3,original.id()));
         verifyNoInteractions(dispatch);
         assertEquals(1,jdbc.queryForObject("SELECT COUNT(*) FROM dispatch_job",Integer.class));
+    }
+    @Test void foreignTenantTasksAreNeitherClaimedNorRecovered() {
+        var queued=first.submit(user,direct("1"),key());
+        var expired=first.submit(user,direct("2"),key());
+        var running=first.submit(user,direct("3"),key());
+        jdbc.update("UPDATE dispatch_job SET tenant_id='T002' WHERE id IN (?,?,?)",queued.id(),expired.id(),running.id());
+        jdbc.update("UPDATE dispatch_job SET expires_at=TIMESTAMPADD(SECOND,-1,NOW(3)) WHERE id=?",expired.id());
+        jdbc.update("UPDATE dispatch_job SET status='RUNNING',claim_token='other-tenant',lease_until=TIMESTAMPADD(SECOND,-1,NOW(3)) WHERE id=?",running.id());
+        first.poll();second.poll();
+        assertEquals("QUEUED",jdbc.queryForObject("SELECT status FROM dispatch_job WHERE id=?",String.class,queued.id()));
+        assertEquals("QUEUED",jdbc.queryForObject("SELECT status FROM dispatch_job WHERE id=?",String.class,expired.id()));
+        assertEquals("RUNNING",jdbc.queryForObject("SELECT status FROM dispatch_job WHERE id=?",String.class,running.id()));
+        verifyNoInteractions(dispatch);
+    }
+    @Test void previewRecoveryOnlyChangesTheConfiguredTenant() {
+        String local=key(),foreign=key();
+        for(var entry:Map.of(local,"T001",foreign,"T002").entrySet())
+            jdbc.update("INSERT INTO dispatch_preview_job(id,tenant_id,user_id,conversation_id,request_version,status,stage,created_at,updated_at) VALUES(?,?,?,'recovery',1,'RUNNING','SCANNING',NOW(),TIMESTAMPADD(MINUTE,-5,NOW()))",entry.getKey(),entry.getValue(),user.userId());
+        var preview=new PreviewJobService(jdbc,mock(PreviewService.class),mock(com.example.report.agent.ConversationCards.class),
+                mock(com.example.report.config.ResourceQuotaService.class),new PermissionService());
+        try {
+            preview.recoverOrphans();
+            assertEquals("FAILED",jdbc.queryForObject("SELECT status FROM dispatch_preview_job WHERE id=?",String.class,local));
+            assertEquals("RUNNING",jdbc.queryForObject("SELECT status FROM dispatch_preview_job WHERE id=?",String.class,foreign));
+        } finally {preview.shutdown();jdbc.update("DELETE FROM dispatch_preview_job WHERE id IN (?,?)",local,foreign);}
     }
     @Test void twoInstancesClaimOnceAndPersistResult() throws Exception {
         var job=first.submit(user,direct("1"),key());

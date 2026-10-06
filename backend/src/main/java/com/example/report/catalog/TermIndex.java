@@ -189,10 +189,17 @@ public final class TermIndex {
             return true;
         }
         int end = start + norm.length();
+        // 英文别名不能命中含数字单据标识的一部分，例如字母前缀加连接符和流水号；这里只处理实体词边界。
+        int tokenStart=start,tokenEnd=end;
+        while(tokenStart>0 && identifierChar(text.charAt(tokenStart-1))) tokenStart--;
+        while(tokenEnd<text.length() && identifierChar(text.charAt(tokenEnd))) tokenEnd++;
+        if((tokenStart!=start || tokenEnd!=end) && text.substring(tokenStart,tokenEnd).chars().anyMatch(Character::isDigit)) return false;
         boolean leftOk = start == 0 || !TextNormalizer.isAsciiWordChar(text.charAt(start - 1));
         boolean rightOk = end >= text.length() || !TextNormalizer.isAsciiWordChar(text.charAt(end));
         return leftOk && rightOk;
     }
+
+    private static boolean identifierChar(char c) { return TextNormalizer.isAsciiWordChar(c) || c=='-' || c=='/' || c=='.'; }
 
     private static List<Term> visibleTerms(List<Term> terms, Set<String> visible) {
         if (terms == null) {

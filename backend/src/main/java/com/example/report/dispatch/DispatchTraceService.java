@@ -97,7 +97,6 @@ public class DispatchTraceService {
         m.put("status", p.getStatus());
         m.put("statusReason", p.getStatusReason());
         m.put("executionVersion", p.getExecutionVersion());
-        m.put("evidenceVersion", p.getEvidenceVersion());
         m.put("excluded", new PlanSnapshot(p, List.of()).excluded());
         m.put("itemCount", p.getItemCount());
         m.put("successCount", p.getSuccessCount());

@@ -88,6 +88,7 @@ function harness(overrides = {}, storage = new Map()) {
     fetchPreview: async id => ({ previewId: id, status: 'ACTIVE' }),
     fetchMessages: async () => [],
     fetchDialogueSelection: async () => ({ previewId: null, excludedRecords: [] }),
+    saveDialogueSelection: async (id, request) => ({ previewId: request.previewId, excludedRecords: request.excludedRecords }),
     streamChat: (_, event) => {
       event('conversation', { conversationId: 'conv1' })
       return { promise: Promise.reject(new Error('disconnected before preview_job')) }
@@ -104,6 +105,36 @@ function harness(overrides = {}, storage = new Map()) {
   state.refreshStates = async () => {}
   return { state, calls, storage, component }
 }
+
+test('manual selection is persisted before enabling actions and restored from server', async () => {
+  let complete, request, saved = []
+  const { state } = harness({
+    saveDialogueSelection: (id, body) => { request = { id, body }; return new Promise(resolve => { complete = () => { saved = body.excludedRecords; resolve({ previewId: 'p1', excludedRecords: saved }) } }) },
+    fetchDialogueSelection: async () => ({ previewId: 'p1', excludedRecords: saved })
+  })
+  state.activeId = 'conv1'; state.uiPreviewId = 'p1'
+  const excluded = [{ reportId: 'sales', recordId: '2' }]
+  const saving = state.onPreviewSelection({ status: 'ACTIVE', payload: { previewId: 'p1' } }, excluded)
+  assert.equal(state.busy, true); assert.equal(request.id, 'conv1'); assert.equal(request.body.expectedExclusions.length, 0)
+  complete(); await saving
+  assert.deepEqual(state.uiExcludes, excluded); assert.equal(state.busy, false)
+  state.clearSelection(); await state.restoreSelection('conv1', state.historyVersion)
+  assert.deepEqual(state.uiExcludes, excluded)
+})
+
+test('manual selection failure blocks dispatch and late success cannot overwrite another conversation', async () => {
+  const failed = harness({ saveDialogueSelection: async () => { throw new Error('conflict') } }).state
+  failed.activeId = 'conv1'; failed.uiPreviewId = 'p1'
+  await failed.onPreviewSelection({ status: 'ACTIVE', payload: { previewId: 'p1' } }, [{ reportId: 'sales', recordId: '2' }])
+  assert.equal(failed.selectionRestoreFailed, true); assert.equal(failed.uiExcludes.length, 0)
+  let finish
+  const state = harness({ saveDialogueSelection: () => new Promise(resolve => { finish = resolve }) }).state
+  state.activeId = 'conv1'; state.uiPreviewId = 'p1'
+  const saving = state.onPreviewSelection({ status: 'ACTIVE', payload: { previewId: 'p1' } }, [])
+  state.activeId = 'conv2'; state.historyVersion++; state.uiPreviewId = 'p2'
+  finish({ previewId: 'p1', excludedRecords: [{ reportId: 'sales', recordId: '2' }] }); await saving
+  assert.equal(state.uiPreviewId, 'p2'); assert.equal(state.uiExcludes.length, 0)
+})
 
 test('SSE disconnect before job event discovers the task and renders its result', async () => {
   const { state, calls, storage } = harness()
@@ -330,4 +361,13 @@ test('failed history request releases the sending guard', async () => {
   const { state } = harness({ fetchMessages: async () => { throw new Error('offline') } })
   await assert.rejects(state.openConversation('conv1', true), /offline/)
   assert.equal(state.busy, false)
+})
+
+test('invalid current selection cannot silently restore as all selected', async () => {
+  const { state } = harness({ fetchDialogueSelection: async () => ({ previewId: 'p1', excludeDocNos: ['SO1'] }) })
+  state.activeId = 'conv1'
+  state.uiExcludes = [{ reportId: 'rpt-sales-order', recordId: '1' }]
+  await state.restoreSelection('conv1', state.historyVersion)
+  assert.equal(state.selectionRestoreFailed, true)
+  assert.equal(state.uiExcludes.length, 1)
 })

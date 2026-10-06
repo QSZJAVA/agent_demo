@@ -1,0 +1,33 @@
+{
+  "scope": "All commands executed successfully in the immediately preceding final verification; prior checks archived in checks-intermediate.json",
+  "checks": [
+    {
+      "command": "node tools/check-comments.cjs",
+      "exit_code": 0
+    },
+    {
+      "command": "node tools/check-no-legacy-compat.cjs",
+      "exit_code": 0
+    },
+    {
+      "command": "node tools/check-demo-baseline.cjs",
+      "exit_code": 0
+    },
+    {
+      "command": "node tools/check-docs-real-model.cjs",
+      "exit_code": 0
+    },
+    {
+      "command": "node tools/generate-schema-dictionary.cjs --check",
+      "exit_code": 0
+    },
+    {
+      "command": "node docs/diagrams/build-semantic-flows.cjs --check",
+      "exit_code": 0
+    },
+    {
+      "command": "git -c core.safecrlf=false diff --check",
+      "exit_code": 0
+    }
+  ]
+}

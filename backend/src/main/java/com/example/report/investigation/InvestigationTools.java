@@ -10,7 +10,7 @@ import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 import java.util.*;
 
-/** 调查模型的五个只读工具；严格参数白名单、运行内引用、分页和预算，模型不能传入身份或任意请求号。 */
+/** 调查六个只读工具及证据按需回读；严格参数白名单、运行内引用、授权和预算，模型不能传入身份。 */
 @Service
 @ConditionalOnProperty(name="security.enabled", havingValue="true")
 public class InvestigationTools {
@@ -20,7 +20,8 @@ public class InvestigationTools {
             PREFIX+"plan_items","分页读取调查条目状态、错误码与摘要；只覆盖返回页，使用nextCursor读后续页。",
             PREFIX+"rule_snapshots","读取条目执行时的规则快照；缺失不等于当前规则适用，规则存在不证明失败原因。",
             PREFIX+"execution_events","分页读取所选条目的执行证据，不含聊天文本；截断时不能宣称完整历史。",
-            PREFIX+"dispatch_lookup","通过原请求号核对真实业务结果；UNKNOWN或NOT_FOUND均不授权重发。每批最多5条。");
+            PREFIX+"dispatch_lookup","通过原请求号核对真实业务结果；UNKNOWN或NOT_FOUND均不授权重发。每批最多5条。",
+            PREFIX+"evidence_read","按本轮E编号读取已取得的完整有界证据；先从笔记availableEvidence目录核对来源类型，返回sourceType不能与目标类型混淆。");
     private final InvestigationEvidenceStore evidence;
     private final InvestigationMcpReader mcp;
     private final InvestigationRepository repository;
@@ -39,7 +40,9 @@ public class InvestigationTools {
     public static String schemaJson() {return InvestigationJson.canonical(DESCRIPTIONS.keySet().stream().sorted().map(name -> Map.of("name",name,"description",DESCRIPTIONS.get(name),"parameters",schema(name))).toList());}
     private static Map<String,Object> schema(String name) {
         var fields=new LinkedHashMap<String,Object>();var required=new ArrayList<String>();
-        if(!name.endsWith("plan_summary") && !name.endsWith("plan_items")) {
+        if(name.endsWith("evidence_read")) {
+            fields.put("evidenceId",Map.of("type","string","pattern","^E[1-9][0-9]*$"));required.add("evidenceId");
+        } else if(!name.endsWith("plan_summary") && !name.endsWith("plan_items")) {
             fields.put("itemRefs",Map.of("type","array","minItems",1,"maxItems",name.endsWith("dispatch_lookup")?5:10,"items",Map.of("type","string","pattern","^I[1-9][0-9]*$")));required.add("itemRefs");
         }
         if(name.endsWith("plan_items") || name.endsWith("execution_events")) {
@@ -52,12 +55,18 @@ public class InvestigationTools {
     public Map<String,Object> execute(InvestigationSession s,String name,JsonNode args) {
         s.check(true); validate(s,name,args);
         Map<String,Object> data;String type;List<String> refs=refs(args);boolean truncated=false;
+        String observedAt=Instant.now().toString();
         switch(name) {
+            case PREFIX+"evidence_read" -> {
+                var entry=s.evidence.get(args.get("evidenceId").asText());
+                if(entry==null) throw new ApiException("只能读取本轮已取得证据");
+                return Map.of("ok",true,"sourceType",entry.type(),"data",entry.data(),"evidenceIds",List.of(args.get("evidenceId").asText()),"truncated",entry.truncated());
+            }
             case PREFIX+"plan_summary" -> {type="PLAN_SNAPSHOT";data=Map.of("status",s.snapshot.get("status"),"executionVersion",s.snapshot.get("executionVersion"),"counts",s.snapshot.get("counts"),"selectedCount",s.items.size(),"snapshotAt",s.snapshot.get("snapshotAt"));}
             case PREFIX+"plan_items" -> {
                 type="ITEM_SNAPSHOT";
                 var rows=s.items.stream().map(i -> pick(i,List.of("itemRef","docNo","label","companyCode","status","errorCode","errorMessage","attemptCount"))).toList();
-                data=page(s,name,args,rows);refs=itemRefs(data);
+                data=page(s,name,args,rows,Map.of(),false,observedAt);refs=itemRefs(data);
             }
             case PREFIX+"rule_snapshots" -> {
                 type="RULE_SNAPSHOT";var rows=new ArrayList<Map<String,Object>>();
@@ -86,7 +95,7 @@ public class InvestigationTools {
                     @SuppressWarnings("unchecked") var events=(List<Map<String,Object>>)item.get("events");
                     for(var event:events) {var row=new LinkedHashMap<>(event);row.put("itemRef",ref);rows.add(row);}
                 }
-                var paged=new LinkedHashMap<>(page(s,name,args,rows));paged.put("sourceTotal",total);data=paged;
+                data=page(s,name,args,rows,Map.of("sourceTotal",total),truncated,observedAt);
             }
             case PREFIX+"dispatch_lookup" -> {
                 // 参数错误可由模型纠正，必须在任何远端读取和计数之前检查整批资格。
@@ -127,9 +136,9 @@ public class InvestigationTools {
             }
             default -> throw new InvestigationFailure("INVALID_TOOL","模型请求了未授权工具");
         }
-        if(JsonUtil.toJson(data).getBytes(StandardCharsets.UTF_8).length>props.getMaxToolResultUtf8Bytes()-256) throw new ApiException("工具结果较大，请减少单次条目或分页大小");
+        if(!fitsResponse(data,truncated,observedAt)) throw new ApiException("工具结果较大，请减少单次条目或分页大小");
         String ref=evidence.add(s,type,refs,data,truncated);
-        return Map.of("ok",true,"data",data,"evidenceIds",List.of(ref),"observedAt",Instant.now().toString(),"truncated",truncated);
+        return response(data,ref,truncated,observedAt);
     }
     /** 只接受Schema中字段和正确JSON类型；任何范围外引用整批拒绝。 */
     private void validate(InvestigationSession s,String name,JsonNode args) {
@@ -140,24 +149,33 @@ public class InvestigationTools {
         if(required.stream().anyMatch(k -> !args.has(k))) throw new ApiException("工具参数缺少必要字段");
         if(args.has("size") && (!args.get("size").isInt() || args.get("size").asInt()<1 || args.get("size").asInt()>20)) throw new ApiException("分页大小须为1～20的整数");
         if(args.hasNonNull("cursor") && (!args.get("cursor").isTextual() || args.get("cursor").asText().length()>256)) throw new ApiException("分页游标无效");
+        if(args.has("evidenceId") && (!args.get("evidenceId").isTextual() || !args.get("evidenceId").asText().matches("E[1-9][0-9]{0,5}"))) throw new ApiException("证据编号无效");
         if(args.has("itemRefs")) {
             var array=args.get("itemRefs");if(!array.isArray() || array.isEmpty() || array.size()>(name.endsWith("dispatch_lookup")?5:10)) throw new ApiException("工具条目数量无效");
             var seen=new HashSet<String>();for(var node:array) {if(!node.isTextual() || !seen.add(node.asText())) throw new ApiException("条目引用须为不同的字符串");s.item(node.asText());}
         }
     }
-    private Map<String,Object> page(InvestigationSession s,String name,JsonNode args,List<Map<String,Object>> rows) {
+    /** 按完整响应的UTF-8体积裁剪整条记录；分页游标、事件总数和外层字段必须一起计入预算。 */
+    private Map<String,Object> page(InvestigationSession s,String name,JsonNode args,List<Map<String,Object>> rows,Map<String,Object> metadata,boolean truncated,String observedAt) {
         String binding=Digests.sha256(s.id+"|"+name+"|"+refs(args));int offset=0;
         if(args.hasNonNull("cursor")) {
             String[] parts=args.get("cursor").asText().split(":");
             if(parts.length!=2 || !binding.equals(parts[0]) || !parts[1].matches("[0-9]{1,5}")) throw new ApiException("游标不属于当前运行和工具范围");offset=Integer.parseInt(parts[1]);
         }
         if(offset>rows.size()) throw new ApiException("游标超过事实范围");int end=Math.min(rows.size(),offset+args.get("size").asInt());
-        var data=new LinkedHashMap<String,Object>();
+        var data=new LinkedHashMap<String,Object>(metadata);
         while(true) {
             data.put("items",rows.subList(offset,end));data.put("nextCursor",end<rows.size()?binding+":"+end:null);data.put("complete",end==rows.size());data.put("total",rows.size());
-            if(JsonUtil.toJson(data).getBytes(StandardCharsets.UTF_8).length<=props.getMaxToolResultUtf8Bytes()-512) return data;
+            if(fitsResponse(data,truncated,observedAt)) return data;
             if(end<=offset+1) throw new ApiException("单条证据过大，请查看原始追溯");end--;
         }
+    }
+    /** 使用接口允许的最长E编号预留最多五个额外字符，不再固定扣除512字节；落库前即可保证完整响应有界。 */
+    private boolean fitsResponse(Map<String,Object> data,boolean truncated,String observedAt) {
+        return JsonUtil.toJson(response(data,"E999999",truncated,observedAt)).getBytes(StandardCharsets.UTF_8).length<=props.getMaxToolResultUtf8Bytes();
+    }
+    private static Map<String,Object> response(Map<String,Object> data,String ref,boolean truncated,String observedAt) {
+        return Map.of("ok",true,"data",data,"evidenceIds",List.of(ref),"observedAt",observedAt,"truncated",truncated);
     }
     private static Map<String,Object> pick(Map<String,Object> source,List<String> fields) {var out=new LinkedHashMap<String,Object>();for(String key:fields) if(source.containsKey(key)) out.put(key,source.get(key));return out;}
     private static List<String> refs(JsonNode args) {if(!args.has("itemRefs")) return List.of();var out=new ArrayList<String>();for(var ref:args.get("itemRefs")) out.add(ref.asText());return out;}

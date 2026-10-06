@@ -15,7 +15,7 @@ import static org.mockito.Mockito.*;
 class PreviewJobLifecycleTest {
     final JdbcTemplate jdbc = mock(JdbcTemplate.class);
     final PreviewJobService service = spy(new PreviewJobService(jdbc, mock(PreviewService.class),
-            mock(ConversationCards.class), mock(ResourceQuotaService.class)));
+            mock(ConversationCards.class), mock(ResourceQuotaService.class), new com.example.report.permission.PermissionService()));
     final ResourceQuotaService.Permit permit = mock(ResourceQuotaService.Permit.class);
     final FutureTask<Void> future = new FutureTask<>(() -> null);
     ThreadPoolExecutor workers;
@@ -32,8 +32,7 @@ class PreviewJobLifecycleTest {
 
     @Test void unauthorizedCompanyIsRejectedBeforeQuotaOrTaskCreation() {
         var quotas = (ResourceQuotaService)ReflectionTestUtils.getField(service,"quotas");
-        var command = new PreviewCommand(null,"api",null,java.util.List.of(),
-                new PreviewCommand.Filters("B"),null,null);
+        var command = new PreviewCommand(null, "api", null, java.util.List.of(), new PreviewCommand.Filters("B"), null);
         var failure = assertThrows(com.example.report.common.ApiException.class,
                 () -> service.submit(USER1,"conversation",command));
         assertTrue(failure.getMessage().contains("无权查看 B 公司"));
@@ -68,7 +67,7 @@ class PreviewJobLifecycleTest {
         doThrow(new IllegalStateException("state write unavailable")).when(jdbc)
                 .update(startsWith("UPDATE dispatch_preview_job SET status=?"),any(),any(),any(),isNull(),any());
         assertThrows(IllegalStateException.class, () -> service.submit(USER1,null,
-                new PreviewCommand(null,"api",null,java.util.List.of(),null,null,null)));
+                new PreviewCommand(null, "api", null, java.util.List.of(), null, null)));
         verify(permit).close();
     }
 }

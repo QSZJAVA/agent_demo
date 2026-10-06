@@ -30,7 +30,7 @@ http.interceptors.response.use(
       Message.error(body.message || '请求失败')
       return Promise.reject(new Error(body.message || '请求失败'))
     }
-    return body
+    return Promise.reject(new Error('服务响应不符合当前接口协议'))
   },
   (error) => {
     if (error.response && error.response.status === 401) sessionExpired(error.config?.sessionToken)

@@ -1,0 +1,3203 @@
+{
+  "model" : "deepseek-v4.1-flash",
+  "parserSources" : {
+    "MODEL" : 78
+  },
+  "corpora" : [ "replay-corpus.json", "business-corpus-v2.json", "business-additional-corpus.json", "record-scope-corpus.json" ],
+  "total" : 85,
+  "nativeSchema" : true,
+  "protocol" : 3,
+  "passed" : 69,
+  "cases" : [ {
+    "scenario" : "公司拒绝与省略继承",
+    "message" : "先看看 A 公司的销售台账",
+    "passed" : true,
+    "parserSource" : "MODEL",
+    "intent" : {
+      "version" : 3,
+      "action" : "PREVIEW",
+      "scopeChanges" : [ {
+        "target" : "COMPANY",
+        "operation" : "REPLACE",
+        "mentions" : [ "A 公司" ],
+        "evidence" : "先看看 A 公司的销售台账",
+        "reportMentions" : [ ],
+        "selectorKind" : "NONE",
+        "quantifier" : "UNSPECIFIED"
+      }, {
+        "target" : "REPORTS",
+        "operation" : "REPLACE",
+        "mentions" : [ "销售台账" ],
+        "evidence" : "先看看 A 公司的销售台账",
+        "reportMentions" : [ ],
+        "selectorKind" : "NONE",
+        "quantifier" : "UNSPECIFIED"
+      } ],
+      "restrictions" : [ ],
+      "reportConstraints" : [ {
+        "mention" : "销售台账",
+        "role" : "INCLUDED",
+        "evidence" : "先看看 A 公司的销售台账"
+      } ],
+      "unsupportedConditions" : [ ],
+      "clarify" : "NONE"
+    },
+    "expected" : {
+      "message" : "先看看 A 公司的销售台账",
+      "action" : "PREVIEW",
+      "companyOperation" : "REPLACE",
+      "reportsOperation" : "REPLACE",
+      "company" : "A",
+      "outcome" : "READY",
+      "reportIds" : [ "rpt-sales-order" ],
+      "exclusionsOperation" : "KEEP"
+    },
+    "outcome" : "READY",
+    "reason" : null,
+    "scope" : {
+      "companyCode" : "A",
+      "allReports" : false,
+      "reportIds" : [ "rpt-sales-order" ]
+    },
+    "excludedRecords" : [ ],
+    "latencyMs" : 3406
+  }, {
+    "scenario" : "公司拒绝与省略继承",
+    "message" : "那 B 公司呢？",
+    "passed" : false,
+    "error" : "InvalidOutput",
+    "invalidOutput" : "{\n  \"version\": 3,\n  \"action\": \"PREVIEW\",\n  \"scopeChanges\": [\n    {\n      \"target\": \"COMPANY\",\n      \"operation\": \"REPLACE\",\n      \"mentions\": [\"B 公司\"],\n      \"evidence\": \"那 B 公司呢？\",\n      \"reportMentions\": [],\n      \"selectorKind\": \"NONE\",\n      \"quantifier\": \"UNSPECIFIED\"\n    }\n  ],\n  \"restrictions\": [],\n  \"clarify\": \"NONE\",\n  \"reportConstraints\": [\n    {\n      \"mention\": \"销售报表\",\n      \"role\": \"INCLUDED\",\n      \"evidence\": \"那 B 公司呢？\"\n    }\n  ],\n  \"unsupportedConditions\": []\n}",
+    "latencyMs" : 4792
+  }, {
+    "scenario" : "公司拒绝与省略继承",
+    "message" : "现在我只想派销售报表的",
+    "passed" : false,
+    "parserSource" : "MODEL",
+    "intent" : {
+      "version" : 3,
+      "action" : "PREPARE_DISPATCH",
+      "scopeChanges" : [ {
+        "target" : "REPORTS",
+        "operation" : "REPLACE",
+        "mentions" : [ "销售报表" ],
+        "evidence" : "现在我只想派销售报表的",
+        "reportMentions" : [ ],
+        "selectorKind" : "NONE",
+        "quantifier" : "UNSPECIFIED"
+      } ],
+      "restrictions" : [ ],
+      "reportConstraints" : [ {
+        "mention" : "销售报表",
+        "role" : "INCLUDED",
+        "evidence" : "现在我只想派销售报表的"
+      } ],
+      "unsupportedConditions" : [ ],
+      "clarify" : "NONE"
+    },
+    "expected" : {
+      "message" : "现在我只想派销售报表的",
+      "action" : "PREPARE_DISPATCH",
+      "companyOperation" : "KEEP",
+      "reportsOperation" : "REPLACE",
+      "company" : "B",
+      "outcome" : "REJECTED",
+      "reportIds" : [ "rpt-sales-order" ],
+      "exclusionsOperation" : "KEEP"
+    },
+    "outcome" : "CLARIFY",
+    "reason" : "公司范围尚未确定，请明确一家公司或说明查询全部可见公司",
+    "scope" : {
+      "companyCode" : "A",
+      "allReports" : false,
+      "reportIds" : [ "rpt-sales-order" ]
+    },
+    "excludedRecords" : [ ],
+    "latencyMs" : 2722
+  }, {
+    "scenario" : "公司拒绝与省略继承",
+    "message" : "A公司销售报表的",
+    "passed" : false,
+    "parserSource" : "MODEL",
+    "intent" : {
+      "version" : 3,
+      "action" : "CLARIFY",
+      "scopeChanges" : [ ],
+      "restrictions" : [ ],
+      "reportConstraints" : [ ],
+      "unsupportedConditions" : [ ],
+      "clarify" : "ACTION"
+    },
+    "expected" : {
+      "message" : "A公司销售报表的",
+      "action" : "PREVIEW",
+      "companyOperation" : "REPLACE",
+      "reportsOperation" : "REPLACE",
+      "company" : "A",
+      "outcome" : "READY",
+      "reportIds" : [ "rpt-sales-order" ],
+      "exclusionsOperation" : "KEEP"
+    },
+    "outcome" : "CLARIFY",
+    "reason" : "请明确本次操作及公司、报表范围，例如：查询 A 公司销售报表",
+    "scope" : {
+      "companyCode" : "A",
+      "allReports" : false,
+      "reportIds" : [ "rpt-sales-order" ]
+    },
+    "excludedRecords" : [ ],
+    "latencyMs" : 2464
+  }, {
+    "scenario" : "报表集合变更",
+    "message" : "只给我看看销售报表",
+    "passed" : true,
+    "parserSource" : "MODEL",
+    "intent" : {
+      "version" : 3,
+      "action" : "PREVIEW",
+      "scopeChanges" : [ {
+        "target" : "REPORTS",
+        "operation" : "REPLACE",
+        "mentions" : [ "销售报表" ],
+        "evidence" : "只给我看看销售报表",
+        "reportMentions" : [ ],
+        "selectorKind" : "NONE",
+        "quantifier" : "UNSPECIFIED"
+      } ],
+      "restrictions" : [ ],
+      "reportConstraints" : [ {
+        "mention" : "销售报表",
+        "role" : "INCLUDED",
+        "evidence" : "只给我看看销售报表"
+      } ],
+      "unsupportedConditions" : [ ],
+      "clarify" : "NONE"
+    },
+    "expected" : {
+      "message" : "只给我看看销售报表",
+      "action" : "PREVIEW",
+      "companyOperation" : "KEEP",
+      "reportsOperation" : "REPLACE",
+      "company" : null,
+      "outcome" : "READY",
+      "reportIds" : [ "rpt-sales-order" ],
+      "exclusionsOperation" : "KEEP"
+    },
+    "outcome" : "READY",
+    "reason" : null,
+    "scope" : {
+      "companyCode" : null,
+      "allReports" : false,
+      "reportIds" : [ "rpt-sales-order" ]
+    },
+    "excludedRecords" : [ ],
+    "latencyMs" : 2285
+  }, {
+    "scenario" : "报表集合变更",
+    "message" : "把应收台账也加进来",
+    "passed" : true,
+    "parserSource" : "MODEL",
+    "intent" : {
+      "version" : 3,
+      "action" : "PREVIEW",
+      "scopeChanges" : [ {
+        "target" : "REPORTS",
+        "operation" : "ADD",
+        "mentions" : [ "应收台账" ],
+        "evidence" : "把应收台账也加进来",
+        "reportMentions" : [ ],
+        "selectorKind" : "NONE",
+        "quantifier" : "UNSPECIFIED"
+      } ],
+      "restrictions" : [ ],
+      "reportConstraints" : [ {
+        "mention" : "应收台账",
+        "role" : "INCLUDED",
+        "evidence" : "把应收台账也加进来"
+      } ],
+      "unsupportedConditions" : [ ],
+      "clarify" : "NONE"
+    },
+    "expected" : {
+      "message" : "把应收台账也加进来",
+      "action" : "PREVIEW",
+      "companyOperation" : "KEEP",
+      "reportsOperation" : "ADD",
+      "company" : null,
+      "outcome" : "READY",
+      "reportIds" : [ "rpt-sales-order", "rpt-ar-invoice" ],
+      "exclusionsOperation" : "KEEP"
+    },
+    "outcome" : "READY",
+    "reason" : null,
+    "scope" : {
+      "companyCode" : null,
+      "allReports" : false,
+      "reportIds" : [ "rpt-sales-order", "rpt-ar-invoice" ]
+    },
+    "excludedRecords" : [ ],
+    "latencyMs" : 2478
+  }, {
+    "scenario" : "报表集合变更",
+    "message" : "销售报表先不要了",
+    "passed" : true,
+    "parserSource" : "MODEL",
+    "intent" : {
+      "version" : 3,
+      "action" : "PREVIEW",
+      "scopeChanges" : [ {
+        "target" : "REPORTS",
+        "operation" : "REMOVE",
+        "mentions" : [ "销售报表" ],
+        "evidence" : "销售报表先不要了",
+        "reportMentions" : [ ],
+        "selectorKind" : "NONE",
+        "quantifier" : "UNSPECIFIED"
+      } ],
+      "restrictions" : [ ],
+      "reportConstraints" : [ {
+        "mention" : "销售报表",
+        "role" : "EXCLUDED",
+        "evidence" : "销售报表先不要了"
+      } ],
+      "unsupportedConditions" : [ ],
+      "clarify" : "NONE"
+    },
+    "expected" : {
+      "message" : "销售报表先不要了",
+      "action" : "PREVIEW",
+      "companyOperation" : "KEEP",
+      "reportsOperation" : "REMOVE",
+      "company" : null,
+      "outcome" : "READY",
+      "reportIds" : [ "rpt-ar-invoice" ],
+      "exclusionsOperation" : "KEEP"
+    },
+    "outcome" : "READY",
+    "reason" : null,
+    "scope" : {
+      "companyCode" : null,
+      "allReports" : false,
+      "reportIds" : [ "rpt-ar-invoice" ]
+    },
+    "excludedRecords" : [ ],
+    "latencyMs" : 2652
+  }, {
+    "scenario" : "报表集合变更",
+    "message" : "改为所有报表",
+    "passed" : true,
+    "parserSource" : "MODEL",
+    "intent" : {
+      "version" : 3,
+      "action" : "PREVIEW",
+      "scopeChanges" : [ {
+        "target" : "REPORTS",
+        "operation" : "CLEAR",
+        "mentions" : [ ],
+        "evidence" : "改为所有报表",
+        "reportMentions" : [ ],
+        "selectorKind" : "NONE",
+        "quantifier" : "UNSPECIFIED"
+      } ],
+      "restrictions" : [ ],
+      "reportConstraints" : [ ],
+      "unsupportedConditions" : [ ],
+      "clarify" : "NONE"
+    },
+    "expected" : {
+      "message" : "改为所有报表",
+      "action" : "PREVIEW",
+      "companyOperation" : "KEEP",
+      "reportsOperation" : "CLEAR",
+      "company" : null,
+      "outcome" : "READY",
+      "reportIds" : [ ],
+      "exclusionsOperation" : "KEEP"
+    },
+    "outcome" : "READY",
+    "reason" : null,
+    "scope" : {
+      "companyCode" : null,
+      "allReports" : true,
+      "reportIds" : [ ]
+    },
+    "excludedRecords" : [ ],
+    "latencyMs" : 2551
+  }, {
+    "scenario" : "拒绝恢复与显式清除",
+    "message" : "我想查 B 公司费用报表的记录",
+    "passed" : true,
+    "parserSource" : "MODEL",
+    "intent" : {
+      "version" : 3,
+      "action" : "PREVIEW",
+      "scopeChanges" : [ {
+        "target" : "COMPANY",
+        "operation" : "REPLACE",
+        "mentions" : [ "B 公司" ],
+        "evidence" : "我想查 B 公司费用报表的记录",
+        "reportMentions" : [ ],
+        "selectorKind" : "NONE",
+        "quantifier" : "UNSPECIFIED"
+      }, {
+        "target" : "REPORTS",
+        "operation" : "REPLACE",
+        "mentions" : [ "费用报表" ],
+        "evidence" : "我想查 B 公司费用报表的记录",
+        "reportMentions" : [ ],
+        "selectorKind" : "NONE",
+        "quantifier" : "UNSPECIFIED"
+      } ],
+      "restrictions" : [ ],
+      "reportConstraints" : [ {
+        "mention" : "费用报表",
+        "role" : "INCLUDED",
+        "evidence" : "我想查 B 公司费用报表的记录"
+      } ],
+      "unsupportedConditions" : [ ],
+      "clarify" : "NONE"
+    },
+    "expected" : {
+      "message" : "我想查 B 公司费用报表的记录",
+      "action" : "PREVIEW",
+      "companyOperation" : "REPLACE",
+      "reportsOperation" : "REPLACE",
+      "company" : "B",
+      "outcome" : "REJECTED",
+      "reportIds" : [ "rpt-expense-claim" ],
+      "exclusionsOperation" : "KEEP"
+    },
+    "outcome" : "REJECTED",
+    "reason" : "当前账号无权查看 B 公司，未返回其他公司的派单记录",
+    "scope" : {
+      "companyCode" : "B",
+      "allReports" : false,
+      "reportIds" : [ "rpt-expense-claim" ]
+    },
+    "excludedRecords" : [ ],
+    "latencyMs" : 3819
+  }, {
+    "scenario" : "拒绝恢复与显式清除",
+    "message" : "不要限制公司了，查我能看的全部公司",
+    "passed" : true,
+    "parserSource" : "MODEL",
+    "intent" : {
+      "version" : 3,
+      "action" : "PREVIEW",
+      "scopeChanges" : [ {
+        "target" : "COMPANY",
+        "operation" : "CLEAR",
+        "mentions" : [ ],
+        "evidence" : "不要限制公司了，查我能看的全部公司",
+        "reportMentions" : [ ],
+        "selectorKind" : "NONE",
+        "quantifier" : "UNSPECIFIED"
+      } ],
+      "restrictions" : [ ],
+      "reportConstraints" : [ ],
+      "unsupportedConditions" : [ ],
+      "clarify" : "NONE"
+    },
+    "expected" : {
+      "message" : "不要限制公司了，查我能看的全部公司",
+      "action" : "PREVIEW",
+      "companyOperation" : "CLEAR",
+      "reportsOperation" : "KEEP",
+      "company" : null,
+      "outcome" : "READY",
+      "reportIds" : [ "rpt-expense-claim" ],
+      "exclusionsOperation" : "KEEP"
+    },
+    "outcome" : "READY",
+    "reason" : "当前账号无权查看 B 公司，未返回其他公司的派单记录",
+    "scope" : {
+      "companyCode" : null,
+      "allReports" : false,
+      "reportIds" : [ "rpt-expense-claim" ]
+    },
+    "excludedRecords" : [ ],
+    "latencyMs" : 2474
+  }, {
+    "scenario" : "拒绝恢复与显式清除",
+    "message" : "这些先别派，看看就行",
+    "passed" : true,
+    "parserSource" : "MODEL",
+    "intent" : {
+      "version" : 3,
+      "action" : "PREVIEW",
+      "scopeChanges" : [ ],
+      "restrictions" : [ {
+        "action" : "PREPARE_DISPATCH",
+        "scope" : "THIS_TURN",
+        "evidence" : "这些先别派，看看就行"
+      } ],
+      "reportConstraints" : [ ],
+      "unsupportedConditions" : [ ],
+      "clarify" : "NONE"
+    },
+    "expected" : {
+      "message" : "这些先别派，看看就行",
+      "action" : "PREVIEW",
+      "companyOperation" : "KEEP",
+      "reportsOperation" : "KEEP",
+      "company" : null,
+      "outcome" : "READY",
+      "reportIds" : [ "rpt-expense-claim" ],
+      "exclusionsOperation" : "KEEP"
+    },
+    "outcome" : "READY",
+    "reason" : "当前账号无权查看 B 公司，未返回其他公司的派单记录",
+    "scope" : {
+      "companyCode" : null,
+      "allReports" : false,
+      "reportIds" : [ "rpt-expense-claim" ]
+    },
+    "excludedRecords" : [ ],
+    "latencyMs" : 4452
+  }, {
+    "scenario" : "记录和动作分离",
+    "message" : "预览 A 公司销售报表",
+    "passed" : true,
+    "parserSource" : "MODEL",
+    "intent" : {
+      "version" : 3,
+      "action" : "PREVIEW",
+      "scopeChanges" : [ {
+        "target" : "COMPANY",
+        "operation" : "REPLACE",
+        "mentions" : [ "A 公司" ],
+        "evidence" : "预览 A 公司销售报表",
+        "reportMentions" : [ ],
+        "selectorKind" : "NONE",
+        "quantifier" : "UNSPECIFIED"
+      }, {
+        "target" : "REPORTS",
+        "operation" : "REPLACE",
+        "mentions" : [ "销售报表" ],
+        "evidence" : "预览 A 公司销售报表",
+        "reportMentions" : [ ],
+        "selectorKind" : "NONE",
+        "quantifier" : "UNSPECIFIED"
+      } ],
+      "restrictions" : [ ],
+      "reportConstraints" : [ {
+        "mention" : "销售报表",
+        "role" : "INCLUDED",
+        "evidence" : "预览 A 公司销售报表"
+      } ],
+      "unsupportedConditions" : [ ],
+      "clarify" : "NONE"
+    },
+    "expected" : {
+      "message" : "预览 A 公司销售报表",
+      "action" : "PREVIEW",
+      "companyOperation" : "REPLACE",
+      "reportsOperation" : "REPLACE",
+      "company" : "A",
+      "outcome" : "READY",
+      "reportIds" : [ "rpt-sales-order" ],
+      "exclusionsOperation" : "KEEP"
+    },
+    "outcome" : "READY",
+    "reason" : null,
+    "scope" : {
+      "companyCode" : "A",
+      "allReports" : false,
+      "reportIds" : [ "rpt-sales-order" ]
+    },
+    "excludedRecords" : [ ],
+    "latencyMs" : 2566
+  }, {
+    "scenario" : "记录和动作分离",
+    "message" : "先把 SO2026002 排除掉",
+    "passed" : true,
+    "parserSource" : "MODEL",
+    "intent" : {
+      "version" : 3,
+      "action" : "PREVIEW",
+      "scopeChanges" : [ {
+        "target" : "RECORDS",
+        "operation" : "EXCLUDE",
+        "mentions" : [ "SO2026002" ],
+        "evidence" : "先把 SO2026002 排除掉",
+        "reportMentions" : [ ],
+        "selectorKind" : "DOCUMENT",
+        "quantifier" : "ONE"
+      } ],
+      "restrictions" : [ ],
+      "reportConstraints" : [ ],
+      "unsupportedConditions" : [ ],
+      "clarify" : "NONE"
+    },
+    "expected" : {
+      "message" : "先把 SO2026002 排除掉",
+      "action" : "PREVIEW",
+      "companyOperation" : "KEEP",
+      "reportsOperation" : "KEEP",
+      "company" : "A",
+      "outcome" : "READY",
+      "reportIds" : [ "rpt-sales-order" ],
+      "exclusionsOperation" : "ADD"
+    },
+    "outcome" : "READY",
+    "reason" : null,
+    "scope" : {
+      "companyCode" : "A",
+      "allReports" : false,
+      "reportIds" : [ "rpt-sales-order" ]
+    },
+    "excludedRecords" : [ {
+      "reportId" : "rpt-sales-order",
+      "recordId" : "2"
+    } ],
+    "latencyMs" : 2760
+  }, {
+    "scenario" : "记录和动作分离",
+    "message" : "SO2026002 又需要了，把它恢复",
+    "passed" : true,
+    "parserSource" : "MODEL",
+    "intent" : {
+      "version" : 3,
+      "action" : "PREVIEW",
+      "scopeChanges" : [ {
+        "target" : "RECORDS",
+        "operation" : "RESTORE",
+        "mentions" : [ "SO2026002" ],
+        "evidence" : "SO2026002 又需要了，把它恢复",
+        "reportMentions" : [ ],
+        "selectorKind" : "DOCUMENT",
+        "quantifier" : "ONE"
+      } ],
+      "restrictions" : [ ],
+      "reportConstraints" : [ ],
+      "unsupportedConditions" : [ ],
+      "clarify" : "NONE"
+    },
+    "expected" : {
+      "message" : "SO2026002 又需要了，把它恢复",
+      "action" : "PREVIEW",
+      "companyOperation" : "KEEP",
+      "reportsOperation" : "KEEP",
+      "company" : "A",
+      "outcome" : "READY",
+      "reportIds" : [ "rpt-sales-order" ],
+      "exclusionsOperation" : "REMOVE"
+    },
+    "outcome" : "READY",
+    "reason" : null,
+    "scope" : {
+      "companyCode" : "A",
+      "allReports" : false,
+      "reportIds" : [ "rpt-sales-order" ]
+    },
+    "excludedRecords" : [ ],
+    "latencyMs" : 2242
+  }, {
+    "scenario" : "记录和动作分离",
+    "message" : "给剩下的生成待确认派单清单",
+    "passed" : true,
+    "parserSource" : "MODEL",
+    "intent" : {
+      "version" : 3,
+      "action" : "PREPARE_DISPATCH",
+      "scopeChanges" : [ ],
+      "restrictions" : [ ],
+      "reportConstraints" : [ ],
+      "unsupportedConditions" : [ ],
+      "clarify" : "NONE"
+    },
+    "expected" : {
+      "message" : "给剩下的生成待确认派单清单",
+      "action" : "PREPARE_DISPATCH",
+      "companyOperation" : "KEEP",
+      "reportsOperation" : "KEEP",
+      "company" : "A",
+      "outcome" : "READY",
+      "reportIds" : [ "rpt-sales-order" ],
+      "exclusionsOperation" : "KEEP"
+    },
+    "outcome" : "READY",
+    "reason" : null,
+    "scope" : {
+      "companyCode" : "A",
+      "allReports" : false,
+      "reportIds" : [ "rpt-sales-order" ]
+    },
+    "excludedRecords" : [ ],
+    "latencyMs" : 2101
+  }, {
+    "scenario" : "记录和动作分离",
+    "message" : "先取消这份清单",
+    "passed" : true,
+    "parserSource" : "MODEL",
+    "intent" : {
+      "version" : 3,
+      "action" : "CANCEL_PLAN",
+      "scopeChanges" : [ ],
+      "restrictions" : [ ],
+      "reportConstraints" : [ ],
+      "unsupportedConditions" : [ ],
+      "clarify" : "NONE"
+    },
+    "expected" : {
+      "message" : "先取消这份清单",
+      "action" : "CANCEL_PLAN",
+      "companyOperation" : "KEEP",
+      "reportsOperation" : "KEEP",
+      "company" : "A",
+      "outcome" : "READY",
+      "reportIds" : [ "rpt-sales-order" ],
+      "exclusionsOperation" : "KEEP"
+    },
+    "outcome" : "READY",
+    "reason" : null,
+    "scope" : {
+      "companyCode" : "A",
+      "allReports" : false,
+      "reportIds" : [ "rpt-sales-order" ]
+    },
+    "excludedRecords" : [ ],
+    "latencyMs" : 3255
+  }, {
+    "scenario" : "记录和动作分离",
+    "message" : "查看这份清单的派单结果",
+    "passed" : true,
+    "parserSource" : "MODEL",
+    "intent" : {
+      "version" : 3,
+      "action" : "SHOW_RESULT",
+      "scopeChanges" : [ ],
+      "restrictions" : [ ],
+      "reportConstraints" : [ ],
+      "unsupportedConditions" : [ ],
+      "clarify" : "NONE"
+    },
+    "expected" : {
+      "message" : "查看这份清单的派单结果",
+      "action" : "SHOW_RESULT",
+      "companyOperation" : "KEEP",
+      "reportsOperation" : "KEEP",
+      "company" : "A",
+      "outcome" : "READY",
+      "reportIds" : [ "rpt-sales-order" ],
+      "exclusionsOperation" : "KEEP"
+    },
+    "outcome" : "READY",
+    "reason" : null,
+    "scope" : {
+      "companyCode" : "A",
+      "allReports" : false,
+      "reportIds" : [ "rpt-sales-order" ]
+    },
+    "excludedRecords" : [ ],
+    "latencyMs" : 2200
+  }, {
+    "scenario" : "别名歧义与纠正",
+    "message" : "帮忙查一下客户对账",
+    "passed" : true,
+    "parserSource" : "MODEL",
+    "intent" : {
+      "version" : 3,
+      "action" : "PREVIEW",
+      "scopeChanges" : [ {
+        "target" : "REPORTS",
+        "operation" : "REPLACE",
+        "mentions" : [ "客户对账" ],
+        "evidence" : "帮忙查一下客户对账",
+        "reportMentions" : [ ],
+        "selectorKind" : "NONE",
+        "quantifier" : "UNSPECIFIED"
+      } ],
+      "restrictions" : [ ],
+      "reportConstraints" : [ {
+        "mention" : "客户对账",
+        "role" : "INCLUDED",
+        "evidence" : "帮忙查一下客户对账"
+      } ],
+      "unsupportedConditions" : [ ],
+      "clarify" : "NONE"
+    },
+    "expected" : {
+      "message" : "帮忙查一下客户对账",
+      "action" : "PREVIEW",
+      "companyOperation" : "KEEP",
+      "reportsOperation" : "REPLACE",
+      "company" : null,
+      "outcome" : "CLARIFY",
+      "exclusionsOperation" : "KEEP"
+    },
+    "outcome" : "CLARIFY",
+    "reason" : "“客户对账”需要确认，请明确要查询的报表：销售报表、应收报表",
+    "scope" : {
+      "companyCode" : null,
+      "allReports" : true,
+      "reportIds" : [ ]
+    },
+    "excludedRecords" : [ ],
+    "latencyMs" : 2261
+  }, {
+    "scenario" : "别名歧义与纠正",
+    "message" : "我指的是应收报表",
+    "passed" : true,
+    "parserSource" : "MODEL",
+    "intent" : {
+      "version" : 3,
+      "action" : "PREVIEW",
+      "scopeChanges" : [ {
+        "target" : "REPORTS",
+        "operation" : "REPLACE",
+        "mentions" : [ "应收报表" ],
+        "evidence" : "我指的是应收报表",
+        "reportMentions" : [ ],
+        "selectorKind" : "NONE",
+        "quantifier" : "UNSPECIFIED"
+      } ],
+      "restrictions" : [ ],
+      "reportConstraints" : [ {
+        "mention" : "应收报表",
+        "role" : "INCLUDED",
+        "evidence" : "我指的是应收报表"
+      } ],
+      "unsupportedConditions" : [ ],
+      "clarify" : "NONE"
+    },
+    "expected" : {
+      "message" : "我指的是应收报表",
+      "action" : "PREVIEW",
+      "companyOperation" : "KEEP",
+      "reportsOperation" : "REPLACE",
+      "company" : null,
+      "outcome" : "READY",
+      "reportIds" : [ "rpt-ar-invoice" ],
+      "exclusionsOperation" : "KEEP"
+    },
+    "outcome" : "READY",
+    "reason" : "“客户对账”需要确认，请明确要查询的报表：销售报表、应收报表",
+    "scope" : {
+      "companyCode" : null,
+      "allReports" : false,
+      "reportIds" : [ "rpt-ar-invoice" ]
+    },
+    "excludedRecords" : [ ],
+    "latencyMs" : 2410
+  }, {
+    "scenario" : "否定动作作用域-只查销售报表，不要派单",
+    "message" : "只查销售报表，不要派单",
+    "passed" : true,
+    "parserSource" : "MODEL",
+    "intent" : {
+      "version" : 3,
+      "action" : "PREVIEW",
+      "scopeChanges" : [ {
+        "target" : "REPORTS",
+        "operation" : "REPLACE",
+        "mentions" : [ "销售报表" ],
+        "evidence" : "只查销售报表",
+        "reportMentions" : [ ],
+        "selectorKind" : "NONE",
+        "quantifier" : "UNSPECIFIED"
+      } ],
+      "restrictions" : [ {
+        "action" : "PREPARE_DISPATCH",
+        "scope" : "THIS_TURN",
+        "evidence" : "不要派单"
+      } ],
+      "reportConstraints" : [ {
+        "mention" : "销售报表",
+        "role" : "INCLUDED",
+        "evidence" : "只查销售报表"
+      } ],
+      "unsupportedConditions" : [ ],
+      "clarify" : "NONE"
+    },
+    "expected" : {
+      "message" : "只查销售报表，不要派单",
+      "action" : "PREVIEW",
+      "company" : null,
+      "outcome" : "READY",
+      "reportIds" : [ "rpt-sales-order" ],
+      "forbiddenActions" : [ "PREPARE_DISPATCH" ]
+    },
+    "outcome" : "READY",
+    "reason" : null,
+    "scope" : {
+      "companyCode" : null,
+      "allReports" : false,
+      "reportIds" : [ "rpt-sales-order" ]
+    },
+    "excludedRecords" : [ ],
+    "latencyMs" : 2643
+  }, {
+    "scenario" : "否定动作作用域-只查销售报表，不要派单",
+    "message" : "剩下的帮我派单吧",
+    "passed" : true,
+    "parserSource" : "MODEL",
+    "intent" : {
+      "version" : 3,
+      "action" : "PREPARE_DISPATCH",
+      "scopeChanges" : [ ],
+      "restrictions" : [ ],
+      "reportConstraints" : [ ],
+      "unsupportedConditions" : [ ],
+      "clarify" : "NONE"
+    },
+    "expected" : {
+      "message" : "剩下的帮我派单吧",
+      "action" : "PREPARE_DISPATCH",
+      "company" : null,
+      "outcome" : "READY",
+      "reportIds" : [ "rpt-sales-order" ]
+    },
+    "outcome" : "READY",
+    "reason" : null,
+    "scope" : {
+      "companyCode" : null,
+      "allReports" : false,
+      "reportIds" : [ "rpt-sales-order" ]
+    },
+    "excludedRecords" : [ ],
+    "latencyMs" : 2473
+  }, {
+    "scenario" : "否定动作作用域-查一下销售报表，不要派单",
+    "message" : "查一下销售报表，不要派单",
+    "passed" : true,
+    "parserSource" : "MODEL",
+    "intent" : {
+      "version" : 3,
+      "action" : "PREVIEW",
+      "scopeChanges" : [ {
+        "target" : "REPORTS",
+        "operation" : "REPLACE",
+        "mentions" : [ "销售报表" ],
+        "evidence" : "查一下销售报表",
+        "reportMentions" : [ ],
+        "selectorKind" : "NONE",
+        "quantifier" : "UNSPECIFIED"
+      } ],
+      "restrictions" : [ {
+        "action" : "PREPARE_DISPATCH",
+        "scope" : "THIS_TURN",
+        "evidence" : "不要派单"
+      } ],
+      "reportConstraints" : [ {
+        "mention" : "销售报表",
+        "role" : "INCLUDED",
+        "evidence" : "查一下销售报表"
+      } ],
+      "unsupportedConditions" : [ ],
+      "clarify" : "NONE"
+    },
+    "expected" : {
+      "message" : "查一下销售报表，不要派单",
+      "action" : "PREVIEW",
+      "company" : null,
+      "outcome" : "READY",
+      "reportIds" : [ "rpt-sales-order" ],
+      "forbiddenActions" : [ "PREPARE_DISPATCH" ]
+    },
+    "outcome" : "READY",
+    "reason" : null,
+    "scope" : {
+      "companyCode" : null,
+      "allReports" : false,
+      "reportIds" : [ "rpt-sales-order" ]
+    },
+    "excludedRecords" : [ ],
+    "latencyMs" : 2575
+  }, {
+    "scenario" : "否定动作作用域-查一下销售报表，不要派单",
+    "message" : "剩下的帮我派单吧",
+    "passed" : true,
+    "parserSource" : "MODEL",
+    "intent" : {
+      "version" : 3,
+      "action" : "PREPARE_DISPATCH",
+      "scopeChanges" : [ ],
+      "restrictions" : [ ],
+      "reportConstraints" : [ ],
+      "unsupportedConditions" : [ ],
+      "clarify" : "NONE"
+    },
+    "expected" : {
+      "message" : "剩下的帮我派单吧",
+      "action" : "PREPARE_DISPATCH",
+      "company" : null,
+      "outcome" : "READY",
+      "reportIds" : [ "rpt-sales-order" ]
+    },
+    "outcome" : "READY",
+    "reason" : null,
+    "scope" : {
+      "companyCode" : null,
+      "allReports" : false,
+      "reportIds" : [ "rpt-sales-order" ]
+    },
+    "excludedRecords" : [ ],
+    "latencyMs" : 2184
+  }, {
+    "scenario" : "否定动作作用域-先别派单，只看销售台账",
+    "message" : "先别派单，只看销售台账",
+    "passed" : true,
+    "parserSource" : "MODEL",
+    "intent" : {
+      "version" : 3,
+      "action" : "PREVIEW",
+      "scopeChanges" : [ {
+        "target" : "REPORTS",
+        "operation" : "REPLACE",
+        "mentions" : [ "销售台账" ],
+        "evidence" : "先别派单，只看销售台账",
+        "reportMentions" : [ ],
+        "selectorKind" : "NONE",
+        "quantifier" : "UNSPECIFIED"
+      } ],
+      "restrictions" : [ {
+        "action" : "PREPARE_DISPATCH",
+        "scope" : "THIS_TURN",
+        "evidence" : "先别派单"
+      } ],
+      "reportConstraints" : [ {
+        "mention" : "销售台账",
+        "role" : "INCLUDED",
+        "evidence" : "只看销售台账"
+      } ],
+      "unsupportedConditions" : [ ],
+      "clarify" : "NONE"
+    },
+    "expected" : {
+      "message" : "先别派单，只看销售台账",
+      "action" : "PREVIEW",
+      "company" : null,
+      "outcome" : "READY",
+      "reportIds" : [ "rpt-sales-order" ],
+      "forbiddenActions" : [ "PREPARE_DISPATCH" ]
+    },
+    "outcome" : "READY",
+    "reason" : null,
+    "scope" : {
+      "companyCode" : null,
+      "allReports" : false,
+      "reportIds" : [ "rpt-sales-order" ]
+    },
+    "excludedRecords" : [ ],
+    "latencyMs" : 2714
+  }, {
+    "scenario" : "否定动作作用域-先别派单，只看销售台账",
+    "message" : "剩下的帮我派单吧",
+    "passed" : true,
+    "parserSource" : "MODEL",
+    "intent" : {
+      "version" : 3,
+      "action" : "PREPARE_DISPATCH",
+      "scopeChanges" : [ ],
+      "restrictions" : [ ],
+      "reportConstraints" : [ ],
+      "unsupportedConditions" : [ ],
+      "clarify" : "NONE"
+    },
+    "expected" : {
+      "message" : "剩下的帮我派单吧",
+      "action" : "PREPARE_DISPATCH",
+      "company" : null,
+      "outcome" : "READY",
+      "reportIds" : [ "rpt-sales-order" ]
+    },
+    "outcome" : "READY",
+    "reason" : null,
+    "scope" : {
+      "companyCode" : null,
+      "allReports" : false,
+      "reportIds" : [ "rpt-sales-order" ]
+    },
+    "excludedRecords" : [ ],
+    "latencyMs" : 2259
+  }, {
+    "scenario" : "否定报表不等于否定动作",
+    "message" : "不要销售报表，其他的生成清单",
+    "passed" : true,
+    "parserSource" : "MODEL",
+    "intent" : {
+      "version" : 3,
+      "action" : "PREPARE_DISPATCH",
+      "scopeChanges" : [ {
+        "target" : "REPORTS",
+        "operation" : "REMOVE",
+        "mentions" : [ "销售报表" ],
+        "evidence" : "不要销售报表",
+        "reportMentions" : [ ],
+        "selectorKind" : "NONE",
+        "quantifier" : "UNSPECIFIED"
+      } ],
+      "restrictions" : [ ],
+      "reportConstraints" : [ {
+        "mention" : "销售报表",
+        "role" : "EXCLUDED",
+        "evidence" : "不要销售报表"
+      } ],
+      "unsupportedConditions" : [ ],
+      "clarify" : "NONE"
+    },
+    "expected" : {
+      "message" : "不要销售报表，其他的生成清单",
+      "action" : "PREPARE_DISPATCH",
+      "company" : null,
+      "outcome" : "READY",
+      "reportIds" : [ "rpt-ar-invoice", "rpt-expense-claim" ]
+    },
+    "outcome" : "READY",
+    "reason" : null,
+    "scope" : {
+      "companyCode" : null,
+      "allReports" : false,
+      "reportIds" : [ "rpt-ar-invoice", "rpt-expense-claim" ]
+    },
+    "excludedRecords" : [ ],
+    "latencyMs" : 2347
+  }, {
+    "scenario" : "澄清不扩大历史范围",
+    "message" : "只查销售报表",
+    "passed" : true,
+    "parserSource" : "MODEL",
+    "intent" : {
+      "version" : 3,
+      "action" : "PREVIEW",
+      "scopeChanges" : [ {
+        "target" : "REPORTS",
+        "operation" : "REPLACE",
+        "mentions" : [ "销售报表" ],
+        "evidence" : "只查销售报表",
+        "reportMentions" : [ ],
+        "selectorKind" : "NONE",
+        "quantifier" : "UNSPECIFIED"
+      } ],
+      "restrictions" : [ ],
+      "reportConstraints" : [ {
+        "mention" : "销售报表",
+        "role" : "INCLUDED",
+        "evidence" : "只查销售报表"
+      } ],
+      "unsupportedConditions" : [ ],
+      "clarify" : "NONE"
+    },
+    "expected" : {
+      "message" : "只查销售报表",
+      "action" : "PREVIEW",
+      "company" : null,
+      "outcome" : "READY",
+      "reportIds" : [ "rpt-sales-order" ]
+    },
+    "outcome" : "READY",
+    "reason" : null,
+    "scope" : {
+      "companyCode" : null,
+      "allReports" : false,
+      "reportIds" : [ "rpt-sales-order" ]
+    },
+    "excludedRecords" : [ ],
+    "latencyMs" : 1993
+  }, {
+    "scenario" : "澄清不扩大历史范围",
+    "message" : "不要只查销售报表",
+    "passed" : false,
+    "parserSource" : "MODEL",
+    "intent" : {
+      "version" : 3,
+      "action" : "PREVIEW",
+      "scopeChanges" : [ {
+        "target" : "REPORTS",
+        "operation" : "REMOVE",
+        "mentions" : [ "销售报表" ],
+        "evidence" : "不要只查销售报表",
+        "reportMentions" : [ ],
+        "selectorKind" : "NONE",
+        "quantifier" : "UNSPECIFIED"
+      } ],
+      "restrictions" : [ ],
+      "reportConstraints" : [ {
+        "mention" : "销售报表",
+        "role" : "EXCLUDED",
+        "evidence" : "不要只查销售报表"
+      } ],
+      "unsupportedConditions" : [ ],
+      "clarify" : "NONE"
+    },
+    "expected" : {
+      "message" : "不要只查销售报表",
+      "action" : "CLARIFY",
+      "company" : null,
+      "outcome" : "CLARIFY",
+      "reportIds" : [ "rpt-sales-order" ]
+    },
+    "outcome" : "CLARIFY",
+    "reason" : "排除后没有可查询报表，请说明要保留的报表",
+    "scope" : {
+      "companyCode" : null,
+      "allReports" : false,
+      "reportIds" : [ ]
+    },
+    "excludedRecords" : [ ],
+    "latencyMs" : 2984
+  }, {
+    "scenario" : "澄清不扩大历史范围",
+    "message" : "剩下的帮我派单吧",
+    "passed" : false,
+    "parserSource" : "MODEL",
+    "intent" : {
+      "version" : 3,
+      "action" : "PREPARE_DISPATCH",
+      "scopeChanges" : [ ],
+      "restrictions" : [ ],
+      "reportConstraints" : [ ],
+      "unsupportedConditions" : [ ],
+      "clarify" : "NONE"
+    },
+    "expected" : {
+      "message" : "剩下的帮我派单吧",
+      "action" : "PREPARE_DISPATCH",
+      "company" : null,
+      "outcome" : "CLARIFY",
+      "reportIds" : [ "rpt-sales-order" ]
+    },
+    "outcome" : "CLARIFY",
+    "reason" : "排除后没有可查询报表，请说明要保留的报表",
+    "scope" : {
+      "companyCode" : null,
+      "allReports" : false,
+      "reportIds" : [ ]
+    },
+    "excludedRecords" : [ ],
+    "latencyMs" : 2328
+  }, {
+    "scenario" : "澄清不扩大历史范围",
+    "message" : "A公司销售报表的",
+    "passed" : false,
+    "parserSource" : "MODEL",
+    "intent" : {
+      "version" : 3,
+      "action" : "CLARIFY",
+      "scopeChanges" : [ ],
+      "restrictions" : [ ],
+      "reportConstraints" : [ ],
+      "unsupportedConditions" : [ ],
+      "clarify" : "REPORTS"
+    },
+    "expected" : {
+      "message" : "A公司销售报表的",
+      "action" : "PREVIEW",
+      "company" : "A",
+      "outcome" : "READY",
+      "reportIds" : [ "rpt-sales-order" ]
+    },
+    "outcome" : "CLARIFY",
+    "reason" : "请说明要查询的完整报表名称",
+    "scope" : {
+      "companyCode" : null,
+      "allReports" : false,
+      "reportIds" : [ ]
+    },
+    "excludedRecords" : [ ],
+    "latencyMs" : 2168
+  }, {
+    "scenario" : "同轮有序集合操作",
+    "message" : "查询所有报表",
+    "passed" : true,
+    "parserSource" : "MODEL",
+    "intent" : {
+      "version" : 3,
+      "action" : "PREVIEW",
+      "scopeChanges" : [ {
+        "target" : "REPORTS",
+        "operation" : "CLEAR",
+        "mentions" : [ ],
+        "evidence" : "查询所有报表",
+        "reportMentions" : [ ],
+        "selectorKind" : "NONE",
+        "quantifier" : "UNSPECIFIED"
+      } ],
+      "restrictions" : [ ],
+      "reportConstraints" : [ ],
+      "unsupportedConditions" : [ ],
+      "clarify" : "NONE"
+    },
+    "expected" : {
+      "message" : "查询所有报表",
+      "action" : "PREVIEW",
+      "company" : null,
+      "outcome" : "READY",
+      "reportIds" : [ ],
+      "allReports" : true
+    },
+    "outcome" : "READY",
+    "reason" : null,
+    "scope" : {
+      "companyCode" : null,
+      "allReports" : true,
+      "reportIds" : [ ]
+    },
+    "excludedRecords" : [ ],
+    "latencyMs" : 2256
+  }, {
+    "scenario" : "同轮有序集合操作",
+    "message" : "加上销售报表，去掉费用报表",
+    "passed" : true,
+    "parserSource" : "MODEL",
+    "intent" : {
+      "version" : 3,
+      "action" : "PREVIEW",
+      "scopeChanges" : [ {
+        "target" : "REPORTS",
+        "operation" : "ADD",
+        "mentions" : [ "销售报表" ],
+        "evidence" : "加上销售报表",
+        "reportMentions" : [ ],
+        "selectorKind" : "NONE",
+        "quantifier" : "UNSPECIFIED"
+      }, {
+        "target" : "REPORTS",
+        "operation" : "REMOVE",
+        "mentions" : [ "费用报表" ],
+        "evidence" : "去掉费用报表",
+        "reportMentions" : [ ],
+        "selectorKind" : "NONE",
+        "quantifier" : "UNSPECIFIED"
+      } ],
+      "restrictions" : [ ],
+      "reportConstraints" : [ {
+        "mention" : "销售报表",
+        "role" : "INCLUDED",
+        "evidence" : "加上销售报表"
+      }, {
+        "mention" : "费用报表",
+        "role" : "EXCLUDED",
+        "evidence" : "去掉费用报表"
+      } ],
+      "unsupportedConditions" : [ ],
+      "clarify" : "NONE"
+    },
+    "expected" : {
+      "message" : "加上销售报表，去掉费用报表",
+      "action" : "PREVIEW",
+      "company" : null,
+      "outcome" : "READY",
+      "reportIds" : [ "rpt-sales-order", "rpt-ar-invoice" ]
+    },
+    "outcome" : "READY",
+    "reason" : null,
+    "scope" : {
+      "companyCode" : null,
+      "allReports" : false,
+      "reportIds" : [ "rpt-sales-order", "rpt-ar-invoice" ]
+    },
+    "excludedRecords" : [ ],
+    "latencyMs" : 2720
+  }, {
+    "scenario" : "同轮有序集合操作",
+    "message" : "只查费用报表，再加销售报表，最后去掉费用报表",
+    "passed" : true,
+    "parserSource" : "MODEL",
+    "intent" : {
+      "version" : 3,
+      "action" : "PREVIEW",
+      "scopeChanges" : [ {
+        "target" : "REPORTS",
+        "operation" : "REPLACE",
+        "mentions" : [ "费用报表" ],
+        "evidence" : "只查费用报表",
+        "reportMentions" : [ ],
+        "selectorKind" : "NONE",
+        "quantifier" : "UNSPECIFIED"
+      }, {
+        "target" : "REPORTS",
+        "operation" : "ADD",
+        "mentions" : [ "销售报表" ],
+        "evidence" : "再加销售报表",
+        "reportMentions" : [ ],
+        "selectorKind" : "NONE",
+        "quantifier" : "UNSPECIFIED"
+      }, {
+        "target" : "REPORTS",
+        "operation" : "REMOVE",
+        "mentions" : [ "费用报表" ],
+        "evidence" : "最后去掉费用报表",
+        "reportMentions" : [ ],
+        "selectorKind" : "NONE",
+        "quantifier" : "UNSPECIFIED"
+      } ],
+      "restrictions" : [ ],
+      "reportConstraints" : [ {
+        "mention" : "费用报表",
+        "role" : "EXCLUDED",
+        "evidence" : "只查费用报表，再加销售报表，最后去掉费用报表"
+      }, {
+        "mention" : "销售报表",
+        "role" : "INCLUDED",
+        "evidence" : "再加销售报表"
+      } ],
+      "unsupportedConditions" : [ ],
+      "clarify" : "NONE"
+    },
+    "expected" : {
+      "message" : "只查费用报表，再加销售报表，最后去掉费用报表",
+      "action" : "PREVIEW",
+      "company" : null,
+      "outcome" : "READY",
+      "reportIds" : [ "rpt-sales-order" ]
+    },
+    "outcome" : "READY",
+    "reason" : null,
+    "scope" : {
+      "companyCode" : null,
+      "allReports" : false,
+      "reportIds" : [ "rpt-sales-order" ]
+    },
+    "excludedRecords" : [ ],
+    "latencyMs" : 3012
+  }, {
+    "scenario" : "记录操作顺序",
+    "message" : "预览 A 公司销售报表",
+    "passed" : true,
+    "parserSource" : "MODEL",
+    "intent" : {
+      "version" : 3,
+      "action" : "PREVIEW",
+      "scopeChanges" : [ {
+        "target" : "COMPANY",
+        "operation" : "REPLACE",
+        "mentions" : [ "A 公司" ],
+        "evidence" : "预览 A 公司销售报表",
+        "reportMentions" : [ ],
+        "selectorKind" : "NONE",
+        "quantifier" : "UNSPECIFIED"
+      }, {
+        "target" : "REPORTS",
+        "operation" : "REPLACE",
+        "mentions" : [ "销售报表" ],
+        "evidence" : "预览 A 公司销售报表",
+        "reportMentions" : [ ],
+        "selectorKind" : "NONE",
+        "quantifier" : "UNSPECIFIED"
+      } ],
+      "restrictions" : [ ],
+      "reportConstraints" : [ {
+        "mention" : "销售报表",
+        "role" : "INCLUDED",
+        "evidence" : "预览 A 公司销售报表"
+      } ],
+      "unsupportedConditions" : [ ],
+      "clarify" : "NONE"
+    },
+    "expected" : {
+      "message" : "预览 A 公司销售报表",
+      "action" : "PREVIEW",
+      "company" : "A",
+      "outcome" : "READY",
+      "reportIds" : [ "rpt-sales-order" ]
+    },
+    "outcome" : "READY",
+    "reason" : null,
+    "scope" : {
+      "companyCode" : "A",
+      "allReports" : false,
+      "reportIds" : [ "rpt-sales-order" ]
+    },
+    "excludedRecords" : [ ],
+    "latencyMs" : 2684
+  }, {
+    "scenario" : "记录操作顺序",
+    "message" : "排除SO2026002",
+    "passed" : true,
+    "parserSource" : "MODEL",
+    "intent" : {
+      "version" : 3,
+      "action" : "PREVIEW",
+      "scopeChanges" : [ {
+        "target" : "RECORDS",
+        "operation" : "EXCLUDE",
+        "mentions" : [ "SO2026002" ],
+        "evidence" : "排除SO2026002",
+        "reportMentions" : [ ],
+        "selectorKind" : "DOCUMENT",
+        "quantifier" : "ONE"
+      } ],
+      "restrictions" : [ ],
+      "reportConstraints" : [ ],
+      "unsupportedConditions" : [ ],
+      "clarify" : "NONE"
+    },
+    "expected" : {
+      "message" : "排除SO2026002",
+      "action" : "PREVIEW",
+      "company" : "A",
+      "outcome" : "READY",
+      "reportIds" : [ "rpt-sales-order" ],
+      "excludedIds" : [ "2" ]
+    },
+    "outcome" : "READY",
+    "reason" : null,
+    "scope" : {
+      "companyCode" : "A",
+      "allReports" : false,
+      "reportIds" : [ "rpt-sales-order" ]
+    },
+    "excludedRecords" : [ {
+      "reportId" : "rpt-sales-order",
+      "recordId" : "2"
+    } ],
+    "latencyMs" : 2295
+  }, {
+    "scenario" : "记录操作顺序",
+    "message" : "排除SO2026002，再恢复SO2026002",
+    "passed" : true,
+    "parserSource" : "MODEL",
+    "intent" : {
+      "version" : 3,
+      "action" : "PREVIEW",
+      "scopeChanges" : [ {
+        "target" : "RECORDS",
+        "operation" : "EXCLUDE",
+        "mentions" : [ "SO2026002" ],
+        "evidence" : "排除SO2026002",
+        "reportMentions" : [ ],
+        "selectorKind" : "DOCUMENT",
+        "quantifier" : "ONE"
+      }, {
+        "target" : "RECORDS",
+        "operation" : "RESTORE",
+        "mentions" : [ "SO2026002" ],
+        "evidence" : "再恢复SO2026002",
+        "reportMentions" : [ ],
+        "selectorKind" : "DOCUMENT",
+        "quantifier" : "ONE"
+      } ],
+      "restrictions" : [ ],
+      "reportConstraints" : [ ],
+      "unsupportedConditions" : [ ],
+      "clarify" : "NONE"
+    },
+    "expected" : {
+      "message" : "排除SO2026002，再恢复SO2026002",
+      "action" : "PREVIEW",
+      "company" : "A",
+      "outcome" : "READY",
+      "reportIds" : [ "rpt-sales-order" ],
+      "excludedIds" : [ ]
+    },
+    "outcome" : "READY",
+    "reason" : null,
+    "scope" : {
+      "companyCode" : "A",
+      "allReports" : false,
+      "reportIds" : [ "rpt-sales-order" ]
+    },
+    "excludedRecords" : [ ],
+    "latencyMs" : 2395
+  }, {
+    "scenario" : "记录操作顺序",
+    "message" : "给剩下的生成待确认派单清单",
+    "passed" : true,
+    "parserSource" : "MODEL",
+    "intent" : {
+      "version" : 3,
+      "action" : "PREPARE_DISPATCH",
+      "scopeChanges" : [ ],
+      "restrictions" : [ ],
+      "reportConstraints" : [ ],
+      "unsupportedConditions" : [ ],
+      "clarify" : "NONE"
+    },
+    "expected" : {
+      "message" : "给剩下的生成待确认派单清单",
+      "action" : "PREPARE_DISPATCH",
+      "company" : "A",
+      "outcome" : "READY",
+      "reportIds" : [ "rpt-sales-order" ],
+      "excludedIds" : [ ]
+    },
+    "outcome" : "READY",
+    "reason" : null,
+    "scope" : {
+      "companyCode" : "A",
+      "allReports" : false,
+      "reportIds" : [ "rpt-sales-order" ]
+    },
+    "excludedRecords" : [ ],
+    "latencyMs" : 3017
+  }, {
+    "scenario" : "语义边界-不要派单，先看销售报表",
+    "message" : "只查销售报表",
+    "passed" : true,
+    "parserSource" : "MODEL",
+    "intent" : {
+      "version" : 3,
+      "action" : "PREVIEW",
+      "scopeChanges" : [ {
+        "target" : "REPORTS",
+        "operation" : "REPLACE",
+        "mentions" : [ "销售报表" ],
+        "evidence" : "只查销售报表",
+        "reportMentions" : [ ],
+        "selectorKind" : "NONE",
+        "quantifier" : "UNSPECIFIED"
+      } ],
+      "restrictions" : [ ],
+      "reportConstraints" : [ {
+        "mention" : "销售报表",
+        "role" : "INCLUDED",
+        "evidence" : "只查销售报表"
+      } ],
+      "unsupportedConditions" : [ ],
+      "clarify" : "NONE"
+    },
+    "expected" : {
+      "message" : "只查销售报表",
+      "action" : "PREVIEW",
+      "company" : null,
+      "outcome" : "READY",
+      "reportIds" : [ "rpt-sales-order" ]
+    },
+    "outcome" : "READY",
+    "reason" : null,
+    "scope" : {
+      "companyCode" : null,
+      "allReports" : false,
+      "reportIds" : [ "rpt-sales-order" ]
+    },
+    "excludedRecords" : [ ],
+    "latencyMs" : 2448
+  }, {
+    "scenario" : "语义边界-不要派单，先看销售报表",
+    "message" : "不要派单，先看销售报表",
+    "passed" : true,
+    "parserSource" : "MODEL",
+    "intent" : {
+      "version" : 3,
+      "action" : "PREVIEW",
+      "scopeChanges" : [ {
+        "target" : "REPORTS",
+        "operation" : "REPLACE",
+        "mentions" : [ "销售报表" ],
+        "evidence" : "先看销售报表",
+        "reportMentions" : [ ],
+        "selectorKind" : "NONE",
+        "quantifier" : "UNSPECIFIED"
+      } ],
+      "restrictions" : [ {
+        "action" : "PREPARE_DISPATCH",
+        "scope" : "THIS_TURN",
+        "evidence" : "不要派单"
+      } ],
+      "reportConstraints" : [ {
+        "mention" : "销售报表",
+        "role" : "INCLUDED",
+        "evidence" : "先看销售报表"
+      } ],
+      "unsupportedConditions" : [ ],
+      "clarify" : "NONE"
+    },
+    "expected" : {
+      "message" : "不要派单，先看销售报表",
+      "action" : "PREVIEW",
+      "company" : null,
+      "outcome" : "READY",
+      "reportIds" : [ "rpt-sales-order" ],
+      "forbiddenActions" : [ "PREPARE_DISPATCH" ]
+    },
+    "outcome" : "READY",
+    "reason" : null,
+    "scope" : {
+      "companyCode" : null,
+      "allReports" : false,
+      "reportIds" : [ "rpt-sales-order" ]
+    },
+    "excludedRecords" : [ ],
+    "latencyMs" : 2321
+  }, {
+    "scenario" : "语义边界-销售报表先别派，帮我生成销售报表的派单清单",
+    "message" : "只查销售报表",
+    "passed" : true,
+    "parserSource" : "MODEL",
+    "intent" : {
+      "version" : 3,
+      "action" : "PREVIEW",
+      "scopeChanges" : [ {
+        "target" : "REPORTS",
+        "operation" : "REPLACE",
+        "mentions" : [ "销售报表" ],
+        "evidence" : "只查销售报表",
+        "reportMentions" : [ ],
+        "selectorKind" : "NONE",
+        "quantifier" : "UNSPECIFIED"
+      } ],
+      "restrictions" : [ ],
+      "reportConstraints" : [ {
+        "mention" : "销售报表",
+        "role" : "INCLUDED",
+        "evidence" : "只查销售报表"
+      } ],
+      "unsupportedConditions" : [ ],
+      "clarify" : "NONE"
+    },
+    "expected" : {
+      "message" : "只查销售报表",
+      "action" : "PREVIEW",
+      "company" : null,
+      "outcome" : "READY",
+      "reportIds" : [ "rpt-sales-order" ]
+    },
+    "outcome" : "READY",
+    "reason" : null,
+    "scope" : {
+      "companyCode" : null,
+      "allReports" : false,
+      "reportIds" : [ "rpt-sales-order" ]
+    },
+    "excludedRecords" : [ ],
+    "latencyMs" : 3210
+  }, {
+    "scenario" : "语义边界-销售报表先别派，帮我生成销售报表的派单清单",
+    "message" : "销售报表先别派，帮我生成销售报表的派单清单",
+    "passed" : false,
+    "error" : "InvalidOutput",
+    "invalidOutput" : "{\n  \"version\": 3,\n  \"action\": \"PREPARE_DISPATCH\",\n  \"scopeChanges\": [],\n  \"restrictions\": [\n    {\n      \"action\": \"PREPARE_DISPATCH\",\n      \"scope\": \"THIS_TURN\",\n      \"evidence\": \"销售报表先别派，帮我生成销售报表的派单清单\"\n    }\n  ],\n  \"clarify\": \"ACTION\",\n  \"reportConstraints\": [\n    {\n      \"mention\": \"销售报表\",\n      \"role\": \"INCLUDED\",\n      \"evidence\": \"销售报表先别派，帮我生成销售报表的派单清单\"\n    }\n  ],\n  \"unsupportedConditions\": []\n}",
+    "latencyMs" : 4856
+  }, {
+    "scenario" : "语义边界-查销售报表金额大于一万元",
+    "message" : "只查销售报表",
+    "passed" : true,
+    "parserSource" : "MODEL",
+    "intent" : {
+      "version" : 3,
+      "action" : "PREVIEW",
+      "scopeChanges" : [ {
+        "target" : "REPORTS",
+        "operation" : "REPLACE",
+        "mentions" : [ "销售报表" ],
+        "evidence" : "只查销售报表",
+        "reportMentions" : [ ],
+        "selectorKind" : "NONE",
+        "quantifier" : "UNSPECIFIED"
+      } ],
+      "restrictions" : [ ],
+      "reportConstraints" : [ {
+        "mention" : "销售报表",
+        "role" : "INCLUDED",
+        "evidence" : "只查销售报表"
+      } ],
+      "unsupportedConditions" : [ ],
+      "clarify" : "NONE"
+    },
+    "expected" : {
+      "message" : "只查销售报表",
+      "action" : "PREVIEW",
+      "company" : null,
+      "outcome" : "READY",
+      "reportIds" : [ "rpt-sales-order" ]
+    },
+    "outcome" : "READY",
+    "reason" : null,
+    "scope" : {
+      "companyCode" : null,
+      "allReports" : false,
+      "reportIds" : [ "rpt-sales-order" ]
+    },
+    "excludedRecords" : [ ],
+    "latencyMs" : 2707
+  }, {
+    "scenario" : "语义边界-查销售报表金额大于一万元",
+    "message" : "查销售报表金额大于一万元",
+    "passed" : true,
+    "parserSource" : "MODEL",
+    "intent" : {
+      "version" : 3,
+      "action" : "CLARIFY",
+      "scopeChanges" : [ ],
+      "restrictions" : [ ],
+      "reportConstraints" : [ {
+        "mention" : "销售报表",
+        "role" : "INCLUDED",
+        "evidence" : "查销售报表金额大于一万元"
+      } ],
+      "unsupportedConditions" : [ "金额大于一万元" ],
+      "clarify" : "ACTION"
+    },
+    "expected" : {
+      "message" : "查销售报表金额大于一万元",
+      "action" : "CLARIFY",
+      "company" : null,
+      "outcome" : "CLARIFY",
+      "reportIds" : [ "rpt-sales-order" ]
+    },
+    "outcome" : "CLARIFY",
+    "reason" : "请明确本次操作及公司、报表范围，例如：查询 A 公司销售报表",
+    "scope" : {
+      "companyCode" : null,
+      "allReports" : false,
+      "reportIds" : [ "rpt-sales-order" ]
+    },
+    "excludedRecords" : [ ],
+    "latencyMs" : 2507
+  }, {
+    "scenario" : "语义边界-先查销售报表再查费用报表，分别给我结果",
+    "message" : "只查销售报表",
+    "passed" : true,
+    "parserSource" : "MODEL",
+    "intent" : {
+      "version" : 3,
+      "action" : "PREVIEW",
+      "scopeChanges" : [ {
+        "target" : "REPORTS",
+        "operation" : "REPLACE",
+        "mentions" : [ "销售报表" ],
+        "evidence" : "只查销售报表",
+        "reportMentions" : [ ],
+        "selectorKind" : "NONE",
+        "quantifier" : "UNSPECIFIED"
+      } ],
+      "restrictions" : [ ],
+      "reportConstraints" : [ {
+        "mention" : "销售报表",
+        "role" : "INCLUDED",
+        "evidence" : "只查销售报表"
+      } ],
+      "unsupportedConditions" : [ ],
+      "clarify" : "NONE"
+    },
+    "expected" : {
+      "message" : "只查销售报表",
+      "action" : "PREVIEW",
+      "company" : null,
+      "outcome" : "READY",
+      "reportIds" : [ "rpt-sales-order" ]
+    },
+    "outcome" : "READY",
+    "reason" : null,
+    "scope" : {
+      "companyCode" : null,
+      "allReports" : false,
+      "reportIds" : [ "rpt-sales-order" ]
+    },
+    "excludedRecords" : [ ],
+    "latencyMs" : 2582
+  }, {
+    "scenario" : "语义边界-先查销售报表再查费用报表，分别给我结果",
+    "message" : "先查销售报表再查费用报表，分别给我结果",
+    "passed" : false,
+    "error" : "InvalidOutput",
+    "invalidOutput" : "{\"version\":3,\"action\":\"CLARIFY\",\"scopeChanges\":[{\"target\":\"REPORTS\",\"operation\":\"REPLACE\",\"mentions\":[\"销售报表\",\"费用报表\"],\"evidence\":\"先查销售报表再查费用报表，分别给我结果\",\"reportMentions\":[],\"selectorKind\":\"NONE\",\"quantifier\":\"UNSPECIFIED\"}],\"restrictions\":[],\"clarify\":\"ACTION\",\"reportConstraints\":[{\"mention\":\"销售报表\",\"role\":\"INCLUDED\",\"evidence\":\"先查销售报表再查费用报表，分别给我结果\"},{\"mention\":\"费用报表\",\"role\":\"INCLUDED\",\"evidence\":\"先查销售报表再查费用报表，分别给我结果\"}],\"unsupportedConditions\":[\"先查销售报表再查费用报表，分别给我结果（多查询顺序执行）\"]}",
+    "latencyMs" : 4838
+  }, {
+    "scenario" : "语义边界-那就那些吧",
+    "message" : "只查销售报表",
+    "passed" : true,
+    "parserSource" : "MODEL",
+    "intent" : {
+      "version" : 3,
+      "action" : "PREVIEW",
+      "scopeChanges" : [ {
+        "target" : "REPORTS",
+        "operation" : "REPLACE",
+        "mentions" : [ "销售报表" ],
+        "evidence" : "只查销售报表",
+        "reportMentions" : [ ],
+        "selectorKind" : "NONE",
+        "quantifier" : "UNSPECIFIED"
+      } ],
+      "restrictions" : [ ],
+      "reportConstraints" : [ {
+        "mention" : "销售报表",
+        "role" : "INCLUDED",
+        "evidence" : "只查销售报表"
+      } ],
+      "unsupportedConditions" : [ ],
+      "clarify" : "NONE"
+    },
+    "expected" : {
+      "message" : "只查销售报表",
+      "action" : "PREVIEW",
+      "company" : null,
+      "outcome" : "READY",
+      "reportIds" : [ "rpt-sales-order" ]
+    },
+    "outcome" : "READY",
+    "reason" : null,
+    "scope" : {
+      "companyCode" : null,
+      "allReports" : false,
+      "reportIds" : [ "rpt-sales-order" ]
+    },
+    "excludedRecords" : [ ],
+    "latencyMs" : 2088
+  }, {
+    "scenario" : "语义边界-那就那些吧",
+    "message" : "那就那些吧",
+    "passed" : false,
+    "parserSource" : "MODEL",
+    "intent" : {
+      "version" : 3,
+      "action" : "PREVIEW",
+      "scopeChanges" : [ ],
+      "restrictions" : [ ],
+      "reportConstraints" : [ ],
+      "unsupportedConditions" : [ ],
+      "clarify" : "NONE"
+    },
+    "expected" : {
+      "message" : "那就那些吧",
+      "action" : "CLARIFY",
+      "company" : null,
+      "outcome" : "CLARIFY",
+      "reportIds" : [ "rpt-sales-order" ]
+    },
+    "outcome" : "READY",
+    "reason" : null,
+    "scope" : {
+      "companyCode" : null,
+      "allReports" : false,
+      "reportIds" : [ "rpt-sales-order" ]
+    },
+    "excludedRecords" : [ ],
+    "latencyMs" : 2521
+  }, {
+    "scenario" : "语义边界-查A公司和B公司的销售报表",
+    "message" : "只查销售报表",
+    "passed" : true,
+    "parserSource" : "MODEL",
+    "intent" : {
+      "version" : 3,
+      "action" : "PREVIEW",
+      "scopeChanges" : [ {
+        "target" : "REPORTS",
+        "operation" : "REPLACE",
+        "mentions" : [ "销售报表" ],
+        "evidence" : "只查销售报表",
+        "reportMentions" : [ ],
+        "selectorKind" : "NONE",
+        "quantifier" : "UNSPECIFIED"
+      } ],
+      "restrictions" : [ ],
+      "reportConstraints" : [ {
+        "mention" : "销售报表",
+        "role" : "INCLUDED",
+        "evidence" : "只查销售报表"
+      } ],
+      "unsupportedConditions" : [ ],
+      "clarify" : "NONE"
+    },
+    "expected" : {
+      "message" : "只查销售报表",
+      "action" : "PREVIEW",
+      "company" : null,
+      "outcome" : "READY",
+      "reportIds" : [ "rpt-sales-order" ]
+    },
+    "outcome" : "READY",
+    "reason" : null,
+    "scope" : {
+      "companyCode" : null,
+      "allReports" : false,
+      "reportIds" : [ "rpt-sales-order" ]
+    },
+    "excludedRecords" : [ ],
+    "latencyMs" : 2213
+  }, {
+    "scenario" : "语义边界-查A公司和B公司的销售报表",
+    "message" : "查A公司和B公司的销售报表",
+    "passed" : false,
+    "error" : "InvalidOutput",
+    "invalidOutput" : "{\n  \"version\": 3,\n  \"action\": \"PREVIEW\",\n  \"scopeChanges\": [\n    {\n      \"target\": \"COMPANY\",\n      \"operation\": \"REPLACE\",\n      \"mentions\": [\n        \"A公司\"\n      ],\n      \"evidence\": \"查A公司和B公司的销售报表\",\n      \"reportMentions\": [],\n      \"selectorKind\": \"NONE\",\n      \"quantifier\": \"UNSPECIFIED\"\n    },\n    {\n      \"target\": \"REPORTS\",\n      \"operation\": \"REPLACE\",\n      \"mentions\": [\n        \"销售报表\"\n      ],\n      \"evidence\": \"查A公司和B公司的销售报表\",\n      \"reportMentions\": [],\n      \"selectorKind\": \"NONE\",\n      \"quantifier\": \"UNSPECIFIED\"\n    }\n  ],\n  \"restrictions\": [],\n  \"clarify\": \"COMPANY\",\n  \"reportConstraints\": [\n    {\n      \"mention\": \"销售报表\",\n      \"role\": \"INCLUDED\",\n      \"evidence\": \"查A公司和B公司的销售报表\"\n    }\n  ],\n  \"unsupportedConditions\": []\n}",
+    "latencyMs" : 5191
+  }, {
+    "scenario" : "语义边界-不要只查销售报表，也别查全部报表",
+    "message" : "只查销售报表",
+    "passed" : true,
+    "parserSource" : "MODEL",
+    "intent" : {
+      "version" : 3,
+      "action" : "PREVIEW",
+      "scopeChanges" : [ {
+        "target" : "REPORTS",
+        "operation" : "REPLACE",
+        "mentions" : [ "销售报表" ],
+        "evidence" : "只查销售报表",
+        "reportMentions" : [ ],
+        "selectorKind" : "NONE",
+        "quantifier" : "UNSPECIFIED"
+      } ],
+      "restrictions" : [ ],
+      "reportConstraints" : [ {
+        "mention" : "销售报表",
+        "role" : "INCLUDED",
+        "evidence" : "只查销售报表"
+      } ],
+      "unsupportedConditions" : [ ],
+      "clarify" : "NONE"
+    },
+    "expected" : {
+      "message" : "只查销售报表",
+      "action" : "PREVIEW",
+      "company" : null,
+      "outcome" : "READY",
+      "reportIds" : [ "rpt-sales-order" ]
+    },
+    "outcome" : "READY",
+    "reason" : null,
+    "scope" : {
+      "companyCode" : null,
+      "allReports" : false,
+      "reportIds" : [ "rpt-sales-order" ]
+    },
+    "excludedRecords" : [ ],
+    "latencyMs" : 2342
+  }, {
+    "scenario" : "语义边界-不要只查销售报表，也别查全部报表",
+    "message" : "不要只查销售报表，也别查全部报表",
+    "passed" : true,
+    "parserSource" : "MODEL",
+    "intent" : {
+      "version" : 3,
+      "action" : "CLARIFY",
+      "scopeChanges" : [ ],
+      "restrictions" : [ ],
+      "reportConstraints" : [ ],
+      "unsupportedConditions" : [ ],
+      "clarify" : "ACTION"
+    },
+    "expected" : {
+      "message" : "不要只查销售报表，也别查全部报表",
+      "action" : "CLARIFY",
+      "company" : null,
+      "outcome" : "CLARIFY",
+      "reportIds" : [ "rpt-sales-order" ]
+    },
+    "outcome" : "CLARIFY",
+    "reason" : "请明确本次操作及公司、报表范围，例如：查询 A 公司销售报表",
+    "scope" : {
+      "companyCode" : null,
+      "allReports" : false,
+      "reportIds" : [ "rpt-sales-order" ]
+    },
+    "excludedRecords" : [ ],
+    "latencyMs" : 2634
+  }, {
+    "scenario" : "补充-省略公司与纠正",
+    "message" : "麻烦预览一下 A 公司的销售报表",
+    "passed" : true,
+    "parserSource" : "MODEL",
+    "intent" : {
+      "version" : 3,
+      "action" : "PREVIEW",
+      "scopeChanges" : [ {
+        "target" : "COMPANY",
+        "operation" : "REPLACE",
+        "mentions" : [ "A 公司" ],
+        "evidence" : "麻烦预览一下 A 公司的销售报表",
+        "reportMentions" : [ ],
+        "selectorKind" : "NONE",
+        "quantifier" : "UNSPECIFIED"
+      }, {
+        "target" : "REPORTS",
+        "operation" : "REPLACE",
+        "mentions" : [ "销售报表" ],
+        "evidence" : "麻烦预览一下 A 公司的销售报表",
+        "reportMentions" : [ ],
+        "selectorKind" : "NONE",
+        "quantifier" : "UNSPECIFIED"
+      } ],
+      "restrictions" : [ ],
+      "reportConstraints" : [ {
+        "mention" : "销售报表",
+        "role" : "INCLUDED",
+        "evidence" : "麻烦预览一下 A 公司的销售报表"
+      } ],
+      "unsupportedConditions" : [ ],
+      "clarify" : "NONE"
+    },
+    "expected" : {
+      "message" : "麻烦预览一下 A 公司的销售报表",
+      "action" : "PREVIEW",
+      "company" : "A",
+      "outcome" : "READY",
+      "reportIds" : [ "rpt-sales-order" ]
+    },
+    "outcome" : "READY",
+    "reason" : null,
+    "scope" : {
+      "companyCode" : "A",
+      "allReports" : false,
+      "reportIds" : [ "rpt-sales-order" ]
+    },
+    "excludedRecords" : [ ],
+    "latencyMs" : 2766
+  }, {
+    "scenario" : "补充-省略公司与纠正",
+    "message" : "换成 B 公司看看",
+    "passed" : true,
+    "parserSource" : "MODEL",
+    "intent" : {
+      "version" : 3,
+      "action" : "PREVIEW",
+      "scopeChanges" : [ {
+        "target" : "COMPANY",
+        "operation" : "REPLACE",
+        "mentions" : [ "B 公司" ],
+        "evidence" : "换成 B 公司看看",
+        "reportMentions" : [ ],
+        "selectorKind" : "NONE",
+        "quantifier" : "UNSPECIFIED"
+      } ],
+      "restrictions" : [ ],
+      "reportConstraints" : [ ],
+      "unsupportedConditions" : [ ],
+      "clarify" : "NONE"
+    },
+    "expected" : {
+      "message" : "换成 B 公司看看",
+      "action" : "PREVIEW",
+      "company" : "B",
+      "outcome" : "REJECTED",
+      "reportIds" : [ "rpt-sales-order" ]
+    },
+    "outcome" : "REJECTED",
+    "reason" : "当前账号无权查看 B 公司，未返回其他公司的派单记录",
+    "scope" : {
+      "companyCode" : "B",
+      "allReports" : false,
+      "reportIds" : [ "rpt-sales-order" ]
+    },
+    "excludedRecords" : [ ],
+    "latencyMs" : 2364
+  }, {
+    "scenario" : "补充-省略公司与纠正",
+    "message" : "还是看 A 公司吧",
+    "passed" : true,
+    "parserSource" : "MODEL",
+    "intent" : {
+      "version" : 3,
+      "action" : "PREVIEW",
+      "scopeChanges" : [ {
+        "target" : "COMPANY",
+        "operation" : "REPLACE",
+        "mentions" : [ "A 公司" ],
+        "evidence" : "还是看 A 公司吧",
+        "reportMentions" : [ ],
+        "selectorKind" : "NONE",
+        "quantifier" : "UNSPECIFIED"
+      } ],
+      "restrictions" : [ ],
+      "reportConstraints" : [ ],
+      "unsupportedConditions" : [ ],
+      "clarify" : "NONE"
+    },
+    "expected" : {
+      "message" : "还是看 A 公司吧",
+      "action" : "PREVIEW",
+      "company" : "A",
+      "outcome" : "READY",
+      "reportIds" : [ "rpt-sales-order" ]
+    },
+    "outcome" : "READY",
+    "reason" : "当前账号无权查看 B 公司，未返回其他公司的派单记录",
+    "scope" : {
+      "companyCode" : "A",
+      "allReports" : false,
+      "reportIds" : [ "rpt-sales-order" ]
+    },
+    "excludedRecords" : [ ],
+    "latencyMs" : 2478
+  }, {
+    "scenario" : "补充-省略公司与纠正",
+    "message" : "把这些列成待确认清单",
+    "passed" : true,
+    "parserSource" : "MODEL",
+    "intent" : {
+      "version" : 3,
+      "action" : "PREPARE_DISPATCH",
+      "scopeChanges" : [ ],
+      "restrictions" : [ ],
+      "reportConstraints" : [ ],
+      "unsupportedConditions" : [ ],
+      "clarify" : "NONE"
+    },
+    "expected" : {
+      "message" : "把这些列成待确认清单",
+      "action" : "PREPARE_DISPATCH",
+      "company" : "A",
+      "outcome" : "READY",
+      "reportIds" : [ "rpt-sales-order" ]
+    },
+    "outcome" : "READY",
+    "reason" : "当前账号无权查看 B 公司，未返回其他公司的派单记录",
+    "scope" : {
+      "companyCode" : "A",
+      "allReports" : false,
+      "reportIds" : [ "rpt-sales-order" ]
+    },
+    "excludedRecords" : [ ],
+    "latencyMs" : 2362
+  }, {
+    "scenario" : "补充-省略公司与纠正",
+    "message" : "撤销刚才的待确认清单",
+    "passed" : true,
+    "parserSource" : "MODEL",
+    "intent" : {
+      "version" : 3,
+      "action" : "CANCEL_PLAN",
+      "scopeChanges" : [ ],
+      "restrictions" : [ ],
+      "reportConstraints" : [ ],
+      "unsupportedConditions" : [ ],
+      "clarify" : "NONE"
+    },
+    "expected" : {
+      "message" : "撤销刚才的待确认清单",
+      "action" : "CANCEL_PLAN",
+      "company" : "A",
+      "outcome" : "READY",
+      "reportIds" : [ "rpt-sales-order" ]
+    },
+    "outcome" : "READY",
+    "reason" : "当前账号无权查看 B 公司，未返回其他公司的派单记录",
+    "scope" : {
+      "companyCode" : "A",
+      "allReports" : false,
+      "reportIds" : [ "rpt-sales-order" ]
+    },
+    "excludedRecords" : [ ],
+    "latencyMs" : 2061
+  }, {
+    "scenario" : "补充-集合与否定",
+    "message" : "先查询应收报表",
+    "passed" : true,
+    "parserSource" : "MODEL",
+    "intent" : {
+      "version" : 3,
+      "action" : "PREVIEW",
+      "scopeChanges" : [ {
+        "target" : "REPORTS",
+        "operation" : "REPLACE",
+        "mentions" : [ "应收报表" ],
+        "evidence" : "先查询应收报表",
+        "reportMentions" : [ ],
+        "selectorKind" : "NONE",
+        "quantifier" : "UNSPECIFIED"
+      } ],
+      "restrictions" : [ ],
+      "reportConstraints" : [ {
+        "mention" : "应收报表",
+        "role" : "INCLUDED",
+        "evidence" : "先查询应收报表"
+      } ],
+      "unsupportedConditions" : [ ],
+      "clarify" : "NONE"
+    },
+    "expected" : {
+      "message" : "先查询应收报表",
+      "action" : "PREVIEW",
+      "company" : null,
+      "outcome" : "READY",
+      "reportIds" : [ "rpt-ar-invoice" ]
+    },
+    "outcome" : "READY",
+    "reason" : null,
+    "scope" : {
+      "companyCode" : null,
+      "allReports" : false,
+      "reportIds" : [ "rpt-ar-invoice" ]
+    },
+    "excludedRecords" : [ ],
+    "latencyMs" : 2476
+  }, {
+    "scenario" : "补充-集合与否定",
+    "message" : "销售报表也一起看，暂时不生成派单清单",
+    "passed" : true,
+    "parserSource" : "MODEL",
+    "intent" : {
+      "version" : 3,
+      "action" : "PREVIEW",
+      "scopeChanges" : [ {
+        "target" : "REPORTS",
+        "operation" : "ADD",
+        "mentions" : [ "销售报表" ],
+        "evidence" : "销售报表也一起看",
+        "reportMentions" : [ ],
+        "selectorKind" : "NONE",
+        "quantifier" : "UNSPECIFIED"
+      } ],
+      "restrictions" : [ {
+        "action" : "PREPARE_DISPATCH",
+        "scope" : "THIS_TURN",
+        "evidence" : "暂时不生成派单清单"
+      } ],
+      "reportConstraints" : [ {
+        "mention" : "销售报表",
+        "role" : "INCLUDED",
+        "evidence" : "销售报表也一起看"
+      } ],
+      "unsupportedConditions" : [ ],
+      "clarify" : "NONE"
+    },
+    "expected" : {
+      "message" : "销售报表也一起看，暂时不生成派单清单",
+      "action" : "PREVIEW",
+      "company" : null,
+      "outcome" : "READY",
+      "reportIds" : [ "rpt-ar-invoice", "rpt-sales-order" ],
+      "forbiddenActions" : [ "PREPARE_DISPATCH" ]
+    },
+    "outcome" : "READY",
+    "reason" : null,
+    "scope" : {
+      "companyCode" : null,
+      "allReports" : false,
+      "reportIds" : [ "rpt-ar-invoice", "rpt-sales-order" ]
+    },
+    "excludedRecords" : [ ],
+    "latencyMs" : 4723
+  }, {
+    "scenario" : "补充-集合与否定",
+    "message" : "把应收报表从查询中移除，只留下销售报表",
+    "passed" : true,
+    "parserSource" : "MODEL",
+    "intent" : {
+      "version" : 3,
+      "action" : "PREVIEW",
+      "scopeChanges" : [ {
+        "target" : "REPORTS",
+        "operation" : "REPLACE",
+        "mentions" : [ "销售报表" ],
+        "evidence" : "把应收报表从查询中移除，只留下销售报表",
+        "reportMentions" : [ ],
+        "selectorKind" : "NONE",
+        "quantifier" : "UNSPECIFIED"
+      } ],
+      "restrictions" : [ ],
+      "reportConstraints" : [ {
+        "mention" : "应收报表",
+        "role" : "EXCLUDED",
+        "evidence" : "把应收报表从查询中移除"
+      }, {
+        "mention" : "销售报表",
+        "role" : "INCLUDED",
+        "evidence" : "只留下销售报表"
+      } ],
+      "unsupportedConditions" : [ ],
+      "clarify" : "NONE"
+    },
+    "expected" : {
+      "message" : "把应收报表从查询中移除，只留下销售报表",
+      "action" : "PREVIEW",
+      "company" : null,
+      "outcome" : "READY",
+      "reportIds" : [ "rpt-sales-order" ]
+    },
+    "outcome" : "READY",
+    "reason" : null,
+    "scope" : {
+      "companyCode" : null,
+      "allReports" : false,
+      "reportIds" : [ "rpt-sales-order" ]
+    },
+    "excludedRecords" : [ ],
+    "latencyMs" : 2744
+  }, {
+    "scenario" : "补充-集合与否定",
+    "message" : "现在可以生成派单清单了",
+    "passed" : true,
+    "parserSource" : "MODEL",
+    "intent" : {
+      "version" : 3,
+      "action" : "PREPARE_DISPATCH",
+      "scopeChanges" : [ ],
+      "restrictions" : [ ],
+      "reportConstraints" : [ ],
+      "unsupportedConditions" : [ ],
+      "clarify" : "NONE"
+    },
+    "expected" : {
+      "message" : "现在可以生成派单清单了",
+      "action" : "PREPARE_DISPATCH",
+      "company" : null,
+      "outcome" : "READY",
+      "reportIds" : [ "rpt-sales-order" ]
+    },
+    "outcome" : "READY",
+    "reason" : null,
+    "scope" : {
+      "companyCode" : null,
+      "allReports" : false,
+      "reportIds" : [ "rpt-sales-order" ]
+    },
+    "excludedRecords" : [ ],
+    "latencyMs" : 2292
+  }, {
+    "scenario" : "补充-集合与否定",
+    "message" : "恢复查询所有可见报表",
+    "passed" : true,
+    "parserSource" : "MODEL",
+    "intent" : {
+      "version" : 3,
+      "action" : "PREVIEW",
+      "scopeChanges" : [ {
+        "target" : "REPORTS",
+        "operation" : "CLEAR",
+        "mentions" : [ ],
+        "evidence" : "恢复查询所有可见报表",
+        "reportMentions" : [ ],
+        "selectorKind" : "NONE",
+        "quantifier" : "UNSPECIFIED"
+      } ],
+      "restrictions" : [ ],
+      "reportConstraints" : [ ],
+      "unsupportedConditions" : [ ],
+      "clarify" : "NONE"
+    },
+    "expected" : {
+      "message" : "恢复查询所有可见报表",
+      "action" : "PREVIEW",
+      "company" : null,
+      "outcome" : "READY",
+      "allReports" : true
+    },
+    "outcome" : "READY",
+    "reason" : null,
+    "scope" : {
+      "companyCode" : null,
+      "allReports" : true,
+      "reportIds" : [ ]
+    },
+    "excludedRecords" : [ ],
+    "latencyMs" : 1978
+  }, {
+    "scenario" : "补充-数字单据与恢复",
+    "message" : "请查看 A 公司销售报表里的可派单记录",
+    "passed" : true,
+    "parserSource" : "MODEL",
+    "intent" : {
+      "version" : 3,
+      "action" : "PREVIEW",
+      "scopeChanges" : [ {
+        "target" : "COMPANY",
+        "operation" : "REPLACE",
+        "mentions" : [ "A 公司" ],
+        "evidence" : "请查看 A 公司销售报表里的可派单记录",
+        "reportMentions" : [ ],
+        "selectorKind" : "NONE",
+        "quantifier" : "UNSPECIFIED"
+      }, {
+        "target" : "REPORTS",
+        "operation" : "REPLACE",
+        "mentions" : [ "销售报表" ],
+        "evidence" : "请查看 A 公司销售报表里的可派单记录",
+        "reportMentions" : [ ],
+        "selectorKind" : "NONE",
+        "quantifier" : "UNSPECIFIED"
+      } ],
+      "restrictions" : [ ],
+      "reportConstraints" : [ {
+        "mention" : "销售报表",
+        "role" : "INCLUDED",
+        "evidence" : "请查看 A 公司销售报表里的可派单记录"
+      } ],
+      "unsupportedConditions" : [ ],
+      "clarify" : "NONE"
+    },
+    "expected" : {
+      "message" : "请查看 A 公司销售报表里的可派单记录",
+      "action" : "PREVIEW",
+      "company" : "A",
+      "outcome" : "READY",
+      "reportIds" : [ "rpt-sales-order" ]
+    },
+    "outcome" : "READY",
+    "reason" : null,
+    "scope" : {
+      "companyCode" : "A",
+      "allReports" : false,
+      "reportIds" : [ "rpt-sales-order" ]
+    },
+    "excludedRecords" : [ ],
+    "latencyMs" : 3925
+  }, {
+    "scenario" : "补充-数字单据与恢复",
+    "message" : "单据900000000000000001不参加派单",
+    "passed" : true,
+    "parserSource" : "MODEL",
+    "intent" : {
+      "version" : 3,
+      "action" : "PREVIEW",
+      "scopeChanges" : [ {
+        "target" : "RECORDS",
+        "operation" : "EXCLUDE",
+        "mentions" : [ "900000000000000001" ],
+        "evidence" : "单据900000000000000001不参加派单",
+        "reportMentions" : [ ],
+        "selectorKind" : "DOCUMENT",
+        "quantifier" : "ONE"
+      } ],
+      "restrictions" : [ ],
+      "reportConstraints" : [ ],
+      "unsupportedConditions" : [ ],
+      "clarify" : "NONE"
+    },
+    "expected" : {
+      "message" : "单据900000000000000001不参加派单",
+      "action" : "PREVIEW",
+      "company" : "A",
+      "outcome" : "READY",
+      "excludedIds" : [ "3" ]
+    },
+    "outcome" : "READY",
+    "reason" : null,
+    "scope" : {
+      "companyCode" : "A",
+      "allReports" : false,
+      "reportIds" : [ "rpt-sales-order" ]
+    },
+    "excludedRecords" : [ {
+      "reportId" : "rpt-sales-order",
+      "recordId" : "3"
+    } ],
+    "latencyMs" : 2843
+  }, {
+    "scenario" : "补充-数字单据与恢复",
+    "message" : "其他记录请生成待确认清单",
+    "passed" : true,
+    "parserSource" : "MODEL",
+    "intent" : {
+      "version" : 3,
+      "action" : "PREPARE_DISPATCH",
+      "scopeChanges" : [ ],
+      "restrictions" : [ ],
+      "reportConstraints" : [ ],
+      "unsupportedConditions" : [ ],
+      "clarify" : "NONE"
+    },
+    "expected" : {
+      "message" : "其他记录请生成待确认清单",
+      "action" : "PREPARE_DISPATCH",
+      "company" : "A",
+      "outcome" : "READY",
+      "excludedIds" : [ "3" ]
+    },
+    "outcome" : "READY",
+    "reason" : null,
+    "scope" : {
+      "companyCode" : "A",
+      "allReports" : false,
+      "reportIds" : [ "rpt-sales-order" ]
+    },
+    "excludedRecords" : [ {
+      "reportId" : "rpt-sales-order",
+      "recordId" : "3"
+    } ],
+    "latencyMs" : 2351
+  }, {
+    "scenario" : "补充-数字单据与恢复",
+    "message" : "把单据900000000000000001重新选回来",
+    "passed" : true,
+    "parserSource" : "MODEL",
+    "intent" : {
+      "version" : 3,
+      "action" : "PREVIEW",
+      "scopeChanges" : [ {
+        "target" : "RECORDS",
+        "operation" : "RESTORE",
+        "mentions" : [ "900000000000000001" ],
+        "evidence" : "把单据900000000000000001重新选回来",
+        "reportMentions" : [ ],
+        "selectorKind" : "DOCUMENT",
+        "quantifier" : "ONE"
+      } ],
+      "restrictions" : [ ],
+      "reportConstraints" : [ ],
+      "unsupportedConditions" : [ ],
+      "clarify" : "NONE"
+    },
+    "expected" : {
+      "message" : "把单据900000000000000001重新选回来",
+      "action" : "PREVIEW",
+      "company" : "A",
+      "outcome" : "READY",
+      "excludedIds" : [ ]
+    },
+    "outcome" : "READY",
+    "reason" : null,
+    "scope" : {
+      "companyCode" : "A",
+      "allReports" : false,
+      "reportIds" : [ "rpt-sales-order" ]
+    },
+    "excludedRecords" : [ ],
+    "latencyMs" : 2649
+  }, {
+    "scenario" : "补充-数字单据与恢复",
+    "message" : "SO2026001和SO2026002都先排除",
+    "passed" : true,
+    "parserSource" : "MODEL",
+    "intent" : {
+      "version" : 3,
+      "action" : "PREVIEW",
+      "scopeChanges" : [ {
+        "target" : "RECORDS",
+        "operation" : "EXCLUDE",
+        "mentions" : [ "SO2026001", "SO2026002" ],
+        "evidence" : "SO2026001和SO2026002都先排除",
+        "reportMentions" : [ ],
+        "selectorKind" : "DOCUMENT",
+        "quantifier" : "ALL"
+      } ],
+      "restrictions" : [ ],
+      "reportConstraints" : [ ],
+      "unsupportedConditions" : [ ],
+      "clarify" : "NONE"
+    },
+    "expected" : {
+      "message" : "SO2026001和SO2026002都先排除",
+      "action" : "PREVIEW",
+      "company" : "A",
+      "outcome" : "READY",
+      "excludedIds" : [ "1", "2" ]
+    },
+    "outcome" : "READY",
+    "reason" : null,
+    "scope" : {
+      "companyCode" : "A",
+      "allReports" : false,
+      "reportIds" : [ "rpt-sales-order" ]
+    },
+    "excludedRecords" : [ {
+      "reportId" : "rpt-sales-order",
+      "recordId" : "1"
+    }, {
+      "reportId" : "rpt-sales-order",
+      "recordId" : "2"
+    } ],
+    "latencyMs" : 2371
+  }, {
+    "scenario" : "补充-数字单据与恢复",
+    "message" : "取消所有记录排除，重新全选",
+    "passed" : true,
+    "parserSource" : "MODEL",
+    "intent" : {
+      "version" : 3,
+      "action" : "PREVIEW",
+      "scopeChanges" : [ {
+        "target" : "RECORDS",
+        "operation" : "RESTORE_ALL",
+        "mentions" : [ ],
+        "evidence" : "取消所有记录排除，重新全选",
+        "reportMentions" : [ ],
+        "selectorKind" : "NONE",
+        "quantifier" : "UNSPECIFIED"
+      } ],
+      "restrictions" : [ ],
+      "reportConstraints" : [ ],
+      "unsupportedConditions" : [ ],
+      "clarify" : "NONE"
+    },
+    "expected" : {
+      "message" : "取消所有记录排除，重新全选",
+      "action" : "PREVIEW",
+      "company" : "A",
+      "outcome" : "READY",
+      "excludedIds" : [ ]
+    },
+    "outcome" : "READY",
+    "reason" : null,
+    "scope" : {
+      "companyCode" : "A",
+      "allReports" : false,
+      "reportIds" : [ "rpt-sales-order" ]
+    },
+    "excludedRecords" : [ ],
+    "latencyMs" : 2565
+  }, {
+    "scenario" : "补充-不支持条件必须澄清",
+    "message" : "查询销售报表中金额超过3000元的记录",
+    "passed" : false,
+    "error" : "InvalidOutput",
+    "invalidOutput" : "{\n  \"version\": 3,\n  \"action\": \"CLARIFY\",\n  \"scopeChanges\": [\n    {\n      \"target\": \"REPORTS\",\n      \"operation\": \"REPLACE\",\n      \"mentions\": [\n        \"销售报表\"\n      ],\n      \"evidence\": \"查询销售报表中金额超过3000元的记录\",\n      \"reportMentions\": [],\n      \"selectorKind\": \"NONE\",\n      \"quantifier\": \"UNSPECIFIED\"\n    }\n  ],\n  \"restrictions\": [],\n  \"clarify\": \"ACTION\",\n  \"reportConstraints\": [\n    {\n      \"mention\": \"销售报表\",\n      \"role\": \"INCLUDED\",\n      \"evidence\": \"查询销售报表中金额超过3000元的记录\"\n    }\n  ],\n  \"unsupportedConditions\": [\n    \"金额超过3000元\"\n  ]\n}",
+    "latencyMs" : 4419
+  }, {
+    "scenario" : "补充-不支持条件必须澄清",
+    "message" : "明确查询A公司销售报表，不附加其他条件",
+    "passed" : true,
+    "parserSource" : "MODEL",
+    "intent" : {
+      "version" : 3,
+      "action" : "PREVIEW",
+      "scopeChanges" : [ {
+        "target" : "COMPANY",
+        "operation" : "REPLACE",
+        "mentions" : [ "A公司" ],
+        "evidence" : "明确查询A公司销售报表，不附加其他条件",
+        "reportMentions" : [ ],
+        "selectorKind" : "NONE",
+        "quantifier" : "UNSPECIFIED"
+      }, {
+        "target" : "REPORTS",
+        "operation" : "REPLACE",
+        "mentions" : [ "销售报表" ],
+        "evidence" : "明确查询A公司销售报表，不附加其他条件",
+        "reportMentions" : [ ],
+        "selectorKind" : "NONE",
+        "quantifier" : "UNSPECIFIED"
+      } ],
+      "restrictions" : [ ],
+      "reportConstraints" : [ {
+        "mention" : "销售报表",
+        "role" : "INCLUDED",
+        "evidence" : "明确查询A公司销售报表，不附加其他条件"
+      } ],
+      "unsupportedConditions" : [ ],
+      "clarify" : "NONE"
+    },
+    "expected" : {
+      "message" : "明确查询A公司销售报表，不附加其他条件",
+      "action" : "PREVIEW",
+      "company" : "A",
+      "outcome" : "READY",
+      "reportIds" : [ "rpt-sales-order" ]
+    },
+    "outcome" : "READY",
+    "reason" : null,
+    "scope" : {
+      "companyCode" : "A",
+      "allReports" : false,
+      "reportIds" : [ "rpt-sales-order" ]
+    },
+    "excludedRecords" : [ ],
+    "latencyMs" : 2665
+  }, {
+    "scenario" : "补充-不支持条件必须澄清",
+    "message" : "只查昨天的记录",
+    "passed" : true,
+    "parserSource" : "MODEL",
+    "intent" : {
+      "version" : 3,
+      "action" : "CLARIFY",
+      "scopeChanges" : [ ],
+      "restrictions" : [ ],
+      "reportConstraints" : [ ],
+      "unsupportedConditions" : [ "只查昨天的记录" ],
+      "clarify" : "ACTION"
+    },
+    "expected" : {
+      "message" : "只查昨天的记录",
+      "action" : "CLARIFY",
+      "company" : "A",
+      "outcome" : "CLARIFY"
+    },
+    "outcome" : "CLARIFY",
+    "reason" : "请明确本次操作及公司、报表范围，例如：查询 A 公司销售报表",
+    "scope" : {
+      "companyCode" : "A",
+      "allReports" : false,
+      "reportIds" : [ "rpt-sales-order" ]
+    },
+    "excludedRecords" : [ ],
+    "latencyMs" : 2740
+  }, {
+    "scenario" : "补充-不支持条件必须澄清",
+    "message" : "请同时查询A公司和B公司的销售报表",
+    "passed" : true,
+    "parserSource" : "MODEL",
+    "intent" : {
+      "version" : 3,
+      "action" : "CLARIFY",
+      "scopeChanges" : [ ],
+      "restrictions" : [ ],
+      "reportConstraints" : [ ],
+      "unsupportedConditions" : [ ],
+      "clarify" : "COMPANY"
+    },
+    "expected" : {
+      "message" : "请同时查询A公司和B公司的销售报表",
+      "action" : "CLARIFY",
+      "company" : "A",
+      "outcome" : "CLARIFY"
+    },
+    "outcome" : "CLARIFY",
+    "reason" : "请明确要查询的一家公司，或说明查询全部可见公司",
+    "scope" : {
+      "companyCode" : "A",
+      "allReports" : false,
+      "reportIds" : [ "rpt-sales-order" ]
+    },
+    "excludedRecords" : [ ],
+    "latencyMs" : 1829
+  }, {
+    "scenario" : "补充-未定义实体与帮助",
+    "message" : "看看工资核算报表",
+    "passed" : false,
+    "parserSource" : "MODEL",
+    "intent" : {
+      "version" : 3,
+      "action" : "CLARIFY",
+      "scopeChanges" : [ ],
+      "restrictions" : [ ],
+      "reportConstraints" : [ ],
+      "unsupportedConditions" : [ ],
+      "clarify" : "REPORTS"
+    },
+    "expected" : {
+      "message" : "看看工资核算报表",
+      "action" : "PREVIEW",
+      "company" : null,
+      "outcome" : "CLARIFY"
+    },
+    "outcome" : "CLARIFY",
+    "reason" : "请说明要查询的完整报表名称",
+    "scope" : {
+      "companyCode" : null,
+      "allReports" : true,
+      "reportIds" : [ ]
+    },
+    "excludedRecords" : [ ],
+    "latencyMs" : 2202
+  }, {
+    "scenario" : "补充-未定义实体与帮助",
+    "message" : "你能处理哪些操作？",
+    "passed" : true,
+    "parserSource" : "MODEL",
+    "intent" : {
+      "version" : 3,
+      "action" : "HELP",
+      "scopeChanges" : [ ],
+      "restrictions" : [ ],
+      "reportConstraints" : [ ],
+      "unsupportedConditions" : [ ],
+      "clarify" : "NONE"
+    },
+    "expected" : {
+      "message" : "你能处理哪些操作？",
+      "action" : "HELP",
+      "company" : null,
+      "outcome" : "READY"
+    },
+    "outcome" : "READY",
+    "reason" : "请说明要查询的完整报表名称",
+    "scope" : {
+      "companyCode" : null,
+      "allReports" : true,
+      "reportIds" : [ ]
+    },
+    "excludedRecords" : [ ],
+    "latencyMs" : 2069
+  }, {
+    "scenario" : "补充-未定义实体与帮助",
+    "message" : "改查A公司的应收报表",
+    "passed" : true,
+    "parserSource" : "MODEL",
+    "intent" : {
+      "version" : 3,
+      "action" : "PREVIEW",
+      "scopeChanges" : [ {
+        "target" : "COMPANY",
+        "operation" : "REPLACE",
+        "mentions" : [ "A公司" ],
+        "evidence" : "改查A公司的应收报表",
+        "reportMentions" : [ ],
+        "selectorKind" : "NONE",
+        "quantifier" : "UNSPECIFIED"
+      }, {
+        "target" : "REPORTS",
+        "operation" : "REPLACE",
+        "mentions" : [ "应收报表" ],
+        "evidence" : "改查A公司的应收报表",
+        "reportMentions" : [ ],
+        "selectorKind" : "NONE",
+        "quantifier" : "UNSPECIFIED"
+      } ],
+      "restrictions" : [ ],
+      "reportConstraints" : [ {
+        "mention" : "应收报表",
+        "role" : "INCLUDED",
+        "evidence" : "改查A公司的应收报表"
+      } ],
+      "unsupportedConditions" : [ ],
+      "clarify" : "NONE"
+    },
+    "expected" : {
+      "message" : "改查A公司的应收报表",
+      "action" : "PREVIEW",
+      "company" : "A",
+      "outcome" : "READY",
+      "reportIds" : [ "rpt-ar-invoice" ]
+    },
+    "outcome" : "READY",
+    "reason" : "请说明要查询的完整报表名称",
+    "scope" : {
+      "companyCode" : "A",
+      "allReports" : false,
+      "reportIds" : [ "rpt-ar-invoice" ]
+    },
+    "excludedRecords" : [ ],
+    "latencyMs" : 2719
+  }, {
+    "scenario" : "补充-未定义实体与帮助",
+    "message" : "解释一下当前派单规则",
+    "passed" : true,
+    "parserSource" : "MODEL",
+    "intent" : {
+      "version" : 3,
+      "action" : "EXPLAIN_RULES",
+      "scopeChanges" : [ ],
+      "restrictions" : [ ],
+      "reportConstraints" : [ ],
+      "unsupportedConditions" : [ ],
+      "clarify" : "NONE"
+    },
+    "expected" : {
+      "message" : "解释一下当前派单规则",
+      "action" : "EXPLAIN_RULES",
+      "company" : "A",
+      "outcome" : "READY",
+      "reportIds" : [ "rpt-ar-invoice" ]
+    },
+    "outcome" : "READY",
+    "reason" : "请说明要查询的完整报表名称",
+    "scope" : {
+      "companyCode" : "A",
+      "allReports" : false,
+      "reportIds" : [ "rpt-ar-invoice" ]
+    },
+    "excludedRecords" : [ ],
+    "latencyMs" : 3417
+  }, {
+    "scenario" : "截图追问仅排除应收记录并保留其他报表",
+    "message" : "查一下我有哪些可以派单",
+    "passed" : true,
+    "parserSource" : "MODEL",
+    "intent" : {
+      "version" : 3,
+      "action" : "PREVIEW",
+      "scopeChanges" : [ ],
+      "restrictions" : [ ],
+      "reportConstraints" : [ ],
+      "unsupportedConditions" : [ ],
+      "clarify" : "NONE"
+    },
+    "expected" : {
+      "message" : "查一下我有哪些可以派单",
+      "action" : "PREVIEW",
+      "company" : null,
+      "outcome" : "READY",
+      "allReports" : true,
+      "reportIds" : [ ],
+      "excludedIds" : [ ]
+    },
+    "outcome" : "READY",
+    "reason" : null,
+    "scope" : {
+      "companyCode" : null,
+      "allReports" : true,
+      "reportIds" : [ ]
+    },
+    "excludedRecords" : [ ],
+    "latencyMs" : 2262
+  }, {
+    "scenario" : "截图追问仅排除应收记录并保留其他报表",
+    "message" : "应收报表不要天津某某贸易有限公司的",
+    "passed" : false,
+    "error" : "InvalidOutput",
+    "invalidOutput" : "{\n  \"version\": 3,\n  \"action\": \"PREVIEW\",\n  \"scopeChanges\": [],\n  \"restrictions\": [],\n  \"clarify\": \"NONE\",\n  \"reportConstraints\": [\n    {\n      \"mention\": \"应收报表\",\n      \"role\": \"RECORD_SCOPE\",\n      \"evidence\": \"应收报表不要天津某某贸易有限公司的\"\n    }\n  ],\n  \"unsupportedConditions\": []\n}",
+    "latencyMs" : 4976
+  }, {
+    "scenario" : "截图追问仅排除应收记录并保留其他报表",
+    "message" : "剩下的帮我派单吧",
+    "passed" : false,
+    "parserSource" : "MODEL",
+    "intent" : {
+      "version" : 3,
+      "action" : "PREPARE_DISPATCH",
+      "scopeChanges" : [ ],
+      "restrictions" : [ ],
+      "reportConstraints" : [ ],
+      "unsupportedConditions" : [ ],
+      "clarify" : "NONE"
+    },
+    "expected" : {
+      "message" : "剩下的帮我派单吧",
+      "action" : "PREPARE_DISPATCH",
+      "company" : null,
+      "outcome" : "READY",
+      "allReports" : true,
+      "reportIds" : [ ],
+      "excludedIds" : [ "7" ]
+    },
+    "outcome" : "CLARIFY",
+    "reason" : "公司范围尚未确定，请明确一家公司或说明查询全部可见公司",
+    "scope" : {
+      "companyCode" : null,
+      "allReports" : true,
+      "reportIds" : [ ]
+    },
+    "excludedRecords" : [ ],
+    "latencyMs" : 4293
+  }, {
+    "scenario" : "截图追问仅排除应收记录并保留其他报表",
+    "message" : "恢复应收报表的天津某某贸易有限公司那条",
+    "passed" : false,
+    "parserSource" : "MODEL",
+    "intent" : {
+      "version" : 3,
+      "action" : "PREVIEW",
+      "scopeChanges" : [ {
+        "target" : "REPORTS",
+        "operation" : "REPLACE",
+        "mentions" : [ "应收报表" ],
+        "evidence" : "恢复应收报表的天津某某贸易有限公司那条",
+        "reportMentions" : [ ],
+        "selectorKind" : "NONE",
+        "quantifier" : "UNSPECIFIED"
+      }, {
+        "target" : "RECORDS",
+        "operation" : "RESTORE",
+        "mentions" : [ "天津某某贸易有限公司" ],
+        "evidence" : "恢复应收报表的天津某某贸易有限公司那条",
+        "reportMentions" : [ "应收报表" ],
+        "selectorKind" : "COUNTERPARTY",
+        "quantifier" : "ONE"
+      } ],
+      "restrictions" : [ ],
+      "reportConstraints" : [ {
+        "mention" : "应收报表",
+        "role" : "RECORD_SCOPE",
+        "evidence" : "恢复应收报表的天津某某贸易有限公司那条"
+      } ],
+      "unsupportedConditions" : [ ],
+      "clarify" : "NONE"
+    },
+    "expected" : {
+      "message" : "恢复应收报表的天津某某贸易有限公司那条",
+      "action" : "PREVIEW",
+      "company" : null,
+      "outcome" : "READY",
+      "allReports" : true,
+      "reportIds" : [ ],
+      "excludedIds" : [ ],
+      "reportsOperation" : "KEEP",
+      "exclusionsOperation" : "REMOVE"
+    },
+    "outcome" : "CLARIFY",
+    "reason" : "公司范围尚未确定，请明确一家公司或说明查询全部可见公司",
+    "scope" : {
+      "companyCode" : null,
+      "allReports" : false,
+      "reportIds" : [ "rpt-ar-invoice" ]
+    },
+    "excludedRecords" : [ ],
+    "latencyMs" : 2669
+  }, {
+    "scenario" : "明确只查应收仍须同时排除客户",
+    "message" : "查一下我有哪些可以派单",
+    "passed" : true,
+    "parserSource" : "MODEL",
+    "intent" : {
+      "version" : 3,
+      "action" : "PREVIEW",
+      "scopeChanges" : [ ],
+      "restrictions" : [ ],
+      "reportConstraints" : [ ],
+      "unsupportedConditions" : [ ],
+      "clarify" : "NONE"
+    },
+    "expected" : {
+      "message" : "查一下我有哪些可以派单",
+      "action" : "PREVIEW",
+      "company" : null,
+      "outcome" : "READY",
+      "allReports" : true,
+      "reportIds" : [ ]
+    },
+    "outcome" : "READY",
+    "reason" : null,
+    "scope" : {
+      "companyCode" : null,
+      "allReports" : true,
+      "reportIds" : [ ]
+    },
+    "excludedRecords" : [ ],
+    "latencyMs" : 2123
+  }, {
+    "scenario" : "明确只查应收仍须同时排除客户",
+    "message" : "只查应收报表，不要天津某某贸易有限公司的",
+    "passed" : false,
+    "error" : "InvalidOutput",
+    "invalidOutput" : "{\n  \"version\": 3,\n  \"action\": \"PREVIEW\",\n  \"scopeChanges\": [\n    {\n      \"target\": \"REPORTS\",\n      \"operation\": \"REPLACE\",\n      \"mentions\": [\"应收报表\"],\n      \"evidence\": \"只查应收报表\",\n      \"reportMentions\": [],\n      \"selectorKind\": \"NONE\",\n      \"quantifier\": \"UNSPECIFIED\"\n    },\n    {\n      \"target\": \"RECORDS\",\n      \"operation\": \"EXCLUDE\",\n      \"mentions\": [\"天津某某贸易有限公司\"],\n      \"evidence\": \"不要天津某某贸易有限公司的\",\n      \"reportMentions\": [\"应收报表\"],\n      \"selectorKind\": \"COUNTERPARTY\",\n      \"quantifier\": \"ALL\"\n    }\n  ],\n  \"restrictions\": [],\n  \"clarify\": \"NONE\",\n  \"reportConstraints\": [\n    {\n      \"mention\": \"应收报表\",\n      \"role\": \"INCLUDED\",\n      \"evidence\": \"只查应收报表\"\n    }\n  ],\n  \"unsupportedConditions\": []\n}",
+    "latencyMs" : 4938
+  }, {
+    "scenario" : "不同记录描述与报表范围排除的边界",
+    "message" : "查一下我有哪些可以派单",
+    "passed" : true,
+    "parserSource" : "MODEL",
+    "intent" : {
+      "version" : 3,
+      "action" : "PREVIEW",
+      "scopeChanges" : [ ],
+      "restrictions" : [ ],
+      "reportConstraints" : [ ],
+      "unsupportedConditions" : [ ],
+      "clarify" : "NONE"
+    },
+    "expected" : {
+      "message" : "查一下我有哪些可以派单",
+      "action" : "PREVIEW",
+      "company" : null,
+      "outcome" : "READY",
+      "allReports" : true,
+      "reportIds" : [ ]
+    },
+    "outcome" : "READY",
+    "reason" : null,
+    "scope" : {
+      "companyCode" : null,
+      "allReports" : true,
+      "reportIds" : [ ]
+    },
+    "excludedRecords" : [ ],
+    "latencyMs" : 3112
+  }, {
+    "scenario" : "不同记录描述与报表范围排除的边界",
+    "message" : "应收报表里北京某某咨询有限公司那条先不派",
+    "passed" : true,
+    "parserSource" : "MODEL",
+    "intent" : {
+      "version" : 3,
+      "action" : "PREVIEW",
+      "scopeChanges" : [ {
+        "target" : "RECORDS",
+        "operation" : "EXCLUDE",
+        "mentions" : [ "北京某某咨询有限公司" ],
+        "evidence" : "应收报表里北京某某咨询有限公司那条先不派",
+        "reportMentions" : [ "应收报表" ],
+        "selectorKind" : "COUNTERPARTY",
+        "quantifier" : "ONE"
+      } ],
+      "restrictions" : [ ],
+      "reportConstraints" : [ {
+        "mention" : "应收报表",
+        "role" : "RECORD_SCOPE",
+        "evidence" : "应收报表里北京某某咨询有限公司那条先不派"
+      } ],
+      "unsupportedConditions" : [ ],
+      "clarify" : "NONE"
+    },
+    "expected" : {
+      "message" : "应收报表里北京某某咨询有限公司那条先不派",
+      "action" : "PREVIEW",
+      "company" : null,
+      "outcome" : "READY",
+      "allReports" : true,
+      "reportIds" : [ ],
+      "excludedIds" : [ "8" ],
+      "reportsOperation" : "KEEP",
+      "exclusionsOperation" : "ADD"
+    },
+    "outcome" : "READY",
+    "reason" : null,
+    "scope" : {
+      "companyCode" : null,
+      "allReports" : true,
+      "reportIds" : [ ]
+    },
+    "excludedRecords" : [ {
+      "reportId" : "rpt-ar-invoice",
+      "recordId" : "8"
+    } ],
+    "latencyMs" : 2677
+  }, {
+    "scenario" : "不同记录描述与报表范围排除的边界",
+    "message" : "恢复所有记录",
+    "passed" : true,
+    "parserSource" : "MODEL",
+    "intent" : {
+      "version" : 3,
+      "action" : "PREVIEW",
+      "scopeChanges" : [ {
+        "target" : "RECORDS",
+        "operation" : "RESTORE_ALL",
+        "mentions" : [ ],
+        "evidence" : "恢复所有记录",
+        "reportMentions" : [ ],
+        "selectorKind" : "NONE",
+        "quantifier" : "UNSPECIFIED"
+      } ],
+      "restrictions" : [ ],
+      "reportConstraints" : [ ],
+      "unsupportedConditions" : [ ],
+      "clarify" : "NONE"
+    },
+    "expected" : {
+      "message" : "恢复所有记录",
+      "action" : "PREVIEW",
+      "company" : null,
+      "outcome" : "READY",
+      "allReports" : true,
+      "reportIds" : [ ],
+      "excludedIds" : [ ],
+      "exclusionsOperation" : "CLEAR"
+    },
+    "outcome" : "READY",
+    "reason" : null,
+    "scope" : {
+      "companyCode" : null,
+      "allReports" : true,
+      "reportIds" : [ ]
+    },
+    "excludedRecords" : [ ],
+    "latencyMs" : 2678
+  }, {
+    "scenario" : "不同记录描述与报表范围排除的边界",
+    "message" : "不要应收报表",
+    "passed" : true,
+    "parserSource" : "MODEL",
+    "intent" : {
+      "version" : 3,
+      "action" : "PREVIEW",
+      "scopeChanges" : [ {
+        "target" : "REPORTS",
+        "operation" : "REMOVE",
+        "mentions" : [ "应收报表" ],
+        "evidence" : "不要应收报表",
+        "reportMentions" : [ ],
+        "selectorKind" : "NONE",
+        "quantifier" : "UNSPECIFIED"
+      } ],
+      "restrictions" : [ ],
+      "reportConstraints" : [ {
+        "mention" : "应收报表",
+        "role" : "EXCLUDED",
+        "evidence" : "不要应收报表"
+      } ],
+      "unsupportedConditions" : [ ],
+      "clarify" : "NONE"
+    },
+    "expected" : {
+      "message" : "不要应收报表",
+      "action" : "PREVIEW",
+      "company" : null,
+      "outcome" : "READY",
+      "allReports" : false,
+      "reportIds" : [ "rpt-sales-order", "rpt-expense-claim" ],
+      "reportsOperation" : "REMOVE",
+      "excludedIds" : [ ]
+    },
+    "outcome" : "READY",
+    "reason" : null,
+    "scope" : {
+      "companyCode" : null,
+      "allReports" : false,
+      "reportIds" : [ "rpt-sales-order", "rpt-expense-claim" ]
+    },
+    "excludedRecords" : [ ],
+    "latencyMs" : 2555
+  } ],
+  "thinkingEnabled" : false,
+  "wrongReadyCount" : 1,
+  "clarificationCount" : 13,
+  "scope" : "regression corpus, synthetic facts",
+  "modelCalls" : 95,
+  "formatRepairs" : 10,
+  "promptSha256" : "f170ab0b47c4ac101e3ddf984cefdaa4858764acdf23da729a660d6d8b73529e"
+}

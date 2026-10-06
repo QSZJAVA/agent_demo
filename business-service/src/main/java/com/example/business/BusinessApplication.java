@@ -13,7 +13,7 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 /** Independent business process. Does not scan Agent, conversations, or mock dispatch components. */
 @SpringBootApplication
 @EnableScheduling
-@Import({MybatisPlusConfig.class,QueryAdapterFactory.class,ReportService.class,RuleEngine.class,IdentityStore.class,DemoDataResetCallback.class})
+@Import({MybatisPlusConfig.class,QueryAdapterFactory.class,ReportService.class,RuleEngine.class,IdentityStore.class})
 public class BusinessApplication {
     public static void main(String[] args) { SpringApplication.run(BusinessApplication.class,args); }
 }

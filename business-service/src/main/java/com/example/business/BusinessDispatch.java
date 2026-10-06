@@ -62,9 +62,11 @@ public class BusinessDispatch {
                 DispatchRule active=enforceRules?activeRule(user,reportId,record.companyCode()):null;
                 boolean success=writer.markDispatchedGuarded(user.tenantId(),record.recordId(),record.companyCode(),LocalDateTime.now(),row ->
                         user.companies().contains(row.companyCode()) && Objects.equals(row.companyCode(),record.companyCode())
+                        // 行锁内逐字段核对已确认事实；即使仍命中业务规则，字段变化也不能沿用旧确认。
+                        && ConfirmedRecord.matches(record,row,report.fields())
                         && (!enforceRules || (active!=null && Objects.equals(active.getId(),record.ruleId())
                         && Objects.equals(active.getVersion(),record.ruleVersion()) && engine.matches(active.getExpression(),row.facts()))));
-                outcome=success?Outcome.ok():Outcome.fail("RECORD_CHANGED","记录、规则版本或待派单状态已变化");
+                outcome=success?Outcome.ok():Outcome.fail("RECORD_CHANGED","确认后的业务字段、规则或待派单状态已变化，请重新查询并确认");
             }
         } catch(ApiException e) { outcome=Outcome.fail("NOT_AUTHORIZED", "报表不存在、已停用或权限已变更"); }
         jdbc.update("UPDATE business_dispatch_request SET status=?,error_code=?,message=?,updated_at=NOW() WHERE tenant_id=? AND request_id=?",
@@ -87,11 +89,17 @@ public class BusinessDispatch {
                 +"JOIN dispatch_preview v ON v.id=p.preview_id WHERE i.plan_id=? AND i.external_request_id=?",planId,requestId);
         if(!"UNKNOWN".equals(item.get("status")) || !Objects.equals(item.get("report_id"),record.reportId())
                 || !Objects.equals(item.get("record_id"),record.recordId()) || !Objects.equals(item.get("company_code"),record.companyCode())
+                // 金额/日期映射可以不在fields列表中，顶层事实也必须先绑定持久清单，不能只相信传入值。
+                || !amountEquals((java.math.BigDecimal)item.get("amount"),record.amount())
+                || !Objects.equals(Objects.toString(item.get("biz_date"),null),Objects.toString(record.date(),null))
+                || !Objects.equals(CounterpartyRef.fromSnapshot(Objects.toString(item.get("counterparty_json"),null)),record.counterparty())
+                || !Objects.equals(com.example.report.rule.FieldFact.restore(Objects.toString(item.get("fields_json"),null)),record.fields())
                 || !numberEquals(item.get("catalog_version"),record.catalogVersion())
                 || !numberEquals(item.get("rule_id"),record.ruleId()) || !numberEquals(item.get("rule_version"),record.ruleVersion())
                 || rulesRequired=="manual".equals(item.get("preview_source"))) throw ApiException.forbidden("派单内容与确认清单不一致");
     }
     private boolean numberEquals(Object a,Number b) {return a==null?b==null:b!=null && ((Number)a).longValue()==b.longValue();}
+    private static boolean amountEquals(java.math.BigDecimal a,java.math.BigDecimal b) {return a==null?b==null:b!=null && a.compareTo(b)==0;}
     private DispatchRule activeRule(CurrentUser user,String reportId,String company) {
         LocalDateTime now=LocalDateTime.now();
         return rules.publishedReportForUpdate(user.tenantId(),reportId).stream()

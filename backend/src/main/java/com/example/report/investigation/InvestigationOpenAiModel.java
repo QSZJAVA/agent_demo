@@ -47,7 +47,7 @@ public class InvestigationOpenAiModel implements InvestigationModel {
                     .internalToolExecutionEnabled(false).toolCallbacks(tools).toolNames(Set.of())
                     .extraBody(Map.of("thinking",Map.of("type",props.isThinkingEnabled()?"enabled":"disabled")));
             if(report && props.isNativeSchema()) options.outputSchema(InvestigationReportValidator.schema());
-            var response=model.call(new Prompt(messages,options.build()));
+            var response=model.call(new Prompt(com.example.report.operations.ModelEgressPolicy.messages(messages),options.build()));
             if(response==null || response.getResult()==null) throw new InvestigationFailure("MODEL_UNAVAILABLE","真实模型未返回有效响应");
             var usage=new LinkedHashMap<String,Object>();
             var met=response.getMetadata().getUsage();
@@ -98,8 +98,9 @@ public class InvestigationOpenAiModel implements InvestigationModel {
         var prices=new LinkedHashMap<String,Object>();prices.put("inputPerMillion",props.getInputPricePerMillion());prices.put("cachedInputPerMillion",props.getCachedInputPricePerMillion());prices.put("outputPerMillion",props.getOutputPricePerMillion());prices.put("currency",props.getCurrency());
         config.put("prices",prices);config.put("priceConfigHash",Digests.sha256(com.example.report.common.JsonUtil.toJson(prices)));
         config.put("toolSchemaHash",Digests.sha256(InvestigationTools.schemaJson()));config.put("reportSchemaHash",Digests.sha256(InvestigationReportValidator.schema()));
+        config.put("contextVersion",InvestigationContext.VERSION);
         var budgets=new LinkedHashMap<String,Object>();budgets.put("maxItems",props.getMaxItems());budgets.put("maxModelCalls",props.getMaxModelCalls());budgets.put("maxCollectionCalls",props.getMaxCollectionCalls());budgets.put("maxToolCalls",props.getMaxToolCalls());budgets.put("maxMcpCalls",props.getMaxMcpCalls());
-        budgets.put("maxOutputTokens",props.getMaxOutputTokens());budgets.put("maxReportOutputTokens",props.getMaxReportOutputTokens());budgets.put("maxInputUtf8Bytes",props.getMaxInputUtf8Bytes());budgets.put("maxToolResultUtf8Bytes",props.getMaxToolResultUtf8Bytes());
+        budgets.put("maxOutputTokens",props.getMaxOutputTokens());budgets.put("maxReportOutputTokens",props.getMaxReportOutputTokens());budgets.put("maxInputUtf8Bytes",props.getMaxInputUtf8Bytes());budgets.put("contextTargetUtf8Bytes",props.getContextTargetUtf8Bytes());budgets.put("maxToolResultUtf8Bytes",props.getMaxToolResultUtf8Bytes());
         budgets.put("runTimeoutSeconds",props.getRunTimeoutSeconds());budgets.put("modelTimeoutSeconds",props.getModelTimeoutSeconds());budgets.put("mcpTimeoutSeconds",props.getMcpTimeoutSeconds());budgets.put("queueTimeoutSeconds",props.getQueueTimeoutSeconds());config.put("budgets",budgets);return config;
     }
     /** 仅计量和配置均充分时计算费用；缓存口径未知且价格不同，费用保持null。 */

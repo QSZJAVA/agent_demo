@@ -49,7 +49,6 @@ public class MybatisPlanRepository implements PlanRepository {
     @Override
     @Transactional
     public void insert(DispatchPlan plan, List<DispatchPlanItem> items) {
-        plan.setEvidenceVersion(1);
         java.util.Map<String, String> snapshots = new java.util.HashMap<>();
         items.forEach(item -> item.setRuleSnapshot(snapshots.computeIfAbsent(
                 item.getReportId() + ":" + item.getRuleId() + ":" + item.getRuleVersion(), key -> rules.capture(plan.getTenantId(), item))));

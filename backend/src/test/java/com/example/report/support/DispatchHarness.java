@@ -72,22 +72,17 @@ public final class DispatchHarness {
                             .filter(c -> ids.getOrDefault(c.reportId(), List.of()).contains(c.recordId()))
                             .map(Candidate::key).collect(java.util.stream.Collectors.toSet());
                 });
-        when(candidates.findCandidates(anyString(), anySet(), anyList(), org.mockito.ArgumentMatchers.anyInt(), anyList()))
-                .thenAnswer(inv -> {
-                    List<Candidate> all = candidates.findCandidates(inv.getArgument(0), inv.getArgument(1), inv.getArgument(2));
-                    return com.example.report.dispatch.PreviewService.applyExcludes(all, inv.getArgument(4)).stream()
-                            .limit((Integer) inv.getArgument(3)).toList();
-                });
-        when(candidates.findCandidates(anyString(), anySet(), anyList(), org.mockito.ArgumentMatchers.anyInt(), anyList(),
-                org.mockito.ArgumentMatchers.any(java.util.function.IntConsumer.class)))
-                .thenAnswer(inv -> candidates.findCandidates(inv.getArgument(0), inv.getArgument(1), inv.getArgument(2),
-                        inv.getArgument(3), inv.getArgument(4)));
+        when(candidates.findCandidates(anyString(), anySet(), anyList(), org.mockito.ArgumentMatchers.anyInt(),
+                org.mockito.ArgumentMatchers.any(java.util.function.IntConsumer.class))).thenAnswer(inv -> {
+            List<Candidate> all = candidates.findCandidates(inv.getArgument(0), inv.getArgument(1), inv.getArgument(2));
+            return all.stream().limit((Integer) inv.getArgument(3)).toList();
+        });
         doAnswer(inv -> {
             List<Candidate> all = candidates.findCandidates(inv.getArgument(0), inv.getArgument(1), inv.getArgument(2));
-            java.util.function.Consumer<Candidate> sink = inv.getArgument(5);
-            PreviewService.applyExcludes(all, inv.getArgument(3)).forEach(sink);
+            java.util.function.Consumer<Candidate> sink = inv.getArgument(4);
+            all.forEach(sink);
             return null;
-        }).when(candidates).scanCandidates(anyString(), anySet(), anyList(), anyList(),
+        }).when(candidates).scanCandidates(anyString(), anySet(), anyList(),
                 org.mockito.ArgumentMatchers.any(java.util.function.IntConsumer.class),
                 org.mockito.ArgumentMatchers.any(java.util.function.Consumer.class));
     }

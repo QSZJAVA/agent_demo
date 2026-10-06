@@ -13,7 +13,7 @@ import java.nio.file.*;
 import java.util.*;
 import static org.junit.jupiter.api.Assertions.*;
 
-/** Opt-in V2 model acceptance. Synthetic data only: no database, no dispatch gateway. */
+/** 显式启用的真实模型语义回放，使用合成记录校验范围与选择；不代表数据库、HTTP MCP或浏览器验收。 */
 @EnabledIfEnvironmentVariable(named="SEMANTIC_LIVE_EVAL",matches="true")
 class SemanticLiveEvaluationTest {
     @Test void multiTurnAcceptanceReplay() throws Exception {
@@ -29,15 +29,18 @@ class SemanticLiveEvaluationTest {
         var modelParser=new ModelIntentParser(chat,new IntentCodec(),props);
         var parser=new SemanticIntentParser(modelParser);
         String chosen=System.getenv("SEMANTIC_EVAL_CORPUS");
-        var corpora=chosen==null || chosen.isBlank()?List.of("replay-corpus.json","business-corpus-v2.json")
-                : "all".equals(chosen)?List.of("replay-corpus.json","business-corpus-v2.json","business-additional-corpus.json"):List.of(chosen);
-        assertTrue(corpora.stream().allMatch(Set.of("replay-corpus.json","business-corpus-v2.json","business-additional-corpus.json")::contains));
+        var corpora=chosen==null || chosen.isBlank()?List.of("replay-corpus.json","business-corpus-v2.json","record-scope-corpus.json")
+                : "all".equals(chosen)?List.of("replay-corpus.json","business-corpus-v2.json","business-additional-corpus.json","record-scope-corpus.json"):List.of(chosen);
+        assertTrue(corpora.stream().allMatch(Set.of("replay-corpus.json","business-corpus-v2.json","business-additional-corpus.json","record-scope-corpus.json","generalization-holdout.json","generalization-reserve.json")::contains));
         var evaluation=SemanticEvaluation.run(parser,props,corpora);
         var results=evaluation.results();
         var sources=results.stream().filter(r->r.containsKey("parserSource")).collect(java.util.stream.Collectors.groupingBy(r->r.get("parserSource").toString(),java.util.stream.Collectors.counting()));
         var output=new LinkedHashMap<String,Object>();
-        output.putAll(Map.of("protocol",2,"model",model,"nativeSchema",props.getSemantic().isNativeSchema(),"thinkingEnabled",props.getSemantic().isThinkingEnabled(),"corpora",corpora,
+        output.putAll(Map.of("protocol",1,"model",model,"nativeSchema",props.getSemantic().isNativeSchema(),"thinkingEnabled",props.getSemantic().isThinkingEnabled(),"corpora",corpora,
                 "passed",results.size()-evaluation.failed(),"total",evaluation.expectedTurns(),"parserSources",sources,"cases",results));
+        output.put("wrongReadyCount",results.stream().filter(r -> "READY".equals(r.get("outcome")) && !Boolean.TRUE.equals(r.get("passed"))).count());
+        output.put("clarificationCount",results.stream().filter(r -> "CLARIFY".equals(r.get("outcome"))).count());
+        output.put("scope",corpora.stream().anyMatch(c -> c.startsWith("generalization-"))?"held-out names and phrasing, synthetic facts, no business execution":"regression corpus, synthetic facts");
         output.put("modelCalls",modelParser.modelCalls());output.put("formatRepairs",modelParser.formatRepairs());
         output.put("promptSha256",com.example.report.common.Digests.sha256(ModelIntentParser.INSTRUCTIONS));
         Files.createDirectories(Path.of("target"));Files.writeString(Path.of("target/semantic-live-evaluation.json"),JsonUtil.MAPPER.writerWithDefaultPrettyPrinter().writeValueAsString(output));
