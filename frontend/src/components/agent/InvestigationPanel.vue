@@ -7,7 +7,7 @@
       <el-table ref="candidateTable" :data="candidates" size="mini" border max-height="220" row-key="id" @selection-change="selectItems">
         <el-table-column type="selection" width="45" :reserve-selection="true" :selectable="selectable" />
         <el-table-column prop="doc_no" label="单据" min-width="140" />
-        <el-table-column prop="status" label="状态" width="100" />
+        <el-table-column label="状态" width="120"><template slot-scope="scope"><business-label :value="scope.row.status" tag /></template></el-table-column>
         <el-table-column prop="error_message" label="异常摘要" min-width="200" show-overflow-tooltip />
       </el-table>
       <el-button v-if="candidateCursor" size="mini" :loading="loadingCandidates" @click="loadCandidates">更多异常条目</el-button>
@@ -22,10 +22,10 @@
         <el-tag>{{ statusLabel }}</el-tag> <span>{{ run.message }}</span>
         <p>本次范围：{{ (run.itemRefs || []).map(item => item.docNo || item.itemId).join('、') }}</p>
         <el-alert v-if="run.status === 'PARTIAL' || run.sourceChangedSinceRun" :title="run.sourceChangedSinceRun ? '来源已变化，以下报告描述调查时点；可重新分析当前状态。' : '调查部分完成，请关注证据不足和结束原因。'" type="warning" :closable="false" />
-        <div v-if="run.activeStep" class="progress">正在处理：{{ run.activeStep.tool_name || '模型分析' }}</div>
+        <div v-if="run.activeStep" class="progress">正在处理：<business-label :value="run.activeStep.tool_name || 'MODEL'" domain="tool" /></div>
         <el-collapse>
           <el-collapse-item title="查看查询步骤" name="steps">
-            <div v-for="step in steps" :key="step.seq" class="step">{{ step.seq }} · {{ step.tool_name || step.kind }} · {{ step.status }} · {{ step.duration_ms }} ms <span v-if="step.error_code">{{ step.error_code }}</span></div>
+            <div v-for="step in steps" :key="step.seq" class="step">{{ step.seq }} · <business-label :value="step.tool_name || step.kind" domain="tool" /> · <business-label :value="step.status" /> · {{ step.duration_ms }} 毫秒 <span v-if="step.error_code">{{ step.error_code }}</span></div>
           </el-collapse-item>
         </el-collapse>
         <template v-if="run.report">
@@ -39,7 +39,7 @@
           </div>
           <div v-for="item in run.report.unresolved" :key="'unresolved-' + item.itemRef" class="error">待查：{{ itemLabel(item.itemRef) }} · {{ item.message }}</div>
         </template>
-        <p v-if="run.usage">模型 {{ run.usage.modelCalls }} 次 · 工具 {{ run.usage.toolCalls }} 次 · MCP {{ run.usage.mcpCalls }} 次 · 用量{{ run.usage.usageComplete ? '已记录' : '未完整提供' }}</p>
+        <p v-if="run.usage">模型 {{ run.usage.modelCalls }} 次 · 工具 {{ run.usage.toolCalls }} 次 · 业务服务查询 {{ run.usage.mcpCalls }} 次 · 用量{{ run.usage.usageComplete ? '已记录' : '未完整提供' }}</p>
       </template>
       <el-dialog title="调查证据" :visible.sync="evidenceVisible" append-to-body width="min(760px, 90vw)">
         <pre class="evidence">{{ evidenceText }}</pre>

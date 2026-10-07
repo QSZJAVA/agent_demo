@@ -29,7 +29,7 @@ const charts=[
         "kind": "agent",
         "title": "Agent REST / SSE :8080",
         "lines": [
-          "业务查询、工单、会话与待确认清单"
+          "查询、会话、派单与运营管理"
         ]
       },
       {
@@ -39,7 +39,7 @@ const charts=[
         "kind": "model",
         "title": "真实模型 · MODEL",
         "lines": [
-          "仅输出意图或调查工具提议"
+          "受控规划、工具提议与结论结构"
         ]
       },
       {
@@ -146,7 +146,7 @@ const charts=[
   },
   {
     "name": "02 派单子流程解析与校验",
-    "note": "模型不生成SQL或执行请求；脱敏草稿加汇总诊断辅助唯一一次结构修正。",
+    "note": "首次模型解析加最多两次草稿修正；格式、证据和无副作用业务预检共用修正预算。",
     "nodes": [
       {
         "id": "in",
@@ -194,9 +194,9 @@ const charts=[
         "col": 0,
         "row": 3,
         "kind": "model",
-        "title": "最多一次修正",
+        "title": "最多两次草稿修正",
         "lines": [
-          "将具体校验错误交回模型"
+          "回传拒绝草稿与校验诊断"
         ]
       },
       {
@@ -206,7 +206,7 @@ const charts=[
         "kind": "guard",
         "title": "SemanticPlanner 草稿校验",
         "lines": [
-          "覆盖、实体角色与范围一致性"
+          "报表覆盖、范围与记录定位预检"
         ]
       },
       {
@@ -246,7 +246,7 @@ const charts=[
       [
         "codec",
         "retry",
-        "首次失败"
+        "预算内"
       ],
       [
         "retry",
@@ -260,17 +260,17 @@ const charts=[
       [
         "draft",
         "retry",
-        "首次矛盾"
+        "可修正矛盾"
       ],
       [
         "codec",
         "fail",
-        "再次失败"
+        "预算耗尽"
       ],
       [
         "draft",
         "fail",
-        "业务拒绝"
+        "最终拒绝"
       ],
       [
         "draft",
@@ -318,9 +318,10 @@ const charts=[
         "col": 2,
         "row": 2,
         "kind": "agent",
-        "title": "DOCUMENT / DESCRIPTION",
+        "title": "单据 / 摘要 / 客户 / 整类",
         "lines": [
-          "或 COUNTERPARTY 稳定客户关联"
+          "DOCUMENT / DESCRIPTION",
+          "COUNTERPARTY / ALL"
         ]
       },
       {
@@ -330,7 +331,8 @@ const charts=[
         "kind": "guard",
         "title": "有界AND / OR条件求值",
         "lines": [
-          "精确十进制、ISO日期、文本和布尔"
+          "各报表按已声明字段匹配",
+          "未声明字段不当作业务空值"
         ]
       },
       {
@@ -338,9 +340,9 @@ const charts=[
         "col": 2,
         "row": 3,
         "kind": "guard",
-        "title": "唯一实体与数量校验",
+        "title": "实体、数量与整类操作校验",
         "lines": [
-          "ALL不能跨同名客户合并"
+          "多客户歧义不能用全部绕过"
         ]
       },
       {
@@ -360,7 +362,8 @@ const charts=[
         "kind": "store",
         "title": "更新复合记录键集合",
         "lines": [
-          "限定报表之外的选择保持"
+          "仅更新当前授权报表子集",
+          "只保留须有明确排他依据"
         ]
       },
       {
@@ -371,6 +374,17 @@ const charts=[
         "title": "未知字段 / 歧义 / 缺失事实",
         "lines": [
           "明确提示并保留恢复路径"
+        ]
+      },
+      {
+        "id": "reference",
+        "col": 1,
+        "row": 2,
+        "kind": "guard",
+        "title": "REFERENCE 当前预览引用",
+        "lines": [
+          "绑定预览及复合记录标识",
+          "核对本轮点名冲突与数量"
         ]
       }
     ],
@@ -414,6 +428,15 @@ const charts=[
         "complete",
         "refuse",
         "失败"
+      ],
+      [
+        "scope",
+        "reference",
+        "已有引用"
+      ],
+      [
+        "reference",
+        "complete"
       ]
     ]
   },
@@ -722,9 +745,10 @@ const charts=[
         "col": 2,
         "row": 3,
         "kind": "guard",
-        "title": "复核当前规则和执行权",
+        "title": "用户明确重试后重新复核",
         "lines": [
-          "沿用稳定请求号与冻结版本"
+          "沿用请求号与已确认快照",
+          "重新认领并冻结本次执行版本"
         ]
       },
       {
@@ -777,8 +801,8 @@ const charts=[
       ],
       [
         "lookup",
-        "retry",
-        "可确认重试"
+        "failed",
+        "明确失败"
       ],
       [
         "failed",
@@ -819,7 +843,8 @@ const charts=[
         "kind": "agent",
         "title": "有界上下文与证据索引",
         "lines": [
-          "当前授权目录、步骤与已验证证据"
+          "已取得证据与context-v2笔记",
+          "超阈值整理；按E编号回读"
         ]
       },
       {
@@ -829,7 +854,7 @@ const charts=[
         "kind": "model",
         "title": "真实模型提出只读工具请求",
         "lines": [
-          "应用控制执行循环与调用预算"
+          "收集最多6次；工具最多16次"
         ]
       },
       {
@@ -839,8 +864,8 @@ const charts=[
         "kind": "guard",
         "title": "参数与权限校验后调用",
         "lines": [
-          "六个受控只读工具 / HTTP MCP",
-          "出站消息统一脱敏，配对ID保留"
+          "六个只读工具，按需核对MCP",
+          "逐次权限/来源/执行权检查"
         ]
       },
       {
@@ -857,10 +882,22 @@ const charts=[
         "id": "report",
         "col": 1,
         "row": 6,
-        "kind": "ui",
-        "title": "证据支持的调查报告",
+        "kind": "agent",
+        "title": "无工具报告及最多一次修正",
         "lines": [
-          "覆盖不足明确说明，不触发派单"
+          "模型给结构化结论与证据引用",
+          "程序核验事实并生成说明文本"
+        ]
+      },
+      {
+        "id": "display",
+        "col": 1,
+        "row": 7,
+        "kind": "ui",
+        "title": "报告与中文步骤展示",
+        "lines": [
+          "部分完成、来源变化明确提示",
+          "取消或失租不回写，不自动重放"
         ]
       }
     ],
@@ -894,12 +931,16 @@ const charts=[
         "facts",
         "report",
         "结束或预算边界"
+      ],
+      [
+        "report",
+        "display"
       ]
     ]
   },
   {
     "name": "08 最终演示与验收路径",
-    "note": "固定功能基线与真实证据范围；最终演示版不等于生产验收。",
+    "note": "九条路径仅适用于授权准备的完整未派单基线；使用中的库以当前事实为准，不能直接套用数量。",
     "nodes": [
       {
         "id": "manifest",
@@ -929,7 +970,8 @@ const charts=[
         "kind": "guard",
         "title": "prepare-demo 一次准备",
         "lines": [
-          "核实专用库、幂等补充数据及账号"
+          "report_demo；数据操作须授权",
+          "不清库，不复位已派单记录"
         ]
       },
       {
@@ -937,7 +979,7 @@ const charts=[
         "col": 1,
         "row": 3,
         "kind": "ui",
-        "title": "授权A公司查询九条记录",
+        "title": "未派单基线下A公司九条",
         "lines": [
           "销售3、应收4、费用2"
         ]
@@ -967,9 +1009,10 @@ const charts=[
         "col": 1,
         "row": 6,
         "kind": "guard",
-        "title": "14步真实HTTP回放与浏览器",
+        "title": "分层回归与恢复检查",
         "lines": [
-          "重启恢复、字段快照及待确认清单"
+          "14步字段回放仅适用指定基线",
+          "模型/HTTP/数据库/前端分别取证"
         ]
       },
       {
@@ -1013,38 +1056,616 @@ const charts=[
         "limits"
       ]
     ]
+  },
+  {
+    "name": "09 通用查询与连续上下文",
+    "edgeLabels": { "query:repair": [990, 759], "repair:clarify": [852, 785] },
+    "note": "统一规划最多两次修正；只读草稿经真实MCP预检，复用本轮成功事实，失败不激活卡片。",
+    "nodes": [
+      {
+        "id": "input",
+        "col": 1,
+        "row": 0,
+        "kind": "ui",
+        "title": "自然语言或分页请求",
+        "lines": [
+          "报表数据 / 派单记录 / 工单"
+        ]
+      },
+      {
+        "id": "lease",
+        "col": 1,
+        "row": 1,
+        "kind": "guard",
+        "title": "会话租约与当前权限",
+        "lines": [
+          "请求归属、配额、历史权限版本"
+        ]
+      },
+      {
+        "id": "model",
+        "col": 1,
+        "row": 2,
+        "kind": "model",
+        "title": "ModelAssistantPlanner · MODEL",
+        "lines": [
+          "成功查询、展示行、完整性和焦点",
+          "撤销条件须有本轮原文证据"
+        ]
+      },
+      {
+        "id": "dispatch",
+        "col": 0,
+        "row": 3,
+        "kind": "agent",
+        "title": "派单语义子流程",
+        "lines": [
+          "尝试普通查询后先重查派单候选"
+        ]
+      },
+      {
+        "id": "query",
+        "col": 1,
+        "row": 3,
+        "kind": "guard",
+        "title": "AssistantCodec / BusinessQuery",
+        "lines": [
+          "路由/范围/追问与条件保留校验"
+        ]
+      },
+      {
+        "id": "clarify",
+        "col": 2,
+        "row": 3,
+        "kind": "error",
+        "title": "帮助 / 澄清 / 拒绝",
+        "lines": [
+          "不丢弃不支持条件、不执行写入"
+        ]
+      },
+      {
+        "id": "mcp",
+        "col": 1,
+        "row": 4,
+        "kind": "business",
+        "title": "HTTP MCP business_query",
+        "lines": [
+          "真实只读草稿预检及当前授权"
+        ]
+      },
+      {
+        "id": "facts",
+        "col": 1,
+        "row": 5,
+        "kind": "business",
+        "title": "完整受限读取与确定性统计",
+        "lines": [
+          "10万行 / 120秒 / 16MiB",
+          "成功事实本轮复用；不重复读取"
+        ]
+      },
+      {
+        "id": "card",
+        "col": 1,
+        "row": 6,
+        "kind": "store",
+        "title": "持久查询卡片与独立上下文",
+        "lines": [
+          "总数、展示引用、时点和权限并集"
+        ]
+      },
+      {
+        "id": "ui",
+        "col": 1,
+        "row": 7,
+        "kind": "ui",
+        "title": "列表、详情、总结与翻页",
+        "lines": [
+          "刷新可恢复；权限变化阻止旧事实展示"
+        ]
+      },
+      {
+        "id": "repair",
+        "col": 2,
+        "row": 4,
+        "kind": "model",
+        "title": "有界草稿修正",
+        "lines": [
+          "具体校验错误交回MODEL",
+          "最终失败不更新成功查询"
+        ]
+      }
+    ],
+    "edges": [
+      [
+        "input",
+        "lease"
+      ],
+      [
+        "lease",
+        "model"
+      ],
+      [
+        "model",
+        "query",
+        "只读"
+      ],
+      [
+        "model",
+        "dispatch",
+        "派单"
+      ],
+      [
+        "model",
+        "clarify",
+        "不确定"
+      ],
+      [
+        "query",
+        "mcp"
+      ],
+      [
+        "mcp",
+        "facts"
+      ],
+      [
+        "facts",
+        "card"
+      ],
+      [
+        "card",
+        "ui"
+      ],
+      [
+        "query",
+        "repair",
+        "草稿错误"
+      ],
+      [
+        "facts",
+        "repair",
+        "确定性校验失败"
+      ],
+      [
+        "repair",
+        "model",
+        "预算内"
+      ],
+      [
+        "repair",
+        "clarify",
+        "预算耗尽"
+      ]
+    ]
+  },
+  {
+    "name": "10 工单进度与总结",
+    "note": "本机固定业务流程与审批人通过真实 HTTP MCP 返回；不代表外部工单系统已接入。",
+    "nodes": [
+      {
+        "id": "query",
+        "col": 1,
+        "row": 0,
+        "kind": "agent",
+        "title": "工单列表 / 详情 / 总结",
+        "lines": [
+          "编号、状态、公司、报表或处理人"
+        ]
+      },
+      {
+        "id": "access",
+        "col": 1,
+        "row": 1,
+        "kind": "guard",
+        "title": "当前授权范围与查询预算",
+        "lines": [
+          "不可见工单与不存在工单统一拒绝"
+        ]
+      },
+      {
+        "id": "provider",
+        "col": 1,
+        "row": 2,
+        "kind": "business",
+        "title": "WorkOrderProvider 只读接口",
+        "lines": [
+          "返回完整有界事实，不推进审批"
+        ]
+      },
+      {
+        "id": "fixture",
+        "col": 0,
+        "row": 3,
+        "kind": "business",
+        "title": "固定演示示例",
+        "lines": [
+          "待审批、处理中、完成、驳回"
+        ]
+      },
+      {
+        "id": "linked",
+        "col": 2,
+        "row": 3,
+        "kind": "business",
+        "title": "实际演示派单关联",
+        "lines": [
+          "成功条目映射固定首个审批环节"
+        ]
+      },
+      {
+        "id": "steps",
+        "col": 1,
+        "row": 4,
+        "kind": "business",
+        "title": "固定环节与固定处理人",
+        "lines": [
+          "提交 → 部门审批 → 财务复核",
+          "业务处理 → 归档；未来步骤未到达"
+        ]
+      },
+      {
+        "id": "summary",
+        "col": 1,
+        "row": 5,
+        "kind": "agent",
+        "title": "确定性汇总同一范围",
+        "lines": [
+          "当前审批人、状态分布、分币种金额"
+        ]
+      },
+      {
+        "id": "card",
+        "col": 1,
+        "row": 6,
+        "kind": "ui",
+        "title": "来源、时间线及办理小结",
+        "lines": [
+          "终态无当前待办；不提供审批按钮"
+        ]
+      },
+      {
+        "id": "external",
+        "col": 2,
+        "row": 6,
+        "kind": "error",
+        "title": "真实工单系统接入待完成",
+        "lines": [
+          "替换业务提供者后须重新验收"
+        ]
+      }
+    ],
+    "edges": [
+      [
+        "query",
+        "access"
+      ],
+      [
+        "access",
+        "provider"
+      ],
+      [
+        "provider",
+        "fixture"
+      ],
+      [
+        "provider",
+        "linked"
+      ],
+      [
+        "fixture",
+        "steps"
+      ],
+      [
+        "linked",
+        "steps"
+      ],
+      [
+        "steps",
+        "summary"
+      ],
+      [
+        "summary",
+        "card"
+      ],
+      [
+        "provider",
+        "external",
+        "后续接入"
+      ]
+    ]
+  },
+  {
+    "name": "11 手工派单与记录详情",
+    "note": "报表页选择、确认和持久任务不经过模型；记录抽屉与对话查询入口各自保留范围。",
+    "nodes": [
+      {
+        "id": "page",
+        "col": 1,
+        "row": 0,
+        "kind": "ui",
+        "title": "报表页业务明细",
+        "lines": [
+          "授权范围分页；金额为本页合计"
+        ]
+      },
+      {
+        "id": "select",
+        "col": 0,
+        "row": 1,
+        "kind": "ui",
+        "title": "勾选当前页未派单记录",
+        "lines": [
+          "每次1～50条，核对后确认"
+        ]
+      },
+      {
+        "id": "history",
+        "col": 2,
+        "row": 1,
+        "kind": "ui",
+        "title": "右上角“派单记录”",
+        "lines": [
+          "独立抽屉，每页最多50条",
+          "仅当前用户、当前报表手工记录"
+        ]
+      },
+      {
+        "id": "job",
+        "col": 0,
+        "row": 2,
+        "kind": "agent",
+        "title": "DIRECT持久任务",
+        "lines": [
+          "稳定幂等键、权限与版本校验",
+          "每条记录生成可追溯清单"
+        ]
+      },
+      {
+        "id": "read",
+        "col": 2,
+        "row": 2,
+        "kind": "agent",
+        "title": "读取服务器记录",
+        "lines": [
+          "加载错误可刷新，未知先核对"
+        ]
+      },
+      {
+        "id": "execute",
+        "col": 0,
+        "row": 3,
+        "kind": "business",
+        "title": "认证HTTP MCP执行",
+        "lines": [
+          "来源行锁、字段快照和原请求号",
+          "持久结果回到报表与记录抽屉"
+        ]
+      },
+      {
+        "id": "details",
+        "col": 2,
+        "row": 3,
+        "kind": "ui",
+        "title": "展开详情 / 收起详情",
+        "lines": [
+          "文字按钮或箭头所在整格",
+          "按planId保留同页刷新展开状态"
+        ]
+      },
+      {
+        "id": "trace",
+        "col": 2,
+        "row": 4,
+        "kind": "ui",
+        "title": "完整追溯 / 按状态处理",
+        "lines": [
+          "事件、审计、会话、逐条结果",
+          "待核对先查；明确失败才重试"
+        ]
+      },
+      {
+        "id": "safe",
+        "col": 1,
+        "row": 5,
+        "kind": "guard",
+        "title": "详情切换仅改变本地显示",
+        "lines": [
+          "关闭抽屉不取消后台任务",
+          "业务动作继续走原保护链路"
+        ]
+      }
+    ],
+    "edges": [
+      [
+        "page",
+        "select",
+        "发起派单"
+      ],
+      [
+        "page",
+        "history",
+        "查看记录"
+      ],
+      [
+        "select",
+        "job"
+      ],
+      [
+        "job",
+        "execute"
+      ],
+      [
+        "history",
+        "read"
+      ],
+      [
+        "read",
+        "details"
+      ],
+      [
+        "execute",
+        "read",
+        "结果刷新"
+      ],
+      [
+        "details",
+        "trace",
+        "按需查看或处理"
+      ],
+      [
+        "details",
+        "safe"
+      ],
+      [
+        "trace",
+        "safe"
+      ]
+    ]
+  },
+  {
+    "name": "12 运营治理与展示口径",
+    "note": "页面中文化只影响展示；指标、业务授权、策略版本和审计事实以服务端为准。",
+    "nodes": [
+      {
+        "id": "entry",
+        "col": 1,
+        "row": 0,
+        "kind": "ui",
+        "title": "运营治理入口",
+        "lines": [
+          "管理员菜单与六个功能页签"
+        ]
+      },
+      {
+        "id": "auth",
+        "col": 1,
+        "row": 1,
+        "kind": "guard",
+        "title": "当前管理员及租户校验",
+        "lines": [
+          "任务处理另核对清单业务范围"
+        ]
+      },
+      {
+        "id": "metrics",
+        "col": 0,
+        "row": 2,
+        "kind": "agent",
+        "title": "业务指标完整汇总",
+        "lines": [
+          "最近1 / 7 / 30 / 90天",
+          "解析请求与当前派单条目分母"
+        ]
+      },
+      {
+        "id": "manage",
+        "col": 2,
+        "row": 2,
+        "kind": "ui",
+        "title": "工作台 / 策略 / 留存",
+        "lines": [
+          "核对、重试、关闭须提供原因",
+          "策略保存与回滚带期望版本"
+        ]
+      },
+      {
+        "id": "detail",
+        "col": 0,
+        "row": 3,
+        "kind": "ui",
+        "title": "中文环节、报表和状态",
+        "lines": [
+          "明细最多1000组，每页20组",
+          "中文搜索不改变顶部比例"
+        ]
+      },
+      {
+        "id": "action",
+        "col": 2,
+        "row": 3,
+        "kind": "agent",
+        "title": "按动作提交并复核",
+        "lines": [
+          "核对重试进入持久任务",
+          "其他管理操作由专用接口处理"
+        ]
+      },
+      {
+        "id": "meaning",
+        "col": 0,
+        "row": 4,
+        "kind": "guard",
+        "title": "已执行不等于全部成功",
+        "lines": [
+          "无样本显示暂无数据",
+          "95%耗时单位为毫秒"
+        ]
+      },
+      {
+        "id": "audit",
+        "col": 2,
+        "row": 4,
+        "kind": "store",
+        "title": "访问审计与恢复依据",
+        "lines": [
+          "记录操作者、动作和结果",
+          "原始资源标识保留可查"
+        ]
+      },
+      {
+        "id": "boundary",
+        "col": 1,
+        "row": 5,
+        "kind": "guard",
+        "title": "证据范围分别说明",
+        "lines": [
+          "名称解析评估不是模型准确率",
+          "指标不是生产容量或SLA验收"
+        ]
+      }
+    ],
+    "edges": [
+      [
+        "entry",
+        "auth"
+      ],
+      [
+        "auth",
+        "metrics",
+        "指标"
+      ],
+      [
+        "auth",
+        "manage",
+        "治理操作"
+      ],
+      [
+        "metrics",
+        "detail"
+      ],
+      [
+        "detail",
+        "meaning"
+      ],
+      [
+        "manage",
+        "action"
+      ],
+      [
+        "action",
+        "audit"
+      ],
+      [
+        "meaning",
+        "boundary"
+      ],
+      [
+        "audit",
+        "boundary"
+      ]
+    ]
   }
 ];
-// 通用查询与工单流程和派单图共享生成器，所有格式同步生成，避免独立编辑产物失去一致性。
-charts.push({
-  name:'09 通用查询与连续上下文',note:'真实模型只生成受控查询；业务数据查询不替代派单候选，也不改变已有勾选。',
-  nodes:[
-    {id:'input',col:1,row:0,kind:'ui',title:'自然语言或分页请求',lines:['报表数据 / 派单记录 / 工单']},
-    {id:'lease',col:1,row:1,kind:'guard',title:'会话租约与当前权限',lines:['请求归属、配额、历史权限版本']},
-    {id:'model',col:1,row:2,kind:'model',title:'ModelAssistantPlanner · MODEL',lines:['授权字段、查询引用、持续业务焦点']},
-    {id:'dispatch',col:0,row:3,kind:'agent',title:'派单语义子流程',lines:['尝试普通查询后先重查派单候选']},
-    {id:'query',col:1,row:3,kind:'guard',title:'AssistantCodec / BusinessQuery',lines:['严格类型、条件、排序、页码及预算']},
-    {id:'clarify',col:2,row:3,kind:'error',title:'帮助 / 澄清 / 拒绝',lines:['不丢弃不支持条件、不执行写入']},
-    {id:'mcp',col:1,row:4,kind:'business',title:'HTTP MCP business_query',lines:['服务端身份、租户、公司、报表权限']},
-    {id:'facts',col:1,row:5,kind:'business',title:'完整受限读取与确定性统计',lines:['全部报表状态 / 派单归属 / 工单接口']},
-    {id:'card',col:1,row:6,kind:'store',title:'持久查询卡片与独立上下文',lines:['完整总数、分币种金额、时点和来源']},
-    {id:'ui',col:1,row:7,kind:'ui',title:'列表、详情、总结与翻页',lines:['刷新可恢复；权限变化阻止旧事实展示']}
-  ],edges:[['input','lease'],['lease','model'],['model','query','只读'],['model','dispatch','派单'],['model','clarify','不确定'],['query','mcp'],['mcp','facts'],['facts','card'],['card','ui'],['facts','clarify','失败或超限']]
-});
-charts.push({
-  name:'10 工单进度与总结',note:'本机固定业务流程与审批人通过真实 HTTP MCP 返回；不代表外部工单系统已接入。',
-  nodes:[
-    {id:'query',col:1,row:0,kind:'agent',title:'工单列表 / 详情 / 总结',lines:['编号、状态、公司、报表或处理人']},
-    {id:'access',col:1,row:1,kind:'guard',title:'当前授权范围与查询预算',lines:['不可见工单与不存在工单统一拒绝']},
-    {id:'provider',col:1,row:2,kind:'business',title:'WorkOrderProvider 只读接口',lines:['返回完整有界事实，不推进审批']},
-    {id:'fixture',col:0,row:3,kind:'business',title:'固定演示示例',lines:['待审批、处理中、完成、驳回']},
-    {id:'linked',col:2,row:3,kind:'business',title:'实际演示派单关联',lines:['成功条目映射固定首个审批环节']},
-    {id:'steps',col:1,row:4,kind:'business',title:'固定环节与固定处理人',lines:['提交 → 部门审批 → 财务复核', '业务处理 → 归档；未来步骤未到达']},
-    {id:'summary',col:1,row:5,kind:'agent',title:'确定性汇总同一范围',lines:['当前审批人、状态分布、分币种金额']},
-    {id:'card',col:1,row:6,kind:'ui',title:'来源、时间线及办理小结',lines:['终态无当前待办；不提供审批按钮']},
-    {id:'external',col:2,row:6,kind:'error',title:'真实工单系统接入待完成',lines:['替换业务提供者后须重新验收']}
-  ],edges:[['query','access'],['access','provider'],['provider','fixture'],['provider','linked'],['fixture','steps'],['linked','steps'],['steps','summary'],['summary','card'],['provider','external','后续接入']]
-});
 const colors={ui:['#eaf2ff','#386bc1'],agent:['#edf5ff','#3778a8'],model:['#f3edff','#8751bf'],business:['#e8f7ef','#268255'],guard:['#fff4dc','#b58022'],error:['#fff0ef','#ba534e'],store:['#edf1f5','#60768b']};
 const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&apos;'}[c]));
 function wrap(s,max=33){let chunks=[],line='',count=0;for(const ch of s){const weight=ch.charCodeAt(0)>255?1.7:1;if(count+weight>max){chunks.push(line);line='';count=0;}line+=ch;count+=weight;}if(line)chunks.push(line);return chunks;}
@@ -1071,19 +1692,20 @@ function points(a,b){
   const right=b.col>a.col,sx=right?A.x+A.w:A.x,ex=right?B.x:B.x+B.w,sy=A.y+A.h/2,ey=B.y+B.h/2,lane=right?sx+35:sx-35;
   return [[sx,sy],[lane,sy],[lane,ey],[ex,ey]];
 }
+// 分支密集时可用 edgeLabels 指定 SVG 标签锚点，避免标签重叠；不改变各格式的节点、边和业务含义。
 function render(chart,index){const W=1340,H=300+Math.max(...chart.nodes.map(x=>x.row))*165;const byId=Object.fromEntries(chart.nodes.map(x=>[x.id,x]));let parts=[`<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" role="img" aria-label="${esc(chart.name)}"><defs><marker id="arrow${index}" markerWidth="10" markerHeight="8" refX="9" refY="4" orient="auto"><path d="M0,0 L10,4 L0,8 Z" fill="#657891"/></marker></defs><rect width="100%" height="100%" fill="#fff"/><g font-family="Microsoft YaHei,PingFang SC,Arial,sans-serif"><text x="60" y="44" font-size="26" font-weight="700" fill="#15334b">${esc(chart.name)}</text><text x="60" y="79" font-size="14" fill="#53697e">${esc(chart.note)}</text>`];
-for(const [from,to,label=''] of chart.edges){if(!byId[from]||!byId[to])throw Error('Unknown edge');const p=points(byId[from],byId[to]);const d=p.map((v,i)=>(i?'L':'M')+v.join(',')).join(' ');parts.push(`<path d="${d}" fill="none" stroke="#657891" stroke-width="1.7" marker-end="url(#arrow${index})"/>`);if(label){const A=p.length>2?p[1]:p[0],B=p.length>2?p[2]:p[1],x=(A[0]+B[0])/2,y=(A[1]+B[1])/2-8;const width=label.length*13+10;parts.push(`<rect x="${x-width/2}" y="${y-14}" width="${width}" height="20" fill="white" rx="3"/><text x="${x}" y="${y}" font-size="12" text-anchor="middle" fill="#53697e">${esc(label)}</text>`);}}
+for(const [from,to,label=''] of chart.edges){if(!byId[from]||!byId[to])throw Error('Unknown edge');const p=points(byId[from],byId[to]);const d=p.map((v,i)=>(i?'L':'M')+v.join(',')).join(' ');parts.push(`<path d="${d}" fill="none" stroke="#657891" stroke-width="1.7" marker-end="url(#arrow${index})"/>`);if(label){const A=p.length>2?p[1]:p[0],B=p.length>2?p[2]:p[1],anchor=chart.edgeLabels?.[`${from}:${to}`],x=anchor?anchor[0]:(A[0]+B[0])/2,y=anchor?anchor[1]:(A[1]+B[1])/2-8;const width=label.length*13+10;parts.push(`<rect x="${x-width/2}" y="${y-14}" width="${width}" height="20" fill="white" rx="3"/><text x="${x}" y="${y}" font-size="12" text-anchor="middle" fill="#53697e">${esc(label)}</text>`);}}
 for(const node of chart.nodes){const g=geom(node),[fill,stroke]=colors[node.kind];if(node.kind==='guard')parts.push(`<polygon points="${g.x+g.w/2},${g.y} ${g.x+g.w},${g.y+g.h/2} ${g.x+g.w/2},${g.y+g.h} ${g.x},${g.y+g.h/2}" fill="${fill}" stroke="${stroke}" stroke-width="1.5"/>`);else parts.push(`<rect x="${g.x}" y="${g.y}" width="${g.w}" height="${g.h}" rx="12" fill="${fill}" stroke="${stroke}" stroke-width="1.5"/>`);const texts=[...wrap(node.title),...node.lines.flatMap(s=>wrap(s))];if(texts.length>5)throw Error('Node text too long: '+node.id);texts.forEach((line,i)=>parts.push(`<text x="${g.x+g.w/2}" y="${g.y+g.h/2-(texts.length-1)*10+i*20+5}" text-anchor="middle" font-size="${i===0?15:13}" font-weight="${i===0?700:400}" fill="#1e354c">${esc(line)}</text>`));}
-parts.push(`<text x="60" y="${H-26}" font-size="12" fill="#64748b">2026-10-06 · 依据当前工作区源码 · 模型解析 / 确定性业务 / 实际派单边界分离</text></g></svg>`);return parts.join('');}
+parts.push(`<text x="60" y="${H-26}" font-size="12" fill="#64748b">2026-10-07 · 依据当前工作区源码 · 模型解析 / 确定性业务 / 实际派单边界分离</text></g></svg>`);return parts.join('');}
 function mermaid(chart){return 'flowchart TD\n'+chart.nodes.map(node=>{const text=[node.title,...node.lines].join('<br/>').replaceAll('"','&quot;');return `  ${node.id}${node.kind==='guard'?'{"'+text+'"}':'["'+text+'"]'}:::${node.kind}`;}).join('\n')+'\n'+chart.edges.map(([a,b,label])=>`  ${a} -->${label?'|"'+label+'"|':''} ${b}`).join('\n')+'\n'+Object.entries(colors).map(([k,[f,s]])=>`  classDef ${k} fill:${f},stroke:${s},color:#1e354c`).join('\n');}
 const svgs=charts.map(render);
 charts.forEach((chart,i)=>{const number=String(i+1).padStart(2,'0');writeOutput(path.join(out,`${number}.svg`),svgs[i]);writeOutput(path.join(out,`${number}.mmd`),mermaid(chart));});
-let xml='<mxfile host="app.diagrams.net" modified="2026-10-06T00:00:00.000Z" agent="Codex" version="26.0.0">';
+let xml='<mxfile host="app.diagrams.net" modified="2026-10-07T00:00:00.000Z" agent="Codex" version="26.0.0">';
 charts.forEach((chart,index)=>{xml+=`<diagram id="semantic-${index+1}" name="${esc(chart.name)}"><mxGraphModel dx="1340" dy="2000" grid="1" gridSize="10" page="0"><root><mxCell id="0"/><mxCell id="1" parent="0"/>`;for(const node of chart.nodes){const g=geom(node),[fill,stroke]=colors[node.kind],value=[`<b>${node.title}</b>`,...node.lines].join('<br>');xml+=`<mxCell id="${node.id}" value="${esc(value)}" style="${node.kind==='guard'?'rhombus;':'rounded=1;'}whiteSpace=wrap;html=1;fillColor=${fill};strokeColor=${stroke};fontColor=#1e354c;fontFamily=Microsoft YaHei;fontSize=14;" vertex="1" parent="1"><mxGeometry x="${g.x}" y="${g.y}" width="${g.w}" height="${g.h}" as="geometry"/></mxCell>`;}chart.edges.forEach(([a,b,label=''],i)=>{xml+=`<mxCell id="e${i}" value="${esc(label)}" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#657891;fontFamily=Microsoft YaHei;fontSize=12;" edge="1" parent="1" source="${a}" target="${b}"><mxGeometry relative="1" as="geometry"/></mxCell>`;});xml+='</root></mxGraphModel></diagram>';});xml+='</mxfile>';writeOutput(path.join(out,'demo-final.drawio'),xml);
 writeOutput(path.join(out,'flows.json'),JSON.stringify(charts,null,2));
-const html=`<!doctype html><html lang="zh-CN"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>通用业务助手与 V1 派单流程</title><style>*{box-sizing:border-box}body{margin:0;font-family:"Microsoft YaHei",sans-serif;color:#1d354a;background:#f1f5f9}header{padding:24px 32px;background:#102a43;color:white}header h1{font-size:25px;margin:0 0 10px}header p{margin:0;color:#c3d4e7;font-size:14px}.bar{position:sticky;top:0;z-index:3;display:flex;gap:8px;flex-wrap:wrap;background:white;padding:12px 20px;border-bottom:1px solid #d7e2ed}button,a{font:inherit}button{cursor:pointer;border:1px solid #c5d5e5;background:#fff;border-radius:7px;padding:8px 11px;color:#214b70}button.active{background:#214b70;color:white}.zoom{padding:10px 24px;display:flex;align-items:center;gap:10px;background:#e8eef5}main{padding:22px;overflow:auto}.chart{background:white;max-width:1800px;margin:auto;box-shadow:0 2px 12px #102a4310}.chart svg{display:block;width:100%;height:auto}.hidden{display:none}small{color:#52687a}a{color:#27649d}.legend{display:flex;gap:14px;flex-wrap:wrap;margin-left:auto;font-size:12px}.legend span{padding:4px 7px;border-radius:4px}.summary{padding:14px 24px;background:#fff;border-bottom:1px solid #d7e2ed;line-height:1.7;font-size:14px}</style></head><body><header><h1>统一业务助手 → 受控查询 / 待确认派单</h1><p>当前运行：active 语义 V1 · deepseek-v4.1-flash · native JSON Schema · MCP 双服务 · 2026-10-06</p></header><div class="summary">模型只解析本轮动作和范围变化；原文证据、实体映射、权限、规则、版本和实际派单由服务端负责。<br>十页可切换、缩放；下方节点颜色区分责任边界。金额、日期、文本和布尔筛选来自配置；普通查询支持分页、排序与统计；派单选择仍按独立候选和确认流程处理。<a href="demo-final.drawio" download>下载可编辑 draw.io</a> · <a href="../../语义V1配置字段筛选.md">详细说明与 JSON 示例</a></div><nav class="bar">${charts.map((c,i)=>`<button data-page="${i}" class="${i===0?'active':''}">${c.name}</button>`).join('')}</nav><div class="zoom"><button id="less">缩小</button><button id="fit">适配宽度</button><button id="more">放大</button><small id="percent">100%</small><div class="legend">${Object.entries({ui:'前端',agent:'Agent 服务',model:'模型',business:'MCP 业务',guard:'校验/判断',store:'持久状态',error:'拒绝/异常'}).map(([k,t])=>`<span style="background:${colors[k][0]};color:${colors[k][1]}">${t}</span>`).join('')}</div></div><main>${svgs.map((s,i)=>`<section class="chart ${i?'hidden':''}" data-chart="${i}">${s}</section>`).join('')}</main><script>let selected=0,zoom=1;const sections=[...document.querySelectorAll('[data-chart]')];function update(){sections.forEach((s,i)=>{s.classList.toggle('hidden',i!==selected);s.style.width=(100*zoom)+'%';s.style.maxWidth=zoom>1?'none':'1800px'});document.querySelectorAll('[data-page]').forEach(b=>b.classList.toggle('active',Number(b.dataset.page)===selected));document.querySelector('#percent').textContent=Math.round(zoom*100)+'%'}document.querySelectorAll('[data-page]').forEach(b=>b.onclick=()=>{selected=Number(b.dataset.page);zoom=1;update();window.scrollTo({top:0})});document.querySelector('#less').onclick=()=>{zoom=Math.max(.35,zoom-.15);update()};document.querySelector('#more').onclick=()=>{zoom=Math.min(2.5,zoom+.15);update()};document.querySelector('#fit').onclick=()=>{zoom=1;update()};</script></body></html>`;
+const html=`<!doctype html><html lang="zh-CN"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>通用业务助手与 V1 派单流程</title><style>*{box-sizing:border-box}body{margin:0;font-family:"Microsoft YaHei",sans-serif;color:#1d354a;background:#f1f5f9}header{padding:24px 32px;background:#102a43;color:white}header h1{font-size:25px;margin:0 0 10px}header p{margin:0;color:#c3d4e7;font-size:14px}.bar{position:sticky;top:0;z-index:3;display:flex;gap:8px;flex-wrap:wrap;background:white;padding:12px 20px;border-bottom:1px solid #d7e2ed}button,a{font:inherit}button{cursor:pointer;border:1px solid #c5d5e5;background:#fff;border-radius:7px;padding:8px 11px;color:#214b70}button.active{background:#214b70;color:white}.zoom{padding:10px 24px;display:flex;align-items:center;gap:10px;background:#e8eef5}main{padding:22px;overflow:auto}.chart{background:white;max-width:1800px;margin:auto;box-shadow:0 2px 12px #102a4310}.chart svg{display:block;width:100%;height:auto}.hidden{display:none}small{color:#52687a}a{color:#27649d}.legend{display:flex;gap:14px;flex-wrap:wrap;margin-left:auto;font-size:12px}.legend span{padding:4px 7px;border-radius:4px}.summary{padding:14px 24px;background:#fff;border-bottom:1px solid #d7e2ed;line-height:1.7;font-size:14px}</style></head><body><header><h1>统一业务助手 → 受控查询 / 待确认派单</h1><p>当前基线：real,mcp · active · V1 · 原生 JSON Schema · thinking 关闭 · 2026-10-07</p></header><div class="summary">模型只解析本轮动作和范围变化；原文证据、实体映射、权限、规则、版本和实际派单由服务端负责。<br>${charts.length} 页可切换、缩放；下方节点颜色区分责任边界。金额、日期、文本和布尔筛选来自配置；普通查询支持分页、排序与统计；派单选择仍按独立候选和确认流程处理。<a href="demo-final.drawio" download>下载可编辑 draw.io</a> · <a href="../../语义V1配置字段筛选.md">字段协议说明</a> · <a href="../../工作台操作与运营治理.md">工作台操作</a> · <a href="../../异常调查Agent.md">异常调查</a></div><nav class="bar">${charts.map((c,i)=>`<button data-page="${i}" class="${i===0?'active':''}">${c.name}</button>`).join('')}</nav><div class="zoom"><button id="less">缩小</button><button id="fit">适配宽度</button><button id="more">放大</button><small id="percent">100%</small><div class="legend">${Object.entries({ui:'前端',agent:'Agent 服务',model:'模型',business:'MCP 业务',guard:'校验/判断',store:'持久状态',error:'拒绝/异常'}).map(([k,t])=>`<span style="background:${colors[k][0]};color:${colors[k][1]}">${t}</span>`).join('')}</div></div><main>${svgs.map((s,i)=>`<section class="chart ${i?'hidden':''}" data-chart="${i}">${s}</section>`).join('')}</main><script>let selected=0,zoom=1;const sections=[...document.querySelectorAll('[data-chart]')];function update(){sections.forEach((s,i)=>{s.classList.toggle('hidden',i!==selected);s.style.width=(100*zoom)+'%';s.style.maxWidth=zoom>1?'none':'1800px'});document.querySelectorAll('[data-page]').forEach(b=>b.classList.toggle('active',Number(b.dataset.page)===selected));document.querySelector('#percent').textContent=Math.round(zoom*100)+'%'}document.querySelectorAll('[data-page]').forEach(b=>b.onclick=()=>{selected=Number(b.dataset.page);zoom=1;update();window.scrollTo({top:0})});document.querySelector('#less').onclick=()=>{zoom=Math.max(.35,zoom-.15);update()};document.querySelector('#more').onclick=()=>{zoom=Math.min(2.5,zoom+.15);update()};document.querySelector('#fit').onclick=()=>{zoom=1;update()};</script></body></html>`;
 writeOutput(path.join(out,'index.html'),html);
 const fence=String.fromCharCode(96).repeat(3);
 const sections=charts.map((chart,i)=>`## ${chart.name}\n\n${chart.note}\n\n${fence}mermaid\n${mermaid(chart)}\n${fence}\n`);
-writeOutput(path.join(out,'流程图.md'),'# 当前用户输入和语义 V1 的完整流程图\n\n2026-10-06，按当前工作区代码绘制。配合 [详细说明](../../语义V1配置字段筛选.md) 阅读。\n\n'+sections.join('\n'));
+writeOutput(path.join(out,'流程图.md'),'# 当前业务助手、手工派单与运营治理流程图\n\n2026-10-07，按当前工作区代码绘制。配合 [详细说明](../../语义V1配置字段筛选.md) 阅读。\n\n'+sections.join('\n'));
 console.log(`Generated ${charts.length} SVG/Mermaid pages, editable draw.io and standalone HTML in ${out}`);

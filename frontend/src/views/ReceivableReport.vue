@@ -1,7 +1,6 @@
 <template>
   <report-table
     title="应收报表"
-    table-name="report_receivable"
     report-id="rpt-ar-invoice"
     doc-no-field="invoiceNo"
     :columns="columns"
@@ -34,7 +33,7 @@ export default {
         { prop: 'companyCode', label: '公司代码', width: 100 },
         { prop: 'invoiceNo', label: '发票号', width: 160 },
         { prop: 'customerName', label: '客户名称', minWidth: 200 },
-        { prop: 'amount', label: '金额(元)', width: 160, isAmount: true },
+        { prop: 'amount', label: '金额（元）', width: 160, isAmount: true },
         { prop: 'dueDate', label: '到期日', width: 130 }
       ]
     }

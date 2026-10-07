@@ -2,42 +2,61 @@
   <el-card shadow="never" class="report-card">
     <div slot="header" class="card-header">
       <div class="left">
-        <span class="title">{{ title }}</span>
-        <el-tag size="mini" type="info">{{ tableName }}</el-tag>
-        <span class="count">本页 {{ data.length }} 条</span>
+        <div class="report-heading"><span class="title">{{ title }}</span><span class="count">共 {{ total }} 条</span></div>
+        <p class="report-description">查看业务明细，勾选未派单记录后发起派单</p>
       </div>
       <div class="right">
         <el-button
-          type="warning"
+          type="primary"
           size="small"
           icon="el-icon-s-promotion"
           :disabled="selectedRows.length === 0 || dispatching || loading"
           :loading="dispatching"
           @click="handleDispatch"
         >
-          派单{{ selectedRows.length ? `(${selectedRows.length})` : '' }}
+          发起派单{{ selectedRows.length ? `（${selectedRows.length}）` : '' }}
         </el-button>
-        <el-button type="primary" size="small" icon="el-icon-refresh" @click="$emit('refresh')">
+        <el-button size="small" icon="el-icon-time" @click="openManualPlans">派单记录</el-button>
+        <el-button size="small" icon="el-icon-refresh" :disabled="loading || dispatching" @click="$emit('refresh')">
           刷新
         </el-button>
       </div>
     </div>
 
-    <div v-if="manualPlans.length" class="manual-plans">
-      <p>手工派单记录：结果待核对时，请先核对；明确失败后才能重试。</p>
-      <div v-for="plan in manualPlans" :key="plan.planId">
-        {{ plan.docNo }} · {{ manualStatus(plan) }}
-        <span v-if="plan.message">（{{ plan.message }}）</span>
-        <el-button v-if="plan.status === 'REVIEW_REQUIRED'" size="mini" :disabled="dispatching" @click="processManual(plan, 'reconcile')">核对结果</el-button>
-        <el-button v-if="plan.status === 'EXECUTED' && plan.retryableCount" size="mini" :disabled="dispatching" @click="processManual(plan, 'retry')">重试失败项</el-button>
-        <el-button v-if="plan.status === 'PENDING'" size="mini" :disabled="dispatching" @click="processManual(plan, 'confirm')">继续派单</el-button>
-        <el-button v-if="plan.status === 'EXECUTING'" size="mini" :disabled="dispatching" @click="processManual(plan, 'resume')">刷新执行结果</el-button>
-        <el-button size="mini" @click="tracePlanId = plan.planId">查看完整追溯</el-button>
-      </div>
-      <el-button size="mini" :disabled="manualPage === 1 || dispatching" @click="loadManualPlans(manualPage - 1)">上一页</el-button>
-      <el-button size="mini" :disabled="!moreManualPlans || dispatching" @click="loadManualPlans(manualPage + 1)">下一页</el-button>
+    <div class="report-table-caption">
+      <span><i class="el-icon-document"></i> 本页 {{ data.length }} 条记录</span>
+      <span v-if="selectedRows.length" class="selection-count">已选择 {{ selectedRows.length }} 条</span>
+      <span v-else>每次最多派单 50 条</span>
     </div>
-    <el-button size="mini" :disabled="dispatching" @click="loadManualPlans()">刷新派单记录</el-button>
+    <el-drawer :title="`${title} · 手工派单记录`" :visible.sync="manualVisible" size="min(760px, 94vw)" append-to-body custom-class="manual-plan-drawer">
+      <div class="manual-plans">
+        <el-alert title="结果待核对时，请先核对；明确失败后才能重试。" type="info" :closable="false" show-icon />
+        <div class="manual-toolbar"><span>当前报表的手工派单记录</span><el-button size="small" icon="el-icon-refresh" :loading="manualLoading" :disabled="dispatching" @click="loadManualPlans(manualPage)">刷新记录</el-button></div>
+        <el-alert v-if="manualError" :title="manualError" type="error" :closable="false" show-icon />
+        <el-table ref="manualPlansTable" v-loading="manualLoading" :data="manualPlans" row-key="planId"
+          :expand-row-keys="expandedManualPlanIds" size="small"
+          :empty-text="manualError ? '记录暂不可用，请刷新重试' : '暂无手工派单记录'"
+          @expand-change="onManualExpandChange" @cell-click="onManualCellClick">
+          <el-table-column prop="docNo" label="单据号" min-width="140" show-overflow-tooltip />
+          <el-table-column label="派单结果" min-width="145"><template slot-scope="scope"><el-tag :type="manualTone(scope.row)" size="mini">{{ manualStatus(scope.row) }}</el-tag></template></el-table-column>
+          <el-table-column label="操作" min-width="205"><template slot-scope="scope">
+            <el-button v-if="scope.row.status === 'REVIEW_REQUIRED'" type="text" :disabled="dispatching || manualLoading" @click="processManual(scope.row, 'reconcile')">核对结果</el-button>
+            <el-button v-if="scope.row.status === 'EXECUTED' && scope.row.retryableCount" type="text" :disabled="dispatching || manualLoading" @click="processManual(scope.row, 'retry')">重试失败项</el-button>
+            <el-button v-if="scope.row.status === 'PENDING'" type="text" :disabled="dispatching || manualLoading" @click="processManual(scope.row, 'confirm')">继续派单</el-button>
+            <el-button v-if="scope.row.status === 'EXECUTING'" type="text" :disabled="dispatching || manualLoading" @click="processManual(scope.row, 'resume')">刷新结果</el-button>
+            <el-button type="text" :aria-expanded="String(expandedManualPlanIds.includes(scope.row.planId))"
+              :aria-label="`${expandedManualPlanIds.includes(scope.row.planId) ? '收起' : '展开'} ${scope.row.docNo} 的详情`"
+              @click="toggleManualDetails(scope.row)">{{ expandedManualPlanIds.includes(scope.row.planId) ? '收起详情' : '展开详情' }}</el-button>
+            <el-button type="text" @click="tracePlanId = scope.row.planId">完整追溯</el-button>
+          </template></el-table-column>
+          <el-table-column type="expand" width="52" class-name="manual-expand-cell"><template slot-scope="scope"><div class="manual-detail"><p>清单编号：{{ scope.row.planId }}</p><p>结果说明：{{ scope.row.message || '暂无补充说明' }}</p></div></template></el-table-column>
+        </el-table>
+        <div class="manual-pagination"><span>第 {{ manualPage }} 页 · 每页最多 50 条</span><div>
+          <el-button size="small" :disabled="manualPage === 1 || dispatching || manualLoading" @click="loadManualPlans(manualPage - 1)">上一页</el-button>
+          <el-button size="small" :disabled="!moreManualPlans || dispatching || manualLoading" @click="loadManualPlans(manualPage + 1)">下一页</el-button>
+        </div></div>
+      </div>
+    </el-drawer>
     <dispatch-trace v-if="tracePlanId" :plan-id="tracePlanId" @close="tracePlanId = null" />
 
     <el-table
@@ -52,7 +71,7 @@
       @selection-change="handleSelectionChange"
     >
       <el-table-column type="selection" width="55" align="center" :selectable="(row) => !loading && !dispatching && row.dispatchStatus !== 1" />
-      <el-table-column type="index" label="序号" width="70" align="center" />
+      <el-table-column type="index" label="序号" width="85" align="center" />
       <el-table-column
         v-for="col in columns"
         :key="col.prop"
@@ -99,8 +118,7 @@ export default {
   components: { DispatchTrace },
   props: {
     title: { type: String, default: '' },
-    tableName: { type: String, default: '' },
-    // 后端报表类型：sales / receivable / expense
+    // 报表目录稳定标识，用于服务端核验当前报表范围。
     reportId: { type: String, default: '' },
     columns: { type: Array, default: () => [] },
     data: { type: Array, default: () => [] },
@@ -117,8 +135,13 @@ export default {
       tracePlanId: null,
       dispatching: false,
       manualPlans: [],
+      // 使用服务端清单标识保存展开行，刷新返回新对象时仍绑定同一条记录。
+      expandedManualPlanIds: [],
       manualPage: 1,
       moreManualPlans: false,
+      manualVisible: false,
+      manualLoading: false,
+      manualError: '',
       manualRequest: 0,
       sessionUserId: getCurrentUserId(),
       disposed: false
@@ -138,21 +161,44 @@ export default {
   beforeDestroy() { this.disposed = true },
   methods: {
     isCurrentSession() { return !this.disposed && this.sessionUserId === getCurrentUserId() },
+    /** 打开抽屉时读取服务器记录；关闭抽屉不取消后台执行，也不重新提交派单。 */
+    openManualPlans() { this.manualVisible = true; this.loadManualPlans() },
+    /** 详情仅切换本地显示；文本按钮、箭头周围的单元格共用表格的展开入口，不发起业务操作。 */
+    toggleManualDetails(plan) { this.$refs.manualPlansTable.toggleRowExpansion(plan) },
+    onManualExpandChange(plan, expandedRows) { this.expandedManualPlanIds = expandedRows.map(row => row.planId) },
+    /** 原生箭头自行切换并阻止冒泡；这里仅接住展开列空白处的点击，避免一次点击切换两次。 */
+    onManualCellClick(plan, column) {
+      if (column.type === 'expand') this.toggleManualDetails(plan)
+    },
+    manualTone(plan) {
+      if (plan.status === 'REVIEW_REQUIRED') return 'warning'
+      if (plan.status === 'EXECUTED' && plan.outcome === 'SUCCESS') return 'success'
+      if (plan.status === 'EXECUTED' && plan.retryableCount) return 'danger'
+      return 'info'
+    },
     manualStatus(plan) {
       if (plan.status === 'EXECUTED') return plan.outcome === 'SUCCESS' ? '派单成功' : plan.retryableCount ? '明确失败，可重试' : '未派单'
       return { REVIEW_REQUIRED: '结果待核对', EXECUTING: '执行中', PENDING: '尚未完成',
-        EXPIRED: '已过期，可重新选择记录派单', CANCELLED: '已取消' }[plan.status] || plan.status
+        EXPIRED: '已过期', CANCELLED: '已取消' }[plan.status] || plan.status
     },
     async loadManualPlans(page = 1) {
       if (!this.isCurrentSession()) return
       const request = ++this.manualRequest
+      this.manualLoading = true
+      this.manualError = ''
       try {
         const plans = await fetchManualPlans(this.reportId, page)
         if (!this.isCurrentSession() || request !== this.manualRequest) return
         this.manualPlans = plans
+        this.expandedManualPlanIds = this.expandedManualPlanIds.filter(id => plans.some(plan => plan.planId === id))
         this.manualPage = page
         this.moreManualPlans = plans.length === 50
-      } catch (e) { /* 请求拦截器提示，可手工刷新。 */ }
+      } catch (e) {
+        // 加载失败不能伪装为没有派单记录；仅最后一次请求可以更新抽屉提示和加载状态。
+        if (this.isCurrentSession() && request === this.manualRequest) this.manualError = '派单记录加载失败，请刷新重试。'
+      } finally {
+        if (this.isCurrentSession() && request === this.manualRequest) this.manualLoading = false
+      }
     },
     /** 人工清单核对、重试或恢复时检查当前会话仍有效；操作完成后重新读取清单列表，不能根据传输异常猜测未执行。 */
     async processManual(plan, action) {
@@ -182,7 +228,6 @@ export default {
     handleSelectionChange(rows) {
       this.selectedRows = rows
     },
-    // 手工派单：调用后端派单接口（模拟实现会把记录标记为已派单并写审计）
     /** 以当前页人工选择创建任务；处理结束清除选择并刷新报表，最多50条，服务端再次验证公司权限与派单状态。 */
     async handleDispatch() {
       if (!this.isCurrentSession() || this.dispatching || this.loading) return
@@ -211,6 +256,7 @@ export default {
       try {
         const result = await dispatchDirect(this.reportId, ids)
         if (!this.isCurrentSession()) return
+        this.manualVisible = true
         if (result.reviewCount) this.$message.warning(`有 ${result.reviewCount} 条结果待核对，请在派单记录中核对，勿重复提交`)
         else this.$message.info(`本次处理：成功 ${result.successCount} 条，未成功 ${result.failedCount} 条；详情见派单记录`)
         this.$emit('refresh')
@@ -241,35 +287,25 @@ export default {
 </script>
 
 <style scoped>
-.report-card {
-  min-height: 320px;
-}
-
-.card-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-}
-
-.card-header .left {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.card-header .right {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.card-header .title {
-  font-size: 16px;
-  font-weight: 600;
-}
-
-.card-header .count {
-  font-size: 12px;
-  color: #909399;
-}
+.report-card { min-height: 320px; }
+.card-header, .report-heading, .card-header .right, .report-table-caption, .manual-toolbar, .manual-pagination { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.card-header { flex-wrap: wrap; }
+.report-heading { justify-content: flex-start; }
+.card-header .right { flex-wrap: wrap; gap: 8px; }
+.card-header .right .el-button + .el-button { margin-left: 0; }
+.card-header .title { font-size: 20px; font-weight: 600; color: #21354e; }
+.card-header .count { font-size: 12px; color: #596e86; background: #f0f4f9; border-radius: 12px; padding: 3px 9px; }
+.report-description { margin: 8px 0 0; color: #738196; font-size: 13px; }
+.report-table-caption { margin-bottom: 14px; color: #738196; font-size: 12px; }
+.report-table-caption i { margin-right: 5px; }
+.selection-count { color: #2873cc; font-weight: 600; }
+.manual-plans { padding: 0 24px 24px; }
+.manual-toolbar { margin: 20px 0 10px; font-size: 13px; color: #66778b; }
+.manual-pagination { flex-wrap: wrap; margin-top: 20px; color: #738196; font-size: 12px; }
+.manual-detail { padding: 0 16px; color: #66778b; font-size: 12px; overflow-wrap: anywhere; }
+.manual-plans >>> .manual-expand-cell { cursor: pointer; }
+.manual-plans >>> .manual-expand-cell .cell { padding: 0; }
+.manual-plans >>> .manual-expand-cell .el-table__expand-icon { height: 40px; line-height: 40px; }
+.el-pagination { margin-top: 20px; text-align: right; }
+@media (max-width: 700px) { .manual-plans { padding: 0 14px 18px; } .el-pagination { text-align: left; overflow-x: auto; } }
 </style>

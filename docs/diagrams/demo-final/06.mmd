@@ -4,7 +4,7 @@ flowchart TD
   unknown["UNKNOWN / REVIEW_REQUIRED<br/>先按原请求号核对"]:::store
   failed["明确FAILED<br/>用户显式请求重试"]:::store
   lookup["dispatch_lookup<br/>当前权限与原操作者检查"]:::business
-  retry{"复核当前规则和执行权<br/>沿用稳定请求号与冻结版本"}:::guard
+  retry{"用户明确重试后重新复核<br/>沿用请求号与已确认快照<br/>重新认领并冻结本次执行版本"}:::guard
   remain["仍不确定或权限不足<br/>保留证据，不能自动重发"]:::error
   execute["受控执行 / 结果归档<br/>幂等与版本保护继续生效"]:::business
   result --> success
@@ -13,7 +13,7 @@ flowchart TD
   unknown --> lookup
   lookup -->|"已成功"| success
   lookup -->|"仍不确定"| remain
-  lookup -->|"可确认重试"| retry
+  lookup -->|"明确失败"| failed
   failed --> retry
   retry --> execute
   classDef ui fill:#eaf2ff,stroke:#386bc1,color:#1e354c

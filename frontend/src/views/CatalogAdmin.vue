@@ -1,12 +1,12 @@
 <template>
   <el-card shadow="never" v-loading="loading">
-    <div slot="header" class="toolbar"><strong>报表目录</strong><span>维护报表、负责人和业务说法</span><el-button size="small" type="primary" :disabled="!admin" @click="edit()">新增报表</el-button><el-button size="small" @click="load">刷新</el-button></div>
+    <div slot="header" class="page-toolbar"><div><h1>报表目录</h1><p>维护报表定义、负责人和业务别名</p></div><div class="page-actions"><el-button size="small" type="primary" icon="el-icon-plus" :disabled="!admin" @click="edit()">新增报表</el-button><el-button size="small" icon="el-icon-refresh" @click="load">刷新</el-button></div></div>
     <el-alert v-if="!admin" title="仅管理员可维护目录" type="info" :closable="false" />
     <template v-else>
-      <el-input v-model="search" placeholder="搜索名称、编码或负责人" clearable class="search" />
+      <el-input v-model="search" placeholder="搜索名称、编码或负责人" prefix-icon="el-icon-search" clearable class="search" />
       <el-table :data="filtered.slice((page-1)*20,page*20)" border size="small">
-        <el-table-column prop="reportName" label="报表" min-width="150" /><el-table-column prop="reportCode" label="编码" /><el-table-column prop="ownerUserId" label="负责人" />
-        <el-table-column prop="status" label="状态" width="110" /><el-table-column prop="catalogVersion" label="版本" width="65" />
+        <el-table-column prop="reportName" label="报表" min-width="150" /><el-table-column prop="reportCode" label="编码" /><el-table-column label="负责人"><template slot-scope="s">{{ s.row.ownerUserId || '未指定' }}</template></el-table-column>
+        <el-table-column label="状态" width="110"><template slot-scope="s"><business-label :value="s.row.status" tag /></template></el-table-column><el-table-column prop="catalogVersion" label="版本" width="65" />
         <el-table-column label="操作" width="300"><template slot-scope="s">
           <el-button type="text" @click="edit(s.row)">编辑</el-button><el-button type="text" @click="aliases(s.row)">别名</el-button><el-button type="text" @click="history(s.row)">版本回滚</el-button>
           <el-button type="text" v-if="s.row.status !== 'PUBLISHED'" @click="changeStatus(s.row,true)">发布</el-button><el-button type="text" v-else @click="changeStatus(s.row,false)">停用</el-button>
@@ -28,9 +28,9 @@
     </el-dialog>
     <el-dialog title="业务别名" :visible.sync="aliasVisible" width="680px">
       <el-form inline size="small"><el-form-item><el-input v-model="alias.alias" placeholder="简称、历史名称或常见错字" /></el-form-item><el-form-item><el-select v-model="alias.aliasType"><el-option v-for="t in aliasTypes" :key="t.value" :label="t.label" :value="t.value" /></el-select></el-form-item><el-button type="primary" :loading="saving" @click="saveAlias">添加</el-button></el-form>
-      <el-table :data="selected ? selected.aliases : []" size="small"><el-table-column prop="alias" label="别名" /><el-table-column prop="status" label="状态" /><el-table-column label="操作"><template slot-scope="s"><el-button v-if="s.row.status === 'ACTIVE'" type="text" :disabled="saving" @click="removeAlias(s.row)">停用</el-button></template></el-table-column></el-table>
+      <el-table :data="selected ? selected.aliases : []" size="small"><el-table-column prop="alias" label="别名" /><el-table-column label="状态"><template slot-scope="s"><business-label :value="s.row.status" tag /></template></el-table-column><el-table-column label="操作"><template slot-scope="s"><el-button v-if="s.row.status === 'ACTIVE'" type="text" :disabled="saving" @click="removeAlias(s.row)">停用</el-button></template></el-table-column></el-table>
     </el-dialog>
-    <el-dialog title="目录历史版本" :visible.sync="historyVisible" width="620px"><el-table :data="revisions"><el-table-column prop="catalog_version" label="版本" /><el-table-column prop="created_by" label="操作者" /><el-table-column prop="created_at" label="时间" /><el-table-column label="操作"><template slot-scope="s"><el-button type="text" :disabled="saving || (selected && s.row.catalog_version === selected.catalogVersion)" @click="rollback(s.row)">回滚</el-button></template></el-table-column></el-table></el-dialog>
+    <el-dialog title="目录历史版本" :visible.sync="historyVisible" width="620px"><el-table :data="revisions"><el-table-column prop="catalog_version" label="版本" /><el-table-column prop="created_by" label="操作者" /><el-table-column label="时间" min-width="175"><template slot-scope="s"><business-label :value="s.row.created_at" domain="time" /></template></el-table-column><el-table-column label="操作"><template slot-scope="s"><el-button type="text" :disabled="saving || (selected && s.row.catalog_version === selected.catalogVersion)" @click="rollback(s.row)">回滚</el-button></template></el-table-column></el-table></el-dialog>
   </el-card>
 </template>
 <script>

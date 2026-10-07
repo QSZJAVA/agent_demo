@@ -3,19 +3,19 @@ flowchart TD
   context["构造有界受控上下文<br/>当前状态、授权报表及字段元数据"]:::agent
   model["ModelIntentParser → MODEL<br/>V1 Schema、稳定规则与抽象对照<br/>明确凭据阻断、上下文统一脱敏"]:::model
   codec{"IntentCodec 校验<br/>结构、类型、原文证据、禁止条件"}:::guard
-  retry["最多一次修正<br/>将具体校验错误交回模型"]:::model
-  draft{"SemanticPlanner 草稿校验<br/>覆盖、实体角色与范围一致性"}:::guard
+  retry["最多两次草稿修正<br/>回传拒绝草稿与校验诊断"]:::model
+  draft{"SemanticPlanner 草稿校验<br/>报表覆盖、范围与记录定位预检"}:::guard
   fail["澄清 / 拒绝 / 失败<br/>不提交部分选择、不自动建单"]:::error
   apply["确定性业务流程<br/>范围 → 快照 → 选择 → 待确认清单"]:::agent
   in --> context
   context --> model
   model --> codec
-  codec -->|"首次失败"| retry
+  codec -->|"预算内"| retry
   retry --> model
   codec -->|"合格"| draft
-  draft -->|"首次矛盾"| retry
-  codec -->|"再次失败"| fail
-  draft -->|"业务拒绝"| fail
+  draft -->|"可修正矛盾"| retry
+  codec -->|"预算耗尽"| fail
+  draft -->|"最终拒绝"| fail
   draft -->|"合格"| apply
   classDef ui fill:#eaf2ff,stroke:#386bc1,color:#1e354c
   classDef agent fill:#edf5ff,stroke:#3778a8,color:#1e354c

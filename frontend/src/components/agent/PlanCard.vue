@@ -20,7 +20,7 @@
       <el-table-column prop="docNo" label="单据号" width="130" />
       <el-table-column prop="label" label="摘要" min-width="140" show-overflow-tooltip />
       <el-table-column prop="companyCode" label="公司" width="60" align="center" />
-      <el-table-column v-if="state !== 'pending'" prop="status" label="结果" width="90" />
+      <el-table-column v-if="state !== 'pending'" label="结果" width="120"><template slot-scope="scope"><business-label :value="scope.row.status" tag /></template></el-table-column>
       <el-table-column v-if="state !== 'pending'" label="失败原因" min-width="180" show-overflow-tooltip>
         <template slot-scope="scope">{{ scope.row.errorMessage || scope.row.errorCode || '' }}</template>
       </el-table-column>

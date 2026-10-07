@@ -59,6 +59,7 @@
  */
 import { fetchDispatchTrace, fetchTracePage, retryTraceDelivery } from '../../api/agent'
 import { getCurrentUserId } from '../../auth'
+import { displayLabel } from '../../utils/presentation'
 
 const emptyPage = () => ({ records: [], total: 0, nextCursor: null })
 export default {
@@ -119,13 +120,15 @@ export default {
     kind(row) {
       const value = this.value(row)
       const key = value.phase || row.phase || value.role || row.event_type || value.status
-      return { INTENT: '发送前留证', RESULT: '派单返回', RECONCILE: '结果核对', PLAN: '清单状态',
-        user: '用户消息', assistant: '助手回复', tool_call: '工具调用', tool_result: '工具返回', card: '业务卡片' }[key] || key
+      return displayLabel(displayLabel(key, 'phase'))
     },
     subject(row) { const value = this.value(row); return value.docNo || value.doc_no || value.userId || value.user_id || row.user_id || '' },
     description(row) {
       const value = this.value(row)
-      return value.content || value.message || value.error_message || value.error_code || value.action || value.status || value.cardType || value.card_type || ''
+      // 自由文本和错误码保留原文；只对明确属于枚举的字段翻译，展开行仍显示完整证据。
+      return value.content || value.message || value.error_message || value.error_code ||
+        (value.action ? displayLabel(value.action, 'action') : value.status ? displayLabel(value.status) :
+          displayLabel(value.cardType || value.card_type, 'phase'))
     },
     detail(row) { return JSON.stringify(this.value(row), null, 2) }
   }

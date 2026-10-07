@@ -10,14 +10,14 @@
       <span v-if="payload.summary.unclassifiedAmountCount">{{ payload.summary.unclassifiedAmountCount }} 条金额未声明币种，未计入合计</span>
     </div>
     <div v-if="payload.query.view === 'SUMMARY'" class="query-summary">
-      <p>状态分布：{{ counts(payload.summary.statusCounts) }}</p>
+      <p>状态分布：{{ counts(payload.summary.statusCounts, 'status') }}</p>
       <p v-if="Object.keys(payload.summary.groups).length">分组统计：{{ counts(payload.summary.groups) }}</p>
       <p v-if="Object.keys(payload.summary.pendingApprovers).length">当前待审批：{{ counts(payload.summary.pendingApprovers) }}</p>
     </div>
     <el-table :data="payload.rows" border stripe size="mini" row-key="rowKey" max-height="350" empty-text="当前查询没有匹配记录">
-      <el-table-column type="index" label="#" width="46" :index="rowIndex" />
+      <el-table-column type="index" label="序号" width="65" :index="rowIndex" />
       <el-table-column v-for="column in displayColumns" :key="column.name" :label="label(column)" :min-width="column.name === 'title' ? 160 : 120" show-overflow-tooltip>
-        <template slot-scope="scope">{{ cell(scope.row[column.name]) }}</template>
+        <template slot-scope="scope"><business-label v-if="['status','planStatus'].includes(column.name)" :value="scope.row[column.name]" tag /><span v-else>{{ cell(scope.row[column.name]) }}</span></template>
       </el-table-column>
       <el-table-column v-if="payload.query.domain === 'WORK_ORDER'" label="操作" width="96" fixed="right">
         <template slot-scope="scope"><el-button type="text" size="mini" :disabled="busy" @click="$emit('detail', scope.row.orderId)">查看进度</el-button></template>
@@ -43,6 +43,7 @@
 
 <script>
 /** 只读业务结果快照：数字与标识按服务端字符串展示；分页仅作用于最新查询，工单步骤全部来自事实载荷。 */
+import { displayLabel } from '../../utils/presentation'
 export default {
   name: 'BusinessQueryCard',
   props: { payload: { type: Object, required: true }, busy: Boolean, latest: Boolean },
@@ -72,7 +73,7 @@ export default {
   methods: {
     cell(value) { return value == null ? '—' : String(value) },
     rowIndex(index) { return (this.payload.query.page - 1) * this.payload.query.size + index + 1 },
-    counts(values) { return Object.entries(values).map(([key, count]) => `${key} ${count} 条`).join('；') || '暂无记录' },
+    counts(values, domain) { return Object.entries(values).map(([key, count]) => `${domain ? displayLabel(key, domain) : key} ${count} 条`).join('；') || '暂无记录' },
     label(column) {
       return { docNo: '单据号', reportName: '报表', companyCode: '公司', amount: '金额', currency: '币种', date: '业务日期', status: '状态', planStatus: '清单状态', operatorName: '创建人', createdByMe: '本人创建', createdDate: '创建日期', updatedDate: '更新日期', planId: '清单编号', requestId: '请求号', message: '结果说明', orderId: '工单编号', title: '主题', stage: '当前环节', assignee: '当前处理人' }[column.name] || column.description || column.name
     }

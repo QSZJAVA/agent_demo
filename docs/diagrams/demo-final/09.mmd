@@ -1,14 +1,15 @@
 flowchart TD
   input["自然语言或分页请求<br/>报表数据 / 派单记录 / 工单"]:::ui
   lease{"会话租约与当前权限<br/>请求归属、配额、历史权限版本"}:::guard
-  model["ModelAssistantPlanner · MODEL<br/>授权字段、查询引用、持续业务焦点"]:::model
+  model["ModelAssistantPlanner · MODEL<br/>成功查询、展示行、完整性和焦点<br/>撤销条件须有本轮原文证据"]:::model
   dispatch["派单语义子流程<br/>尝试普通查询后先重查派单候选"]:::agent
-  query{"AssistantCodec / BusinessQuery<br/>严格类型、条件、排序、页码及预算"}:::guard
+  query{"AssistantCodec / BusinessQuery<br/>路由/范围/追问与条件保留校验"}:::guard
   clarify["帮助 / 澄清 / 拒绝<br/>不丢弃不支持条件、不执行写入"]:::error
-  mcp["HTTP MCP business_query<br/>服务端身份、租户、公司、报表权限"]:::business
-  facts["完整受限读取与确定性统计<br/>全部报表状态 / 派单归属 / 工单接口"]:::business
-  card["持久查询卡片与独立上下文<br/>完整总数、分币种金额、时点和来源"]:::store
+  mcp["HTTP MCP business_query<br/>真实只读草稿预检及当前授权"]:::business
+  facts["完整受限读取与确定性统计<br/>10万行 / 120秒 / 16MiB<br/>成功事实本轮复用；不重复读取"]:::business
+  card["持久查询卡片与独立上下文<br/>总数、展示引用、时点和权限并集"]:::store
   ui["列表、详情、总结与翻页<br/>刷新可恢复；权限变化阻止旧事实展示"]:::ui
+  repair["有界草稿修正<br/>具体校验错误交回MODEL<br/>最终失败不更新成功查询"]:::model
   input --> lease
   lease --> model
   model -->|"只读"| query
@@ -18,7 +19,10 @@ flowchart TD
   mcp --> facts
   facts --> card
   card --> ui
-  facts -->|"失败或超限"| clarify
+  query -->|"草稿错误"| repair
+  facts -->|"确定性校验失败"| repair
+  repair -->|"预算内"| model
+  repair -->|"预算耗尽"| clarify
   classDef ui fill:#eaf2ff,stroke:#386bc1,color:#1e354c
   classDef agent fill:#edf5ff,stroke:#3778a8,color:#1e354c
   classDef model fill:#f3edff,stroke:#8751bf,color:#1e354c

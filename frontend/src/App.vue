@@ -17,13 +17,14 @@
   </div>
   <el-container v-else class="app-layout">
     <el-aside width="210px" class="app-aside">
-      <div class="logo">报表 Demo</div>
+      <div class="logo"><i class="el-icon-s-data"></i><div>报表工作台<small>业务协同 · 演示系统</small></div></div>
+      <div class="nav-caption">业务空间</div>
       <el-menu
         :default-active="activeMenu"
         router
-        background-color="#304156"
-        text-color="#bfcbd9"
-        active-text-color="#409eff"
+        background-color="#23354d"
+        text-color="#b9c8db"
+        active-text-color="#ffffff"
       >
         <el-menu-item v-if="canSee('sales')" index="/sales">
           <i class="el-icon-s-data"></i>
@@ -53,7 +54,7 @@
           <el-select v-if="!loginRequired" v-model="currentUserId" size="small" class="user-select" @change="switchUser">
             <el-option v-for="u in users" :key="u.userId" :label="u.displayName" :value="u.userId" />
           </el-select>
-          <template v-else><span>{{ users[0] && users[0].displayName }}</span><el-button size="small" @click="logout">退出登录</el-button></template>
+          <template v-else><span class="user-name"><i class="el-icon-user"></i>{{ users[0] && users[0].displayName }}</span><el-button size="small" @click="logout">退出登录</el-button></template>
           <el-button type="primary" size="small" icon="el-icon-chat-dot-round" @click="chatVisible = true">
             业务助手
           </el-button>
@@ -165,9 +166,10 @@ export default {
 
 <style scoped>
 .app-frame { height: 100%; }
-.login-page { min-height: 100%; display: flex; justify-content: center; align-items: center; background: #f3f6fa; }
-.login-card { width: 360px; max-width: calc(100vw - 40px); }
+.login-page { min-height: 100%; display: flex; justify-content: center; align-items: center; background: radial-gradient(ellipse at 30% 25%, #e6effc, #f4f7fb 65%); }
+.login-card { width: 400px; max-width: calc(100vw - 40px); padding: 12px; box-shadow: 0 14px 48px #203e6b12; }
 .login-card h2 { margin-top: 0; }
+.login-card p { color: #758397; font-size: 13px; }
 .login-card label { display: block; margin: 18px 0 8px; }
 .login-card button { margin-top: 22px; width: 100%; }
 .login-error { color: #c23030; }
@@ -176,19 +178,27 @@ export default {
 }
 
 .app-aside {
-  background-color: #304156;
+  background-color: #23354d;
+  padding: 0 12px;
 }
 
 .logo {
-  height: 60px;
-  line-height: 60px;
-  text-align: center;
+  height: 90px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
   color: #fff;
   font-size: 18px;
   font-weight: 600;
-  letter-spacing: 2px;
-  background-color: #263445;
+  letter-spacing: .5px;
 }
+.logo > i { background: #3a7dcd; border-radius: 9px; padding: 8px; font-size: 23px; }
+.logo small { display: block; margin-top: 5px; color: #9dafc5; font-size: 10px; font-weight: 400; letter-spacing: 1px; }
+.nav-caption { color: #8398b3; font-size: 11px; padding: 16px 16px 10px; letter-spacing: 1px; }
+.app-aside >>> .el-menu-item { margin: 4px 0; border-radius: 7px; height: 48px; line-height: 48px; }
+.app-aside >>> .el-menu-item.is-active { background: #337bd4 !important; box-shadow: 0 4px 10px #11253d20; }
+.app-aside >>> .el-menu-item.is-active i { color: #fff; }
 
 .app-aside >>> .el-menu {
   border-right: none;
@@ -199,7 +209,8 @@ export default {
   align-items: center;
   justify-content: space-between;
   background-color: #fff;
-  border-bottom: 1px solid #e6e6e6;
+  border-bottom: 1px solid #e5ebf3;
+  padding: 0 28px;
 }
 
 .app-header .title {
@@ -215,23 +226,33 @@ export default {
   gap: 12px;
 }
 
-.app-header .env {
-  font-size: 12px;
-  color: #909399;
-}
+.user-name { display: flex; align-items: center; gap: 7px; color: #6b7c91; font-size: 13px; }
 
 .user-select {
   width: 230px;
 }
 
 .app-main {
-  padding: 16px;
+  padding: 26px;
 }
 @media (max-width: 900px) {
   .app-aside { width: 140px !important; }
+  .app-aside { padding: 0 8px; }
+  .logo { font-size: 15px; gap: 6px; }
+  .logo > i, .logo small { display: none; }
+  .app-aside >>> .el-menu-item { padding: 0 10px !important; }
+  .app-main { padding: 16px; }
   .app-header { flex-wrap: wrap; height: auto !important; min-height: 80px; padding: 10px 16px; gap: 8px; }
   .app-header .title { width: 100%; }
   .app-header .right { flex-wrap: wrap; }
   .user-select { width: 190px; }
+}
+@media (max-width: 600px) {
+  .app-aside { width: 112px !important; }
+  .app-aside >>> .el-menu-item { font-size: 12px; padding: 0 6px !important; }
+  .app-aside >>> .el-menu-item i { width: 18px; font-size: 16px; margin-right: 2px; }
+  .app-main { padding: 10px; }
+  .app-header { padding: 10px 12px; }
+  .app-header .right { gap: 7px; }
 }
 </style>

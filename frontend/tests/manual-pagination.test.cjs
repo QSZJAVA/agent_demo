@@ -85,3 +85,49 @@ test('manual dispatch submits only the selected adjacent large ID as a string', 
   await state.handleDispatch()
   assert.deepEqual(Array.from(ids), ['9007199254740993'])
 })
+
+test('manual history keeps the latest loading state when an older page fails', async () => {
+  const requests = []
+  const c = component('ReportTable.vue', {
+    getCurrentUserId: () => 'user1',
+    fetchManualPlans: () => new Promise((resolve, reject) => requests.push({ resolve, reject }))
+  })
+  const state = { ...c.data(), reportId: 'rpt-sales-order' }
+  for (const [key, fn] of Object.entries(c.methods)) state[key] = fn.bind(state)
+  const old = state.loadManualPlans(1), latest = state.loadManualPlans(2)
+  requests[0].reject(new Error('offline')); await old
+  assert.equal(state.manualLoading, true)
+  assert.equal(state.manualError, '')
+  requests[1].resolve([{ planId: 'latest' }]); await latest
+  assert.equal(state.manualPage, 2)
+  assert.equal(state.manualPlans[0].planId, 'latest')
+  assert.equal(state.manualLoading, false)
+  const failed = state.loadManualPlans(3)
+  requests[2].reject(new Error('offline')); await failed
+  assert.match(state.manualError, /加载失败/)
+  assert.equal(state.manualPage, 2)
+  assert.equal(state.manualLoading, false)
+})
+
+test('manual history expansion follows plan identity across refresh and clears on page change', async () => {
+  const requests = []
+  const c = component('ReportTable.vue', {
+    getCurrentUserId: () => 'user1',
+    fetchManualPlans: () => new Promise(resolve => requests.push(resolve))
+  })
+  const state = { ...c.data(), reportId: 'rpt-sales-order' }
+  for (const [key, fn] of Object.entries(c.methods)) state[key] = fn.bind(state)
+  const original = { planId: 'p1', docNo: 'SO1' }
+  state.manualPlans = [original]
+  state.onManualExpandChange(original, [original])
+  const refresh = state.loadManualPlans()
+  requests[0]([{ planId: 'p1', docNo: 'SO1', message: '已核对' }]); await refresh
+  assert.notEqual(state.manualPlans[0], original)
+  assert.deepEqual(Array.from(state.expandedManualPlanIds), ['p1'])
+  const stale = state.loadManualPlans(1), latest = state.loadManualPlans(2)
+  requests[2]([{ planId: 'p2', docNo: 'SO2' }]); await latest
+  requests[1]([{ planId: 'p1', docNo: 'SO1' }]); await stale
+  assert.deepEqual(Array.from(state.expandedManualPlanIds), [])
+  assert.equal(state.manualPage, 2)
+  assert.equal(state.manualPlans[0].planId, 'p2')
+})

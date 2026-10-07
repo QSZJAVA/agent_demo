@@ -2,12 +2,13 @@ flowchart TD
   change["RECORDS 操作<br/>EXCLUDE / RESTORE / KEEP_ONLY等"]:::agent
   scope{"按 reportMentions 限定记录<br/>校验报表权限及当前预览"}:::guard
   fields["FIELDS 条件编译<br/>目录字段白名单、类型、允许操作"]:::agent
-  entity["DOCUMENT / DESCRIPTION<br/>或 COUNTERPARTY 稳定客户关联"]:::agent
-  eval{"有界AND / OR条件求值<br/>精确十进制、ISO日期、文本和布尔"}:::guard
-  unique{"唯一实体与数量校验<br/>ALL不能跨同名客户合并"}:::guard
+  entity["单据 / 摘要 / 客户 / 整类<br/>DOCUMENT / DESCRIPTION<br/>COUNTERPARTY / ALL"]:::agent
+  eval{"有界AND / OR条件求值<br/>各报表按已声明字段匹配<br/>未声明字段不当作业务空值"}:::guard
+  unique{"实体、数量与整类操作校验<br/>多客户歧义不能用全部绕过"}:::guard
   complete{"完整快照及整轮原子性<br/>任一项失败不提交部分排除"}:::guard
-  commit["更新复合记录键集合<br/>限定报表之外的选择保持"]:::store
+  commit["更新复合记录键集合<br/>仅更新当前授权报表子集<br/>只保留须有明确排他依据"]:::store
   refuse["未知字段 / 歧义 / 缺失事实<br/>明确提示并保留恢复路径"]:::error
+  reference{"REFERENCE 当前预览引用<br/>绑定预览及复合记录标识<br/>核对本轮点名冲突与数量"}:::guard
   change --> scope
   scope -->|"字段条件"| fields
   scope -->|"实体选择"| entity
@@ -17,6 +18,8 @@ flowchart TD
   unique --> complete
   complete -->|"全部成功"| commit
   complete -->|"失败"| refuse
+  scope -->|"已有引用"| reference
+  reference --> complete
   classDef ui fill:#eaf2ff,stroke:#386bc1,color:#1e354c
   classDef agent fill:#edf5ff,stroke:#3778a8,color:#1e354c
   classDef model fill:#f3edff,stroke:#8751bf,color:#1e354c

@@ -38,6 +38,7 @@ import 'element-ui/lib/theme-chalk/index.css'
 import App from './App.vue'
 import router from './router'
 import './styles/global.css'
+import BusinessLabel from './components/BusinessLabel.vue'
 
 const components = [
   Alert, Aside, Button, Card, Checkbox, CheckboxGroup, Collapse, CollapseItem,
@@ -46,6 +47,7 @@ const components = [
   Tabs, Tag
 ]
 components.forEach((component) => Vue.use(component))
+Vue.component('BusinessLabel', BusinessLabel)
 Vue.use(Loading.directive)
 Vue.prototype.$ELEMENT = { size: 'small' }
 Vue.prototype.$message = Message

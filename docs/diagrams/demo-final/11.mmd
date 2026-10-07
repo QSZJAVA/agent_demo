@@ -1,0 +1,27 @@
+flowchart TD
+  page["报表页业务明细<br/>授权范围分页；金额为本页合计"]:::ui
+  select["勾选当前页未派单记录<br/>每次1～50条，核对后确认"]:::ui
+  history["右上角“派单记录”<br/>独立抽屉，每页最多50条<br/>仅当前用户、当前报表手工记录"]:::ui
+  job["DIRECT持久任务<br/>稳定幂等键、权限与版本校验<br/>每条记录生成可追溯清单"]:::agent
+  read["读取服务器记录<br/>加载错误可刷新，未知先核对"]:::agent
+  execute["认证HTTP MCP执行<br/>来源行锁、字段快照和原请求号<br/>持久结果回到报表与记录抽屉"]:::business
+  details["展开详情 / 收起详情<br/>文字按钮或箭头所在整格<br/>按planId保留同页刷新展开状态"]:::ui
+  trace["完整追溯 / 按状态处理<br/>事件、审计、会话、逐条结果<br/>待核对先查；明确失败才重试"]:::ui
+  safe{"详情切换仅改变本地显示<br/>关闭抽屉不取消后台任务<br/>业务动作继续走原保护链路"}:::guard
+  page -->|"发起派单"| select
+  page -->|"查看记录"| history
+  select --> job
+  job --> execute
+  history --> read
+  read --> details
+  execute -->|"结果刷新"| read
+  details -->|"按需查看或处理"| trace
+  details --> safe
+  trace --> safe
+  classDef ui fill:#eaf2ff,stroke:#386bc1,color:#1e354c
+  classDef agent fill:#edf5ff,stroke:#3778a8,color:#1e354c
+  classDef model fill:#f3edff,stroke:#8751bf,color:#1e354c
+  classDef business fill:#e8f7ef,stroke:#268255,color:#1e354c
+  classDef guard fill:#fff4dc,stroke:#b58022,color:#1e354c
+  classDef error fill:#fff0ef,stroke:#ba534e,color:#1e354c
+  classDef store fill:#edf1f5,stroke:#60768b,color:#1e354c

@@ -1,18 +1,19 @@
 <template>
   <div>
     <el-card shadow="never">
-      <div slot="header" class="head">
+      <div slot="header" class="head page-toolbar">
         <div class="left">
-          <span class="title">派单规则</span>
-          <span class="desc">规则以数据形式存储，发布后立即生效；预览快照会记录规则版本，规则变更后旧快照不能再执行</span>
+          <h1>派单规则</h1>
+          <p>维护各公司派单条件，发布后立即生效</p>
         </div>
-        <div class="right">
+        <div class="right page-actions">
           <el-alert v-if="!isAdmin" type="info" :closable="false" show-icon title="当前用户不是管理员，只能查看" class="admin-alert" />
           <el-button type="primary" size="small" icon="el-icon-plus" :disabled="!isAdmin" @click="openEditor()">新建草稿</el-button>
           <el-button size="small" icon="el-icon-refresh" @click="load">刷新</el-button>
         </div>
       </div>
 
+      <el-alert title="规则变更后，原预览需要重新生成再执行。" type="info" show-icon :closable="false" class="rule-note" />
       <el-table v-loading="loading" :data="rules" border stripe size="small">
         <el-table-column label="报表" width="120">
           <template slot-scope="scope">{{ reportLabel(scope.row.reportId) }}</template>
@@ -32,7 +33,7 @@
         </el-table-column>
         <el-table-column prop="description" label="说明" min-width="200" show-overflow-tooltip />
         <el-table-column label="更新" width="150">
-          <template slot-scope="scope">{{ scope.row.updatedBy }}<br /><span class="time">{{ formatTime(scope.row.updatedAt) }}</span></template>
+          <template slot-scope="scope"><business-label :value="scope.row.updatedBy" domain="actor" /><br /><span class="time">{{ formatTime(scope.row.updatedAt) }}</span></template>
         </el-table-column>
         <el-table-column label="操作" width="230" fixed="right">
           <template slot-scope="scope">
@@ -75,8 +76,8 @@
           <el-input v-model="editor.expression" type="textarea" :rows="3" placeholder="例如：amount > 1000 && include(seq.list('差旅费','市场推广费'), expenseType)" />
           <div class="fields">
             <span class="fields-title">可用字段（点击插入）：</span>
-            <el-tag v-for="f in fields" :key="f.name" size="mini" class="field" :title="f.description" @click="insertField(f.name)">
-              {{ f.name }} <span class="ftype">{{ f.type }}</span>
+            <el-tag v-for="f in fields" :key="f.name" size="mini" class="field" :title="f.name" @click="insertField(f.name)">
+              {{ f.description || f.name }} <span class="ftype"><business-label :value="f.type" domain="fieldType" /></span>
             </el-tag>
           </div>
           <div class="fields-help">语法：Aviator 表达式。比较 &gt; &lt; == !=，逻辑 &amp;&amp; || !，函数 include(seq.list(...), x)、string.startsWith(x, '前缀')、字符串用单引号。</div>
@@ -116,7 +117,7 @@
           <template slot-scope="scope"><code>{{ scope.row.expression }}</code></template>
         </el-table-column>
         <el-table-column prop="description" label="说明" min-width="160" show-overflow-tooltip />
-        <el-table-column prop="operatedBy" label="操作人" width="80" />
+        <el-table-column label="操作人" width="100"><template slot-scope="scope"><business-label :value="scope.row.operatedBy" domain="actor" /></template></el-table-column>
         <el-table-column label="时间" width="140">
           <template slot-scope="scope">{{ formatTime(scope.row.operatedAt) }}</template>
         </el-table-column>
@@ -352,6 +353,9 @@ export default {
 </script>
 
 <style scoped>
+.head { flex-wrap: wrap; gap: 16px; }
+.rule-note { margin-bottom: 18px; }
+.head .left { flex: 1; min-width: 230px; }
 .head {
   display: flex;
   align-items: center;

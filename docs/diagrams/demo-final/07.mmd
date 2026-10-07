@@ -1,11 +1,12 @@
 flowchart TD
   ui["用户显式发起异常调查"]:::ui
   run["登记调查运行与租约<br/>任务预算、取消及恢复"]:::store
-  context["有界上下文与证据索引<br/>当前授权目录、步骤与已验证证据"]:::agent
-  model["真实模型提出只读工具请求<br/>应用控制执行循环与调用预算"]:::model
-  tools{"参数与权限校验后调用<br/>六个受控只读工具 / HTTP MCP<br/>出站消息统一脱敏，配对ID保留"}:::guard
+  context["有界上下文与证据索引<br/>已取得证据与context-v2笔记<br/>超阈值整理；按E编号回读"]:::agent
+  model["真实模型提出只读工具请求<br/>收集最多6次；工具最多16次"]:::model
+  tools{"参数与权限校验后调用<br/>六个只读工具，按需核对MCP<br/>逐次权限/来源/执行权检查"}:::guard
   facts["保存步骤、事实与引用<br/>缺失事实不能编造为结论"]:::store
-  report["证据支持的调查报告<br/>覆盖不足明确说明，不触发派单"]:::ui
+  report["无工具报告及最多一次修正<br/>模型给结构化结论与证据引用<br/>程序核验事实并生成说明文本"]:::agent
+  display["报告与中文步骤展示<br/>部分完成、来源变化明确提示<br/>取消或失租不回写，不自动重放"]:::ui
   ui --> run
   run --> context
   context --> model
@@ -13,6 +14,7 @@ flowchart TD
   tools --> facts
   facts -->|"下一步"| context
   facts -->|"结束或预算边界"| report
+  report --> display
   classDef ui fill:#eaf2ff,stroke:#386bc1,color:#1e354c
   classDef agent fill:#edf5ff,stroke:#3778a8,color:#1e354c
   classDef model fill:#f3edff,stroke:#8751bf,color:#1e354c

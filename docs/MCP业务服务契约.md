@@ -24,14 +24,18 @@ MCP 使用 `/mcp` 上的 Streamable HTTP，支持 initialize、tools/list、tool
 
 `business_query` 接受 `query`：domain、view、reportIds、companyCode、conditions、sortField、descending、page、size、groupBy。domain 为 REPORT / DISPATCH / WORK_ORDER；view 为 LIST / DETAIL / SUMMARY。字段和操作依数据域校验，空 reportIds 表示当前全部可见报表；租户及操作者仍由服务器注入。返回 query、observedAt、source、columns、rows、total、summary。summary 与完整筛选范围一致，币种未声明的金额单独计数、不参与合计。默认扫描预算为 100000 条 / 120 秒，超限或读取不完整时失败，不返回部分汇总。工单提供者及边界见[通用业务助手](通用业务助手.md)。
 
+`ModelAssistantPlanner` 固定请求原生 JSON Schema 并关闭 thinking；V1 派单解析和调查报告各有独立选项。统一查询入口所需能力不能通过关闭派单解析的 Schema 选项来替代。
+
 ## 会话、预览、清单和执行
 
 `POST /api/agent/chat` 返回 SSE。历史、卡片状态和选择由 `/api/agent/conversations/...` 读取；断线恢复重读持久状态，不保证原文字流续传。预览和清单接口位于 `/api/dispatch/previews`、`/api/dispatch/plans`。
 
 手动勾选使用 `PUT /api/agent/conversations/{id}/selection` 保存当前预览的完整排除集合，并携带修改前集合进行并发比较。服务端验证预览、记录键、权限与会话租约；冲突要求重读，保存选择不构成派单确认。
 
+报表页的手工记录由 `GET /api/dispatch/direct/plans` 按本人和报表读取；页面详情只是本地展开。手工确认采用 `DIRECT` 任务，工作台核对与重试采用对应的管理员任务动作。页面说明见[工作台操作与运营治理](工作台操作与运营治理.md)。
+
 确认、明确失败重试及核对由 `/api/dispatch/jobs` 接收稳定 Idempotency-Key，持久任务绑定用户、清单和执行版本。执行前检查归属、权限、TTL、目录/规则版本、确认状态；业务事务再锁定来源、请求和清单并核对负载。相同请求号及相同负载重放成功结果，不同负载拒绝；未知结果先核对，不能自动更换请求号重发。
 
-来源目前是本仓库维护的 Demo 表；外部 ERP 接入、独立控制库和正式认证仍待完成。实现细节见 [字段快照设计](语义V1配置字段筛选.md)、[派单接入契约](MCP派单接入契约.md) 与 [当前验收](review/V1重新编号与验收_2026-10-06.md)。
+来源目前是本仓库维护的 Demo 表；外部 ERP 接入、独立控制库和正式认证仍待完成。实现细节见 [字段快照设计](语义V1配置字段筛选.md)、[派单接入契约](MCP派单接入契约.md) 与 [此前整体业务回归](review/整体回归与多轮对话验收_2026-10-07.md)。
 
 实际来源写入还必须在行锁内核对已确认的金额、日期、公司、客户身份及目录声明的全部标量字段，任一变化拒绝执行并要求重新查询确认。正常规则仍然命中不能覆盖字段变化保护；明确失败重试继续沿用相同请求号和已确认快照。后台派单、调查认领与过期恢复、预览孤儿回收只处理本实例配置租户，不能处理共享库中的其他租户任务；这不等于完成多租户 SaaS 的公平调度与生产验收。

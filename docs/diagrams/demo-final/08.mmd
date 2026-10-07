@@ -1,11 +1,11 @@
 flowchart TD
   manifest["demo-baseline.json<br/>V1 / real,mcp / active<br/>原生 JSON Schema"]:::store
   start["start-app 或 start-mcp<br/>业务服务就绪后再启动Agent"]:::agent
-  prepare{"prepare-demo 一次准备<br/>核实专用库、幂等补充数据及账号"}:::guard
-  preview["授权A公司查询九条记录<br/>销售3、应收4、费用2"]:::ui
+  prepare{"prepare-demo 一次准备<br/>report_demo；数据操作须授权<br/>不清库，不复位已派单记录"}:::guard
+  preview["未派单基线下A公司九条<br/>销售3、应收4、费用2"]:::ui
   amount["销售金额大于96000不要<br/>仅排除128000，保留等号边界"]:::agent
   document["再排除SO2026002<br/>保持三类报表，剩余七条"]:::agent
-  verify{"14步真实HTTP回放与浏览器<br/>重启恢复、字段快照及待确认清单"}:::guard
+  verify{"分层回归与恢复检查<br/>14步字段回放仅适用指定基线<br/>模型/HTTP/数据库/前端分别取证"}:::guard
   limits["证据边界如实保留<br/>外部ERP、正式认证与生产验收待完成"]:::error
   manifest --> start
   start --> prepare

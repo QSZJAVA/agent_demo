@@ -1,7 +1,6 @@
 <template>
   <report-table
     title="销售报表"
-    table-name="report_sales"
     report-id="rpt-sales-order"
     doc-no-field="orderNo"
     :columns="columns"
@@ -34,7 +33,7 @@ export default {
         { prop: 'companyCode', label: '公司代码', width: 100 },
         { prop: 'orderNo', label: '订单号', width: 140 },
         { prop: 'productName', label: '产品名称', minWidth: 140 },
-        { prop: 'amount', label: '金额(元)', width: 160, isAmount: true },
+        { prop: 'amount', label: '金额（元）', width: 160, isAmount: true },
         { prop: 'saleDate', label: '销售日期', width: 130 }
       ]
     }
