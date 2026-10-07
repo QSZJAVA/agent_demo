@@ -95,13 +95,14 @@ public class SemanticConversationService {
             long previewVersion=previews.beginRequest(id);
             catalog.refreshForValidation();
             var mentions=planner.mentions(user,message);
-            var interpreted=parser.interpret(message,new IntentParser.Context(state,catalog.dispatchableReports(user).stream().map(CatalogEntry::ref).toList(),mentions,SemanticCapabilities.selectors(catalog.dispatchableReports(user)),draft -> planner.validateModelDraft(user,state,draft),SemanticCapabilities.fields(catalog.dispatchableReports(user))));
+            var interpreted=parser.interpret(message,new IntentParser.Context(state,catalog.dispatchableReports(user).stream().map(CatalogEntry::ref).toList(),mentions,SemanticCapabilities.selectors(catalog.dispatchableReports(user)),draft -> {
+                validateSelectionDraft(user,state,draft,message);planner.validateModelDraft(user,state,draft);
+            },SemanticCapabilities.fields(catalog.dispatchableReports(user)),currentSelection(user,state)));
             codec.validate(interpreted.intent(),message); guard.run();
             intent=interpreted.intent();state.setParserSource(interpreted.source());
+            if(requiresExplicitPreparation(intent,message))throw new IntentCodec.InvalidOutput("","EXPLICIT_PREPARATION_REQUIRED：本轮只调整候选选择，没有明确生成清单或派单动作；保留全部选择修改并使用PREVIEW，不得顺带生成待确认清单。");
             // 普通查询结果没有派单资格语义；查询/派单切换时先取得新候选，禁止指代旧预览生成或修改清单。
-            if(state.isBusinessQueryAfterPreview() && (intent.action()==SemanticIntent.Action.PREPARE_DISPATCH
-                    || (intent.changes(RECORDS) && !intent.changes(REPORTS) && !intent.changes(COMPANY))
-                    || (intent.action()==SemanticIntent.Action.CLARIFY && intent.clarify()==SemanticIntent.Clarify.RECORDS)))
+            if(requiresFreshDispatchScope(state,intent,message))
                 throw new ApiException(422,"刚才查看的是只读业务数据，请先明确查询可派单范围，再调整选择或生成待确认清单");
             state.setPendingIntent(intent);
             planner.requireCoverage(state,intent,mentions);
@@ -112,7 +113,7 @@ public class SemanticConversationService {
                 case HELP -> "可以查询某家公司或报表的可派单记录、追加或移除报表、排除单据、生成待确认清单，以及取消清单或查看结果。真正派单需要点击确认卡片。";
                 case CANCEL_PLAN -> cancel(user,id,state,session,guard);
                 case SHOW_RESULT -> result(user,id,state,emit);
-                case PREVIEW, PREPARE_DISPATCH, EXPLAIN_RULES -> query(user,id,requestId,previewVersion,intent,state,session,uiPreviewId,uiExcludes,guard,emit);
+                case PREVIEW, PREPARE_DISPATCH, EXPLAIN_RULES -> query(user,id,requestId,previewVersion,intent,state,session,uiPreviewId,uiExcludes,guard,emit,message);
                 default -> throw new ApiException(422,"请明确本次操作");
             };
             state.setLastReason(null);state.setUnresolvedRequest(false);
@@ -124,6 +125,9 @@ public class SemanticConversationService {
             state.setPhase(failure instanceof ApiException api && api.getCode()==422 ? DialogueState.Phase.CLARIFY
                     : failure instanceof ApiException ? DialogueState.Phase.REJECTED : DialogueState.Phase.FAILED);
             reply=friendly(failure); state.setLastReason(reply);
+            if(state.isBusinessQueryAfterPreview() && failure instanceof ApiException api && api.getCode()==422 && !reply.contains("只读")) {
+                reply+=" 刚才查看的是只读业务数据；如需派单，请先明确可派候选范围。";state.setLastReason(reply);
+            }
             // 只记录契约校验原因以便复现，不记录模型原始输出或认证凭据。
             if(failure instanceof IntentCodec.InvalidOutput invalid)log.warn("语义草稿拒绝 conversation={} reason={}",id,SensitiveData.text(invalid.reason()));
             if (!(failure instanceof ApiException)) log.warn("语义处理失败 conversation={} type={}",id,failure.getClass().getSimpleName());
@@ -141,7 +145,7 @@ public class SemanticConversationService {
      * 仅在期望范围与已生效范围一致且预览仍有效时复用事实。记录排除绑定当前预览，重新查询后需重新对齐选择；生成清单仍不代表执行派单。
      */
     private String query(CurrentUser user,String id,String requestId,long previewVersion,SemanticIntent intent,DialogueState state,
-            DialogueStore.Session session,String uiPreviewId,List<RecordKey> uiExcludes,Runnable guard,Consumer<AgentEvent> emit) {
+            DialogueStore.Session session,String uiPreviewId,List<RecordKey> uiExcludes,Runnable guard,Consumer<AgentEvent> emit,String message) {
         planner.validate(user,state);
         PreviewSnapshot snapshot=null;
         boolean afterBusinessQuery=state.isBusinessQueryAfterPreview();
@@ -169,7 +173,7 @@ public class SemanticConversationService {
             snapshot=outcome.snapshot();
             state.setPreviewId(snapshot.preview().getId()); state.setEffective(scope); state.setPlanId(null);
             state.setBusinessQueryAfterPreview(false);
-            if(!sameScope){state.setLastSuccessfulSelection(List.of());state.setLastSelectionReferences(List.of());state.setLastSelectionReferencesComplete(true);}
+            SelectionReferences.clear(state);
             refreshed=true;
             session.save();
             var payload=PreviewPayload.of(snapshot,catalog);
@@ -212,7 +216,7 @@ public class SemanticConversationService {
             List<RecordKey> selected=uiMatches && uiExcludes!=null ? List.copyOf(uiExcludes) : state.getExcludedRecords();
             // 报表限定仅参与当前快照的记录定位；整轮成功后才提交选择，不能在中途丢失限定或部分排除。
             for (var change:intent.scopeChanges()) if (change.target()==RECORDS)
-                selected=SelectionResolver.apply(rows,selected,change,catalog,user);
+                selected=SelectionResolver.apply(rows,selected,change,catalog,user,state,message);
             SelectionResolver.validate(rows,selected);
             if(intent.changes(RECORDS)) {
                 var changes=intent.scopeChanges().stream().filter(c->c.target()==RECORDS).toList();
@@ -255,18 +259,67 @@ public class SemanticConversationService {
         boolean all=change.operation()==SemanticIntent.Operation.RESTORE_ALL;
         var target=new SemanticIntent.ScopeChange(RECORDS,SemanticIntent.Operation.EXCLUDE,all?List.of():change.mentions(),change.evidence(),change.reportMentions(),
                 all?SemanticIntent.SelectorKind.ALL:change.selectorKind(),all?SemanticIntent.Quantifier.ALL:change.quantifier(),change.conditions());
-        Set<RecordKey> keys=new HashSet<>(SelectionResolver.apply(rows,List.of(),target,catalog,user));
-        var references=new ArrayList<Map<String,String>>();int bytes=0;boolean complete=true;
-        for(var row:rows)if(keys.contains(new RecordKey(row.reportId(),row.recordId()))) {
-            var ref=new LinkedHashMap<String,String>();ref.put("reportId",row.reportId());ref.put("reportName",row.reportName());ref.put("companyCode",row.companyCode());
-            if(row.docNo()!=null)ref.put("docNo",row.docNo());if(row.label()!=null)ref.put("label",row.label());
-            for(var field:row.fields())if(field.value()!=null)ref.putIfAbsent(field.name(),field.value());
-            if(row.counterparty()!=null){ref.put("counterpartyId",row.counterparty().id());ref.put("counterpartyName",row.counterparty().name());}
-            int size=JsonUtil.toJson(ref).getBytes(java.nio.charset.StandardCharsets.UTF_8).length;
-            if(references.size()>=50 || bytes+size>32768){complete=false;break;}
-            references.add(ref);bytes+=size;
+        Set<RecordKey> keys=new HashSet<>(SelectionResolver.apply(rows,List.of(),target,catalog,user,state));
+        SelectionReferences.capture(state,rows,keys);
+    }
+    /** 当前预览上的无副作用预检，为有界模型修正提供选择错误；不新建预览、不提交草稿或替用户更换实体。 */
+    private void validateSelectionDraft(CurrentUser user,DialogueState state,SemanticIntent intent,String message) {
+        if(requiresExplicitPreparation(intent,message))
+            throw new IntentCodec.InvalidOutput("","EXPLICIT_PREPARATION_REQUIRED：本轮只调整候选选择，没有明确生成清单或派单动作；保留全部选择修改并使用PREVIEW，不得把照常、保留或某类不安排解释为额外建单。");
+        if(requiresFreshDispatchScope(state,intent,message))
+            throw new IntentCodec.InvalidOutput("","FRESH_DISPATCH_PREVIEW_REQUIRED：当前上下文是普通只读查询，不能直接准备清单或仅恢复旧预览的记录选择。当前要求重新查看可派候选时用PREVIEW并明确设置COMPANY/REPORTS范围；不能用RECORDS RESTORE_ALL和reportMentions代替新报表查询。若明确要求直接建单则澄清需要新预览，不能擅自改为查看或省略限制。");
+        if(!Set.of(SemanticIntent.Action.PREVIEW,SemanticIntent.Action.PREPARE_DISPATCH).contains(intent.action())
+                || state.getPreviewId()==null || state.isBusinessQueryAfterPreview() || !Objects.equals(state.getDesired(),state.getEffective())
+                || intent.changes(COMPANY) || intent.changes(REPORTS))return;
+        var snapshot=previews.getOwned(user,state.getPreviewId());
+        if(!DispatchPreview.ACTIVE.equals(snapshot.preview().getStatus()))return;
+        // 辅助预检不能迫使大预览完整加载；正式记录选择仍执行原有大小与完整性校验。
+        if(snapshot.preview().getTotalCount()>props.getPreview().getMaxItems())return;
+        var candidates=rows(user,snapshot);
+        var reportTerms=new ArrayList<String>();intent.reportConstraints().forEach(c->reportTerms.add(c.mention()));
+        intent.scopeChanges().forEach(c->reportTerms.addAll(c.reportMentions()));
+        for(String term:reportTerms)if(!catalog.resolve(user,term).resolved()) {
+            String normalized=TextNormalizer.normalize(term);
+            boolean recordValue=candidates.stream().flatMap(c->c.fields().stream()).anyMatch(f->f.value()!=null
+                    && !normalized.isBlank() && TextNormalizer.normalize(f.value()).contains(normalized));
+            if(recordValue)throw new IntentCodec.InvalidOutput("","RECORD_VALUE_IS_NOT_REPORT：报表限定中的“"+term+"”是当前候选的字段值，不是报表目录实体；请用记录字段条件保留该要求，不能删除对象或补写本轮未出现的报表名称。");
         }
-        state.setLastSelectionReferences(List.copyOf(references));state.setLastSelectionReferencesComplete(complete);
+        if(!intent.changes(RECORDS))return;
+        try {
+            var selected=state.getExcludedRecords();
+            for(var change:intent.scopeChanges())if(change.target()==RECORDS)selected=SelectionResolver.apply(candidates,selected,change,catalog,user,state,message);
+            SelectionResolver.validate(candidates,selected);
+        } catch(ApiException invalid) {
+            if(invalid.getCode()!=422)throw invalid;
+            throw new IntentCodec.InvalidOutput("","RECORD_SELECTION_INVALID："+invalid.getMessage()
+                    +"。保留本轮对象、数量和全部限制；明确承接已定位对象时可用lastSelectionReferences的REFERENCE键，未知或多义对象必须澄清，不能替换成其他记录或省略选择操作。");
+        }
+    }
+    /** 仅否决无本轮建单依据的“选择+建单”组合，不按词语生成选择或切换动作；草稿仍由模型修正。 */
+    static boolean requiresExplicitPreparation(SemanticIntent intent,String message) {
+        return intent.action()==SemanticIntent.Action.PREPARE_DISPATCH && intent.changes(RECORDS)
+                && !java.util.regex.Pattern.compile("清单|待确认|单子|派单|生成|制作|出单|\\b(?:prepare|draft|plan|dispatch)\\b",java.util.regex.Pattern.CASE_INSENSITIVE).matcher(message).find();
+    }
+    /** 普通查询后不能凭旧派单范围准备、修改或无范围刷新；草稿修正和正式执行使用同一判定，避免修正改动作后绕过。 */
+    static boolean requiresFreshDispatchScope(DialogueState state,SemanticIntent intent,String message) {
+        if(!state.isBusinessQueryAfterPreview())return false;
+        boolean scope=intent.changes(REPORTS) || intent.changes(COMPANY);
+        // 用户也可以明确请求重新查看当前可派候选而不重复报表名称；这不同于模型把建单草稿改成无范围PREVIEW。
+        // 只检验已解析PREVIEW的查看依据，不按这些词生成意图、范围或记录选择。
+        boolean explicitPreview=java.util.regex.Pattern.compile("(?:查|看|列|预览).*(?:可派|可以派|能派|待派|候选)|(?:可派|可以派|能派|待派|候选).*(?:查|看|列)|预览|\\bpreview\\b|\\b(?:show|list|get)\\b.*\\bcandidates?\\b",java.util.regex.Pattern.CASE_INSENSITIVE).matcher(message).find();
+        return intent.action()==SemanticIntent.Action.PREPARE_DISPATCH
+                || (intent.action()==SemanticIntent.Action.PREVIEW && !scope && !explicitPreview)
+                || (intent.changes(RECORDS) && !scope)
+                || (intent.action()==SemanticIntent.Action.CLARIFY && intent.clarify()==SemanticIntent.Clarify.RECORDS);
+    }
+    /** 只读取当前有效预览的已选事实；只读业务查询之后不暴露旧派单选择作为当前可用对象。 */
+    private Map<String,Object> currentSelection(CurrentUser user,DialogueState state) {
+        if(state.getPreviewId()==null || state.isBusinessQueryAfterPreview() || !Objects.equals(state.getDesired(),state.getEffective()))return Map.of();
+        var snapshot=previews.getOwned(user,state.getPreviewId());
+        if(!DispatchPreview.ACTIVE.equals(snapshot.preview().getStatus()))return Map.of();
+        if(snapshot.preview().getTotalCount()>props.getPreview().getMaxItems())
+            return Map.of("totalCount",snapshot.preview().getTotalCount(),"selectedRows",List.of(),"complete",false);
+        return SelectionReferences.describeSelection(state,rows(user,snapshot));
     }
     private void hydrate(CurrentUser user,String id,DialogueState state) {
         previews.latest(user,id).ifPresent(latest -> {
@@ -328,7 +381,7 @@ public class SemanticConversationService {
             var current=new HashSet<>(state.getExcludedRecords());var desired=new HashSet<>(next);
             if(!current.equals(new HashSet<>(expected)) && !current.equals(desired))
                 throw new ApiException(409,"选择已在另一页面更新，请重新读取后再操作");
-            if(!current.equals(desired)){state.setLastSuccessfulSelection(List.of());state.setLastSelectionReferences(List.of());state.setLastSelectionReferencesComplete(true);}
+            if(!current.equals(desired))SelectionReferences.clear(state);
             state.setExcludedRecords(List.copyOf(next));state.setUnresolvedRecords(false);
             if(!state.isUnresolvedCompany() && !state.isUnresolvedReports()) {
                 state.setUnresolvedRequest(false);state.setPhase(DialogueState.Phase.READY);state.setLastReason(null);
@@ -339,5 +392,9 @@ public class SemanticConversationService {
     private static Map<String,Object> selection(DialogueState state) {
         Map<String,Object> value=new LinkedHashMap<>(); value.put("previewId",state.getPreviewId()); value.put("excludedRecords",state.getExcludedRecords()); value.put("phase",state.getPhase()); return value;
     }
-    private static String friendly(Exception e) { return e instanceof ApiException ? SensitiveData.text(e.getMessage()) : "本次处理暂时失败，请稍后重试；尚未确认的清单不会执行派单。"; }
+    private static String friendly(Exception e) {
+        if(e instanceof IntentCodec.InvalidOutput invalid && invalid.reason().startsWith("FRESH_DISPATCH_PREVIEW_REQUIRED"))
+            return "刚才查看的是只读业务数据，请先明确查询可派单范围，再调整选择或生成待确认清单。";
+        return e instanceof ApiException ? SensitiveData.text(e.getMessage()) : "本次处理暂时失败，请稍后重试；尚未确认的清单不会执行派单。";
+    }
 }

@@ -14,6 +14,7 @@ import java.util.function.Consumer;
 
 /** 统一助手只读分支；沿用外层对话租约，查询状态与派单状态分离，事实卡片由业务服务生成并持久化。 */
 @Service
+@lombok.extern.slf4j.Slf4j
 public class BusinessAssistantService {
     private final AssistantPlanner planner;
     private final ReportCatalogService catalog;
@@ -38,17 +39,30 @@ public class BusinessAssistantService {
     public boolean handle(CurrentUser user,String id,String requestId,String message,String model,DialogueStore.Session session,Runnable guard,Consumer<AgentEvent> emit) {
         long started=System.nanoTime();var state=session.state();
         AssistantPlan plan;
+        var validated=new HashMap<BusinessQuery,BusinessResult>();var attemptedRead=new boolean[]{false};
         try {
             catalog.refreshForValidation();
-            plan=planner.plan(message,state,catalog.visibleReports(user),user.companies());guard.run();
+            plan=planner.plan(message,state,catalog.visibleReports(user),user.companies(),draft->{
+                if(draft.route()==AssistantPlan.Route.BUSINESS_QUERY) {
+                    guard.run();attemptedRead[0]=true;
+                    // 实际只读校验参与有界模型修正；详情匹配多条等错误不能在解析预算结束后才暴露。
+                    // 成功事实留在本轮，避免同一草稿重复读取；不会投影卡片或修改派单状态。
+                    validated.put(draft.query(),read(user,draft.query()));
+                }
+            });guard.run();
         } catch(Exception failure) {
+            // 保留失败分类以区分模型契约、业务校验和传输故障；不记录模型原文、请求凭据或外部错误响应。
+            log.warn("助手规划失败 conversation={} type={} reason={}",id,failure.getClass().getSimpleName(),
+                    failure instanceof ApiException api?com.example.report.operations.SensitiveData.text(api.getMessage()):"非业务异常");
             // 路由本身不可靠时也不能让下一轮省略建单沿用旧意图；明确的只读接口失败则只影响查询上下文。
             state.setUnresolvedRequest(true);
+            if(attemptedRead[0])state.setBusinessQueryAfterPreview(true);
             if("DISPATCH".equals(state.getAssistantFocus()))state.setPhase(com.example.report.semantic.DialogueState.Phase.CLARIFY);
             state.setBusinessUnresolved(true);state.setAssistantRoute("CLARIFY");
             finish(user,id,requestId,message,"本轮请求未能可靠解析，未应用任何修改。请明确查询对象、范围或具体操作。",model,session,guard,emit,started);return true;
         }
         if(plan.route()==AssistantPlan.Route.DISPATCH) {state.setAssistantRoute("DISPATCH");state.setAssistantFocus("DISPATCH");return false;}
+        if(attemptedRead[0])state.setBusinessQueryAfterPreview(true);
         boolean previousDispatch="DISPATCH".equals(state.getAssistantFocus());
         state.setAssistantRoute(plan.route().name());
         String reply;
@@ -64,14 +78,15 @@ public class BusinessAssistantService {
                     // 新查询即使失败也形成业务范围边界，后续“这些”不能隐式引用之前的派单候选。
                     state.setBusinessQueryAfterPreview(true);
                     if(plan.followUp() && (state.getBusinessQuery()==null || state.isBusinessUnresolved())) throw new ApiException(422,"上一查询未完成，请重新明确查询对象和条件");
-                    var result=read(user,plan.query());guard.run();
+                    var result=validated.get(plan.query());if(result==null)result=read(user,plan.query());guard.run();
                     // 取得业务事实前先复核当前目录授权；返回响应不能扩大模型提出的查询范围。
                     state.setBusinessPermissionVersion(user.permissionVersion());state.setBusinessQuery(result.query());state.setBusinessUnresolved(false);
                     state.setAssistantFocus("BUSINESS_QUERY");
                     var historyReports=new TreeSet<>(state.getBusinessReportIds());historyReports.addAll(result.query().reportIds());state.setBusinessReportIds(List.copyOf(historyReports));
                     var historyCompanies=new TreeSet<>(state.getBusinessCompanyCodes());historyCompanies.addAll(result.query().companyCode()==null?user.companies():Set.of(result.query().companyCode()));state.setBusinessCompanyCodes(List.copyOf(historyCompanies));
-                    state.setBusinessReferences(references(result));
-                    session.fenced(()->{guard.run();session.save();conversations.logCard(id,user.userId(),"business_query",result,null,null);return null;});
+                    state.setBusinessReferences(references(result));state.setBusinessTotalCount((long)result.total());
+                    var observed=result;
+                    session.fenced(()->{guard.run();session.save();conversations.logCard(id,user.userId(),"business_query",observed,null,null);return null;});
                     emit.accept(new AgentEvent("business_query",result));
                     yield summary(result);
                 }

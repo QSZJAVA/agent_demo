@@ -10,8 +10,103 @@ import org.springframework.ai.chat.prompt.*;
 import java.util.*;
 import static org.junit.jupiter.api.Assertions.*;
 
-/** 模型请求边界和一次修正预算测试，使用传输替身检查真实规划代码，不计为真实模型泛化证据。 */
+/** 模型请求边界和有界修正预算测试，使用传输替身检查真实规划代码，不计为真实模型泛化证据。 */
 class ModelAssistantPlannerTest {
+    @Test void previousPageIsCompleteOnlyWhenTrustedTotalAndSuccessfulFirstPageAgree() throws Exception {
+        var state=new DialogueState();state.setBusinessQuery(new BusinessQuery(BusinessQuery.Domain.REPORT,BusinessQuery.View.LIST,List.of("r"),"A",List.of(),null,false,1,20,null));
+        state.setBusinessReferences(List.of(Map.of("recordId","a"),Map.of("recordId","b"),Map.of("recordId","c")));
+        for(Long total:Arrays.asList(null,3L,30L)) {
+            state.setBusinessTotalCount(total);var model=new Model(HELP);
+            new ModelAssistantPlanner(model,new AgentProperties()).plan("看看金额最高的那笔",state,List.of(),Set.of("A"));
+            var context=JsonUtil.MAPPER.readTree(model.prompts.get(0).getUserMessage().getText()).path("previousResult");
+            assertEquals(3,context.path("displayedCount").asInt());assertEquals(Objects.equals(total,3L),context.path("allMatchesDisplayed").asBoolean());
+        }
+        state.setBusinessTotalCount(3L);state.setBusinessUnresolved(true);var failed=new Model(HELP);
+        new ModelAssistantPlanner(failed,new AgentProperties()).plan("看看金额最高的那笔",state,List.of(),Set.of("A"));
+        assertFalse(JsonUtil.MAPPER.readTree(failed.prompts.get(0).getUserMessage().getText()).at("/previousResult/allMatchesDisplayed").asBoolean());
+        state.setBusinessUnresolved(false);state.setBusinessQuery(state.getBusinessQuery().atPage(2));var laterPage=new Model(HELP);
+        new ModelAssistantPlanner(laterPage,new AgentProperties()).plan("看看金额最高的那笔",state,List.of(),Set.of("A"));
+        assertFalse(JsonUtil.MAPPER.readTree(laterPage.prompts.get(0).getUserMessage().getText()).at("/previousResult/allMatchesDisplayed").asBoolean());
+    }
+    @Test void businessQueryFilterCannotImplicitlySwitchToDispatchSelection() {
+        var state=new DialogueState();state.setAssistantFocus("BUSINESS_QUERY");
+        var dispatch=new AssistantPlan(AssistantPlan.Route.DISPATCH,null,false,null);
+        assertThrows(ApiException.class,()->AssistantRouteGuard.validate("别要差旅费，其他的留下",state,dispatch));
+        assertDoesNotThrow(()->AssistantRouteGuard.validate("重新查看可派单候选",state,dispatch));
+        assertDoesNotThrow(()->AssistantRouteGuard.validate("取消刚才的清单",state,dispatch));
+    }
+    @Test void routerReceivesConfiguredDispatchFieldSelectionCapabilities() throws Exception {
+        var model=new Model(HELP);var reports=new com.example.report.support.TestCatalog().entries();
+        new ModelAssistantPlanner(model,new AgentProperties()).plan("可以怎样调整候选",new DialogueState(),reports,Set.of("A"));
+        var input=JsonUtil.MAPPER.readTree(model.prompts.get(0).getUserMessage().getText());
+        assertTrue(input.at("/dispatchCapabilities/recordSelectors").toString().contains("FIELDS"));
+        assertTrue(input.at("/dispatchFieldsByReport/rpt-expense-claim").toString().contains("amount"));
+    }
+    @Test void followUpStatusFilterMustKeepPreviousDateBoundsUnlessExplicitlyRemoved() {
+        var date=new BusinessQuery.Filter("date","GTE",List.of("2026-01-01"));var status=new BusinessQuery.Filter("status","EQ",List.of("未派单"));
+        var state=new DialogueState();state.setBusinessQuery(new BusinessQuery(BusinessQuery.Domain.REPORT,BusinessQuery.View.LIST,List.of("r"),null,List.of(new BusinessQuery.Group(List.of(date))),null,false,1,20,null));
+        var query=new BusinessQuery(BusinessQuery.Domain.REPORT,BusinessQuery.View.LIST,List.of("r"),null,List.of(new BusinessQuery.Group(List.of(status))),null,false,1,20,null);
+        var plan=new AssistantPlan(AssistantPlan.Route.BUSINESS_QUERY,query,true,null);
+        assertThrows(ApiException.class,()->AssistantRouteGuard.validateRefinement("只要未派单的",state,plan));
+        var removal=new AssistantPlan(AssistantPlan.Route.BUSINESS_QUERY,query,true,null,List.of(new AssistantPlan.FilterRemoval("date","取消日期限制")));
+        assertDoesNotThrow(()->AssistantRouteGuard.validateRefinement("取消日期限制，只要未派单的",state,removal));
+        assertThrows(ApiException.class,()->AssistantRouteGuard.validateRefinement("只要未派单的",state,removal));
+    }
+    @Test void readOnlyBusinessValidationParticipatesInTheSingleModelRepair() {
+        var query=new BusinessQuery(BusinessQuery.Domain.REPORT,BusinessQuery.View.DETAIL,List.of("r"),null,List.of(),null,false,1,20,null);
+        var unique=new BusinessQuery(BusinessQuery.Domain.REPORT,BusinessQuery.View.DETAIL,List.of("r"),null,List.of(new BusinessQuery.Group(List.of(new BusinessQuery.Filter("docNo","EQ",List.of("DOC-ONE"))))),null,false,1,20,null);
+        var model=new Model(JsonUtil.toJson(new AssistantPlan(AssistantPlan.Route.BUSINESS_QUERY,query,false,null)),JsonUtil.toJson(new AssistantPlan(AssistantPlan.Route.BUSINESS_QUERY,unique,false,null)));
+        var reads=new java.util.concurrent.atomic.AtomicInteger();
+        var result=new ModelAssistantPlanner(model,new AgentProperties()).plan("展开刚才那笔",new DialogueState(),List.of(),Set.of("A"),draft->{
+            reads.incrementAndGet();if(draft.query().conditions().isEmpty())throw new ApiException(422,"匹配到多条记录，请指定准确编号后查看详情");
+        });
+        assertEquals(unique,result.query());assertEquals(2,reads.get());assertEquals(2,model.prompts.size());
+    }
+    @Test void allRecordsOfNamedReportMustNotExpandToEveryReport() {
+        var reports=new com.example.report.support.TestCatalog().entries();
+        var query=new BusinessQuery(BusinessQuery.Domain.REPORT,BusinessQuery.View.LIST,List.of(),"A",List.of(),null,false,1,20,null);
+        var plan=new AssistantPlan(AssistantPlan.Route.BUSINESS_QUERY,query,false,null);
+        assertThrows(ApiException.class,()->AssistantRouteGuard.validateExplicitReport("A公司全部销售数据",plan,reports));
+        assertDoesNotThrow(()->AssistantRouteGuard.validateExplicitReport("全部报表都查，包含销售",plan,reports));
+        assertDoesNotThrow(()->AssistantRouteGuard.validateExplicitReport("Show all reports including sales",plan,reports));
+        assertDoesNotThrow(()->AssistantRouteGuard.validateExplicitReport("产品名称包含销售这个词",plan,reports));
+        assertDoesNotThrow(()->AssistantRouteGuard.validateExplicitReport("不限于销售",plan,reports));
+        var correct=new BusinessQuery(BusinessQuery.Domain.REPORT,BusinessQuery.View.LIST,List.of(com.example.report.support.TestCatalog.SALES),"A",List.of(),null,false,1,20,null);
+        assertDoesNotThrow(()->AssistantRouteGuard.validateExplicitReport("全部销售数据",new AssistantPlan(AssistantPlan.Route.BUSINESS_QUERY,correct,false,null),reports));
+    }
+    @Test void emptyConditionGroupHasActionableRepairAndNativeSchemaRejectsIt() throws Exception {
+        var query=new BusinessQuery(BusinessQuery.Domain.REPORT,BusinessQuery.View.LIST,List.of("r"),"A",List.of(),null,false,1,20,null);
+        var correct=new AssistantPlan(AssistantPlan.Route.BUSINESS_QUERY,query,false,null);
+        var bad=JsonUtil.MAPPER.valueToTree(correct);
+        ((com.fasterxml.jackson.databind.node.ObjectNode)bad.get("query")).set("conditions",JsonUtil.MAPPER.readTree("[{\"allOf\":[]}]"));
+        var failure=assertThrows(ApiException.class,()->AssistantCodec.plan(bad.toString()));assertTrue(failure.getMessage().contains("conditions应为空数组"));
+        var schema=JsonUtil.MAPPER.readTree(AssistantSchema.planSchema());assertEquals(1,schema.at("/properties/query/properties/conditions/items/properties/allOf/minItems").asInt());
+        var model=new Model(bad.toString(),JsonUtil.toJson(correct));
+        assertEquals(correct,new ModelAssistantPlanner(model,new AgentProperties()).plan("列出全部报表数据",new DialogueState(),List.of(),Set.of("A")));
+        assertEquals(2,model.prompts.size());
+    }
+    @Test void newDomainCannotInheritAnUnmentionedOrNegatedReport() {
+        var reports=new com.example.report.support.TestCatalog().entries();String sales=com.example.report.support.TestCatalog.SALES;
+        var state=new DialogueState();state.setBusinessQuery(new BusinessQuery(BusinessQuery.Domain.REPORT,BusinessQuery.View.LIST,List.of(sales),null,List.of(),null,false,1,20,null));
+        var order=new BusinessQuery(BusinessQuery.Domain.WORK_ORDER,BusinessQuery.View.DETAIL,List.of(sales),null,
+                List.of(new BusinessQuery.Group(List.of(new BusinessQuery.Filter("orderId","EQ",List.of("WO-123"))))),null,false,1,20,null);
+        var wrong=new AssistantPlan(AssistantPlan.Route.BUSINESS_QUERY,order,false,null);
+        assertThrows(ApiException.class,()->AssistantRouteGuard.validateDomainScope("不看销售了，工单WO-123进展如何",state,wrong,reports));
+        assertThrows(ApiException.class,()->AssistantRouteGuard.validateDomainScope("工单WO-123进展如何",state,wrong,reports));
+        assertDoesNotThrow(()->AssistantRouteGuard.validateDomainScope("查询销售对应的工单WO-123",state,wrong,reports));
+        assertDoesNotThrow(()->AssistantRouteGuard.validateDomainScope("再看这张工单",state,new AssistantPlan(AssistantPlan.Route.BUSINESS_QUERY,order,true,null),reports));
+        state.setBusinessQuery(order);
+        var salesQuery=new BusinessQuery(BusinessQuery.Domain.REPORT,BusinessQuery.View.LIST,List.of(sales),"A",List.of(),null,false,1,20,null);
+        assertDoesNotThrow(()->AssistantRouteGuard.validateDomainScope("Go back to company A's sales",state,new AssistantPlan(AssistantPlan.Route.BUSINESS_QUERY,salesQuery,false,null),reports));
+    }
+    @Test void sortedDetailMustIdentifyTheTargetRatherThanTruncateSeveralMatches() {
+        var status=new BusinessQuery.Filter("status","EQ",List.of("未派单"));
+        var wrong=new BusinessQuery(BusinessQuery.Domain.REPORT,BusinessQuery.View.DETAIL,List.of("r"),null,List.of(new BusinessQuery.Group(List.of(status))),"amount",true,1,1,null);
+        var correct=new BusinessQuery(BusinessQuery.Domain.REPORT,BusinessQuery.View.DETAIL,List.of("r"),null,List.of(new BusinessQuery.Group(List.of(status,new BusinessQuery.Filter("recordId","EQ",List.of("x"))))),"amount",true,1,1,null);
+        var model=new Model(JsonUtil.toJson(new AssistantPlan(AssistantPlan.Route.BUSINESS_QUERY,wrong,false,null)),JsonUtil.toJson(new AssistantPlan(AssistantPlan.Route.BUSINESS_QUERY,correct,false,null)));
+        assertEquals(correct,new ModelAssistantPlanner(model,new AgentProperties()).plan("展开最大金额的记录",new DialogueState(),List.of(),Set.of("A")).query());
+        assertEquals(2,model.prompts.size());
+    }
     @Test void ownershipAndPlanStatusCannotBecomeAlternativeSetsWithoutDisjunctionEvidence() {
         var owner=new BusinessQuery.Filter("createdByMe","EQ",List.of("true"));var status=new BusinessQuery.Filter("planStatus","EQ",List.of("已取消"));
         var wrong=new BusinessQuery(BusinessQuery.Domain.DISPATCH,BusinessQuery.View.LIST,List.of("r"),null,List.of(new BusinessQuery.Group(List.of(owner)),new BusinessQuery.Group(List.of(status))),null,false,1,20,null);
@@ -40,19 +135,19 @@ class ModelAssistantPlannerTest {
         var twoRanges=new BusinessQuery(BusinessQuery.Domain.REPORT,BusinessQuery.View.LIST,List.of("r"),null,List.of(new BusinessQuery.Group(List.of(low,high)),new BusinessQuery.Group(List.of(new BusinessQuery.Filter("amount","GT",List.of("100")),new BusinessQuery.Filter("amount","LT",List.of("200"))))),null,false,1,20,null);
         assertDoesNotThrow(()->AssistantRouteGuard.validate("25至75之间或100至200之间",new DialogueState(),new AssistantPlan(AssistantPlan.Route.BUSINESS_QUERY,twoRanges,false,null)));
     }
-    static final String HELP="{\"route\":\"HELP\",\"query\":null,\"followUp\":false,\"clarification\":null}";
+    static final String HELP="{\"route\":\"HELP\",\"query\":null,\"followUp\":false,\"clarification\":null,\"removedFilters\":[]}";
     static class Model implements ChatModel {
         final List<Prompt> prompts=new ArrayList<>();final Deque<String> replies=new ArrayDeque<>();
         Model(String... replies){this.replies.addAll(List.of(replies));}
         @Override public ChatOptions getDefaultOptions(){return ChatOptions.builder().model("test-only").build();}
         @Override public ChatResponse call(Prompt prompt){prompts.add(prompt);return new ChatResponse(List.of(new Generation(new AssistantMessage(replies.removeFirst()))));}
     }
-    @Test void malformedPlanGetsOnlyOneRepairAndNoImplicitDispatch() {
+    @Test void malformedPlanStopsAfterTwoRepairsAndNoImplicitDispatch() {
         var model=new Model("{\"route\":\"CALL_SQL\"}",HELP);var parser=new ModelAssistantPlanner(model,new AgentProperties());
         assertEquals(AssistantPlan.Route.HELP,parser.plan("你能做什么",new DialogueState(),List.of(),Set.of("A")).route());assertEquals(2,model.prompts.size());
         assertTrue(model.prompts.get(1).getUserMessage().getText().contains("rejectedDraft"));
-        var invalid=new Model("{}","{}");assertThrows(ApiException.class,()->new ModelAssistantPlanner(invalid,new AgentProperties()).plan("查询销售数据",new DialogueState(),List.of(),Set.of("A")));
-        assertEquals(2,invalid.prompts.size());
+        var invalid=new Model("{}","{}","{}");assertThrows(ApiException.class,()->new ModelAssistantPlanner(invalid,new AgentProperties()).plan("查询销售数据",new DialogueState(),List.of(),Set.of("A")));
+        assertEquals(3,invalid.prompts.size());
     }
     @Test void modelReceivesRedactedTextAndHasNoToolExecutionAuthority() {
         var model=new Model(HELP);var parser=new ModelAssistantPlanner(model,new AgentProperties());
@@ -62,8 +157,8 @@ class ModelAssistantPlannerTest {
         assertFalse(options.getInternalToolExecutionEnabled());assertTrue(options.getToolCallbacks().isEmpty());assertNotNull(options.getResponseFormat());
     }
     @Test void unresolvedContextCannotBeUsedByAReportedFollowUp() {
-        String plan="{\"route\":\"BUSINESS_QUERY\",\"query\":"+JsonUtil.toJson(new BusinessQuery(BusinessQuery.Domain.REPORT,BusinessQuery.View.LIST,List.of(),null,List.of(),null,false,2,20,null))+",\"followUp\":true,\"clarification\":null}";
-        var model=new Model(plan,plan);var state=new DialogueState();state.setBusinessUnresolved(true);
+        String plan="{\"route\":\"BUSINESS_QUERY\",\"query\":"+JsonUtil.toJson(new BusinessQuery(BusinessQuery.Domain.REPORT,BusinessQuery.View.LIST,List.of(),null,List.of(),null,false,2,20,null))+",\"followUp\":true,\"clarification\":null,\"removedFilters\":[]}";
+        var model=new Model(plan,plan,plan);var state=new DialogueState();state.setBusinessUnresolved(true);
         assertThrows(ApiException.class,()->new ModelAssistantPlanner(model,new AgentProperties()).plan("下一页",state,List.of(),Set.of("A")));
         assertNull(state.getBusinessQuery());
     }
@@ -127,7 +222,7 @@ class ModelAssistantPlannerTest {
         var model=new Model(wrong,right);
         assertEquals(BusinessQuery.Domain.DISPATCH,new ModelAssistantPlanner(model,new AgentProperties()).plan("按公司归类",state,List.of(),Set.of("A")).query().domain());
         assertEquals(2,model.prompts.size());assertTrue(model.prompts.get(1).getUserMessage().getText().contains("连续查询必须保留上一查询的数据域"));
-        var invalid=new Model(wrong,wrong);
+        var invalid=new Model(wrong,wrong,wrong);
         assertThrows(ApiException.class,()->new ModelAssistantPlanner(invalid,new AgentProperties()).plan("按公司归类",state,List.of(),Set.of("A")));
         var independent=new Model(JsonUtil.toJson(new AssistantPlan(AssistantPlan.Route.BUSINESS_QUERY,changed,false,null)));
         assertEquals(BusinessQuery.Domain.REPORT,new ModelAssistantPlanner(independent,new AgentProperties()).plan("另查销售报表",state,List.of(),Set.of("A")).query().domain());

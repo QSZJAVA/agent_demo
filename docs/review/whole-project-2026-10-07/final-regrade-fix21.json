@@ -1,0 +1,331 @@
+{
+  "recordedAt": "2026-10-07T10:24:03.869Z",
+  "scope": "原始真实模型结果的评分复核，不重新调用模型，不改写原始结果或冻结期望",
+  "newModelCalls": 0,
+  "total": 180,
+  "passed": 180,
+  "failed": 0,
+  "originalPassed": 179,
+  "originalFailed": 1,
+  "evaluatorSha256": "5c110062ec3fcc01d8295a9bed813e4c071be95ae4f2f8eae51ba60faefc6a9d",
+  "runnerSha256": "c46611fcba7256fa648eb618daabb00ea582767ee820d91c73abf73e3fd51662",
+  "groups": [
+    {
+      "group": "multiturn",
+      "source": ".runtime/whole-project-2026-10-07/multiturn-fix21.json",
+      "sha256": "5475c373f6159539cabe4d6708af21b2f1790d5f65a9a5921ca7768de0d5ef06",
+      "total": 72,
+      "originalPassed": 72,
+      "originalFailed": 0,
+      "regradedPassed": 72,
+      "regradedFailed": 0,
+      "sourcesUnchanged": {
+        "sales": true,
+        "receivable": true,
+        "expense": true
+      }
+    },
+    {
+      "group": "holdout",
+      "source": ".runtime/whole-project-2026-10-07/holdout-fix21.json",
+      "sha256": "fc8adf0cd277319f567c007d9f691ae99db36b8f7be907f0d27177d6c26e49b5",
+      "total": 36,
+      "originalPassed": 36,
+      "originalFailed": 0,
+      "regradedPassed": 36,
+      "regradedFailed": 0,
+      "sourcesUnchanged": {
+        "sales": true,
+        "receivable": true,
+        "expense": true
+      }
+    },
+    {
+      "group": "lifecycle",
+      "source": ".runtime/whole-project-2026-10-07/lifecycle-fix21.json",
+      "sha256": "535ae1e7a921e398fdb4c5979fbb5d1109b4e5f9b9e5d9ac98325b9d09d78cfa",
+      "total": 18,
+      "originalPassed": 18,
+      "originalFailed": 0,
+      "regradedPassed": 18,
+      "regradedFailed": 0,
+      "sourcesUnchanged": {
+        "sales": true,
+        "receivable": true,
+        "expense": true
+      }
+    },
+    {
+      "group": "reserve",
+      "source": ".runtime/whole-project-2026-10-07/reserve-fix21.json",
+      "sha256": "3b695e0df4af5446490822aaf156f8fa0d81f60556bb429e5522ab54131e2ea2",
+      "total": 24,
+      "originalPassed": 23,
+      "originalFailed": 1,
+      "regradedPassed": 24,
+      "regradedFailed": 0,
+      "sourcesUnchanged": {
+        "sales": true,
+        "receivable": true,
+        "expense": true
+      }
+    },
+    {
+      "group": "final-independent",
+      "source": ".runtime/whole-project-2026-10-07/final-independent-fix21.json",
+      "sha256": "5f95899cfc3a8a316a85b584a969a126c8fe0093e1f7042aa3f843d59b6c1111",
+      "total": 30,
+      "originalPassed": 30,
+      "originalFailed": 0,
+      "regradedPassed": 30,
+      "regradedFailed": 0,
+      "sourcesUnchanged": {
+        "sales": true,
+        "receivable": true,
+        "expense": true
+      }
+    }
+  ],
+  "reviews": [
+    {
+      "group": "reserve",
+      "scenario": "reserve-permission-and-unsupported",
+      "turn": 5,
+      "message": "把这张工单的办理结果写成一个小结给我。",
+      "originalErrors": [
+        "报表范围错误"
+      ],
+      "expected": {
+        "kind": "query",
+        "source": "work_order",
+        "where": [
+          [
+            "orderId",
+            "EQ",
+            "WO-DEMO-004"
+          ]
+        ],
+        "view": "DETAIL"
+      },
+      "priorQuery": {
+        "domain": "WORK_ORDER",
+        "view": "DETAIL",
+        "reportIds": [
+          "rpt-ar-invoice",
+          "rpt-expense-claim",
+          "rpt-sales-order"
+        ],
+        "companyCode": "A",
+        "conditions": [
+          {
+            "allOf": [
+              {
+                "field": "orderId",
+                "operator": "EQ",
+                "values": [
+                  "WO-DEMO-004"
+                ]
+              }
+            ]
+          }
+        ],
+        "sortField": null,
+        "descending": false,
+        "page": 1,
+        "size": 20,
+        "groupBy": null
+      },
+      "priorObject": {
+        "orderId": "WO-DEMO-004",
+        "reportId": "rpt-sales-order",
+        "companyCode": "A",
+        "docNo": "DEMO-SO-004",
+        "title": "销售订单归档",
+        "amount": "12500.00",
+        "currency": "CNY",
+        "date": "2026-09-28",
+        "createdDate": "2026-09-28",
+        "updatedDate": "2026-10-01",
+        "status": "已完成",
+        "rowKey": "fixture:WO-DEMO-004",
+        "source": "固定演示示例",
+        "requestId": null,
+        "stage": "归档",
+        "assignee": null,
+        "steps": [
+          {
+            "name": "提交登记",
+            "approver": "演示经办人",
+            "status": "已完成",
+            "date": "2026-10-01"
+          },
+          {
+            "name": "部门审批",
+            "approver": "林主管（演示）",
+            "status": "已完成",
+            "date": "2026-10-01"
+          },
+          {
+            "name": "财务复核",
+            "approver": "陈会计（演示）",
+            "status": "已完成",
+            "date": "2026-10-01"
+          },
+          {
+            "name": "业务处理",
+            "approver": "赵专员（演示）",
+            "status": "已完成",
+            "date": "2026-10-01"
+          },
+          {
+            "name": "归档",
+            "approver": "系统归档（演示）",
+            "status": "已完成",
+            "date": "2026-10-01"
+          }
+        ],
+        "simulated": true,
+        "workflowSummary": "固定演示流程全部完成并归档。",
+        "reportName": "销售报表"
+      },
+      "actualQuery": {
+        "domain": "WORK_ORDER",
+        "view": "DETAIL",
+        "reportIds": [
+          "rpt-sales-order"
+        ],
+        "companyCode": "A",
+        "conditions": [
+          {
+            "allOf": [
+              {
+                "field": "orderId",
+                "operator": "EQ",
+                "values": [
+                  "WO-DEMO-004"
+                ]
+              }
+            ]
+          }
+        ],
+        "sortField": null,
+        "descending": false,
+        "page": 1,
+        "size": 20,
+        "groupBy": null
+      },
+      "actualObject": {
+        "orderId": "WO-DEMO-004",
+        "reportId": "rpt-sales-order",
+        "companyCode": "A",
+        "docNo": "DEMO-SO-004",
+        "title": "销售订单归档",
+        "amount": "12500.00",
+        "currency": "CNY",
+        "date": "2026-09-28",
+        "createdDate": "2026-09-28",
+        "updatedDate": "2026-10-01",
+        "status": "已完成",
+        "rowKey": "fixture:WO-DEMO-004",
+        "source": "固定演示示例",
+        "requestId": null,
+        "stage": "归档",
+        "assignee": null,
+        "steps": [
+          {
+            "name": "提交登记",
+            "approver": "演示经办人",
+            "status": "已完成",
+            "date": "2026-10-01"
+          },
+          {
+            "name": "部门审批",
+            "approver": "林主管（演示）",
+            "status": "已完成",
+            "date": "2026-10-01"
+          },
+          {
+            "name": "财务复核",
+            "approver": "陈会计（演示）",
+            "status": "已完成",
+            "date": "2026-10-01"
+          },
+          {
+            "name": "业务处理",
+            "approver": "赵专员（演示）",
+            "status": "已完成",
+            "date": "2026-10-01"
+          },
+          {
+            "name": "归档",
+            "approver": "系统归档（演示）",
+            "status": "已完成",
+            "date": "2026-10-01"
+          }
+        ],
+        "simulated": true,
+        "workflowSummary": "固定演示流程全部完成并归档。",
+        "reportName": "销售报表"
+      },
+      "independentObject": {
+        "orderId": "WO-DEMO-004",
+        "reportId": "rpt-sales-order",
+        "companyCode": "A",
+        "docNo": "DEMO-SO-004",
+        "title": "销售订单归档",
+        "amount": "12500.00",
+        "currency": "CNY",
+        "date": "2026-09-28",
+        "createdDate": "2026-09-28",
+        "updatedDate": "2026-10-01",
+        "status": "已完成",
+        "rowKey": "fixture:WO-DEMO-004",
+        "source": "固定演示示例",
+        "requestId": null,
+        "stage": "归档",
+        "assignee": null,
+        "steps": [
+          {
+            "name": "提交登记",
+            "approver": "演示经办人",
+            "status": "已完成",
+            "date": "2026-10-01"
+          },
+          {
+            "name": "部门审批",
+            "approver": "林主管（演示）",
+            "status": "已完成",
+            "date": "2026-10-01"
+          },
+          {
+            "name": "财务复核",
+            "approver": "陈会计（演示）",
+            "status": "已完成",
+            "date": "2026-10-01"
+          },
+          {
+            "name": "业务处理",
+            "approver": "赵专员（演示）",
+            "status": "已完成",
+            "date": "2026-10-01"
+          },
+          {
+            "name": "归档",
+            "approver": "系统归档（演示）",
+            "status": "已完成",
+            "date": "2026-10-01"
+          }
+        ],
+        "simulated": true,
+        "workflowSummary": "固定演示流程全部完成并归档。",
+        "reportName": "销售报表"
+      },
+      "decision": "通过：已展示唯一工单详情按实际所属授权报表收窄，未改变对象或扩大权限"
+    }
+  ],
+  "evaluatorTests": {
+    "command": "node --test tools/query-filter-semantics.test.cjs tools/compare-investigation-evaluations.test.cjs",
+    "passed": 12,
+    "failed": 0
+  }
+}

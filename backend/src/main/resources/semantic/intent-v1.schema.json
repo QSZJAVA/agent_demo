@@ -18,7 +18,8 @@
         "EXPLAIN_RULES",
         "CLARIFY",
         "HELP"
-      ]
+      ],
+      "description": "本轮当前要求执行的动作；背景中的未来派单目的不等于当前建单。先查看候选用PREVIEW，准备当前选择用PREPARE_DISPATCH。"
     },
     "scopeChanges": {
       "type": "array",
@@ -49,7 +50,8 @@
                   "type": "string",
                   "minLength": 1,
                   "maxLength": 160
-                }
+                },
+                "description": "CLEAR时为空；其他公司或报表范围操作必须填写本轮实体原词，不填在reportMentions。"
               },
               "evidence": {
                 "type": "string",
@@ -63,7 +65,8 @@
                   "type": "string",
                   "minLength": 1,
                   "maxLength": 160
-                }
+                },
+                "description": "非记录操作必须为空数组；公司或报表实体写在mentions中。"
               },
               "selectorKind": {
                 "type": "string",
@@ -122,7 +125,8 @@
                   "type": "string",
                   "minLength": 1,
                   "maxLength": 160
-                }
+                },
+                "description": "CLEAR时为空；其他公司或报表范围操作必须填写本轮实体原词，不填在reportMentions。"
               },
               "evidence": {
                 "type": "string",
@@ -136,7 +140,8 @@
                   "type": "string",
                   "minLength": 1,
                   "maxLength": 160
-                }
+                },
+                "description": "非记录操作必须为空数组；公司或报表实体写在mentions中。"
               },
               "selectorKind": {
                 "type": "string",
@@ -184,7 +189,8 @@
                 "enum": [
                   "EXCLUDE",
                   "RESTORE",
-                  "REPLACE_EXCLUSIONS"
+                  "REPLACE_EXCLUSIONS",
+                  "KEEP_ONLY"
                 ]
               },
               "mentions": {
@@ -209,7 +215,8 @@
                   "type": "string",
                   "minLength": 1,
                   "maxLength": 160
-                }
+                },
+                "description": "仅填写本轮明确出现、目录中可定位的具体报表原词。所有/全部报表等范围泛称不得填写；作用于当前完整范围或未限定具体报表时为空数组，不补写历史名称。"
               },
               "selectorKind": {
                 "type": "string",
@@ -283,7 +290,8 @@
                   "type": "string",
                   "minLength": 1,
                   "maxLength": 160
-                }
+                },
+                "description": "仅填写本轮明确出现、目录中可定位的具体报表原词。所有/全部报表等范围泛称不得填写；作用于当前完整范围或未限定具体报表时为空数组，不补写历史名称。"
               },
               "selectorKind": {
                 "type": "string",
@@ -342,7 +350,8 @@
                   "type": "string",
                   "minLength": 1,
                   "maxLength": 160
-                }
+                },
+                "description": "必须为空数组；金额、类型、名称等条件仅写在conditions中。"
               },
               "evidence": {
                 "type": "string",
@@ -356,7 +365,8 @@
                   "type": "string",
                   "minLength": 1,
                   "maxLength": 160
-                }
+                },
+                "description": "仅填写本轮明确出现、目录中可定位的具体报表原词。所有/全部报表等范围泛称不得填写；作用于当前完整范围或未限定具体报表时为空数组，不补写历史名称。"
               },
               "selectorKind": {
                 "type": "string",
@@ -474,7 +484,8 @@
                   "minLength": 1,
                   "maxLength": 160
                 },
-                "minItems": 0
+                "minItems": 0,
+                "description": "必须为空数组。ALL已经表示选定报表的全部记录，报表原词只能放reportMentions，不能在mentions重复。"
               },
               "evidence": {
                 "type": "string",
@@ -488,7 +499,8 @@
                   "type": "string",
                   "minLength": 1,
                   "maxLength": 160
-                }
+                },
+                "description": "仅填写本轮明确出现、目录中可定位的具体报表原词。所有/全部报表等范围泛称不得填写；作用于当前完整范围或未限定具体报表时为空数组，不补写历史名称。"
               },
               "selectorKind": {
                 "type": "string",
@@ -520,9 +532,89 @@
               "quantifier",
               "conditions"
             ]
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "target": {
+                "type": "string",
+                "enum": [
+                  "RECORDS"
+                ]
+              },
+              "operation": {
+                "type": "string",
+                "enum": [
+                  "EXCLUDE",
+                  "RESTORE",
+                  "REPLACE_EXCLUSIONS",
+                  "KEEP_ONLY"
+                ]
+              },
+              "mentions": {
+                "type": "array",
+                "maxItems": 20,
+                "items": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 160,
+                  "pattern": "^ref_[a-f0-9]{32}$"
+                },
+                "minItems": 1,
+                "description": "只填当前预览提供的ref_引用键；不能填写报表名称、客户名称或原话代词。"
+              },
+              "evidence": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 1000
+              },
+              "reportMentions": {
+                "type": "array",
+                "maxItems": 20,
+                "items": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 160
+                },
+                "description": "仅填写本轮明确出现、目录中可定位的具体报表原词。所有/全部报表等范围泛称不得填写；作用于当前完整范围或未限定具体报表时为空数组，不补写历史名称。"
+              },
+              "selectorKind": {
+                "type": "string",
+                "enum": [
+                  "REFERENCE"
+                ]
+              },
+              "quantifier": {
+                "type": "string",
+                "enum": [
+                  "ONE",
+                  "ALL",
+                  "UNSPECIFIED"
+                ]
+              },
+              "conditions": {
+                "type": "array",
+                "maxItems": 0,
+                "items": {
+                  "type": "object"
+                }
+              }
+            },
+            "required": [
+              "target",
+              "operation",
+              "mentions",
+              "evidence",
+              "reportMentions",
+              "selectorKind",
+              "quantifier",
+              "conditions"
+            ]
           }
         ]
-      }
+      },
+      "description": "只表达本轮改变公司、报表或记录选择的要求。仅准备当前已选记录时为空，不能把已选对象描述转换成KEEP_ONLY或恢复操作。"
     },
     "restrictions": {
       "type": "array",
@@ -604,7 +696,8 @@
           "role",
           "evidence"
         ]
-      }
+      },
+      "description": "只放报表目录实体的最终范围约束，通常为空。费用类型、产品、客户、单据和已有选择的描述都不是报表；准备现有选择不需要新增约束。"
     },
     "unsupportedConditions": {
       "type": "array",

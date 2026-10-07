@@ -2,6 +2,8 @@ package com.example.report.assistant;
 
 import com.example.report.common.ApiException;
 import com.example.report.semantic.DialogueState;
+import com.example.report.catalog.CatalogEntry;
+import com.example.report.catalog.TextNormalizer;
 import java.util.regex.Pattern;
 import java.util.*;
 
@@ -13,10 +15,74 @@ public final class AssistantRouteGuard {
     private static final Pattern QUERY=Pattern.compile("查询|查一下|查看|看一下|看看|列出|统计|汇总|总结|展示|浏览|检索|搜索|\\b(?:query|show|list|search|summarize)\\b",Pattern.CASE_INSENSITIVE);
     /** 仅在派单候选焦点存在、没有独立查询动作且原文包含选择操作时，禁止改走普通业务查询。 */
     public static void validate(String message,DialogueState state,AssistantPlan plan) {
+        if("BUSINESS_QUERY".equals(state.getAssistantFocus()) && plan.route()==AssistantPlan.Route.DISPATCH
+                && !Pattern.compile("派单|可派|能派|待派|候选|清单|勾选|\\b(?:dispatch|candidates?|preview|plan)\\b",Pattern.CASE_INSENSITIVE).matcher(message).find())
+            throw new ApiException(422,"当前焦点是只读业务查询，本轮没有明确转入候选、派单或清单流程；排除或保留记录应细化上一业务查询，不能把同一句筛选改成派单选择。");
         if("DISPATCH".equals(state.getAssistantFocus()) && state.getPreviewId()!=null && plan.route()==AssistantPlan.Route.BUSINESS_QUERY
                 && SELECTION.matcher(message).find() && !QUERY.matcher(message).find())
             throw new ApiException(422,"本轮在已有派单候选焦点中调整选择，不能丢弃选择操作改为普通数据查询；请按原文重新判断完整路由");
-        if(plan.route()==AssistantPlan.Route.BUSINESS_QUERY){validateInterval(message,plan.query());validateComposition(message,state,plan);}
+        if(plan.route()==AssistantPlan.Route.BUSINESS_QUERY){validateInterval(message,plan.query());validateComposition(message,state,plan);validateDetailIdentity(plan.query());}
+    }
+    /** 独立工单查询复用旧报表范围时须有本轮依据；结束旧话题的否定不能成为工单的正向过滤。 */
+    public static void validateDomainScope(String message,DialogueState state,AssistantPlan plan,List<CatalogEntry> reports) {
+        if(plan.route()!=AssistantPlan.Route.BUSINESS_QUERY || plan.followUp() || state.getBusinessQuery()==null
+                || plan.query().domain()!=BusinessQuery.Domain.WORK_ORDER || plan.query().domain()==state.getBusinessQuery().domain()
+                || !plan.query().reportIds().equals(state.getBusinessQuery().reportIds()) || plan.query().reportIds().isEmpty())return;
+        String normalized=TextNormalizer.normalize(message);
+        for(String reportId:plan.query().reportIds()) {
+            var entry=reports.stream().filter(r->r.reportId().equals(reportId)).findFirst();
+            if(entry.isEmpty())continue; // 未知标识由正式目录权限校验拒绝。
+            var names=new ArrayList<>(entry.get().ref().aliases());names.add(entry.get().reportName());names.add(entry.get().domainCode());
+            var mentioned=names.stream().map(TextNormalizer::normalize).filter(n->!n.isBlank() && normalized.contains(n)).toList();
+            if(mentioned.isEmpty() || mentioned.stream().allMatch(n->Pattern.compile("(?:不看|不查|停止查询|别看)"+Pattern.quote(n)).matcher(normalized).find()))
+                throw new ApiException(422,"新业务域的报表范围缺少本轮肯定依据；不能继承已结束话题的报表或按工单编号猜测来源。未限定来源报表时使用全部授权报表，保留当前编号及其他明确条件。");
+        }
+    }
+    /** 明确单张报表的“全部记录”不能扩大成全部报表；仅否决范围丢失，报表解析与动作仍由模型完成。 */
+    public static void validateExplicitReport(String message,AssistantPlan plan,List<CatalogEntry> reports) {
+        if(plan.route()!=AssistantPlan.Route.BUSINESS_QUERY || plan.query().domain()!=BusinessQuery.Domain.REPORT)return;
+        String normalized=TextNormalizer.normalize(message);
+        if(Pattern.compile("全部报表|所有报表|各报表|每张报表|其他报表|其余报表|allreports|everyreport|otherreports",Pattern.CASE_INSENSITIVE).matcher(normalized).find())return;
+        var mentioned=new LinkedHashMap<String,List<String>>();
+        for(var report:reports) {
+            var names=new ArrayList<>(report.ref().aliases());names.add(report.reportName());
+            var terms=names.stream().map(TextNormalizer::normalize).filter(n->!n.isBlank() && normalized.contains(n)).toList();
+            if(!terms.isEmpty())mentioned.put(report.reportId(),terms);
+        }
+        if(mentioned.size()!=1)return;
+        var entry=mentioned.entrySet().iterator().next();
+        // 这里只识别数量词与目录名的明确组合；单独提及某字段值或历史报表不提供足够的范围证据。
+        boolean allRows=entry.getValue().stream().anyMatch(n->Pattern.compile("(?:全部|所有|all|every)(?:的)?"+Pattern.quote(n)
+                +"|"+Pattern.quote(n)+"(?:报表|账|账目|记录|数据|明细|单据|的)*(?:全部|所有|都)").matcher(normalized).find());
+        if(!allRows)return;
+        // 否定或撤销该报表限制需要完整语义判断，不能把它当作正向的单报表查询要求。
+        if(entry.getValue().stream().anyMatch(n->Pattern.compile("(?:不看|不查|不要|不限于|不只看|不只查|排除|去掉)"+Pattern.quote(n)).matcher(normalized).find()))return;
+        if(!plan.query().reportIds().equals(List.of(entry.getKey())))
+            throw new ApiException(422,"本轮明确指定了一张报表；其中的全部记录不等于全部报表。请保留该报表标识，不能用空reportIds或其他报表扩大范围，其他明确条件仍须保留。");
+    }
+    /** 排序和取第一页只决定展示，不能绕过单对象详情的唯一性；仍由模型按已展示事实给出稳定标识。 */
+    private static void validateDetailIdentity(BusinessQuery query) {
+        if(query.view()!=BusinessQuery.View.DETAIL || query.sortField()==null)return;
+        boolean identified=query.conditions().stream().allMatch(g->g.allOf().stream().anyMatch(c->
+                Set.of("recordId","docNo","orderId","requestId","planId").contains(c.field()) && c.operator().equals("EQ") && c.values().size()==1));
+        if(query.conditions().isEmpty() || !identified)throw new ApiException(422,"DETAIL不能仅靠排序和size=1定位单笔。请依据previousRows中的唯一目标增加稳定编号条件；并列或已展示事实不足时须澄清，不得任取第一条。");
+    }
+    /** 同一查询范围的追加筛选不得静默丢弃其他字段；明确取消限制或重查时仍由模型给出完整新查询。 */
+    public static void validateRefinement(String message,DialogueState state,AssistantPlan plan) {
+        if(plan.route()!=AssistantPlan.Route.BUSINESS_QUERY || !plan.followUp() || state.getBusinessQuery()==null)return;
+        var before=state.getBusinessQuery();var after=plan.query();
+        if(before.domain()!=after.domain() || !before.reportIds().equals(after.reportIds()) || !Objects.equals(before.companyCode(),after.companyCode()))return;
+        var oldFields=before.conditions().stream().flatMap(g->g.allOf().stream()).map(BusinessQuery.Filter::field).collect(java.util.stream.Collectors.toSet());
+        var newFields=after.conditions().stream().flatMap(g->g.allOf().stream()).map(BusinessQuery.Filter::field).collect(java.util.stream.Collectors.toSet());
+        var removed=new HashSet<String>();
+        for(var removal:plan.removedFilters()) {
+            if(!oldFields.contains(removal.field()) || !TextNormalizer.normalize(message).contains(TextNormalizer.normalize(removal.evidence())))
+                throw new ApiException(422,"removedFilters必须引用本轮连续原文，并且仅撤销上次查询已存在的字段");
+            removed.add(removal.field());
+        }
+        oldFields.removeAll(newFields);
+        oldFields.removeAll(removed);
+        if(!oldFields.isEmpty())throw new ApiException(422,"本轮追问不能静默丢弃上轮字段限制："+String.join("、",new TreeSet<>(oldFields))+"。追加筛选须保留原限制；明确不再限制某字段时，在removedFilters声明该字段并逐字引用本轮撤销依据，不按固定措辞猜测。");
     }
     // 只读取显式公司代码，不把客户全称里的“公司”当作数据归属，不根据词语生成查询。
     private static final Pattern COMPANY_CODE=Pattern.compile("(?<![A-Za-z0-9_])([A-Z][A-Z0-9_-]{0,31})\\s*公司|(?i:company)\\s+([A-Z][A-Z0-9_-]{0,31})(?![A-Za-z0-9_])");

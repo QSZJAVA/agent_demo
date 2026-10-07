@@ -81,7 +81,19 @@ public class TraceProjector {
 
     public void deliver(long eventId) {
         try {
+            // 先在投影事务外读取不可变归属，避免在锁会话之前建立旧的一致性快照。
+            // 真正投影前仍须锁定并重读PENDING事件，删除或其他实例已完成时直接退出。
+            var candidates=jdbc.query("SELECT * FROM trace_event WHERE id=? AND delivery_status='PENDING'",TraceJournal::map,eventId);
+            if(candidates.isEmpty())return;
+            var candidate=candidates.get(0);
             tx.executeWithoutResult(status -> {
+                if(TraceEvent.MESSAGE.equals(candidate.eventType())) {
+                    // 与TraceJournal及预览写入统一为“会话→事件”锁顺序；先锁事件会与前台插入形成环路。
+                    // 忙会话留给下轮恢复，不占着事件锁等待前台会话锁，也不计为投递失败。
+                    var owners=jdbc.queryForList("SELECT id FROM agent_conversation WHERE id=? AND tenant_id=? AND user_id=? FOR UPDATE SKIP LOCKED",
+                            String.class,candidate.conversationId(),candidate.tenantId(),candidate.userId());
+                    if(owners.isEmpty())return;
+                }
                 List<TraceEvent> found = jdbc.query("SELECT * FROM trace_event WHERE id=? AND delivery_status='PENDING' FOR UPDATE SKIP LOCKED",
                         TraceJournal::map, eventId);
                 if (found.isEmpty()) return;

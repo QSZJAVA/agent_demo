@@ -8,6 +8,7 @@ const fs = require('node:fs');
 const path = require('node:path');
 const crypto = require('node:crypto');
 const {execFileSync} = require('node:child_process');
+const {compareQueryFilters,canonicalField,reportScopeMatches} = require('./query-filter-semantics.cjs');
 const root = path.resolve(__dirname, '..');
 const args = process.argv.slice(2);
 const option = (name, fallback) => args.includes(name) ? args[args.indexOf(name) + 1] : fallback;
@@ -145,6 +146,7 @@ async function main() {
     corpus:corpusPath,corpusSha256:crypto.createHash('sha256').update(fs.readFileSync(path.resolve(root,corpusPath))).digest('hex'),
     model:await api('agent/model'),runtimeConfiguration:option('--runtime-info','')?readJson(option('--runtime-info','')):null,
     fingerprints:fingerprints(),runnerSha256:crypto.createHash('sha256').update(fs.readFileSync(__filename)).digest('hex'),
+    filterCheckerSha256:crypto.createHash('sha256').update(fs.readFileSync(path.join(__dirname,'query-filter-semantics.cjs'))).digest('hex'),
     sourceReports:reports,deterministicPreview:previewBaseline,cases:[]};
   const save=()=>{record.completed=record.cases.length;record.passed=record.cases.filter(c=>c.passed).length;record.failed=record.completed-record.passed;
     fs.mkdirSync(path.dirname(outputPath),{recursive:true});fs.writeFileSync(outputPath,JSON.stringify(record,null,2)+'\n');};
@@ -171,15 +173,17 @@ async function main() {
           else {
             if(query.query.domain!==domain(expect.source))errors.push('查询数据域错误');
             const expectedReports=reportIds[expect.source]?[reportIds[expect.source]]:Object.values(reportIds);
-            if(!equal([...query.query.reportIds].sort(),expectedReports.sort()))errors.push('报表范围错误');
-            if(query.query.companyCode && query.query.companyCode!=='A')errors.push('公司范围错误');
             const expectedRows=filtered(truth,expect), page=expect.page||1, size=expect.size||query.query.size;
+            if(!reportScopeMatches(expect,query.query,expectedReports,expectedRows))errors.push('报表范围错误');
+            if(query.query.companyCode && query.query.companyCode!=='A')errors.push('公司范围错误');
             if(query.total!==expectedRows.length)errors.push(`完整总数错误：预期${expectedRows.length}，实际${query.total}`);
             if(query.query.page!==page)errors.push('页码或跨域分页恢复错误');
             if(expect.size && query.query.size!==expect.size)errors.push('每页数量错误');
             if(expect.view && query.query.view!==expect.view)errors.push('详情/列表/总结任务类型错误');
             if(expect.sort && (query.query.sortField!==expect.sort || query.query.descending!==Boolean(expect.descending)))errors.push('排序含义错误');
-            if(expect.groupBy && !(Array.isArray(expect.groupBy)?expect.groupBy:[expect.groupBy]).includes(query.query.groupBy))errors.push('分组含义错误');
+            if(expect.groupBy && !(Array.isArray(expect.groupBy)?expect.groupBy:[expect.groupBy]).map(f=>canonicalField(f,query.query.domain)).includes(canonicalField(query.query.groupBy,query.query.domain)))errors.push('分组含义错误');
+            // 相同演示数据可能掩盖扩大条件；详情按稳定编号定位，其他查询须另核完整条件语义。
+            if(expect.view!=='DETAIL' && !compareQueryFilters(expect,query.query,'A').equal)errors.push('完整筛选语义与冻结预期不一致');
             const expectedPage=sorted(expectedRows,expect).slice((page-1)*size,page*size);
             if(!equal(keys(query.rows),keys(expectedPage)))errors.push('当前页记录集合错误');
             if(expect.sort && !equal(query.rows.map(key),expectedPage.map(key)))errors.push('当前页排序错误');
@@ -198,7 +202,7 @@ async function main() {
             if(Object.hasOwn(expect,'assignee') && query.rows[0]?.assignee!==expect.assignee)errors.push('当前处理人错误');
             const statuses={};for(const row of expectedRows){const s=row.status||'未提供';statuses[s]=(statuses[s]||0)+1;}
             if(!equal(Object.entries(query.summary.statusCounts).sort(),Object.entries(statuses).sort()))errors.push('状态分布错误');
-            if(expect.groupBy && query.query.groupBy){const groups={};for(const row of expectedRows){const name=String(field(row,query.query.groupBy)??'未提供');groups[name]=(groups[name]||0)+1;}
+            if(expect.groupBy && query.query.groupBy){const groups={};for(const row of expectedRows){const name=String(field(row,canonicalField(query.query.groupBy,query.query.domain))??'未提供');groups[name]=(groups[name]||0)+1;}
               if(!equal(Object.entries(query.summary.groups).sort(),Object.entries(groups).sort()))errors.push('分组统计错误');}
           }
           if(preview||plan)errors.push('查询意外进入派单流程');

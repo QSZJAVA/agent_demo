@@ -1,0 +1,94 @@
+{
+  "batch": "targeted-empty-summary-fix19",
+  "startedAt": "2026-10-07T09:28:47.160Z",
+  "finishedAt": "2026-10-07T09:29:03.632Z",
+  "total": 5,
+  "passed": 5,
+  "failed": 0,
+  "sourcesUnchanged": {
+    "sales": true,
+    "receivable": true,
+    "expense": true
+  },
+  "cases": [
+    {
+      "turn": 1,
+      "message": "A公司销售单，十万元以上的查一下，不含十万整。",
+      "expected": {
+        "kind": "query",
+        "source": "sales",
+        "where": [
+          [
+            "amount",
+            "GT",
+            "100000"
+          ]
+        ]
+      },
+      "passed": true,
+      "errors": [],
+      "elapsedMs": 4513
+    },
+    {
+      "turn": 2,
+      "message": "门槛再提高到超过五十万。",
+      "expected": {
+        "kind": "query",
+        "source": "sales",
+        "where": [
+          [
+            "amount",
+            "GT",
+            "500000"
+          ]
+        ]
+      },
+      "passed": true,
+      "errors": [],
+      "elapsedMs": 2312
+    },
+    {
+      "turn": 3,
+      "message": "那这一批总额是多少？",
+      "expected": {
+        "kind": "query",
+        "source": "sales",
+        "where": [
+          [
+            "amount",
+            "GT",
+            "500000"
+          ]
+        ],
+        "view": "SUMMARY"
+      },
+      "passed": true,
+      "errors": [],
+      "elapsedMs": 3449
+    },
+    {
+      "turn": 4,
+      "message": "别沿用刚才的金额，重新查A公司所有应收。",
+      "expected": {
+        "kind": "query",
+        "source": "receivable"
+      },
+      "passed": true,
+      "errors": [],
+      "elapsedMs": 2769
+    },
+    {
+      "turn": 5,
+      "message": "这些应收按客户分组统计，各有几笔，合计金额也给我。",
+      "expected": {
+        "kind": "query",
+        "source": "receivable",
+        "view": "SUMMARY",
+        "groupBy": "customerName"
+      },
+      "passed": true,
+      "errors": [],
+      "elapsedMs": 3330
+    }
+  ]
+}

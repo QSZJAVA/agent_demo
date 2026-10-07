@@ -21,7 +21,7 @@ public record SemanticIntent(int version, Action action, List<ScopeChange> scope
     public enum Target { COMPANY, REPORTS, RECORDS }
     // KEEP仅用于服务端集合求值；模型记录操作使用直接的排除与恢复语义。
     public enum Operation { KEEP, REPLACE, ADD, REMOVE, CLEAR, EXCLUDE, RESTORE, REPLACE_EXCLUSIONS, RESTORE_ALL, KEEP_ONLY }
-    public enum SelectorKind { NONE, DOCUMENT, DESCRIPTION, COUNTERPARTY, FIELDS, ALL }
+    public enum SelectorKind { NONE, DOCUMENT, DESCRIPTION, COUNTERPARTY, FIELDS, ALL, REFERENCE }
     public enum Comparison { EQ, NE, GT, GTE, LT, LTE, CONTAINS, STARTS_WITH, IN, NOT_IN, IS_NULL, NOT_NULL }
     public enum Quantifier { UNSPECIFIED, ONE, ALL }
     public enum ReportRole { INCLUDED, EXCLUDED, RECORD_SCOPE, UNCHANGED, UNCHANGED_OTHERS }
@@ -40,10 +40,10 @@ public record SemanticIntent(int version, Action action, List<ScopeChange> scope
      * 本轮语义范围修改及其原文证据。
      * @param target COMPANY、REPORTS或RECORDS范围目标
      * @param operation 范围使用REPLACE/ADD/REMOVE/CLEAR；记录使用EXCLUDE/RESTORE/REPLACE_EXCLUSIONS/RESTORE_ALL/KEEP_ONLY
-     * @param mentions 本轮原文实体片段，必须出现在对应evidence中；FIELDS、ALL和恢复全部时为空
+     * @param mentions 本轮原文实体片段；REFERENCE使用服务端提供的随机引用键，其余实体须出现在evidence中；FIELDS、ALL和恢复全部时为空
      * @param evidence 支撑该修改或禁止的连续原文证据
      * @param reportMentions 仅用于RECORDS的报表限定原话；空集合表示在当前完整预览定位，不改变查询报表范围
-     * @param selectorKind DOCUMENT单据、DESCRIPTION摘要、COUNTERPARTY客户实体、FIELDS配置字段条件、ALL当前预览或限定报表的全部记录；范围操作和恢复全部使用NONE
+     * @param selectorKind DOCUMENT单据、DESCRIPTION摘要、COUNTERPARTY客户实体、FIELDS配置字段条件、ALL整类记录、REFERENCE当前预览内已定位记录引用；范围操作和恢复全部使用NONE
      * @param quantifier ONE要求唯一记录，ALL为明确的匹配集合，UNSPECIFIED在多条匹配时澄清
      * @param conditions FIELDS选择器的有界OR条件组；其他选择器必须为空，组内按AND求值
      */

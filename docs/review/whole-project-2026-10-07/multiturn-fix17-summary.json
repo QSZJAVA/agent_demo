@@ -1,0 +1,170 @@
+{
+  "recordedAt": "2026-10-07T08:58:42.924Z",
+  "scope": "真实模型 + 认证 HTTP MCP；报表页与无模型业务事实基准；不确认派单、不推进审批",
+  "model": {
+    "model": "deepseek-v4.1-flash"
+  },
+  "runtimeConfiguration": {
+    "recordedAt": "2026-10-07T16:44:25.2967204+08:00",
+    "profiles": "real,mcp",
+    "semanticMode": "active",
+    "model": "deepseek-v4.1-flash",
+    "dispatchParserThinkingEnabled": false,
+    "assistantRouterThinkingEnabled": false,
+    "nativeSchema": true,
+    "maxDraftRepairs": 2,
+    "maxModelCallsPerPlanner": 3,
+    "evidence": "start-app.ps1 -SkipBuild with SEMANTIC_THINKING_ENABLED=false; application configuration and API model response"
+  },
+  "corpusOrigin": "岗位拟真语料，不是真实用户访谈；本批所有问法已经用于回归，不计首次泛化成绩。",
+  "finalBatch": false,
+  "total": 180,
+  "passed": 177,
+  "failed": 3,
+  "kindStats": {
+    "query": {
+      "total": 118,
+      "passed": 118
+    },
+    "preview": {
+      "total": 15,
+      "passed": 15
+    },
+    "selection": {
+      "total": 17,
+      "passed": 15
+    },
+    "clarify": {
+      "total": 11,
+      "passed": 11
+    },
+    "plan": {
+      "total": 8,
+      "passed": 7
+    },
+    "help": {
+      "total": 6,
+      "passed": 6
+    },
+    "cancel": {
+      "total": 4,
+      "passed": 4
+    },
+    "status": {
+      "total": 1,
+      "passed": 1
+    }
+  },
+  "latency": {
+    "medianMs": 3113,
+    "p95Ms": 7100,
+    "maximumMs": 9910
+  },
+  "batches": [
+    {
+      "file": "multiturn-fix17.json",
+      "sha256": "21b08d5e0204fb9d3375d8c7e4b3cafe0f4419509181f4402384782442ad2aca",
+      "startedAt": "2026-10-07T08:44:25.713Z",
+      "finishedAt": "2026-10-07T08:48:57.326Z",
+      "corpus": "tools/fixtures/multiturn-real-users.json",
+      "corpusSha256": "218db20ca8814a6ec1d1ceb9c170ee3e2a4366aab161454629aaad2a9c10565d",
+      "total": 72,
+      "passed": 72,
+      "failed": 0,
+      "sourcesUnchanged": {
+        "sales": true,
+        "receivable": true,
+        "expense": true
+      },
+      "latency": {
+        "medianMs": 3113,
+        "p95Ms": 7997,
+        "maximumMs": 9910
+      }
+    },
+    {
+      "file": "holdout-fix17.json",
+      "sha256": "38009eed039632bcd10ffc7cd5e80348915925ee9bfd124bd1026405fd352b37",
+      "startedAt": "2026-10-07T08:48:57.605Z",
+      "finishedAt": "2026-10-07T08:51:16.517Z",
+      "corpus": "tools/fixtures/multiturn-real-users-holdout.json",
+      "corpusSha256": "9b60ac81a0b25ed43f44683a061906b0054557d9f127a999742f17d4118ab82b",
+      "total": 36,
+      "passed": 33,
+      "failed": 3,
+      "sourcesUnchanged": {
+        "sales": true,
+        "receivable": true,
+        "expense": true
+      },
+      "latency": {
+        "medianMs": 3078,
+        "p95Ms": 8947,
+        "maximumMs": 9882
+      }
+    },
+    {
+      "file": "lifecycle-fix17.json",
+      "sha256": "11d4e4f4dddc4a734e3424880df4548243b823a57c653fe871cf10ba84b10232",
+      "startedAt": "2026-10-07T08:51:16.782Z",
+      "finishedAt": "2026-10-07T08:52:26.798Z",
+      "corpus": "tools/fixtures/multiturn-real-users-lifecycle.json",
+      "corpusSha256": "e3d4349a6ce818ebab271719a1adcdda61a318f80d6dca545d89f76d25fadf0b",
+      "total": 18,
+      "passed": 18,
+      "failed": 0,
+      "sourcesUnchanged": {
+        "sales": true,
+        "receivable": true,
+        "expense": true
+      },
+      "latency": {
+        "medianMs": 3137,
+        "p95Ms": 6365,
+        "maximumMs": 6365
+      }
+    },
+    {
+      "file": "reserve-fix17.json",
+      "sha256": "eec243a4dec90448f564b39e50a67142111efcc8fc7bc1431b44867931bdfb47",
+      "startedAt": "2026-10-07T08:52:27.056Z",
+      "finishedAt": "2026-10-07T08:53:53.713Z",
+      "corpus": "tools/fixtures/multiturn-real-users-reserve.json",
+      "corpusSha256": "27e3ed4eeb2d0d0c8525bdf7bd263e417664c84bff9ecba941be9c0bda2dda66",
+      "total": 24,
+      "passed": 24,
+      "failed": 0,
+      "sourcesUnchanged": {
+        "sales": true,
+        "receivable": true,
+        "expense": true
+      },
+      "latency": {
+        "medianMs": 3166,
+        "p95Ms": 7100,
+        "maximumMs": 8112
+      }
+    },
+    {
+      "file": "final-independent-fix17.json",
+      "sha256": "833666de355383ea70452fe715cdc31d3f2be3fa74582541f7682bbaced4b0fa",
+      "startedAt": "2026-10-07T08:53:53.981Z",
+      "finishedAt": "2026-10-07T08:55:35.834Z",
+      "corpus": "tools/fixtures/multiturn-real-users-final-independent.json",
+      "corpusSha256": "618c4e86708e4998f6da2593c4ca3178a6bbeeca3b2f8bd0e69dda055a1a9372",
+      "total": 30,
+      "passed": 30,
+      "failed": 0,
+      "sourcesUnchanged": {
+        "sales": true,
+        "receivable": true,
+        "expense": true
+      },
+      "latency": {
+        "medianMs": 3000,
+        "p95Ms": 5179,
+        "maximumMs": 5406
+      }
+    }
+  ]
+}

@@ -28,6 +28,8 @@ if($LASTEXITCODE -ne 0){exit $LASTEXITCODE}
 if($LASTEXITCODE -ne 0){exit $LASTEXITCODE}
 & node --test (Join-Path $taskRoot 'tools/compare-investigation-evaluations.test.cjs')
 if($LASTEXITCODE -ne 0){exit $LASTEXITCODE}
+& node --test (Join-Path $taskRoot 'tools/query-filter-semantics.test.cjs')
+if($LASTEXITCODE -ne 0){exit $LASTEXITCODE}
 & (Join-Path $taskRoot 'backend/mvnw.cmd') -f (Join-Path $taskRoot 'pom.xml') clean verify -q
 if($LASTEXITCODE -ne 0){exit $LASTEXITCODE}
 if(-not $BackendOnly) {

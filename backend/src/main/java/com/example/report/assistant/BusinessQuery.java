@@ -40,7 +40,8 @@ public record BusinessQuery(Domain domain,View view,List<String> reportIds,Strin
         if(reportIds.stream().anyMatch(id -> id==null || id.isBlank() || id.length()>128)
                 || (companyCode!=null && (companyCode.isBlank() || companyCode.length()>32))) throw new ApiException(422,"查询范围无效");
         for(var group:conditions) {
-            if(group==null || group.allOf()==null || group.allOf().isEmpty() || group.allOf().size()>8) throw new ApiException(422,"查询条件组无效");
+            if(group==null || group.allOf()==null || group.allOf().isEmpty() || group.allOf().size()>8)
+                throw new ApiException(422,"每个allOf条件组必须包含1至8项；无筛选条件时conditions应为空数组，不能创建空组");
             for(var filter:group.allOf()) {
                 if(filter==null || filter.field()==null || !filter.field().matches("[A-Za-z_][A-Za-z0-9_]{0,63}")
                         || filter.operator()==null || filter.values()==null || filter.values().size()>30

@@ -56,6 +56,8 @@ public class DialogueState {
     private com.example.report.assistant.BusinessQuery businessQuery;
     /** 最近成功查询当前页的有序业务标识及已展示标量字段，供明确指代使用，不包含未展示记录或新增权限。 */
     private List<java.util.Map<String,String>> businessReferences = List.of();
+    /** 最近成功只读查询的完整匹配条数；首次查询前为null，不以当前页长度猜测全集大小。 */
+    private Long businessTotalCount;
     /** 最近助手路由：BUSINESS_QUERY、DISPATCH、HELP或CLARIFY；尚未处理为空。 */
     private String assistantRoute;
     /** 当前业务焦点：最近使用的只读查询或派单规划；帮助、拒绝和澄清不清除已有焦点。 */
@@ -76,4 +78,8 @@ public class DialogueState {
     private List<java.util.Map<String,String>> lastSelectionReferences = List.of();
     /** 上述引用是否完整；超过条数或32KiB预算时为false，模型不能把保留的部分引用当作全部目标。 */
     private boolean lastSelectionReferencesComplete = true;
+    /** 最近选择引用对应的预览标识；为空表示没有可使用的记录引用，刷新后不得跨预览复用。 */
+    private String lastSelectionPreviewId;
+    /** 不出站的引用绑定：随机引用键到当前预览复合记录标识，随选择引用一起替换。 */
+    private java.util.Map<String,RecordKey> lastSelectionReferenceKeys = java.util.Map.of();
 }

@@ -37,7 +37,9 @@ public class SemanticPlanner {
             case COMPANY -> "请明确要查询的一家公司，或说明查询全部可见公司";
             case REPORTS -> "请说明要查询的完整报表名称";
             case RECORDS -> "请说明单据号，或在预览表格中选择记录";
-            default -> intent.unsupportedConditions().isEmpty()?"本轮操作尚未确定，未应用任何修改。请明确新的查询或记录选择，再生成清单。"
+            default -> intent.unsupportedConditions().isEmpty()?(state.isBusinessQueryAfterPreview()
+                    ?"本轮操作尚未确定，未应用任何修改。刚才查看的是只读业务数据；如需派单，请先明确查询可派候选的范围，再调整选择或生成待确认清单。"
+                    :"本轮操作尚未确定，未应用任何修改。请明确新的查询或记录选择，再生成清单。")
                     :"本轮条件暂无法执行："+String.join("、",intent.unsupportedConditions())+"。未应用本轮修改；可重新说明已配置字段条件或指定单据。";
         });
     }
@@ -62,7 +64,7 @@ public class SemanticPlanner {
                 .map(TextNormalizer::normalize).toList();
         return mentions.stream().map(TextNormalizer::normalize).allMatch(m -> captured.stream().anyMatch(c -> c.contains(m) || m.contains(c)));
     }
-    /** 在独立草稿中检查计划自相矛盾，供一次模型修正；不写会话，不把权限拒绝或未知实体转为模型改写指令。 */
+    /** 在独立草稿中检查计划自相矛盾，供有界模型修正；不写会话，不把权限拒绝或未知实体转为模型改写指令。 */
     public void validateModelDraft(CurrentUser user,DialogueState state,SemanticIntent intent) {
         if(!Set.of(SemanticIntent.Action.PREVIEW,SemanticIntent.Action.PREPARE_DISPATCH,SemanticIntent.Action.EXPLAIN_RULES).contains(intent.action())) return;
         var draft=new DialogueState();draft.setDesired(state.getDesired());
@@ -98,6 +100,16 @@ public class SemanticPlanner {
     /** 在提交草稿前校验最终报表集合满足实体角色；等价操作无需重复，错误角色不能放宽范围。 */
     private void validateReportRoles(CurrentUser user,DialogueState previous,DialogueState draft,SemanticIntent intent) {
         if(!Set.of(SemanticIntent.Action.PREVIEW,SemanticIntent.Action.PREPARE_DISPATCH,SemanticIntent.Action.EXPLAIN_RULES).contains(intent.action())) return;
+        // 记录所属报表必须在读取新预览之前确定，不能让泛称“全部报表”通过草稿后才在选择阶段失败。
+        // 泛称属于协议角色错误，可交给模型修正；未知或无权实体仍为业务拒绝，不诱导模型换成其他报表。
+        for(var change:intent.scopeChanges())if(change.target()==RECORDS)for(String mention:change.reportMentions()) {
+            var concrete=catalog.resolve(user,mention);
+            if(concrete.matchType()==MatchType.ALL)
+                throw new IntentCodec.InvalidOutput("","RECORD_SCOPE_MUST_NAME_REPORT：reportMentions仅填写具体所属报表；所有/全部报表是范围泛称，不能作为单张报表名称。作用于当前完整范围时reportMentions为空；重查全部报表仍由REPORTS CLEAR表达，恢复全部选择保留RESTORE_ALL，不得删除重置要求。");
+            if(!concrete.resolved() || concrete.matchType()==MatchType.FUZZY || !concrete.unrecognized().isEmpty())
+                throw new ApiException(422,"记录所属报表尚未确定，请说明具体报表名称");
+            concrete.reportIds().forEach(id->catalog.requireDispatchable(user,id));
+        }
         var ids=draft.getDesired().allReports()?catalog.dispatchableIds(user):new HashSet<>(draft.getDesired().reportIds());
         for(var constraint:intent.reportConstraints()) {
             if(constraint.role()==SemanticIntent.ReportRole.UNCHANGED_OTHERS) {

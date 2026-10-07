@@ -20,7 +20,7 @@ class ModelIntentTransportTest {
         assertEquals(source,masked.restore(masked.text()));
         assertFalse(masked.text().contains("900000000000000"));
     }
-    @Test void malformedOutputGetsOneFormatRepairAndThenFailsClosed() throws Exception {
+    @Test void malformedOutputStopsAfterTwoRepairsAndThenFailsClosed() throws Exception {
         var requests=new java.util.concurrent.atomic.AtomicInteger();
         var bodies=new java.util.concurrent.CopyOnWriteArrayList<com.fasterxml.jackson.databind.JsonNode>();
         var alwaysMalformed=new java.util.concurrent.atomic.AtomicBoolean();
@@ -48,7 +48,7 @@ class ModelIntentTransportTest {
             assertFalse(repairInput.at("/previousAttempt/validationError").asText().isBlank());
             alwaysMalformed.set(true);
             assertThrows(IntentCodec.InvalidOutput.class,()->parser.parse("帮助",new IntentParser.Context(new DialogueState(),List.of())));
-            assertEquals(4,requests.get());assertEquals(2,parser.formatRepairs());
+            assertEquals(5,requests.get());assertEquals(3,parser.formatRepairs());
         } finally {server.stop(0);}
     }
     @Test void numericDocumentIsTokenizedOnWireAndRestoredBeforeSelection() throws Exception {
@@ -77,7 +77,8 @@ class ModelIntentTransportTest {
             state.setPendingIntent(new SemanticIntent(1,SemanticIntent.Action.PREVIEW,List.of(),List.of(
                     new SemanticIntent.Restriction(SemanticIntent.Action.PREPARE_DISPATCH,SemanticIntent.RestrictionScope.THIS_TURN,"上轮不要派单")),SemanticIntent.Clarify.NONE));
             var parser=new ModelIntentParser(model,new IntentCodec(),new AgentProperties());
-            var intent=parser.parse("排除单据"+document,new IntentParser.Context(state,List.of()));
+            var intent=parser.parse("排除单据"+document,new IntentParser.Context(state,List.of(),List.of(),Map.of(),
+                    draft->assertEquals(document,draft.scopeChanges().get(0).mentions().get(0),"业务预检必须收到恢复后的真实标识")));
             assertFalse(wire.get().contains(document));assertFalse(wire.get().contains("13812345678"));
             assertFalse(wire.get().contains("上轮不要派单"));
             assertEquals(document,intent.changesFor(SemanticIntent.Target.RECORDS).get(0).mentions().get(0));

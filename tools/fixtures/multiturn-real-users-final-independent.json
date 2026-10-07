@@ -1,0 +1,44 @@
+[
+  {"id":"final-admin-desktop","persona":"行政经办人核对费用，中途插问工单再返回对账","turns":[
+    {"message":"我今天先核费用账，A公司的全给我看看。","expect":{"kind":"query","source":"expense"}},
+    {"message":"最贵的那张让我瞧一下具体内容。","expect":{"kind":"query","source":"expense","where":[["amount","EQ","8600"]],"view":"DETAIL"}},
+    {"message":"先插问一句，WO-DEMO-001到底停在哪儿，谁来处理？","expect":{"kind":"query","source":"work_order","where":[["orderId","EQ","WO-DEMO-001"]],"view":"DETAIL","assignee":"林主管（演示）"}},
+    {"message":"回费用账，A公司超过五千块的都列出来。","expect":{"kind":"query","source":"expense","where":[["amount","GT","5000"]]}},
+    {"message":"这份结果总共几笔、多少钱？","expect":{"kind":"query","source":"expense","where":[["amount","GT","5000"]],"view":"SUMMARY"}}
+  ]},
+  {"id":"final-finance-context","persona":"财务核到期应收、查看办理人后转回已派销售","turns":[
+    {"message":"A公司应收里，到期在2026年三月底或之前的先列给我。","expect":{"kind":"query","source":"receivable","where":[["date","LTE","2026-03-31"]]}},
+    {"message":"上面这一批的金额合一下。","expect":{"kind":"query","source":"receivable","where":[["date","LTE","2026-03-31"]],"view":"SUMMARY"}},
+    {"message":"换个问题，WO-DEMO-003是哪个人接手的，现在还在办吗？","expect":{"kind":"query","source":"work_order","where":[["orderId","EQ","WO-DEMO-003"]],"view":"DETAIL","assignee":"赵专员（演示）"}},
+    {"message":"不问工单了，把A公司销售里已经派过的那部分给我看。","expect":{"kind":"query","source":"sales","where":[["status","EQ","已派单"]],"requireFilters":[["status","EQ","已派单"]]}},
+    {"message":"金额大的摆前面。","expect":{"kind":"query","source":"sales","where":[["status","EQ","已派单"]],"sort":"amount","descending":true}}
+  ]},
+  {"id":"final-selection-change-of-mind","persona":"费用经办人临时改主意，核对清单但不执行","turns":[
+    {"message":"把A公司费用报表能派的那批拉出来，我先选选。","expect":{"kind":"preview","source":"expense"}},
+    {"message":"差旅费那笔先放一边，不选。","expect":{"kind":"selection","source":"expense","where":[["expenseType","NE","差旅费"]]}},
+    {"message":"又改主意了，两笔都选回去。","expect":{"kind":"selection","source":"expense"}},
+    {"message":"先把选好的出个待确认单子给我核一遍，还别执行。","expect":{"kind":"plan","source":"expense"}},
+    {"message":"不做了，撤掉这个单子。","expect":{"kind":"cancel","status":"CANCELLED","textAny":["取消"]}}
+  ]},
+  {"id":"final-english-reconciliation","persona":"英语使用者对账时切换工单并撤销先前金额条件","turns":[
+    {"message":"I'm reconciling company A's sales. Include the ones already dispatched.","expect":{"kind":"query","source":"sales"}},
+    {"message":"Keep only sales below 100,000 for now.","expect":{"kind":"query","source":"sales","where":[["amount","LT","100000"]]}},
+    {"message":"What does that add up to?","expect":{"kind":"query","source":"sales","where":[["amount","LT","100000"]],"view":"SUMMARY"}},
+    {"message":"Who is looking after WO-DEMO-002 right now?","expect":{"kind":"query","source":"work_order","where":[["orderId","EQ","WO-DEMO-002"]],"view":"DETAIL","assignee":"陈会计（演示）"}},
+    {"message":"Go back to company A's sales and drop the amount cutoff. I need the whole sales list again.","expect":{"kind":"query","source":"sales"}}
+  ]},
+  {"id":"final-empty-and-grouped","persona":"主管逐步收窄销售范围为空，再重新按客户核对应收","turns":[
+    {"message":"A公司销售单，十万元以上的查一下，不含十万整。","expect":{"kind":"query","source":"sales","where":[["amount","GT","100000"]]}},
+    {"message":"门槛再提高到超过五十万。","expect":{"kind":"query","source":"sales","where":[["amount","GT","500000"]]}},
+    {"message":"那这一批总额是多少？","expect":{"kind":"query","source":"sales","where":[["amount","GT","500000"]],"view":"SUMMARY"}},
+    {"message":"别沿用刚才的金额，重新查A公司所有应收。","expect":{"kind":"query","source":"receivable"}},
+    {"message":"这些应收按客户分组统计，各有几笔，合计金额也给我。","expect":{"kind":"query","source":"receivable","view":"SUMMARY","groupBy":"customerName"}}
+  ]},
+  {"id":"final-ordinary-reader","persona":"不熟悉权限和操作边界的普通员工，询问后继续正常查询","turns":[
+    {"message":"A公司报销的原始记录给我看看，不是可派的候选。","expect":{"kind":"query","source":"expense"}},
+    {"message":"顺便把B公司的报销也给我，我想一块核。","expect":{"kind":"clarify","textAny":["权限","授权","无权","公司"]}},
+    {"message":"那算了，只看A公司的报销，金额不到1000的。","expect":{"kind":"query","source":"expense","where":[["amount","LT","1000"]]}},
+    {"message":"这里会直接派出去吗，还是要我再确认？","expect":{"kind":"help","textAny":["确认"]}},
+    {"message":"最后单独查WO-DEMO-005的办理结果。","expect":{"kind":"query","source":"work_order","where":[["orderId","EQ","WO-DEMO-005"]],"view":"DETAIL","assignee":null}}
+  ]}
+]

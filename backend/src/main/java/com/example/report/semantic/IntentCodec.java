@@ -62,7 +62,14 @@ public class IntentCodec {
                     || c.mentions()==null || c.mentions().size()>20 || c.reportMentions()==null
                     || c.reportMentions().size()>20 || c.selectorKind()==null || c.quantifier()==null || c.conditions()==null || !grounded(message,c.evidence())) throw invalid();
             boolean clear=c.operation()==Operation.CLEAR || c.operation()==Operation.RESTORE_ALL;
-            if (clear || c.selectorKind()==SelectorKind.FIELDS || c.selectorKind()==SelectorKind.ALL ? !c.mentions().isEmpty() : c.mentions().isEmpty()) throw invalid();
+            boolean emptyMentions=clear || c.selectorKind()==SelectorKind.FIELDS || c.selectorKind()==SelectorKind.ALL;
+            // 缺少实体与实体放错字段需要相反的修正，不能用同一条“必须为空”反馈让模型反复删掉必填实体。
+            if(emptyMentions && !c.mentions().isEmpty())
+                throw new InvalidOutput("","SELECTOR_MENTIONS_MUST_BE_EMPTY：当前target="+c.target()+"，operation="+c.operation()+"，selectorKind="+c.selectorKind()
+                        +"的mentions必须为空。FIELDS值放conditions；ALL记录操作的报表名只放reportMentions；恢复全部不填记录名称。");
+            if(!emptyMentions && c.mentions().isEmpty())
+                throw new InvalidOutput("","SELECTOR_MENTIONS_REQUIRED：当前target="+c.target()+"，operation="+c.operation()+"，selectorKind="+c.selectorKind()
+                        +"的mentions不能为空。公司/报表范围操作填写本轮实体原词；记录定位填写单据、摘要、客户原词或既有REFERENCE键。若原意是恢复某报表全部勾选，使用RECORDS RESTORE、selectorKind=ALL、quantifier=ALL，报表原词放reportMentions，mentions为空。");
             if(c.target()==Target.RECORDS) {
                 if(c.quantifier()==Quantifier.ALL && SINGULAR_SELECTION.matcher(c.evidence()).find())
                     throw new InvalidOutput("","EXPLICIT_SINGLE_RECORD_CANNOT_USE_ALL：原文明确单笔时使用ONE，无法唯一定位必须澄清，不能扩大为全部客户记录；不同操作使用各自的连续原文证据");
@@ -70,11 +77,12 @@ public class IntentCodec {
                 if(clear != (c.selectorKind()==SelectorKind.NONE)) throw invalid();
                 if(c.selectorKind()==SelectorKind.ALL && (c.quantifier()!=Quantifier.ALL || !Set.of(Operation.EXCLUDE,Operation.RESTORE).contains(c.operation())))
                     throw new InvalidOutput("","ALL_SELECTOR_REQUIRES_EXCLUDE_OR_RESTORE_WITH_ALL_QUANTIFIER");
+                if(c.selectorKind()==SelectorKind.REFERENCE && !Set.of(Operation.EXCLUDE,Operation.RESTORE,Operation.REPLACE_EXCLUSIONS,Operation.KEEP_ONLY).contains(c.operation()))throw invalid();
             } else if(!Set.of(Operation.REPLACE,Operation.ADD,Operation.REMOVE,Operation.CLEAR).contains(c.operation())
                     || c.selectorKind()!=SelectorKind.NONE || c.quantifier()!=Quantifier.UNSPECIFIED) throw invalid();
-            if(c.operation()==Operation.KEEP_ONLY && c.selectorKind()!=SelectorKind.FIELDS) throw invalid();
+            if(c.operation()==Operation.KEEP_ONLY && Set.of(SelectorKind.NONE,SelectorKind.ALL).contains(c.selectorKind()))throw invalid();
             if(c.operation()==Operation.KEEP_ONLY && !EXCLUSIVE_SELECTION.matcher(c.evidence()).find())
-                throw new InvalidOutput("","KEEP_ONLY_REQUIRES_EXPLICIT_EXCLUSIVITY：普通保留或选上不授权排除其余记录；包含指定记录用RESTORE，只保留才用KEEP_ONLY。不能把边界保留误解为全局仅留");
+                throw new InvalidOutput("","KEEP_ONLY_REQUIRES_EXPLICIT_EXCLUSIVITY：普通保留或选上不授权排除其余记录。查询某报表符合派单规则的候选使用PREVIEW及报表范围，不增加RECORDS条件，派单资格由服务端规则计算；仅描述已选好或留下的记录并要求准备清单时保留PREPARE_DISPATCH，不生成RECORDS操作。明确恢复勾选用RESTORE，明确只保留记录子集才用KEEP_ONLY。");
             if(c.selectorKind()==SelectorKind.FIELDS) {
                 if(c.conditions().isEmpty() || c.conditions().size()>4) throw invalid();
                 for(var group:c.conditions()) {
@@ -89,7 +97,8 @@ public class IntentCodec {
                 }
             } else if(!c.conditions().isEmpty()) throw invalid();
             for (String mention : c.mentions())
-                if (mention==null || mention.isBlank() || mention.length()>160 || !contains(c.evidence(),mention)) throw invalid();
+                if (mention==null || mention.isBlank() || mention.length()>160
+                        || (c.selectorKind()==SelectorKind.REFERENCE ? !mention.matches("ref_[a-f0-9]{32}") : !contains(c.evidence(),mention))) throw invalid();
             // 报表限定可来自本轮前一分句；与默认引用整轮evidence等价，仍不能引用历史或改写查询范围。
             if (c.target()!=Target.RECORDS && !c.reportMentions().isEmpty()) throw new InvalidOutput("","NON_RECORD_TARGET_REQUIRES_EMPTY_REPORT_MENTIONS");
             for (String report : c.reportMentions())
@@ -105,7 +114,7 @@ public class IntentCodec {
                     || !contains(reference.evidence(),reference.mention())) throw new InvalidOutput("","UNGROUNDED_REPORT_ROLE");
             if(intent.action()!=Action.CLARIFY && reference.role()==ReportRole.RECORD_SCOPE && intent.scopeChanges().stream().noneMatch(c -> c.target()==Target.RECORDS
                     && c.reportMentions().stream().anyMatch(m -> contains(m,reference.mention()) || contains(reference.mention(),m))))
-                throw new InvalidOutput("","RECORD_SCOPE_REQUIRES_RECORD_SELECTOR");
+                throw new InvalidOutput("","RECORD_SCOPE_REQUIRES_RECORD_SELECTOR：RECORD_SCOPE仅限定实际记录选择操作所属的报表。产品、费用类型或已选记录描述不是报表；仅要求准备当前已选记录时无需RECORDS或RECORD_SCOPE，保留PREPARE_DISPATCH及原有选择，不得为满足此约束新增修改。");
         }
         // 同一个报表同时被当作查询范围和记录定语时，必须有独立的范围证据。
         // 不能把“报表内的客户记录”整句复用成两种修改的理由；这是协议一致性校验，不按关键词构造意图。
@@ -134,14 +143,14 @@ public class IntentCodec {
     private static boolean grounded(String source,String evidence) {
         return evidence!=null && !evidence.isBlank() && evidence.length()<=1000 && contains(source,evidence);
     }
-    /** 汇总独立的证据错误供唯一一次模型修正；只解释协议约束，不代填意图、不执行部分修改。 */
+    /** 汇总独立的证据错误供有界模型修正；只解释协议约束，不代填意图、不执行部分修改。 */
     private static String diagnostics(SemanticIntent intent,String message,String first) {
         if(intent==null || intent.scopeChanges()==null)return first;
         var issues=new LinkedHashSet<String>();issues.add(first);
         for(var change:intent.scopeChanges()) {
             if(change==null)continue;
             if(!grounded(message,change.evidence()))issues.add("操作evidence须逐字引用本轮连续原文，不得补词或改写");
-            if(change.mentions()!=null && change.mentions().stream().anyMatch(m->!contains(change.evidence(),m)))
+            if(change.selectorKind()!=SelectorKind.REFERENCE && change.mentions()!=null && change.mentions().stream().anyMatch(m->!contains(change.evidence(),m)))
                 issues.add("mentions中的对象必须出现在该操作的evidence中；引用包含对象的连续原文，不能只引用动作");
             if(change.reportMentions()!=null && change.reportMentions().stream().anyMatch(m->!contains(message,m)))
                 issues.add("reportMentions只能使用本轮原文出现的报表，不得补标准名或历史名称");

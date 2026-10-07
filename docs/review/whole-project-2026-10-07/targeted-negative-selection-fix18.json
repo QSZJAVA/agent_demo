@@ -1,0 +1,104 @@
+{
+  "batch": "targeted-negative-selection-fix18",
+  "startedAt": "2026-10-07T09:04:57.599Z",
+  "finishedAt": "2026-10-07T09:05:33.228Z",
+  "total": 6,
+  "passed": 6,
+  "failed": 0,
+  "sourcesUnchanged": {
+    "sales": true,
+    "receivable": true,
+    "expense": true
+  },
+  "cases": [
+    {
+      "turn": 1,
+      "message": "麻烦准备看一下A公司全部报表能派的那些。",
+      "expected": {
+        "kind": "preview",
+        "source": "all"
+      },
+      "passed": true,
+      "errors": [],
+      "elapsedMs": 5260
+    },
+    {
+      "turn": 2,
+      "message": "销售这部分先缓一缓，剩下的报表留着。",
+      "expected": {
+        "kind": "selection",
+        "source": "all",
+        "where": [
+          [
+            "reportId",
+            "NE",
+            "rpt-sales-order"
+          ]
+        ]
+      },
+      "passed": true,
+      "errors": [],
+      "elapsedMs": 5308
+    },
+    {
+      "turn": 3,
+      "message": "你可以查工单进展吗？我只是问问功能。",
+      "expected": {
+        "kind": "help",
+        "textAny": [
+          "工单"
+        ]
+      },
+      "passed": true,
+      "errors": [],
+      "elapsedMs": 2987
+    },
+    {
+      "turn": 4,
+      "message": "刚才暂缓的销售也加回来。",
+      "expected": {
+        "kind": "selection",
+        "source": "all"
+      },
+      "passed": true,
+      "errors": [],
+      "elapsedMs": 7588
+    },
+    {
+      "turn": 5,
+      "message": "业务招待费那笔这次不要了。",
+      "expected": {
+        "kind": "selection",
+        "source": "all",
+        "where": [
+          [
+            "docNo",
+            "NE",
+            "EXP-2026-0002"
+          ]
+        ]
+      },
+      "passed": true,
+      "errors": [],
+      "elapsedMs": 9127
+    },
+    {
+      "turn": 6,
+      "message": "好了，把留下的做成清单，先不要提交。",
+      "expected": {
+        "kind": "plan",
+        "source": "all",
+        "where": [
+          [
+            "docNo",
+            "NE",
+            "EXP-2026-0002"
+          ]
+        ]
+      },
+      "passed": true,
+      "errors": [],
+      "elapsedMs": 5252
+    }
+  ]
+}

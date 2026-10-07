@@ -11,7 +11,7 @@ import java.util.*;
 
 /**
  * 将用户原文和受控上下文提交模型，解析结构化意图并验证协议、原文证据及报表覆盖。
- * 真实模型配置下最多进行一次格式修复；不注册业务工具，也不把上轮禁止或助手失败文本作为本轮指令。无法通过校验时抛错，交由对话服务澄清或报告失败。
+ * 真实模型配置下最多进行两次草稿修复；不注册业务工具，也不把上轮禁止或助手失败文本作为本轮指令。无法通过校验时抛错，交由对话服务澄清或报告失败。
  */
 @Component
 public class ModelIntentParser implements IntentParser {
@@ -45,7 +45,7 @@ public class ModelIntentParser implements IntentParser {
         } catch (Exception error) { throw new IllegalStateException("模拟语义样本加载失败", error); }
     }
     /**
-     * 真实模型调用禁用工具，输入仅包含脱敏本轮原文和受控状态。格式、原文证据或实体覆盖不合格时最多再调用一次；最终仍不合格则抛出 InvalidOutput，不能执行部分意图。
+     * 真实模型调用禁用工具，输入仅包含脱敏本轮原文和受控状态。格式、原文证据或实体覆盖不合格时最多再调用两次；最终仍不合格则抛出 InvalidOutput，不能执行部分意图。
      */
     @Override public SemanticIntent parse(String message, Context context) {
         if (props.getLlm().isMock()) return fixtures.getOrDefault(normalize(message), SemanticIntent.clarify(SemanticIntent.Clarify.ACTION));
@@ -65,13 +65,16 @@ public class ModelIntentParser implements IntentParser {
         modelState.put("unresolvedRequest",context.state().isUnresolvedRequest());
         modelState.put("excludedRecordCount",context.state().getExcludedRecords().size());
         // 只提供已验证的对象事实，不把上一轮动作或带命令词的旧草稿作为下一轮动作提示。
-        modelState.put("lastSelectionReferences",context.state().getLastSelectionReferences());
+        modelState.put("lastSelectionReferences",context.state().getPreviewId()!=null
+                && Objects.equals(context.state().getPreviewId(),context.state().getLastSelectionPreviewId())
+                && !context.state().isBusinessQueryAfterPreview()?context.state().getLastSelectionReferences():List.of());
         modelState.put("lastSelectionReferencesComplete",context.state().isLastSelectionReferencesComplete());
         modelState.put("planPresent",context.state().getPlanId()!=null);
         modelState.put("previewPresent",context.state().getPreviewId()!=null);
+        modelState.put("businessQueryAfterPreview",context.state().isBusinessQueryAfterPreview());
         modelState.put("scopeReplyDefault",Map.of("when","SCOPE_VALUES_WITHOUT_EXPLICIT_ACTION","action","PREVIEW"));
         var modelContext=Map.of("state",modelState,"reports",context.reports(),"mentionedReportTerms",context.mentionedReportTerms(),
-                "capabilities",SemanticCapabilities.describe(context.selectorsByReport()),"fieldsByReport",context.fieldsByReport(),
+                "capabilities",SemanticCapabilities.describe(context.selectorsByReport()),"fieldsByReport",context.fieldsByReport(),"currentSelection",context.currentSelection(),
                 "referenceDate",java.time.LocalDate.now(java.time.ZoneId.of("Asia/Shanghai")).toString(),
                 "operatorsByType",java.util.stream.Stream.of("string","decimal","long","integer","date","boolean").collect(java.util.stream.Collectors.toMap(t -> t,FieldSelection::operators)));
         var modelInput=new LinkedHashMap<String,Object>();
@@ -79,7 +82,7 @@ public class ModelIntentParser implements IntentParser {
         modelInput.put("context",com.example.report.operations.SensitiveData.forModel(modelContext));
         SemanticIntent parsed=null;
         String repairReason="";
-        for (int attempt=0;attempt<2;attempt++) {
+        for (int attempt=0;attempt<3;attempt++) {
             if (attempt>0) formatRepairs.incrementAndGet();
             modelCalls.incrementAndGet();
             String response=client.prompt().system(INSTRUCTIONS + "\nJSON Schema:\n" + codec.schema()
@@ -90,28 +93,31 @@ public class ModelIntentParser implements IntentParser {
                 if (!SemanticPlanner.hasReportCoverage(parsed,context.mentionedReportTerms()))
                     throw new IntentCodec.InvalidOutput(response,"MISSING_REPORT_ROLE：本轮出现的报表原词 "+context.mentionedReportTerms()
                             +" 必须由范围操作、记录所属报表或最终报表约束完整覆盖；替换范围时显式点名的排除报表也须有EXCLUDED约束，不得遗漏。");
-                context.validateDraft().accept(parsed);
+                // 草稿业务预检需要当前真实标识；仅恢复本次受保护输入，不能拿出站占位符去匹配数据库事实。
+                context.validateDraft().accept(restoreIntent(parsed,protectedInput));
                 break;
             }
             catch (IntentCodec.InvalidOutput invalid) {
                 repairReason=invalid.reason();
-                if(!context.state().getLastSuccessfulSelection().isEmpty() && repairReason.contains("mentions"))
-                    repairReason+="；若本轮是唯一承接lastSelectionReferences的实体指代，历史全称不能补入mentions或evidence；应使用FIELDS，mentions为空，conditions.values引用已确定字段值，条件evidence只引用本轮原文。没有唯一历史依据则澄清。";
-                if(attempt==1) throw new IntentCodec.InvalidOutput(response,repairReason);
+                if(attempt==2) throw new IntentCodec.InvalidOutput(response,repairReason);
                 // 修正必须能看到被拒绝的草稿及错误；不只重复原请求，也不执行任何部分意图。
                 // 草稿仍是模型不可信数据，受长度与出站脱敏约束；只在当前一次修正中保留。
                 String rejected=response==null?"":response.length()>24000?"[输出超过长度上限]":response;
                 modelInput.put("previousAttempt",Map.of("output",com.example.report.operations.SensitiveData.text(rejected),"validationError",repairReason));
             }
         }
-        var restored=new SemanticIntent(parsed.version(),parsed.action(),parsed.scopeChanges().stream()
+        var restored=restoreIntent(parsed,protectedInput);
+        codec.validate(restored,message);
+        return restored;
+    }
+    /** 只恢复本次输入中实际保护的实体，用于无副作用草稿预检及最终执行校验。 */
+    private static SemanticIntent restoreIntent(SemanticIntent parsed,com.example.report.operations.SensitiveData.ModelText protectedInput) {
+        return new SemanticIntent(parsed.version(),parsed.action(),parsed.scopeChanges().stream()
                 .map(c -> new SemanticIntent.ScopeChange(c.target(),c.operation(),c.mentions().stream().map(protectedInput::restore).toList(),
                         protectedInput.restore(c.evidence()),c.reportMentions().stream().map(protectedInput::restore).toList(),c.selectorKind(),c.quantifier(),c.conditions().stream().map(g -> new SemanticIntent.ConditionGroup(g.allOf().stream().map(f -> new SemanticIntent.FieldCondition(f.field(),f.operator(),f.values().stream().map(protectedInput::restore).toList(),protectedInput.restore(f.evidence()))).toList())).toList())).toList(),
                 parsed.restrictions().stream().map(r -> new SemanticIntent.Restriction(r.action(),r.scope(),protectedInput.restore(r.evidence()))).toList(),
                 parsed.reportConstraints().stream().map(r -> new SemanticIntent.ReportConstraint(protectedInput.restore(r.mention()),r.role(),protectedInput.restore(r.evidence()))).toList(),
                 parsed.unsupportedConditions().stream().map(protectedInput::restore).toList(),parsed.clarify());
-        codec.validate(restored,message);
-        return restored;
     }
     @Override public Interpretation interpret(String message,Context context) {
         return new Interpretation(parse(message,context),props.getLlm().isMock()?Source.MOCK:Source.MODEL);

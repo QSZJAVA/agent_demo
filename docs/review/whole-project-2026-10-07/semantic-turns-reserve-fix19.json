@@ -1,0 +1,60 @@
+{
+  "evidenceScope": "PERSISTED_DEMO_SEMANTIC_AUDIT",
+  "source": "semantic-turns-reserve-fix19.json",
+  "turns": [
+    {
+      "request_id": "d3f31dd6d25546328768b7803cb7d46a",
+      "conversation_id": "4dc82f4bd893436bb0afa391e41b0473",
+      "utterance": "先对一下A公司的费用明细。",
+      "intent_json": null,
+      "outcome": "ASSISTANT_BUSINESS_QUERY",
+      "reason": null,
+      "latency_ms": "2810"
+    },
+    {
+      "request_id": "a905b416738c4eb9893eea3c35866cf2",
+      "conversation_id": "4dc82f4bd893436bb0afa391e41b0473",
+      "utterance": "这些报销按费用项目分一下，总共多少也列出来。",
+      "intent_json": null,
+      "outcome": "ASSISTANT_BUSINESS_QUERY",
+      "reason": null,
+      "latency_ms": "2585"
+    },
+    {
+      "request_id": "09317748efc94d9db06e9d75bf6270fe",
+      "conversation_id": "4dc82f4bd893436bb0afa391e41b0473",
+      "utterance": "接下来我要准备派单。先只看A公司费用报表满足派单规则的记录。",
+      "intent_json": "{\"action\": \"PREVIEW\", \"clarify\": \"NONE\", \"version\": 1, \"restrictions\": [], \"scopeChanges\": [{\"target\": \"REPORTS\", \"evidence\": \"先只看A公司费用报表满足派单规则的记录\", \"mentions\": [\"费用报表\"], \"operation\": \"REPLACE\", \"conditions\": [], \"quantifier\": \"UNSPECIFIED\", \"selectorKind\": \"NONE\", \"reportMentions\": []}], \"reportConstraints\": [{\"role\": \"INCLUDED\", \"mention\": \"费用报表\", \"evidence\": \"先只看A公司费用报表满足派单规则的记录\"}], \"unsupportedConditions\": []}",
+      "outcome": "READY",
+      "reason": null,
+      "latency_ms": "4851"
+    },
+    {
+      "request_id": "3f555b9620054ec6ab24560057e910cf",
+      "conversation_id": "4dc82f4bd893436bb0afa391e41b0473",
+      "utterance": "这轮业务招待费不安排，差旅照常。",
+      "intent_json": "{\"action\": \"PREPARE_DISPATCH\", \"clarify\": \"NONE\", \"version\": 1, \"restrictions\": [], \"scopeChanges\": [{\"target\": \"RECORDS\", \"evidence\": \"这轮业务招待费不安排，差旅照常。\", \"mentions\": [], \"operation\": \"EXCLUDE\", \"conditions\": [{\"allOf\": [{\"field\": \"expenseType\", \"values\": [\"业务招待费\"], \"evidence\": \"业务招待费不安排\", \"operator\": \"EQ\"}]}], \"quantifier\": \"ALL\", \"selectorKind\": \"FIELDS\", \"reportMentions\": []}], \"reportConstraints\": [], \"unsupportedConditions\": []}",
+      "outcome": "PLAN_READY",
+      "reason": null,
+      "latency_ms": "7788"
+    },
+    {
+      "request_id": "b5ab3fb92b1f4c899efe63d15d4035e9",
+      "conversation_id": "4dc82f4bd893436bb0afa391e41b0473",
+      "utterance": "把已经选好的那一笔做成待确认清单。",
+      "intent_json": "{\"action\": \"PREPARE_DISPATCH\", \"clarify\": \"NONE\", \"version\": 1, \"restrictions\": [], \"scopeChanges\": [], \"reportConstraints\": [], \"unsupportedConditions\": []}",
+      "outcome": "PLAN_READY",
+      "reason": null,
+      "latency_ms": "4560"
+    },
+    {
+      "request_id": "dcd868d3947942f3a9e168667feb3e16",
+      "conversation_id": "4dc82f4bd893436bb0afa391e41b0473",
+      "utterance": "计划有变，撤销这份清单。",
+      "intent_json": "{\"action\": \"CANCEL_PLAN\", \"clarify\": \"NONE\", \"version\": 1, \"restrictions\": [], \"scopeChanges\": [], \"reportConstraints\": [], \"unsupportedConditions\": []}",
+      "outcome": "READY",
+      "reason": null,
+      "latency_ms": "3958"
+    }
+  ]
+}

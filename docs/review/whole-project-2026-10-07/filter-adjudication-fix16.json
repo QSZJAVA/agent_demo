@@ -1,0 +1,159 @@
+{
+  "recordedAt": "2026-10-07T08:34:50.862Z",
+  "source": ".runtime/whole-project-2026-10-07/holdout-fix16.json",
+  "sourceSha256": "b5031fadf6a780c79d8b7b27f9064909b74c5f2b9a01bda73099cdd85e07b901",
+  "priorDisplayedQuery": {
+    "domain": "REPORT",
+    "view": "LIST",
+    "reportIds": [
+      "rpt-expense-claim"
+    ],
+    "companyCode": "A",
+    "conditions": [],
+    "sortField": null,
+    "descending": false,
+    "page": 1,
+    "size": 20,
+    "groupBy": null
+  },
+  "priorDisplayedTotal": 3,
+  "priorDisplayedRows": [
+    {
+      "rowKey": "rpt-expense-claim:1",
+      "expenseType": "差旅费",
+      "amount": "8600.00"
+    },
+    {
+      "rowKey": "rpt-expense-claim:2",
+      "expenseType": "业务招待费",
+      "amount": "3200.00"
+    },
+    {
+      "rowKey": "rpt-expense-claim:3",
+      "expenseType": "办公用品",
+      "amount": "680.00"
+    }
+  ],
+  "adjudications": [
+    {
+      "turn": 5,
+      "message": "别要差旅费，另外两类留下。",
+      "originalPassed": false,
+      "originalErrors": [
+        "完整筛选语义与冻结预期不一致"
+      ],
+      "expected": {
+        "kind": "query",
+        "source": "expense",
+        "where": [
+          [
+            "expenseType",
+            "NE",
+            "差旅费"
+          ]
+        ]
+      },
+      "actualConditions": [
+        {
+          "allOf": [
+            {
+              "field": "expenseType",
+              "operator": "IN",
+              "values": [
+                "业务招待费",
+                "办公用品"
+              ]
+            }
+          ]
+        }
+      ],
+      "records": [
+        {
+          "rowKey": "rpt-expense-claim:2",
+          "expenseType": "业务招待费",
+          "amount": "3200.00"
+        },
+        {
+          "rowKey": "rpt-expense-claim:3",
+          "expenseType": "办公用品",
+          "amount": "680.00"
+        }
+      ],
+      "summary": {
+        "count": 2,
+        "amountsByCurrency": {
+          "CNY": "3880.00"
+        },
+        "statusCounts": {
+          "未派单": 2
+        },
+        "groups": {},
+        "pendingApprovers": {},
+        "unclassifiedAmountCount": 0
+      },
+      "decision": "人工复核通过",
+      "reason": "上一轮完整展示三类费用；本轮明确说另外两类，IN业务招待费和办公用品准确引用已展示的剩余类别。后续合计保持该集合。这里的NE与IN不宣称对任意未来类别普遍等价。"
+    },
+    {
+      "turn": 6,
+      "message": "把刚才留下的费用金额合计告诉我。",
+      "originalPassed": false,
+      "originalErrors": [
+        "完整筛选语义与冻结预期不一致"
+      ],
+      "expected": {
+        "kind": "query",
+        "source": "expense",
+        "where": [
+          [
+            "expenseType",
+            "NE",
+            "差旅费"
+          ]
+        ],
+        "view": "SUMMARY"
+      },
+      "actualConditions": [
+        {
+          "allOf": [
+            {
+              "field": "expenseType",
+              "operator": "IN",
+              "values": [
+                "业务招待费",
+                "办公用品"
+              ]
+            }
+          ]
+        }
+      ],
+      "records": [
+        {
+          "rowKey": "rpt-expense-claim:2",
+          "expenseType": "业务招待费",
+          "amount": "3200.00"
+        },
+        {
+          "rowKey": "rpt-expense-claim:3",
+          "expenseType": "办公用品",
+          "amount": "680.00"
+        }
+      ],
+      "summary": {
+        "count": 2,
+        "amountsByCurrency": {
+          "CNY": "3880.00"
+        },
+        "statusCounts": {
+          "未派单": 2
+        },
+        "groups": {},
+        "pendingApprovers": {},
+        "unclassifiedAmountCount": 0
+      },
+      "decision": "人工复核通过",
+      "reason": "上一轮完整展示三类费用；本轮明确说另外两类，IN业务招待费和办公用品准确引用已展示的剩余类别。后续合计保持该集合。这里的NE与IN不宣称对任意未来类别普遍等价。"
+    }
+  ],
+  "originalExpectationsAndResultsPreserved": true
+}

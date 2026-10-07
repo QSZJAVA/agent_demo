@@ -231,6 +231,35 @@ class TracePersistenceIntegrationTest {
         assertEquals(snapshot, plans.items(plan.getId()).get(0).getRuleSnapshot());
     }
 
+    @Test void busyConversationDoesNotLetProjectorHoldEventLockAgainstItsWriter() throws Exception {
+        var conversation=conversations.create(USER1,"test");
+        var message=new AgentMessage();message.setTenantId(USER1.tenantId());message.setUserId(USER1.userId());
+        message.setConversationId(conversation.getId());message.setRole("user");message.setContent("忙会话后的可靠消息");message.setCreatedAt(java.time.LocalDateTime.now());
+        long eventId=journal.message(message,true,"busy-conversation");
+        var locked=new CountDownLatch(1);var release=new CountDownLatch(1);var pool=Executors.newFixedThreadPool(2);
+        Future<?> producer=pool.submit(()->tx.executeWithoutResult(status->{
+            assertEquals(conversation.getId(),jdbc.queryForObject("SELECT id FROM agent_conversation WHERE id=? FOR UPDATE",String.class,conversation.getId()));
+            locked.countDown();await(release);
+        }));
+        Future<?> projection=null;
+        try {
+            assertTrue(locked.await(5,TimeUnit.SECONDS));
+            // 补写必须跳过忙会话，不能先持有事件锁再等待生产者的会话锁。
+            projection=pool.submit(()->projector.deliver(eventId));projection.get(2,TimeUnit.SECONDS);
+            assertEquals(0,count("agent_message"));
+            assertEquals("PENDING",jdbc.queryForObject("SELECT delivery_status FROM trace_event WHERE id=?",String.class,eventId));
+            assertEquals(0,jdbc.queryForObject("SELECT delivery_attempts FROM trace_event WHERE id=?",Integer.class,eventId));
+            tx.executeWithoutResult(status->assertEquals(eventId,jdbc.queryForObject("SELECT id FROM trace_event WHERE id=? FOR UPDATE NOWAIT",Long.class,eventId)));
+        } finally {
+            release.countDown();
+            try {producer.get(5,TimeUnit.SECONDS);if(projection!=null)projection.get(5,TimeUnit.SECONDS);}
+            finally {pool.shutdownNow();assertTrue(pool.awaitTermination(5,TimeUnit.SECONDS));}
+        }
+        projector.deliver(eventId);projector.deliver(eventId);
+        assertEquals(1,count("agent_message"));
+        assertEquals(1,jdbc.queryForObject("SELECT message_count FROM agent_conversation WHERE id=?",Integer.class,conversation.getId()));
+    }
+
     @Test void concurrentProjectorsProduceOneMessageAndOneCounterIncrement() throws Exception {
         var conversation = conversations.create(USER1, "mock");
         AgentMessage message = new AgentMessage();

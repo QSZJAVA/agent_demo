@@ -12,7 +12,7 @@ import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Component;
 import java.util.*;
 
-/** 真实模型的统一业务路由与查询规划；不注册执行工具，不传身份和物理表名，最多一次格式修正。 */
+/** 真实模型的统一业务路由与查询规划；不注册执行工具，不传身份和物理表名，最多两次草稿修正。 */
 @Component
 public class ModelAssistantPlanner implements AssistantPlanner {
     private final ChatClient client;
@@ -24,6 +24,10 @@ public class ModelAssistantPlanner implements AssistantPlanner {
         catch(Exception e){throw new IllegalStateException("业务助手规则无法读取",e);}
     }
     @Override public AssistantPlan plan(String message,DialogueState state,List<CatalogEntry> reports,Set<String> companies) {
+        return plan(message,state,reports,companies,draft->{});
+    }
+    @Override public AssistantPlan plan(String message,DialogueState state,List<CatalogEntry> reports,Set<String> companies,
+                                       java.util.function.Consumer<AssistantPlan> validateDraft) {
         var protectedInput=SensitiveData.modelText(message);
         var originals=new LinkedHashMap<>(protectedInput.originals());
         var input=new LinkedHashMap<String,Object>();input.put("message",protectedInput.text());
@@ -32,15 +36,26 @@ public class ModelAssistantPlanner implements AssistantPlanner {
         input.put("dispatchFields",BusinessFields.forDomain(BusinessQuery.Domain.DISPATCH,List.of()));input.put("workOrderFields",BusinessFields.forDomain(BusinessQuery.Domain.WORK_ORDER,List.of()));
         input.put("previousQuery",protectContext(JsonUtil.MAPPER.valueToTree(state.getBusinessQuery()),originals));
         input.put("previousRows",protectContext(JsonUtil.MAPPER.valueToTree(state.getBusinessReferences()),originals));input.put("lastRoute",state.getAssistantFocus());input.put("lastAttemptRoute",state.getAssistantRoute());
+        // 只提供上一成功查询的计数，不加载未展示记录；分页或失败状态不能声称当前页覆盖全集。
+        var previousResult=new LinkedHashMap<String,Object>();previousResult.put("totalCount",state.getBusinessTotalCount());
+        previousResult.put("displayedCount",state.getBusinessReferences().size());
+        previousResult.put("allMatchesDisplayed",!state.isBusinessUnresolved() && state.getBusinessQuery()!=null
+                && state.getBusinessQuery().page()==1 && state.getBusinessTotalCount()!=null
+                && state.getBusinessTotalCount()==(long)state.getBusinessReferences().size());
+        input.put("previousResult",previousResult);
         input.put("queryUnresolved",state.isBusinessUnresolved());input.put("dispatchPreviewPresent",state.getPreviewId()!=null);
         input.put("dispatchPlanPresent",state.getPlanId()!=null);input.put("dispatchUnresolved",state.isUnresolvedRequest());
+        // 路由层也需要真实子流程能力，不能把已实现的配置字段勾选误称为不支持。
+        var dispatchable=reports.stream().filter(CatalogEntry::dispatchEnabled).toList();
+        input.put("dispatchCapabilities",com.example.report.semantic.SemanticCapabilities.describe(com.example.report.semantic.SemanticCapabilities.selectors(dispatchable)));
+        input.put("dispatchFieldsByReport",com.example.report.semantic.SemanticCapabilities.fields(dispatchable));
         var dispatchContext=new LinkedHashMap<String,Object>();dispatchContext.put("desired",state.getDesired());dispatchContext.put("effective",state.getEffective());
         dispatchContext.put("phase",state.getPhase());dispatchContext.put("unresolvedCompany",state.isUnresolvedCompany());dispatchContext.put("unresolvedReports",state.isUnresolvedReports());dispatchContext.put("unresolvedRecords",state.isUnresolvedRecords());
         input.put("dispatchContext",dispatchContext);
         var options=OpenAiChatOptions.builder().temperature(0.0).maxTokens(3000).internalToolExecutionEnabled(false).toolNames(Set.of()).toolCallbacks(List.of())
                 .extraBody(Map.of("thinking",Map.of("type","disabled"))).outputSchema(AssistantSchema.planSchema());
         if(props.getSemantic().getModel()!=null && !props.getSemantic().getModel().isBlank()) options.model(props.getSemantic().getModel());
-        for(int attempt=0;attempt<2;attempt++) {
+        for(int attempt=0;attempt<3;attempt++) {
             String modelInput=JsonUtil.toJson(SensitiveData.forModel(input));
             if(modelInput.getBytes(java.nio.charset.StandardCharsets.UTF_8).length>128000)throw new ApiException(422,"当前目录上下文超过查询规划预算，请联系管理员限定助手可见目录");
             String reply=client.prompt().system(instructions+"\nJSON Schema:\n"+AssistantSchema.planSchema())
@@ -51,14 +66,18 @@ public class ModelAssistantPlanner implements AssistantPlanner {
                 plan=AssistantCodec.plan(restore(JsonUtil.MAPPER.valueToTree(plan),new SensitiveData.ModelText(protectedInput.text(),originals)).toString());
                 AssistantRouteGuard.validate(message,state,plan);
                 AssistantRouteGuard.validateCompanies(message,plan,companies);
+                AssistantRouteGuard.validateDomainScope(message,state,plan,reports);
+                AssistantRouteGuard.validateExplicitReport(message,plan,reports);
                 if(plan.route()==AssistantPlan.Route.BUSINESS_QUERY && plan.followUp() && (state.getBusinessQuery()==null || state.isBusinessUnresolved()))
                     throw new ApiException(422,"上次查询未完成，请重新明确查询对象和筛选条件");
                 // 追问只能细化同一业务对象；跨域须明确发起独立查询，不能在省略对象时静默换域。
                 if(plan.route()==AssistantPlan.Route.BUSINESS_QUERY && plan.followUp() && plan.query().domain()!=state.getBusinessQuery().domain())
                     throw new ApiException(422,"连续查询必须保留上一查询的数据域；仅调整状态、分组或分页不能改查另一类业务对象，请依据原文重新规划");
+                AssistantRouteGuard.validateRefinement(message,state,plan);
+                validateDraft.accept(plan);
                 return plan;
             } catch(ApiException invalid) {
-                if(attempt==1) throw invalid;
+                if(attempt==2) throw invalid;
                 input.put("rejectedDraft",SensitiveData.text(reply==null?"":reply.length()>24000?"[超长输出]":reply));input.put("validationError",invalid.getMessage());
             }
         }

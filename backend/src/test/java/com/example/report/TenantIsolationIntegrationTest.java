@@ -13,11 +13,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.context.ActiveProfiles;
+import org.springframework.transaction.support.TransactionTemplate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Set;
 import static org.junit.jupiter.api.Assertions.*;
 
+/** 同用户、公司和别名的跨租户读写隔离回归；执行者必须将数据源指向已授权的专用临时库。 */
 @EnabledIfEnvironmentVariable(named = "DEMO_IT", matches = "true")
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @ActiveProfiles("mock")
@@ -29,6 +31,7 @@ class TenantIsolationIntegrationTest {
     @Autowired RuleService rules;
     @Autowired RuleCache ruleCache;
     @Autowired ReportService reports;
+    @Autowired TransactionTemplate tx;
 
     @Test void historyLimitAppliesAfterCompanyScope() {
         CurrentUser scoped = new CurrentUser("T001", "scoped", "Scoped", Set.of("A"), Set.of("report:sales"), false);
@@ -94,8 +97,9 @@ class TenantIsolationIntegrationTest {
             var adapter = catalogService.requireVisible(second, id).adapter();
             assertEquals(List.of(secondId), adapter.rowsByIds("T002", List.of(firstId, secondId)).stream().map(r -> r.recordId()).toList());
             assertEquals(List.of(prefix + "2"), adapter.pendingRows("T002", Set.of("A")).stream().map(r -> r.docNo()).toList());
-            assertFalse(((DispatchStatusWriter) adapter).markDispatchedGuarded("T002", firstId, "A", LocalDateTime.now(), row -> true));
-            assertTrue(((DispatchStatusWriter) adapter).markDispatchedGuarded("T002", secondId, "A", LocalDateTime.now(), row -> true));
+            // 原子复核必须与状态写入处于同一事务；保留跨租户拒绝和本租户成功的原始断言。
+            assertEquals(Boolean.FALSE, tx.execute(status -> ((DispatchStatusWriter) adapter).markDispatchedGuarded("T002", firstId, "A", LocalDateTime.now(), row -> true)));
+            assertEquals(Boolean.TRUE, tx.execute(status -> ((DispatchStatusWriter) adapter).markDispatchedGuarded("T002", secondId, "A", LocalDateTime.now(), row -> true)));
             assertEquals(List.of(prefix + "2"), reports.listSales(second).stream().map(r -> r.getOrderNo()).toList());
         } finally {
             jdbc.update("DELETE FROM report_sales WHERE order_no IN (?, ?)", prefix + "1", prefix + "2");

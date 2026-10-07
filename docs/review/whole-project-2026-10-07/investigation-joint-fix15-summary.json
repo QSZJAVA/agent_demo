@@ -1,0 +1,176 @@
+[
+  {
+    "scenario": "SUCCESS",
+    "sourceSha256": "de4b0c41a6d3b6f588c57188868416c849ac91fb846d1fb822e30ae7a5c16c3e",
+    "evidenceScope": "REAL_MODEL_SESSION_HTTP_MCP_ISOLATED_DB",
+    "passed": true,
+    "businessUnchanged": true,
+    "sameKeyReplayed": true,
+    "status": "COMPLETED",
+    "report": {
+      "summary": "以下结论仅描述调查时取得的证据。本次调查只读，未执行修复、重发或状态核对写入。",
+      "findings": [
+        {
+          "itemRef": "I1",
+          "nextStep": "USE_EXISTING_RECONCILE",
+          "certainty": "VERIFIED",
+          "reasonCode": "REMOTE_SUCCESS_LOCAL_UNRESOLVED",
+          "evidenceIds": [
+            "E2",
+            "E4"
+          ],
+          "explanation": "证据支持：本次远端核对成功，本地仍待核对；本调查未修改本地状态。"
+        }
+      ],
+      "unresolved": [
+        {
+          "topics": [
+            "EVENT_HISTORY",
+            "RULE_CAUSALITY",
+            "MANUAL_REVIEW"
+          ],
+          "itemRef": "I1",
+          "message": "仍需核查执行事件是否完整。仍需核查规则与异常的因果关系。仍需人工核查相关事实。"
+        }
+      ]
+    },
+    "usage": {
+      "cost": null,
+      "currency": null,
+      "mcpCalls": 1,
+      "toolCalls": 6,
+      "modelCalls": 5,
+      "inputTokens": 10557,
+      "costComplete": false,
+      "outputTokens": 1055,
+      "usageComplete": true
+    },
+    "createdAt": "2026-10-07T08:07:36.774Z",
+    "finishedAt": "2026-10-07T08:07:49.773Z",
+    "configuration": {
+      "model": "deepseek-v4.1-flash",
+      "thinkingEnabled": false,
+      "nativeSchema": false,
+      "parserSource": "MODEL",
+      "promptHash": "89571afe3e44022a6167793bf0ce5899b08d4bb81a27f389e63b3de0c9f21aa0",
+      "toolSchemaHash": "d247d46cae75d6c99c0264573240e6ee7448e17b12da3dd4c24e2529ab4f4d5a",
+      "reportSchemaHash": "1a8f7fca395f779d49822a08ea195b52d299daf3f597f5c3dac4bf98fcce0b7d"
+    }
+  },
+  {
+    "scenario": "FAILED",
+    "sourceSha256": "b68bbdd9384bc7a9b968f553d21b004032836044cb780eb36be4787255bbb679",
+    "evidenceScope": "REAL_MODEL_SESSION_HTTP_MCP_ISOLATED_DB",
+    "passed": true,
+    "businessUnchanged": true,
+    "sameKeyReplayed": true,
+    "status": "COMPLETED",
+    "report": {
+      "summary": "以下结论仅描述调查时取得的证据。本次调查只读，未执行修复、重发或状态核对写入。",
+      "findings": [
+        {
+          "itemRef": "I1",
+          "nextStep": "MANUAL_REVIEW",
+          "certainty": "VERIFIED",
+          "reasonCode": "BUSINESS_REJECTED",
+          "evidenceIds": [
+            "E2",
+            "E5"
+          ],
+          "explanation": "证据支持：业务结果明确失败；具体原因请查看引用证据。"
+        }
+      ],
+      "unresolved": [
+        {
+          "topics": [
+            "RULE_CAUSALITY",
+            "EVENT_HISTORY"
+          ],
+          "itemRef": "I1",
+          "message": "仍需核查规则与异常的因果关系。仍需核查执行事件是否完整。"
+        }
+      ]
+    },
+    "usage": {
+      "cost": null,
+      "currency": null,
+      "mcpCalls": 1,
+      "toolCalls": 7,
+      "modelCalls": 6,
+      "inputTokens": 12494,
+      "costComplete": false,
+      "outputTokens": 1287,
+      "usageComplete": true
+    },
+    "createdAt": "2026-10-07T08:07:19.200Z",
+    "finishedAt": "2026-10-07T08:07:35.970Z",
+    "configuration": {
+      "model": "deepseek-v4.1-flash",
+      "thinkingEnabled": false,
+      "nativeSchema": false,
+      "parserSource": "MODEL",
+      "promptHash": "89571afe3e44022a6167793bf0ce5899b08d4bb81a27f389e63b3de0c9f21aa0",
+      "toolSchemaHash": "d247d46cae75d6c99c0264573240e6ee7448e17b12da3dd4c24e2529ab4f4d5a",
+      "reportSchemaHash": "1a8f7fca395f779d49822a08ea195b52d299daf3f597f5c3dac4bf98fcce0b7d"
+    }
+  },
+  {
+    "scenario": "UNKNOWN",
+    "sourceSha256": "06fb1a6a4ee7231d8d5b2bdd457a795cbd2907086c1bdfe4966d490141ce2b7a",
+    "evidenceScope": "REAL_MODEL_SESSION_HTTP_MCP_ISOLATED_DB",
+    "passed": true,
+    "businessUnchanged": true,
+    "sameKeyReplayed": true,
+    "status": "COMPLETED",
+    "report": {
+      "summary": "以下结论仅描述调查时取得的证据。本次调查只读，未执行修复、重发或状态核对写入。",
+      "findings": [
+        {
+          "itemRef": "I1",
+          "nextStep": "MANUAL_REVIEW",
+          "certainty": "INSUFFICIENT",
+          "reasonCode": "RESULT_UNKNOWN",
+          "evidenceIds": [
+            "E2",
+            "E5"
+          ],
+          "explanation": "证据有限：业务结果仍未知，不能据此认定失败或允许重发。"
+        }
+      ],
+      "unresolved": [
+        {
+          "topics": [
+            "REMOTE_RESULT",
+            "RULE_CAUSALITY",
+            "EVENT_HISTORY",
+            "MANUAL_REVIEW"
+          ],
+          "itemRef": "I1",
+          "message": "仍需通过原清单入口核查业务结果。仍需核查规则与异常的因果关系。仍需核查执行事件是否完整。仍需人工核查相关事实。"
+        }
+      ]
+    },
+    "usage": {
+      "cost": null,
+      "currency": null,
+      "mcpCalls": 1,
+      "toolCalls": 5,
+      "modelCalls": 4,
+      "inputTokens": 8136,
+      "costComplete": false,
+      "outputTokens": 894,
+      "usageComplete": true
+    },
+    "createdAt": "2026-10-07T08:07:07.396Z",
+    "finishedAt": "2026-10-07T08:07:18.334Z",
+    "configuration": {
+      "model": "deepseek-v4.1-flash",
+      "thinkingEnabled": false,
+      "nativeSchema": false,
+      "parserSource": "MODEL",
+      "promptHash": "89571afe3e44022a6167793bf0ce5899b08d4bb81a27f389e63b3de0c9f21aa0",
+      "toolSchemaHash": "d247d46cae75d6c99c0264573240e6ee7448e17b12da3dd4c24e2529ab4f4d5a",
+      "reportSchemaHash": "1a8f7fca395f779d49822a08ea195b52d299daf3f597f5c3dac4bf98fcce0b7d"
+    }
+  }
+]

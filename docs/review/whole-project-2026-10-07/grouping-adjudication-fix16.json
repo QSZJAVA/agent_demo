@@ -1,0 +1,58 @@
+{
+  "source": "final-independent-fix16.json",
+  "scenario": "final-empty-and-grouped",
+  "turn": 5,
+  "message": "这些应收按客户分组统计，各有几笔，合计金额也给我。",
+  "expected": {
+    "kind": "query",
+    "source": "receivable",
+    "view": "SUMMARY",
+    "groupBy": "customerName"
+  },
+  "originalErrors": [
+    "分组含义错误",
+    "分组统计错误"
+  ],
+  "actualGroupBy": "counterpartyName",
+  "actualGroups": {
+    "上海某某信息有限公司": 1,
+    "北京某某咨询有限公司": 1,
+    "北京某某科技有限公司": 1,
+    "天津某某贸易有限公司": 1,
+    "青岚设备有限公司": 2
+  },
+  "proofRows": [
+    {
+      "rowKey": "rpt-ar-invoice:1",
+      "customerName": "北京某某科技有限公司",
+      "counterpartyName": "北京某某科技有限公司"
+    },
+    {
+      "rowKey": "rpt-ar-invoice:11",
+      "customerName": "青岚设备有限公司",
+      "counterpartyName": "青岚设备有限公司"
+    },
+    {
+      "rowKey": "rpt-ar-invoice:12",
+      "customerName": "青岚设备有限公司",
+      "counterpartyName": "青岚设备有限公司"
+    },
+    {
+      "rowKey": "rpt-ar-invoice:2",
+      "customerName": "上海某某信息有限公司",
+      "counterpartyName": "上海某某信息有限公司"
+    },
+    {
+      "rowKey": "rpt-ar-invoice:3",
+      "customerName": "天津某某贸易有限公司",
+      "counterpartyName": "天津某某贸易有限公司"
+    },
+    {
+      "rowKey": "rpt-ar-invoice:4",
+      "customerName": "北京某某咨询有限公司",
+      "counterpartyName": "北京某某咨询有限公司"
+    }
+  ],
+  "decision": "人工复核通过；修复评分器字段映射",
+  "reason": "本仓库应收配置的customerName与counterpartyName均表示同一客户名称；所有分组名称与数量正确。原评分器未对分组使用此映射，并在独立REST事实中读取了不存在的别名，产生误报。原预期及失败文件保留。"
+}

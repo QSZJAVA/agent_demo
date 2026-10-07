@@ -24,9 +24,19 @@ public final class SelectionResolver {
      */
     public static List<RecordKey> apply(List<Candidate> rows, List<RecordKey> previous, SemanticIntent.ScopeChange change,
                                         ReportCatalogService catalog, CurrentUser user) {
+        return apply(rows,previous,change,catalog,user,null);
+    }
+    /** 在普通选择校验之外核对服务端记录引用；绑定只来自本会话当前预览，失败不修改原集合。 */
+    public static List<RecordKey> apply(List<Candidate> rows,List<RecordKey> previous,SemanticIntent.ScopeChange change,
+                                        ReportCatalogService catalog,CurrentUser user,DialogueState references) {
+        return apply(rows,previous,change,catalog,user,references,change.evidence());
+    }
+    /** 引用操作同时核对本项证据和整轮原文，避免局部证据遗漏明确对象后复用另一条记录。 */
+    public static List<RecordKey> apply(List<Candidate> rows,List<RecordKey> previous,SemanticIntent.ScopeChange change,
+                                        ReportCatalogService catalog,CurrentUser user,DialogueState references,String message) {
         if (change.target()!=SemanticIntent.Target.RECORDS) throw new IllegalArgumentException("仅支持记录修改");
         // 未限定报表的恢复全部/替换必须覆盖旧排除集合，才能从范围变化后的失配中恢复。
-        if (change.reportMentions().isEmpty()) return applySelection(rows,previous,change,catalog,user);
+        if (change.reportMentions().isEmpty()) return applySelection(rows,previous,change,catalog,user,references,message);
 
         Set<String> reportIds=new LinkedHashSet<>();
         for (String mention:change.reportMentions()) {
@@ -44,12 +54,18 @@ public final class SelectionResolver {
         var scopedPrevious=previous.stream().filter(k -> reportIds.contains(k.reportId())).toList();
         // REPLACE/CLEAR也只作用于限定报表；不能清除其他报表上已确认的排除选择。
         Set<RecordKey> result=new LinkedHashSet<>(previous.stream().filter(k -> !reportIds.contains(k.reportId())).toList());
-        result.addAll(applySelection(scopedRows,scopedPrevious,change,catalog,user));
+        result.addAll(applySelection(scopedRows,scopedPrevious,change,catalog,user,references,message));
         return List.copyOf(result);
     }
     /** 先为每个授权报表编译字段条件，完成全部求值后一次提交集合；任一类型/事实错误不能留下部分选择。 */
     private static List<RecordKey> applySelection(List<Candidate> rows,List<RecordKey> previous,SemanticIntent.ScopeChange change,
-                                                 ReportCatalogService catalog,CurrentUser user) {
+                                                 ReportCatalogService catalog,CurrentUser user,DialogueState references,String message) {
+        if(change.selectorKind()==SemanticIntent.SelectorKind.REFERENCE) {
+            var matched=SelectionReferences.resolve(references,rows,change);
+            SelectionReferences.validateExplicitMention(rows,matched,change.evidence());
+            SelectionReferences.validateExplicitMention(rows,matched,message);
+            return updateSelection(rows,previous,change,matched);
+        }
         // 整类取消选择只作用于传入的授权快照或报表子集，不用虚构恒真字段条件，也不改变报表查询范围。
         if(change.selectorKind()==SemanticIntent.SelectorKind.ALL) {
             Set<RecordKey> result=new LinkedHashSet<>(previous);
@@ -74,11 +90,7 @@ public final class SelectionResolver {
         var matched=rows.stream().filter(row -> filters.get(row.reportId()).test(row)).map(row -> new RecordKey(row.reportId(),row.recordId())).toList();
         if(change.quantifier()!=SemanticIntent.Quantifier.ALL && matched.size()!=1)
             throw new ApiException(422,"条件匹配"+matched.size()+"条，请明确全部匹配或指定单据");
-        Set<RecordKey> result=new LinkedHashSet<>(change.operation()==SemanticIntent.Operation.REPLACE_EXCLUSIONS?List.of():previous);
-        if(change.operation()==SemanticIntent.Operation.KEEP_ONLY) {
-            result.clear();rows.stream().map(row -> new RecordKey(row.reportId(),row.recordId())).filter(key -> !matched.contains(key)).forEach(result::add);
-        } else if(change.operation()==SemanticIntent.Operation.RESTORE) result.removeAll(matched);else result.addAll(matched);
-        return List.copyOf(result);
+        return updateSelection(rows,previous,change,matched);
     }
     /** 在完整授权快照中先解析实体再展开记录集合；多客户歧义不能用ALL绕过，任何一项失败整次选择不提交。 */
     private static List<RecordKey> applyTyped(List<Candidate> rows,List<RecordKey> previous,SemanticIntent.ScopeChange change) {
@@ -109,8 +121,15 @@ public final class SelectionResolver {
                 throw new ApiException(422,"“"+mention+"”匹配"+found.size()+"条记录，请说明全部匹配记录或指定单据号");
             for(var row:found) matched.add(new RecordKey(row.reportId(),row.recordId()));
         }
+        return updateSelection(rows,previous,change,matched);
+    }
+    /** 各种已验证定位方式共享集合操作；KEEP_ONLY只在当前授权且可选的报表子集取补集，不能扩大定位数量或清除其他报表选择。 */
+    private static List<RecordKey> updateSelection(List<Candidate> rows,List<RecordKey> previous,SemanticIntent.ScopeChange change,Collection<RecordKey> matched) {
         Set<RecordKey> result=new LinkedHashSet<>(change.operation()==SemanticIntent.Operation.REPLACE_EXCLUSIONS?List.of():previous);
-        if(change.operation()==SemanticIntent.Operation.RESTORE) result.removeAll(matched); else result.addAll(matched);
+        if(change.operation()==SemanticIntent.Operation.KEEP_ONLY) {
+            var keep=new HashSet<>(matched);result.clear();
+            rows.stream().map(row->new RecordKey(row.reportId(),row.recordId())).filter(key->!keep.contains(key)).forEach(result::add);
+        } else if(change.operation()==SemanticIntent.Operation.RESTORE)result.removeAll(matched);else result.addAll(matched);
         return List.copyOf(result);
     }
     /**

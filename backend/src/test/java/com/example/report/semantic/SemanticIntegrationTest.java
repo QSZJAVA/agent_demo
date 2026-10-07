@@ -149,6 +149,11 @@ class SemanticIntegrationTest {
         org.mockito.Mockito.doThrow(new ApiException(503,"来源暂不可用")).when(businessAssistant).read(org.mockito.ArgumentMatchers.any(),org.mockito.ArgumentMatchers.eq(query));
         var failed=turn(id,"查看工单");assertFalse(failed.stream().anyMatch(e->"business_query".equals(e.event())));
         var state=store.read(user(),id);assertEquals(before.getPreviewId(),state.getPreviewId());assertNull(state.getBusinessQuery());assertTrue(state.isBusinessQueryAfterPreview());
+        String unsupportedMessage="直接准备这个清单";
+        var unsupported=new SemanticIntent(1,SemanticIntent.Action.CLARIFY,List.of(),List.of(),List.of(),List.of(unsupportedMessage),SemanticIntent.Clarify.ACTION);
+        org.mockito.Mockito.doReturn(unsupported).when(parser).parse(org.mockito.ArgumentMatchers.eq(unsupportedMessage),org.mockito.ArgumentMatchers.any());
+        var explained=turn(id,unsupportedMessage);assertTrue(text(explained).contains("只读"),text(explained));
+        assertEquals(before.getPreviewId(),store.read(user(),id).getPreviewId());
         assertFalse(turn(id,"剩下的帮我派单吧").stream().anyMatch(e->"plan".equals(e.event())));
         assertTrue(turn(id,"查一下我有哪些可以派单").stream().anyMatch(e->"preview".equals(e.event())));
         assertFalse(store.read(user(),id).isBusinessQueryAfterPreview());

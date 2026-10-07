@@ -1,0 +1,3357 @@
+[
+  {
+    "file": "final-independent-fix14.json",
+    "sha256": "67f5306e2d2163b6e7c23ba9c70a0096129baa3510eaf4be98cfb614ee973db0",
+    "startedAt": "2026-10-07T07:26:38.229Z",
+    "finishedAt": "2026-10-07T07:28:32.705Z",
+    "total": 30,
+    "passed": 30,
+    "failed": 0,
+    "failures": []
+  },
+  {
+    "file": "final-independent-fix15.json",
+    "sha256": "ab47ba005e419040838d29aa0dfeaa44da2d83d2659f20792f2f4cb854373e0e",
+    "startedAt": "2026-10-07T08:13:51.512Z",
+    "finishedAt": "2026-10-07T08:15:38.571Z",
+    "total": 30,
+    "passed": 30,
+    "failed": 0,
+    "failures": []
+  },
+  {
+    "file": "final-independent-fix16.json",
+    "sha256": "79f0f4d643cc90c6a97a04880a8ffc49874ca464a32ef1b4e28dcb0f52d98867",
+    "startedAt": "2026-10-07T08:34:33.342Z",
+    "finishedAt": "2026-10-07T08:36:40.894Z",
+    "total": 30,
+    "passed": 28,
+    "failed": 2,
+    "failures": [
+      {
+        "scenario": "final-admin-desktop",
+        "turn": 2,
+        "message": "最贵的那张让我瞧一下具体内容。",
+        "expected": {
+          "kind": "query",
+          "source": "expense",
+          "where": [
+            [
+              "amount",
+              "EQ",
+              "8600"
+            ]
+          ],
+          "view": "DETAIL"
+        },
+        "errors": [
+          "合法查询未返回业务结果"
+        ],
+        "elapsedMs": 7521
+      },
+      {
+        "scenario": "final-empty-and-grouped",
+        "turn": 5,
+        "message": "这些应收按客户分组统计，各有几笔，合计金额也给我。",
+        "expected": {
+          "kind": "query",
+          "source": "receivable",
+          "view": "SUMMARY",
+          "groupBy": "customerName"
+        },
+        "errors": [
+          "分组含义错误",
+          "分组统计错误"
+        ],
+        "elapsedMs": 3516
+      }
+    ]
+  },
+  {
+    "file": "final-independent-fix17.json",
+    "sha256": "833666de355383ea70452fe715cdc31d3f2be3fa74582541f7682bbaced4b0fa",
+    "startedAt": "2026-10-07T08:53:53.981Z",
+    "finishedAt": "2026-10-07T08:55:35.834Z",
+    "total": 30,
+    "passed": 30,
+    "failed": 0,
+    "failures": []
+  },
+  {
+    "file": "final-independent-fix18.json",
+    "sha256": "b5bb39d29cab6534da8a826bc453ca818160af069ce2e26b89f83c83a603d5f7",
+    "startedAt": "2026-10-07T09:15:26.237Z",
+    "finishedAt": "2026-10-07T09:17:17.758Z",
+    "total": 30,
+    "passed": 29,
+    "failed": 1,
+    "failures": [
+      {
+        "scenario": "final-empty-and-grouped",
+        "turn": 3,
+        "message": "那这一批总额是多少？",
+        "expected": {
+          "kind": "query",
+          "source": "sales",
+          "where": [
+            [
+              "amount",
+              "GT",
+              "500000"
+            ]
+          ],
+          "view": "SUMMARY"
+        },
+        "errors": [
+          "合法查询未返回业务结果"
+        ],
+        "elapsedMs": 3077
+      }
+    ]
+  },
+  {
+    "file": "final-independent-fix19.json",
+    "sha256": "86c374fe5d49f94d28863e95e9e6ed271bc8c41bc779fe0511df57bd2914e596",
+    "startedAt": "2026-10-07T09:39:01.820Z",
+    "finishedAt": "2026-10-07T09:40:43.348Z",
+    "total": 30,
+    "passed": 30,
+    "failed": 0,
+    "failures": []
+  },
+  {
+    "file": "final-independent-fix20.json",
+    "sha256": "0ee1ee7a1aa8fcdc4a5c26c44bcc0b18bb323fddd9547d58f9d2d23fed21059a",
+    "startedAt": "2026-10-07T09:58:15.516Z",
+    "finishedAt": "2026-10-07T09:59:56.525Z",
+    "total": 30,
+    "passed": 30,
+    "failed": 0,
+    "failures": []
+  },
+  {
+    "file": "final-independent-initial-fix13.json",
+    "sha256": "ce49a004204e93b94004956ae14c27ee3032f421f6b05a7a8a580d2b2baa252d",
+    "startedAt": "2026-10-07T06:50:07.165Z",
+    "finishedAt": "2026-10-07T06:51:47.734Z",
+    "total": 30,
+    "passed": 29,
+    "failed": 1,
+    "failures": [
+      {
+        "scenario": "final-english-reconciliation",
+        "turn": 5,
+        "message": "Go back to company A's sales and drop the amount cutoff. I need the whole sales list again.",
+        "expected": {
+          "kind": "query",
+          "source": "sales"
+        },
+        "errors": [
+          "合法查询未返回业务结果"
+        ],
+        "elapsedMs": 5185
+      }
+    ]
+  },
+  {
+    "file": "holdout-fix10.json",
+    "sha256": "7e8079a96c73120406117eef511f647bb9760adf18681770d572b5bfc8bbfb48",
+    "startedAt": "2026-10-07T05:47:15.469Z",
+    "finishedAt": "2026-10-07T05:49:34.678Z",
+    "total": 36,
+    "passed": 36,
+    "failed": 0,
+    "failures": []
+  },
+  {
+    "file": "holdout-fix11.json",
+    "sha256": "9aa66a43c650f20e458fa42d9ec9fcd8367a3d6f159c98a0558aa4d5d0cb512e",
+    "startedAt": "2026-10-07T06:05:45.821Z",
+    "finishedAt": "2026-10-07T06:08:07.808Z",
+    "total": 36,
+    "passed": 35,
+    "failed": 1,
+    "failures": [
+      {
+        "scenario": "holdout-domain-switch-english",
+        "turn": 6,
+        "message": "Then get a fresh dispatch preview for company A's expense report only.",
+        "expected": {
+          "kind": "preview",
+          "source": "expense"
+        },
+        "errors": [
+          "未返回派单预览",
+          "合法派单任务仍处于未完成/澄清状态"
+        ],
+        "elapsedMs": 8022
+      }
+    ]
+  },
+  {
+    "file": "holdout-fix12.json",
+    "sha256": "0c3e053a1ace25ab3c0866a0c30ae2b4f23f2b13579bba45d1871122d4c87c57",
+    "startedAt": "2026-10-07T06:26:56.103Z",
+    "finishedAt": "2026-10-07T06:29:08.251Z",
+    "total": 36,
+    "passed": 36,
+    "failed": 0,
+    "failures": []
+  },
+  {
+    "file": "holdout-fix13.json",
+    "sha256": "7f1b48e0c47ff4570ab7ae5f0c4d051385189571e906bbaecd95fc95c7968250",
+    "startedAt": "2026-10-07T06:56:55.571Z",
+    "finishedAt": "2026-10-07T06:59:34.494Z",
+    "total": 36,
+    "passed": 36,
+    "failed": 0,
+    "failures": []
+  },
+  {
+    "file": "holdout-fix14.json",
+    "sha256": "fa7151aa3ee39d966130a09e239b8a3c89103c4f1259c9f6aa19308ebc31131c",
+    "startedAt": "2026-10-07T07:21:28.170Z",
+    "finishedAt": "2026-10-07T07:23:55.994Z",
+    "total": 36,
+    "passed": 34,
+    "failed": 2,
+    "failures": [
+      {
+        "scenario": "holdout-misunderstanding-recovery",
+        "turn": 5,
+        "message": "别要差旅费，另外两类留下。",
+        "expected": {
+          "kind": "query",
+          "source": "expense",
+          "where": [
+            [
+              "expenseType",
+              "NE",
+              "差旅费"
+            ]
+          ]
+        },
+        "errors": [
+          "合法查询未返回业务结果"
+        ],
+        "elapsedMs": 12633
+      },
+      {
+        "scenario": "holdout-misunderstanding-recovery",
+        "turn": 6,
+        "message": "把刚才留下的费用金额合计告诉我。",
+        "expected": {
+          "kind": "query",
+          "source": "expense",
+          "where": [
+            [
+              "expenseType",
+              "NE",
+              "差旅费"
+            ]
+          ],
+          "view": "SUMMARY"
+        },
+        "errors": [
+          "完整总数错误：预期2，实际3",
+          "当前页记录集合错误",
+          "汇总数量错误",
+          "完整匹配范围金额错误",
+          "状态分布错误"
+        ],
+        "elapsedMs": 2396
+      }
+    ]
+  },
+  {
+    "file": "holdout-fix15.json",
+    "sha256": "a09c41a22e718faa2406fd87c9e27971e9af1ba40583a7d0fc72154de4fe3ae4",
+    "startedAt": "2026-10-07T08:08:52.182Z",
+    "finishedAt": "2026-10-07T08:11:14.606Z",
+    "total": 36,
+    "passed": 36,
+    "failed": 0,
+    "failures": []
+  },
+  {
+    "file": "holdout-fix16.json",
+    "sha256": "b5031fadf6a780c79d8b7b27f9064909b74c5f2b9a01bda73099cdd85e07b901",
+    "startedAt": "2026-10-07T08:28:46.455Z",
+    "finishedAt": "2026-10-07T08:31:21.536Z",
+    "total": 36,
+    "passed": 34,
+    "failed": 2,
+    "failures": [
+      {
+        "scenario": "holdout-misunderstanding-recovery",
+        "turn": 5,
+        "message": "别要差旅费，另外两类留下。",
+        "expected": {
+          "kind": "query",
+          "source": "expense",
+          "where": [
+            [
+              "expenseType",
+              "NE",
+              "差旅费"
+            ]
+          ]
+        },
+        "errors": [
+          "完整筛选语义与冻结预期不一致"
+        ],
+        "elapsedMs": 5814
+      },
+      {
+        "scenario": "holdout-misunderstanding-recovery",
+        "turn": 6,
+        "message": "把刚才留下的费用金额合计告诉我。",
+        "expected": {
+          "kind": "query",
+          "source": "expense",
+          "where": [
+            [
+              "expenseType",
+              "NE",
+              "差旅费"
+            ]
+          ],
+          "view": "SUMMARY"
+        },
+        "errors": [
+          "完整筛选语义与冻结预期不一致"
+        ],
+        "elapsedMs": 3038
+      }
+    ]
+  },
+  {
+    "file": "holdout-fix17.json",
+    "sha256": "38009eed039632bcd10ffc7cd5e80348915925ee9bfd124bd1026405fd352b37",
+    "startedAt": "2026-10-07T08:48:57.605Z",
+    "finishedAt": "2026-10-07T08:51:16.517Z",
+    "total": 36,
+    "passed": 33,
+    "failed": 3,
+    "failures": [
+      {
+        "scenario": "holdout-negative-selection",
+        "turn": 4,
+        "message": "刚才暂缓的销售也加回来。",
+        "expected": {
+          "kind": "selection",
+          "source": "all"
+        },
+        "errors": [
+          "选中记录集合错误",
+          "合法派单任务仍处于未完成/澄清状态"
+        ],
+        "elapsedMs": 8947
+      },
+      {
+        "scenario": "holdout-negative-selection",
+        "turn": 5,
+        "message": "业务招待费那笔这次不要了。",
+        "expected": {
+          "kind": "selection",
+          "source": "all",
+          "where": [
+            [
+              "docNo",
+              "NE",
+              "EXP-2026-0002"
+            ]
+          ]
+        },
+        "errors": [
+          "选中记录集合错误"
+        ],
+        "elapsedMs": 4488
+      },
+      {
+        "scenario": "holdout-negative-selection",
+        "turn": 6,
+        "message": "好了，把留下的做成清单，先不要提交。",
+        "expected": {
+          "kind": "plan",
+          "source": "all",
+          "where": [
+            [
+              "docNo",
+              "NE",
+              "EXP-2026-0002"
+            ]
+          ]
+        },
+        "errors": [
+          "待确认清单内容错误"
+        ],
+        "elapsedMs": 4404
+      }
+    ]
+  },
+  {
+    "file": "holdout-fix18.json",
+    "sha256": "e82e838ad26595d7cf10aee65438e8c5ba93b7329f7b010a0332981a749d5137",
+    "startedAt": "2026-10-07T09:10:18.940Z",
+    "finishedAt": "2026-10-07T09:12:39.848Z",
+    "total": 36,
+    "passed": 34,
+    "failed": 2,
+    "failures": [
+      {
+        "scenario": "holdout-workorder-focus",
+        "turn": 4,
+        "message": "重新列出A公司所有工单。",
+        "expected": {
+          "kind": "query",
+          "source": "work_order"
+        },
+        "errors": [
+          "完整筛选语义与冻结预期不一致"
+        ],
+        "elapsedMs": 3919
+      },
+      {
+        "scenario": "holdout-workorder-focus",
+        "turn": 5,
+        "message": "只统计仍待审批的，按当前处理人分一下。",
+        "expected": {
+          "kind": "query",
+          "source": "work_order",
+          "where": [
+            [
+              "status",
+              "EQ",
+              "待审批"
+            ]
+          ],
+          "view": "SUMMARY",
+          "groupBy": "assignee"
+        },
+        "errors": [
+          "完整筛选语义与冻结预期不一致"
+        ],
+        "elapsedMs": 2823
+      }
+    ]
+  },
+  {
+    "file": "holdout-fix19.json",
+    "sha256": "91c449857a3b229a61b188f0f059d91ea31a9d1e0b2cd6b05b6649667bd35adb",
+    "startedAt": "2026-10-07T09:33:58.413Z",
+    "finishedAt": "2026-10-07T09:36:22.821Z",
+    "total": 36,
+    "passed": 36,
+    "failed": 0,
+    "failures": []
+  },
+  {
+    "file": "holdout-fix20.json",
+    "sha256": "0e3076816c2ae57fa2b50f6be7b562db49974b07e145c3cafa92e3ad5c11d4a7",
+    "startedAt": "2026-10-07T09:53:22.205Z",
+    "finishedAt": "2026-10-07T09:55:37.688Z",
+    "total": 36,
+    "passed": 36,
+    "failed": 0,
+    "failures": []
+  },
+  {
+    "file": "holdout-fix3.json",
+    "sha256": "c5f1c596b4809cb4282f01d5b5c04010959ab1fcf2da4793cb98ecdee3d7daaa",
+    "startedAt": "2026-10-07T03:05:12.040Z",
+    "finishedAt": "2026-10-07T03:07:32.822Z",
+    "total": 36,
+    "passed": 36,
+    "failed": 0,
+    "failures": []
+  },
+  {
+    "file": "holdout-fix4.json",
+    "sha256": "e167bb42a6d2bb884ddf9795bea903fbc489c0e29e639c8df37755b8a7c9cc83",
+    "startedAt": "2026-10-07T03:49:28.888Z",
+    "finishedAt": "2026-10-07T03:51:39.145Z",
+    "total": 36,
+    "passed": 36,
+    "failed": 0,
+    "failures": []
+  },
+  {
+    "file": "holdout-fix7.json",
+    "sha256": "d4ae7daa50315637670b737087f199c5e747ddcbb673d5ff86153de3c452f34c",
+    "startedAt": "2026-10-07T04:54:54.767Z",
+    "finishedAt": "2026-10-07T04:57:22.475Z",
+    "total": 36,
+    "passed": 25,
+    "failed": 11,
+    "failures": [
+      {
+        "scenario": "holdout-global-row-reference",
+        "turn": 1,
+        "message": "A公司的销售账先按钱从少到多列，每页放两笔。",
+        "expected": {
+          "kind": "query",
+          "source": "sales",
+          "sort": "amount",
+          "descending": false,
+          "size": 2,
+          "page": 1
+        },
+        "errors": [
+          "报表范围错误"
+        ],
+        "elapsedMs": 2220
+      },
+      {
+        "scenario": "holdout-global-row-reference",
+        "turn": 2,
+        "message": "往后翻一页。",
+        "expected": {
+          "kind": "query",
+          "source": "sales",
+          "sort": "amount",
+          "descending": false,
+          "size": 2,
+          "page": 2
+        },
+        "errors": [
+          "报表范围错误"
+        ],
+        "elapsedMs": 3045
+      },
+      {
+        "scenario": "holdout-global-row-reference",
+        "turn": 5,
+        "message": "费用报表重新全部查一下。",
+        "expected": {
+          "kind": "query",
+          "source": "expense"
+        },
+        "errors": [
+          "合法查询未返回业务结果"
+        ],
+        "elapsedMs": 5732
+      },
+      {
+        "scenario": "holdout-global-row-reference",
+        "turn": 6,
+        "message": "这批费用加起来多少，分别是什么费用？",
+        "expected": {
+          "kind": "query",
+          "source": "expense",
+          "view": "SUMMARY",
+          "groupBy": "expenseType"
+        },
+        "errors": [
+          "合法查询未返回业务结果"
+        ],
+        "elapsedMs": 2120
+      },
+      {
+        "scenario": "holdout-domain-switch-english",
+        "turn": 1,
+        "message": "Show the expense records for company A, including anything that cannot be dispatched.",
+        "expected": {
+          "kind": "query",
+          "source": "expense"
+        },
+        "errors": [
+          "合法查询未返回业务结果"
+        ],
+        "elapsedMs": 4306
+      },
+      {
+        "scenario": "holdout-domain-switch-english",
+        "turn": 5,
+        "message": "Put the remaining ones into a draft dispatch list.",
+        "expected": {
+          "kind": "clarify",
+          "textAny": [
+            "范围",
+            "候选",
+            "可派",
+            "只读"
+          ]
+        },
+        "errors": [
+          "未解释指定业务边界"
+        ],
+        "elapsedMs": 9533
+      },
+      {
+        "scenario": "holdout-workorder-focus",
+        "turn": 4,
+        "message": "重新列出A公司所有工单。",
+        "expected": {
+          "kind": "query",
+          "source": "work_order"
+        },
+        "errors": [
+          "合法查询未返回业务结果"
+        ],
+        "elapsedMs": 6398
+      },
+      {
+        "scenario": "holdout-workorder-focus",
+        "turn": 5,
+        "message": "只统计仍待审批的，按当前处理人分一下。",
+        "expected": {
+          "kind": "query",
+          "source": "work_order",
+          "where": [
+            [
+              "status",
+              "EQ",
+              "待审批"
+            ]
+          ],
+          "view": "SUMMARY",
+          "groupBy": "assignee"
+        },
+        "errors": [
+          "合法查询未返回业务结果"
+        ],
+        "elapsedMs": 1960
+      },
+      {
+        "scenario": "holdout-misunderstanding-recovery",
+        "turn": 4,
+        "message": "不用改了，查A公司的费用报表就好，全部的。",
+        "expected": {
+          "kind": "query",
+          "source": "expense"
+        },
+        "errors": [
+          "合法查询未返回业务结果"
+        ],
+        "elapsedMs": 5051
+      },
+      {
+        "scenario": "holdout-misunderstanding-recovery",
+        "turn": 5,
+        "message": "别要差旅费，另外两类留下。",
+        "expected": {
+          "kind": "query",
+          "source": "expense",
+          "where": [
+            [
+              "expenseType",
+              "NE",
+              "差旅费"
+            ]
+          ]
+        },
+        "errors": [
+          "合法查询未返回业务结果"
+        ],
+        "elapsedMs": 2369
+      },
+      {
+        "scenario": "holdout-misunderstanding-recovery",
+        "turn": 6,
+        "message": "把刚才留下的费用金额合计告诉我。",
+        "expected": {
+          "kind": "query",
+          "source": "expense",
+          "where": [
+            [
+              "expenseType",
+              "NE",
+              "差旅费"
+            ]
+          ],
+          "view": "SUMMARY"
+        },
+        "errors": [
+          "合法查询未返回业务结果"
+        ],
+        "elapsedMs": 3077
+      }
+    ]
+  },
+  {
+    "file": "holdout-fix8.json",
+    "sha256": "8c91b35b8eeb882c19fada7516b791c20bbb18ce30ae161cc6c49ca768b7023d",
+    "startedAt": "2026-10-07T05:06:12.870Z",
+    "finishedAt": "2026-10-07T05:08:28.098Z",
+    "total": 36,
+    "passed": 36,
+    "failed": 0,
+    "failures": []
+  },
+  {
+    "file": "holdout-initial.json",
+    "sha256": "981e9bab704cc4379447a81d561f47680a912dd4e35ad9b18f00a749813ad871",
+    "startedAt": "2026-10-07T02:33:11.040Z",
+    "finishedAt": "2026-10-07T02:35:22.416Z",
+    "total": 36,
+    "passed": 30,
+    "failed": 6,
+    "failures": [
+      {
+        "scenario": "holdout-negative-selection",
+        "turn": 2,
+        "message": "销售这部分先缓一缓，剩下的报表留着。",
+        "expected": {
+          "kind": "selection",
+          "source": "all",
+          "where": [
+            [
+              "reportId",
+              "NE",
+              "rpt-sales-order"
+            ]
+          ]
+        },
+        "errors": [
+          "选中记录集合错误",
+          "合法派单任务仍处于未完成/澄清状态"
+        ],
+        "elapsedMs": 8184
+      },
+      {
+        "scenario": "holdout-negative-selection",
+        "turn": 5,
+        "message": "业务招待费那笔这次不要了。",
+        "expected": {
+          "kind": "selection",
+          "source": "all",
+          "where": [
+            [
+              "docNo",
+              "NE",
+              "EXP-2026-0002"
+            ]
+          ]
+        },
+        "errors": [
+          "选中记录集合错误",
+          "合法派单任务仍处于未完成/澄清状态"
+        ],
+        "elapsedMs": 4976
+      },
+      {
+        "scenario": "holdout-negative-selection",
+        "turn": 6,
+        "message": "好了，把留下的做成清单，先不要提交。",
+        "expected": {
+          "kind": "plan",
+          "source": "all",
+          "where": [
+            [
+              "docNo",
+              "NE",
+              "EXP-2026-0002"
+            ]
+          ]
+        },
+        "errors": [
+          "未生成待确认清单",
+          "合法派单任务仍处于未完成/澄清状态"
+        ],
+        "elapsedMs": 4743
+      },
+      {
+        "scenario": "holdout-domain-switch-english",
+        "turn": 2,
+        "message": "Now start over with the records I am allowed to dispatch, across all reports in company A. Preview only.",
+        "expected": {
+          "kind": "preview",
+          "source": "all"
+        },
+        "errors": [
+          "未返回派单预览",
+          "合法派单任务仍处于未完成/澄清状态"
+        ],
+        "elapsedMs": 5464
+      },
+      {
+        "scenario": "holdout-domain-switch-english",
+        "turn": 3,
+        "message": "Leave out everything below 1,000 yuan.",
+        "expected": {
+          "kind": "selection",
+          "source": "all",
+          "where": [
+            [
+              "amount",
+              "GTE",
+              "1000"
+            ]
+          ]
+        },
+        "errors": [
+          "选择缺少预览",
+          "合法派单任务仍处于未完成/澄清状态"
+        ],
+        "elapsedMs": 5110
+      },
+      {
+        "scenario": "holdout-domain-switch-english",
+        "turn": 6,
+        "message": "Then get a fresh dispatch preview for company A's expense report only.",
+        "expected": {
+          "kind": "preview",
+          "source": "expense"
+        },
+        "errors": [
+          "未返回派单预览",
+          "合法派单任务仍处于未完成/澄清状态"
+        ],
+        "elapsedMs": 4898
+      }
+    ]
+  },
+  {
+    "file": "lifecycle-fix10.json",
+    "sha256": "067a70db038765a1ea2a561acf0417c661debac7c87c6ce4385ce680b57d33e2",
+    "startedAt": "2026-10-07T05:49:34.965Z",
+    "finishedAt": "2026-10-07T05:50:50.827Z",
+    "total": 18,
+    "passed": 18,
+    "failed": 0,
+    "failures": []
+  },
+  {
+    "file": "lifecycle-fix11.json",
+    "sha256": "54aca25da87edee728d23912417c291234d125e1d89bbeae7b06390d737a3cf2",
+    "startedAt": "2026-10-07T06:08:08.070Z",
+    "finishedAt": "2026-10-07T06:09:26.342Z",
+    "total": 18,
+    "passed": 18,
+    "failed": 0,
+    "failures": []
+  },
+  {
+    "file": "lifecycle-fix12.json",
+    "sha256": "bc01faf31898d0ac9a6c173d696ebcedea473b6d43668d3fda74bc519c22660a",
+    "startedAt": "2026-10-07T06:29:08.509Z",
+    "finishedAt": "2026-10-07T06:30:25.185Z",
+    "total": 18,
+    "passed": 18,
+    "failed": 0,
+    "failures": []
+  },
+  {
+    "file": "lifecycle-fix13.json",
+    "sha256": "2f5ea535c2490f70b53e9bbdc263a13d343f91c04b5366cbe0befac04e264b2a",
+    "startedAt": "2026-10-07T06:59:34.777Z",
+    "finishedAt": "2026-10-07T07:00:54.157Z",
+    "total": 18,
+    "passed": 14,
+    "failed": 4,
+    "failures": [
+      {
+        "scenario": "long-workday-lifecycle",
+        "turn": 4,
+        "message": "业务招待费先不选，差旅费保留。",
+        "expected": {
+          "kind": "selection",
+          "source": "expense",
+          "where": [
+            [
+              "expenseType",
+              "NE",
+              "业务招待费"
+            ]
+          ]
+        },
+        "errors": [
+          "选中记录集合错误",
+          "合法派单任务仍处于未完成/澄清状态"
+        ],
+        "elapsedMs": 7478
+      },
+      {
+        "scenario": "long-workday-lifecycle",
+        "turn": 5,
+        "message": "把留下的差旅费这条整理成待确认清单。",
+        "expected": {
+          "kind": "plan",
+          "source": "expense",
+          "where": [
+            [
+              "expenseType",
+              "NE",
+              "业务招待费"
+            ]
+          ]
+        },
+        "errors": [
+          "未生成待确认清单",
+          "合法派单任务仍处于未完成/澄清状态"
+        ],
+        "elapsedMs": 5358
+      },
+      {
+        "scenario": "long-workday-lifecycle",
+        "turn": 6,
+        "message": "先撤掉刚生成的清单，暂时不发。",
+        "expected": {
+          "kind": "cancel",
+          "status": "CANCELLED",
+          "textAny": [
+            "取消"
+          ]
+        },
+        "errors": [
+          "未解释指定业务边界",
+          "缺少本会话的清单标识"
+        ],
+        "elapsedMs": 5221
+      },
+      {
+        "scenario": "long-workday-lifecycle",
+        "turn": 7,
+        "message": "刚才撤掉的清单目前是什么状态？",
+        "expected": {
+          "kind": "status",
+          "status": "CANCELLED",
+          "textAny": [
+            "取消"
+          ]
+        },
+        "errors": [
+          "未解释指定业务边界",
+          "缺少本会话的清单标识"
+        ],
+        "elapsedMs": 5735
+      }
+    ]
+  },
+  {
+    "file": "lifecycle-fix14.json",
+    "sha256": "e2b5c085fa37e97711107bc773bc5a5376c86f3d5a4d92294a1ce98f247a8e13",
+    "startedAt": "2026-10-07T07:23:56.255Z",
+    "finishedAt": "2026-10-07T07:25:15.856Z",
+    "total": 18,
+    "passed": 18,
+    "failed": 0,
+    "failures": []
+  },
+  {
+    "file": "lifecycle-fix15.json",
+    "sha256": "f53a978cfd97b656a1f67d013d63f1f5061fe430ecb8fe9e56783f2c88952a34",
+    "startedAt": "2026-10-07T08:11:14.908Z",
+    "finishedAt": "2026-10-07T08:12:29.519Z",
+    "total": 18,
+    "passed": 18,
+    "failed": 0,
+    "failures": []
+  },
+  {
+    "file": "lifecycle-fix16.json",
+    "sha256": "b719662df9085111987e0049ee4831c3735c8da0fb901ac052167b74d4e2a4dc",
+    "startedAt": "2026-10-07T08:31:21.798Z",
+    "finishedAt": "2026-10-07T08:32:50.738Z",
+    "total": 18,
+    "passed": 18,
+    "failed": 0,
+    "failures": []
+  },
+  {
+    "file": "lifecycle-fix17.json",
+    "sha256": "11d4e4f4dddc4a734e3424880df4548243b823a57c653fe871cf10ba84b10232",
+    "startedAt": "2026-10-07T08:51:16.782Z",
+    "finishedAt": "2026-10-07T08:52:26.798Z",
+    "total": 18,
+    "passed": 18,
+    "failed": 0,
+    "failures": []
+  },
+  {
+    "file": "lifecycle-fix18.json",
+    "sha256": "e5e817a25a634a8815f81cf62ef53bc4ab5414390e8eb138de4c90a75e531303",
+    "startedAt": "2026-10-07T09:12:40.109Z",
+    "finishedAt": "2026-10-07T09:13:57.433Z",
+    "total": 18,
+    "passed": 18,
+    "failed": 0,
+    "failures": []
+  },
+  {
+    "file": "lifecycle-fix19.json",
+    "sha256": "cb2956b582b0f13e24e6b874a83e1938da0a839e5e36a9114decd90195d41e4f",
+    "startedAt": "2026-10-07T09:36:23.095Z",
+    "finishedAt": "2026-10-07T09:37:40.611Z",
+    "total": 18,
+    "passed": 18,
+    "failed": 0,
+    "failures": []
+  },
+  {
+    "file": "lifecycle-fix20.json",
+    "sha256": "26798a7c877c4618ed785666aed7127f92e49f1ff3745167ce28b03ec1182db2",
+    "startedAt": "2026-10-07T09:55:37.961Z",
+    "finishedAt": "2026-10-07T09:56:54.719Z",
+    "total": 18,
+    "passed": 15,
+    "failed": 3,
+    "failures": [
+      {
+        "scenario": "long-workday-lifecycle",
+        "turn": 13,
+        "message": "再重新取A公司所有报表能派单的候选，这次从头来。",
+        "expected": {
+          "kind": "preview",
+          "source": "all"
+        },
+        "errors": [
+          "合法派单任务仍处于未完成/澄清状态"
+        ],
+        "elapsedMs": 6540
+      },
+      {
+        "scenario": "long-workday-lifecycle",
+        "turn": 14,
+        "message": "金额低于20元的都取消选择，其他保留。",
+        "expected": {
+          "kind": "selection",
+          "source": "all",
+          "where": [
+            [
+              "amount",
+              "GTE",
+              "20"
+            ]
+          ]
+        },
+        "errors": [
+          "选中记录集合错误"
+        ],
+        "elapsedMs": 4825
+      },
+      {
+        "scenario": "long-workday-lifecycle",
+        "turn": 16,
+        "message": "把当前选中的整理成待确认清单，我核对后再确认。",
+        "expected": {
+          "kind": "plan",
+          "source": "all",
+          "where": [
+            [
+              "amount",
+              "GTE",
+              "20"
+            ]
+          ]
+        },
+        "errors": [
+          "待确认清单内容错误"
+        ],
+        "elapsedMs": 8405
+      }
+    ]
+  },
+  {
+    "file": "lifecycle-fix3.json",
+    "sha256": "230f7d14b12f984c08647fe4c6d94314089e5c674d057fc8736fa29342bede82",
+    "startedAt": "2026-10-07T03:07:33.102Z",
+    "finishedAt": "2026-10-07T03:09:00.239Z",
+    "total": 18,
+    "passed": 14,
+    "failed": 4,
+    "failures": [
+      {
+        "scenario": "long-workday-lifecycle",
+        "turn": 4,
+        "message": "业务招待费先不选，差旅费保留。",
+        "expected": {
+          "kind": "selection",
+          "source": "expense",
+          "where": [
+            [
+              "expenseType",
+              "NE",
+              "业务招待费"
+            ]
+          ]
+        },
+        "errors": [
+          "选中记录集合错误",
+          "合法派单任务仍处于未完成/澄清状态"
+        ],
+        "elapsedMs": 8934
+      },
+      {
+        "scenario": "long-workday-lifecycle",
+        "turn": 5,
+        "message": "把留下的差旅费这条整理成待确认清单。",
+        "expected": {
+          "kind": "plan",
+          "source": "expense",
+          "where": [
+            [
+              "expenseType",
+              "NE",
+              "业务招待费"
+            ]
+          ]
+        },
+        "errors": [
+          "未生成待确认清单",
+          "合法派单任务仍处于未完成/澄清状态"
+        ],
+        "elapsedMs": 8274
+      },
+      {
+        "scenario": "long-workday-lifecycle",
+        "turn": 6,
+        "message": "先撤掉刚生成的清单，暂时不发。",
+        "expected": {
+          "kind": "cancel",
+          "status": "CANCELLED",
+          "textAny": [
+            "取消"
+          ]
+        },
+        "errors": [
+          "未解释指定业务边界",
+          "缺少本会话的清单标识"
+        ],
+        "elapsedMs": 5513
+      },
+      {
+        "scenario": "long-workday-lifecycle",
+        "turn": 7,
+        "message": "刚才撤掉的清单目前是什么状态？",
+        "expected": {
+          "kind": "status",
+          "status": "CANCELLED",
+          "textAny": [
+            "取消"
+          ]
+        },
+        "errors": [
+          "未解释指定业务边界",
+          "缺少本会话的清单标识"
+        ],
+        "elapsedMs": 5462
+      }
+    ]
+  },
+  {
+    "file": "lifecycle-fix4.json",
+    "sha256": "46a2e4c8626b254fdf2b8979e972de4ae0096d70e98c34653252fdadb973c64e",
+    "startedAt": "2026-10-07T03:51:39.405Z",
+    "finishedAt": "2026-10-07T03:52:54.111Z",
+    "total": 18,
+    "passed": 15,
+    "failed": 3,
+    "failures": [
+      {
+        "scenario": "long-workday-lifecycle",
+        "turn": 5,
+        "message": "把留下的差旅费这条整理成待确认清单。",
+        "expected": {
+          "kind": "plan",
+          "source": "expense",
+          "where": [
+            [
+              "expenseType",
+              "NE",
+              "业务招待费"
+            ]
+          ]
+        },
+        "errors": [
+          "未生成待确认清单",
+          "合法派单任务仍处于未完成/澄清状态"
+        ],
+        "elapsedMs": 7667
+      },
+      {
+        "scenario": "long-workday-lifecycle",
+        "turn": 6,
+        "message": "先撤掉刚生成的清单，暂时不发。",
+        "expected": {
+          "kind": "cancel",
+          "status": "CANCELLED",
+          "textAny": [
+            "取消"
+          ]
+        },
+        "errors": [
+          "未解释指定业务边界",
+          "缺少本会话的清单标识"
+        ],
+        "elapsedMs": 4527
+      },
+      {
+        "scenario": "long-workday-lifecycle",
+        "turn": 7,
+        "message": "刚才撤掉的清单目前是什么状态？",
+        "expected": {
+          "kind": "status",
+          "status": "CANCELLED",
+          "textAny": [
+            "取消"
+          ]
+        },
+        "errors": [
+          "未解释指定业务边界",
+          "缺少本会话的清单标识"
+        ],
+        "elapsedMs": 4329
+      }
+    ]
+  },
+  {
+    "file": "lifecycle-fix7.json",
+    "sha256": "13ec53ab743eae4d4742a1e5fbece2f6b639ef0766c0bed10a763128f7e7d6b8",
+    "startedAt": "2026-10-07T04:57:22.731Z",
+    "finishedAt": "2026-10-07T04:58:37.903Z",
+    "total": 18,
+    "passed": 17,
+    "failed": 1,
+    "failures": [
+      {
+        "scenario": "long-workday-lifecycle",
+        "turn": 1,
+        "message": "早上先把A公司的销售账都给我看看。",
+        "expected": {
+          "kind": "query",
+          "source": "sales"
+        },
+        "errors": [
+          "合法查询未返回业务结果"
+        ],
+        "elapsedMs": 4737
+      }
+    ]
+  },
+  {
+    "file": "lifecycle-fix8.json",
+    "sha256": "9f520bf71efacc7e210e7f416df91ee8665b8e832aecc1d22e8443a62ae5c431",
+    "startedAt": "2026-10-07T05:13:00.511Z",
+    "finishedAt": "2026-10-07T05:14:15.563Z",
+    "total": 18,
+    "passed": 17,
+    "failed": 1,
+    "failures": [
+      {
+        "scenario": "long-workday-lifecycle",
+        "turn": 1,
+        "message": "早上先把A公司的销售账都给我看看。",
+        "expected": {
+          "kind": "query",
+          "source": "sales"
+        },
+        "errors": [
+          "报表范围错误",
+          "完整总数错误：预期4，实际13",
+          "当前页记录集合错误",
+          "汇总数量错误",
+          "完整匹配范围金额错误",
+          "状态分布错误"
+        ],
+        "elapsedMs": 2334
+      }
+    ]
+  },
+  {
+    "file": "lifecycle-initial.json",
+    "sha256": "b66b4edac58479385515f6213d430e0edb4b9daad715c05fe4e7e8ba6c6cb1b4",
+    "startedAt": "2026-10-07T02:35:22.705Z",
+    "finishedAt": "2026-10-07T02:36:36.579Z",
+    "total": 18,
+    "passed": 14,
+    "failed": 4,
+    "failures": [
+      {
+        "scenario": "long-workday-lifecycle",
+        "turn": 5,
+        "message": "把留下的差旅费这条整理成待确认清单。",
+        "expected": {
+          "kind": "plan",
+          "source": "expense",
+          "where": [
+            [
+              "expenseType",
+              "NE",
+              "业务招待费"
+            ]
+          ]
+        },
+        "errors": [
+          "未生成待确认清单",
+          "合法派单任务仍处于未完成/澄清状态"
+        ],
+        "elapsedMs": 6727
+      },
+      {
+        "scenario": "long-workday-lifecycle",
+        "turn": 6,
+        "message": "先撤掉刚生成的清单，暂时不发。",
+        "expected": {
+          "kind": "cancel",
+          "status": "CANCELLED",
+          "textAny": [
+            "取消"
+          ]
+        },
+        "errors": [
+          "未解释指定业务边界",
+          "缺少本会话的清单标识"
+        ],
+        "elapsedMs": 4756
+      },
+      {
+        "scenario": "long-workday-lifecycle",
+        "turn": 7,
+        "message": "刚才撤掉的清单目前是什么状态？",
+        "expected": {
+          "kind": "status",
+          "status": "CANCELLED",
+          "textAny": [
+            "取消"
+          ]
+        },
+        "errors": [
+          "未解释指定业务边界",
+          "缺少本会话的清单标识"
+        ],
+        "elapsedMs": 2977
+      },
+      {
+        "scenario": "long-workday-lifecycle",
+        "turn": 17,
+        "message": "这份也先取消，我还要补资料。",
+        "expected": {
+          "kind": "cancel",
+          "status": "CANCELLED",
+          "textAny": [
+            "取消"
+          ]
+        },
+        "errors": [
+          "未解释指定业务边界",
+          "清单实际状态未满足请求"
+        ],
+        "elapsedMs": 4304
+      }
+    ]
+  },
+  {
+    "file": "multiturn-fix1.json",
+    "sha256": "114d91fa0618ab85eafcd9d6b12125fca564b5d9d584f4740c788eee306c742b",
+    "startedAt": "2026-10-07T02:11:35.075Z",
+    "finishedAt": "2026-10-07T02:15:56.355Z",
+    "total": 72,
+    "passed": 63,
+    "failed": 9,
+    "failures": [
+      {
+        "scenario": "dispatch-interruption",
+        "turn": 5,
+        "message": "重新看A公司费用报表里能派的，这次不要销售和应收。",
+        "expected": {
+          "kind": "preview",
+          "source": "expense"
+        },
+        "errors": [
+          "未返回派单预览",
+          "合法派单任务仍处于未完成/澄清状态"
+        ],
+        "elapsedMs": 7910
+      },
+      {
+        "scenario": "dispatch-interruption",
+        "turn": 6,
+        "message": "就这批费用，出一份待确认清单给我核对。",
+        "expected": {
+          "kind": "plan",
+          "source": "expense"
+        },
+        "errors": [
+          "未生成待确认清单",
+          "合法派单任务仍处于未完成/澄清状态"
+        ],
+        "elapsedMs": 4148
+      },
+      {
+        "scenario": "dispatch-customer-correction",
+        "turn": 3,
+        "message": "天津那家的恢复，刚才我说错了。",
+        "expected": {
+          "kind": "selection",
+          "source": "receivable"
+        },
+        "errors": [
+          "选中记录集合错误",
+          "合法派单任务仍处于未完成/澄清状态"
+        ],
+        "elapsedMs": 4505
+      },
+      {
+        "scenario": "dispatch-customer-correction",
+        "turn": 4,
+        "message": "北京某某咨询有限公司的先取消选择。",
+        "expected": {
+          "kind": "selection",
+          "source": "receivable",
+          "where": [
+            [
+              "customerName",
+              "NE",
+              "北京某某咨询有限公司"
+            ]
+          ]
+        },
+        "errors": [
+          "选中记录集合错误",
+          "合法派单任务仍处于未完成/澄清状态"
+        ],
+        "elapsedMs": 2341
+      },
+      {
+        "scenario": "dispatch-customer-correction",
+        "turn": 6,
+        "message": "行，把现在选中的应收记录整理成待确认清单。",
+        "expected": {
+          "kind": "plan",
+          "source": "receivable",
+          "where": [
+            [
+              "customerName",
+              "NE",
+              "北京某某咨询有限公司"
+            ]
+          ]
+        },
+        "errors": [
+          "未生成待确认清单",
+          "合法派单任务仍处于未完成/澄清状态"
+        ],
+        "elapsedMs": 6222
+      },
+      {
+        "scenario": "query-dispatch-switch",
+        "turn": 3,
+        "message": "销售这类先都不选。",
+        "expected": {
+          "kind": "selection",
+          "source": "all",
+          "where": [
+            [
+              "reportId",
+              "NE",
+              "rpt-sales-order"
+            ]
+          ]
+        },
+        "errors": [
+          "选中记录集合错误",
+          "合法派单任务仍处于未完成/澄清状态"
+        ],
+        "elapsedMs": 4617
+      },
+      {
+        "scenario": "query-dispatch-switch",
+        "turn": 5,
+        "message": "刚才那些直接准备清单。",
+        "expected": {
+          "kind": "clarify",
+          "textAny": [
+            "范围",
+            "候选",
+            "可派",
+            "只读"
+          ]
+        },
+        "errors": [
+          "未解释指定业务边界"
+        ],
+        "elapsedMs": 5217
+      },
+      {
+        "scenario": "query-dispatch-switch",
+        "turn": 6,
+        "message": "明确一下：重新查询A公司应收报表的可派单记录。",
+        "expected": {
+          "kind": "preview",
+          "source": "receivable"
+        },
+        "errors": [
+          "合法派单任务仍处于未完成/澄清状态"
+        ],
+        "elapsedMs": 4951
+      },
+      {
+        "scenario": "work-order-boundaries",
+        "turn": 3,
+        "message": "那不审批，你把WO-DEMO-002当前负责人的名字告诉我就好。",
+        "expected": {
+          "kind": "query",
+          "source": "work_order",
+          "where": [
+            [
+              "orderId",
+              "EQ",
+              "WO-DEMO-002"
+            ]
+          ],
+          "view": "DETAIL",
+          "assignee": "陈会计（演示）"
+        },
+        "errors": [
+          "合法查询未返回业务结果"
+        ],
+        "elapsedMs": 3216
+      }
+    ]
+  },
+  {
+    "file": "multiturn-fix10.json",
+    "sha256": "9166651d7ae78fce11effd4694d0311ade566ca2cf33cb814776091262c86ea5",
+    "startedAt": "2026-10-07T05:42:40.673Z",
+    "finishedAt": "2026-10-07T05:47:15.186Z",
+    "total": 72,
+    "passed": 69,
+    "failed": 3,
+    "failures": [
+      {
+        "scenario": "expense-mobile",
+        "turn": 3,
+        "message": "差旅费那张展开看看",
+        "expected": {
+          "kind": "query",
+          "source": "expense",
+          "where": [
+            [
+              "expenseType",
+              "EQ",
+              "差旅费"
+            ]
+          ],
+          "view": "DETAIL"
+        },
+        "errors": [
+          "合法查询未返回业务结果"
+        ],
+        "elapsedMs": 2891
+      },
+      {
+        "scenario": "finance-calendar",
+        "turn": 2,
+        "message": "只要没派出去的。",
+        "expected": {
+          "kind": "query",
+          "source": "sales",
+          "where": [
+            [
+              "date",
+              "GTE",
+              "2026-01-01"
+            ],
+            [
+              "date",
+              "LTE",
+              "2026-02-28"
+            ],
+            [
+              "status",
+              "EQ",
+              "未派单"
+            ]
+          ],
+          "requireFilters": [
+            [
+              "status",
+              "EQ",
+              "未派单"
+            ]
+          ]
+        },
+        "errors": [
+          "完整总数错误：预期0，实际2",
+          "当前页记录集合错误",
+          "汇总数量错误",
+          "完整匹配范围金额错误",
+          "状态分布错误"
+        ],
+        "elapsedMs": 2779
+      },
+      {
+        "scenario": "finance-calendar",
+        "turn": 3,
+        "message": "那按状态汇总一下这个范围。",
+        "expected": {
+          "kind": "query",
+          "source": "sales",
+          "where": [
+            [
+              "date",
+              "GTE",
+              "2026-01-01"
+            ],
+            [
+              "date",
+              "LTE",
+              "2026-02-28"
+            ],
+            [
+              "status",
+              "EQ",
+              "未派单"
+            ]
+          ],
+          "view": "SUMMARY"
+        },
+        "errors": [
+          "完整总数错误：预期0，实际2",
+          "当前页记录集合错误",
+          "汇总数量错误",
+          "完整匹配范围金额错误",
+          "状态分布错误"
+        ],
+        "elapsedMs": 3094
+      }
+    ]
+  },
+  {
+    "file": "multiturn-fix11.json",
+    "sha256": "830b22226dc66547b6463047f32da36a655b4170e0a79b01d4e57cafd87d2dba",
+    "startedAt": "2026-10-07T06:01:12.236Z",
+    "finishedAt": "2026-10-07T06:05:45.538Z",
+    "total": 72,
+    "passed": 72,
+    "failed": 0,
+    "failures": []
+  },
+  {
+    "file": "multiturn-fix12.json",
+    "sha256": "c85404bb26d01aeb8ab0fffc49424981faae59e26cc32e629f2a36d9ab20bdf6",
+    "startedAt": "2026-10-07T06:22:15.683Z",
+    "finishedAt": "2026-10-07T06:26:55.824Z",
+    "total": 72,
+    "passed": 66,
+    "failed": 6,
+    "failures": [
+      {
+        "scenario": "finance-calendar",
+        "turn": 5,
+        "message": "天津这家的这笔应收多少钱，到期日是哪天？",
+        "expected": {
+          "kind": "query",
+          "source": "receivable",
+          "where": [
+            [
+              "customerName",
+              "EQ",
+              "天津某某贸易有限公司"
+            ]
+          ],
+          "view": "DETAIL"
+        },
+        "errors": [
+          "详情/列表/总结任务类型错误"
+        ],
+        "elapsedMs": 4398
+      },
+      {
+        "scenario": "dispatch-interruption",
+        "turn": 4,
+        "message": "剩下的给我弄成待确认清单吧。",
+        "expected": {
+          "kind": "clarify",
+          "textAny": [
+            "候选",
+            "范围",
+            "只读",
+            "可派"
+          ]
+        },
+        "errors": [
+          "未解释指定业务边界"
+        ],
+        "elapsedMs": 7289
+      },
+      {
+        "scenario": "dispatch-checkboxes",
+        "turn": 3,
+        "message": "还是只留差旅费那条吧。",
+        "expected": {
+          "kind": "selection",
+          "source": "expense",
+          "where": [
+            [
+              "expenseType",
+              "EQ",
+              "差旅费"
+            ]
+          ]
+        },
+        "errors": [
+          "合法派单任务仍处于未完成/澄清状态"
+        ],
+        "elapsedMs": 7747
+      },
+      {
+        "scenario": "query-dispatch-switch",
+        "turn": 5,
+        "message": "刚才那些直接准备清单。",
+        "expected": {
+          "kind": "clarify",
+          "textAny": [
+            "范围",
+            "候选",
+            "可派",
+            "只读"
+          ]
+        },
+        "errors": [
+          "帮助或应澄清请求改变了业务范围",
+          "只读/澄清改变了派单预览或选择"
+        ],
+        "elapsedMs": 7437
+      },
+      {
+        "scenario": "query-dispatch-switch",
+        "turn": 6,
+        "message": "明确一下：重新查询A公司应收报表的可派单记录。",
+        "expected": {
+          "kind": "preview",
+          "source": "receivable"
+        },
+        "errors": [
+          "合法派单任务仍处于未完成/澄清状态"
+        ],
+        "elapsedMs": 6092
+      },
+      {
+        "scenario": "empty-results-and-ownership",
+        "turn": 3,
+        "message": "不光失败的，我自己创建的所有派单都查一下。",
+        "expected": {
+          "kind": "query",
+          "source": "dispatch",
+          "where": [
+            [
+              "createdByMe",
+              "EQ",
+              "true"
+            ]
+          ],
+          "requireFilters": [
+            [
+              "createdByMe",
+              "EQ",
+              "true"
+            ]
+          ]
+        },
+        "errors": [
+          "合法查询未返回业务结果"
+        ],
+        "elapsedMs": 4985
+      }
+    ]
+  },
+  {
+    "file": "multiturn-fix13.json",
+    "sha256": "183aab1550181880c4f19753bb6ac0b65f79664523182770aac529ad4f217e0a",
+    "startedAt": "2026-10-07T06:51:48.009Z",
+    "finishedAt": "2026-10-07T06:56:55.308Z",
+    "total": 72,
+    "passed": 71,
+    "failed": 1,
+    "failures": [
+      {
+        "scenario": "dispatch-checkboxes",
+        "turn": 3,
+        "message": "还是只留差旅费那条吧。",
+        "expected": {
+          "kind": "selection",
+          "source": "expense",
+          "where": [
+            [
+              "expenseType",
+              "EQ",
+              "差旅费"
+            ]
+          ]
+        },
+        "errors": [
+          "合法派单任务仍处于未完成/澄清状态"
+        ],
+        "elapsedMs": 6971
+      }
+    ]
+  },
+  {
+    "file": "multiturn-fix14.json",
+    "sha256": "d92384686f5d9a7b081632f574e68da653a3383c4cf59b4a8f04743c5e9ecfb1",
+    "startedAt": "2026-10-07T07:16:37.218Z",
+    "finishedAt": "2026-10-07T07:21:27.898Z",
+    "total": 72,
+    "passed": 71,
+    "failed": 1,
+    "failures": [
+      {
+        "scenario": "query-dispatch-switch",
+        "turn": 5,
+        "message": "刚才那些直接准备清单。",
+        "expected": {
+          "kind": "clarify",
+          "textAny": [
+            "范围",
+            "候选",
+            "可派",
+            "只读"
+          ]
+        },
+        "errors": [
+          "未解释指定业务边界"
+        ],
+        "elapsedMs": 10530
+      }
+    ]
+  },
+  {
+    "file": "multiturn-fix15.json",
+    "sha256": "f1ae716911f8b980bb50274cb031cf063b2dfdcc1a7a1b0a66f96278a78b7539",
+    "startedAt": "2026-10-07T08:04:02.536Z",
+    "finishedAt": "2026-10-07T08:08:51.885Z",
+    "total": 72,
+    "passed": 72,
+    "failed": 0,
+    "failures": []
+  },
+  {
+    "file": "multiturn-fix16.json",
+    "sha256": "856d93eca63ecb00b607d8ea642a4fa556338be621eabcad9d51c0e7f2a8cd8b",
+    "startedAt": "2026-10-07T08:23:25.077Z",
+    "finishedAt": "2026-10-07T08:28:46.136Z",
+    "total": 72,
+    "passed": 72,
+    "failed": 0,
+    "failures": []
+  },
+  {
+    "file": "multiturn-fix17.json",
+    "sha256": "21b08d5e0204fb9d3375d8c7e4b3cafe0f4419509181f4402384782442ad2aca",
+    "startedAt": "2026-10-07T08:44:25.713Z",
+    "finishedAt": "2026-10-07T08:48:57.326Z",
+    "total": 72,
+    "passed": 72,
+    "failed": 0,
+    "failures": []
+  },
+  {
+    "file": "multiturn-fix18.json",
+    "sha256": "b8ea7872c48f99467759ac05ad001cede09f91a6763ecb8abb5ade75aa3be09e",
+    "startedAt": "2026-10-07T09:05:33.536Z",
+    "finishedAt": "2026-10-07T09:10:18.668Z",
+    "total": 72,
+    "passed": 69,
+    "failed": 3,
+    "failures": [
+      {
+        "scenario": "dispatch-checkboxes",
+        "turn": 3,
+        "message": "还是只留差旅费那条吧。",
+        "expected": {
+          "kind": "selection",
+          "source": "expense",
+          "where": [
+            [
+              "expenseType",
+              "EQ",
+              "差旅费"
+            ]
+          ]
+        },
+        "errors": [
+          "选中记录集合错误"
+        ],
+        "elapsedMs": 4867
+      },
+      {
+        "scenario": "dispatch-checkboxes",
+        "turn": 5,
+        "message": "把3200元的业务招待费那条也恢复勾上。",
+        "expected": {
+          "kind": "selection",
+          "source": "expense",
+          "anyOf": [
+            [
+              [
+                "expenseType",
+                "EQ",
+                "差旅费"
+              ]
+            ],
+            [
+              [
+                "amount",
+                "EQ",
+                "3200"
+              ]
+            ]
+          ]
+        },
+        "errors": [
+          "选中记录集合错误"
+        ],
+        "elapsedMs": 5908
+      },
+      {
+        "scenario": "dispatch-checkboxes",
+        "turn": 6,
+        "message": "选中的这两条先生成清单，我自己确认。",
+        "expected": {
+          "kind": "plan",
+          "source": "expense",
+          "anyOf": [
+            [
+              [
+                "expenseType",
+                "EQ",
+                "差旅费"
+              ]
+            ],
+            [
+              [
+                "amount",
+                "EQ",
+                "3200"
+              ]
+            ]
+          ]
+        },
+        "errors": [
+          "待确认清单内容错误"
+        ],
+        "elapsedMs": 4426
+      }
+    ]
+  },
+  {
+    "file": "multiturn-fix19.json",
+    "sha256": "5e602cfc42ed2bb8c5e9e180608916dc308eaa0688f796a19457417e97133297",
+    "startedAt": "2026-10-07T09:29:03.923Z",
+    "finishedAt": "2026-10-07T09:33:58.137Z",
+    "total": 72,
+    "passed": 72,
+    "failed": 0,
+    "failures": []
+  },
+  {
+    "file": "multiturn-fix2.json",
+    "sha256": "597b3a1dfddc151a753558eca29f5f79d0bd5e70e1b9b9a1ba5cdb38635d8416",
+    "startedAt": "2026-10-07T02:28:45.841Z",
+    "finishedAt": "2026-10-07T02:33:10.762Z",
+    "total": 72,
+    "passed": 66,
+    "failed": 6,
+    "failures": [
+      {
+        "scenario": "dispatch-interruption",
+        "turn": 5,
+        "message": "重新看A公司费用报表里能派的，这次不要销售和应收。",
+        "expected": {
+          "kind": "preview",
+          "source": "expense"
+        },
+        "errors": [
+          "合法派单任务仍处于未完成/澄清状态"
+        ],
+        "elapsedMs": 4850
+      },
+      {
+        "scenario": "dispatch-interruption",
+        "turn": 6,
+        "message": "就这批费用，出一份待确认清单给我核对。",
+        "expected": {
+          "kind": "plan",
+          "source": "expense"
+        },
+        "errors": [
+          "未生成待确认清单",
+          "合法派单任务仍处于未完成/澄清状态"
+        ],
+        "elapsedMs": 4328
+      },
+      {
+        "scenario": "dispatch-customer-correction",
+        "turn": 3,
+        "message": "天津那家的恢复，刚才我说错了。",
+        "expected": {
+          "kind": "selection",
+          "source": "receivable"
+        },
+        "errors": [
+          "选中记录集合错误",
+          "合法派单任务仍处于未完成/澄清状态"
+        ],
+        "elapsedMs": 7434
+      },
+      {
+        "scenario": "dispatch-customer-correction",
+        "turn": 4,
+        "message": "北京某某咨询有限公司的先取消选择。",
+        "expected": {
+          "kind": "selection",
+          "source": "receivable",
+          "where": [
+            [
+              "customerName",
+              "NE",
+              "北京某某咨询有限公司"
+            ]
+          ]
+        },
+        "errors": [
+          "选中记录集合错误"
+        ],
+        "elapsedMs": 4736
+      },
+      {
+        "scenario": "dispatch-customer-correction",
+        "turn": 6,
+        "message": "行，把现在选中的应收记录整理成待确认清单。",
+        "expected": {
+          "kind": "plan",
+          "source": "receivable",
+          "where": [
+            [
+              "customerName",
+              "NE",
+              "北京某某咨询有限公司"
+            ]
+          ]
+        },
+        "errors": [
+          "待确认清单内容错误"
+        ],
+        "elapsedMs": 5223
+      },
+      {
+        "scenario": "query-dispatch-switch",
+        "turn": 6,
+        "message": "明确一下：重新查询A公司应收报表的可派单记录。",
+        "expected": {
+          "kind": "preview",
+          "source": "receivable"
+        },
+        "errors": [
+          "合法派单任务仍处于未完成/澄清状态"
+        ],
+        "elapsedMs": 4529
+      }
+    ]
+  },
+  {
+    "file": "multiturn-fix20.json",
+    "sha256": "319a11994f4c843e3dfc4b5206d45134ea37706576607e360c51b7f6b8b18665",
+    "startedAt": "2026-10-07T09:48:42.965Z",
+    "finishedAt": "2026-10-07T09:53:21.936Z",
+    "total": 72,
+    "passed": 72,
+    "failed": 0,
+    "failures": []
+  },
+  {
+    "file": "multiturn-fix3.json",
+    "sha256": "211072e72319fbb05ed0a183eb5e3ecee544540371f30f6de11aacd37dcbb68f",
+    "startedAt": "2026-10-07T03:00:27.400Z",
+    "finishedAt": "2026-10-07T03:05:11.730Z",
+    "total": 72,
+    "passed": 65,
+    "failed": 7,
+    "failures": [
+      {
+        "scenario": "sales-manager",
+        "turn": 6,
+        "message": "销售这边还有什么能派出去？先看候选，别直接执行。",
+        "expected": {
+          "kind": "preview",
+          "source": "sales"
+        },
+        "errors": [
+          "未返回派单预览",
+          "合法派单任务仍处于未完成/澄清状态"
+        ],
+        "elapsedMs": 9666
+      },
+      {
+        "scenario": "finance-calendar",
+        "turn": 2,
+        "message": "只要没派出去的。",
+        "expected": {
+          "kind": "query",
+          "source": "sales",
+          "where": [
+            [
+              "date",
+              "GTE",
+              "2026-01-01"
+            ],
+            [
+              "date",
+              "LTE",
+              "2026-02-28"
+            ],
+            [
+              "status",
+              "EQ",
+              "未派单"
+            ]
+          ],
+          "requireFilters": [
+            [
+              "status",
+              "EQ",
+              "未派单"
+            ]
+          ]
+        },
+        "errors": [
+          "遗漏或改变明确条件：status EQ 未派单"
+        ],
+        "elapsedMs": 2923
+      },
+      {
+        "scenario": "dispatch-interruption",
+        "turn": 5,
+        "message": "重新看A公司费用报表里能派的，这次不要销售和应收。",
+        "expected": {
+          "kind": "preview",
+          "source": "expense"
+        },
+        "errors": [
+          "未返回派单预览",
+          "合法派单任务仍处于未完成/澄清状态"
+        ],
+        "elapsedMs": 8710
+      },
+      {
+        "scenario": "dispatch-interruption",
+        "turn": 6,
+        "message": "就这批费用，出一份待确认清单给我核对。",
+        "expected": {
+          "kind": "plan",
+          "source": "expense"
+        },
+        "errors": [
+          "未生成待确认清单",
+          "合法派单任务仍处于未完成/澄清状态"
+        ],
+        "elapsedMs": 5204
+      },
+      {
+        "scenario": "dispatch-customer-correction",
+        "turn": 3,
+        "message": "天津那家的恢复，刚才我说错了。",
+        "expected": {
+          "kind": "selection",
+          "source": "receivable"
+        },
+        "errors": [
+          "选中记录集合错误",
+          "合法派单任务仍处于未完成/澄清状态"
+        ],
+        "elapsedMs": 5368
+      },
+      {
+        "scenario": "dispatch-customer-correction",
+        "turn": 4,
+        "message": "北京某某咨询有限公司的先取消选择。",
+        "expected": {
+          "kind": "selection",
+          "source": "receivable",
+          "where": [
+            [
+              "customerName",
+              "NE",
+              "北京某某咨询有限公司"
+            ]
+          ]
+        },
+        "errors": [
+          "选中记录集合错误"
+        ],
+        "elapsedMs": 6246
+      },
+      {
+        "scenario": "dispatch-customer-correction",
+        "turn": 6,
+        "message": "行，把现在选中的应收记录整理成待确认清单。",
+        "expected": {
+          "kind": "plan",
+          "source": "receivable",
+          "where": [
+            [
+              "customerName",
+              "NE",
+              "北京某某咨询有限公司"
+            ]
+          ]
+        },
+        "errors": [
+          "未生成待确认清单",
+          "合法派单任务仍处于未完成/澄清状态"
+        ],
+        "elapsedMs": 8593
+      }
+    ]
+  },
+  {
+    "file": "multiturn-fix4.json",
+    "sha256": "89a62bbc985959e0c288c5f0f92cd90ae8ba2353a453b91b0fbe5738ee7dd5b2",
+    "startedAt": "2026-10-07T03:44:55.334Z",
+    "finishedAt": "2026-10-07T03:49:28.612Z",
+    "total": 72,
+    "passed": 65,
+    "failed": 7,
+    "failures": [
+      {
+        "scenario": "bilingual-analyst",
+        "turn": 3,
+        "message": "先不看销售了，工单 WO-DEMO-004 办完了吗？",
+        "expected": {
+          "kind": "query",
+          "source": "work_order",
+          "where": [
+            [
+              "orderId",
+              "EQ",
+              "WO-DEMO-004"
+            ]
+          ],
+          "view": "DETAIL",
+          "assignee": null
+        },
+        "errors": [
+          "报表范围错误"
+        ],
+        "elapsedMs": 3378
+      },
+      {
+        "scenario": "bilingual-analyst",
+        "turn": 4,
+        "message": "And WO-DEMO-002? Who has it now?",
+        "expected": {
+          "kind": "query",
+          "source": "work_order",
+          "where": [
+            [
+              "orderId",
+              "EQ",
+              "WO-DEMO-002"
+            ]
+          ],
+          "view": "DETAIL",
+          "assignee": "陈会计（演示）"
+        },
+        "errors": [
+          "合法查询未返回业务结果"
+        ],
+        "elapsedMs": 2471
+      },
+      {
+        "scenario": "dispatch-checkboxes",
+        "turn": 5,
+        "message": "把3200元的业务招待费那条也恢复勾上。",
+        "expected": {
+          "kind": "selection",
+          "source": "expense",
+          "anyOf": [
+            [
+              [
+                "expenseType",
+                "EQ",
+                "差旅费"
+              ]
+            ],
+            [
+              [
+                "amount",
+                "EQ",
+                "3200"
+              ]
+            ]
+          ]
+        },
+        "errors": [
+          "选中记录集合错误",
+          "合法派单任务仍处于未完成/澄清状态"
+        ],
+        "elapsedMs": 6979
+      },
+      {
+        "scenario": "dispatch-checkboxes",
+        "turn": 6,
+        "message": "选中的这两条先生成清单，我自己确认。",
+        "expected": {
+          "kind": "plan",
+          "source": "expense",
+          "anyOf": [
+            [
+              [
+                "expenseType",
+                "EQ",
+                "差旅费"
+              ]
+            ],
+            [
+              [
+                "amount",
+                "EQ",
+                "3200"
+              ]
+            ]
+          ]
+        },
+        "errors": [
+          "未生成待确认清单",
+          "合法派单任务仍处于未完成/澄清状态"
+        ],
+        "elapsedMs": 4795
+      },
+      {
+        "scenario": "dispatch-customer-correction",
+        "turn": 3,
+        "message": "天津那家的恢复，刚才我说错了。",
+        "expected": {
+          "kind": "selection",
+          "source": "receivable"
+        },
+        "errors": [
+          "选中记录集合错误",
+          "合法派单任务仍处于未完成/澄清状态"
+        ],
+        "elapsedMs": 7359
+      },
+      {
+        "scenario": "dispatch-customer-correction",
+        "turn": 4,
+        "message": "北京某某咨询有限公司的先取消选择。",
+        "expected": {
+          "kind": "selection",
+          "source": "receivable",
+          "where": [
+            [
+              "customerName",
+              "NE",
+              "北京某某咨询有限公司"
+            ]
+          ]
+        },
+        "errors": [
+          "选中记录集合错误"
+        ],
+        "elapsedMs": 5332
+      },
+      {
+        "scenario": "dispatch-customer-correction",
+        "turn": 6,
+        "message": "行，把现在选中的应收记录整理成待确认清单。",
+        "expected": {
+          "kind": "plan",
+          "source": "receivable",
+          "where": [
+            [
+              "customerName",
+              "NE",
+              "北京某某咨询有限公司"
+            ]
+          ]
+        },
+        "errors": [
+          "待确认清单内容错误"
+        ],
+        "elapsedMs": 5829
+      }
+    ]
+  },
+  {
+    "file": "multiturn-fix7.json",
+    "sha256": "d9e6d17e193a96aa55706a21c95b2500b50817586b8f9bed0b7ff7c4863647aa",
+    "startedAt": "2026-10-07T04:50:24.632Z",
+    "finishedAt": "2026-10-07T04:54:54.501Z",
+    "total": 72,
+    "passed": 67,
+    "failed": 5,
+    "failures": [
+      {
+        "scenario": "expense-mobile",
+        "turn": 5,
+        "message": "换个事，A公司全部销售记录给我一份",
+        "expected": {
+          "kind": "query",
+          "source": "sales"
+        },
+        "errors": [
+          "合法查询未返回业务结果"
+        ],
+        "elapsedMs": 4657
+      },
+      {
+        "scenario": "expense-mobile",
+        "turn": 6,
+        "message": "这些销售记录一共多少钱？",
+        "expected": {
+          "kind": "query",
+          "source": "sales",
+          "view": "SUMMARY"
+        },
+        "errors": [
+          "合法查询未返回业务结果"
+        ],
+        "elapsedMs": 2134
+      },
+      {
+        "scenario": "dispatch-interruption",
+        "turn": 4,
+        "message": "剩下的给我弄成待确认清单吧。",
+        "expected": {
+          "kind": "clarify",
+          "textAny": [
+            "候选",
+            "范围",
+            "只读",
+            "可派"
+          ]
+        },
+        "errors": [
+          "未解释指定业务边界"
+        ],
+        "elapsedMs": 7188
+      },
+      {
+        "scenario": "work-order-boundaries",
+        "turn": 6,
+        "message": "我现在想查销售报表，不看工单，也不限制完成状态。",
+        "expected": {
+          "kind": "query",
+          "source": "sales"
+        },
+        "errors": [
+          "合法查询未返回业务结果"
+        ],
+        "elapsedMs": 5534
+      },
+      {
+        "scenario": "permissions-and-recovery",
+        "turn": 1,
+        "message": "查A公司的费用记录。",
+        "expected": {
+          "kind": "query",
+          "source": "expense"
+        },
+        "errors": [
+          "合法查询未返回业务结果"
+        ],
+        "elapsedMs": 4506
+      }
+    ]
+  },
+  {
+    "file": "multiturn-fix8.json",
+    "sha256": "a86b8be0936b672c2a7a2d53c1c920c9138aabe9573e2db81ebf0175420ea91b",
+    "startedAt": "2026-10-07T05:08:28.374Z",
+    "finishedAt": "2026-10-07T05:13:00.199Z",
+    "total": 72,
+    "passed": 71,
+    "failed": 1,
+    "failures": [
+      {
+        "scenario": "query-dispatch-switch",
+        "turn": 5,
+        "message": "刚才那些直接准备清单。",
+        "expected": {
+          "kind": "clarify",
+          "textAny": [
+            "范围",
+            "候选",
+            "可派",
+            "只读"
+          ]
+        },
+        "errors": [
+          "未解释指定业务边界"
+        ],
+        "elapsedMs": 9878
+      }
+    ]
+  },
+  {
+    "file": "multiturn-initial.json",
+    "sha256": "09404f22dd0083a360e4a08cd9d985837fbee60c8907b747a28552c6f03ed145",
+    "startedAt": "2026-10-07T01:49:56.709Z",
+    "finishedAt": "2026-10-07T01:54:24.941Z",
+    "total": 72,
+    "passed": 55,
+    "failed": 17,
+    "failures": [
+      {
+        "scenario": "expense-mobile",
+        "turn": 3,
+        "message": "差旅费那张展开看看",
+        "expected": {
+          "kind": "query",
+          "source": "expense",
+          "where": [
+            [
+              "expenseType",
+              "EQ",
+              "差旅费"
+            ]
+          ],
+          "view": "DETAIL"
+        },
+        "errors": [
+          "详情/列表/总结任务类型错误"
+        ],
+        "elapsedMs": 3196
+      },
+      {
+        "scenario": "dispatch-interruption",
+        "turn": 1,
+        "message": "我这边能派的记录先全列出来，A公司的。",
+        "expected": {
+          "kind": "preview",
+          "source": "all"
+        },
+        "errors": [
+          "预览请求产生了其他业务动作"
+        ],
+        "elapsedMs": 5285
+      },
+      {
+        "scenario": "dispatch-interruption",
+        "turn": 2,
+        "message": "金额不足一千的先别选，其余保留。",
+        "expected": {
+          "kind": "selection",
+          "source": "all",
+          "where": [
+            [
+              "amount",
+              "GTE",
+              "1000"
+            ]
+          ]
+        },
+        "errors": [
+          "选中记录集合错误"
+        ],
+        "elapsedMs": 4605
+      },
+      {
+        "scenario": "dispatch-interruption",
+        "turn": 6,
+        "message": "就这批费用，出一份待确认清单给我核对。",
+        "expected": {
+          "kind": "plan",
+          "source": "expense"
+        },
+        "errors": [
+          "未生成待确认清单"
+        ],
+        "elapsedMs": 6235
+      },
+      {
+        "scenario": "dispatch-checkboxes",
+        "turn": 6,
+        "message": "选中的这两条先生成清单，我自己确认。",
+        "expected": {
+          "kind": "plan",
+          "source": "expense",
+          "anyOf": [
+            [
+              [
+                "expenseType",
+                "EQ",
+                "差旅费"
+              ]
+            ],
+            [
+              [
+                "amount",
+                "EQ",
+                "680"
+              ]
+            ]
+          ]
+        },
+        "errors": [
+          "未生成待确认清单"
+        ],
+        "elapsedMs": 4053
+      },
+      {
+        "scenario": "dispatch-customer-correction",
+        "turn": 1,
+        "message": "把A公司应收报表可派的给我列出来。",
+        "expected": {
+          "kind": "preview",
+          "source": "receivable"
+        },
+        "errors": [
+          "预览请求产生了其他业务动作"
+        ],
+        "elapsedMs": 5977
+      },
+      {
+        "scenario": "dispatch-customer-correction",
+        "turn": 3,
+        "message": "天津那家的恢复，刚才我说错了。",
+        "expected": {
+          "kind": "selection",
+          "source": "receivable"
+        },
+        "errors": [
+          "选中记录集合错误"
+        ],
+        "elapsedMs": 4519
+      },
+      {
+        "scenario": "dispatch-customer-correction",
+        "turn": 4,
+        "message": "上海某某信息有限公司的先取消选择。",
+        "expected": {
+          "kind": "selection",
+          "source": "receivable",
+          "where": [
+            [
+              "customerName",
+              "NE",
+              "上海某某信息有限公司"
+            ]
+          ]
+        },
+        "errors": [
+          "选中记录集合错误"
+        ],
+        "elapsedMs": 4164
+      },
+      {
+        "scenario": "dispatch-customer-correction",
+        "turn": 5,
+        "message": "清单出来以后，是不是还要我确认？",
+        "expected": {
+          "kind": "help",
+          "textAny": [
+            "确认"
+          ]
+        },
+        "errors": [
+          "未解释指定业务边界"
+        ],
+        "elapsedMs": 9112
+      },
+      {
+        "scenario": "dispatch-customer-correction",
+        "turn": 6,
+        "message": "行，把现在选中的应收记录整理成待确认清单。",
+        "expected": {
+          "kind": "plan",
+          "source": "receivable",
+          "where": [
+            [
+              "customerName",
+              "NE",
+              "上海某某信息有限公司"
+            ]
+          ]
+        },
+        "errors": [
+          "未生成待确认清单"
+        ],
+        "elapsedMs": 7952
+      },
+      {
+        "scenario": "query-dispatch-switch",
+        "turn": 2,
+        "message": "我想派单了，重新查A公司全部可以派的。",
+        "expected": {
+          "kind": "preview",
+          "source": "all"
+        },
+        "errors": [
+          "未返回派单预览"
+        ],
+        "elapsedMs": 5158
+      },
+      {
+        "scenario": "query-dispatch-switch",
+        "turn": 3,
+        "message": "销售这类先都不选。",
+        "expected": {
+          "kind": "selection",
+          "source": "all",
+          "where": [
+            [
+              "reportId",
+              "NE",
+              "rpt-sales-order"
+            ]
+          ]
+        },
+        "errors": [
+          "选择缺少预览"
+        ],
+        "elapsedMs": 4239
+      },
+      {
+        "scenario": "query-dispatch-switch",
+        "turn": 5,
+        "message": "刚才那些直接准备清单。",
+        "expected": {
+          "kind": "clarify",
+          "textAny": [
+            "范围",
+            "候选",
+            "可派",
+            "只读"
+          ]
+        },
+        "errors": [
+          "未解释指定业务边界"
+        ],
+        "elapsedMs": 4658
+      },
+      {
+        "scenario": "permissions-and-recovery",
+        "turn": 2,
+        "message": "B公司的也一起给我，领导要。",
+        "expected": {
+          "kind": "clarify",
+          "textAny": [
+            "权限",
+            "授权",
+            "公司",
+            "无权"
+          ]
+        },
+        "errors": [
+          "未解释指定业务边界",
+          "帮助或应澄清请求改变了业务范围"
+        ],
+        "elapsedMs": 2552
+      },
+      {
+        "scenario": "empty-results-and-ownership",
+        "turn": 2,
+        "message": "按报表分组统计一下这些失败记录。",
+        "expected": {
+          "kind": "query",
+          "source": "dispatch",
+          "where": [
+            [
+              "createdByMe",
+              "EQ",
+              "true"
+            ],
+            [
+              "status",
+              "EQ",
+              "失败"
+            ]
+          ],
+          "view": "SUMMARY",
+          "groupBy": "reportName"
+        },
+        "errors": [
+          "分组含义错误"
+        ],
+        "elapsedMs": 3049
+      },
+      {
+        "scenario": "negation-and-data-scope",
+        "turn": 1,
+        "message": "只查销售数据，金额在三万到十万元之间的，两头都包含。",
+        "expected": {
+          "kind": "query",
+          "source": "sales",
+          "where": [
+            [
+              "amount",
+              "GTE",
+              "30000"
+            ],
+            [
+              "amount",
+              "LTE",
+              "100000"
+            ]
+          ]
+        },
+        "errors": [
+          "完整总数错误：预期2，实际4",
+          "当前页记录集合错误",
+          "汇总数量错误",
+          "完整匹配范围金额错误",
+          "状态分布错误"
+        ],
+        "elapsedMs": 2615
+      },
+      {
+        "scenario": "negation-and-data-scope",
+        "turn": 2,
+        "message": "这里面不要交换机的，其它还要。",
+        "expected": {
+          "kind": "query",
+          "source": "sales",
+          "where": [
+            [
+              "amount",
+              "GTE",
+              "30000"
+            ],
+            [
+              "amount",
+              "LTE",
+              "100000"
+            ],
+            [
+              "productName",
+              "NE",
+              "交换机"
+            ]
+          ]
+        },
+        "errors": [
+          "合法查询未返回业务结果"
+        ],
+        "elapsedMs": 3344
+      }
+    ]
+  },
+  {
+    "file": "reserve-fix10.json",
+    "sha256": "8f486e04332ed53f8b682e33d51606f090e6e7656847acb7f7297c74d4313de7",
+    "startedAt": "2026-10-07T05:50:51.088Z",
+    "finishedAt": "2026-10-07T05:52:12.336Z",
+    "total": 24,
+    "passed": 24,
+    "failed": 0,
+    "failures": []
+  },
+  {
+    "file": "reserve-fix11.json",
+    "sha256": "5e960c41d1d510011cee09b0ed364b379ac286527782804232ab38dca78da1f1",
+    "startedAt": "2026-10-07T06:09:26.615Z",
+    "finishedAt": "2026-10-07T06:10:46.531Z",
+    "total": 24,
+    "passed": 21,
+    "failed": 3,
+    "failures": [
+      {
+        "scenario": "reserve-reading-and-preparation",
+        "turn": 4,
+        "message": "这轮业务招待费不安排，差旅照常。",
+        "expected": {
+          "kind": "selection",
+          "source": "expense",
+          "where": [
+            [
+              "expenseType",
+              "NE",
+              "业务招待费"
+            ]
+          ]
+        },
+        "errors": [
+          "选中记录集合错误",
+          "合法派单任务仍处于未完成/澄清状态"
+        ],
+        "elapsedMs": 1905
+      },
+      {
+        "scenario": "reserve-reading-and-preparation",
+        "turn": 5,
+        "message": "把已经选好的那一笔做成待确认清单。",
+        "expected": {
+          "kind": "plan",
+          "source": "expense",
+          "where": [
+            [
+              "expenseType",
+              "NE",
+              "业务招待费"
+            ]
+          ]
+        },
+        "errors": [
+          "未生成待确认清单",
+          "合法派单任务仍处于未完成/澄清状态"
+        ],
+        "elapsedMs": 5433
+      },
+      {
+        "scenario": "reserve-reading-and-preparation",
+        "turn": 6,
+        "message": "计划有变，撤销这份清单。",
+        "expected": {
+          "kind": "cancel",
+          "status": "CANCELLED",
+          "textAny": [
+            "取消"
+          ]
+        },
+        "errors": [
+          "缺少本会话的清单标识"
+        ],
+        "elapsedMs": 2094
+      }
+    ]
+  },
+  {
+    "file": "reserve-fix12.json",
+    "sha256": "e740c4a8e399184ad1c360bbdb7f1ffcd7b2e995597bba037985cb688ee04590",
+    "startedAt": "2026-10-07T06:30:25.439Z",
+    "finishedAt": "2026-10-07T06:31:47.220Z",
+    "total": 24,
+    "passed": 24,
+    "failed": 0,
+    "failures": []
+  },
+  {
+    "file": "reserve-fix13.json",
+    "sha256": "9f56205409cdd56dc8272956324092e295a39ed86c339df93541ae0f5b65f266",
+    "startedAt": "2026-10-07T07:00:54.426Z",
+    "finishedAt": "2026-10-07T07:02:25.982Z",
+    "total": 24,
+    "passed": 24,
+    "failed": 0,
+    "failures": []
+  },
+  {
+    "file": "reserve-fix14.json",
+    "sha256": "5e0d0106d2e92619c33e5e8dcabf9d0363fce8b9e1095bc3b1d981b080d926cf",
+    "startedAt": "2026-10-07T07:25:16.110Z",
+    "finishedAt": "2026-10-07T07:26:37.976Z",
+    "total": 24,
+    "passed": 21,
+    "failed": 3,
+    "failures": [
+      {
+        "scenario": "reserve-reading-and-preparation",
+        "turn": 4,
+        "message": "这轮业务招待费不安排，差旅照常。",
+        "expected": {
+          "kind": "selection",
+          "source": "expense",
+          "where": [
+            [
+              "expenseType",
+              "NE",
+              "业务招待费"
+            ]
+          ]
+        },
+        "errors": [
+          "选中记录集合错误",
+          "合法派单任务仍处于未完成/澄清状态"
+        ],
+        "elapsedMs": 4728
+      },
+      {
+        "scenario": "reserve-reading-and-preparation",
+        "turn": 5,
+        "message": "把已经选好的那一笔做成待确认清单。",
+        "expected": {
+          "kind": "plan",
+          "source": "expense",
+          "where": [
+            [
+              "expenseType",
+              "NE",
+              "业务招待费"
+            ]
+          ]
+        },
+        "errors": [
+          "未生成待确认清单",
+          "合法派单任务仍处于未完成/澄清状态"
+        ],
+        "elapsedMs": 5138
+      },
+      {
+        "scenario": "reserve-reading-and-preparation",
+        "turn": 6,
+        "message": "计划有变，撤销这份清单。",
+        "expected": {
+          "kind": "cancel",
+          "status": "CANCELLED",
+          "textAny": [
+            "取消"
+          ]
+        },
+        "errors": [
+          "缺少本会话的清单标识"
+        ],
+        "elapsedMs": 2692
+      }
+    ]
+  },
+  {
+    "file": "reserve-fix15.json",
+    "sha256": "74f0fed1a3a125ed744e3aaf5851f6ca2e0314d01fc2b13ce422e186bac69843",
+    "startedAt": "2026-10-07T08:12:29.777Z",
+    "finishedAt": "2026-10-07T08:13:51.251Z",
+    "total": 24,
+    "passed": 24,
+    "failed": 0,
+    "failures": []
+  },
+  {
+    "file": "reserve-fix16.json",
+    "sha256": "7edf070178e1536791fe107685499c64d9a3f2e9b28e846436d1c0dd28aaeec6",
+    "startedAt": "2026-10-07T08:32:51.015Z",
+    "finishedAt": "2026-10-07T08:34:33.082Z",
+    "total": 24,
+    "passed": 24,
+    "failed": 0,
+    "failures": []
+  },
+  {
+    "file": "reserve-fix17.json",
+    "sha256": "eec243a4dec90448f564b39e50a67142111efcc8fc7bc1431b44867931bdfb47",
+    "startedAt": "2026-10-07T08:52:27.056Z",
+    "finishedAt": "2026-10-07T08:53:53.713Z",
+    "total": 24,
+    "passed": 24,
+    "failed": 0,
+    "failures": []
+  },
+  {
+    "file": "reserve-fix18.json",
+    "sha256": "4681b3307df148f5f56bc0ad9fd797ecf19a7ef33a5ffb5d8d6b3ff0e02168b7",
+    "startedAt": "2026-10-07T09:13:57.690Z",
+    "finishedAt": "2026-10-07T09:15:25.975Z",
+    "total": 24,
+    "passed": 24,
+    "failed": 0,
+    "failures": []
+  },
+  {
+    "file": "reserve-fix19.json",
+    "sha256": "df0f8b8695bd76e4d371840d57f1bd7c9eec3b7c30fff32492ce258f41c6c75e",
+    "startedAt": "2026-10-07T09:37:40.871Z",
+    "finishedAt": "2026-10-07T09:39:01.562Z",
+    "total": 24,
+    "passed": 23,
+    "failed": 1,
+    "failures": [
+      {
+        "scenario": "reserve-reading-and-preparation",
+        "turn": 4,
+        "message": "这轮业务招待费不安排，差旅照常。",
+        "expected": {
+          "kind": "selection",
+          "source": "expense",
+          "where": [
+            [
+              "expenseType",
+              "NE",
+              "业务招待费"
+            ]
+          ]
+        },
+        "errors": [
+          "勾选操作被改成查询或建单"
+        ],
+        "elapsedMs": 7878
+      }
+    ]
+  },
+  {
+    "file": "reserve-fix20.json",
+    "sha256": "9b0e9c9339e236facbd56bc469cd6bf21bfd39ac96c069a54efe1b3e0d30732d",
+    "startedAt": "2026-10-07T09:56:54.979Z",
+    "finishedAt": "2026-10-07T09:58:15.253Z",
+    "total": 24,
+    "passed": 24,
+    "failed": 0,
+    "failures": []
+  },
+  {
+    "file": "reserve-fix4.json",
+    "sha256": "64876bb9cc301a5268615536407b9d33142c28947a3fc59efc56ce6b578c300a",
+    "startedAt": "2026-10-07T03:52:54.364Z",
+    "finishedAt": "2026-10-07T03:54:17.170Z",
+    "total": 24,
+    "passed": 20,
+    "failed": 4,
+    "failures": [
+      {
+        "scenario": "reserve-formal-finance",
+        "turn": 2,
+        "message": "其中金额最高的那笔，具体内容给我看一下。",
+        "expected": {
+          "kind": "query",
+          "source": "sales",
+          "where": [
+            [
+              "recordId",
+              "EQ",
+              "3"
+            ]
+          ],
+          "view": "DETAIL"
+        },
+        "errors": [
+          "合法查询未返回业务结果"
+        ],
+        "elapsedMs": 3203
+      },
+      {
+        "scenario": "reserve-reading-and-preparation",
+        "turn": 4,
+        "message": "这轮业务招待费不安排，差旅照常。",
+        "expected": {
+          "kind": "selection",
+          "source": "expense",
+          "where": [
+            [
+              "expenseType",
+              "NE",
+              "业务招待费"
+            ]
+          ]
+        },
+        "errors": [
+          "选中记录集合错误",
+          "合法派单任务仍处于未完成/澄清状态"
+        ],
+        "elapsedMs": 5523
+      },
+      {
+        "scenario": "reserve-reading-and-preparation",
+        "turn": 5,
+        "message": "把已经选好的那一笔做成待确认清单。",
+        "expected": {
+          "kind": "plan",
+          "source": "expense",
+          "where": [
+            [
+              "expenseType",
+              "NE",
+              "业务招待费"
+            ]
+          ]
+        },
+        "errors": [
+          "未生成待确认清单",
+          "合法派单任务仍处于未完成/澄清状态"
+        ],
+        "elapsedMs": 4967
+      },
+      {
+        "scenario": "reserve-reading-and-preparation",
+        "turn": 6,
+        "message": "计划有变，撤销这份清单。",
+        "expected": {
+          "kind": "cancel",
+          "status": "CANCELLED",
+          "textAny": [
+            "取消"
+          ]
+        },
+        "errors": [
+          "未解释指定业务边界",
+          "缺少本会话的清单标识"
+        ],
+        "elapsedMs": 2773
+      }
+    ]
+  },
+  {
+    "file": "reserve-fix7.json",
+    "sha256": "8f71488084dca7e3d132b1fcbb293317974a28ce32980a85aada30ce796c3386",
+    "startedAt": "2026-10-07T04:58:38.185Z",
+    "finishedAt": "2026-10-07T05:00:06.499Z",
+    "total": 24,
+    "passed": 21,
+    "failed": 3,
+    "failures": [
+      {
+        "scenario": "reserve-permission-and-unsupported",
+        "turn": 6,
+        "message": "最后看A公司全部销售数据，别受前面工单条件影响。",
+        "expected": {
+          "kind": "query",
+          "source": "sales"
+        },
+        "errors": [
+          "合法查询未返回业务结果"
+        ],
+        "elapsedMs": 5004
+      },
+      {
+        "scenario": "reserve-reading-and-preparation",
+        "turn": 1,
+        "message": "先对一下A公司的费用明细。",
+        "expected": {
+          "kind": "query",
+          "source": "expense"
+        },
+        "errors": [
+          "合法查询未返回业务结果"
+        ],
+        "elapsedMs": 4830
+      },
+      {
+        "scenario": "reserve-reading-and-preparation",
+        "turn": 2,
+        "message": "这些报销按费用项目分一下，总共多少也列出来。",
+        "expected": {
+          "kind": "query",
+          "source": "expense",
+          "view": "SUMMARY",
+          "groupBy": "expenseType"
+        },
+        "errors": [
+          "合法查询未返回业务结果"
+        ],
+        "elapsedMs": 4209
+      }
+    ]
+  },
+  {
+    "file": "reserve-fix8.json",
+    "sha256": "1a8d22366673e2e0028c0b791486c0fd76e58f7cd1a8c182a2c9373f473fc307",
+    "startedAt": "2026-10-07T05:14:15.825Z",
+    "finishedAt": "2026-10-07T05:15:35.189Z",
+    "total": 24,
+    "passed": 23,
+    "failed": 1,
+    "failures": [
+      {
+        "scenario": "reserve-permission-and-unsupported",
+        "turn": 6,
+        "message": "最后看A公司全部销售数据，别受前面工单条件影响。",
+        "expected": {
+          "kind": "query",
+          "source": "sales"
+        },
+        "errors": [
+          "报表范围错误",
+          "完整总数错误：预期4，实际13",
+          "当前页记录集合错误",
+          "汇总数量错误",
+          "完整匹配范围金额错误",
+          "状态分布错误"
+        ],
+        "elapsedMs": 2659
+      }
+    ]
+  },
+  {
+    "file": "reserve-initial.json",
+    "sha256": "45de2596135e3e6b76ea595dec9c56e11093aedcd7e4396cbbb2af6e406f0096",
+    "startedAt": "2026-10-07T03:09:00.505Z",
+    "finishedAt": "2026-10-07T03:10:15.003Z",
+    "total": 24,
+    "passed": 19,
+    "failed": 5,
+    "failures": [
+      {
+        "scenario": "reserve-formal-finance",
+        "turn": 1,
+        "message": "烦请列示A公司尚未派发的销售记录，我要核账，不是要派单。",
+        "expected": {
+          "kind": "query",
+          "source": "sales",
+          "where": [
+            [
+              "status",
+              "EQ",
+              "未派单"
+            ]
+          ],
+          "requireFilters": [
+            [
+              "status",
+              "EQ",
+              "未派单"
+            ]
+          ]
+        },
+        "errors": [
+          "遗漏或改变明确条件：status EQ 未派单"
+        ],
+        "elapsedMs": 2451
+      },
+      {
+        "scenario": "reserve-reading-and-preparation",
+        "turn": 3,
+        "message": "接下来我要准备派单。先只看A公司费用报表满足派单规则的记录。",
+        "expected": {
+          "kind": "preview",
+          "source": "expense"
+        },
+        "errors": [
+          "未返回派单预览",
+          "合法派单任务仍处于未完成/澄清状态"
+        ],
+        "elapsedMs": 6113
+      },
+      {
+        "scenario": "reserve-reading-and-preparation",
+        "turn": 4,
+        "message": "这轮业务招待费不安排，差旅照常。",
+        "expected": {
+          "kind": "selection",
+          "source": "expense",
+          "where": [
+            [
+              "expenseType",
+              "NE",
+              "业务招待费"
+            ]
+          ]
+        },
+        "errors": [
+          "选择缺少预览",
+          "合法派单任务仍处于未完成/澄清状态"
+        ],
+        "elapsedMs": 2725
+      },
+      {
+        "scenario": "reserve-reading-and-preparation",
+        "turn": 5,
+        "message": "把已经选好的那一笔做成待确认清单。",
+        "expected": {
+          "kind": "plan",
+          "source": "expense",
+          "where": [
+            [
+              "expenseType",
+              "NE",
+              "业务招待费"
+            ]
+          ]
+        },
+        "errors": [
+          "未生成待确认清单",
+          "合法派单任务仍处于未完成/澄清状态"
+        ],
+        "elapsedMs": 2407
+      },
+      {
+        "scenario": "reserve-reading-and-preparation",
+        "turn": 6,
+        "message": "计划有变，撤销这份清单。",
+        "expected": {
+          "kind": "cancel",
+          "status": "CANCELLED",
+          "textAny": [
+            "取消"
+          ]
+        },
+        "errors": [
+          "未解释指定业务边界",
+          "缺少本会话的清单标识"
+        ],
+        "elapsedMs": 3443
+      }
+    ]
+  }
+]

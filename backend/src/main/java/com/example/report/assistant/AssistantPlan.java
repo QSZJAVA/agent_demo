@@ -8,12 +8,25 @@ import com.example.report.common.ApiException;
  * @param query 完整查询，仅 BUSINESS_QUERY 时非空
  * @param followUp 仅业务查询分支用于声明依赖上次成功查询或展示顺序；派单分支使用其独立状态与校验，不据此读取查询上下文
  * @param clarification 澄清说明，仅用于告诉用户缺少什么，不作为执行条件
+ * @param removedFilters 本轮追问明确撤销的旧筛选字段及原文证据；空集合不得静默删除旧字段限制
  */
-public record AssistantPlan(Route route,BusinessQuery query,boolean followUp,String clarification) {
+public record AssistantPlan(Route route,BusinessQuery query,boolean followUp,String clarification,java.util.List<FilterRemoval> removedFilters) {
     public enum Route { BUSINESS_QUERY, DISPATCH, HELP, CLARIFY }
     public AssistantPlan {
         if(route==null || (route==Route.BUSINESS_QUERY)!=(query!=null) || (clarification!=null && clarification.length()>1000))
             throw new ApiException(422,"助手计划格式不完整");
         if(route==Route.CLARIFY && (clarification==null || clarification.isBlank())) throw new ApiException(422,"请明确需要查询的业务对象");
+        if(removedFilters==null || removedFilters.size()>16 || ((!followUp || route!=Route.BUSINESS_QUERY) && !removedFilters.isEmpty()))throw new ApiException(422,"筛选撤销仅用于业务追问");
+        removedFilters=java.util.List.copyOf(removedFilters);
+        for(var removal:removedFilters)if(removal.field()==null || !removal.field().matches("[A-Za-z_][A-Za-z0-9_]{0,63}") || removal.evidence()==null || removal.evidence().isBlank() || removal.evidence().length()>1000)
+            throw new ApiException(422,"筛选撤销缺少字段或当前原文证据");
     }
+    /** 服务端无需撤销筛选时的完整计划构造器；模型JSON仍须显式提供全部字段。 */
+    public AssistantPlan(Route route,BusinessQuery query,boolean followUp,String clarification) {this(route,query,followUp,clarification,java.util.List.of());}
+    /**
+     * 本轮明确撤销的筛选维度，不授权其他字段一同丢失。
+     * @param field 上轮存在的筛选字段名称
+     * @param evidence 用户本轮要求撤销该条件的连续原文，不得引用历史或模型解释
+     */
+    public record FilterRemoval(String field,String evidence) { }
 }

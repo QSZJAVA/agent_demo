@@ -9,4 +9,9 @@ import java.util.Set;
 public interface AssistantPlanner {
     /** 依据当前原文、有限成功查询上下文及授权目录生成完整计划，失败不得自动选择派单。 */
     AssistantPlan plan(String message,DialogueState state,List<CatalogEntry> reports,Set<String> companies);
+    /** 以无写入副作用的业务校验检查草稿；真实模型实现可在最多两次草稿修正预算内使用反馈，其他实现只验证一次。 */
+    default AssistantPlan plan(String message,DialogueState state,List<CatalogEntry> reports,Set<String> companies,
+                               java.util.function.Consumer<AssistantPlan> validateDraft) {
+        var plan=plan(message,state,reports,companies);validateDraft.accept(plan);return plan;
+    }
 }

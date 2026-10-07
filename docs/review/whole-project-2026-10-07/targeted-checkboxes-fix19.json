@@ -1,0 +1,130 @@
+{
+  "batch": "targeted-checkboxes-fix19",
+  "startedAt": "2026-10-07T09:28:11.620Z",
+  "finishedAt": "2026-10-07T09:28:46.867Z",
+  "total": 6,
+  "passed": 6,
+  "failed": 0,
+  "sourcesUnchanged": {
+    "sales": true,
+    "receivable": true,
+    "expense": true
+  },
+  "cases": [
+    {
+      "turn": 1,
+      "message": "A公司费用报表有哪些可以派单的？",
+      "expected": {
+        "kind": "preview",
+        "source": "expense"
+      },
+      "passed": true,
+      "errors": [],
+      "elapsedMs": 6770
+    },
+    {
+      "turn": 2,
+      "message": "3200元那条先不选。",
+      "expected": {
+        "kind": "selection",
+        "source": "expense",
+        "where": [
+          [
+            "amount",
+            "NE",
+            "3200"
+          ]
+        ]
+      },
+      "passed": true,
+      "errors": [],
+      "elapsedMs": 5457
+    },
+    {
+      "turn": 3,
+      "message": "还是只留差旅费那条吧。",
+      "expected": {
+        "kind": "selection",
+        "source": "expense",
+        "where": [
+          [
+            "expenseType",
+            "EQ",
+            "差旅费"
+          ]
+        ]
+      },
+      "passed": true,
+      "errors": [],
+      "elapsedMs": 6559
+    },
+    {
+      "turn": 4,
+      "message": "我第一次用，你都能帮我做哪些事？",
+      "expected": {
+        "kind": "help",
+        "textAny": [
+          "查询",
+          "派单"
+        ]
+      },
+      "passed": true,
+      "errors": [],
+      "elapsedMs": 2097
+    },
+    {
+      "turn": 5,
+      "message": "把3200元的业务招待费那条也恢复勾上。",
+      "expected": {
+        "kind": "selection",
+        "source": "expense",
+        "anyOf": [
+          [
+            [
+              "expenseType",
+              "EQ",
+              "差旅费"
+            ]
+          ],
+          [
+            [
+              "amount",
+              "EQ",
+              "3200"
+            ]
+          ]
+        ]
+      },
+      "passed": true,
+      "errors": [],
+      "elapsedMs": 7564
+    },
+    {
+      "turn": 6,
+      "message": "选中的这两条先生成清单，我自己确认。",
+      "expected": {
+        "kind": "plan",
+        "source": "expense",
+        "anyOf": [
+          [
+            [
+              "expenseType",
+              "EQ",
+              "差旅费"
+            ]
+          ],
+          [
+            [
+              "amount",
+              "EQ",
+              "3200"
+            ]
+          ]
+        ]
+      },
+      "passed": true,
+      "errors": [],
+      "elapsedMs": 6677
+    }
+  ]
+}

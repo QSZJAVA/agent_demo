@@ -17,6 +17,17 @@ public final class AssistantCodec {
     public static BusinessQuery query(Object value){return decode(JsonUtil.toJson(value),BusinessQuery.class);}
     private static <T>T decode(String text,Class<T> type) {
         if(text==null || text.length()>24000) throw new ApiException(422,"业务查询计划缺失或过长");
-        try{return MAPPER.readValue(text,type);}catch(Exception e){throw new ApiException(422,"业务查询计划不符合协议，请明确查询对象和条件");}
+        try{return MAPPER.readValue(text,type);}catch(Exception e){throw new ApiException(422,"业务查询计划不符合协议："+diagnostic(e));}
+    }
+    /** 只反馈服务端约束和JSON字段路径，不回显模型原文或错误字段值，供有界结构修正定位问题。 */
+    private static String diagnostic(Exception failure) {
+        for(Throwable cause=failure;cause!=null;cause=cause.getCause())if(cause instanceof ApiException api)return api.getMessage();
+        if(failure instanceof com.fasterxml.jackson.core.JsonParseException)return "必须输出一个合法JSON对象，不含Markdown围栏或额外文本";
+        if(failure instanceof JsonMappingException mapping) {
+            String path=mapping.getPath().stream().map(JsonMappingException.Reference::getFieldName).filter(java.util.Objects::nonNull)
+                    .filter(n->n.matches("[A-Za-z_][A-Za-z0-9_]{0,63}")).collect(java.util.stream.Collectors.joining("."));
+            return (path.isBlank()?"JSON":path)+"的字段类型、必填字段或枚举不符合Schema；可空字段仍需显式提供";
+        }
+        return "字段类型或对象结构不符合Schema";
     }
 }

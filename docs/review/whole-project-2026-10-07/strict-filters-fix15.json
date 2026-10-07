@@ -1,0 +1,65 @@
+{
+  "regradedAt": "2026-10-07T08:19:40.769Z",
+  "failures": [
+    {
+      "n": "multiturn",
+      "scenario": "finance-calendar",
+      "turn": 4,
+      "message": "重新查应收报表，天津某某贸易有限公司的，不用刚才的日期和状态条件。",
+      "expected": {
+        "kind": "query",
+        "source": "receivable",
+        "where": [
+          [
+            "customerName",
+            "EQ",
+            "天津某某贸易有限公司"
+          ]
+        ]
+      },
+      "actual": [
+        {
+          "allOf": [
+            {
+              "field": "counterpartyName",
+              "operator": "CONTAINS",
+              "values": [
+                "天津某某贸易有限公司"
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "n": "lifecycle",
+      "scenario": "long-workday-lifecycle",
+      "turn": 11,
+      "message": "换应收账，天津某某贸易有限公司的记录找一下。",
+      "expected": {
+        "kind": "query",
+        "source": "receivable",
+        "where": [
+          [
+            "customerName",
+            "EQ",
+            "天津某某贸易有限公司"
+          ]
+        ]
+      },
+      "actual": [
+        {
+          "allOf": [
+            {
+              "field": "customerName",
+              "operator": "CONTAINS",
+              "values": [
+                "天津某某贸易有限公司"
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
