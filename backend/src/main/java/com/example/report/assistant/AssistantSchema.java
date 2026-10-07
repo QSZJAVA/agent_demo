@@ -10,8 +10,11 @@ public final class AssistantSchema {
     public static Map<String,Object> querySchema() {
         var filter=object(props("field",string(false),"operator",enumeration("EQ","NE","IN","NOT_IN","IS_NULL","NOT_NULL","CONTAINS","STARTS_WITH","GT","GTE","LT","LTE"),
                 "values",array(string(false),30)));
+        var conjunction=array(filter,8);conjunction.put("description","必须同时满足的全部条件。区间的上下界、本人归属和状态等并列限制放在同一个allOf数组中。");
+        var conditions=array(object(props("allOf",conjunction)),8);
+        conditions.put("description","这些组之间是逻辑OR：满足任一组即返回。普通多条件查询只创建一个组，多个条件放入该组allOf；仅明确要求替代集合时才创建多个组。");
         return object(props("domain",enumeration("REPORT","DISPATCH","WORK_ORDER"),"view",enumeration("LIST","DETAIL","SUMMARY"),
-                "reportIds",array(string(false),100),"companyCode",string(true),"conditions",array(object(props("allOf",array(filter,8))),8),
+                "reportIds",array(string(false),100),"companyCode",string(true),"conditions",conditions,
                 "sortField",string(true),"descending",Map.of("type","boolean"),"page",Map.of("type","integer","minimum",1,"maximum",2000),
                 "size",Map.of("type","integer","minimum",1,"maximum",50),"groupBy",string(true)));
     }

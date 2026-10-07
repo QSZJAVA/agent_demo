@@ -9,7 +9,7 @@ public final class SemanticCapabilities {
     /** 当前程序可执行的选择能力；新增能力必须同时增加确定性实现，不能仅通过描述放开执行。 */
     public static Map<String,Object> describe(Map<String,List<String>> selectorsByReport) {
         return Map.of("scopeFilters",List.of("ONE_COMPANY_OR_ALL_AUTHORIZED","REPORT_SET"),
-                "recordSelectors",List.of("DOCUMENT","DESCRIPTION","COUNTERPARTY","FIELDS"),
+                "recordSelectors",List.of("DOCUMENT","DESCRIPTION","COUNTERPARTY","FIELDS","ALL"),
                 "quantifiers",List.of("ONE","ALL","UNSPECIFIED"),
                 "selectionBoundary","CURRENT_PREVIEW_OR_FINAL_SCOPE_SNAPSHOT",
                 "selectionDefaults",Map.of("action","PREVIEW","reportScope","KEEP_UNLESS_INDEPENDENT_SCOPE_REQUEST"),
@@ -22,7 +22,7 @@ public final class SemanticCapabilities {
         for(var report:reports) {
             var names=report.fields().stream().map(f -> f.name()).toList();
             result.put(report.reportId(),names.containsAll(List.of("counterpartyId","counterpartyName"))
-                    ?List.of("DOCUMENT","DESCRIPTION","COUNTERPARTY","FIELDS"):List.of("DOCUMENT","DESCRIPTION","FIELDS"));
+                    ?List.of("DOCUMENT","DESCRIPTION","COUNTERPARTY","FIELDS","ALL"):List.of("DOCUMENT","DESCRIPTION","FIELDS","ALL"));
         }
         return Map.copyOf(result);
     }

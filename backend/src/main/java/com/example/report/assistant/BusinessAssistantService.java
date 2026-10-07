@@ -113,6 +113,12 @@ public class BusinessAssistantService {
         for(int i=0;i<result.rows().size();i++) {
             var row=result.rows().get(i);var ref=new LinkedHashMap<String,String>();ref.put("displayIndex",String.valueOf((result.query().page()-1)*result.query().size()+i+1));
             for(String key:List.of("reportId","recordId","docNo","planId","requestId","orderId"))if(row.get(key)!=null)ref.put(key,row.get(key).toString());references.add(ref);
+            // 当前页展示过的标量字段也是指代依据，不能只给模型编号而丢失产品或费用类型。
+            // 不加入未展示记录和嵌套流程；出站仍须统一脱敏并通过模型上下文字节预算。
+            for(var column:result.columns()) {
+                Object value=row.get(column.name());
+                if(value!=null && !(value instanceof Map<?,?>) && !(value instanceof Collection<?>))ref.putIfAbsent(column.name(),value.toString());
+            }
         }
         return List.copyOf(references);
     }

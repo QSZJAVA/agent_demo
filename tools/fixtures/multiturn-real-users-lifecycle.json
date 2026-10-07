@@ -1,0 +1,22 @@
+[
+  {"id":"long-workday-lifecycle","persona":"同一经办人在一次会话中连续处理查询、工单、勾选、准备、取消及历史核对", "turns":[
+    {"message":"早上先把A公司的销售账都给我看看。","expect":{"kind":"query","source":"sales"}},
+    {"message":"另外，WO-DEMO-002轮到谁了？","expect":{"kind":"query","source":"work_order","where":[["orderId","EQ","WO-DEMO-002"]],"view":"DETAIL","assignee":"陈会计（演示）"}},
+    {"message":"回到派单这件事，A公司费用报表有哪些符合条件的？先给我看候选。","expect":{"kind":"preview","source":"expense"}},
+    {"message":"业务招待费先不选，差旅费保留。","expect":{"kind":"selection","source":"expense","where":[["expenseType","NE","业务招待费"]]}},
+    {"message":"把留下的差旅费这条整理成待确认清单。","expect":{"kind":"plan","source":"expense","where":[["expenseType","NE","业务招待费"]]}},
+    {"message":"先撤掉刚生成的清单，暂时不发。","expect":{"kind":"cancel","status":"CANCELLED","textAny":["取消"]}},
+    {"message":"刚才撤掉的清单目前是什么状态？","expect":{"kind":"status","status":"CANCELLED","textAny":["取消"]}},
+    {"message":"另起一个查询，只看A公司已完成的工单。","expect":{"kind":"query","source":"work_order","where":[["status","EQ","已完成"]]}},
+    {"message":"现在重新查销售记录，三万二及以上的全部要。","expect":{"kind":"query","source":"sales","where":[["amount","GTE","32000"]],"requireFilters":[["amount","GTE","32000"]]}},
+    {"message":"刚才这个销售范围有几笔、总金额多少？","expect":{"kind":"query","source":"sales","where":[["amount","GTE","32000"]],"view":"SUMMARY"}},
+    {"message":"换应收账，天津某某贸易有限公司的记录找一下。","expect":{"kind":"query","source":"receivable","where":[["customerName","EQ","天津某某贸易有限公司"]]}},
+    {"message":"这家这笔应收到期日是哪天？把这笔详情给我。","expect":{"kind":"query","source":"receivable","where":[["customerName","EQ","天津某某贸易有限公司"]],"view":"DETAIL"}},
+    {"message":"再重新取A公司所有报表能派单的候选，这次从头来。","expect":{"kind":"preview","source":"all"}},
+    {"message":"金额低于20元的都取消选择，其他保留。","expect":{"kind":"selection","source":"all","where":[["amount","GTE","20"]]}},
+    {"message":"这些准备好以后，是我自己点击确认才会执行，对吧？","expect":{"kind":"help","textAny":["确认"]}},
+    {"message":"把当前选中的整理成待确认清单，我核对后再确认。","expect":{"kind":"plan","source":"all","where":[["amount","GTE","20"]]}},
+    {"message":"这份也先取消，我还要补资料。","expect":{"kind":"cancel","status":"CANCELLED","textAny":["取消"]}},
+    {"message":"最后查一下我本人创建过、清单已经取消的派单条目。","expect":{"kind":"query","source":"dispatch","where":[["createdByMe","EQ","true"],["planStatus","EQ","已取消"]],"requireFilters":[["createdByMe","EQ","true"],["planStatus","EQ","已取消"]]}}
+  ]}
+]

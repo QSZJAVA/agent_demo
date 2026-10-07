@@ -54,7 +54,7 @@ public class DialogueState {
     private List<String> recentUserMessages = List.of();
     /** 最近成功的只读业务查询，独立于派单范围；首次查询前为空。 */
     private com.example.report.assistant.BusinessQuery businessQuery;
-    /** 最近成功查询当前页的有序业务标识，供明确指代使用，不包含未展示记录或新增权限。 */
+    /** 最近成功查询当前页的有序业务标识及已展示标量字段，供明确指代使用，不包含未展示记录或新增权限。 */
     private List<java.util.Map<String,String>> businessReferences = List.of();
     /** 最近助手路由：BUSINESS_QUERY、DISPATCH、HELP或CLARIFY；尚未处理为空。 */
     private String assistantRoute;
@@ -70,4 +70,10 @@ public class DialogueState {
     private List<String> businessCompanyCodes = List.of();
     /** 尝试普通业务查询后置为true，即使查询失败也须重新取得派单候选，不能把普通结果或旧预览隐式当成新派单范围。 */
     private boolean businessQueryAfterPreview;
+    /** 最近成功应用的记录选择及其实体证据；供跨轮唯一指代使用，新范围会清除，失败草稿不得覆盖。 */
+    private List<SemanticIntent.ScopeChange> lastSuccessfulSelection = List.of();
+    /** 最近一次成功选择实际定位的公开单据和字段事实，最多50条；不包含未定位对象，也不是下一轮动作。 */
+    private List<java.util.Map<String,String>> lastSelectionReferences = List.of();
+    /** 上述引用是否完整；超过条数或32KiB预算时为false，模型不能把保留的部分引用当作全部目标。 */
+    private boolean lastSelectionReferencesComplete = true;
 }

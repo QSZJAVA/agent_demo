@@ -50,6 +50,7 @@ public class ModelAssistantPlanner implements AssistantPlanner {
                 // 脱敏占位只恢复模型输出的字符串值；不将来源文本变成指令或新增字段。
                 plan=AssistantCodec.plan(restore(JsonUtil.MAPPER.valueToTree(plan),new SensitiveData.ModelText(protectedInput.text(),originals)).toString());
                 AssistantRouteGuard.validate(message,state,plan);
+                AssistantRouteGuard.validateCompanies(message,plan,companies);
                 if(plan.route()==AssistantPlan.Route.BUSINESS_QUERY && plan.followUp() && (state.getBusinessQuery()==null || state.isBusinessUnresolved()))
                     throw new ApiException(422,"上次查询未完成，请重新明确查询对象和筛选条件");
                 // 追问只能细化同一业务对象；跨域须明确发起独立查询，不能在省略对象时静默换域。

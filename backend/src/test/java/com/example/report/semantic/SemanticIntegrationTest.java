@@ -24,6 +24,41 @@ import static org.junit.jupiter.api.Assertions.*;
 @SpringBootTest(webEnvironment=SpringBootTest.WebEnvironment.RANDOM_PORT,properties={"agent.semantic.mode=active","agent.retention-sweep-ms=3600000","spring.data.redis.database=15"})
 @ActiveProfiles("mock") @DirtiesContext
 class SemanticIntegrationTest {
+    @Test void freshExplicitReportQueryRecoversAfterFailedSelectionWithoutApplyingItsDraft() {
+        String id=conversation();turn(id,"A公司销售报表的");
+        String previous="先不选SO2026001";
+        var accepted=new SemanticIntent(1,SemanticIntent.Action.PREVIEW,List.of(new SemanticIntent.ScopeChange(SemanticIntent.Target.RECORDS,
+                SemanticIntent.Operation.EXCLUDE,List.of("SO2026001"),previous,List.of(),SemanticIntent.SelectorKind.DOCUMENT,SemanticIntent.Quantifier.ONE)),List.of(),SemanticIntent.Clarify.NONE);
+        org.mockito.Mockito.doReturn(accepted).when(parser).parse(org.mockito.ArgumentMatchers.eq(previous),org.mockito.ArgumentMatchers.any());
+        turn(id,previous);assertEquals(1,store.read(user(),id).getExcludedRecords().size());
+        assertEquals(accepted.scopeChanges(),store.read(user(),id).getLastSuccessfulSelection());
+        var references=store.read(user(),id).getLastSelectionReferences();assertEquals("SO2026001",references.get(0).get("docNo"));
+        assertTrue(store.read(user(),id).isLastSelectionReferencesComplete());assertFalse(references.get(0).containsKey("operation"));
+        String bad="排除单据DOES-NOT-EXIST";
+        var failed=new SemanticIntent(1,SemanticIntent.Action.PREVIEW,List.of(new SemanticIntent.ScopeChange(SemanticIntent.Target.RECORDS,
+                SemanticIntent.Operation.EXCLUDE,List.of("DOES-NOT-EXIST"),bad,List.of(),SemanticIntent.SelectorKind.DOCUMENT,SemanticIntent.Quantifier.ONE)),List.of(),SemanticIntent.Clarify.NONE);
+        org.mockito.Mockito.doReturn(failed).when(parser).parse(org.mockito.ArgumentMatchers.eq(bad),org.mockito.ArgumentMatchers.any());
+        turn(id,bad);assertTrue(store.read(user(),id).isUnresolvedRecords());
+        assertEquals(accepted.scopeChanges(),store.read(user(),id).getLastSuccessfulSelection());
+        String readMessage="先查询工单再处理派单";
+        var businessQuery=new com.example.report.assistant.BusinessQuery(com.example.report.assistant.BusinessQuery.Domain.WORK_ORDER,
+                com.example.report.assistant.BusinessQuery.View.LIST,List.of("rpt-sales-order"),"A",List.of(),null,false,1,20,null);
+        org.mockito.Mockito.doReturn(new com.example.report.assistant.AssistantPlan(com.example.report.assistant.AssistantPlan.Route.BUSINESS_QUERY,businessQuery,false,null))
+                .when(businessPlanner).plan(org.mockito.ArgumentMatchers.eq(readMessage),org.mockito.ArgumentMatchers.any(),org.mockito.ArgumentMatchers.anyList(),org.mockito.ArgumentMatchers.anySet());
+        org.mockito.Mockito.doReturn(new com.example.report.assistant.BusinessResult(businessQuery,"2026-10-07T10:00:00+08:00","测试事实",List.of(),List.of(),0,
+                new com.example.report.assistant.BusinessResult.Summary(0,Map.of(),Map.of(),Map.of(),Map.of(),0)))
+                .when(businessAssistant).read(org.mockito.ArgumentMatchers.any(),org.mockito.ArgumentMatchers.eq(businessQuery));
+        turn(id,readMessage);assertTrue(store.read(user(),id).isBusinessQueryAfterPreview());
+        String fresh="重新查询费用报表可派的";
+        var query=new SemanticIntent(1,SemanticIntent.Action.PREVIEW,List.of(new SemanticIntent.ScopeChange(SemanticIntent.Target.REPORTS,
+                SemanticIntent.Operation.REPLACE,List.of("费用报表"),fresh)),List.of(),SemanticIntent.Clarify.NONE);
+        org.mockito.Mockito.doReturn(query).when(parser).parse(org.mockito.ArgumentMatchers.eq(fresh),org.mockito.ArgumentMatchers.any());
+        var events=turn(id,fresh);assertTrue(events.stream().anyMatch(e->"preview".equals(e.event())),text(events));
+        var state=store.read(user(),id);assertFalse(state.isUnresolvedRecords());assertEquals(DialogueState.Phase.READY,state.getPhase());
+        assertEquals(List.of(),state.getExcludedRecords());assertEquals(List.of("rpt-expense-claim"),state.getEffective().reportIds());
+        assertEquals(List.of(),state.getLastSuccessfulSelection());
+        assertEquals(List.of(),state.getLastSelectionReferences());
+    }
     static final String SCHEMA="semantic_it_"+UUID.randomUUID().toString().replace("-","");
     static volatile String rateTenant=SCHEMA;
     @org.springframework.boot.test.context.TestConfiguration

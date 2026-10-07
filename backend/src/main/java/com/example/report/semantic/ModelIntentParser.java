@@ -64,7 +64,11 @@ public class ModelIntentParser implements IntentParser {
         modelState.put("unresolvedRecords",context.state().isUnresolvedRecords());
         modelState.put("unresolvedRequest",context.state().isUnresolvedRequest());
         modelState.put("excludedRecordCount",context.state().getExcludedRecords().size());
-        modelState.put("lastAction",context.state().getPendingIntent()==null?null:context.state().getPendingIntent().action());
+        // 只提供已验证的对象事实，不把上一轮动作或带命令词的旧草稿作为下一轮动作提示。
+        modelState.put("lastSelectionReferences",context.state().getLastSelectionReferences());
+        modelState.put("lastSelectionReferencesComplete",context.state().isLastSelectionReferencesComplete());
+        modelState.put("planPresent",context.state().getPlanId()!=null);
+        modelState.put("previewPresent",context.state().getPreviewId()!=null);
         modelState.put("scopeReplyDefault",Map.of("when","SCOPE_VALUES_WITHOUT_EXPLICIT_ACTION","action","PREVIEW"));
         var modelContext=Map.of("state",modelState,"reports",context.reports(),"mentionedReportTerms",context.mentionedReportTerms(),
                 "capabilities",SemanticCapabilities.describe(context.selectorsByReport()),"fieldsByReport",context.fieldsByReport(),
@@ -83,12 +87,16 @@ public class ModelIntentParser implements IntentParser {
                     .user(JsonUtil.toJson(modelInput)).options(options.build()).call().content();
             try {
                 parsed=codec.decode(response,protectedInput.text());
-                if (!SemanticPlanner.hasReportCoverage(parsed,context.mentionedReportTerms())) throw new IntentCodec.InvalidOutput(response);
+                if (!SemanticPlanner.hasReportCoverage(parsed,context.mentionedReportTerms()))
+                    throw new IntentCodec.InvalidOutput(response,"MISSING_REPORT_ROLE：本轮出现的报表原词 "+context.mentionedReportTerms()
+                            +" 必须由范围操作、记录所属报表或最终报表约束完整覆盖；替换范围时显式点名的排除报表也须有EXCLUDED约束，不得遗漏。");
                 context.validateDraft().accept(parsed);
                 break;
             }
             catch (IntentCodec.InvalidOutput invalid) {
                 repairReason=invalid.reason();
+                if(!context.state().getLastSuccessfulSelection().isEmpty() && repairReason.contains("mentions"))
+                    repairReason+="；若本轮是唯一承接lastSelectionReferences的实体指代，历史全称不能补入mentions或evidence；应使用FIELDS，mentions为空，conditions.values引用已确定字段值，条件evidence只引用本轮原文。没有唯一历史依据则澄清。";
                 if(attempt==1) throw new IntentCodec.InvalidOutput(response,repairReason);
                 // 修正必须能看到被拒绝的草稿及错误；不只重复原请求，也不执行任何部分意图。
                 // 草稿仍是模型不可信数据，受长度与出站脱敏约束；只在当前一次修正中保留。

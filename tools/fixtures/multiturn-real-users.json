@@ -1,0 +1,1080 @@
+[
+  {
+    "id": "sales-manager",
+    "persona": "销售负责人，短句交办、临时插入工单问题",
+    "turns": [
+      {
+        "message": "把A公司的销售数据给我看看，已经派过的也要。",
+        "expect": {
+          "kind": "query",
+          "source": "sales"
+        }
+      },
+      {
+        "message": "金额大的放前面，一页两条就行。",
+        "expect": {
+          "kind": "query",
+          "source": "sales",
+          "sort": "amount",
+          "descending": true,
+          "size": 2,
+          "page": 1
+        }
+      },
+      {
+        "message": "接着看后一页。",
+        "expect": {
+          "kind": "query",
+          "source": "sales",
+          "sort": "amount",
+          "descending": true,
+          "size": 2,
+          "page": 2
+        }
+      },
+      {
+        "message": "插一句，WO-DEMO-002 现在轮到谁处理了？",
+        "expect": {
+          "kind": "query",
+          "source": "work_order",
+          "where": [
+            [
+              "orderId",
+              "EQ",
+              "WO-DEMO-002"
+            ]
+          ],
+          "view": "DETAIL",
+          "assignee": "陈会计（演示）"
+        }
+      },
+      {
+        "message": "再帮我翻一下费用报表，一千块以上的。",
+        "expect": {
+          "kind": "query",
+          "source": "expense",
+          "where": [
+            [
+              "amount",
+              "GT",
+              "1000"
+            ]
+          ]
+        }
+      },
+      {
+        "message": "销售这边还有什么能派出去？先看候选，别直接执行。",
+        "expect": {
+          "kind": "preview",
+          "source": "sales"
+        }
+      }
+    ]
+  },
+  {
+    "id": "expense-mobile",
+    "persona": "手机输入的行政人员，改口并穿插不同对象",
+    "turns": [
+      {
+        "message": "费用报表看下，大于1000的",
+        "expect": {
+          "kind": "query",
+          "source": "expense",
+          "where": [
+            [
+              "amount",
+              "GT",
+              "1000"
+            ]
+          ]
+        }
+      },
+      {
+        "message": "刚才说错了，不少于680块的都要",
+        "expect": {
+          "kind": "query",
+          "source": "expense",
+          "where": [
+            [
+              "amount",
+              "GTE",
+              "680"
+            ]
+          ],
+          "requireFilters": [
+            [
+              "amount",
+              "GTE",
+              "680"
+            ]
+          ]
+        }
+      },
+      {
+        "message": "差旅费那张展开看看",
+        "expect": {
+          "kind": "query",
+          "source": "expense",
+          "where": [
+            [
+              "expenseType",
+              "EQ",
+              "差旅费"
+            ]
+          ],
+          "view": "DETAIL"
+        }
+      },
+      {
+        "message": "WO-DEMO-001走到哪一步了",
+        "expect": {
+          "kind": "query",
+          "source": "work_order",
+          "where": [
+            [
+              "orderId",
+              "EQ",
+              "WO-DEMO-001"
+            ]
+          ],
+          "view": "DETAIL",
+          "assignee": "林主管（演示）"
+        }
+      },
+      {
+        "message": "换个事，A公司全部销售记录给我一份",
+        "expect": {
+          "kind": "query",
+          "source": "sales"
+        }
+      },
+      {
+        "message": "这些销售记录一共多少钱？",
+        "expect": {
+          "kind": "query",
+          "source": "sales",
+          "view": "SUMMARY"
+        }
+      }
+    ]
+  },
+  {
+    "id": "bilingual-analyst",
+    "persona": "中英文切换的业务分析员",
+    "turns": [
+      {
+        "message": "Could you show every sales record for company A, including the ones already dispatched?",
+        "expect": {
+          "kind": "query",
+          "source": "sales"
+        }
+      },
+      {
+        "message": "Only amounts of 32,000 or more, please. Highest first.",
+        "expect": {
+          "kind": "query",
+          "source": "sales",
+          "where": [
+            [
+              "amount",
+              "GTE",
+              "32000"
+            ]
+          ],
+          "sort": "amount",
+          "descending": true,
+          "requireFilters": [
+            [
+              "amount",
+              "GTE",
+              "32000"
+            ]
+          ]
+        }
+      },
+      {
+        "message": "先不看销售了，工单 WO-DEMO-004 办完了吗？",
+        "expect": {
+          "kind": "query",
+          "source": "work_order",
+          "where": [
+            [
+              "orderId",
+              "EQ",
+              "WO-DEMO-004"
+            ]
+          ],
+          "view": "DETAIL",
+          "assignee": null
+        }
+      },
+      {
+        "message": "And WO-DEMO-002? Who has it now?",
+        "expect": {
+          "kind": "query",
+          "source": "work_order",
+          "where": [
+            [
+              "orderId",
+              "EQ",
+              "WO-DEMO-002"
+            ]
+          ],
+          "view": "DETAIL",
+          "assignee": "陈会计（演示）"
+        }
+      },
+      {
+        "message": "Please show the expense report, not work orders. No amount restriction.",
+        "expect": {
+          "kind": "query",
+          "source": "expense"
+        }
+      },
+      {
+        "message": "按费用类型汇总一下刚才这些报销记录。",
+        "expect": {
+          "kind": "query",
+          "source": "expense",
+          "view": "SUMMARY",
+          "groupBy": "expenseType"
+        }
+      }
+    ]
+  },
+  {
+    "id": "finance-calendar",
+    "persona": "财务人员按时间与客户对账，明确跨域切换",
+    "turns": [
+      {
+        "message": "销售报表里，2026年一月到二月底的记录列一下。",
+        "expect": {
+          "kind": "query",
+          "source": "sales",
+          "where": [
+            [
+              "date",
+              "GTE",
+              "2026-01-01"
+            ],
+            [
+              "date",
+              "LTE",
+              "2026-02-28"
+            ]
+          ]
+        }
+      },
+      {
+        "message": "只要没派出去的。",
+        "expect": {
+          "kind": "query",
+          "source": "sales",
+          "where": [
+            [
+              "date",
+              "GTE",
+              "2026-01-01"
+            ],
+            [
+              "date",
+              "LTE",
+              "2026-02-28"
+            ],
+            [
+              "status",
+              "EQ",
+              "未派单"
+            ]
+          ],
+          "requireFilters": [
+            [
+              "status",
+              "EQ",
+              "未派单"
+            ]
+          ]
+        }
+      },
+      {
+        "message": "那按状态汇总一下这个范围。",
+        "expect": {
+          "kind": "query",
+          "source": "sales",
+          "where": [
+            [
+              "date",
+              "GTE",
+              "2026-01-01"
+            ],
+            [
+              "date",
+              "LTE",
+              "2026-02-28"
+            ],
+            [
+              "status",
+              "EQ",
+              "未派单"
+            ]
+          ],
+          "view": "SUMMARY"
+        }
+      },
+      {
+        "message": "重新查应收报表，天津某某贸易有限公司的，不用刚才的日期和状态条件。",
+        "expect": {
+          "kind": "query",
+          "source": "receivable",
+          "where": [
+            [
+              "customerName",
+              "EQ",
+              "天津某某贸易有限公司"
+            ]
+          ]
+        }
+      },
+      {
+        "message": "天津这家的这笔应收多少钱，到期日是哪天？",
+        "expect": {
+          "kind": "query",
+          "source": "receivable",
+          "where": [
+            [
+              "customerName",
+              "EQ",
+              "天津某某贸易有限公司"
+            ]
+          ],
+          "view": "DETAIL"
+        }
+      },
+      {
+        "message": "先换到工单，看 WO-DEMO-005 被办成什么结果了。",
+        "expect": {
+          "kind": "query",
+          "source": "work_order",
+          "where": [
+            [
+              "orderId",
+              "EQ",
+              "WO-DEMO-005"
+            ]
+          ],
+          "view": "DETAIL",
+          "assignee": null
+        }
+      }
+    ]
+  },
+  {
+    "id": "dispatch-interruption",
+    "persona": "派单中途查询进度，再回到新的派单范围",
+    "turns": [
+      {
+        "message": "我这边能派的记录先全列出来，A公司的。",
+        "expect": {
+          "kind": "preview",
+          "source": "all"
+        }
+      },
+      {
+        "message": "金额不足一千的先别选，其余保留。",
+        "expect": {
+          "kind": "selection",
+          "source": "all",
+          "where": [
+            [
+              "amount",
+              "GTE",
+              "1000"
+            ]
+          ]
+        }
+      },
+      {
+        "message": "等下，先查一下WO-DEMO-002的进度。",
+        "expect": {
+          "kind": "query",
+          "source": "work_order",
+          "where": [
+            [
+              "orderId",
+              "EQ",
+              "WO-DEMO-002"
+            ]
+          ],
+          "view": "DETAIL"
+        }
+      },
+      {
+        "message": "剩下的给我弄成待确认清单吧。",
+        "expect": {
+          "kind": "clarify",
+          "textAny": [
+            "候选",
+            "范围",
+            "只读",
+            "可派"
+          ]
+        }
+      },
+      {
+        "message": "重新看A公司费用报表里能派的，这次不要销售和应收。",
+        "expect": {
+          "kind": "preview",
+          "source": "expense"
+        }
+      },
+      {
+        "message": "就这批费用，出一份待确认清单给我核对。",
+        "expect": {
+          "kind": "plan",
+          "source": "expense"
+        }
+      }
+    ]
+  },
+  {
+    "id": "dispatch-checkboxes",
+    "persona": "行政主管通过自然语言勾选、恢复并寻求帮助",
+    "turns": [
+      {
+        "message": "A公司费用报表有哪些可以派单的？",
+        "expect": {
+          "kind": "preview",
+          "source": "expense"
+        }
+      },
+      {
+        "message": "3200元那条先不选。",
+        "expect": {
+          "kind": "selection",
+          "source": "expense",
+          "where": [
+            [
+              "amount",
+              "NE",
+              "3200"
+            ]
+          ]
+        }
+      },
+      {
+        "message": "还是只留差旅费那条吧。",
+        "expect": {
+          "kind": "selection",
+          "source": "expense",
+          "where": [
+            [
+              "expenseType",
+              "EQ",
+              "差旅费"
+            ]
+          ]
+        }
+      },
+      {
+        "message": "我第一次用，你都能帮我做哪些事？",
+        "expect": {
+          "kind": "help",
+          "textAny": [
+            "查询",
+            "派单"
+          ]
+        }
+      },
+      {
+        "message": "把3200元的业务招待费那条也恢复勾上。",
+        "expect": {
+          "kind": "selection",
+          "source": "expense",
+          "anyOf": [
+            [
+              [
+                "expenseType",
+                "EQ",
+                "差旅费"
+              ]
+            ],
+            [
+              [
+                "amount",
+                "EQ",
+                "3200"
+              ]
+            ]
+          ]
+        }
+      },
+      {
+        "message": "选中的这两条先生成清单，我自己确认。",
+        "expect": {
+          "kind": "plan",
+          "source": "expense",
+          "anyOf": [
+            [
+              [
+                "expenseType",
+                "EQ",
+                "差旅费"
+              ]
+            ],
+            [
+              [
+                "amount",
+                "EQ",
+                "3200"
+              ]
+            ]
+          ]
+        }
+      }
+    ]
+  },
+  {
+    "id": "dispatch-customer-correction",
+    "persona": "应收经办人按客户排除后改口",
+    "turns": [
+      {
+        "message": "把A公司应收报表可派的给我列出来。",
+        "expect": {
+          "kind": "preview",
+          "source": "receivable"
+        }
+      },
+      {
+        "message": "天津某某贸易有限公司的先放一边，不派。",
+        "expect": {
+          "kind": "selection",
+          "source": "receivable",
+          "where": [
+            [
+              "customerName",
+              "NE",
+              "天津某某贸易有限公司"
+            ]
+          ]
+        }
+      },
+      {
+        "message": "天津那家的恢复，刚才我说错了。",
+        "expect": {
+          "kind": "selection",
+          "source": "receivable"
+        }
+      },
+      {
+        "message": "北京某某咨询有限公司的先取消选择。",
+        "expect": {
+          "kind": "selection",
+          "source": "receivable",
+          "where": [
+            [
+              "customerName",
+              "NE",
+              "北京某某咨询有限公司"
+            ]
+          ]
+        }
+      },
+      {
+        "message": "清单出来以后，是不是还要我确认？",
+        "expect": {
+          "kind": "help",
+          "textAny": [
+            "确认"
+          ]
+        }
+      },
+      {
+        "message": "行，把现在选中的应收记录整理成待确认清单。",
+        "expect": {
+          "kind": "plan",
+          "source": "receivable",
+          "where": [
+            [
+              "customerName",
+              "NE",
+              "北京某某咨询有限公司"
+            ]
+          ]
+        }
+      }
+    ]
+  },
+  {
+    "id": "query-dispatch-switch",
+    "persona": "只读查询与派单来回切换，防止旧范围串入",
+    "turns": [
+      {
+        "message": "A公司所有销售明细看一下。",
+        "expect": {
+          "kind": "query",
+          "source": "sales"
+        }
+      },
+      {
+        "message": "我想派单了，重新查A公司全部可以派的。",
+        "expect": {
+          "kind": "preview",
+          "source": "all"
+        }
+      },
+      {
+        "message": "销售这类先都不选。",
+        "expect": {
+          "kind": "selection",
+          "source": "all",
+          "where": [
+            [
+              "reportId",
+              "NE",
+              "rpt-sales-order"
+            ]
+          ]
+        }
+      },
+      {
+        "message": "暂时放着，费用报表总共有多少钱？包括不能派的。",
+        "expect": {
+          "kind": "query",
+          "source": "expense",
+          "view": "SUMMARY"
+        }
+      },
+      {
+        "message": "刚才那些直接准备清单。",
+        "expect": {
+          "kind": "clarify",
+          "textAny": [
+            "范围",
+            "候选",
+            "可派",
+            "只读"
+          ]
+        }
+      },
+      {
+        "message": "明确一下：重新查询A公司应收报表的可派单记录。",
+        "expect": {
+          "kind": "preview",
+          "source": "receivable"
+        }
+      }
+    ]
+  },
+  {
+    "id": "work-order-boundaries",
+    "persona": "新用户误把只读助手当审批系统，随后纠正",
+    "turns": [
+      {
+        "message": "我想看看WO-DEMO-001，到哪儿了？",
+        "expect": {
+          "kind": "query",
+          "source": "work_order",
+          "where": [
+            [
+              "orderId",
+              "EQ",
+              "WO-DEMO-001"
+            ]
+          ],
+          "view": "DETAIL"
+        }
+      },
+      {
+        "message": "帮我审批通过这张，别让我点按钮了。",
+        "expect": {
+          "kind": "clarify",
+          "textAny": [
+            "审批",
+            "只读",
+            "不支持",
+            "不能"
+          ]
+        }
+      },
+      {
+        "message": "那不审批，你把WO-DEMO-002当前负责人的名字告诉我就好。",
+        "expect": {
+          "kind": "query",
+          "source": "work_order",
+          "where": [
+            [
+              "orderId",
+              "EQ",
+              "WO-DEMO-002"
+            ]
+          ],
+          "view": "DETAIL",
+          "assignee": "陈会计（演示）"
+        }
+      },
+      {
+        "message": "换个问题，只看已经完成的工单。",
+        "expect": {
+          "kind": "query",
+          "source": "work_order",
+          "where": [
+            [
+              "status",
+              "EQ",
+              "已完成"
+            ]
+          ]
+        }
+      },
+      {
+        "message": "这些已完成的总金额算一下。",
+        "expect": {
+          "kind": "query",
+          "source": "work_order",
+          "where": [
+            [
+              "status",
+              "EQ",
+              "已完成"
+            ]
+          ],
+          "view": "SUMMARY"
+        }
+      },
+      {
+        "message": "我现在想查销售报表，不看工单，也不限制完成状态。",
+        "expect": {
+          "kind": "query",
+          "source": "sales"
+        }
+      }
+    ]
+  },
+  {
+    "id": "permissions-and-recovery",
+    "persona": "普通用户误选别的公司，澄清后恢复授权范围",
+    "turns": [
+      {
+        "message": "查A公司的费用记录。",
+        "expect": {
+          "kind": "query",
+          "source": "expense"
+        }
+      },
+      {
+        "message": "B公司的也一起给我，领导要。",
+        "expect": {
+          "kind": "clarify",
+          "textAny": [
+            "权限",
+            "授权",
+            "公司",
+            "无权"
+          ]
+        }
+      },
+      {
+        "message": "那就先看B公司工单WO-DEMO-B01的详情。",
+        "expect": {
+          "kind": "clarify",
+          "textAny": [
+            "权限",
+            "授权",
+            "不存在",
+            "无权",
+            "公司"
+          ]
+        }
+      },
+      {
+        "message": "算了，我只看A公司WO-DEMO-003的处理进度。",
+        "expect": {
+          "kind": "query",
+          "source": "work_order",
+          "where": [
+            [
+              "orderId",
+              "EQ",
+              "WO-DEMO-003"
+            ]
+          ],
+          "view": "DETAIL",
+          "assignee": "赵专员（演示）"
+        }
+      },
+      {
+        "message": "再看A公司全部应收记录。",
+        "expect": {
+          "kind": "query",
+          "source": "receivable"
+        }
+      },
+      {
+        "message": "金额大于十万元的留下看看。",
+        "expect": {
+          "kind": "query",
+          "source": "receivable",
+          "where": [
+            [
+              "amount",
+              "GT",
+              "100000"
+            ]
+          ]
+        }
+      }
+    ]
+  },
+  {
+    "id": "empty-results-and-ownership",
+    "persona": "查询自己派单历史，没有记录后继续追问并换业务",
+    "turns": [
+      {
+        "message": "我创建过的派单，失败的有哪些？",
+        "expect": {
+          "kind": "query",
+          "source": "dispatch",
+          "where": [
+            [
+              "createdByMe",
+              "EQ",
+              "true"
+            ],
+            [
+              "status",
+              "EQ",
+              "失败"
+            ]
+          ],
+          "requireFilters": [
+            [
+              "createdByMe",
+              "EQ",
+              "true"
+            ],
+            [
+              "status",
+              "EQ",
+              "失败"
+            ]
+          ]
+        }
+      },
+      {
+        "message": "按报表分组统计一下这些失败记录。",
+        "expect": {
+          "kind": "query",
+          "source": "dispatch",
+          "where": [
+            [
+              "createdByMe",
+              "EQ",
+              "true"
+            ],
+            [
+              "status",
+              "EQ",
+              "失败"
+            ]
+          ],
+          "view": "SUMMARY",
+          "groupBy": [
+            "reportName",
+            "reportId"
+          ]
+        }
+      },
+      {
+        "message": "不光失败的，我自己创建的所有派单都查一下。",
+        "expect": {
+          "kind": "query",
+          "source": "dispatch",
+          "where": [
+            [
+              "createdByMe",
+              "EQ",
+              "true"
+            ]
+          ],
+          "requireFilters": [
+            [
+              "createdByMe",
+              "EQ",
+              "true"
+            ]
+          ]
+        }
+      },
+      {
+        "message": "不看派单了，费用报表里超过一百万元的有吗？",
+        "expect": {
+          "kind": "query",
+          "source": "expense",
+          "where": [
+            [
+              "amount",
+              "GT",
+              "1000000"
+            ]
+          ],
+          "requireFilters": [
+            [
+              "amount",
+              "GT",
+              "1000000"
+            ]
+          ]
+        }
+      },
+      {
+        "message": "把这个范围按费用类型汇总一下。",
+        "expect": {
+          "kind": "query",
+          "source": "expense",
+          "where": [
+            [
+              "amount",
+              "GT",
+              "1000000"
+            ]
+          ],
+          "view": "SUMMARY",
+          "groupBy": "expenseType"
+        }
+      },
+      {
+        "message": "取消金额限制，费用记录全部显示。",
+        "expect": {
+          "kind": "query",
+          "source": "expense"
+        }
+      }
+    ]
+  },
+  {
+    "id": "negation-and-data-scope",
+    "persona": "分析员使用否定、区间和文本条件，防止范围扩大",
+    "turns": [
+      {
+        "message": "只查销售数据，金额在三万到十万元之间的，两头都包含。",
+        "expect": {
+          "kind": "query",
+          "source": "sales",
+          "where": [
+            [
+              "amount",
+              "GTE",
+              "30000"
+            ],
+            [
+              "amount",
+              "LTE",
+              "100000"
+            ]
+          ]
+        }
+      },
+      {
+        "message": "这里面不要交换机的，其它还要。",
+        "expect": {
+          "kind": "query",
+          "source": "sales",
+          "where": [
+            [
+              "amount",
+              "GTE",
+              "30000"
+            ],
+            [
+              "amount",
+              "LTE",
+              "100000"
+            ],
+            [
+              "productName",
+              "NE",
+              "交换机"
+            ]
+          ]
+        }
+      },
+      {
+        "message": "重来，销售数据不加金额限制，产品名称带“云”的给我看看。",
+        "expect": {
+          "kind": "query",
+          "source": "sales",
+          "where": [
+            [
+              "productName",
+              "CONTAINS",
+              "云"
+            ]
+          ]
+        }
+      },
+      {
+        "message": "云服务那一条单独展开。",
+        "expect": {
+          "kind": "query",
+          "source": "sales",
+          "where": [
+            [
+              "productName",
+              "EQ",
+              "云服务"
+            ]
+          ],
+          "view": "DETAIL"
+        }
+      },
+      {
+        "message": "切到费用报表，差旅费或者办公用品的都要。",
+        "expect": {
+          "kind": "query",
+          "source": "expense",
+          "anyOf": [
+            [
+              [
+                "expenseType",
+                "EQ",
+                "差旅费"
+              ]
+            ],
+            [
+              [
+                "expenseType",
+                "EQ",
+                "办公用品"
+              ]
+            ]
+          ]
+        }
+      },
+      {
+        "message": "这些费用按金额从小到大列，别给我生成派单清单。",
+        "expect": {
+          "kind": "query",
+          "source": "expense",
+          "anyOf": [
+            [
+              [
+                "expenseType",
+                "EQ",
+                "差旅费"
+              ]
+            ],
+            [
+              [
+                "expenseType",
+                "EQ",
+                "办公用品"
+              ]
+            ]
+          ],
+          "sort": "amount",
+          "descending": false
+        }
+      }
+    ]
+  }
+]

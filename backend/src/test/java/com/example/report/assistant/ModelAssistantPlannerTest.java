@@ -12,6 +12,34 @@ import static org.junit.jupiter.api.Assertions.*;
 
 /** 模型请求边界和一次修正预算测试，使用传输替身检查真实规划代码，不计为真实模型泛化证据。 */
 class ModelAssistantPlannerTest {
+    @Test void ownershipAndPlanStatusCannotBecomeAlternativeSetsWithoutDisjunctionEvidence() {
+        var owner=new BusinessQuery.Filter("createdByMe","EQ",List.of("true"));var status=new BusinessQuery.Filter("planStatus","EQ",List.of("已取消"));
+        var wrong=new BusinessQuery(BusinessQuery.Domain.DISPATCH,BusinessQuery.View.LIST,List.of("r"),null,List.of(new BusinessQuery.Group(List.of(owner)),new BusinessQuery.Group(List.of(status))),null,false,1,20,null);
+        var correct=new BusinessQuery(BusinessQuery.Domain.DISPATCH,BusinessQuery.View.LIST,List.of("r"),null,List.of(new BusinessQuery.Group(List.of(owner,status))),null,false,1,20,null);
+        var model=new Model(JsonUtil.toJson(new AssistantPlan(AssistantPlan.Route.BUSINESS_QUERY,wrong,false,null)),JsonUtil.toJson(new AssistantPlan(AssistantPlan.Route.BUSINESS_QUERY,correct,false,null)));
+        assertEquals(correct,new ModelAssistantPlanner(model,new AgentProperties()).plan("本人创建且已取消的派单条目",new DialogueState(),List.of(),Set.of("A")).query());
+        assertEquals(2,model.prompts.size());
+        assertDoesNotThrow(()->AssistantRouteGuard.validate("本人创建或已取消的条目",new DialogueState(),new AssistantPlan(AssistantPlan.Route.BUSINESS_QUERY,wrong,false,null)));
+    }
+    @Test void explicitUnauthorizedCompanyCannotBeSilentlyDroppedAndGetsOneRepair() {
+        var query=new BusinessQuery(BusinessQuery.Domain.REPORT,BusinessQuery.View.LIST,List.of("r"),null,List.of(),null,false,1,20,null);
+        var wrong=JsonUtil.toJson(new AssistantPlan(AssistantPlan.Route.BUSINESS_QUERY,query,true,null));
+        var refusal=JsonUtil.toJson(new AssistantPlan(AssistantPlan.Route.CLARIFY,null,false,"当前没有该公司权限，请选择授权范围"));
+        var model=new Model(wrong,refusal);var state=new DialogueState();state.setBusinessQuery(query);
+        assertEquals(AssistantPlan.Route.CLARIFY,new ModelAssistantPlanner(model,new AgentProperties()).plan("C公司的也一起给我",state,List.of(),Set.of("A")).route());
+        assertEquals(2,model.prompts.size());
+        assertDoesNotThrow(()->AssistantRouteGuard.validateCompanies("查询北京某某科技有限公司的应收",new AssistantPlan(AssistantPlan.Route.BUSINESS_QUERY,query,false,null),Set.of("A")));
+    }
+    @Test void rangeBoundsSplitAcrossOrAreRepairedRatherThanReturningAllRows() {
+        var low=new BusinessQuery.Filter("amount","GTE",List.of("25"));var high=new BusinessQuery.Filter("amount","LTE",List.of("75"));
+        var split=new BusinessQuery(BusinessQuery.Domain.REPORT,BusinessQuery.View.LIST,List.of("r"),null,List.of(new BusinessQuery.Group(List.of(low)),new BusinessQuery.Group(List.of(high))),null,false,1,20,null);
+        var combined=new BusinessQuery(BusinessQuery.Domain.REPORT,BusinessQuery.View.LIST,List.of("r"),null,List.of(new BusinessQuery.Group(List.of(low,high))),null,false,1,20,null);
+        var model=new Model(JsonUtil.toJson(new AssistantPlan(AssistantPlan.Route.BUSINESS_QUERY,split,false,null)),JsonUtil.toJson(new AssistantPlan(AssistantPlan.Route.BUSINESS_QUERY,combined,false,null)));
+        assertEquals(combined,new ModelAssistantPlanner(model,new AgentProperties()).plan("Show amounts between 25 and 75",new DialogueState(),List.of(),Set.of("A")).query());
+        assertEquals(2,model.prompts.size());
+        var twoRanges=new BusinessQuery(BusinessQuery.Domain.REPORT,BusinessQuery.View.LIST,List.of("r"),null,List.of(new BusinessQuery.Group(List.of(low,high)),new BusinessQuery.Group(List.of(new BusinessQuery.Filter("amount","GT",List.of("100")),new BusinessQuery.Filter("amount","LT",List.of("200"))))),null,false,1,20,null);
+        assertDoesNotThrow(()->AssistantRouteGuard.validate("25至75之间或100至200之间",new DialogueState(),new AssistantPlan(AssistantPlan.Route.BUSINESS_QUERY,twoRanges,false,null)));
+    }
     static final String HELP="{\"route\":\"HELP\",\"query\":null,\"followUp\":false,\"clarification\":null}";
     static class Model implements ChatModel {
         final List<Prompt> prompts=new ArrayList<>();final Deque<String> replies=new ArrayDeque<>();

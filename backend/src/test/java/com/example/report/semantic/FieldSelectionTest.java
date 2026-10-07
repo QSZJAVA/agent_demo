@@ -16,6 +16,27 @@ import static org.junit.jupiter.api.Assertions.*;
 
 /** 字段谓词、目录白名单、精度、空值和原子恢复回归；合成事实不计入真实模型准确率。 */
 class FieldSelectionTest {
+    @Test void heterogeneousReportFieldsOnlyMatchDeclaredSourcesAndNeverTreatMissingAsNull() {
+        var catalog=org.mockito.Mockito.mock(ReportCatalogService.class);
+        var sales=org.mockito.Mockito.mock(com.example.report.catalog.CatalogEntry.class);
+        var expense=org.mockito.Mockito.mock(com.example.report.catalog.CatalogEntry.class);
+        org.mockito.Mockito.when(sales.fields()).thenReturn(List.of(new FieldInfo("productName","string","产品"),new FieldInfo("amount","decimal","金额")));
+        org.mockito.Mockito.when(expense.fields()).thenReturn(List.of(new FieldInfo("expenseType","string","费用类型"),new FieldInfo("amount","decimal","金额")));
+        org.mockito.Mockito.when(catalog.requireDispatchable(USER1,SALES)).thenReturn(sales);
+        org.mockito.Mockito.when(catalog.requireDispatchable(USER1,EXPENSE)).thenReturn(expense);
+        var rows=List.of(row(SALES,"s",new FieldFact("productName","string","设备"),new FieldFact("amount","decimal","50")),
+                row(EXPENSE,"e",new FieldFact("expenseType","string","交通"),new FieldFact("amount","decimal","60")),
+                row(EXPENSE,"n",new FieldFact("expenseType","string",null),new FieldFact("amount","decimal","70")));
+        var expenseOnly=new ScopeChange(Target.RECORDS,Operation.EXCLUDE,List.of(),"交通先不选",List.of(),SelectorKind.FIELDS,Quantifier.ALL,
+                and(c("expenseType",Comparison.EQ,"交通")));
+        assertEquals(List.of(new RecordKey(EXPENSE,"e")),SelectionResolver.apply(rows,List.of(),expenseOnly,catalog,USER1));
+        var nullOnly=new ScopeChange(Target.RECORDS,Operation.EXCLUDE,List.of(),"费用类型为空的不选",List.of(),SelectorKind.FIELDS,Quantifier.ALL,
+                and(c("expenseType",Comparison.IS_NULL)));
+        assertEquals(List.of(new RecordKey(EXPENSE,"n")),SelectionResolver.apply(rows,List.of(),nullOnly,catalog,USER1));
+        var impossible=new ScopeChange(Target.RECORDS,Operation.EXCLUDE,List.of(),"产品及费用类型同时满足",List.of(),SelectorKind.FIELDS,Quantifier.ALL,
+                and(c("productName",Comparison.EQ,"设备"),c("expenseType",Comparison.EQ,"交通")));
+        assertThrows(ApiException.class,()->SelectionResolver.apply(rows,List.of(new RecordKey(SALES,"s")),impossible,catalog,USER1));
+    }
     Candidate row(String report,String id,FieldFact... fields) {
         var r=candidate(report,id,"SO"+id,"A","摘要");
         return new Candidate(r.reportId(),r.reportName(),r.recordId(),r.docNo(),r.companyCode(),r.label(),r.amount(),r.date(),r.ruleId(),r.ruleName(),r.ruleVersion(),r.ruleDescription(),r.catalogVersion(),null,List.of(fields));

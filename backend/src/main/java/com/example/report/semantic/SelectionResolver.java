@@ -50,10 +50,27 @@ public final class SelectionResolver {
     /** 先为每个授权报表编译字段条件，完成全部求值后一次提交集合；任一类型/事实错误不能留下部分选择。 */
     private static List<RecordKey> applySelection(List<Candidate> rows,List<RecordKey> previous,SemanticIntent.ScopeChange change,
                                                  ReportCatalogService catalog,CurrentUser user) {
+        // 整类取消选择只作用于传入的授权快照或报表子集，不用虚构恒真字段条件，也不改变报表查询范围。
+        if(change.selectorKind()==SemanticIntent.SelectorKind.ALL) {
+            Set<RecordKey> result=new LinkedHashSet<>(previous);
+            var matched=rows.stream().map(row->new RecordKey(row.reportId(),row.recordId())).toList();
+            if(change.operation()==SemanticIntent.Operation.RESTORE)result.removeAll(matched);else result.addAll(matched);
+            return List.copyOf(result);
+        }
         if(change.selectorKind()!=SemanticIntent.SelectorKind.FIELDS) return applyTyped(rows,previous,change);
+        Map<String,List<com.example.report.catalog.query.FieldInfo>> fields=new HashMap<>();
+        for(String reportId:rows.stream().map(Candidate::reportId).distinct().toList())fields.put(reportId,catalog.requireDispatchable(user,reportId).fields());
+        Map<String,List<SemanticIntent.ConditionGroup>> applicable=new HashMap<>();
+        // 不同报表可以有不同字段。每个 AND 组必须能在至少一张当前报表完整求值；未知字段或跨来源拼接仍拒绝。
+        // 未声明字段的报表不匹配该组，尤其不能把“未声明”当作业务 NULL，误选其他报表。
+        for(var group:change.conditions()) {
+            var matching=fields.entrySet().stream().filter(entry->group.allOf().stream().allMatch(condition->entry.getValue().stream().anyMatch(f->f.name().equals(condition.field())))).toList();
+            if(matching.isEmpty())throw new ApiException(422,"字段条件组合未在当前任何报表中完整配置，请明确所属报表或检查字段");
+            for(var entry:matching)applicable.computeIfAbsent(entry.getKey(),ignored->new ArrayList<>()).add(group);
+        }
         Map<String,java.util.function.Predicate<Candidate>> filters=new HashMap<>();
-        for(String reportId:rows.stream().map(Candidate::reportId).distinct().toList())
-            filters.put(reportId,FieldSelection.compile(change.conditions(),catalog.requireDispatchable(user,reportId).fields()));
+        for(var entry:fields.entrySet())filters.put(entry.getKey(),applicable.containsKey(entry.getKey())
+                ?FieldSelection.compile(applicable.get(entry.getKey()),entry.getValue()):row->false);
         var matched=rows.stream().filter(row -> filters.get(row.reportId()).test(row)).map(row -> new RecordKey(row.reportId(),row.recordId())).toList();
         if(change.quantifier()!=SemanticIntent.Quantifier.ALL && matched.size()!=1)
             throw new ApiException(422,"条件匹配"+matched.size()+"条，请明确全部匹配或指定单据");

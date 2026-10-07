@@ -448,6 +448,78 @@
               "quantifier",
               "conditions"
             ]
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "target": {
+                "type": "string",
+                "enum": [
+                  "RECORDS"
+                ]
+              },
+              "operation": {
+                "type": "string",
+                "enum": [
+                  "EXCLUDE",
+                  "RESTORE"
+                ]
+              },
+              "mentions": {
+                "type": "array",
+                "maxItems": 0,
+                "items": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 160
+                },
+                "minItems": 0
+              },
+              "evidence": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 1000
+              },
+              "reportMentions": {
+                "type": "array",
+                "maxItems": 20,
+                "items": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 160
+                }
+              },
+              "selectorKind": {
+                "type": "string",
+                "enum": [
+                  "ALL"
+                ]
+              },
+              "quantifier": {
+                "type": "string",
+                "enum": [
+                  "ALL"
+                ]
+              },
+              "conditions": {
+                "type": "array",
+                "maxItems": 0,
+                "items": {
+                  "type": "object"
+                }
+              }
+            },
+            "required": [
+              "target",
+              "operation",
+              "mentions",
+              "evidence",
+              "reportMentions",
+              "selectorKind",
+              "quantifier",
+              "conditions"
+            ]
           }
         ]
       }

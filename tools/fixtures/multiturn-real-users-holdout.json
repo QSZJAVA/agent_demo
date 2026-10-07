@@ -1,0 +1,488 @@
+[
+  {
+    "id": "holdout-global-row-reference",
+    "persona": "看分页表格后按屏幕序号追问的经理",
+    "turns": [
+      {
+        "message": "A公司的销售账先按钱从少到多列，每页放两笔。",
+        "expect": {
+          "kind": "query",
+          "source": "sales",
+          "sort": "amount",
+          "descending": false,
+          "size": 2,
+          "page": 1
+        }
+      },
+      {
+        "message": "往后翻一页。",
+        "expect": {
+          "kind": "query",
+          "source": "sales",
+          "sort": "amount",
+          "descending": false,
+          "size": 2,
+          "page": 2
+        }
+      },
+      {
+        "message": "屏幕上序号3那一笔，详情给我。",
+        "expect": {
+          "kind": "query",
+          "source": "sales",
+          "where": [
+            [
+              "recordId",
+              "EQ",
+              "3"
+            ]
+          ],
+          "view": "DETAIL"
+        }
+      },
+      {
+        "message": "现在看看WO-DEMO-001的办理情况。",
+        "expect": {
+          "kind": "query",
+          "source": "work_order",
+          "where": [
+            [
+              "orderId",
+              "EQ",
+              "WO-DEMO-001"
+            ]
+          ],
+          "view": "DETAIL"
+        }
+      },
+      {
+        "message": "费用报表重新全部查一下。",
+        "expect": {
+          "kind": "query",
+          "source": "expense"
+        }
+      },
+      {
+        "message": "这批费用加起来多少，分别是什么费用？",
+        "expect": {
+          "kind": "query",
+          "source": "expense",
+          "view": "SUMMARY",
+          "groupBy": "expenseType"
+        }
+      }
+    ]
+  },
+  {
+    "id": "holdout-terse-and-formal",
+    "persona": "口语短句与正式书面表达交替的经办人",
+    "turns": [
+      {
+        "message": "销售报表，A公司，三万二也算上，更大的都列出来。",
+        "expect": {
+          "kind": "query",
+          "source": "sales",
+          "where": [
+            [
+              "amount",
+              "GTE",
+              "32000"
+            ]
+          ],
+          "requireFilters": [
+            [
+              "amount",
+              "GTE",
+              "32000"
+            ]
+          ]
+        }
+      },
+      {
+        "message": "改一下，上限九万六，也含九万六。",
+        "expect": {
+          "kind": "query",
+          "source": "sales",
+          "where": [
+            [
+              "amount",
+              "GTE",
+              "32000"
+            ],
+            [
+              "amount",
+              "LTE",
+              "96000"
+            ]
+          ],
+          "requireFilters": [
+            [
+              "amount",
+              "LTE",
+              "96000"
+            ]
+          ]
+        }
+      },
+      {
+        "message": "请提供A公司全部应收记录，本次不沿用上述金额区间。",
+        "expect": {
+          "kind": "query",
+          "source": "receivable"
+        }
+      },
+      {
+        "message": "仅保留应收金额小于二十元的记录。",
+        "expect": {
+          "kind": "query",
+          "source": "receivable",
+          "where": [
+            [
+              "amount",
+              "LT",
+              "20"
+            ]
+          ]
+        }
+      },
+      {
+        "message": "查个进度，WO-DEMO-003。",
+        "expect": {
+          "kind": "query",
+          "source": "work_order",
+          "where": [
+            [
+              "orderId",
+              "EQ",
+              "WO-DEMO-003"
+            ]
+          ],
+          "view": "DETAIL"
+        }
+      },
+      {
+        "message": "再换回来：A公司销售报表哪些符合派单条件？仅预览。",
+        "expect": {
+          "kind": "preview",
+          "source": "sales"
+        }
+      }
+    ]
+  },
+  {
+    "id": "holdout-negative-selection",
+    "persona": "用口语暂缓部分派单，穿插帮助后继续",
+    "turns": [
+      {
+        "message": "麻烦准备看一下A公司全部报表能派的那些。",
+        "expect": {
+          "kind": "preview",
+          "source": "all"
+        }
+      },
+      {
+        "message": "销售这部分先缓一缓，剩下的报表留着。",
+        "expect": {
+          "kind": "selection",
+          "source": "all",
+          "where": [
+            [
+              "reportId",
+              "NE",
+              "rpt-sales-order"
+            ]
+          ]
+        }
+      },
+      {
+        "message": "你可以查工单进展吗？我只是问问功能。",
+        "expect": {
+          "kind": "help",
+          "textAny": [
+            "工单"
+          ]
+        }
+      },
+      {
+        "message": "刚才暂缓的销售也加回来。",
+        "expect": {
+          "kind": "selection",
+          "source": "all"
+        }
+      },
+      {
+        "message": "业务招待费那笔这次不要了。",
+        "expect": {
+          "kind": "selection",
+          "source": "all",
+          "where": [
+            [
+              "docNo",
+              "NE",
+              "EXP-2026-0002"
+            ]
+          ]
+        }
+      },
+      {
+        "message": "好了，把留下的做成清单，先不要提交。",
+        "expect": {
+          "kind": "plan",
+          "source": "all",
+          "where": [
+            [
+              "docNo",
+              "NE",
+              "EXP-2026-0002"
+            ]
+          ]
+        }
+      }
+    ]
+  },
+  {
+    "id": "holdout-domain-switch-english",
+    "persona": "英语用户在只读查询和待确认派单之间切换",
+    "turns": [
+      {
+        "message": "Show the expense records for company A, including anything that cannot be dispatched.",
+        "expect": {
+          "kind": "query",
+          "source": "expense"
+        }
+      },
+      {
+        "message": "Now start over with the records I am allowed to dispatch, across all reports in company A. Preview only.",
+        "expect": {
+          "kind": "preview",
+          "source": "all"
+        }
+      },
+      {
+        "message": "Leave out everything below 1,000 yuan.",
+        "expect": {
+          "kind": "selection",
+          "source": "all",
+          "where": [
+            [
+              "amount",
+              "GTE",
+              "1000"
+            ]
+          ]
+        }
+      },
+      {
+        "message": "Pause that. Who is handling work order WO-DEMO-002 right now?",
+        "expect": {
+          "kind": "query",
+          "source": "work_order",
+          "where": [
+            [
+              "orderId",
+              "EQ",
+              "WO-DEMO-002"
+            ]
+          ],
+          "view": "DETAIL",
+          "assignee": "陈会计（演示）"
+        }
+      },
+      {
+        "message": "Put the remaining ones into a draft dispatch list.",
+        "expect": {
+          "kind": "clarify",
+          "textAny": [
+            "范围",
+            "候选",
+            "可派",
+            "只读"
+          ]
+        }
+      },
+      {
+        "message": "Then get a fresh dispatch preview for company A's expense report only.",
+        "expect": {
+          "kind": "preview",
+          "source": "expense"
+        }
+      }
+    ]
+  },
+  {
+    "id": "holdout-workorder-focus",
+    "persona": "追问工单进度和汇总，穿插说明性问题",
+    "turns": [
+      {
+        "message": "WO-DEMO-002卡在哪一环，现在谁接着办？",
+        "expect": {
+          "kind": "query",
+          "source": "work_order",
+          "where": [
+            [
+              "orderId",
+              "EQ",
+              "WO-DEMO-002"
+            ]
+          ],
+          "view": "DETAIL",
+          "assignee": "陈会计（演示）"
+        }
+      },
+      {
+        "message": "这个助手能直接替我审批吗？",
+        "expect": {
+          "kind": "help",
+          "textAny": [
+            "审批",
+            "只读",
+            "不能"
+          ]
+        }
+      },
+      {
+        "message": "先不用审批，换看WO-DEMO-005最终怎么样了。",
+        "expect": {
+          "kind": "query",
+          "source": "work_order",
+          "where": [
+            [
+              "orderId",
+              "EQ",
+              "WO-DEMO-005"
+            ]
+          ],
+          "view": "DETAIL",
+          "assignee": null
+        }
+      },
+      {
+        "message": "重新列出A公司所有工单。",
+        "expect": {
+          "kind": "query",
+          "source": "work_order"
+        }
+      },
+      {
+        "message": "只统计仍待审批的，按当前处理人分一下。",
+        "expect": {
+          "kind": "query",
+          "source": "work_order",
+          "where": [
+            [
+              "status",
+              "EQ",
+              "待审批"
+            ]
+          ],
+          "view": "SUMMARY",
+          "groupBy": "assignee"
+        }
+      },
+      {
+        "message": "最后换到销售明细，只看已经派出的销售记录。",
+        "expect": {
+          "kind": "query",
+          "source": "sales",
+          "where": [
+            [
+              "status",
+              "EQ",
+              "已派单"
+            ]
+          ],
+          "requireFilters": [
+            [
+              "status",
+              "EQ",
+              "已派单"
+            ]
+          ]
+        }
+      }
+    ]
+  },
+  {
+    "id": "holdout-misunderstanding-recovery",
+    "persona": "输入不充分，补充信息后切换和纠正",
+    "turns": [
+      {
+        "message": "帮我看一下那张单。",
+        "expect": {
+          "kind": "clarify",
+          "textAny": [
+            "明确",
+            "编号",
+            "哪",
+            "对象",
+            "单"
+          ]
+        }
+      },
+      {
+        "message": "工单，编号WO-DEMO-004。",
+        "expect": {
+          "kind": "query",
+          "source": "work_order",
+          "where": [
+            [
+              "orderId",
+              "EQ",
+              "WO-DEMO-004"
+            ]
+          ],
+          "view": "DETAIL",
+          "assignee": null
+        }
+      },
+      {
+        "message": "把它改回待审批状态。",
+        "expect": {
+          "kind": "clarify",
+          "textAny": [
+            "修改",
+            "只读",
+            "不支持",
+            "不能"
+          ]
+        }
+      },
+      {
+        "message": "不用改了，查A公司的费用报表就好，全部的。",
+        "expect": {
+          "kind": "query",
+          "source": "expense"
+        }
+      },
+      {
+        "message": "别要差旅费，另外两类留下。",
+        "expect": {
+          "kind": "query",
+          "source": "expense",
+          "where": [
+            [
+              "expenseType",
+              "NE",
+              "差旅费"
+            ]
+          ]
+        }
+      },
+      {
+        "message": "把刚才留下的费用金额合计告诉我。",
+        "expect": {
+          "kind": "query",
+          "source": "expense",
+          "where": [
+            [
+              "expenseType",
+              "NE",
+              "差旅费"
+            ]
+          ],
+          "view": "SUMMARY"
+        }
+      }
+    ]
+  }
+]

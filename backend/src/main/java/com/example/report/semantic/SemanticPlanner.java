@@ -103,7 +103,7 @@ public class SemanticPlanner {
             if(constraint.role()==SemanticIntent.ReportRole.UNCHANGED_OTHERS) {
                 // “其余”是明确操作范围的补集，不是目录名称；只有范围固定且每个记录操作有具名边界才能证明其余不变。
                 if(intent.changes(COMPANY) || intent.changes(REPORTS) || !intent.changes(RECORDS))
-                    throw new IntentCodec.InvalidOutput("","UNCHANGED_OTHERS_REQUIRES_FIXED_SCOPE_AND_NAMED_RECORD_OPERATIONS");
+                    throw new IntentCodec.InvalidOutput("","UNCHANGED_OTHERS_REQUIRES_FIXED_SCOPE_AND_NAMED_RECORD_OPERATIONS：保留其他报表时不得修改查询范围；整类取消选择使用RECORDS、selectorKind=ALL并在reportMentions指定该报表，不用REPORTS REMOVE代替勾选操作。");
                 for(var change:intent.scopeChanges())if(change.target()==RECORDS) {
                     if(change.reportMentions().isEmpty())throw new IntentCodec.InvalidOutput("","UNCHANGED_OTHERS_FORBIDS_UNSCOPED_RECORD_OPERATIONS");
                     for(String mention:change.reportMentions()) {
@@ -202,6 +202,8 @@ public class SemanticPlanner {
     }
     static String companyCode(String mention) {
         String code = java.text.Normalizer.normalize(mention, java.text.Normalizer.Form.NFKC).trim();
+        // 公司代码可带中英文类别称谓；只剥离边界称谓，后续仍按实际授权代码精确校验，不做名称模糊匹配。
+        code=code.replaceFirst("(?i)^company\\s+","").replaceFirst("^公司\\s*","").replaceFirst("(?i)\\s+company$","");
         if (code.endsWith("公司")) code=code.substring(0,code.length()-2).trim();
         return code.toUpperCase(Locale.ROOT);
     }

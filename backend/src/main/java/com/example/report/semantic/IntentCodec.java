@@ -62,12 +62,14 @@ public class IntentCodec {
                     || c.mentions()==null || c.mentions().size()>20 || c.reportMentions()==null
                     || c.reportMentions().size()>20 || c.selectorKind()==null || c.quantifier()==null || c.conditions()==null || !grounded(message,c.evidence())) throw invalid();
             boolean clear=c.operation()==Operation.CLEAR || c.operation()==Operation.RESTORE_ALL;
-            if (clear || c.selectorKind()==SelectorKind.FIELDS ? !c.mentions().isEmpty() : c.mentions().isEmpty()) throw invalid();
+            if (clear || c.selectorKind()==SelectorKind.FIELDS || c.selectorKind()==SelectorKind.ALL ? !c.mentions().isEmpty() : c.mentions().isEmpty()) throw invalid();
             if(c.target()==Target.RECORDS) {
                 if(c.quantifier()==Quantifier.ALL && SINGULAR_SELECTION.matcher(c.evidence()).find())
                     throw new InvalidOutput("","EXPLICIT_SINGLE_RECORD_CANNOT_USE_ALL：原文明确单笔时使用ONE，无法唯一定位必须澄清，不能扩大为全部客户记录；不同操作使用各自的连续原文证据");
                 if(!Set.of(Operation.EXCLUDE,Operation.RESTORE,Operation.REPLACE_EXCLUSIONS,Operation.RESTORE_ALL,Operation.KEEP_ONLY).contains(c.operation())) throw new InvalidOutput("","RECORD_OPERATION_MUST_BE_EXCLUDE_OR_RESTORE");
                 if(clear != (c.selectorKind()==SelectorKind.NONE)) throw invalid();
+                if(c.selectorKind()==SelectorKind.ALL && (c.quantifier()!=Quantifier.ALL || !Set.of(Operation.EXCLUDE,Operation.RESTORE).contains(c.operation())))
+                    throw new InvalidOutput("","ALL_SELECTOR_REQUIRES_EXCLUDE_OR_RESTORE_WITH_ALL_QUANTIFIER");
             } else if(!Set.of(Operation.REPLACE,Operation.ADD,Operation.REMOVE,Operation.CLEAR).contains(c.operation())
                     || c.selectorKind()!=SelectorKind.NONE || c.quantifier()!=Quantifier.UNSPECIFIED) throw invalid();
             if(c.operation()==Operation.KEEP_ONLY && c.selectorKind()!=SelectorKind.FIELDS) throw invalid();
