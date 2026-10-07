@@ -51,6 +51,8 @@ public class PreviewService {
 
     @org.springframework.beans.factory.annotation.Autowired(required = false)
     private com.example.report.operations.BusinessMetrics metrics;
+    @org.springframework.beans.factory.annotation.Autowired
+    private com.example.report.assistant.BusinessHistoryAccess businessHistory;
     private final ReportCatalogService catalogService;
     private final DispatchCandidateService candidateService;
     private final DispatchVersionService versions;
@@ -304,6 +306,7 @@ public class PreviewService {
     }
 
     public void requireConversationReadable(CurrentUser user, String conversationId) {
+        if(businessHistory!=null)businessHistory.require(user,conversationId);
         List<DispatchPreview> snapshots = previews.byConversation(conversationId);
         if (snapshots.isEmpty()) return;
         catalogService.refreshForValidation();
@@ -313,6 +316,7 @@ public class PreviewService {
     public Set<String> readableConversationIds(CurrentUser user, List<String> conversationIds) {
         if (conversationIds.isEmpty()) return Set.of();
         Set<String> readable = new LinkedHashSet<>(conversationIds);
+        if(businessHistory!=null)readable.removeIf(id->!businessHistory.readable(user,id));
         List<DispatchPreview> snapshots = previews.byConversations(conversationIds);
         if (snapshots.isEmpty()) return readable;
         catalogService.refreshForValidation();

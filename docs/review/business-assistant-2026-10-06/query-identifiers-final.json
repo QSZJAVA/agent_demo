@@ -1,0 +1,404 @@
+{
+  "cases": [
+    {
+      "events": [
+        {
+          "data": {
+            "conversationId": "c79f694f014c41d99b3c68eec47ac65d",
+            "requestId": "306c2485f2724e70b83f72efd5cdcae9",
+            "title": ""
+          },
+          "type": "conversation"
+        },
+        {
+          "data": {
+            "query": {
+              "domain": "REPORT",
+              "view": "LIST",
+              "reportIds": [
+                "rpt-sales-order"
+              ],
+              "companyCode": "A",
+              "conditions": [
+                {
+                  "allOf": [
+                    {
+                      "field": "recordId",
+                      "operator": "EQ",
+                      "values": [
+                        "900000000000000001"
+                      ]
+                    }
+                  ]
+                }
+              ],
+              "sortField": null,
+              "descending": false,
+              "page": 1,
+              "size": 20,
+              "groupBy": null
+            },
+            "observedAt": "2026-10-07T00:30:36.621881700+08:00",
+            "source": "业务系统当前记录",
+            "columns": [
+              {
+                "name": "reportId",
+                "type": "string",
+                "description": "报表稳定标识"
+              },
+              {
+                "name": "reportName",
+                "type": "string",
+                "description": "报表名称"
+              },
+              {
+                "name": "companyCode",
+                "type": "string",
+                "description": "所属公司代码"
+              },
+              {
+                "name": "docNo",
+                "type": "string",
+                "description": "来源单据号"
+              },
+              {
+                "name": "amount",
+                "type": "decimal",
+                "description": "来源金额，币种见 currency；空值表示未提供"
+              },
+              {
+                "name": "currency",
+                "type": "string",
+                "description": "来源声明币种；空值表示未声明，不能跨币种合计"
+              },
+              {
+                "name": "date",
+                "type": "date",
+                "description": "业务日期；空值表示未配置"
+              },
+              {
+                "name": "status",
+                "type": "string",
+                "description": "报表派单状态：未派单/已派单"
+              },
+              {
+                "name": "orderNo",
+                "type": "string",
+                "description": "订单号"
+              },
+              {
+                "name": "productName",
+                "type": "string",
+                "description": "产品名称"
+              },
+              {
+                "name": "saleDate",
+                "type": "date",
+                "description": "销售日期，字符串 yyyy-MM-dd"
+              },
+              {
+                "name": "daysSinceSale",
+                "type": "long",
+                "description": "距销售日期的天数（派生）"
+              },
+              {
+                "name": "dispatched",
+                "type": "boolean",
+                "description": "来源记录是否已派单；true为已派单，false为未派单，不代表满足派单规则"
+              },
+              {
+                "name": "recordId",
+                "type": "string",
+                "description": "报表内稳定记录标识"
+              }
+            ],
+            "rows": [],
+            "total": 0,
+            "summary": {
+              "count": 0,
+              "amountsByCurrency": {},
+              "statusCounts": {},
+              "groups": {},
+              "pendingApprovers": {},
+              "unclassifiedAmountCount": 0
+            }
+          },
+          "type": "business_query"
+        },
+        {
+          "data": {
+            "delta": "本次查询匹配 0 条报表记录，当前第 1 页展示 0 条。"
+          },
+          "type": "text"
+        },
+        {
+          "data": {},
+          "type": "done"
+        }
+      ],
+      "errors": [],
+      "passed": true,
+      "scenario": "真实模型十八位编号持久化",
+      "conversationId": "c79f694f014c41d99b3c68eec47ac65d",
+      "message": "列出A公司销售报表中记录ID等于900000000000000001的数据，找不到就返回空列表。",
+      "expected": {
+        "message": "列出A公司销售报表中记录ID等于900000000000000001的数据，找不到就返回空列表。",
+        "domain": "REPORT",
+        "view": "LIST",
+        "total": 0,
+        "requiredFilter": {
+          "field": "recordId",
+          "value": "900000000000000001"
+        }
+      }
+    },
+    {
+      "events": [
+        {
+          "data": {
+            "conversationId": "c79f694f014c41d99b3c68eec47ac65d",
+            "requestId": "24db9f7155ae4a1197b14329d146df6c",
+            "title": "列出A公司销售报表中记录ID等于[证件号已脱敏]的数据，找不"
+          },
+          "type": "conversation"
+        },
+        {
+          "data": {
+            "query": {
+              "domain": "REPORT",
+              "view": "LIST",
+              "reportIds": [
+                "rpt-sales-order"
+              ],
+              "companyCode": "A",
+              "conditions": [
+                {
+                  "allOf": [
+                    {
+                      "field": "recordId",
+                      "operator": "EQ",
+                      "values": [
+                        "900000000000000001"
+                      ]
+                    }
+                  ]
+                }
+              ],
+              "sortField": null,
+              "descending": false,
+              "page": 1,
+              "size": 20,
+              "groupBy": null
+            },
+            "observedAt": "2026-10-07T00:30:39.453794500+08:00",
+            "source": "业务系统当前记录",
+            "columns": [
+              {
+                "name": "reportId",
+                "type": "string",
+                "description": "报表稳定标识"
+              },
+              {
+                "name": "reportName",
+                "type": "string",
+                "description": "报表名称"
+              },
+              {
+                "name": "companyCode",
+                "type": "string",
+                "description": "所属公司代码"
+              },
+              {
+                "name": "docNo",
+                "type": "string",
+                "description": "来源单据号"
+              },
+              {
+                "name": "amount",
+                "type": "decimal",
+                "description": "来源金额，币种见 currency；空值表示未提供"
+              },
+              {
+                "name": "currency",
+                "type": "string",
+                "description": "来源声明币种；空值表示未声明，不能跨币种合计"
+              },
+              {
+                "name": "date",
+                "type": "date",
+                "description": "业务日期；空值表示未配置"
+              },
+              {
+                "name": "status",
+                "type": "string",
+                "description": "报表派单状态：未派单/已派单"
+              },
+              {
+                "name": "orderNo",
+                "type": "string",
+                "description": "订单号"
+              },
+              {
+                "name": "productName",
+                "type": "string",
+                "description": "产品名称"
+              },
+              {
+                "name": "saleDate",
+                "type": "date",
+                "description": "销售日期，字符串 yyyy-MM-dd"
+              },
+              {
+                "name": "daysSinceSale",
+                "type": "long",
+                "description": "距销售日期的天数（派生）"
+              },
+              {
+                "name": "dispatched",
+                "type": "boolean",
+                "description": "来源记录是否已派单；true为已派单，false为未派单，不代表满足派单规则"
+              },
+              {
+                "name": "recordId",
+                "type": "string",
+                "description": "报表内稳定记录标识"
+              }
+            ],
+            "rows": [],
+            "total": 0,
+            "summary": {
+              "count": 0,
+              "amountsByCurrency": {},
+              "statusCounts": {},
+              "groups": {},
+              "pendingApprovers": {},
+              "unclassifiedAmountCount": 0
+            }
+          },
+          "type": "business_query"
+        },
+        {
+          "data": {
+            "delta": "本次查询匹配 0 条报表记录，当前第 1 页展示 0 条。"
+          },
+          "type": "text"
+        },
+        {
+          "data": {},
+          "type": "done"
+        }
+      ],
+      "errors": [],
+      "passed": true,
+      "scenario": "真实模型十八位编号持久化",
+      "conversationId": "c79f694f014c41d99b3c68eec47ac65d",
+      "message": "继续用上一条记录ID条件重新查询，仍然返回列表。",
+      "expected": {
+        "message": "继续用上一条记录ID条件重新查询，仍然返回列表。",
+        "domain": "REPORT",
+        "view": "LIST",
+        "total": 0,
+        "requiredFilter": {
+          "field": "recordId",
+          "value": "900000000000000001"
+        }
+      }
+    }
+  ],
+  "total": 2,
+  "scope": "Real model plus authenticated HTTP MCP; no dispatch or approval; programmatic checks, not browser acceptance",
+  "passed": 2,
+  "sourceSales": {
+    "records": [
+      {
+        "tenantId": "T001",
+        "id": "1",
+        "companyCode": "A",
+        "orderNo": "SO2026001",
+        "productName": "服务器",
+        "amount": 128000.0,
+        "saleDate": "2026-01-15",
+        "dispatchStatus": 0,
+        "dispatchedAt": null
+      },
+      {
+        "tenantId": "T001",
+        "id": "2",
+        "companyCode": "A",
+        "orderNo": "SO2026002",
+        "productName": "交换机",
+        "amount": 32000.0,
+        "saleDate": "2026-02-08",
+        "dispatchStatus": 0,
+        "dispatchedAt": null
+      },
+      {
+        "tenantId": "T001",
+        "id": "3",
+        "companyCode": "A",
+        "orderNo": "SO2026007",
+        "productName": "云服务",
+        "amount": 96000.0,
+        "saleDate": "2026-04-05",
+        "dispatchStatus": 0,
+        "dispatchedAt": null
+      },
+      {
+        "tenantId": "T001",
+        "id": "4",
+        "companyCode": "A",
+        "orderNo": "SO2026008",
+        "productName": "网线",
+        "amount": 15,
+        "saleDate": "2026-04-12",
+        "dispatchStatus": 0,
+        "dispatchedAt": null
+      }
+    ],
+    "total": 4,
+    "page": 1,
+    "size": 200
+  },
+  "recordedAt": "2026-10-07T00:30:39.5070100+08:00",
+  "corpusSha256": "1C3889CD967D36203084909724D43EC3BC42CADA830C5B0CE16A7C17D2BEDFFC",
+  "sourceExpenses": {
+    "records": [
+      {
+        "tenantId": "T001",
+        "id": "1",
+        "companyCode": "A",
+        "expenseNo": "EXP-2026-0001",
+        "expenseType": "差旅费",
+        "amount": 8600.0,
+        "expenseDate": "2026-01-09",
+        "dispatchStatus": 0,
+        "dispatchedAt": null
+      },
+      {
+        "tenantId": "T001",
+        "id": "2",
+        "companyCode": "A",
+        "expenseNo": "EXP-2026-0002",
+        "expenseType": "业务招待费",
+        "amount": 3200.0,
+        "expenseDate": "2026-02-14",
+        "dispatchStatus": 0,
+        "dispatchedAt": null
+      },
+      {
+        "tenantId": "T001",
+        "id": "3",
+        "companyCode": "A",
+        "expenseNo": "EXP-2026-0007",
+        "expenseType": "办公用品",
+        "amount": 680.0,
+        "expenseDate": "2026-03-05",
+        "dispatchStatus": 0,
+        "dispatchedAt": null
+      }
+    ],
+    "total": 3,
+    "page": 1,
+    "size": 200
+  }
+}

@@ -143,7 +143,7 @@ public class BusinessMcpClient implements AutoCloseable {
             try(var probe=McpClient.sync(transport).requestTimeout(Duration.ofSeconds(2)).build()) {
                 probe.initialize();
                 var names=probe.listTools().tools().stream().map(McpSchema.Tool::name).collect(java.util.stream.Collectors.toSet());
-                return names.containsAll(java.util.Set.of("report_catalog","report_page","report_records","dispatch_submit","dispatch_lookup","report_probe"));
+                return names.containsAll(java.util.Set.of("report_catalog","report_page","report_records","dispatch_submit","dispatch_lookup","report_probe","business_query"));
             }
         } catch(Exception unavailable) {return false;}
     }

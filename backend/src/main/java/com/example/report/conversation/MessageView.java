@@ -9,7 +9,7 @@ import java.util.Map;
  * @param id 消息自增主键，作为历史消息分页边界
  * @param role 消息角色：user、assistant、工具或卡片
  * @param content 消息文本或工具摘要，卡片数据另存payload
- * @param cardType preview、plan或result；普通消息为空
+ * @param cardType preview、plan、result或business_query；普通消息为空
  * @param payload 该业务类型的结构化载荷，持久化或展示前须脱敏
  * @param previewId 预览标识，选择和建单必须绑定此快照
  * @param planId 派单清单标识，关联服务端持久化清单

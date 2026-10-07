@@ -42,7 +42,7 @@
       <!-- 右侧：对话 -->
       <div class="chat-pane">
         <div class="chat-head">
-          <span class="chat-title">派单助手</span>
+          <span class="chat-title">业务助手</span>
           <span class="chat-model">模型：{{ modelName }}</span>
           <el-button type="text" icon="el-icon-close" class="chat-close" @click="$emit('update:visible', false)" />
         </div>
@@ -50,7 +50,7 @@
         <div ref="scroll" class="chat-messages">
           <el-button v-if="hasOlderMessages" type="text" :loading="historyLoading" @click="loadOlderMessages">加载更早消息</el-button>
           <div v-if="!messages.length" class="chat-welcome">
-            <p>你好，我是派单助手。你可以这样问我：</p>
+            <p>你好，我可以查报表、派单记录、工单进度和总结，也可以帮你准备派单：</p>
             <el-tag v-for="q in quickQuestions" :key="q" class="quick" @click="send(q)">{{ q }}</el-tag>
           </div>
 
@@ -101,6 +101,11 @@
             <template v-else-if="m.role === 'card' && m.cardType === 'result'">
               <result-card :payload="m.payload" :busy="busy" @retry="retryFailed(m)" />
             </template>
+            <template v-else-if="m.role === 'card' && m.cardType === 'business_query'">
+              <business-query-card :payload="m.payload" :busy="busy" :latest="isLatestBusinessQuery(m)"
+                @page="send('把上一次业务查询翻到第' + $event + '页')"
+                @detail="send('查看工单 ' + $event + ' 的进度和处理总结')" />
+            </template>
           </div>
         </div>
 
@@ -117,7 +122,7 @@
             type="textarea"
             :rows="2"
             resize="none"
-            placeholder="例如：查一下我有哪些可以派单 / 我不想派 SO2026002，剩下的帮我派单吧（Enter 发送，Shift+Enter 换行）"
+            placeholder="例如：查询销售报表 / 查询失败的派单记录 / 总结A公司工单（Enter 发送，Shift+Enter 换行）"
             :disabled="sending"
             @keydown.native.enter.exact.prevent="send()"
           />
@@ -143,6 +148,7 @@ import PreviewCard from './PreviewCard.vue'
 import PlanCard from './PlanCard.vue'
 import ResultCard from './ResultCard.vue'
 import ReportChoiceCard from './ReportChoiceCard.vue'
+import BusinessQueryCard from './BusinessQueryCard.vue'
 import { renderMarkdown } from '../../utils/markdown'
 import { getCurrentUserId } from '../../auth'
 import { resumePlanAction } from '../../api/dispatchJob'
@@ -172,7 +178,7 @@ let seq = 0
 
 export default {
   name: 'AgentChat',
-  components: { PreviewCard, PlanCard, ResultCard, ReportChoiceCard },
+  components: { PreviewCard, PlanCard, ResultCard, ReportChoiceCard, BusinessQueryCard },
   props: {
     visible: { type: Boolean, default: false }
   },
@@ -207,7 +213,7 @@ export default {
       uiPreviewId: null,
       executingPlanId: null,
       planRefreshVersion: 0,
-      quickQuestions: ['查一下我有哪些可以派单', '查一下费用报表有哪些可以派单', '查一下客户对账有哪些可以派单', '剩下的帮我派单吧']
+      quickQuestions: ['查询销售报表数据', '查询派单记录', 'WO-DEMO-001 到哪个环节了', '总结A公司的工单', '查一下我有哪些可以派单']
     }
   },
   computed: {
@@ -236,6 +242,11 @@ export default {
     this.clearSelection()
   },
   methods: {
+    /** 历史卡片保留原查询时间与结果，翻页只允许最新业务查询，避免按钮误操作其他查询范围。 */
+    isLatestBusinessQuery(message) {
+      const queries = this.messages.filter(m => m.role === 'card' && m.cardType === 'business_query')
+      return queries.length > 0 && queries[queries.length - 1] === message
+    },
     isCurrentSession() {
       return !this.disposed && this.sessionUserId === getCurrentUserId()
     },
@@ -612,6 +623,9 @@ export default {
             break
           case 'selection':
             this.applySelection(data)
+            break
+          case 'business_query':
+            cards.push({ role: 'card', cardType: 'business_query', payload: data })
             break
           case 'choice':
             cards.push({ role: 'card', cardType: 'choice', payload: data, chosen: '' })

@@ -76,7 +76,7 @@ function harness(overrides = {}, storage = new Map()) {
   const calls = { discovery: [], polls: [] }
   const job = { id: 'job1', status: 'SUCCEEDED', previewId: 'preview1' }
   const sandbox = {
-    result: null, PreviewCard: {}, PlanCard: {}, ResultCard: {}, ReportChoiceCard: {},
+    result: null, PreviewCard: {}, PlanCard: {}, ResultCard: {}, ReportChoiceCard: {}, BusinessQueryCard: {},
     getCurrentUserId: () => 'user1',
     sessionStorage: {
       getItem: key => storage.get(key), setItem: (key, value) => storage.set(key, value),

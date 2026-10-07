@@ -15,11 +15,14 @@ MCP 使用 `/mcp` 上的 Streamable HTTP，支持 initialize、tools/list、tool
 | report_catalog | 授权目录、业务字段及类型；不提供任意 SQL |
 | report_page | 报表分页，最多 200 条，记录 ID 为字符串 |
 | report_records | 有界候选事实、ID 读取与复核，每批最多 500 条 |
+| business_query | 受控查询报表全部状态、派单条目或演示工单；包含完整统计和当前页，不执行写入 |
 | report_probe | 可信管理流程校验来源配置 |
 | dispatch_submit | 已确认条目的幂等提交，携带冻结执行版本 |
 | dispatch_lookup | 按原请求号核对 SUCCESS / FAILED / NOT_FOUND / UNKNOWN |
 
 工具结果使用 `{data: ...}`，错误带 isError 及 code/message。候选记录包含 `counterparty` 客户实体以及 `fields` 标量快照数组，每项为 name/type/value，空值显式为 null。业务服务核对其与确认清单一致，不能由调用方篡改；实际完整 Schema 以 tools/list 为准。
+
+`business_query` 接受 `query`：domain、view、reportIds、companyCode、conditions、sortField、descending、page、size、groupBy。domain 为 REPORT / DISPATCH / WORK_ORDER；view 为 LIST / DETAIL / SUMMARY。字段和操作依数据域校验，空 reportIds 表示当前全部可见报表；租户及操作者仍由服务器注入。返回 query、observedAt、source、columns、rows、total、summary。summary 与完整筛选范围一致，币种未声明的金额单独计数、不参与合计。默认扫描预算为 100000 条 / 120 秒，超限或读取不完整时失败，不返回部分汇总。工单提供者及边界见[通用业务助手](通用业务助手.md)。
 
 ## 会话、预览、清单和执行
 

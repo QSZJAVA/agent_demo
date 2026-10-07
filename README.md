@@ -1,6 +1,8 @@
-# 报表派单 Agent · V1 最终演示版
+# 通用业务助手 · V1 演示版
 
-最终演示基线为 **V1 配置字段筛选版**，应用包版本 **1.0.0**、语义协议版本 **1**，统一定义在 [demo-baseline.json](demo-baseline.json)。这是此前 V4 功能基线的重新编号，当前协议仍包含全部字段筛选和状态保护能力。运行链路为 `real,mcp`、`agent.semantic.mode=active`、真实模型接口和带认证的 HTTP MCP 业务服务。模型名称仍为 `deepseek-v4.1-flash`，请求原生 JSON Schema，thinking 关闭。
+当前助手支持报表数据查询、派单记录查询、工单进度与总结，并保留待确认派单流程。业务查询通过真实模型和 HTTP MCP 执行；工单使用明确标注的固定演示流程与审批人，真实工单系统尚未接入。用法及边界见[通用业务助手](docs/通用业务助手.md)。
+
+当前基线为 **V1 通用业务助手**，应用包版本 **1.0.0**、派单语义协议版本 **1**，统一定义在 [demo-baseline.json](demo-baseline.json)。派单能力沿用此前重新编号的字段筛选和状态保护协议，普通查询使用独立的严格业务查询协议。运行链路为 `real,mcp`、`agent.semantic.mode=active`、真实模型接口和带认证的 HTTP MCP 业务服务。模型名称仍为 `deepseek-v4.1-flash`，请求原生 JSON Schema，thinking 关闭。
 
 ## 启动与账号
 
@@ -48,7 +50,7 @@ Windows 也可双击 `tools/start-app.cmd`。启动脚本会先构建两个后�
 4. 刷新页面或重启服务后重新打开会话，选择仍为七条。
 5. `给剩下的记录生成待确认派单清单`：生成七条 PENDING 清单；只有点击确认才会执行。
 
-字段名、类型及说明直接来自授权目录。支持数值、日期、文本、布尔、空值及有界 AND/OR 条件，并在完整字段快照中排除、恢复或只保留匹配记录。未知字段、排序、数量上限及多步查询仍需澄清。客户使用稳定标识、全称及已维护别名，不按相似名称自动合并。
+字段名、类型及说明直接来自授权目录。派单选择支持数值、日期、文本、布尔、空值及有界 AND/OR 条件，并在完整字段快照中排除、恢复或只保留匹配记录；派单选择中的排序、数量上限及多步查询仍需澄清。普通业务查询另支持排序、分页和确定性统计。客户使用稳定标识、全称及已维护别名，不按相似名称自动合并。
 
 失败请求不会把已确定的公司一律标成未知；后续明确记录操作可纠正，含糊的直接建单仍被阻止。权限、用户确认、幂等请求号、租约、规则与执行版本保护继续生效。
 
@@ -56,7 +58,8 @@ Windows 也可双击 `tools/start-app.cmd`。启动脚本会先构建两个后�
 
 ## 当前文档与流程图
 
-- [八页完整流程图：HTML](docs/diagrams/demo-final/index.html) · [SVG/Mermaid 入口](docs/diagrams/README.md) · [可编辑 draw.io](docs/diagrams/demo-final/demo-final.drawio)
+- [十页完整流程图：HTML](docs/diagrams/demo-final/index.html) · [SVG/Mermaid 入口](docs/diagrams/README.md) · [可编辑 draw.io](docs/diagrams/demo-final/demo-final.drawio)
+- [通用业务查询与工单说明](docs/通用业务助手.md) · [本轮实施计划](docs/通用业务助手实施计划_2026-10-06.md)
 - [V1 配置字段与状态恢复设计](docs/语义V1配置字段筛选.md)
 - [MCP 业务服务与接口契约](docs/MCP业务服务契约.md) · [外部派单接入契约](docs/MCP派单接入契约.md)
 - [异常调查 Agent 设计](docs/异常调查Agent与评估体系详细设计_2026-10-05.md) · [上下文与证据工程](docs/上下文工程设计与验收_2026-10-06.md)
@@ -70,6 +73,8 @@ Windows 也可双击 `tools/start-app.cmd`。启动脚本会先构建两个后�
 本次固定库名及重建结果见 [report_demo 初始化记录](docs/review/report_demo重建与初始化_2026-10-06.md)。此前兼容逻辑清理见 [清理与验证记录](docs/review/旧兼容逻辑清理_2026-10-06.md)。当前使用单一 V1 初始化脚本和固定的 `report_demo` 库；旧协议、编码映射、旧字段补齐与自动接管非空库入口已移除。此前 [V1 重新编号记录](docs/review/V1重新编号与验收_2026-10-06.md) 保留当时的真实结果，不代替本轮验证。
 
 最新安全、完整性、租户边界及语义恢复修复见[生产评审问题修复与整体回归](docs/review/生产评审问题修复与整体回归_2026-10-06.md)，其中保留各轮失败与后续复验，区分业务正确、安全拒绝和基础设施限流。
+
+通用业务查询、工单与新旧流程联合回归见[通用业务助手实现与验收](docs/review/通用业务助手实现与验收_2026-10-07.md)，以该报告最终记录的状态和证据范围为准。
 
 ```powershell
 node tools/check-demo-baseline.cjs

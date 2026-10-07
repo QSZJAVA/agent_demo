@@ -1,0 +1,149 @@
+{
+  "recordedAt": "2026-10-06T16:03:00.720Z",
+  "command": "pwsh -NoProfile -File tools/test-regression.ps1 -AllowIsolatedDatabases",
+  "exitCode": 0,
+  "scope": "Seventh complete regression on final candidate source; database/state machines and HTTP MCP use program fixtures, external real-model tests are separately recorded",
+  "modules": [
+    {
+      "module": "backend",
+      "tests": 705,
+      "passed": 698,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 7,
+      "suites": [
+        {
+          "file": "TEST-com.example.report.assistant.BusinessQueryEngineTest.xml",
+          "cases": [
+            "codecRejectsUnknownKeysCoercionAndTrailingJson",
+            "totalsDescribeAllMatchesRatherThanCurrentPageAndKeepExactDecimals",
+            "disjunctionAndConjunctionDoNotBroadenConditions",
+            "stableTiesAndOutOfRangePagesKeepTotal",
+            "missingValuesStayLastForBothSortDirections",
+            "emptySourceStillValidatesUnknownFieldsAndBadTypes",
+            "distinctCurrenciesAndMissingUnitsAreNotCombined",
+            "duplicateIdentityAndAmbiguousDetailFail",
+            "nullIsNotEqualNorUnequalAndOnlyExplicitNullFilterSelectsIt",
+            "malformedFilterAndPageBoundsAreRejected"
+          ]
+        },
+        {
+          "file": "TEST-com.example.report.assistant.ModelAssistantPlannerTest.xml",
+          "cases": [
+            "modelReceivesRedactedTextAndHasNoToolExecutionAuthority",
+            "malformedPlanGetsOnlyOneRepairAndNoImplicitDispatch",
+            "previousNumericReferenceIsMaskedOnWireAndRestoredForFollowUp",
+            "selectionCannotSilentlyBecomePositiveBusinessQueryAndGetsOneModelRepair",
+            "unresolvedContextCannotBeUsedByAReportedFollowUp",
+            "actualHttpRequestCarriesNativeSchemaAndDisabledThinkingWithoutTools",
+            "dispatchFollowUpUsesDispatchStateRatherThanRequiringAnUnrelatedBusinessQuery"
+          ]
+        },
+        {
+          "file": "TEST-com.example.report.semantic.SemanticIntegrationTest.xml",
+          "cases": [
+            "expiredPreviewRetainsExclusionsWithAndWithoutUiSelection",
+            "businessRoutingFailureCannotFallThroughToDispatchOrOverwriteSelection",
+            "queryNegationCannotCreatePlanAndOrderedScopeChangesReachBusinessServices",
+            "expiredWorkerCannotActivatePreviewAndEraseCleansTurnEvidence",
+            "crossInstanceLeaseExpiryAndErasureFenceOldWorkers",
+            "reportQualifiedExclusionKeepsOtherReportsAndSurvivesReloadIntoPendingPlan",
+            "ambiguousScopeStaysBlockedUntilExplicitReportCorrection",
+            "malformedAndConflictingModelProgramsCannotMutateScopeOrCreatePlans",
+            "reportPaginationKeepsPermissionFiltersAndStableOrdering(ReportService)",
+            "orderedRecordOperationsUseOnePreviewAndCommitNoPartialSelection",
+            "reportedConversationReplaysWithoutInventedPermissionOrScope",
+            "failedBusinessReadAlsoRequiresFreshDispatchPreviewBeforeImplicitPreparation",
+            "manualSelectionPersistsAndRejectsStaleOrForeignWrites",
+            "modelFailureNeverFallsBackToKeywordScopeAndExplicitCorrectionCanRecover",
+            "customerIdentityAndAliasesAreFrozenAndMultipleInvoicesSurviveReload",
+            "unsupportedFieldRequestAllowsNewDocumentCorrectionWithoutCompanyPollution",
+            "parserFailureCannotBeFollowedByDispatchOfOldScope",
+            "selectionSurvivesReloadAndPreparationNeverExecutes",
+            "incompleteSnapshotCannotApplyAnAllCustomerSelection",
+            "businessQueryKeepsDispatchPreviewSelectionAndPendingPlanUnchanged",
+            "unknownMockInputClarifiesAndDoesNotExecute",
+            "configuredAmountThenDocumentExclusionKeepsScopeAndFrozenFactsAcrossReload",
+            "refreshingLargePreviewWithExplicitAllSelectionDoesNotLoadAllRows",
+            "scopeChangeCannotDropExclusionsAndExplicitResetCanRecover"
+          ]
+        }
+      ]
+    },
+    {
+      "module": "business-service",
+      "tests": 46,
+      "passed": 42,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 4,
+      "suites": [
+        {
+          "file": "TEST-com.example.business.BusinessMcpIntegrationTest.xml",
+          "cases": [
+            "cannotDispatchWithoutPersistedExplicitConfirmation",
+            "standardMcpInitializationAndDiscovery",
+            "sourceStateAndDisabledReportBlockMutation",
+            "topLevelFactsCannotBeSubstitutedEvenWhenFieldsWereNotChanged(String)[1]",
+            "topLevelFactsCannotBeSubstitutedEvenWhenFieldsWereNotChanged(String)[2]",
+            "boundedQueryFailsRatherThanReturningPartialAggregate",
+            "sessionsAreHashedRevocableAndReflectCurrentPermissions",
+            "generalReportQueryIncludesDispatchedAndIneligibleRowsAndDoesNotWrite",
+            "lookupWaitsForAnUncommittedResultInsteadOfReportingNotFound",
+            "adminLookupRequiresTenantPlanCompanyAndReportGrants",
+            "catalogAndReportPageEnforceCompanyAndReportPermissions",
+            "adminCanProveUnsentRequestForDisabledOwnerIncludingMissingIntentId",
+            "customerFactsTravelOverAuthenticatedMcpAndCannotBroadenCompanyScope",
+            "confirmationFenceAndRuleModeCannotBeForged",
+            "investigationHttpUsesReadOnlyMcpAndReplaysWithoutAnotherModelRun",
+            "investigationRealModelAndHttpMcpJointAcceptanceUnknown",
+            "freshRuleAndPermissionChangesBlockMutation",
+            "adjacentLargeReportIdsRemainStringsAndOnlyTheSelectedRecordIsDispatched",
+            "adminCanLookupDisabledOwnerWithoutReactivationOrResend",
+            "dispatchQueriesRespectOwnerAndWorkOrdersRequireActualSuccessfulItem",
+            "rejectsTenantSpoofingCompanyEscalationAndForeignIds",
+            "sameRequestWithChangedPayloadIsRejected",
+            "resultSurvivesServiceRestartAndAllowsReconciliationWithoutResend",
+            "investigationBrowserSession",
+            "monetaryFactsKeepDecimalPrecisionAcrossMcp",
+            "readOnlyDispatchQueryShowsExpiredPendingPlanWithoutMutatingIt",
+            "authenticatedAgentHttpJobUsesRealMcpAndReplaysWithoutRedispatch",
+            "requiresMachineCredentialAndRejectsBrowserOriginAndOversizedBodies",
+            "commitsSourceAndResultOnceUnderConcurrentDuplicates",
+            "investigationRealModelAndHttpMcpJointAcceptanceRejected",
+            "confirmedFailureCanRetrySameIdAndOtherOperatorCannotReadResult",
+            "investigationRealModelAndHttpMcpJointAcceptance",
+            "fixedWorkflowSummaryUsesWholeAuthorizedScopeAndCurrentApproverOnly",
+            "readinessRequiresAuthenticatedProtocolAndNeverMutatesBusinessData",
+            "generalQueryRejectsCompanyReportAndForgedScalarTypes",
+            "submittedCustomerMustEqualConfirmedSnapshotAndLiveIdentity",
+            "changedConfirmedFactsAreRejectedEvenWhenTheRuleStillMatches(String)[1]",
+            "changedConfirmedFactsAreRejectedEvenWhenTheRuleStillMatches(String)[2]",
+            "changedConfirmedFactsAreRejectedEvenWhenTheRuleStillMatches(String)[3]",
+            "submittedFieldValuesMustEqualTheConfirmedSnapshot",
+            "delayedGatewayCannotAdoptAReplacementExecutionsVersion",
+            "rejectsUnboundedAndUnknownArguments"
+          ]
+        },
+        {
+          "file": "TEST-com.example.business.BusinessReadBudgetTest.xml",
+          "cases": [
+            "largeFieldDataFailsAtByteBudgetBeforeRowBudget"
+          ]
+        }
+      ]
+    }
+  ],
+  "nodeSuites": [
+    {
+      "tests": 4,
+      "passed": 4,
+      "failed": 0
+    },
+    {
+      "tests": 96,
+      "passed": 96,
+      "failed": 0
+    }
+  ]
+}

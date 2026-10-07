@@ -24,7 +24,7 @@ import org.springframework.jdbc.core.ConnectionCallback;
 
 /**
  * 标准报表适配器：按 {@link StandardQueryConfig} 生成查询，替代过去每张报表一个手写的事实装配器。
- * 公司范围、租户、待派单状态都是强制条件；标识符来自校验过的配置并加反引号，值全部参数绑定。
+ * 公司范围和租户为强制条件；派单候选另限定待派单状态，通用数据查询读取全部状态。标识符来自校验过的配置，值全部参数绑定。
  */
 public class StandardReportAdapter implements ReportQueryAdapter, DispatchStatusWriter {
 
@@ -66,6 +66,26 @@ public class StandardReportAdapter implements ReportQueryAdapter, DispatchStatus
     @Override
     public List<FieldInfo> fields() {
         return fields;
+    }
+
+    /** 不执行派单资格规则，按来源主键扫描全部状态；SQL 标识符只取受信配置，参数全部绑定。 */
+    @Override
+    public List<ReportDataRow> dataRowsAfter(String tenantId,Set<String> companies,String afterId,int size) {
+        if(size<1 || size>500) throw new ApiException("查询页大小超出范围");
+        if(companies==null || companies.isEmpty() || !tenantUsable(tenantId)) return List.of();
+        requireUniqueIdentity();
+        var params=new MapSqlParameterSource().addValue("companies",companies).addValue("size",size);
+        var sql=new StringBuilder(selectFrom).append(" WHERE ").append(quote(config.companyColumn())).append(" IN (:companies)");
+        appendTenant(sql,params,tenantId);
+        if(afterId!=null) {sql.append(" AND ").append(quote(config.idColumn())).append(" > :afterId");params.addValue("afterId",afterId);}
+        sql.append(" ORDER BY ").append(quote(config.idColumn())).append(" LIMIT :size");
+        var today=LocalDate.now();
+        return jdbc.query(sql.toString(),params,(rs,i)->{
+            String status=rs.getString(config.statusColumn());
+            String display=java.util.Objects.equals(status,String.valueOf(config.pendingValue()))?"未派单"
+                    :java.util.Objects.equals(status,String.valueOf(config.dispatchedValue()))?"已派单":"来源状态："+java.util.Objects.toString(status,"未提供");
+            return new ReportDataRow(mapRow(rs,today),display);
+        });
     }
 
     @Override

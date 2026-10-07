@@ -1,0 +1,2321 @@
+{
+  "scope": "Real model plus authenticated HTTP MCP; no dispatch or approval; programmatic checks, not browser acceptance",
+  "total": 6,
+  "passed": 6,
+  "corpusSha256": "118205275561F60647C94C001C7C3EC8D51421DCFF524296E368EDB15747D48A",
+  "cases": [
+    {
+      "passed": true,
+      "events": [
+        {
+          "data": {
+            "conversationId": "c644519a53c64b95b91a2c8b09387fba",
+            "requestId": "fad8d09fba354d5c8a8dfb41b91e14c6",
+            "title": ""
+          },
+          "type": "conversation"
+        },
+        {
+          "data": {
+            "query": {
+              "domain": "DISPATCH",
+              "view": "LIST",
+              "reportIds": [
+                "rpt-ar-invoice",
+                "rpt-expense-claim",
+                "rpt-sales-order"
+              ],
+              "companyCode": null,
+              "conditions": [
+                {
+                  "allOf": [
+                    {
+                      "field": "createdByMe",
+                      "operator": "EQ",
+                      "values": [
+                        "true"
+                      ]
+                    }
+                  ]
+                }
+              ],
+              "sortField": null,
+              "descending": false,
+              "page": 1,
+              "size": 20,
+              "groupBy": null
+            },
+            "observedAt": "2026-10-07T00:30:17.878812200+08:00",
+            "source": "业务系统当前记录",
+            "columns": [
+              {
+                "name": "reportId",
+                "type": "string",
+                "description": "报表稳定标识"
+              },
+              {
+                "name": "reportName",
+                "type": "string",
+                "description": "报表名称"
+              },
+              {
+                "name": "companyCode",
+                "type": "string",
+                "description": "所属公司代码"
+              },
+              {
+                "name": "docNo",
+                "type": "string",
+                "description": "来源单据号"
+              },
+              {
+                "name": "amount",
+                "type": "decimal",
+                "description": "来源金额，币种见 currency；空值表示未提供"
+              },
+              {
+                "name": "currency",
+                "type": "string",
+                "description": "来源声明币种；空值表示未声明，不能跨币种合计"
+              },
+              {
+                "name": "date",
+                "type": "date",
+                "description": "业务日期；空值表示未配置"
+              },
+              {
+                "name": "status",
+                "type": "string",
+                "description": "派单条目执行状态：待执行/成功/失败/结果未知/已跳过"
+              },
+              {
+                "name": "planId",
+                "type": "string",
+                "description": "清单标识"
+              },
+              {
+                "name": "requestId",
+                "type": "string",
+                "description": "稳定派单请求号，未发送时为空"
+              },
+              {
+                "name": "operatorName",
+                "type": "string",
+                "description": "清单创建人展示名"
+              },
+              {
+                "name": "createdByMe",
+                "type": "boolean",
+                "description": "是否当前登录人创建，由服务端身份计算；我的/本人发起使用true，不能把人称代词当创建人姓名"
+              },
+              {
+                "name": "planStatus",
+                "type": "string",
+                "description": "清单当前状态"
+              },
+              {
+                "name": "message",
+                "type": "string",
+                "description": "最近派单结果说明，空值表示未提供"
+              },
+              {
+                "name": "createdDate",
+                "type": "date",
+                "description": "清单创建日期，Asia/Shanghai"
+              }
+            ],
+            "rows": [
+              {
+                "rowKey": "1fd2f5cd892a4d9186e96bca51db1ef8:10",
+                "reportId": "rpt-sales-order",
+                "recordId": "3",
+                "companyCode": "A",
+                "docNo": "SO2026007",
+                "planId": "1fd2f5cd892a4d9186e96bca51db1ef8",
+                "reportName": "销售报表",
+                "amount": "96000.00",
+                "currency": "CNY",
+                "date": "2026-04-05",
+                "status": "待执行",
+                "planStatus": "已过期",
+                "requestId": null,
+                "message": null,
+                "operatorName": "字段筛选验收员",
+                "createdByMe": true,
+                "createdDate": "2026-10-06"
+              },
+              {
+                "rowKey": "1fd2f5cd892a4d9186e96bca51db1ef8:11",
+                "reportId": "rpt-ar-invoice",
+                "recordId": "3",
+                "companyCode": "A",
+                "docNo": "INV-2026-0007",
+                "planId": "1fd2f5cd892a4d9186e96bca51db1ef8",
+                "reportName": "应收报表",
+                "amount": "12.50",
+                "currency": "CNY",
+                "date": "2026-05-10",
+                "status": "待执行",
+                "planStatus": "已过期",
+                "requestId": null,
+                "message": null,
+                "operatorName": "字段筛选验收员",
+                "createdByMe": true,
+                "createdDate": "2026-10-06"
+              },
+              {
+                "rowKey": "1fd2f5cd892a4d9186e96bca51db1ef8:12",
+                "reportId": "rpt-ar-invoice",
+                "recordId": "4",
+                "companyCode": "A",
+                "docNo": "INV-2026-0008",
+                "planId": "1fd2f5cd892a4d9186e96bca51db1ef8",
+                "reportName": "应收报表",
+                "amount": "8.00",
+                "currency": "CNY",
+                "date": "2026-06-01",
+                "status": "待执行",
+                "planStatus": "已过期",
+                "requestId": null,
+                "message": null,
+                "operatorName": "字段筛选验收员",
+                "createdByMe": true,
+                "createdDate": "2026-10-06"
+              },
+              {
+                "rowKey": "1fd2f5cd892a4d9186e96bca51db1ef8:13",
+                "reportId": "rpt-ar-invoice",
+                "recordId": "11",
+                "companyCode": "A",
+                "docNo": "INV-V3-DEMO-1",
+                "planId": "1fd2f5cd892a4d9186e96bca51db1ef8",
+                "reportName": "应收报表",
+                "amount": "11.00",
+                "currency": "CNY",
+                "date": "2026-10-06",
+                "status": "待执行",
+                "planStatus": "已过期",
+                "requestId": null,
+                "message": null,
+                "operatorName": "字段筛选验收员",
+                "createdByMe": true,
+                "createdDate": "2026-10-06"
+              },
+              {
+                "rowKey": "1fd2f5cd892a4d9186e96bca51db1ef8:14",
+                "reportId": "rpt-ar-invoice",
+                "recordId": "12",
+                "companyCode": "A",
+                "docNo": "INV-V3-DEMO-2",
+                "planId": "1fd2f5cd892a4d9186e96bca51db1ef8",
+                "reportName": "应收报表",
+                "amount": "12.00",
+                "currency": "CNY",
+                "date": "2026-10-06",
+                "status": "待执行",
+                "planStatus": "已过期",
+                "requestId": null,
+                "message": null,
+                "operatorName": "字段筛选验收员",
+                "createdByMe": true,
+                "createdDate": "2026-10-06"
+              },
+              {
+                "rowKey": "1fd2f5cd892a4d9186e96bca51db1ef8:15",
+                "reportId": "rpt-expense-claim",
+                "recordId": "1",
+                "companyCode": "A",
+                "docNo": "EXP-2026-0001",
+                "planId": "1fd2f5cd892a4d9186e96bca51db1ef8",
+                "reportName": "费用报表",
+                "amount": "8600.00",
+                "currency": "CNY",
+                "date": "2026-01-09",
+                "status": "待执行",
+                "planStatus": "已过期",
+                "requestId": null,
+                "message": null,
+                "operatorName": "字段筛选验收员",
+                "createdByMe": true,
+                "createdDate": "2026-10-06"
+              },
+              {
+                "rowKey": "1fd2f5cd892a4d9186e96bca51db1ef8:16",
+                "reportId": "rpt-expense-claim",
+                "recordId": "2",
+                "companyCode": "A",
+                "docNo": "EXP-2026-0002",
+                "planId": "1fd2f5cd892a4d9186e96bca51db1ef8",
+                "reportName": "费用报表",
+                "amount": "3200.00",
+                "currency": "CNY",
+                "date": "2026-02-14",
+                "status": "待执行",
+                "planStatus": "已过期",
+                "requestId": null,
+                "message": null,
+                "operatorName": "字段筛选验收员",
+                "createdByMe": true,
+                "createdDate": "2026-10-06"
+              },
+              {
+                "rowKey": "1fd2f5cd892a4d9186e96bca51db1ef8:9",
+                "reportId": "rpt-sales-order",
+                "recordId": "1",
+                "companyCode": "A",
+                "docNo": "SO2026001",
+                "planId": "1fd2f5cd892a4d9186e96bca51db1ef8",
+                "reportName": "销售报表",
+                "amount": "128000.00",
+                "currency": "CNY",
+                "date": "2026-01-15",
+                "status": "待执行",
+                "planStatus": "已过期",
+                "requestId": null,
+                "message": null,
+                "operatorName": "字段筛选验收员",
+                "createdByMe": true,
+                "createdDate": "2026-10-06"
+              },
+              {
+                "rowKey": "40b12b0a0a2844778eb17ef0365a1d52:1",
+                "reportId": "rpt-sales-order",
+                "recordId": "1",
+                "companyCode": "A",
+                "docNo": "SO2026001",
+                "planId": "40b12b0a0a2844778eb17ef0365a1d52",
+                "reportName": "销售报表",
+                "amount": "128000.00",
+                "currency": "CNY",
+                "date": "2026-01-15",
+                "status": "待执行",
+                "planStatus": "已过期",
+                "requestId": null,
+                "message": null,
+                "operatorName": "字段筛选验收员",
+                "createdByMe": true,
+                "createdDate": "2026-10-06"
+              },
+              {
+                "rowKey": "40b12b0a0a2844778eb17ef0365a1d52:2",
+                "reportId": "rpt-sales-order",
+                "recordId": "3",
+                "companyCode": "A",
+                "docNo": "SO2026007",
+                "planId": "40b12b0a0a2844778eb17ef0365a1d52",
+                "reportName": "销售报表",
+                "amount": "96000.00",
+                "currency": "CNY",
+                "date": "2026-04-05",
+                "status": "待执行",
+                "planStatus": "已过期",
+                "requestId": null,
+                "message": null,
+                "operatorName": "字段筛选验收员",
+                "createdByMe": true,
+                "createdDate": "2026-10-06"
+              },
+              {
+                "rowKey": "40b12b0a0a2844778eb17ef0365a1d52:3",
+                "reportId": "rpt-ar-invoice",
+                "recordId": "3",
+                "companyCode": "A",
+                "docNo": "INV-2026-0007",
+                "planId": "40b12b0a0a2844778eb17ef0365a1d52",
+                "reportName": "应收报表",
+                "amount": "12.50",
+                "currency": "CNY",
+                "date": "2026-05-10",
+                "status": "待执行",
+                "planStatus": "已过期",
+                "requestId": null,
+                "message": null,
+                "operatorName": "字段筛选验收员",
+                "createdByMe": true,
+                "createdDate": "2026-10-06"
+              },
+              {
+                "rowKey": "40b12b0a0a2844778eb17ef0365a1d52:4",
+                "reportId": "rpt-ar-invoice",
+                "recordId": "4",
+                "companyCode": "A",
+                "docNo": "INV-2026-0008",
+                "planId": "40b12b0a0a2844778eb17ef0365a1d52",
+                "reportName": "应收报表",
+                "amount": "8.00",
+                "currency": "CNY",
+                "date": "2026-06-01",
+                "status": "待执行",
+                "planStatus": "已过期",
+                "requestId": null,
+                "message": null,
+                "operatorName": "字段筛选验收员",
+                "createdByMe": true,
+                "createdDate": "2026-10-06"
+              },
+              {
+                "rowKey": "40b12b0a0a2844778eb17ef0365a1d52:5",
+                "reportId": "rpt-ar-invoice",
+                "recordId": "11",
+                "companyCode": "A",
+                "docNo": "INV-V3-DEMO-1",
+                "planId": "40b12b0a0a2844778eb17ef0365a1d52",
+                "reportName": "应收报表",
+                "amount": "11.00",
+                "currency": "CNY",
+                "date": "2026-10-06",
+                "status": "待执行",
+                "planStatus": "已过期",
+                "requestId": null,
+                "message": null,
+                "operatorName": "字段筛选验收员",
+                "createdByMe": true,
+                "createdDate": "2026-10-06"
+              },
+              {
+                "rowKey": "40b12b0a0a2844778eb17ef0365a1d52:6",
+                "reportId": "rpt-ar-invoice",
+                "recordId": "12",
+                "companyCode": "A",
+                "docNo": "INV-V3-DEMO-2",
+                "planId": "40b12b0a0a2844778eb17ef0365a1d52",
+                "reportName": "应收报表",
+                "amount": "12.00",
+                "currency": "CNY",
+                "date": "2026-10-06",
+                "status": "待执行",
+                "planStatus": "已过期",
+                "requestId": null,
+                "message": null,
+                "operatorName": "字段筛选验收员",
+                "createdByMe": true,
+                "createdDate": "2026-10-06"
+              },
+              {
+                "rowKey": "40b12b0a0a2844778eb17ef0365a1d52:7",
+                "reportId": "rpt-expense-claim",
+                "recordId": "1",
+                "companyCode": "A",
+                "docNo": "EXP-2026-0001",
+                "planId": "40b12b0a0a2844778eb17ef0365a1d52",
+                "reportName": "费用报表",
+                "amount": "8600.00",
+                "currency": "CNY",
+                "date": "2026-01-09",
+                "status": "待执行",
+                "planStatus": "已过期",
+                "requestId": null,
+                "message": null,
+                "operatorName": "字段筛选验收员",
+                "createdByMe": true,
+                "createdDate": "2026-10-06"
+              },
+              {
+                "rowKey": "40b12b0a0a2844778eb17ef0365a1d52:8",
+                "reportId": "rpt-expense-claim",
+                "recordId": "2",
+                "companyCode": "A",
+                "docNo": "EXP-2026-0002",
+                "planId": "40b12b0a0a2844778eb17ef0365a1d52",
+                "reportName": "费用报表",
+                "amount": "3200.00",
+                "currency": "CNY",
+                "date": "2026-02-14",
+                "status": "待执行",
+                "planStatus": "已过期",
+                "requestId": null,
+                "message": null,
+                "operatorName": "字段筛选验收员",
+                "createdByMe": true,
+                "createdDate": "2026-10-06"
+              },
+              {
+                "rowKey": "f057f0f7f33a4c3888ddc6e22b20717a:17",
+                "reportId": "rpt-sales-order",
+                "recordId": "1",
+                "companyCode": "A",
+                "docNo": "SO2026001",
+                "planId": "f057f0f7f33a4c3888ddc6e22b20717a",
+                "reportName": "销售报表",
+                "amount": "128000.00",
+                "currency": "CNY",
+                "date": "2026-01-15",
+                "status": "待执行",
+                "planStatus": "已过期",
+                "requestId": null,
+                "message": null,
+                "operatorName": "字段筛选验收员",
+                "createdByMe": true,
+                "createdDate": "2026-10-06"
+              },
+              {
+                "rowKey": "f057f0f7f33a4c3888ddc6e22b20717a:18",
+                "reportId": "rpt-sales-order",
+                "recordId": "3",
+                "companyCode": "A",
+                "docNo": "SO2026007",
+                "planId": "f057f0f7f33a4c3888ddc6e22b20717a",
+                "reportName": "销售报表",
+                "amount": "96000.00",
+                "currency": "CNY",
+                "date": "2026-04-05",
+                "status": "待执行",
+                "planStatus": "已过期",
+                "requestId": null,
+                "message": null,
+                "operatorName": "字段筛选验收员",
+                "createdByMe": true,
+                "createdDate": "2026-10-06"
+              },
+              {
+                "rowKey": "f057f0f7f33a4c3888ddc6e22b20717a:19",
+                "reportId": "rpt-ar-invoice",
+                "recordId": "3",
+                "companyCode": "A",
+                "docNo": "INV-2026-0007",
+                "planId": "f057f0f7f33a4c3888ddc6e22b20717a",
+                "reportName": "应收报表",
+                "amount": "12.50",
+                "currency": "CNY",
+                "date": "2026-05-10",
+                "status": "待执行",
+                "planStatus": "已过期",
+                "requestId": null,
+                "message": null,
+                "operatorName": "字段筛选验收员",
+                "createdByMe": true,
+                "createdDate": "2026-10-06"
+              },
+              {
+                "rowKey": "f057f0f7f33a4c3888ddc6e22b20717a:20",
+                "reportId": "rpt-ar-invoice",
+                "recordId": "4",
+                "companyCode": "A",
+                "docNo": "INV-2026-0008",
+                "planId": "f057f0f7f33a4c3888ddc6e22b20717a",
+                "reportName": "应收报表",
+                "amount": "8.00",
+                "currency": "CNY",
+                "date": "2026-06-01",
+                "status": "待执行",
+                "planStatus": "已过期",
+                "requestId": null,
+                "message": null,
+                "operatorName": "字段筛选验收员",
+                "createdByMe": true,
+                "createdDate": "2026-10-06"
+              }
+            ],
+            "total": 24,
+            "summary": {
+              "count": 24,
+              "amountsByCurrency": {
+                "CNY": "707530.50"
+              },
+              "statusCounts": {
+                "待执行": 24
+              },
+              "groups": {},
+              "pendingApprovers": {},
+              "unclassifiedAmountCount": 0
+            }
+          },
+          "type": "business_query"
+        },
+        {
+          "data": {
+            "delta": "本次查询匹配 24 条派单条目，当前第 1 页展示 20 条。"
+          },
+          "type": "text"
+        },
+        {
+          "data": {},
+          "type": "done"
+        }
+      ],
+      "errors": [],
+      "message": "请列出由本人发起的派单清单条目。",
+      "conversationId": "c644519a53c64b95b91a2c8b09387fba",
+      "expected": {
+        "message": "请列出由本人发起的派单清单条目。",
+        "domain": "DISPATCH",
+        "requiredFilter": {
+          "field": "createdByMe",
+          "value": "true"
+        }
+      },
+      "scenario": "本人归属与空结果追问"
+    },
+    {
+      "passed": true,
+      "events": [
+        {
+          "data": {
+            "conversationId": "c644519a53c64b95b91a2c8b09387fba",
+            "requestId": "d3cc76303eda4c2b88b9b27e530c6874",
+            "title": "请列出由本人发起的派单清单条目。"
+          },
+          "type": "conversation"
+        },
+        {
+          "data": {
+            "query": {
+              "domain": "DISPATCH",
+              "view": "SUMMARY",
+              "reportIds": [
+                "rpt-ar-invoice",
+                "rpt-expense-claim",
+                "rpt-sales-order"
+              ],
+              "companyCode": null,
+              "conditions": [
+                {
+                  "allOf": [
+                    {
+                      "field": "createdByMe",
+                      "operator": "EQ",
+                      "values": [
+                        "true"
+                      ]
+                    },
+                    {
+                      "field": "status",
+                      "operator": "EQ",
+                      "values": [
+                        "结果未知"
+                      ]
+                    }
+                  ]
+                }
+              ],
+              "sortField": null,
+              "descending": false,
+              "page": 1,
+              "size": 20,
+              "groupBy": "status"
+            },
+            "observedAt": "2026-10-07T00:30:20.316143600+08:00",
+            "source": "业务系统当前记录",
+            "columns": [
+              {
+                "name": "reportId",
+                "type": "string",
+                "description": "报表稳定标识"
+              },
+              {
+                "name": "reportName",
+                "type": "string",
+                "description": "报表名称"
+              },
+              {
+                "name": "companyCode",
+                "type": "string",
+                "description": "所属公司代码"
+              },
+              {
+                "name": "docNo",
+                "type": "string",
+                "description": "来源单据号"
+              },
+              {
+                "name": "amount",
+                "type": "decimal",
+                "description": "来源金额，币种见 currency；空值表示未提供"
+              },
+              {
+                "name": "currency",
+                "type": "string",
+                "description": "来源声明币种；空值表示未声明，不能跨币种合计"
+              },
+              {
+                "name": "date",
+                "type": "date",
+                "description": "业务日期；空值表示未配置"
+              },
+              {
+                "name": "status",
+                "type": "string",
+                "description": "派单条目执行状态：待执行/成功/失败/结果未知/已跳过"
+              },
+              {
+                "name": "planId",
+                "type": "string",
+                "description": "清单标识"
+              },
+              {
+                "name": "requestId",
+                "type": "string",
+                "description": "稳定派单请求号，未发送时为空"
+              },
+              {
+                "name": "operatorName",
+                "type": "string",
+                "description": "清单创建人展示名"
+              },
+              {
+                "name": "createdByMe",
+                "type": "boolean",
+                "description": "是否当前登录人创建，由服务端身份计算；我的/本人发起使用true，不能把人称代词当创建人姓名"
+              },
+              {
+                "name": "planStatus",
+                "type": "string",
+                "description": "清单当前状态"
+              },
+              {
+                "name": "message",
+                "type": "string",
+                "description": "最近派单结果说明，空值表示未提供"
+              },
+              {
+                "name": "createdDate",
+                "type": "date",
+                "description": "清单创建日期，Asia/Shanghai"
+              }
+            ],
+            "rows": [],
+            "total": 0,
+            "summary": {
+              "count": 0,
+              "amountsByCurrency": {},
+              "statusCounts": {},
+              "groups": {},
+              "pendingApprovers": {},
+              "unclassifiedAmountCount": 0
+            }
+          },
+          "type": "business_query"
+        },
+        {
+          "data": {
+            "delta": "本次查询匹配 0 条派单条目，当前第 1 页展示 0 条。状态分布：暂无记录。"
+          },
+          "type": "text"
+        },
+        {
+          "data": {},
+          "type": "done"
+        }
+      ],
+      "errors": [],
+      "message": "把其中结果未知的做个汇总。",
+      "conversationId": "c644519a53c64b95b91a2c8b09387fba",
+      "expected": {
+        "message": "把其中结果未知的做个汇总。",
+        "domain": "DISPATCH",
+        "view": "SUMMARY",
+        "status": "结果未知",
+        "requiredFilter": {
+          "field": "createdByMe",
+          "value": "true"
+        }
+      },
+      "scenario": "本人归属与空结果追问"
+    },
+    {
+      "passed": true,
+      "events": [
+        {
+          "data": {
+            "conversationId": "c644519a53c64b95b91a2c8b09387fba",
+            "requestId": "d936f5951bf54b69ae89be5b3514eb48",
+            "title": "请列出由本人发起的派单清单条目。"
+          },
+          "type": "conversation"
+        },
+        {
+          "data": {
+            "query": {
+              "domain": "REPORT",
+              "view": "LIST",
+              "reportIds": [
+                "rpt-expense-claim"
+              ],
+              "companyCode": "A",
+              "conditions": [],
+              "sortField": null,
+              "descending": false,
+              "page": 1,
+              "size": 20,
+              "groupBy": null
+            },
+            "observedAt": "2026-10-07T00:30:24.112019400+08:00",
+            "source": "业务系统当前记录",
+            "columns": [
+              {
+                "name": "reportId",
+                "type": "string",
+                "description": "报表稳定标识"
+              },
+              {
+                "name": "reportName",
+                "type": "string",
+                "description": "报表名称"
+              },
+              {
+                "name": "companyCode",
+                "type": "string",
+                "description": "所属公司代码"
+              },
+              {
+                "name": "docNo",
+                "type": "string",
+                "description": "来源单据号"
+              },
+              {
+                "name": "amount",
+                "type": "decimal",
+                "description": "来源金额，币种见 currency；空值表示未提供"
+              },
+              {
+                "name": "currency",
+                "type": "string",
+                "description": "来源声明币种；空值表示未声明，不能跨币种合计"
+              },
+              {
+                "name": "date",
+                "type": "date",
+                "description": "业务日期；空值表示未配置"
+              },
+              {
+                "name": "status",
+                "type": "string",
+                "description": "报表派单状态：未派单/已派单"
+              },
+              {
+                "name": "expenseNo",
+                "type": "string",
+                "description": "报销单号"
+              },
+              {
+                "name": "expenseType",
+                "type": "string",
+                "description": "费用类型，如 差旅费 / 业务招待费 / 办公用品"
+              },
+              {
+                "name": "expenseDate",
+                "type": "date",
+                "description": "发生日期，字符串 yyyy-MM-dd"
+              },
+              {
+                "name": "daysSinceExpense",
+                "type": "long",
+                "description": "距发生日期的天数（派生）"
+              },
+              {
+                "name": "dispatched",
+                "type": "boolean",
+                "description": "来源记录是否已派单；true为已派单，false为未派单，不代表满足派单规则"
+              },
+              {
+                "name": "recordId",
+                "type": "string",
+                "description": "报表内稳定记录标识"
+              }
+            ],
+            "rows": [
+              {
+                "companyCode": "A",
+                "expenseNo": "EXP-2026-0001",
+                "expenseType": "差旅费",
+                "amount": "8600.00",
+                "expenseDate": "2026-01-09",
+                "daysSinceExpense": "271",
+                "dispatched": "false",
+                "rowKey": "rpt-expense-claim:1",
+                "recordId": "1",
+                "reportId": "rpt-expense-claim",
+                "reportName": "费用报表",
+                "docNo": "EXP-2026-0001",
+                "date": "2026-01-09",
+                "currency": "CNY",
+                "status": "未派单"
+              },
+              {
+                "companyCode": "A",
+                "expenseNo": "EXP-2026-0002",
+                "expenseType": "业务招待费",
+                "amount": "3200.00",
+                "expenseDate": "2026-02-14",
+                "daysSinceExpense": "235",
+                "dispatched": "false",
+                "rowKey": "rpt-expense-claim:2",
+                "recordId": "2",
+                "reportId": "rpt-expense-claim",
+                "reportName": "费用报表",
+                "docNo": "EXP-2026-0002",
+                "date": "2026-02-14",
+                "currency": "CNY",
+                "status": "未派单"
+              },
+              {
+                "companyCode": "A",
+                "expenseNo": "EXP-2026-0007",
+                "expenseType": "办公用品",
+                "amount": "680.00",
+                "expenseDate": "2026-03-05",
+                "daysSinceExpense": "216",
+                "dispatched": "false",
+                "rowKey": "rpt-expense-claim:3",
+                "recordId": "3",
+                "reportId": "rpt-expense-claim",
+                "reportName": "费用报表",
+                "docNo": "EXP-2026-0007",
+                "date": "2026-03-05",
+                "currency": "CNY",
+                "status": "未派单"
+              }
+            ],
+            "total": 3,
+            "summary": {
+              "count": 3,
+              "amountsByCurrency": {
+                "CNY": "12480.00"
+              },
+              "statusCounts": {
+                "未派单": 3
+              },
+              "groups": {},
+              "pendingApprovers": {},
+              "unclassifiedAmountCount": 0
+            }
+          },
+          "type": "business_query"
+        },
+        {
+          "data": {
+            "delta": "本次查询匹配 3 条报表记录，当前第 1 页展示 3 条。"
+          },
+          "type": "text"
+        },
+        {
+          "data": {},
+          "type": "done"
+        }
+      ],
+      "errors": [],
+      "message": "另起一个查询，列出A公司所有费用报销记录。",
+      "conversationId": "c644519a53c64b95b91a2c8b09387fba",
+      "expected": {
+        "message": "另起一个查询，列出A公司所有费用报销记录。",
+        "domain": "REPORT",
+        "recordSet": "expense_all"
+      },
+      "scenario": "本人归属与空结果追问"
+    },
+    {
+      "passed": true,
+      "events": [
+        {
+          "data": {
+            "conversationId": "a14f94bc143a4062afe06659a3517ce8",
+            "requestId": "c277247aa0d848678233f6ef50f229b9",
+            "title": ""
+          },
+          "type": "conversation"
+        },
+        {
+          "data": {
+            "query": {
+              "domain": "DISPATCH",
+              "view": "LIST",
+              "reportIds": [
+                "rpt-ar-invoice",
+                "rpt-expense-claim",
+                "rpt-sales-order"
+              ],
+              "companyCode": null,
+              "conditions": [
+                {
+                  "allOf": [
+                    {
+                      "field": "createdByMe",
+                      "operator": "EQ",
+                      "values": [
+                        "true"
+                      ]
+                    }
+                  ]
+                }
+              ],
+              "sortField": null,
+              "descending": false,
+              "page": 1,
+              "size": 20,
+              "groupBy": null
+            },
+            "observedAt": "2026-10-07T00:30:26.526717100+08:00",
+            "source": "业务系统当前记录",
+            "columns": [
+              {
+                "name": "reportId",
+                "type": "string",
+                "description": "报表稳定标识"
+              },
+              {
+                "name": "reportName",
+                "type": "string",
+                "description": "报表名称"
+              },
+              {
+                "name": "companyCode",
+                "type": "string",
+                "description": "所属公司代码"
+              },
+              {
+                "name": "docNo",
+                "type": "string",
+                "description": "来源单据号"
+              },
+              {
+                "name": "amount",
+                "type": "decimal",
+                "description": "来源金额，币种见 currency；空值表示未提供"
+              },
+              {
+                "name": "currency",
+                "type": "string",
+                "description": "来源声明币种；空值表示未声明，不能跨币种合计"
+              },
+              {
+                "name": "date",
+                "type": "date",
+                "description": "业务日期；空值表示未配置"
+              },
+              {
+                "name": "status",
+                "type": "string",
+                "description": "派单条目执行状态：待执行/成功/失败/结果未知/已跳过"
+              },
+              {
+                "name": "planId",
+                "type": "string",
+                "description": "清单标识"
+              },
+              {
+                "name": "requestId",
+                "type": "string",
+                "description": "稳定派单请求号，未发送时为空"
+              },
+              {
+                "name": "operatorName",
+                "type": "string",
+                "description": "清单创建人展示名"
+              },
+              {
+                "name": "createdByMe",
+                "type": "boolean",
+                "description": "是否当前登录人创建，由服务端身份计算；我的/本人发起使用true，不能把人称代词当创建人姓名"
+              },
+              {
+                "name": "planStatus",
+                "type": "string",
+                "description": "清单当前状态"
+              },
+              {
+                "name": "message",
+                "type": "string",
+                "description": "最近派单结果说明，空值表示未提供"
+              },
+              {
+                "name": "createdDate",
+                "type": "date",
+                "description": "清单创建日期，Asia/Shanghai"
+              }
+            ],
+            "rows": [
+              {
+                "rowKey": "1fd2f5cd892a4d9186e96bca51db1ef8:10",
+                "reportId": "rpt-sales-order",
+                "recordId": "3",
+                "companyCode": "A",
+                "docNo": "SO2026007",
+                "planId": "1fd2f5cd892a4d9186e96bca51db1ef8",
+                "reportName": "销售报表",
+                "amount": "96000.00",
+                "currency": "CNY",
+                "date": "2026-04-05",
+                "status": "待执行",
+                "planStatus": "已过期",
+                "requestId": null,
+                "message": null,
+                "operatorName": "字段筛选验收员",
+                "createdByMe": true,
+                "createdDate": "2026-10-06"
+              },
+              {
+                "rowKey": "1fd2f5cd892a4d9186e96bca51db1ef8:11",
+                "reportId": "rpt-ar-invoice",
+                "recordId": "3",
+                "companyCode": "A",
+                "docNo": "INV-2026-0007",
+                "planId": "1fd2f5cd892a4d9186e96bca51db1ef8",
+                "reportName": "应收报表",
+                "amount": "12.50",
+                "currency": "CNY",
+                "date": "2026-05-10",
+                "status": "待执行",
+                "planStatus": "已过期",
+                "requestId": null,
+                "message": null,
+                "operatorName": "字段筛选验收员",
+                "createdByMe": true,
+                "createdDate": "2026-10-06"
+              },
+              {
+                "rowKey": "1fd2f5cd892a4d9186e96bca51db1ef8:12",
+                "reportId": "rpt-ar-invoice",
+                "recordId": "4",
+                "companyCode": "A",
+                "docNo": "INV-2026-0008",
+                "planId": "1fd2f5cd892a4d9186e96bca51db1ef8",
+                "reportName": "应收报表",
+                "amount": "8.00",
+                "currency": "CNY",
+                "date": "2026-06-01",
+                "status": "待执行",
+                "planStatus": "已过期",
+                "requestId": null,
+                "message": null,
+                "operatorName": "字段筛选验收员",
+                "createdByMe": true,
+                "createdDate": "2026-10-06"
+              },
+              {
+                "rowKey": "1fd2f5cd892a4d9186e96bca51db1ef8:13",
+                "reportId": "rpt-ar-invoice",
+                "recordId": "11",
+                "companyCode": "A",
+                "docNo": "INV-V3-DEMO-1",
+                "planId": "1fd2f5cd892a4d9186e96bca51db1ef8",
+                "reportName": "应收报表",
+                "amount": "11.00",
+                "currency": "CNY",
+                "date": "2026-10-06",
+                "status": "待执行",
+                "planStatus": "已过期",
+                "requestId": null,
+                "message": null,
+                "operatorName": "字段筛选验收员",
+                "createdByMe": true,
+                "createdDate": "2026-10-06"
+              },
+              {
+                "rowKey": "1fd2f5cd892a4d9186e96bca51db1ef8:14",
+                "reportId": "rpt-ar-invoice",
+                "recordId": "12",
+                "companyCode": "A",
+                "docNo": "INV-V3-DEMO-2",
+                "planId": "1fd2f5cd892a4d9186e96bca51db1ef8",
+                "reportName": "应收报表",
+                "amount": "12.00",
+                "currency": "CNY",
+                "date": "2026-10-06",
+                "status": "待执行",
+                "planStatus": "已过期",
+                "requestId": null,
+                "message": null,
+                "operatorName": "字段筛选验收员",
+                "createdByMe": true,
+                "createdDate": "2026-10-06"
+              },
+              {
+                "rowKey": "1fd2f5cd892a4d9186e96bca51db1ef8:15",
+                "reportId": "rpt-expense-claim",
+                "recordId": "1",
+                "companyCode": "A",
+                "docNo": "EXP-2026-0001",
+                "planId": "1fd2f5cd892a4d9186e96bca51db1ef8",
+                "reportName": "费用报表",
+                "amount": "8600.00",
+                "currency": "CNY",
+                "date": "2026-01-09",
+                "status": "待执行",
+                "planStatus": "已过期",
+                "requestId": null,
+                "message": null,
+                "operatorName": "字段筛选验收员",
+                "createdByMe": true,
+                "createdDate": "2026-10-06"
+              },
+              {
+                "rowKey": "1fd2f5cd892a4d9186e96bca51db1ef8:16",
+                "reportId": "rpt-expense-claim",
+                "recordId": "2",
+                "companyCode": "A",
+                "docNo": "EXP-2026-0002",
+                "planId": "1fd2f5cd892a4d9186e96bca51db1ef8",
+                "reportName": "费用报表",
+                "amount": "3200.00",
+                "currency": "CNY",
+                "date": "2026-02-14",
+                "status": "待执行",
+                "planStatus": "已过期",
+                "requestId": null,
+                "message": null,
+                "operatorName": "字段筛选验收员",
+                "createdByMe": true,
+                "createdDate": "2026-10-06"
+              },
+              {
+                "rowKey": "1fd2f5cd892a4d9186e96bca51db1ef8:9",
+                "reportId": "rpt-sales-order",
+                "recordId": "1",
+                "companyCode": "A",
+                "docNo": "SO2026001",
+                "planId": "1fd2f5cd892a4d9186e96bca51db1ef8",
+                "reportName": "销售报表",
+                "amount": "128000.00",
+                "currency": "CNY",
+                "date": "2026-01-15",
+                "status": "待执行",
+                "planStatus": "已过期",
+                "requestId": null,
+                "message": null,
+                "operatorName": "字段筛选验收员",
+                "createdByMe": true,
+                "createdDate": "2026-10-06"
+              },
+              {
+                "rowKey": "40b12b0a0a2844778eb17ef0365a1d52:1",
+                "reportId": "rpt-sales-order",
+                "recordId": "1",
+                "companyCode": "A",
+                "docNo": "SO2026001",
+                "planId": "40b12b0a0a2844778eb17ef0365a1d52",
+                "reportName": "销售报表",
+                "amount": "128000.00",
+                "currency": "CNY",
+                "date": "2026-01-15",
+                "status": "待执行",
+                "planStatus": "已过期",
+                "requestId": null,
+                "message": null,
+                "operatorName": "字段筛选验收员",
+                "createdByMe": true,
+                "createdDate": "2026-10-06"
+              },
+              {
+                "rowKey": "40b12b0a0a2844778eb17ef0365a1d52:2",
+                "reportId": "rpt-sales-order",
+                "recordId": "3",
+                "companyCode": "A",
+                "docNo": "SO2026007",
+                "planId": "40b12b0a0a2844778eb17ef0365a1d52",
+                "reportName": "销售报表",
+                "amount": "96000.00",
+                "currency": "CNY",
+                "date": "2026-04-05",
+                "status": "待执行",
+                "planStatus": "已过期",
+                "requestId": null,
+                "message": null,
+                "operatorName": "字段筛选验收员",
+                "createdByMe": true,
+                "createdDate": "2026-10-06"
+              },
+              {
+                "rowKey": "40b12b0a0a2844778eb17ef0365a1d52:3",
+                "reportId": "rpt-ar-invoice",
+                "recordId": "3",
+                "companyCode": "A",
+                "docNo": "INV-2026-0007",
+                "planId": "40b12b0a0a2844778eb17ef0365a1d52",
+                "reportName": "应收报表",
+                "amount": "12.50",
+                "currency": "CNY",
+                "date": "2026-05-10",
+                "status": "待执行",
+                "planStatus": "已过期",
+                "requestId": null,
+                "message": null,
+                "operatorName": "字段筛选验收员",
+                "createdByMe": true,
+                "createdDate": "2026-10-06"
+              },
+              {
+                "rowKey": "40b12b0a0a2844778eb17ef0365a1d52:4",
+                "reportId": "rpt-ar-invoice",
+                "recordId": "4",
+                "companyCode": "A",
+                "docNo": "INV-2026-0008",
+                "planId": "40b12b0a0a2844778eb17ef0365a1d52",
+                "reportName": "应收报表",
+                "amount": "8.00",
+                "currency": "CNY",
+                "date": "2026-06-01",
+                "status": "待执行",
+                "planStatus": "已过期",
+                "requestId": null,
+                "message": null,
+                "operatorName": "字段筛选验收员",
+                "createdByMe": true,
+                "createdDate": "2026-10-06"
+              },
+              {
+                "rowKey": "40b12b0a0a2844778eb17ef0365a1d52:5",
+                "reportId": "rpt-ar-invoice",
+                "recordId": "11",
+                "companyCode": "A",
+                "docNo": "INV-V3-DEMO-1",
+                "planId": "40b12b0a0a2844778eb17ef0365a1d52",
+                "reportName": "应收报表",
+                "amount": "11.00",
+                "currency": "CNY",
+                "date": "2026-10-06",
+                "status": "待执行",
+                "planStatus": "已过期",
+                "requestId": null,
+                "message": null,
+                "operatorName": "字段筛选验收员",
+                "createdByMe": true,
+                "createdDate": "2026-10-06"
+              },
+              {
+                "rowKey": "40b12b0a0a2844778eb17ef0365a1d52:6",
+                "reportId": "rpt-ar-invoice",
+                "recordId": "12",
+                "companyCode": "A",
+                "docNo": "INV-V3-DEMO-2",
+                "planId": "40b12b0a0a2844778eb17ef0365a1d52",
+                "reportName": "应收报表",
+                "amount": "12.00",
+                "currency": "CNY",
+                "date": "2026-10-06",
+                "status": "待执行",
+                "planStatus": "已过期",
+                "requestId": null,
+                "message": null,
+                "operatorName": "字段筛选验收员",
+                "createdByMe": true,
+                "createdDate": "2026-10-06"
+              },
+              {
+                "rowKey": "40b12b0a0a2844778eb17ef0365a1d52:7",
+                "reportId": "rpt-expense-claim",
+                "recordId": "1",
+                "companyCode": "A",
+                "docNo": "EXP-2026-0001",
+                "planId": "40b12b0a0a2844778eb17ef0365a1d52",
+                "reportName": "费用报表",
+                "amount": "8600.00",
+                "currency": "CNY",
+                "date": "2026-01-09",
+                "status": "待执行",
+                "planStatus": "已过期",
+                "requestId": null,
+                "message": null,
+                "operatorName": "字段筛选验收员",
+                "createdByMe": true,
+                "createdDate": "2026-10-06"
+              },
+              {
+                "rowKey": "40b12b0a0a2844778eb17ef0365a1d52:8",
+                "reportId": "rpt-expense-claim",
+                "recordId": "2",
+                "companyCode": "A",
+                "docNo": "EXP-2026-0002",
+                "planId": "40b12b0a0a2844778eb17ef0365a1d52",
+                "reportName": "费用报表",
+                "amount": "3200.00",
+                "currency": "CNY",
+                "date": "2026-02-14",
+                "status": "待执行",
+                "planStatus": "已过期",
+                "requestId": null,
+                "message": null,
+                "operatorName": "字段筛选验收员",
+                "createdByMe": true,
+                "createdDate": "2026-10-06"
+              },
+              {
+                "rowKey": "f057f0f7f33a4c3888ddc6e22b20717a:17",
+                "reportId": "rpt-sales-order",
+                "recordId": "1",
+                "companyCode": "A",
+                "docNo": "SO2026001",
+                "planId": "f057f0f7f33a4c3888ddc6e22b20717a",
+                "reportName": "销售报表",
+                "amount": "128000.00",
+                "currency": "CNY",
+                "date": "2026-01-15",
+                "status": "待执行",
+                "planStatus": "已过期",
+                "requestId": null,
+                "message": null,
+                "operatorName": "字段筛选验收员",
+                "createdByMe": true,
+                "createdDate": "2026-10-06"
+              },
+              {
+                "rowKey": "f057f0f7f33a4c3888ddc6e22b20717a:18",
+                "reportId": "rpt-sales-order",
+                "recordId": "3",
+                "companyCode": "A",
+                "docNo": "SO2026007",
+                "planId": "f057f0f7f33a4c3888ddc6e22b20717a",
+                "reportName": "销售报表",
+                "amount": "96000.00",
+                "currency": "CNY",
+                "date": "2026-04-05",
+                "status": "待执行",
+                "planStatus": "已过期",
+                "requestId": null,
+                "message": null,
+                "operatorName": "字段筛选验收员",
+                "createdByMe": true,
+                "createdDate": "2026-10-06"
+              },
+              {
+                "rowKey": "f057f0f7f33a4c3888ddc6e22b20717a:19",
+                "reportId": "rpt-ar-invoice",
+                "recordId": "3",
+                "companyCode": "A",
+                "docNo": "INV-2026-0007",
+                "planId": "f057f0f7f33a4c3888ddc6e22b20717a",
+                "reportName": "应收报表",
+                "amount": "12.50",
+                "currency": "CNY",
+                "date": "2026-05-10",
+                "status": "待执行",
+                "planStatus": "已过期",
+                "requestId": null,
+                "message": null,
+                "operatorName": "字段筛选验收员",
+                "createdByMe": true,
+                "createdDate": "2026-10-06"
+              },
+              {
+                "rowKey": "f057f0f7f33a4c3888ddc6e22b20717a:20",
+                "reportId": "rpt-ar-invoice",
+                "recordId": "4",
+                "companyCode": "A",
+                "docNo": "INV-2026-0008",
+                "planId": "f057f0f7f33a4c3888ddc6e22b20717a",
+                "reportName": "应收报表",
+                "amount": "8.00",
+                "currency": "CNY",
+                "date": "2026-06-01",
+                "status": "待执行",
+                "planStatus": "已过期",
+                "requestId": null,
+                "message": null,
+                "operatorName": "字段筛选验收员",
+                "createdByMe": true,
+                "createdDate": "2026-10-06"
+              }
+            ],
+            "total": 24,
+            "summary": {
+              "count": 24,
+              "amountsByCurrency": {
+                "CNY": "707530.50"
+              },
+              "statusCounts": {
+                "待执行": 24
+              },
+              "groups": {},
+              "pendingApprovers": {},
+              "unclassifiedAmountCount": 0
+            }
+          },
+          "type": "business_query"
+        },
+        {
+          "data": {
+            "delta": "本次查询匹配 24 条派单条目，当前第 1 页展示 20 条。"
+          },
+          "type": "text"
+        },
+        {
+          "data": {},
+          "type": "done"
+        }
+      ],
+      "errors": [],
+      "message": "List dispatch records created by me.",
+      "conversationId": "a14f94bc143a4062afe06659a3517ce8",
+      "expected": {
+        "message": "List dispatch records created by me.",
+        "domain": "DISPATCH",
+        "requiredFilter": {
+          "field": "createdByMe",
+          "value": "true"
+        }
+      },
+      "scenario": "英文归属与显式切换"
+    },
+    {
+      "passed": true,
+      "events": [
+        {
+          "data": {
+            "conversationId": "a14f94bc143a4062afe06659a3517ce8",
+            "requestId": "0c2a924bf06148608ea623d1ae30f5e5",
+            "title": "List dispatch records created "
+          },
+          "type": "conversation"
+        },
+        {
+          "data": {
+            "query": {
+              "domain": "DISPATCH",
+              "view": "SUMMARY",
+              "reportIds": [
+                "rpt-ar-invoice",
+                "rpt-expense-claim",
+                "rpt-sales-order"
+              ],
+              "companyCode": null,
+              "conditions": [
+                {
+                  "allOf": [
+                    {
+                      "field": "createdByMe",
+                      "operator": "EQ",
+                      "values": [
+                        "true"
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "allOf": [
+                    {
+                      "field": "status",
+                      "operator": "EQ",
+                      "values": [
+                        "失败"
+                      ]
+                    }
+                  ]
+                }
+              ],
+              "sortField": null,
+              "descending": false,
+              "page": 1,
+              "size": 20,
+              "groupBy": "companyCode"
+            },
+            "observedAt": "2026-10-07T00:30:30.056663800+08:00",
+            "source": "业务系统当前记录",
+            "columns": [
+              {
+                "name": "reportId",
+                "type": "string",
+                "description": "报表稳定标识"
+              },
+              {
+                "name": "reportName",
+                "type": "string",
+                "description": "报表名称"
+              },
+              {
+                "name": "companyCode",
+                "type": "string",
+                "description": "所属公司代码"
+              },
+              {
+                "name": "docNo",
+                "type": "string",
+                "description": "来源单据号"
+              },
+              {
+                "name": "amount",
+                "type": "decimal",
+                "description": "来源金额，币种见 currency；空值表示未提供"
+              },
+              {
+                "name": "currency",
+                "type": "string",
+                "description": "来源声明币种；空值表示未声明，不能跨币种合计"
+              },
+              {
+                "name": "date",
+                "type": "date",
+                "description": "业务日期；空值表示未配置"
+              },
+              {
+                "name": "status",
+                "type": "string",
+                "description": "派单条目执行状态：待执行/成功/失败/结果未知/已跳过"
+              },
+              {
+                "name": "planId",
+                "type": "string",
+                "description": "清单标识"
+              },
+              {
+                "name": "requestId",
+                "type": "string",
+                "description": "稳定派单请求号，未发送时为空"
+              },
+              {
+                "name": "operatorName",
+                "type": "string",
+                "description": "清单创建人展示名"
+              },
+              {
+                "name": "createdByMe",
+                "type": "boolean",
+                "description": "是否当前登录人创建，由服务端身份计算；我的/本人发起使用true，不能把人称代词当创建人姓名"
+              },
+              {
+                "name": "planStatus",
+                "type": "string",
+                "description": "清单当前状态"
+              },
+              {
+                "name": "message",
+                "type": "string",
+                "description": "最近派单结果说明，空值表示未提供"
+              },
+              {
+                "name": "createdDate",
+                "type": "date",
+                "description": "清单创建日期，Asia/Shanghai"
+              }
+            ],
+            "rows": [
+              {
+                "rowKey": "1fd2f5cd892a4d9186e96bca51db1ef8:10",
+                "reportId": "rpt-sales-order",
+                "recordId": "3",
+                "companyCode": "A",
+                "docNo": "SO2026007",
+                "planId": "1fd2f5cd892a4d9186e96bca51db1ef8",
+                "reportName": "销售报表",
+                "amount": "96000.00",
+                "currency": "CNY",
+                "date": "2026-04-05",
+                "status": "待执行",
+                "planStatus": "已过期",
+                "requestId": null,
+                "message": null,
+                "operatorName": "字段筛选验收员",
+                "createdByMe": true,
+                "createdDate": "2026-10-06"
+              },
+              {
+                "rowKey": "1fd2f5cd892a4d9186e96bca51db1ef8:11",
+                "reportId": "rpt-ar-invoice",
+                "recordId": "3",
+                "companyCode": "A",
+                "docNo": "INV-2026-0007",
+                "planId": "1fd2f5cd892a4d9186e96bca51db1ef8",
+                "reportName": "应收报表",
+                "amount": "12.50",
+                "currency": "CNY",
+                "date": "2026-05-10",
+                "status": "待执行",
+                "planStatus": "已过期",
+                "requestId": null,
+                "message": null,
+                "operatorName": "字段筛选验收员",
+                "createdByMe": true,
+                "createdDate": "2026-10-06"
+              },
+              {
+                "rowKey": "1fd2f5cd892a4d9186e96bca51db1ef8:12",
+                "reportId": "rpt-ar-invoice",
+                "recordId": "4",
+                "companyCode": "A",
+                "docNo": "INV-2026-0008",
+                "planId": "1fd2f5cd892a4d9186e96bca51db1ef8",
+                "reportName": "应收报表",
+                "amount": "8.00",
+                "currency": "CNY",
+                "date": "2026-06-01",
+                "status": "待执行",
+                "planStatus": "已过期",
+                "requestId": null,
+                "message": null,
+                "operatorName": "字段筛选验收员",
+                "createdByMe": true,
+                "createdDate": "2026-10-06"
+              },
+              {
+                "rowKey": "1fd2f5cd892a4d9186e96bca51db1ef8:13",
+                "reportId": "rpt-ar-invoice",
+                "recordId": "11",
+                "companyCode": "A",
+                "docNo": "INV-V3-DEMO-1",
+                "planId": "1fd2f5cd892a4d9186e96bca51db1ef8",
+                "reportName": "应收报表",
+                "amount": "11.00",
+                "currency": "CNY",
+                "date": "2026-10-06",
+                "status": "待执行",
+                "planStatus": "已过期",
+                "requestId": null,
+                "message": null,
+                "operatorName": "字段筛选验收员",
+                "createdByMe": true,
+                "createdDate": "2026-10-06"
+              },
+              {
+                "rowKey": "1fd2f5cd892a4d9186e96bca51db1ef8:14",
+                "reportId": "rpt-ar-invoice",
+                "recordId": "12",
+                "companyCode": "A",
+                "docNo": "INV-V3-DEMO-2",
+                "planId": "1fd2f5cd892a4d9186e96bca51db1ef8",
+                "reportName": "应收报表",
+                "amount": "12.00",
+                "currency": "CNY",
+                "date": "2026-10-06",
+                "status": "待执行",
+                "planStatus": "已过期",
+                "requestId": null,
+                "message": null,
+                "operatorName": "字段筛选验收员",
+                "createdByMe": true,
+                "createdDate": "2026-10-06"
+              },
+              {
+                "rowKey": "1fd2f5cd892a4d9186e96bca51db1ef8:15",
+                "reportId": "rpt-expense-claim",
+                "recordId": "1",
+                "companyCode": "A",
+                "docNo": "EXP-2026-0001",
+                "planId": "1fd2f5cd892a4d9186e96bca51db1ef8",
+                "reportName": "费用报表",
+                "amount": "8600.00",
+                "currency": "CNY",
+                "date": "2026-01-09",
+                "status": "待执行",
+                "planStatus": "已过期",
+                "requestId": null,
+                "message": null,
+                "operatorName": "字段筛选验收员",
+                "createdByMe": true,
+                "createdDate": "2026-10-06"
+              },
+              {
+                "rowKey": "1fd2f5cd892a4d9186e96bca51db1ef8:16",
+                "reportId": "rpt-expense-claim",
+                "recordId": "2",
+                "companyCode": "A",
+                "docNo": "EXP-2026-0002",
+                "planId": "1fd2f5cd892a4d9186e96bca51db1ef8",
+                "reportName": "费用报表",
+                "amount": "3200.00",
+                "currency": "CNY",
+                "date": "2026-02-14",
+                "status": "待执行",
+                "planStatus": "已过期",
+                "requestId": null,
+                "message": null,
+                "operatorName": "字段筛选验收员",
+                "createdByMe": true,
+                "createdDate": "2026-10-06"
+              },
+              {
+                "rowKey": "1fd2f5cd892a4d9186e96bca51db1ef8:9",
+                "reportId": "rpt-sales-order",
+                "recordId": "1",
+                "companyCode": "A",
+                "docNo": "SO2026001",
+                "planId": "1fd2f5cd892a4d9186e96bca51db1ef8",
+                "reportName": "销售报表",
+                "amount": "128000.00",
+                "currency": "CNY",
+                "date": "2026-01-15",
+                "status": "待执行",
+                "planStatus": "已过期",
+                "requestId": null,
+                "message": null,
+                "operatorName": "字段筛选验收员",
+                "createdByMe": true,
+                "createdDate": "2026-10-06"
+              },
+              {
+                "rowKey": "40b12b0a0a2844778eb17ef0365a1d52:1",
+                "reportId": "rpt-sales-order",
+                "recordId": "1",
+                "companyCode": "A",
+                "docNo": "SO2026001",
+                "planId": "40b12b0a0a2844778eb17ef0365a1d52",
+                "reportName": "销售报表",
+                "amount": "128000.00",
+                "currency": "CNY",
+                "date": "2026-01-15",
+                "status": "待执行",
+                "planStatus": "已过期",
+                "requestId": null,
+                "message": null,
+                "operatorName": "字段筛选验收员",
+                "createdByMe": true,
+                "createdDate": "2026-10-06"
+              },
+              {
+                "rowKey": "40b12b0a0a2844778eb17ef0365a1d52:2",
+                "reportId": "rpt-sales-order",
+                "recordId": "3",
+                "companyCode": "A",
+                "docNo": "SO2026007",
+                "planId": "40b12b0a0a2844778eb17ef0365a1d52",
+                "reportName": "销售报表",
+                "amount": "96000.00",
+                "currency": "CNY",
+                "date": "2026-04-05",
+                "status": "待执行",
+                "planStatus": "已过期",
+                "requestId": null,
+                "message": null,
+                "operatorName": "字段筛选验收员",
+                "createdByMe": true,
+                "createdDate": "2026-10-06"
+              },
+              {
+                "rowKey": "40b12b0a0a2844778eb17ef0365a1d52:3",
+                "reportId": "rpt-ar-invoice",
+                "recordId": "3",
+                "companyCode": "A",
+                "docNo": "INV-2026-0007",
+                "planId": "40b12b0a0a2844778eb17ef0365a1d52",
+                "reportName": "应收报表",
+                "amount": "12.50",
+                "currency": "CNY",
+                "date": "2026-05-10",
+                "status": "待执行",
+                "planStatus": "已过期",
+                "requestId": null,
+                "message": null,
+                "operatorName": "字段筛选验收员",
+                "createdByMe": true,
+                "createdDate": "2026-10-06"
+              },
+              {
+                "rowKey": "40b12b0a0a2844778eb17ef0365a1d52:4",
+                "reportId": "rpt-ar-invoice",
+                "recordId": "4",
+                "companyCode": "A",
+                "docNo": "INV-2026-0008",
+                "planId": "40b12b0a0a2844778eb17ef0365a1d52",
+                "reportName": "应收报表",
+                "amount": "8.00",
+                "currency": "CNY",
+                "date": "2026-06-01",
+                "status": "待执行",
+                "planStatus": "已过期",
+                "requestId": null,
+                "message": null,
+                "operatorName": "字段筛选验收员",
+                "createdByMe": true,
+                "createdDate": "2026-10-06"
+              },
+              {
+                "rowKey": "40b12b0a0a2844778eb17ef0365a1d52:5",
+                "reportId": "rpt-ar-invoice",
+                "recordId": "11",
+                "companyCode": "A",
+                "docNo": "INV-V3-DEMO-1",
+                "planId": "40b12b0a0a2844778eb17ef0365a1d52",
+                "reportName": "应收报表",
+                "amount": "11.00",
+                "currency": "CNY",
+                "date": "2026-10-06",
+                "status": "待执行",
+                "planStatus": "已过期",
+                "requestId": null,
+                "message": null,
+                "operatorName": "字段筛选验收员",
+                "createdByMe": true,
+                "createdDate": "2026-10-06"
+              },
+              {
+                "rowKey": "40b12b0a0a2844778eb17ef0365a1d52:6",
+                "reportId": "rpt-ar-invoice",
+                "recordId": "12",
+                "companyCode": "A",
+                "docNo": "INV-V3-DEMO-2",
+                "planId": "40b12b0a0a2844778eb17ef0365a1d52",
+                "reportName": "应收报表",
+                "amount": "12.00",
+                "currency": "CNY",
+                "date": "2026-10-06",
+                "status": "待执行",
+                "planStatus": "已过期",
+                "requestId": null,
+                "message": null,
+                "operatorName": "字段筛选验收员",
+                "createdByMe": true,
+                "createdDate": "2026-10-06"
+              },
+              {
+                "rowKey": "40b12b0a0a2844778eb17ef0365a1d52:7",
+                "reportId": "rpt-expense-claim",
+                "recordId": "1",
+                "companyCode": "A",
+                "docNo": "EXP-2026-0001",
+                "planId": "40b12b0a0a2844778eb17ef0365a1d52",
+                "reportName": "费用报表",
+                "amount": "8600.00",
+                "currency": "CNY",
+                "date": "2026-01-09",
+                "status": "待执行",
+                "planStatus": "已过期",
+                "requestId": null,
+                "message": null,
+                "operatorName": "字段筛选验收员",
+                "createdByMe": true,
+                "createdDate": "2026-10-06"
+              },
+              {
+                "rowKey": "40b12b0a0a2844778eb17ef0365a1d52:8",
+                "reportId": "rpt-expense-claim",
+                "recordId": "2",
+                "companyCode": "A",
+                "docNo": "EXP-2026-0002",
+                "planId": "40b12b0a0a2844778eb17ef0365a1d52",
+                "reportName": "费用报表",
+                "amount": "3200.00",
+                "currency": "CNY",
+                "date": "2026-02-14",
+                "status": "待执行",
+                "planStatus": "已过期",
+                "requestId": null,
+                "message": null,
+                "operatorName": "字段筛选验收员",
+                "createdByMe": true,
+                "createdDate": "2026-10-06"
+              },
+              {
+                "rowKey": "f057f0f7f33a4c3888ddc6e22b20717a:17",
+                "reportId": "rpt-sales-order",
+                "recordId": "1",
+                "companyCode": "A",
+                "docNo": "SO2026001",
+                "planId": "f057f0f7f33a4c3888ddc6e22b20717a",
+                "reportName": "销售报表",
+                "amount": "128000.00",
+                "currency": "CNY",
+                "date": "2026-01-15",
+                "status": "待执行",
+                "planStatus": "已过期",
+                "requestId": null,
+                "message": null,
+                "operatorName": "字段筛选验收员",
+                "createdByMe": true,
+                "createdDate": "2026-10-06"
+              },
+              {
+                "rowKey": "f057f0f7f33a4c3888ddc6e22b20717a:18",
+                "reportId": "rpt-sales-order",
+                "recordId": "3",
+                "companyCode": "A",
+                "docNo": "SO2026007",
+                "planId": "f057f0f7f33a4c3888ddc6e22b20717a",
+                "reportName": "销售报表",
+                "amount": "96000.00",
+                "currency": "CNY",
+                "date": "2026-04-05",
+                "status": "待执行",
+                "planStatus": "已过期",
+                "requestId": null,
+                "message": null,
+                "operatorName": "字段筛选验收员",
+                "createdByMe": true,
+                "createdDate": "2026-10-06"
+              },
+              {
+                "rowKey": "f057f0f7f33a4c3888ddc6e22b20717a:19",
+                "reportId": "rpt-ar-invoice",
+                "recordId": "3",
+                "companyCode": "A",
+                "docNo": "INV-2026-0007",
+                "planId": "f057f0f7f33a4c3888ddc6e22b20717a",
+                "reportName": "应收报表",
+                "amount": "12.50",
+                "currency": "CNY",
+                "date": "2026-05-10",
+                "status": "待执行",
+                "planStatus": "已过期",
+                "requestId": null,
+                "message": null,
+                "operatorName": "字段筛选验收员",
+                "createdByMe": true,
+                "createdDate": "2026-10-06"
+              },
+              {
+                "rowKey": "f057f0f7f33a4c3888ddc6e22b20717a:20",
+                "reportId": "rpt-ar-invoice",
+                "recordId": "4",
+                "companyCode": "A",
+                "docNo": "INV-2026-0008",
+                "planId": "f057f0f7f33a4c3888ddc6e22b20717a",
+                "reportName": "应收报表",
+                "amount": "8.00",
+                "currency": "CNY",
+                "date": "2026-06-01",
+                "status": "待执行",
+                "planStatus": "已过期",
+                "requestId": null,
+                "message": null,
+                "operatorName": "字段筛选验收员",
+                "createdByMe": true,
+                "createdDate": "2026-10-06"
+              }
+            ],
+            "total": 24,
+            "summary": {
+              "count": 24,
+              "amountsByCurrency": {
+                "CNY": "707530.50"
+              },
+              "statusCounts": {
+                "待执行": 24
+              },
+              "groups": {
+                "A": 24
+              },
+              "pendingApprovers": {},
+              "unclassifiedAmountCount": 0
+            }
+          },
+          "type": "business_query"
+        },
+        {
+          "data": {
+            "delta": "本次查询匹配 24 条派单条目，当前第 1 页展示 20 条。状态分布：待执行 24 条。金额合计：CNY 707530.50。分组：A 24 条。"
+          },
+          "type": "text"
+        },
+        {
+          "data": {},
+          "type": "done"
+        }
+      ],
+      "errors": [],
+      "message": "From those, summarize only failed entries by company.",
+      "conversationId": "a14f94bc143a4062afe06659a3517ce8",
+      "expected": {
+        "message": "From those, summarize only failed entries by company.",
+        "domain": "DISPATCH",
+        "view": "SUMMARY",
+        "status": "失败",
+        "groupBy": "companyCode",
+        "requiredFilter": {
+          "field": "createdByMe",
+          "value": "true"
+        }
+      },
+      "scenario": "英文归属与显式切换"
+    },
+    {
+      "passed": true,
+      "events": [
+        {
+          "data": {
+            "conversationId": "a14f94bc143a4062afe06659a3517ce8",
+            "requestId": "297931966b05419ba166addf435295b1",
+            "title": "List dispatch records created "
+          },
+          "type": "conversation"
+        },
+        {
+          "data": {
+            "query": {
+              "domain": "WORK_ORDER",
+              "view": "DETAIL",
+              "reportIds": [
+                "rpt-ar-invoice",
+                "rpt-expense-claim",
+                "rpt-sales-order"
+              ],
+              "companyCode": null,
+              "conditions": [
+                {
+                  "allOf": [
+                    {
+                      "field": "orderId",
+                      "operator": "EQ",
+                      "values": [
+                        "WO-DEMO-003"
+                      ]
+                    }
+                  ]
+                }
+              ],
+              "sortField": null,
+              "descending": false,
+              "page": 1,
+              "size": 20,
+              "groupBy": null
+            },
+            "observedAt": "2026-10-07T00:30:33.393882800+08:00",
+            "source": "演示工单：固定环节和审批人；不代表真实外部审批进度",
+            "columns": [
+              {
+                "name": "reportId",
+                "type": "string",
+                "description": "报表稳定标识"
+              },
+              {
+                "name": "reportName",
+                "type": "string",
+                "description": "报表名称"
+              },
+              {
+                "name": "companyCode",
+                "type": "string",
+                "description": "所属公司代码"
+              },
+              {
+                "name": "docNo",
+                "type": "string",
+                "description": "来源单据号"
+              },
+              {
+                "name": "amount",
+                "type": "decimal",
+                "description": "来源金额，币种见 currency；空值表示未提供"
+              },
+              {
+                "name": "currency",
+                "type": "string",
+                "description": "来源声明币种；空值表示未声明，不能跨币种合计"
+              },
+              {
+                "name": "date",
+                "type": "date",
+                "description": "业务日期；空值表示未配置"
+              },
+              {
+                "name": "status",
+                "type": "string",
+                "description": "工单办理状态：待审批/处理中/已完成/已驳回"
+              },
+              {
+                "name": "orderId",
+                "type": "string",
+                "description": "工单编号，须准确匹配"
+              },
+              {
+                "name": "title",
+                "type": "string",
+                "description": "工单主题"
+              },
+              {
+                "name": "stage",
+                "type": "string",
+                "description": "当前环节，已结束时为归档或退回"
+              },
+              {
+                "name": "assignee",
+                "type": "string",
+                "description": "当前处理人，已结束时为空"
+              },
+              {
+                "name": "requestId",
+                "type": "string",
+                "description": "关联派单请求号，固定演示示例为空"
+              },
+              {
+                "name": "source",
+                "type": "string",
+                "description": "固定演示示例或实际演示派单关联"
+              },
+              {
+                "name": "createdDate",
+                "type": "date",
+                "description": "工单创建日期，Asia/Shanghai"
+              },
+              {
+                "name": "updatedDate",
+                "type": "date",
+                "description": "最近流程变化日期；固定演示不会随查询推进"
+              }
+            ],
+            "rows": [
+              {
+                "orderId": "WO-DEMO-003",
+                "reportId": "rpt-expense-claim",
+                "companyCode": "A",
+                "docNo": "DEMO-EX-003",
+                "title": "差旅费用处理",
+                "amount": "2400.00",
+                "currency": "CNY",
+                "date": "2026-10-02",
+                "createdDate": "2026-10-02",
+                "updatedDate": "2026-10-04",
+                "status": "处理中",
+                "rowKey": "fixture:WO-DEMO-003",
+                "source": "固定演示示例",
+                "requestId": null,
+                "stage": "业务处理",
+                "assignee": "赵专员（演示）",
+                "steps": [
+                  {
+                    "name": "提交登记",
+                    "approver": "演示经办人",
+                    "status": "已完成",
+                    "date": "2026-10-04"
+                  },
+                  {
+                    "name": "部门审批",
+                    "approver": "林主管（演示）",
+                    "status": "已完成",
+                    "date": "2026-10-04"
+                  },
+                  {
+                    "name": "财务复核",
+                    "approver": "陈会计（演示）",
+                    "status": "已完成",
+                    "date": "2026-10-04"
+                  },
+                  {
+                    "name": "业务处理",
+                    "approver": "赵专员（演示）",
+                    "status": "处理中",
+                    "date": null
+                  },
+                  {
+                    "name": "归档",
+                    "approver": "系统归档（演示）",
+                    "status": "未到达",
+                    "date": null
+                  }
+                ],
+                "simulated": true,
+                "workflowSummary": "固定演示流程当前停在业务处理，处理人为赵专员（演示）；后续环节尚未完成。",
+                "reportName": "费用报表"
+              }
+            ],
+            "total": 1,
+            "summary": {
+              "count": 1,
+              "amountsByCurrency": {
+                "CNY": "2400.00"
+              },
+              "statusCounts": {
+                "处理中": 1
+              },
+              "groups": {},
+              "pendingApprovers": {},
+              "unclassifiedAmountCount": 0
+            }
+          },
+          "type": "business_query"
+        },
+        {
+          "data": {
+            "delta": "本次查询匹配 1 条工单，当前第 1 页展示 1 条。固定演示流程当前停在业务处理，处理人为赵专员（演示）；后续环节尚未完成。工单为固定演示流程，查询不会推进审批；后续环节见卡片，尚未到达的环节不代表已完成。"
+          },
+          "type": "text"
+        },
+        {
+          "data": {},
+          "type": "done"
+        }
+      ],
+      "errors": [],
+      "message": "Show work order WO-DEMO-003 and its full progress instead.",
+      "conversationId": "a14f94bc143a4062afe06659a3517ce8",
+      "expected": {
+        "message": "Show work order WO-DEMO-003 and its full progress instead.",
+        "domain": "WORK_ORDER",
+        "view": "DETAIL",
+        "orderIds": [
+          "WO-DEMO-003"
+        ],
+        "stage": "业务处理",
+        "assignee": "赵专员（演示）"
+      },
+      "scenario": "英文归属与显式切换"
+    }
+  ],
+  "sourceSales": {
+    "records": [
+      {
+        "tenantId": "T001",
+        "id": "1",
+        "companyCode": "A",
+        "orderNo": "SO2026001",
+        "productName": "服务器",
+        "amount": 128000.0,
+        "saleDate": "2026-01-15",
+        "dispatchStatus": 0,
+        "dispatchedAt": null
+      },
+      {
+        "tenantId": "T001",
+        "id": "2",
+        "companyCode": "A",
+        "orderNo": "SO2026002",
+        "productName": "交换机",
+        "amount": 32000.0,
+        "saleDate": "2026-02-08",
+        "dispatchStatus": 0,
+        "dispatchedAt": null
+      },
+      {
+        "tenantId": "T001",
+        "id": "3",
+        "companyCode": "A",
+        "orderNo": "SO2026007",
+        "productName": "云服务",
+        "amount": 96000.0,
+        "saleDate": "2026-04-05",
+        "dispatchStatus": 0,
+        "dispatchedAt": null
+      },
+      {
+        "tenantId": "T001",
+        "id": "4",
+        "companyCode": "A",
+        "orderNo": "SO2026008",
+        "productName": "网线",
+        "amount": 15,
+        "saleDate": "2026-04-12",
+        "dispatchStatus": 0,
+        "dispatchedAt": null
+      }
+    ],
+    "total": 4,
+    "page": 1,
+    "size": 200
+  },
+  "recordedAt": "2026-10-07T00:30:33.4522869+08:00",
+  "sourceExpenses": {
+    "records": [
+      {
+        "tenantId": "T001",
+        "id": "1",
+        "companyCode": "A",
+        "expenseNo": "EXP-2026-0001",
+        "expenseType": "差旅费",
+        "amount": 8600.0,
+        "expenseDate": "2026-01-09",
+        "dispatchStatus": 0,
+        "dispatchedAt": null
+      },
+      {
+        "tenantId": "T001",
+        "id": "2",
+        "companyCode": "A",
+        "expenseNo": "EXP-2026-0002",
+        "expenseType": "业务招待费",
+        "amount": 3200.0,
+        "expenseDate": "2026-02-14",
+        "dispatchStatus": 0,
+        "dispatchedAt": null
+      },
+      {
+        "tenantId": "T001",
+        "id": "3",
+        "companyCode": "A",
+        "expenseNo": "EXP-2026-0007",
+        "expenseType": "办公用品",
+        "amount": 680.0,
+        "expenseDate": "2026-03-05",
+        "dispatchStatus": 0,
+        "dispatchedAt": null
+      }
+    ],
+    "total": 3,
+    "page": 1,
+    "size": 200
+  }
+}

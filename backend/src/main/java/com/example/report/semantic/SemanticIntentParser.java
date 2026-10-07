@@ -3,7 +3,7 @@ package com.example.report.semantic;
 import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Component;
 
-/** One interpretation path for all free text; UI commands use deterministic REST services. */
+/** 派单子流程的唯一语义解析入口；统一助手先判定业务焦点，界面确定性操作继续使用独立REST服务。 */
 @Primary
 @Component
 public class SemanticIntentParser implements IntentParser {

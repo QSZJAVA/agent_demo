@@ -72,6 +72,73 @@ class BusinessMcpIntegrationTest {
     }
     <T>T call(String tool,CurrentUser user,Map<String,Object> args,TypeReference<T> type){return client.call(tool,user,args,type);}
     Map<String,Object> confirmedRecord;
+    com.example.report.assistant.BusinessResult businessQuery(CurrentUser user,com.example.report.assistant.BusinessQuery query) {
+        return call("business_query",user,Map.of("query",query),new TypeReference<>(){});
+    }
+    com.example.report.assistant.BusinessQuery readQuery(com.example.report.assistant.BusinessQuery.Domain domain,String company,List<com.example.report.assistant.BusinessQuery.Group> filters) {
+        return new com.example.report.assistant.BusinessQuery(domain,com.example.report.assistant.BusinessQuery.View.LIST,List.of(REPORT),company,filters,null,false,1,20,null);
+    }
+    @Test void generalReportQueryIncludesDispatchedAndIneligibleRowsAndDoesNotWrite() {
+        jdbc.update("UPDATE report_sales SET dispatch_status=1 WHERE tenant_id='T001' AND id='1'");
+        long count=jdbc.queryForObject("SELECT COUNT(*) FROM report_sales WHERE tenant_id='T001' AND company_code='A'",Long.class);
+        var result=businessQuery(reader,readQuery(com.example.report.assistant.BusinessQuery.Domain.REPORT,"A",List.of()));
+        assertEquals(count,result.total());assertTrue(result.rows().stream().anyMatch(row->"已派单".equals(row.get("status"))));
+        assertTrue(result.summary().amountsByCurrency().containsKey("CNY"));
+        assertEquals(0,jdbc.queryForObject("SELECT COUNT(*) FROM business_dispatch_request",Integer.class));
+        assertEquals(0,jdbc.queryForObject("SELECT COUNT(*) FROM dispatch_plan",Integer.class));
+    }
+    @Test void generalQueryRejectsCompanyReportAndForgedScalarTypes() {
+        assertThrows(ApiException.class,()->businessQuery(reader,readQuery(com.example.report.assistant.BusinessQuery.Domain.REPORT,"B",List.of())));
+        var forbidden=new com.example.report.assistant.BusinessQuery(com.example.report.assistant.BusinessQuery.Domain.REPORT,com.example.report.assistant.BusinessQuery.View.LIST,List.of("rpt-ar-invoice"),"A",List.of(),null,false,1,20,null);
+        assertThrows(ApiException.class,()->businessQuery(reader,forbidden));
+        var body=json.convertValue(readQuery(com.example.report.assistant.BusinessQuery.Domain.REPORT,"A",List.of()),new TypeReference<Map<String,Object>>(){});body.put("page",1.5);
+        assertThrows(ApiException.class,()->call("business_query",reader,Map.of("query",body),new TypeReference<Object>(){}));
+        body.put("page",1);body.put("sql","select * from app_user");
+        assertThrows(ApiException.class,()->call("business_query",reader,Map.of("query",body),new TypeReference<Object>(){}));
+    }
+    @Test void dispatchQueriesRespectOwnerAndWorkOrdersRequireActualSuccessfulItem() {
+        String request=evidence(true);
+        var before=businessQuery(reader,readQuery(com.example.report.assistant.BusinessQuery.Domain.DISPATCH,"A",List.of()));
+        assertEquals(1,before.total());assertEquals("结果未知",before.rows().get(0).get("status"));
+        identities.saveUser(admin,new IdentityStore.UserForm("queryOther","另一个用户",password,Set.of("A"),Set.of("report:sales"),false,true));
+        assertEquals(0,businessQuery(identities.resolve("T001","queryOther"),readQuery(com.example.report.assistant.BusinessQuery.Domain.DISPATCH,"A",List.of())).total());
+        assertTrue(submit(request).success());
+        jdbc.update("UPDATE dispatch_plan_item SET status='SUCCESS' WHERE external_request_id=?",request);
+        var orders=businessQuery(reader,readQuery(com.example.report.assistant.BusinessQuery.Domain.WORK_ORDER,"A",List.of()));
+        assertTrue(orders.rows().stream().anyMatch(row->("WO-"+request).equals(row.get("orderId")) && "待审批".equals(row.get("status"))));
+        assertFalse(orders.rows().stream().anyMatch(row->"B".equals(row.get("companyCode"))));
+        assertEquals(1,jdbc.queryForObject("SELECT COUNT(*) FROM business_dispatch_request",Integer.class));
+    }
+    @Test void fixedWorkflowSummaryUsesWholeAuthorizedScopeAndCurrentApproverOnly() {
+        var q=new com.example.report.assistant.BusinessQuery(com.example.report.assistant.BusinessQuery.Domain.WORK_ORDER,com.example.report.assistant.BusinessQuery.View.SUMMARY,List.of(),"A",List.of(),"orderId",false,1,1,"status");
+        var result=businessQuery(admin,q);assertEquals(5,result.total());assertEquals(1,result.rows().size());
+        assertEquals(2,result.summary().statusCounts().get("待审批"));assertEquals(1,result.summary().statusCounts().get("已完成"));
+        assertEquals(Map.of("林主管（演示）",1,"陈会计（演示）",1),result.summary().pendingApprovers());
+        var filter=new com.example.report.assistant.BusinessQuery.Group(List.of(new com.example.report.assistant.BusinessQuery.Filter("orderId","EQ",List.of("WO-DEMO-B01"))));
+        assertEquals(0,businessQuery(reader,readQuery(com.example.report.assistant.BusinessQuery.Domain.WORK_ORDER,"A",List.of(filter))).total());
+    }
+    @Test void selfOwnershipUsesAuthenticatedIdentityEvenWhenDisplayNamesMatch() {
+        evidence(false);
+        // 展示名相同不能把另一人的记录认作本人，管理员查询本人也不应默认返回所有人的记录。
+        jdbc.update("UPDATE app_user SET display_name='同名演示用户' WHERE tenant_id='T001' AND user_id IN ('admin','readerA')");
+        var own=new com.example.report.assistant.BusinessQuery.Group(List.of(new com.example.report.assistant.BusinessQuery.Filter("createdByMe","EQ",List.of("true"))));
+        var other=new com.example.report.assistant.BusinessQuery.Group(List.of(new com.example.report.assistant.BusinessQuery.Filter("createdByMe","EQ",List.of("false"))));
+        assertEquals(1,businessQuery(reader,readQuery(com.example.report.assistant.BusinessQuery.Domain.DISPATCH,"A",List.of(own))).total());
+        assertEquals(0,businessQuery(reader,readQuery(com.example.report.assistant.BusinessQuery.Domain.DISPATCH,"A",List.of(other))).total());
+        assertEquals(0,businessQuery(admin,readQuery(com.example.report.assistant.BusinessQuery.Domain.DISPATCH,"A",List.of(own))).total());
+        assertEquals(1,businessQuery(admin,readQuery(com.example.report.assistant.BusinessQuery.Domain.DISPATCH,"A",List.of(other))).total());
+    }
+    @Test void boundedQueryFailsRatherThanReturningPartialAggregate() {
+        var service=new BusinessReadService(context.getBean(BusinessQueries.class),new org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate(jdbc),context.getBean(WorkOrderProvider.class),1,120,context.getBean(BusinessQueryProperties.class));
+        assertThrows(ApiException.class,()->service.query(reader,readQuery(com.example.report.assistant.BusinessQuery.Domain.REPORT,"A",List.of())));
+    }
+    @Test void readOnlyDispatchQueryShowsExpiredPendingPlanWithoutMutatingIt() {
+        String request=evidence(false);
+        jdbc.update("UPDATE dispatch_plan p JOIN dispatch_plan_item i ON i.plan_id=p.id SET p.expires_at=DATE_SUB(NOW(),INTERVAL 1 SECOND) WHERE i.external_request_id=?",request);
+        var result=businessQuery(reader,readQuery(com.example.report.assistant.BusinessQuery.Domain.DISPATCH,"A",List.of()));
+        assertEquals("已过期",result.rows().get(0).get("planStatus"));
+        assertEquals("PENDING",jdbc.queryForObject("SELECT p.status FROM dispatch_plan p JOIN dispatch_plan_item i ON i.plan_id=p.id WHERE i.external_request_id=?",String.class,request));
+    }
     Map<String,Object> sourceRecord(String id) {
         var queries=context.getBean(BusinessQueries.class);var report=queries.require(reader,REPORT,false);
         var row=queries.records(reader,REPORT,"ids",Set.of("A"),null,0,500,List.of(id)).get(0);
@@ -200,7 +267,7 @@ class BusinessMcpIntegrationTest {
                 .requestBuilder(HttpRequest.newBuilder().header("Authorization","Bearer "+secret)).openConnectionOnStartup(false).build();
         try(var sdk=io.modelcontextprotocol.client.McpClient.sync(transport).build()) {
             assertEquals("report-business-service",sdk.initialize().serverInfo().name());
-            assertEquals(Set.of("report_catalog","report_page","report_records","report_probe","dispatch_submit","dispatch_lookup"),sdk.listTools().tools().stream().map(io.modelcontextprotocol.spec.McpSchema.Tool::name).collect(java.util.stream.Collectors.toSet()));
+            assertEquals(Set.of("report_catalog","report_page","report_records","report_probe","dispatch_submit","dispatch_lookup","business_query"),sdk.listTools().tools().stream().map(io.modelcontextprotocol.spec.McpSchema.Tool::name).collect(java.util.stream.Collectors.toSet()));
         }
     }
 

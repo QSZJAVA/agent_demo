@@ -56,6 +56,9 @@ class SemanticIntegrationTest {
     @Autowired org.springframework.transaction.support.TransactionOperations tx;
     @Autowired AgentProperties props;
     @org.springframework.test.context.bean.override.mockito.MockitoSpyBean ModelIntentParser parser;
+    @org.springframework.test.context.bean.override.mockito.MockitoSpyBean com.example.report.support.TestAssistantPlanner businessPlanner;
+    @org.springframework.test.context.bean.override.mockito.MockitoSpyBean com.example.report.assistant.BusinessAssistantService businessAssistant;
+    @Autowired com.example.report.assistant.BusinessHistoryAccess businessHistory;
     static JdbcTemplate cleanup;
     @BeforeEach void cleanupHandle(){cleanup=jdbc;rateTenant=SCHEMA+"_"+UUID.randomUUID().toString().substring(0,8);}
     @AfterAll static void drop(){if(cleanup!=null && SCHEMA.matches("semantic_it_[a-f0-9]{32}")){
@@ -64,6 +67,58 @@ class SemanticIntegrationTest {
     String conversation(){return conversations.create(user(),"test").getId();}
     List<ServerSentEvent<Object>> turn(String id,String message){return chat.chat(user(), id, message, null, List.of()).collectList().block(Duration.ofSeconds(30));}
     String text(List<ServerSentEvent<Object>> events){return events.stream().filter(e->"text".equals(e.event())||"error".equals(e.event())).map(e->JsonUtil.toJson(e.data())).reduce("",String::concat);}
+    @Test void businessQueryKeepsDispatchPreviewSelectionAndPendingPlanUnchanged() {
+        String id=conversation();turn(id,"A公司销售报表的");
+        var before=store.read(user(),id);String preview=before.getPreviewId();
+        var pending=plans.create(user(),id,preview,List.of(),"business-guard:"+id);
+        var query=new com.example.report.assistant.BusinessQuery(com.example.report.assistant.BusinessQuery.Domain.WORK_ORDER,com.example.report.assistant.BusinessQuery.View.LIST,List.of("rpt-sales-order"),"A",List.of(),null,false,1,20,null);
+        var planned=new com.example.report.assistant.AssistantPlan(com.example.report.assistant.AssistantPlan.Route.BUSINESS_QUERY,query,false,null);
+        org.mockito.Mockito.doReturn(planned).when(businessPlanner).plan(org.mockito.ArgumentMatchers.eq("查询工单"),org.mockito.ArgumentMatchers.any(),org.mockito.ArgumentMatchers.anyList(),org.mockito.ArgumentMatchers.anySet());
+        var result=new com.example.report.assistant.BusinessResult(query,"2026-10-06T12:00:00+08:00","程序测试事实",List.of(),List.of(Map.of("rowKey","wo1","reportId","rpt-sales-order","companyCode","A","orderId","WO-1")),1,
+                new com.example.report.assistant.BusinessResult.Summary(1,Map.of(),Map.of("待审批",1),Map.of(),Map.of(),0));
+        org.mockito.Mockito.doReturn(result).when(businessAssistant).read(org.mockito.ArgumentMatchers.any(),org.mockito.ArgumentMatchers.eq(query));
+        long plansBefore=jdbc.queryForObject("SELECT COUNT(*) FROM dispatch_plan",Long.class);
+        var events=turn(id,"查询工单");assertTrue(events.stream().anyMatch(e->"business_query".equals(e.event())),text(events));
+        var after=store.read(user(),id);assertEquals(preview,after.getPreviewId());assertEquals(before.getDesired(),after.getDesired());assertEquals(before.getExcludedRecords(),after.getExcludedRecords());
+        assertEquals(plansBefore,jdbc.queryForObject("SELECT COUNT(*) FROM dispatch_plan",Long.class));assertEquals(query,after.getBusinessQuery());
+        assertEquals("PENDING",plans.getOwned(user(),pending.plan().getId()).plan().getStatus());
+        assertEquals("WO-1",after.getBusinessReferences().get(0).get("orderId"));assertEquals("1",after.getBusinessReferences().get(0).get("displayIndex"));
+        // 事实先写可靠事件，展示投影可能被前一条待投递消息阻挡；验证有界最终恢复，不能只检查SSE卡片。
+        org.awaitility.Awaitility.await().atMost(Duration.ofSeconds(5)).untilAsserted(()->
+                assertTrue(conversations.messages(user(),id,null,100).stream().anyMatch(m->"business_query".equals(m.cardType())),
+                        ()->jdbc.queryForList("SELECT event_type,delivery_status FROM trace_event WHERE conversation_id=?",id).toString()));
+        var revoked=new CurrentUser(user().tenantId(),user().userId(),user().displayName(),Set.of("B"),user().permissions(),false);
+        assertFalse(businessHistory.readable(revoked,id));assertTrue(businessHistory.readable(user(),id));
+        var narrowAdmin=new CurrentUser(user().tenantId(),"other-admin","管理员",Set.of("B"),Set.of("*"),true);
+        assertFalse(businessHistory.readable(narrowAdmin,id));
+        var fullAdmin=new CurrentUser(user().tenantId(),"other-admin","管理员",Set.of("A"),Set.of("*"),true);
+        assertTrue(businessHistory.readable(fullAdmin,id));
+        assertThrows(ApiException.class,()->previews.requireConversationReadable(narrowAdmin,id));
+        assertFalse(turn(id,"剩下的帮我派单吧").stream().anyMatch(e->"plan".equals(e.event())));
+        assertEquals(plansBefore,jdbc.queryForObject("SELECT COUNT(*) FROM dispatch_plan",Long.class));
+        // 历史读取需要当前业务权限，但仅删除本人会话不应被已撤销的业务范围阻挡。
+        conversations.softDelete(revoked,id);assertThrows(ApiException.class,()->conversations.getOwned(user(),id));
+    }
+    @Test void businessRoutingFailureCannotFallThroughToDispatchOrOverwriteSelection() {
+        String id=conversation();turn(id,"A公司销售报表的");var before=store.read(user(),id);
+        org.mockito.Mockito.doThrow(new ApiException(422,"bad model")).when(businessPlanner).plan(org.mockito.ArgumentMatchers.eq("查询未知业务"),org.mockito.ArgumentMatchers.any(),org.mockito.ArgumentMatchers.anyList(),org.mockito.ArgumentMatchers.anySet());
+        var events=turn(id,"查询未知业务");assertFalse(events.stream().anyMatch(e->Set.of("preview","plan","business_query").contains(e.event())));
+        assertTrue(text(events).contains("未应用任何修改"));
+        var after=store.read(user(),id);assertEquals(before.getPreviewId(),after.getPreviewId());assertEquals(before.getDesired(),after.getDesired());assertTrue(after.isBusinessUnresolved());assertEquals("DISPATCH",after.getAssistantFocus());
+    }
+    @Test void failedBusinessReadAlsoRequiresFreshDispatchPreviewBeforeImplicitPreparation() {
+        String id=conversation();turn(id,"A公司销售报表的");var before=store.read(user(),id);
+        var query=new com.example.report.assistant.BusinessQuery(com.example.report.assistant.BusinessQuery.Domain.WORK_ORDER,com.example.report.assistant.BusinessQuery.View.LIST,List.of("rpt-sales-order"),"A",List.of(),null,false,1,20,null);
+        var plan=new com.example.report.assistant.AssistantPlan(com.example.report.assistant.AssistantPlan.Route.BUSINESS_QUERY,query,false,null);
+        org.mockito.Mockito.doReturn(plan).when(businessPlanner).plan(org.mockito.ArgumentMatchers.eq("查看工单"),org.mockito.ArgumentMatchers.any(),org.mockito.ArgumentMatchers.anyList(),org.mockito.ArgumentMatchers.anySet());
+        org.mockito.Mockito.doThrow(new ApiException(503,"来源暂不可用")).when(businessAssistant).read(org.mockito.ArgumentMatchers.any(),org.mockito.ArgumentMatchers.eq(query));
+        var failed=turn(id,"查看工单");assertFalse(failed.stream().anyMatch(e->"business_query".equals(e.event())));
+        var state=store.read(user(),id);assertEquals(before.getPreviewId(),state.getPreviewId());assertNull(state.getBusinessQuery());assertTrue(state.isBusinessQueryAfterPreview());
+        assertFalse(turn(id,"剩下的帮我派单吧").stream().anyMatch(e->"plan".equals(e.event())));
+        assertTrue(turn(id,"查一下我有哪些可以派单").stream().anyMatch(e->"preview".equals(e.event())));
+        assertFalse(store.read(user(),id).isBusinessQueryAfterPreview());
+        assertTrue(turn(id,"剩下的帮我派单吧").stream().anyMatch(e->"plan".equals(e.event())));
+    }
     @Test void reportedConversationReplaysWithoutInventedPermissionOrScope() {
         String id=conversation();
         var a=turn(id,"查一下A公司有哪些可以派单");

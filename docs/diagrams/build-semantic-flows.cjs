@@ -10,7 +10,7 @@ fs.mkdirSync(out,{recursive:true});
 const charts=[
   {
     "name": "01 系统与信任边界",
-    "note": "最终演示基线：real,mcp · active · V1；业务字段来自授权目录。",
+    "note": "统一业务助手：real,mcp · active · V1；业务查询与派单共享会话，执行边界分离。",
     "nodes": [
       {
         "id": "ui",
@@ -29,7 +29,7 @@ const charts=[
         "kind": "agent",
         "title": "Agent REST / SSE :8080",
         "lines": [
-          "会话、目录、规则、预览与清单"
+          "业务查询、工单、会话与待确认清单"
         ]
       },
       {
@@ -47,9 +47,9 @@ const charts=[
         "col": 1,
         "row": 2,
         "kind": "agent",
-        "title": "V1 语义与确定性规划",
+        "title": "统一路由与 V1 派单规划",
         "lines": [
-          "字段类型、原文证据、集合运算"
+          "查询字段白名单 / 派单证据与集合"
         ]
       },
       {
@@ -90,7 +90,8 @@ const charts=[
         "kind": "store",
         "title": "受控来源事实与业务事务",
         "lines": [
-          "本仓库示例表；外部ERP待接入"
+          "报表、派单记录与固定演示工单",
+          "真实 ERP / 工单系统待接入"
         ]
       }
     ],
@@ -144,7 +145,7 @@ const charts=[
     ]
   },
   {
-    "name": "02 模型解析与校验",
+    "name": "02 派单子流程解析与校验",
     "note": "模型不生成SQL或执行请求；脱敏草稿加汇总诊断辅助唯一一次结构修正。",
     "nodes": [
       {
@@ -152,9 +153,9 @@ const charts=[
         "col": 1,
         "row": 0,
         "kind": "ui",
-        "title": "本轮用户原话",
+        "title": "统一路由判定为派单规划",
         "lines": [
-          "查询、记录选择或生成清单"
+          "可派单预览、选择或待确认清单"
         ]
       },
       {
@@ -1014,6 +1015,36 @@ const charts=[
     ]
   }
 ];
+// 通用查询与工单流程和派单图共享生成器，所有格式同步生成，避免独立编辑产物失去一致性。
+charts.push({
+  name:'09 通用查询与连续上下文',note:'真实模型只生成受控查询；业务数据查询不替代派单候选，也不改变已有勾选。',
+  nodes:[
+    {id:'input',col:1,row:0,kind:'ui',title:'自然语言或分页请求',lines:['报表数据 / 派单记录 / 工单']},
+    {id:'lease',col:1,row:1,kind:'guard',title:'会话租约与当前权限',lines:['请求归属、配额、历史权限版本']},
+    {id:'model',col:1,row:2,kind:'model',title:'ModelAssistantPlanner · MODEL',lines:['授权字段、查询引用、持续业务焦点']},
+    {id:'dispatch',col:0,row:3,kind:'agent',title:'派单语义子流程',lines:['尝试普通查询后先重查派单候选']},
+    {id:'query',col:1,row:3,kind:'guard',title:'AssistantCodec / BusinessQuery',lines:['严格类型、条件、排序、页码及预算']},
+    {id:'clarify',col:2,row:3,kind:'error',title:'帮助 / 澄清 / 拒绝',lines:['不丢弃不支持条件、不执行写入']},
+    {id:'mcp',col:1,row:4,kind:'business',title:'HTTP MCP business_query',lines:['服务端身份、租户、公司、报表权限']},
+    {id:'facts',col:1,row:5,kind:'business',title:'完整受限读取与确定性统计',lines:['全部报表状态 / 派单归属 / 工单接口']},
+    {id:'card',col:1,row:6,kind:'store',title:'持久查询卡片与独立上下文',lines:['完整总数、分币种金额、时点和来源']},
+    {id:'ui',col:1,row:7,kind:'ui',title:'列表、详情、总结与翻页',lines:['刷新可恢复；权限变化阻止旧事实展示']}
+  ],edges:[['input','lease'],['lease','model'],['model','query','只读'],['model','dispatch','派单'],['model','clarify','不确定'],['query','mcp'],['mcp','facts'],['facts','card'],['card','ui'],['facts','clarify','失败或超限']]
+});
+charts.push({
+  name:'10 工单进度与总结',note:'本机固定业务流程与审批人通过真实 HTTP MCP 返回；不代表外部工单系统已接入。',
+  nodes:[
+    {id:'query',col:1,row:0,kind:'agent',title:'工单列表 / 详情 / 总结',lines:['编号、状态、公司、报表或处理人']},
+    {id:'access',col:1,row:1,kind:'guard',title:'当前授权范围与查询预算',lines:['不可见工单与不存在工单统一拒绝']},
+    {id:'provider',col:1,row:2,kind:'business',title:'WorkOrderProvider 只读接口',lines:['返回完整有界事实，不推进审批']},
+    {id:'fixture',col:0,row:3,kind:'business',title:'固定演示示例',lines:['待审批、处理中、完成、驳回']},
+    {id:'linked',col:2,row:3,kind:'business',title:'实际演示派单关联',lines:['成功条目映射固定首个审批环节']},
+    {id:'steps',col:1,row:4,kind:'business',title:'固定环节与固定处理人',lines:['提交 → 部门审批 → 财务复核', '业务处理 → 归档；未来步骤未到达']},
+    {id:'summary',col:1,row:5,kind:'agent',title:'确定性汇总同一范围',lines:['当前审批人、状态分布、分币种金额']},
+    {id:'card',col:1,row:6,kind:'ui',title:'来源、时间线及办理小结',lines:['终态无当前待办；不提供审批按钮']},
+    {id:'external',col:2,row:6,kind:'error',title:'真实工单系统接入待完成',lines:['替换业务提供者后须重新验收']}
+  ],edges:[['query','access'],['access','provider'],['provider','fixture'],['provider','linked'],['fixture','steps'],['linked','steps'],['steps','summary'],['summary','card'],['provider','external','后续接入']]
+});
 const colors={ui:['#eaf2ff','#386bc1'],agent:['#edf5ff','#3778a8'],model:['#f3edff','#8751bf'],business:['#e8f7ef','#268255'],guard:['#fff4dc','#b58022'],error:['#fff0ef','#ba534e'],store:['#edf1f5','#60768b']};
 const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&apos;'}[c]));
 function wrap(s,max=33){let chunks=[],line='',count=0;for(const ch of s){const weight=ch.charCodeAt(0)>255?1.7:1;if(count+weight>max){chunks.push(line);line='';count=0;}line+=ch;count+=weight;}if(line)chunks.push(line);return chunks;}
@@ -1046,11 +1077,11 @@ for(const node of chart.nodes){const g=geom(node),[fill,stroke]=colors[node.kind
 parts.push(`<text x="60" y="${H-26}" font-size="12" fill="#64748b">2026-10-06 · 依据当前工作区源码 · 模型解析 / 确定性业务 / 实际派单边界分离</text></g></svg>`);return parts.join('');}
 function mermaid(chart){return 'flowchart TD\n'+chart.nodes.map(node=>{const text=[node.title,...node.lines].join('<br/>').replaceAll('"','&quot;');return `  ${node.id}${node.kind==='guard'?'{"'+text+'"}':'["'+text+'"]'}:::${node.kind}`;}).join('\n')+'\n'+chart.edges.map(([a,b,label])=>`  ${a} -->${label?'|"'+label+'"|':''} ${b}`).join('\n')+'\n'+Object.entries(colors).map(([k,[f,s]])=>`  classDef ${k} fill:${f},stroke:${s},color:#1e354c`).join('\n');}
 const svgs=charts.map(render);
-charts.forEach((chart,i)=>{writeOutput(path.join(out,`0${i+1}.svg`),svgs[i]);writeOutput(path.join(out,`0${i+1}.mmd`),mermaid(chart));});
+charts.forEach((chart,i)=>{const number=String(i+1).padStart(2,'0');writeOutput(path.join(out,`${number}.svg`),svgs[i]);writeOutput(path.join(out,`${number}.mmd`),mermaid(chart));});
 let xml='<mxfile host="app.diagrams.net" modified="2026-10-06T00:00:00.000Z" agent="Codex" version="26.0.0">';
 charts.forEach((chart,index)=>{xml+=`<diagram id="semantic-${index+1}" name="${esc(chart.name)}"><mxGraphModel dx="1340" dy="2000" grid="1" gridSize="10" page="0"><root><mxCell id="0"/><mxCell id="1" parent="0"/>`;for(const node of chart.nodes){const g=geom(node),[fill,stroke]=colors[node.kind],value=[`<b>${node.title}</b>`,...node.lines].join('<br>');xml+=`<mxCell id="${node.id}" value="${esc(value)}" style="${node.kind==='guard'?'rhombus;':'rounded=1;'}whiteSpace=wrap;html=1;fillColor=${fill};strokeColor=${stroke};fontColor=#1e354c;fontFamily=Microsoft YaHei;fontSize=14;" vertex="1" parent="1"><mxGeometry x="${g.x}" y="${g.y}" width="${g.w}" height="${g.h}" as="geometry"/></mxCell>`;}chart.edges.forEach(([a,b,label=''],i)=>{xml+=`<mxCell id="e${i}" value="${esc(label)}" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#657891;fontFamily=Microsoft YaHei;fontSize=12;" edge="1" parent="1" source="${a}" target="${b}"><mxGeometry relative="1" as="geometry"/></mxCell>`;});xml+='</root></mxGraphModel></diagram>';});xml+='</mxfile>';writeOutput(path.join(out,'demo-final.drawio'),xml);
 writeOutput(path.join(out,'flows.json'),JSON.stringify(charts,null,2));
-const html=`<!doctype html><html lang="zh-CN"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>用户输入与语义 V1 完整流程</title><style>*{box-sizing:border-box}body{margin:0;font-family:"Microsoft YaHei",sans-serif;color:#1d354a;background:#f1f5f9}header{padding:24px 32px;background:#102a43;color:white}header h1{font-size:25px;margin:0 0 10px}header p{margin:0;color:#c3d4e7;font-size:14px}.bar{position:sticky;top:0;z-index:3;display:flex;gap:8px;flex-wrap:wrap;background:white;padding:12px 20px;border-bottom:1px solid #d7e2ed}button,a{font:inherit}button{cursor:pointer;border:1px solid #c5d5e5;background:#fff;border-radius:7px;padding:8px 11px;color:#214b70}button.active{background:#214b70;color:white}.zoom{padding:10px 24px;display:flex;align-items:center;gap:10px;background:#e8eef5}main{padding:22px;overflow:auto}.chart{background:white;max-width:1800px;margin:auto;box-shadow:0 2px 12px #102a4310}.chart svg{display:block;width:100%;height:auto}.hidden{display:none}small{color:#52687a}a{color:#27649d}.legend{display:flex;gap:14px;flex-wrap:wrap;margin-left:auto;font-size:12px}.legend span{padding:4px 7px;border-radius:4px}.summary{padding:14px 24px;background:#fff;border-bottom:1px solid #d7e2ed;line-height:1.7;font-size:14px}</style></head><body><header><h1>用户输入 → 结构化语义 → 权威状态 → 业务执行</h1><p>当前运行：active 语义 V1 · deepseek-v4.1-flash · native JSON Schema · MCP 双服务 · 2026-10-06</p></header><div class="summary">模型只解析本轮动作和范围变化；原文证据、实体映射、权限、规则、版本和实际派单由服务端负责。<br>八页可切换、缩放；下方节点颜色区分责任边界。金额、日期、文本和布尔筛选来自配置；未配置能力、排序和条数限制仍需澄清。<a href="demo-final.drawio" download>下载可编辑 draw.io</a> · <a href="../../语义V1配置字段筛选.md">详细说明与 JSON 示例</a></div><nav class="bar">${charts.map((c,i)=>`<button data-page="${i}" class="${i===0?'active':''}">${c.name}</button>`).join('')}</nav><div class="zoom"><button id="less">缩小</button><button id="fit">适配宽度</button><button id="more">放大</button><small id="percent">100%</small><div class="legend">${Object.entries({ui:'前端',agent:'Agent 服务',model:'模型',business:'MCP 业务',guard:'校验/判断',store:'持久状态',error:'拒绝/异常'}).map(([k,t])=>`<span style="background:${colors[k][0]};color:${colors[k][1]}">${t}</span>`).join('')}</div></div><main>${svgs.map((s,i)=>`<section class="chart ${i?'hidden':''}" data-chart="${i}">${s}</section>`).join('')}</main><script>let selected=0,zoom=1;const sections=[...document.querySelectorAll('[data-chart]')];function update(){sections.forEach((s,i)=>{s.classList.toggle('hidden',i!==selected);s.style.width=(100*zoom)+'%';s.style.maxWidth=zoom>1?'none':'1800px'});document.querySelectorAll('[data-page]').forEach(b=>b.classList.toggle('active',Number(b.dataset.page)===selected));document.querySelector('#percent').textContent=Math.round(zoom*100)+'%'}document.querySelectorAll('[data-page]').forEach(b=>b.onclick=()=>{selected=Number(b.dataset.page);zoom=1;update();window.scrollTo({top:0})});document.querySelector('#less').onclick=()=>{zoom=Math.max(.35,zoom-.15);update()};document.querySelector('#more').onclick=()=>{zoom=Math.min(2.5,zoom+.15);update()};document.querySelector('#fit').onclick=()=>{zoom=1;update()};</script></body></html>`;
+const html=`<!doctype html><html lang="zh-CN"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>通用业务助手与 V1 派单流程</title><style>*{box-sizing:border-box}body{margin:0;font-family:"Microsoft YaHei",sans-serif;color:#1d354a;background:#f1f5f9}header{padding:24px 32px;background:#102a43;color:white}header h1{font-size:25px;margin:0 0 10px}header p{margin:0;color:#c3d4e7;font-size:14px}.bar{position:sticky;top:0;z-index:3;display:flex;gap:8px;flex-wrap:wrap;background:white;padding:12px 20px;border-bottom:1px solid #d7e2ed}button,a{font:inherit}button{cursor:pointer;border:1px solid #c5d5e5;background:#fff;border-radius:7px;padding:8px 11px;color:#214b70}button.active{background:#214b70;color:white}.zoom{padding:10px 24px;display:flex;align-items:center;gap:10px;background:#e8eef5}main{padding:22px;overflow:auto}.chart{background:white;max-width:1800px;margin:auto;box-shadow:0 2px 12px #102a4310}.chart svg{display:block;width:100%;height:auto}.hidden{display:none}small{color:#52687a}a{color:#27649d}.legend{display:flex;gap:14px;flex-wrap:wrap;margin-left:auto;font-size:12px}.legend span{padding:4px 7px;border-radius:4px}.summary{padding:14px 24px;background:#fff;border-bottom:1px solid #d7e2ed;line-height:1.7;font-size:14px}</style></head><body><header><h1>统一业务助手 → 受控查询 / 待确认派单</h1><p>当前运行：active 语义 V1 · deepseek-v4.1-flash · native JSON Schema · MCP 双服务 · 2026-10-06</p></header><div class="summary">模型只解析本轮动作和范围变化；原文证据、实体映射、权限、规则、版本和实际派单由服务端负责。<br>十页可切换、缩放；下方节点颜色区分责任边界。金额、日期、文本和布尔筛选来自配置；普通查询支持分页、排序与统计；派单选择仍按独立候选和确认流程处理。<a href="demo-final.drawio" download>下载可编辑 draw.io</a> · <a href="../../语义V1配置字段筛选.md">详细说明与 JSON 示例</a></div><nav class="bar">${charts.map((c,i)=>`<button data-page="${i}" class="${i===0?'active':''}">${c.name}</button>`).join('')}</nav><div class="zoom"><button id="less">缩小</button><button id="fit">适配宽度</button><button id="more">放大</button><small id="percent">100%</small><div class="legend">${Object.entries({ui:'前端',agent:'Agent 服务',model:'模型',business:'MCP 业务',guard:'校验/判断',store:'持久状态',error:'拒绝/异常'}).map(([k,t])=>`<span style="background:${colors[k][0]};color:${colors[k][1]}">${t}</span>`).join('')}</div></div><main>${svgs.map((s,i)=>`<section class="chart ${i?'hidden':''}" data-chart="${i}">${s}</section>`).join('')}</main><script>let selected=0,zoom=1;const sections=[...document.querySelectorAll('[data-chart]')];function update(){sections.forEach((s,i)=>{s.classList.toggle('hidden',i!==selected);s.style.width=(100*zoom)+'%';s.style.maxWidth=zoom>1?'none':'1800px'});document.querySelectorAll('[data-page]').forEach(b=>b.classList.toggle('active',Number(b.dataset.page)===selected));document.querySelector('#percent').textContent=Math.round(zoom*100)+'%'}document.querySelectorAll('[data-page]').forEach(b=>b.onclick=()=>{selected=Number(b.dataset.page);zoom=1;update();window.scrollTo({top:0})});document.querySelector('#less').onclick=()=>{zoom=Math.max(.35,zoom-.15);update()};document.querySelector('#more').onclick=()=>{zoom=Math.min(2.5,zoom+.15);update()};document.querySelector('#fit').onclick=()=>{zoom=1;update()};</script></body></html>`;
 writeOutput(path.join(out,'index.html'),html);
 const fence=String.fromCharCode(96).repeat(3);
 const sections=charts.map((chart,i)=>`## ${chart.name}\n\n${chart.note}\n\n${fence}mermaid\n${mermaid(chart)}\n${fence}\n`);

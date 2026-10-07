@@ -1,0 +1,22 @@
+[
+  {"name":"新增保留集英文与状态","turns":[
+    {"message":"Show every sales record available to company A. Do not prepare any dispatch.","domain":"REPORT","recordSet":"sales_all"}
+  ]},
+  {"name":"新增保留集分组不是过滤","turns":[
+    {"message":"A公司的工单分别有几件在审批、几件已完成？也列出其余状态，统计全部金额。","domain":"WORK_ORDER","view":"SUMMARY","total":5,"orderIds":["WO-DEMO-001","WO-DEMO-002","WO-DEMO-003","WO-DEMO-004","WO-DEMO-005"]},
+    {"message":"这次仅统计已驳回的那些工单。","domain":"WORK_ORDER","view":"SUMMARY","total":1,"orderIds":["WO-DEMO-005"]}
+  ]},
+  {"name":"新增保留集列表序号","turns":[
+    {"message":"把A公司的全部工单按工单编号从小到大列出来。","domain":"WORK_ORDER","sortField":"orderId","descending":false,"orderIds":["WO-DEMO-001","WO-DEMO-002","WO-DEMO-003","WO-DEMO-004","WO-DEMO-005"]},
+    {"message":"第二条目前该找谁，给我看完整进度。","domain":"WORK_ORDER","view":"DETAIL","orderIds":["WO-DEMO-002"],"assignee":"陈会计（演示）"}
+  ]},
+  {"name":"新增保留集办理结果","turns":[
+    {"message":"WO-DEMO-004办理得怎么样了？请概括一下这件工单的结果。","domain":"WORK_ORDER","view":"DETAIL","orderIds":["WO-DEMO-004"],"stage":"归档"}
+  ]},
+  {"name":"新增保留集无此能力和恢复","turns":[
+    {"message":"查一下库存周转率报表的实时数据。","noQuery":true},
+    {"message":"那就重新查A公司的销售台账全部业务数据。","domain":"REPORT","recordSet":"sales_all"},
+    {"message":"替我删除这些销售记录。","noQuery":true},
+    {"message":"现在独立查询A公司的费用报销数据。","domain":"REPORT","recordSet":"expense_all"}
+  ]}
+]

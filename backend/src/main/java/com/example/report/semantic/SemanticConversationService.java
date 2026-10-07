@@ -22,8 +22,8 @@ import java.util.function.Consumer;
 import static com.example.report.semantic.SemanticIntent.Target.*;
 
 /**
- * 真实模型语义对话编排：解析本轮原文、校验意图、更新权威状态，再调用确定性业务服务并发送事实卡片。
- * 模型只能提出预览或生成待确认清单；真正派单仍需用户确认。SSE 断开、租约过期或删除会话时停止旧轮次写入。
+ * 统一对话租约与编排：先处理通用只读查询，再由派单分支解析意图、更新权威状态并发送事实卡片。
+ * 模型不能确认派单或审批；SSE断开、租约过期或删除会话时停止旧轮次写入，两类查询上下文独立保存。
  */
 @Slf4j
 @Service
@@ -39,11 +39,13 @@ public class SemanticConversationService {
     private final ReportCatalogService catalog;
     private final ResourceQuotaService quotas;
     private final AgentProperties props;
+    private final com.example.report.assistant.BusinessAssistantService assistant;
     public SemanticConversationService(IntentParser parser, IntentCodec codec, DialogueStore store, SemanticPlanner planner,
             ConversationService conversations, PreviewService previews, PlanService plans, PlanRepository planRepository,
-            ReportCatalogService catalog, ResourceQuotaService quotas, AgentProperties props) {
+            ReportCatalogService catalog, ResourceQuotaService quotas, AgentProperties props,com.example.report.assistant.BusinessAssistantService assistant) {
         this.parser=parser;this.codec=codec;this.store=store;this.planner=planner;this.conversations=conversations;
         this.previews=previews;this.plans=plans;this.planRepository=planRepository;this.catalog=catalog;this.quotas=quotas;this.props=props;
+        this.assistant=assistant;
         if (!"active".equals(props.getSemantic().getMode())) throw new IllegalArgumentException("最终演示版仅支持 agent.semantic.mode=active");
     }
     public boolean enabled() { return "active".equals(props.getSemantic().getMode()); }
@@ -84,6 +86,8 @@ public class SemanticConversationService {
         var state=session.state(); SemanticIntent intent=null; String reply;
         state.setParserSource(null);
         conversations.logUser(id,user.userId(),message);
+        // 业务查询独立维护上下文，不调用beginRequest、不刷新派单预览，也不改变原勾选集合。
+        if(assistant.handle(user,id,requestId,message,model,session,guard,emit)) return;
         try {
             hydrate(user,id,state);
             state.setAttemptedAt(LocalDateTime.now());
@@ -94,6 +98,10 @@ public class SemanticConversationService {
             var interpreted=parser.interpret(message,new IntentParser.Context(state,catalog.dispatchableReports(user).stream().map(CatalogEntry::ref).toList(),mentions,SemanticCapabilities.selectors(catalog.dispatchableReports(user)),draft -> planner.validateModelDraft(user,state,draft),SemanticCapabilities.fields(catalog.dispatchableReports(user))));
             codec.validate(interpreted.intent(),message); guard.run();
             intent=interpreted.intent();state.setParserSource(interpreted.source());
+            // 普通查询结果没有派单资格语义；查询/派单切换时先取得新候选，禁止指代旧预览生成或修改清单。
+            if(state.isBusinessQueryAfterPreview() && (intent.action()==SemanticIntent.Action.PREPARE_DISPATCH
+                    || (intent.changes(RECORDS) && !intent.changes(REPORTS) && !intent.changes(COMPANY))))
+                throw new ApiException(422,"刚才查看的是只读业务数据，请先明确查询可派单范围，再调整选择或生成待确认清单");
             state.setPendingIntent(intent);
             planner.requireCoverage(state,intent,mentions);
             planner.merge(user,state,intent);
@@ -156,6 +164,7 @@ public class SemanticConversationService {
             if (outcome.status()!=PreviewOutcome.Status.OK) throw new ApiException(422,"当前范围没有可用报表，请重新指定报表名称");
             snapshot=outcome.snapshot();
             state.setPreviewId(snapshot.preview().getId()); state.setEffective(scope); state.setPlanId(null);
+            state.setBusinessQueryAfterPreview(false);
             refreshed=true;
             session.save();
             var payload=PreviewPayload.of(snapshot,catalog);

@@ -1,0 +1,17 @@
+[
+  {"name":"保留问法报表","turns":[
+    {"message":"先别派任何单。我想浏览一下A公司销售台账里的所有记录。","domain":"REPORT","recordSet":"sales_all"},
+    {"message":"五万块以上的留下，五万整的不算。","domain":"REPORT","recordSet":"sales_gt_50000"}
+  ]},
+  {"name":"保留问法工单","turns":[
+    {"message":"WO-DEMO-003这件事办到哪了？目前找谁？","domain":"WORK_ORDER","view":"DETAIL","orderIds":["WO-DEMO-003"],"stage":"业务处理","assignee":"赵专员（演示）"},
+    {"message":"再看WO-DEMO-004，给我一个办理结果小结。","domain":"WORK_ORDER","view":"DETAIL","orderIds":["WO-DEMO-004"],"stage":"归档"}
+  ]},
+  {"name":"保留问法全局总结","turns":[
+    {"message":"把A公司的工单盘一盘，哪些在等审批、哪些处理完了，汇总金额。","domain":"WORK_ORDER","view":"SUMMARY","total":5,"orderIds":["WO-DEMO-001","WO-DEMO-002","WO-DEMO-003","WO-DEMO-004","WO-DEMO-005"]}
+  ]},
+  {"name":"保留问法只读界限","turns":[
+    {"message":"帮我催一下林主管，并把工单标成已审批。","noQuery":true},
+    {"message":"我只是要看失败的派单流水，不是让你重新发。","domain":"DISPATCH","status":"失败"}
+  ]}
+]

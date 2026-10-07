@@ -45,7 +45,7 @@ public class AgentController {
 
     /**
      * 对话：POST JSON，返回 text/event-stream。
-     * 事件：conversation / text / preview / choice / plan / result / error / done
+     * 事件：conversation / text / business_query / preview / choice / plan / result / error / done
      */
     @PostMapping(value = "/chat", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
     public Flux<ServerSentEvent<Object>> chat(@RequestHeader(PermissionService.USER_HEADER) String userId,

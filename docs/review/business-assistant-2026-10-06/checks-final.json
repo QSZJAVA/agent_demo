@@ -1,0 +1,40 @@
+{
+  "recordedAt": "2026-10-06T16:50:39.425Z",
+  "checks": [
+    {
+      "command": "node tools/check-comments.cjs",
+      "exitCode": 0,
+      "output": "注释检查通过：200 个生产类型、225 个实体字段、42 个请求/表单字段、93 个record、29 个前端模块；38 张表、456 个字段清单。\n"
+    },
+    {
+      "command": "node tools/check-docs-real-model.cjs",
+      "exitCode": 0,
+      "output": "Real-model documentation check passed (131 files).\n"
+    },
+    {
+      "command": "node tools/check-demo-baseline.cjs",
+      "exitCode": 0,
+      "output": "V1 business assistant baseline passed; 70 Markdown files and 10 generated flows checked.\n"
+    },
+    {
+      "command": "node tools/check-no-legacy-compat.cjs",
+      "exitCode": 0,
+      "output": "Current source compatibility check passed; one V1 baseline, no retired protocols or database adapters.\n"
+    },
+    {
+      "command": "node tools/generate-schema-dictionary.cjs --check",
+      "exitCode": 0,
+      "output": "表结构字典：38 张表，456 个字段\n"
+    },
+    {
+      "command": "node docs/diagrams/build-semantic-flows.cjs --check",
+      "exitCode": 0,
+      "output": "Generated 10 SVG/Mermaid pages, editable draw.io and standalone HTML in D:\\demo-v1\\demo\\docs\\diagrams\\demo-final\n"
+    },
+    {
+      "command": "git -c core.safecrlf=false diff --check",
+      "exitCode": 0,
+      "output": ""
+    }
+  ]
+}

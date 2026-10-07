@@ -1,0 +1,4888 @@
+{
+  "passed": 23,
+  "scope": "Real model plus authenticated HTTP MCP; no dispatch or approval; programmatic checks, not browser acceptance",
+  "recordedAt": "2026-10-06T23:14:49.1915318+08:00",
+  "sourceSales": {
+    "records": [
+      {
+        "tenantId": "T001",
+        "id": "1",
+        "companyCode": "A",
+        "orderNo": "SO2026001",
+        "productName": "服务器",
+        "amount": 128000.0,
+        "saleDate": "2026-01-15",
+        "dispatchStatus": 0,
+        "dispatchedAt": null
+      },
+      {
+        "tenantId": "T001",
+        "id": "2",
+        "companyCode": "A",
+        "orderNo": "SO2026002",
+        "productName": "交换机",
+        "amount": 32000.0,
+        "saleDate": "2026-02-08",
+        "dispatchStatus": 0,
+        "dispatchedAt": null
+      },
+      {
+        "tenantId": "T001",
+        "id": "3",
+        "companyCode": "A",
+        "orderNo": "SO2026007",
+        "productName": "云服务",
+        "amount": 96000.0,
+        "saleDate": "2026-04-05",
+        "dispatchStatus": 0,
+        "dispatchedAt": null
+      },
+      {
+        "tenantId": "T001",
+        "id": "4",
+        "companyCode": "A",
+        "orderNo": "SO2026008",
+        "productName": "网线",
+        "amount": 15,
+        "saleDate": "2026-04-12",
+        "dispatchStatus": 0,
+        "dispatchedAt": null
+      }
+    ],
+    "total": 4,
+    "page": 1,
+    "size": 200
+  },
+  "cases": [
+    {
+      "message": "给我看看A公司的销售报表数据，不是可派单候选",
+      "scenario": "全部报表与金额边界",
+      "conversationId": "f36c8351f0474fada8ad25bd5c9b3c98",
+      "passed": true,
+      "errors": [],
+      "expected": {
+        "message": "给我看看A公司的销售报表数据，不是可派单候选",
+        "domain": "REPORT",
+        "view": "LIST",
+        "recordSet": "sales_all"
+      },
+      "events": [
+        {
+          "data": {
+            "requestId": "21cd8ffe2da5440c9f270b4116b4135f",
+            "title": "",
+            "conversationId": "f36c8351f0474fada8ad25bd5c9b3c98"
+          },
+          "type": "conversation"
+        },
+        {
+          "data": {
+            "query": {
+              "domain": "REPORT",
+              "view": "LIST",
+              "reportIds": [
+                "rpt-sales-order"
+              ],
+              "companyCode": "A",
+              "conditions": [],
+              "sortField": null,
+              "descending": false,
+              "page": 1,
+              "size": 20,
+              "groupBy": null
+            },
+            "observedAt": "2026-10-06T23:13:41.824421600+08:00",
+            "source": "HTTP MCP 当前业务数据",
+            "columns": [
+              {
+                "name": "reportId",
+                "type": "string",
+                "description": "报表稳定标识"
+              },
+              {
+                "name": "reportName",
+                "type": "string",
+                "description": "报表名称"
+              },
+              {
+                "name": "companyCode",
+                "type": "string",
+                "description": "所属公司代码"
+              },
+              {
+                "name": "docNo",
+                "type": "string",
+                "description": "来源单据号"
+              },
+              {
+                "name": "amount",
+                "type": "decimal",
+                "description": "来源金额，币种见 currency；空值表示未提供"
+              },
+              {
+                "name": "currency",
+                "type": "string",
+                "description": "来源声明币种；空值表示未声明，不能跨币种合计"
+              },
+              {
+                "name": "date",
+                "type": "date",
+                "description": "业务日期；空值表示未配置"
+              },
+              {
+                "name": "status",
+                "type": "string",
+                "description": "报表：未派单/已派单；派单：待执行/处理中/成功/失败/结果未知/已跳过；工单：待审批/处理中/已完成/已驳回"
+              },
+              {
+                "name": "orderNo",
+                "type": "string",
+                "description": "订单号"
+              },
+              {
+                "name": "productName",
+                "type": "string",
+                "description": "产品名称"
+              },
+              {
+                "name": "saleDate",
+                "type": "date",
+                "description": "销售日期，字符串 yyyy-MM-dd"
+              },
+              {
+                "name": "daysSinceSale",
+                "type": "long",
+                "description": "距销售日期的天数（派生）"
+              },
+              {
+                "name": "dispatched",
+                "type": "boolean",
+                "description": "是否已派单（派生，粗筛后恒为 false）"
+              },
+              {
+                "name": "recordId",
+                "type": "string",
+                "description": "报表内稳定记录标识"
+              }
+            ],
+            "rows": [
+              {
+                "companyCode": "A",
+                "orderNo": "SO2026001",
+                "productName": "服务器",
+                "amount": "128000.00",
+                "saleDate": "2026-01-15",
+                "daysSinceSale": "264",
+                "dispatched": "false",
+                "rowKey": "rpt-sales-order:1",
+                "recordId": "1",
+                "reportId": "rpt-sales-order",
+                "reportName": "销售报表",
+                "docNo": "SO2026001",
+                "date": "2026-01-15",
+                "currency": "CNY",
+                "status": "未派单"
+              },
+              {
+                "companyCode": "A",
+                "orderNo": "SO2026002",
+                "productName": "交换机",
+                "amount": "32000.00",
+                "saleDate": "2026-02-08",
+                "daysSinceSale": "240",
+                "dispatched": "false",
+                "rowKey": "rpt-sales-order:2",
+                "recordId": "2",
+                "reportId": "rpt-sales-order",
+                "reportName": "销售报表",
+                "docNo": "SO2026002",
+                "date": "2026-02-08",
+                "currency": "CNY",
+                "status": "未派单"
+              },
+              {
+                "companyCode": "A",
+                "orderNo": "SO2026007",
+                "productName": "云服务",
+                "amount": "96000.00",
+                "saleDate": "2026-04-05",
+                "daysSinceSale": "184",
+                "dispatched": "false",
+                "rowKey": "rpt-sales-order:3",
+                "recordId": "3",
+                "reportId": "rpt-sales-order",
+                "reportName": "销售报表",
+                "docNo": "SO2026007",
+                "date": "2026-04-05",
+                "currency": "CNY",
+                "status": "未派单"
+              },
+              {
+                "companyCode": "A",
+                "orderNo": "SO2026008",
+                "productName": "网线",
+                "amount": "15.00",
+                "saleDate": "2026-04-12",
+                "daysSinceSale": "177",
+                "dispatched": "false",
+                "rowKey": "rpt-sales-order:4",
+                "recordId": "4",
+                "reportId": "rpt-sales-order",
+                "reportName": "销售报表",
+                "docNo": "SO2026008",
+                "date": "2026-04-12",
+                "currency": "CNY",
+                "status": "未派单"
+              }
+            ],
+            "total": 4,
+            "summary": {
+              "count": 4,
+              "amountsByCurrency": {
+                "CNY": "256015.00"
+              },
+              "statusCounts": {
+                "未派单": 4
+              },
+              "groups": {},
+              "pendingApprovers": {},
+              "unclassifiedAmountCount": 0
+            }
+          },
+          "type": "business_query"
+        },
+        {
+          "data": {
+            "delta": "本次查询匹配 4 条报表记录，当前第 1 页展示 4 条。"
+          },
+          "type": "text"
+        },
+        {
+          "data": {},
+          "type": "done"
+        }
+      ]
+    },
+    {
+      "message": "在这些销售数据里，只看金额超过五万元的，按金额从高到低排列",
+      "scenario": "全部报表与金额边界",
+      "conversationId": "f36c8351f0474fada8ad25bd5c9b3c98",
+      "passed": true,
+      "errors": [],
+      "expected": {
+        "message": "在这些销售数据里，只看金额超过五万元的，按金额从高到低排列",
+        "domain": "REPORT",
+        "recordSet": "sales_gt_50000",
+        "sortField": "amount",
+        "descending": true
+      },
+      "events": [
+        {
+          "data": {
+            "requestId": "32fd4388d3b2441fb0637ee23d793694",
+            "title": "给我看看A公司的销售报表数据，不是可派单候选",
+            "conversationId": "f36c8351f0474fada8ad25bd5c9b3c98"
+          },
+          "type": "conversation"
+        },
+        {
+          "data": {
+            "query": {
+              "domain": "REPORT",
+              "view": "LIST",
+              "reportIds": [
+                "rpt-sales-order"
+              ],
+              "companyCode": "A",
+              "conditions": [
+                {
+                  "allOf": [
+                    {
+                      "field": "amount",
+                      "operator": "GT",
+                      "values": [
+                        "50000"
+                      ]
+                    }
+                  ]
+                }
+              ],
+              "sortField": "amount",
+              "descending": true,
+              "page": 1,
+              "size": 20,
+              "groupBy": null
+            },
+            "observedAt": "2026-10-06T23:13:44.207505700+08:00",
+            "source": "HTTP MCP 当前业务数据",
+            "columns": [
+              {
+                "name": "reportId",
+                "type": "string",
+                "description": "报表稳定标识"
+              },
+              {
+                "name": "reportName",
+                "type": "string",
+                "description": "报表名称"
+              },
+              {
+                "name": "companyCode",
+                "type": "string",
+                "description": "所属公司代码"
+              },
+              {
+                "name": "docNo",
+                "type": "string",
+                "description": "来源单据号"
+              },
+              {
+                "name": "amount",
+                "type": "decimal",
+                "description": "来源金额，币种见 currency；空值表示未提供"
+              },
+              {
+                "name": "currency",
+                "type": "string",
+                "description": "来源声明币种；空值表示未声明，不能跨币种合计"
+              },
+              {
+                "name": "date",
+                "type": "date",
+                "description": "业务日期；空值表示未配置"
+              },
+              {
+                "name": "status",
+                "type": "string",
+                "description": "报表：未派单/已派单；派单：待执行/处理中/成功/失败/结果未知/已跳过；工单：待审批/处理中/已完成/已驳回"
+              },
+              {
+                "name": "orderNo",
+                "type": "string",
+                "description": "订单号"
+              },
+              {
+                "name": "productName",
+                "type": "string",
+                "description": "产品名称"
+              },
+              {
+                "name": "saleDate",
+                "type": "date",
+                "description": "销售日期，字符串 yyyy-MM-dd"
+              },
+              {
+                "name": "daysSinceSale",
+                "type": "long",
+                "description": "距销售日期的天数（派生）"
+              },
+              {
+                "name": "dispatched",
+                "type": "boolean",
+                "description": "是否已派单（派生，粗筛后恒为 false）"
+              },
+              {
+                "name": "recordId",
+                "type": "string",
+                "description": "报表内稳定记录标识"
+              }
+            ],
+            "rows": [
+              {
+                "companyCode": "A",
+                "orderNo": "SO2026001",
+                "productName": "服务器",
+                "amount": "128000.00",
+                "saleDate": "2026-01-15",
+                "daysSinceSale": "264",
+                "dispatched": "false",
+                "rowKey": "rpt-sales-order:1",
+                "recordId": "1",
+                "reportId": "rpt-sales-order",
+                "reportName": "销售报表",
+                "docNo": "SO2026001",
+                "date": "2026-01-15",
+                "currency": "CNY",
+                "status": "未派单"
+              },
+              {
+                "companyCode": "A",
+                "orderNo": "SO2026007",
+                "productName": "云服务",
+                "amount": "96000.00",
+                "saleDate": "2026-04-05",
+                "daysSinceSale": "184",
+                "dispatched": "false",
+                "rowKey": "rpt-sales-order:3",
+                "recordId": "3",
+                "reportId": "rpt-sales-order",
+                "reportName": "销售报表",
+                "docNo": "SO2026007",
+                "date": "2026-04-05",
+                "currency": "CNY",
+                "status": "未派单"
+              }
+            ],
+            "total": 2,
+            "summary": {
+              "count": 2,
+              "amountsByCurrency": {
+                "CNY": "224000.00"
+              },
+              "statusCounts": {
+                "未派单": 2
+              },
+              "groups": {},
+              "pendingApprovers": {},
+              "unclassifiedAmountCount": 0
+            }
+          },
+          "type": "business_query"
+        },
+        {
+          "data": {
+            "delta": "本次查询匹配 2 条报表记录，当前第 1 页展示 2 条。"
+          },
+          "type": "text"
+        },
+        {
+          "data": {},
+          "type": "done"
+        }
+      ]
+    },
+    {
+      "message": "边界改成金额至少九万六千元",
+      "scenario": "全部报表与金额边界",
+      "conversationId": "f36c8351f0474fada8ad25bd5c9b3c98",
+      "passed": true,
+      "errors": [],
+      "expected": {
+        "message": "边界改成金额至少九万六千元",
+        "domain": "REPORT",
+        "recordSet": "sales_gte_96000"
+      },
+      "events": [
+        {
+          "data": {
+            "requestId": "e1b63ccff14342e881a090ece8916d1c",
+            "title": "给我看看A公司的销售报表数据，不是可派单候选",
+            "conversationId": "f36c8351f0474fada8ad25bd5c9b3c98"
+          },
+          "type": "conversation"
+        },
+        {
+          "data": {
+            "query": {
+              "domain": "REPORT",
+              "view": "LIST",
+              "reportIds": [
+                "rpt-sales-order"
+              ],
+              "companyCode": "A",
+              "conditions": [
+                {
+                  "allOf": [
+                    {
+                      "field": "amount",
+                      "operator": "GTE",
+                      "values": [
+                        "96000"
+                      ]
+                    }
+                  ]
+                }
+              ],
+              "sortField": "amount",
+              "descending": true,
+              "page": 1,
+              "size": 20,
+              "groupBy": null
+            },
+            "observedAt": "2026-10-06T23:13:47.214714+08:00",
+            "source": "HTTP MCP 当前业务数据",
+            "columns": [
+              {
+                "name": "reportId",
+                "type": "string",
+                "description": "报表稳定标识"
+              },
+              {
+                "name": "reportName",
+                "type": "string",
+                "description": "报表名称"
+              },
+              {
+                "name": "companyCode",
+                "type": "string",
+                "description": "所属公司代码"
+              },
+              {
+                "name": "docNo",
+                "type": "string",
+                "description": "来源单据号"
+              },
+              {
+                "name": "amount",
+                "type": "decimal",
+                "description": "来源金额，币种见 currency；空值表示未提供"
+              },
+              {
+                "name": "currency",
+                "type": "string",
+                "description": "来源声明币种；空值表示未声明，不能跨币种合计"
+              },
+              {
+                "name": "date",
+                "type": "date",
+                "description": "业务日期；空值表示未配置"
+              },
+              {
+                "name": "status",
+                "type": "string",
+                "description": "报表：未派单/已派单；派单：待执行/处理中/成功/失败/结果未知/已跳过；工单：待审批/处理中/已完成/已驳回"
+              },
+              {
+                "name": "orderNo",
+                "type": "string",
+                "description": "订单号"
+              },
+              {
+                "name": "productName",
+                "type": "string",
+                "description": "产品名称"
+              },
+              {
+                "name": "saleDate",
+                "type": "date",
+                "description": "销售日期，字符串 yyyy-MM-dd"
+              },
+              {
+                "name": "daysSinceSale",
+                "type": "long",
+                "description": "距销售日期的天数（派生）"
+              },
+              {
+                "name": "dispatched",
+                "type": "boolean",
+                "description": "是否已派单（派生，粗筛后恒为 false）"
+              },
+              {
+                "name": "recordId",
+                "type": "string",
+                "description": "报表内稳定记录标识"
+              }
+            ],
+            "rows": [
+              {
+                "companyCode": "A",
+                "orderNo": "SO2026001",
+                "productName": "服务器",
+                "amount": "128000.00",
+                "saleDate": "2026-01-15",
+                "daysSinceSale": "264",
+                "dispatched": "false",
+                "rowKey": "rpt-sales-order:1",
+                "recordId": "1",
+                "reportId": "rpt-sales-order",
+                "reportName": "销售报表",
+                "docNo": "SO2026001",
+                "date": "2026-01-15",
+                "currency": "CNY",
+                "status": "未派单"
+              },
+              {
+                "companyCode": "A",
+                "orderNo": "SO2026007",
+                "productName": "云服务",
+                "amount": "96000.00",
+                "saleDate": "2026-04-05",
+                "daysSinceSale": "184",
+                "dispatched": "false",
+                "rowKey": "rpt-sales-order:3",
+                "recordId": "3",
+                "reportId": "rpt-sales-order",
+                "reportName": "销售报表",
+                "docNo": "SO2026007",
+                "date": "2026-04-05",
+                "currency": "CNY",
+                "status": "未派单"
+              }
+            ],
+            "total": 2,
+            "summary": {
+              "count": 2,
+              "amountsByCurrency": {
+                "CNY": "224000.00"
+              },
+              "statusCounts": {
+                "未派单": 2
+              },
+              "groups": {},
+              "pendingApprovers": {},
+              "unclassifiedAmountCount": 0
+            }
+          },
+          "type": "business_query"
+        },
+        {
+          "data": {
+            "delta": "本次查询匹配 2 条报表记录，当前第 1 页展示 2 条。"
+          },
+          "type": "text"
+        },
+        {
+          "data": {},
+          "type": "done"
+        }
+      ]
+    },
+    {
+      "message": "销售数据中，产品名称包含云的有哪些",
+      "scenario": "来源字段与新查询重置",
+      "conversationId": "790c7f00c455451ba16ecb67d78600a5",
+      "passed": true,
+      "errors": [],
+      "expected": {
+        "message": "销售数据中，产品名称包含云的有哪些",
+        "domain": "REPORT",
+        "recordSet": "sales_cloud"
+      },
+      "events": [
+        {
+          "data": {
+            "requestId": "372e72203f17445d99459883a8439d31",
+            "title": "",
+            "conversationId": "790c7f00c455451ba16ecb67d78600a5"
+          },
+          "type": "conversation"
+        },
+        {
+          "data": {
+            "query": {
+              "domain": "REPORT",
+              "view": "LIST",
+              "reportIds": [
+                "rpt-sales-order"
+              ],
+              "companyCode": null,
+              "conditions": [
+                {
+                  "allOf": [
+                    {
+                      "field": "productName",
+                      "operator": "CONTAINS",
+                      "values": [
+                        "云"
+                      ]
+                    }
+                  ]
+                }
+              ],
+              "sortField": null,
+              "descending": false,
+              "page": 1,
+              "size": 20,
+              "groupBy": null
+            },
+            "observedAt": "2026-10-06T23:13:50.350742+08:00",
+            "source": "HTTP MCP 当前业务数据",
+            "columns": [
+              {
+                "name": "reportId",
+                "type": "string",
+                "description": "报表稳定标识"
+              },
+              {
+                "name": "reportName",
+                "type": "string",
+                "description": "报表名称"
+              },
+              {
+                "name": "companyCode",
+                "type": "string",
+                "description": "所属公司代码"
+              },
+              {
+                "name": "docNo",
+                "type": "string",
+                "description": "来源单据号"
+              },
+              {
+                "name": "amount",
+                "type": "decimal",
+                "description": "来源金额，币种见 currency；空值表示未提供"
+              },
+              {
+                "name": "currency",
+                "type": "string",
+                "description": "来源声明币种；空值表示未声明，不能跨币种合计"
+              },
+              {
+                "name": "date",
+                "type": "date",
+                "description": "业务日期；空值表示未配置"
+              },
+              {
+                "name": "status",
+                "type": "string",
+                "description": "报表：未派单/已派单；派单：待执行/处理中/成功/失败/结果未知/已跳过；工单：待审批/处理中/已完成/已驳回"
+              },
+              {
+                "name": "orderNo",
+                "type": "string",
+                "description": "订单号"
+              },
+              {
+                "name": "productName",
+                "type": "string",
+                "description": "产品名称"
+              },
+              {
+                "name": "saleDate",
+                "type": "date",
+                "description": "销售日期，字符串 yyyy-MM-dd"
+              },
+              {
+                "name": "daysSinceSale",
+                "type": "long",
+                "description": "距销售日期的天数（派生）"
+              },
+              {
+                "name": "dispatched",
+                "type": "boolean",
+                "description": "是否已派单（派生，粗筛后恒为 false）"
+              },
+              {
+                "name": "recordId",
+                "type": "string",
+                "description": "报表内稳定记录标识"
+              }
+            ],
+            "rows": [
+              {
+                "companyCode": "A",
+                "orderNo": "SO2026007",
+                "productName": "云服务",
+                "amount": "96000.00",
+                "saleDate": "2026-04-05",
+                "daysSinceSale": "184",
+                "dispatched": "false",
+                "rowKey": "rpt-sales-order:3",
+                "recordId": "3",
+                "reportId": "rpt-sales-order",
+                "reportName": "销售报表",
+                "docNo": "SO2026007",
+                "date": "2026-04-05",
+                "currency": "CNY",
+                "status": "未派单"
+              }
+            ],
+            "total": 1,
+            "summary": {
+              "count": 1,
+              "amountsByCurrency": {
+                "CNY": "96000.00"
+              },
+              "statusCounts": {
+                "未派单": 1
+              },
+              "groups": {},
+              "pendingApprovers": {},
+              "unclassifiedAmountCount": 0
+            }
+          },
+          "type": "business_query"
+        },
+        {
+          "data": {
+            "delta": "本次查询匹配 1 条报表记录，当前第 1 页展示 1 条。"
+          },
+          "type": "text"
+        },
+        {
+          "data": {},
+          "type": "done"
+        }
+      ]
+    },
+    {
+      "message": "重新查销售报表，销售日期早于2026年4月1日的记录",
+      "scenario": "来源字段与新查询重置",
+      "conversationId": "790c7f00c455451ba16ecb67d78600a5",
+      "passed": true,
+      "errors": [],
+      "expected": {
+        "message": "重新查销售报表，销售日期早于2026年4月1日的记录",
+        "domain": "REPORT",
+        "recordSet": "sales_before_0401"
+      },
+      "events": [
+        {
+          "data": {
+            "requestId": "177608f51b1141698ff2723b2b77133c",
+            "title": "销售数据中，产品名称包含云的有哪些",
+            "conversationId": "790c7f00c455451ba16ecb67d78600a5"
+          },
+          "type": "conversation"
+        },
+        {
+          "data": {
+            "query": {
+              "domain": "REPORT",
+              "view": "LIST",
+              "reportIds": [
+                "rpt-sales-order"
+              ],
+              "companyCode": null,
+              "conditions": [
+                {
+                  "allOf": [
+                    {
+                      "field": "saleDate",
+                      "operator": "LT",
+                      "values": [
+                        "2026-04-01"
+                      ]
+                    }
+                  ]
+                }
+              ],
+              "sortField": null,
+              "descending": false,
+              "page": 1,
+              "size": 20,
+              "groupBy": null
+            },
+            "observedAt": "2026-10-06T23:13:54.505824+08:00",
+            "source": "HTTP MCP 当前业务数据",
+            "columns": [
+              {
+                "name": "reportId",
+                "type": "string",
+                "description": "报表稳定标识"
+              },
+              {
+                "name": "reportName",
+                "type": "string",
+                "description": "报表名称"
+              },
+              {
+                "name": "companyCode",
+                "type": "string",
+                "description": "所属公司代码"
+              },
+              {
+                "name": "docNo",
+                "type": "string",
+                "description": "来源单据号"
+              },
+              {
+                "name": "amount",
+                "type": "decimal",
+                "description": "来源金额，币种见 currency；空值表示未提供"
+              },
+              {
+                "name": "currency",
+                "type": "string",
+                "description": "来源声明币种；空值表示未声明，不能跨币种合计"
+              },
+              {
+                "name": "date",
+                "type": "date",
+                "description": "业务日期；空值表示未配置"
+              },
+              {
+                "name": "status",
+                "type": "string",
+                "description": "报表：未派单/已派单；派单：待执行/处理中/成功/失败/结果未知/已跳过；工单：待审批/处理中/已完成/已驳回"
+              },
+              {
+                "name": "orderNo",
+                "type": "string",
+                "description": "订单号"
+              },
+              {
+                "name": "productName",
+                "type": "string",
+                "description": "产品名称"
+              },
+              {
+                "name": "saleDate",
+                "type": "date",
+                "description": "销售日期，字符串 yyyy-MM-dd"
+              },
+              {
+                "name": "daysSinceSale",
+                "type": "long",
+                "description": "距销售日期的天数（派生）"
+              },
+              {
+                "name": "dispatched",
+                "type": "boolean",
+                "description": "是否已派单（派生，粗筛后恒为 false）"
+              },
+              {
+                "name": "recordId",
+                "type": "string",
+                "description": "报表内稳定记录标识"
+              }
+            ],
+            "rows": [
+              {
+                "companyCode": "A",
+                "orderNo": "SO2026001",
+                "productName": "服务器",
+                "amount": "128000.00",
+                "saleDate": "2026-01-15",
+                "daysSinceSale": "264",
+                "dispatched": "false",
+                "rowKey": "rpt-sales-order:1",
+                "recordId": "1",
+                "reportId": "rpt-sales-order",
+                "reportName": "销售报表",
+                "docNo": "SO2026001",
+                "date": "2026-01-15",
+                "currency": "CNY",
+                "status": "未派单"
+              },
+              {
+                "companyCode": "A",
+                "orderNo": "SO2026002",
+                "productName": "交换机",
+                "amount": "32000.00",
+                "saleDate": "2026-02-08",
+                "daysSinceSale": "240",
+                "dispatched": "false",
+                "rowKey": "rpt-sales-order:2",
+                "recordId": "2",
+                "reportId": "rpt-sales-order",
+                "reportName": "销售报表",
+                "docNo": "SO2026002",
+                "date": "2026-02-08",
+                "currency": "CNY",
+                "status": "未派单"
+              }
+            ],
+            "total": 2,
+            "summary": {
+              "count": 2,
+              "amountsByCurrency": {
+                "CNY": "160000.00"
+              },
+              "statusCounts": {
+                "未派单": 2
+              },
+              "groups": {},
+              "pendingApprovers": {},
+              "unclassifiedAmountCount": 0
+            }
+          },
+          "type": "business_query"
+        },
+        {
+          "data": {
+            "delta": "本次查询匹配 2 条报表记录，当前第 1 页展示 2 条。"
+          },
+          "type": "text"
+        },
+        {
+          "data": {},
+          "type": "done"
+        }
+      ]
+    },
+    {
+      "message": "现在查A公司的费用报表全部数据",
+      "scenario": "来源字段与新查询重置",
+      "conversationId": "790c7f00c455451ba16ecb67d78600a5",
+      "passed": true,
+      "errors": [],
+      "expected": {
+        "message": "现在查A公司的费用报表全部数据",
+        "domain": "REPORT",
+        "recordSet": "expense_all"
+      },
+      "events": [
+        {
+          "data": {
+            "requestId": "cde284f715774501b99b3c9cb2501b02",
+            "title": "销售数据中，产品名称包含云的有哪些",
+            "conversationId": "790c7f00c455451ba16ecb67d78600a5"
+          },
+          "type": "conversation"
+        },
+        {
+          "data": {
+            "query": {
+              "domain": "REPORT",
+              "view": "LIST",
+              "reportIds": [
+                "rpt-expense-claim"
+              ],
+              "companyCode": "A",
+              "conditions": [],
+              "sortField": null,
+              "descending": false,
+              "page": 1,
+              "size": 20,
+              "groupBy": null
+            },
+            "observedAt": "2026-10-06T23:13:56.942328300+08:00",
+            "source": "HTTP MCP 当前业务数据",
+            "columns": [
+              {
+                "name": "reportId",
+                "type": "string",
+                "description": "报表稳定标识"
+              },
+              {
+                "name": "reportName",
+                "type": "string",
+                "description": "报表名称"
+              },
+              {
+                "name": "companyCode",
+                "type": "string",
+                "description": "所属公司代码"
+              },
+              {
+                "name": "docNo",
+                "type": "string",
+                "description": "来源单据号"
+              },
+              {
+                "name": "amount",
+                "type": "decimal",
+                "description": "来源金额，币种见 currency；空值表示未提供"
+              },
+              {
+                "name": "currency",
+                "type": "string",
+                "description": "来源声明币种；空值表示未声明，不能跨币种合计"
+              },
+              {
+                "name": "date",
+                "type": "date",
+                "description": "业务日期；空值表示未配置"
+              },
+              {
+                "name": "status",
+                "type": "string",
+                "description": "报表：未派单/已派单；派单：待执行/处理中/成功/失败/结果未知/已跳过；工单：待审批/处理中/已完成/已驳回"
+              },
+              {
+                "name": "expenseNo",
+                "type": "string",
+                "description": "报销单号"
+              },
+              {
+                "name": "expenseType",
+                "type": "string",
+                "description": "费用类型，如 差旅费 / 业务招待费 / 办公用品"
+              },
+              {
+                "name": "expenseDate",
+                "type": "date",
+                "description": "发生日期，字符串 yyyy-MM-dd"
+              },
+              {
+                "name": "daysSinceExpense",
+                "type": "long",
+                "description": "距发生日期的天数（派生）"
+              },
+              {
+                "name": "dispatched",
+                "type": "boolean",
+                "description": "是否已派单（派生，粗筛后恒为 false）"
+              },
+              {
+                "name": "recordId",
+                "type": "string",
+                "description": "报表内稳定记录标识"
+              }
+            ],
+            "rows": [
+              {
+                "companyCode": "A",
+                "expenseNo": "EXP-2026-0001",
+                "expenseType": "差旅费",
+                "amount": "8600.00",
+                "expenseDate": "2026-01-09",
+                "daysSinceExpense": "270",
+                "dispatched": "false",
+                "rowKey": "rpt-expense-claim:1",
+                "recordId": "1",
+                "reportId": "rpt-expense-claim",
+                "reportName": "费用报表",
+                "docNo": "EXP-2026-0001",
+                "date": "2026-01-09",
+                "currency": "CNY",
+                "status": "未派单"
+              },
+              {
+                "companyCode": "A",
+                "expenseNo": "EXP-2026-0002",
+                "expenseType": "业务招待费",
+                "amount": "3200.00",
+                "expenseDate": "2026-02-14",
+                "daysSinceExpense": "234",
+                "dispatched": "false",
+                "rowKey": "rpt-expense-claim:2",
+                "recordId": "2",
+                "reportId": "rpt-expense-claim",
+                "reportName": "费用报表",
+                "docNo": "EXP-2026-0002",
+                "date": "2026-02-14",
+                "currency": "CNY",
+                "status": "未派单"
+              },
+              {
+                "companyCode": "A",
+                "expenseNo": "EXP-2026-0007",
+                "expenseType": "办公用品",
+                "amount": "680.00",
+                "expenseDate": "2026-03-05",
+                "daysSinceExpense": "215",
+                "dispatched": "false",
+                "rowKey": "rpt-expense-claim:3",
+                "recordId": "3",
+                "reportId": "rpt-expense-claim",
+                "reportName": "费用报表",
+                "docNo": "EXP-2026-0007",
+                "date": "2026-03-05",
+                "currency": "CNY",
+                "status": "未派单"
+              }
+            ],
+            "total": 3,
+            "summary": {
+              "count": 3,
+              "amountsByCurrency": {
+                "CNY": "12480.00"
+              },
+              "statusCounts": {
+                "未派单": 3
+              },
+              "groups": {},
+              "pendingApprovers": {},
+              "unclassifiedAmountCount": 0
+            }
+          },
+          "type": "business_query"
+        },
+        {
+          "data": {
+            "delta": "本次查询匹配 3 条报表记录，当前第 1 页展示 3 条。"
+          },
+          "type": "text"
+        },
+        {
+          "data": {},
+          "type": "done"
+        }
+      ]
+    },
+    {
+      "message": "查询A公司的销售数据，按金额从低到高排，每页两条",
+      "scenario": "分页与统计",
+      "conversationId": "e5fcc06c59734b72b717faf2e5c2507f",
+      "passed": true,
+      "errors": [],
+      "expected": {
+        "message": "查询A公司的销售数据，按金额从低到高排，每页两条",
+        "domain": "REPORT",
+        "recordSet": "sales_all",
+        "sortField": "amount",
+        "descending": false,
+        "page": 1,
+        "size": 2
+      },
+      "events": [
+        {
+          "data": {
+            "requestId": "f5f903332aea4e929f07e8d1724ebde8",
+            "title": "",
+            "conversationId": "e5fcc06c59734b72b717faf2e5c2507f"
+          },
+          "type": "conversation"
+        },
+        {
+          "data": {
+            "query": {
+              "domain": "REPORT",
+              "view": "LIST",
+              "reportIds": [
+                "rpt-sales-order"
+              ],
+              "companyCode": "A",
+              "conditions": [],
+              "sortField": "amount",
+              "descending": false,
+              "page": 1,
+              "size": 2,
+              "groupBy": null
+            },
+            "observedAt": "2026-10-06T23:14:00.113673500+08:00",
+            "source": "HTTP MCP 当前业务数据",
+            "columns": [
+              {
+                "name": "reportId",
+                "type": "string",
+                "description": "报表稳定标识"
+              },
+              {
+                "name": "reportName",
+                "type": "string",
+                "description": "报表名称"
+              },
+              {
+                "name": "companyCode",
+                "type": "string",
+                "description": "所属公司代码"
+              },
+              {
+                "name": "docNo",
+                "type": "string",
+                "description": "来源单据号"
+              },
+              {
+                "name": "amount",
+                "type": "decimal",
+                "description": "来源金额，币种见 currency；空值表示未提供"
+              },
+              {
+                "name": "currency",
+                "type": "string",
+                "description": "来源声明币种；空值表示未声明，不能跨币种合计"
+              },
+              {
+                "name": "date",
+                "type": "date",
+                "description": "业务日期；空值表示未配置"
+              },
+              {
+                "name": "status",
+                "type": "string",
+                "description": "报表：未派单/已派单；派单：待执行/处理中/成功/失败/结果未知/已跳过；工单：待审批/处理中/已完成/已驳回"
+              },
+              {
+                "name": "orderNo",
+                "type": "string",
+                "description": "订单号"
+              },
+              {
+                "name": "productName",
+                "type": "string",
+                "description": "产品名称"
+              },
+              {
+                "name": "saleDate",
+                "type": "date",
+                "description": "销售日期，字符串 yyyy-MM-dd"
+              },
+              {
+                "name": "daysSinceSale",
+                "type": "long",
+                "description": "距销售日期的天数（派生）"
+              },
+              {
+                "name": "dispatched",
+                "type": "boolean",
+                "description": "是否已派单（派生，粗筛后恒为 false）"
+              },
+              {
+                "name": "recordId",
+                "type": "string",
+                "description": "报表内稳定记录标识"
+              }
+            ],
+            "rows": [
+              {
+                "companyCode": "A",
+                "orderNo": "SO2026008",
+                "productName": "网线",
+                "amount": "15.00",
+                "saleDate": "2026-04-12",
+                "daysSinceSale": "177",
+                "dispatched": "false",
+                "rowKey": "rpt-sales-order:4",
+                "recordId": "4",
+                "reportId": "rpt-sales-order",
+                "reportName": "销售报表",
+                "docNo": "SO2026008",
+                "date": "2026-04-12",
+                "currency": "CNY",
+                "status": "未派单"
+              },
+              {
+                "companyCode": "A",
+                "orderNo": "SO2026002",
+                "productName": "交换机",
+                "amount": "32000.00",
+                "saleDate": "2026-02-08",
+                "daysSinceSale": "240",
+                "dispatched": "false",
+                "rowKey": "rpt-sales-order:2",
+                "recordId": "2",
+                "reportId": "rpt-sales-order",
+                "reportName": "销售报表",
+                "docNo": "SO2026002",
+                "date": "2026-02-08",
+                "currency": "CNY",
+                "status": "未派单"
+              }
+            ],
+            "total": 4,
+            "summary": {
+              "count": 4,
+              "amountsByCurrency": {
+                "CNY": "256015.00"
+              },
+              "statusCounts": {
+                "未派单": 4
+              },
+              "groups": {},
+              "pendingApprovers": {},
+              "unclassifiedAmountCount": 0
+            }
+          },
+          "type": "business_query"
+        },
+        {
+          "data": {
+            "delta": "本次查询匹配 4 条报表记录，当前第 1 页展示 2 条。"
+          },
+          "type": "text"
+        },
+        {
+          "data": {},
+          "type": "done"
+        }
+      ]
+    },
+    {
+      "message": "下一页",
+      "scenario": "分页与统计",
+      "conversationId": "e5fcc06c59734b72b717faf2e5c2507f",
+      "passed": true,
+      "errors": [],
+      "expected": {
+        "message": "下一页",
+        "domain": "REPORT",
+        "recordSet": "sales_all",
+        "sortField": "amount",
+        "descending": false,
+        "page": 2,
+        "size": 2
+      },
+      "events": [
+        {
+          "data": {
+            "requestId": "3f177d41b9384b72be3bae1ad3ea0310",
+            "title": "查询A公司的销售数据，按金额从低到高排，每页两条",
+            "conversationId": "e5fcc06c59734b72b717faf2e5c2507f"
+          },
+          "type": "conversation"
+        },
+        {
+          "data": {
+            "query": {
+              "domain": "REPORT",
+              "view": "LIST",
+              "reportIds": [
+                "rpt-sales-order"
+              ],
+              "companyCode": "A",
+              "conditions": [],
+              "sortField": "amount",
+              "descending": false,
+              "page": 2,
+              "size": 2,
+              "groupBy": null
+            },
+            "observedAt": "2026-10-06T23:14:02.616275800+08:00",
+            "source": "HTTP MCP 当前业务数据",
+            "columns": [
+              {
+                "name": "reportId",
+                "type": "string",
+                "description": "报表稳定标识"
+              },
+              {
+                "name": "reportName",
+                "type": "string",
+                "description": "报表名称"
+              },
+              {
+                "name": "companyCode",
+                "type": "string",
+                "description": "所属公司代码"
+              },
+              {
+                "name": "docNo",
+                "type": "string",
+                "description": "来源单据号"
+              },
+              {
+                "name": "amount",
+                "type": "decimal",
+                "description": "来源金额，币种见 currency；空值表示未提供"
+              },
+              {
+                "name": "currency",
+                "type": "string",
+                "description": "来源声明币种；空值表示未声明，不能跨币种合计"
+              },
+              {
+                "name": "date",
+                "type": "date",
+                "description": "业务日期；空值表示未配置"
+              },
+              {
+                "name": "status",
+                "type": "string",
+                "description": "报表：未派单/已派单；派单：待执行/处理中/成功/失败/结果未知/已跳过；工单：待审批/处理中/已完成/已驳回"
+              },
+              {
+                "name": "orderNo",
+                "type": "string",
+                "description": "订单号"
+              },
+              {
+                "name": "productName",
+                "type": "string",
+                "description": "产品名称"
+              },
+              {
+                "name": "saleDate",
+                "type": "date",
+                "description": "销售日期，字符串 yyyy-MM-dd"
+              },
+              {
+                "name": "daysSinceSale",
+                "type": "long",
+                "description": "距销售日期的天数（派生）"
+              },
+              {
+                "name": "dispatched",
+                "type": "boolean",
+                "description": "是否已派单（派生，粗筛后恒为 false）"
+              },
+              {
+                "name": "recordId",
+                "type": "string",
+                "description": "报表内稳定记录标识"
+              }
+            ],
+            "rows": [
+              {
+                "companyCode": "A",
+                "orderNo": "SO2026007",
+                "productName": "云服务",
+                "amount": "96000.00",
+                "saleDate": "2026-04-05",
+                "daysSinceSale": "184",
+                "dispatched": "false",
+                "rowKey": "rpt-sales-order:3",
+                "recordId": "3",
+                "reportId": "rpt-sales-order",
+                "reportName": "销售报表",
+                "docNo": "SO2026007",
+                "date": "2026-04-05",
+                "currency": "CNY",
+                "status": "未派单"
+              },
+              {
+                "companyCode": "A",
+                "orderNo": "SO2026001",
+                "productName": "服务器",
+                "amount": "128000.00",
+                "saleDate": "2026-01-15",
+                "daysSinceSale": "264",
+                "dispatched": "false",
+                "rowKey": "rpt-sales-order:1",
+                "recordId": "1",
+                "reportId": "rpt-sales-order",
+                "reportName": "销售报表",
+                "docNo": "SO2026001",
+                "date": "2026-01-15",
+                "currency": "CNY",
+                "status": "未派单"
+              }
+            ],
+            "total": 4,
+            "summary": {
+              "count": 4,
+              "amountsByCurrency": {
+                "CNY": "256015.00"
+              },
+              "statusCounts": {
+                "未派单": 4
+              },
+              "groups": {},
+              "pendingApprovers": {},
+              "unclassifiedAmountCount": 0
+            }
+          },
+          "type": "business_query"
+        },
+        {
+          "data": {
+            "delta": "本次查询匹配 4 条报表记录，当前第 2 页展示 2 条。"
+          },
+          "type": "text"
+        },
+        {
+          "data": {},
+          "type": "done"
+        }
+      ]
+    },
+    {
+      "message": "总结这批销售数据的总金额和状态分布",
+      "scenario": "分页与统计",
+      "conversationId": "e5fcc06c59734b72b717faf2e5c2507f",
+      "passed": true,
+      "errors": [],
+      "expected": {
+        "message": "总结这批销售数据的总金额和状态分布",
+        "domain": "REPORT",
+        "view": "SUMMARY",
+        "recordSet": "sales_all"
+      },
+      "events": [
+        {
+          "data": {
+            "requestId": "00154c0067f14497bfc063df337bbb5e",
+            "title": "查询A公司的销售数据，按金额从低到高排，每页两条",
+            "conversationId": "e5fcc06c59734b72b717faf2e5c2507f"
+          },
+          "type": "conversation"
+        },
+        {
+          "data": {
+            "query": {
+              "domain": "REPORT",
+              "view": "SUMMARY",
+              "reportIds": [
+                "rpt-sales-order"
+              ],
+              "companyCode": "A",
+              "conditions": [],
+              "sortField": null,
+              "descending": false,
+              "page": 1,
+              "size": 20,
+              "groupBy": "status"
+            },
+            "observedAt": "2026-10-06T23:14:06.138650100+08:00",
+            "source": "HTTP MCP 当前业务数据",
+            "columns": [
+              {
+                "name": "reportId",
+                "type": "string",
+                "description": "报表稳定标识"
+              },
+              {
+                "name": "reportName",
+                "type": "string",
+                "description": "报表名称"
+              },
+              {
+                "name": "companyCode",
+                "type": "string",
+                "description": "所属公司代码"
+              },
+              {
+                "name": "docNo",
+                "type": "string",
+                "description": "来源单据号"
+              },
+              {
+                "name": "amount",
+                "type": "decimal",
+                "description": "来源金额，币种见 currency；空值表示未提供"
+              },
+              {
+                "name": "currency",
+                "type": "string",
+                "description": "来源声明币种；空值表示未声明，不能跨币种合计"
+              },
+              {
+                "name": "date",
+                "type": "date",
+                "description": "业务日期；空值表示未配置"
+              },
+              {
+                "name": "status",
+                "type": "string",
+                "description": "报表：未派单/已派单；派单：待执行/处理中/成功/失败/结果未知/已跳过；工单：待审批/处理中/已完成/已驳回"
+              },
+              {
+                "name": "orderNo",
+                "type": "string",
+                "description": "订单号"
+              },
+              {
+                "name": "productName",
+                "type": "string",
+                "description": "产品名称"
+              },
+              {
+                "name": "saleDate",
+                "type": "date",
+                "description": "销售日期，字符串 yyyy-MM-dd"
+              },
+              {
+                "name": "daysSinceSale",
+                "type": "long",
+                "description": "距销售日期的天数（派生）"
+              },
+              {
+                "name": "dispatched",
+                "type": "boolean",
+                "description": "是否已派单（派生，粗筛后恒为 false）"
+              },
+              {
+                "name": "recordId",
+                "type": "string",
+                "description": "报表内稳定记录标识"
+              }
+            ],
+            "rows": [
+              {
+                "companyCode": "A",
+                "orderNo": "SO2026001",
+                "productName": "服务器",
+                "amount": "128000.00",
+                "saleDate": "2026-01-15",
+                "daysSinceSale": "264",
+                "dispatched": "false",
+                "rowKey": "rpt-sales-order:1",
+                "recordId": "1",
+                "reportId": "rpt-sales-order",
+                "reportName": "销售报表",
+                "docNo": "SO2026001",
+                "date": "2026-01-15",
+                "currency": "CNY",
+                "status": "未派单"
+              },
+              {
+                "companyCode": "A",
+                "orderNo": "SO2026002",
+                "productName": "交换机",
+                "amount": "32000.00",
+                "saleDate": "2026-02-08",
+                "daysSinceSale": "240",
+                "dispatched": "false",
+                "rowKey": "rpt-sales-order:2",
+                "recordId": "2",
+                "reportId": "rpt-sales-order",
+                "reportName": "销售报表",
+                "docNo": "SO2026002",
+                "date": "2026-02-08",
+                "currency": "CNY",
+                "status": "未派单"
+              },
+              {
+                "companyCode": "A",
+                "orderNo": "SO2026007",
+                "productName": "云服务",
+                "amount": "96000.00",
+                "saleDate": "2026-04-05",
+                "daysSinceSale": "184",
+                "dispatched": "false",
+                "rowKey": "rpt-sales-order:3",
+                "recordId": "3",
+                "reportId": "rpt-sales-order",
+                "reportName": "销售报表",
+                "docNo": "SO2026007",
+                "date": "2026-04-05",
+                "currency": "CNY",
+                "status": "未派单"
+              },
+              {
+                "companyCode": "A",
+                "orderNo": "SO2026008",
+                "productName": "网线",
+                "amount": "15.00",
+                "saleDate": "2026-04-12",
+                "daysSinceSale": "177",
+                "dispatched": "false",
+                "rowKey": "rpt-sales-order:4",
+                "recordId": "4",
+                "reportId": "rpt-sales-order",
+                "reportName": "销售报表",
+                "docNo": "SO2026008",
+                "date": "2026-04-12",
+                "currency": "CNY",
+                "status": "未派单"
+              }
+            ],
+            "total": 4,
+            "summary": {
+              "count": 4,
+              "amountsByCurrency": {
+                "CNY": "256015.00"
+              },
+              "statusCounts": {
+                "未派单": 4
+              },
+              "groups": {
+                "未派单": 4
+              },
+              "pendingApprovers": {},
+              "unclassifiedAmountCount": 0
+            }
+          },
+          "type": "business_query"
+        },
+        {
+          "data": {
+            "delta": "本次查询匹配 4 条报表记录，当前第 1 页展示 4 条。状态分布：未派单 4 条。金额合计：CNY 256015.00。分组：未派单 4 条。"
+          },
+          "type": "text"
+        },
+        {
+          "data": {},
+          "type": "done"
+        }
+      ]
+    },
+    {
+      "message": "查询我创建过的派单记录",
+      "scenario": "派单历史查询",
+      "conversationId": "07e944ccd5ac419d879e47ae09014093",
+      "passed": true,
+      "errors": [],
+      "expected": {
+        "message": "查询我创建过的派单记录",
+        "domain": "DISPATCH"
+      },
+      "events": [
+        {
+          "data": {
+            "requestId": "2ff461c0282e4da89c4b1e9034b7c3e5",
+            "title": "",
+            "conversationId": "07e944ccd5ac419d879e47ae09014093"
+          },
+          "type": "conversation"
+        },
+        {
+          "data": {
+            "query": {
+              "domain": "DISPATCH",
+              "view": "LIST",
+              "reportIds": [
+                "rpt-ar-invoice",
+                "rpt-expense-claim",
+                "rpt-sales-order"
+              ],
+              "companyCode": null,
+              "conditions": [],
+              "sortField": null,
+              "descending": false,
+              "page": 1,
+              "size": 20,
+              "groupBy": null
+            },
+            "observedAt": "2026-10-06T23:14:08.422624100+08:00",
+            "source": "HTTP MCP 当前业务数据",
+            "columns": [
+              {
+                "name": "reportId",
+                "type": "string",
+                "description": "报表稳定标识"
+              },
+              {
+                "name": "reportName",
+                "type": "string",
+                "description": "报表名称"
+              },
+              {
+                "name": "companyCode",
+                "type": "string",
+                "description": "所属公司代码"
+              },
+              {
+                "name": "docNo",
+                "type": "string",
+                "description": "来源单据号"
+              },
+              {
+                "name": "amount",
+                "type": "decimal",
+                "description": "来源金额，币种见 currency；空值表示未提供"
+              },
+              {
+                "name": "currency",
+                "type": "string",
+                "description": "来源声明币种；空值表示未声明，不能跨币种合计"
+              },
+              {
+                "name": "date",
+                "type": "date",
+                "description": "业务日期；空值表示未配置"
+              },
+              {
+                "name": "status",
+                "type": "string",
+                "description": "报表：未派单/已派单；派单：待执行/处理中/成功/失败/结果未知/已跳过；工单：待审批/处理中/已完成/已驳回"
+              },
+              {
+                "name": "planId",
+                "type": "string",
+                "description": "清单标识"
+              },
+              {
+                "name": "requestId",
+                "type": "string",
+                "description": "稳定派单请求号，未发送时为空"
+              },
+              {
+                "name": "operatorName",
+                "type": "string",
+                "description": "清单创建人展示名"
+              },
+              {
+                "name": "planStatus",
+                "type": "string",
+                "description": "清单当前状态"
+              },
+              {
+                "name": "message",
+                "type": "string",
+                "description": "最近派单结果说明，空值表示未提供"
+              },
+              {
+                "name": "createdDate",
+                "type": "date",
+                "description": "清单创建日期，Asia/Shanghai"
+              }
+            ],
+            "rows": [
+              {
+                "rowKey": "1fd2f5cd892a4d9186e96bca51db1ef8:10",
+                "reportId": "rpt-sales-order",
+                "recordId": "3",
+                "companyCode": "A",
+                "docNo": "SO2026007",
+                "planId": "1fd2f5cd892a4d9186e96bca51db1ef8",
+                "reportName": "销售报表",
+                "amount": "96000.00",
+                "currency": "CNY",
+                "date": "2026-04-05",
+                "status": "待执行",
+                "planStatus": "已过期",
+                "requestId": null,
+                "message": null,
+                "operatorName": "字段筛选验收员",
+                "createdDate": "2026-10-06"
+              },
+              {
+                "rowKey": "1fd2f5cd892a4d9186e96bca51db1ef8:11",
+                "reportId": "rpt-ar-invoice",
+                "recordId": "3",
+                "companyCode": "A",
+                "docNo": "INV-2026-0007",
+                "planId": "1fd2f5cd892a4d9186e96bca51db1ef8",
+                "reportName": "应收报表",
+                "amount": "12.50",
+                "currency": "CNY",
+                "date": "2026-05-10",
+                "status": "待执行",
+                "planStatus": "已过期",
+                "requestId": null,
+                "message": null,
+                "operatorName": "字段筛选验收员",
+                "createdDate": "2026-10-06"
+              },
+              {
+                "rowKey": "1fd2f5cd892a4d9186e96bca51db1ef8:12",
+                "reportId": "rpt-ar-invoice",
+                "recordId": "4",
+                "companyCode": "A",
+                "docNo": "INV-2026-0008",
+                "planId": "1fd2f5cd892a4d9186e96bca51db1ef8",
+                "reportName": "应收报表",
+                "amount": "8.00",
+                "currency": "CNY",
+                "date": "2026-06-01",
+                "status": "待执行",
+                "planStatus": "已过期",
+                "requestId": null,
+                "message": null,
+                "operatorName": "字段筛选验收员",
+                "createdDate": "2026-10-06"
+              },
+              {
+                "rowKey": "1fd2f5cd892a4d9186e96bca51db1ef8:13",
+                "reportId": "rpt-ar-invoice",
+                "recordId": "11",
+                "companyCode": "A",
+                "docNo": "INV-V3-DEMO-1",
+                "planId": "1fd2f5cd892a4d9186e96bca51db1ef8",
+                "reportName": "应收报表",
+                "amount": "11.00",
+                "currency": "CNY",
+                "date": "2026-10-06",
+                "status": "待执行",
+                "planStatus": "已过期",
+                "requestId": null,
+                "message": null,
+                "operatorName": "字段筛选验收员",
+                "createdDate": "2026-10-06"
+              },
+              {
+                "rowKey": "1fd2f5cd892a4d9186e96bca51db1ef8:14",
+                "reportId": "rpt-ar-invoice",
+                "recordId": "12",
+                "companyCode": "A",
+                "docNo": "INV-V3-DEMO-2",
+                "planId": "1fd2f5cd892a4d9186e96bca51db1ef8",
+                "reportName": "应收报表",
+                "amount": "12.00",
+                "currency": "CNY",
+                "date": "2026-10-06",
+                "status": "待执行",
+                "planStatus": "已过期",
+                "requestId": null,
+                "message": null,
+                "operatorName": "字段筛选验收员",
+                "createdDate": "2026-10-06"
+              },
+              {
+                "rowKey": "1fd2f5cd892a4d9186e96bca51db1ef8:15",
+                "reportId": "rpt-expense-claim",
+                "recordId": "1",
+                "companyCode": "A",
+                "docNo": "EXP-2026-0001",
+                "planId": "1fd2f5cd892a4d9186e96bca51db1ef8",
+                "reportName": "费用报表",
+                "amount": "8600.00",
+                "currency": "CNY",
+                "date": "2026-01-09",
+                "status": "待执行",
+                "planStatus": "已过期",
+                "requestId": null,
+                "message": null,
+                "operatorName": "字段筛选验收员",
+                "createdDate": "2026-10-06"
+              },
+              {
+                "rowKey": "1fd2f5cd892a4d9186e96bca51db1ef8:16",
+                "reportId": "rpt-expense-claim",
+                "recordId": "2",
+                "companyCode": "A",
+                "docNo": "EXP-2026-0002",
+                "planId": "1fd2f5cd892a4d9186e96bca51db1ef8",
+                "reportName": "费用报表",
+                "amount": "3200.00",
+                "currency": "CNY",
+                "date": "2026-02-14",
+                "status": "待执行",
+                "planStatus": "已过期",
+                "requestId": null,
+                "message": null,
+                "operatorName": "字段筛选验收员",
+                "createdDate": "2026-10-06"
+              },
+              {
+                "rowKey": "1fd2f5cd892a4d9186e96bca51db1ef8:9",
+                "reportId": "rpt-sales-order",
+                "recordId": "1",
+                "companyCode": "A",
+                "docNo": "SO2026001",
+                "planId": "1fd2f5cd892a4d9186e96bca51db1ef8",
+                "reportName": "销售报表",
+                "amount": "128000.00",
+                "currency": "CNY",
+                "date": "2026-01-15",
+                "status": "待执行",
+                "planStatus": "已过期",
+                "requestId": null,
+                "message": null,
+                "operatorName": "字段筛选验收员",
+                "createdDate": "2026-10-06"
+              },
+              {
+                "rowKey": "40b12b0a0a2844778eb17ef0365a1d52:1",
+                "reportId": "rpt-sales-order",
+                "recordId": "1",
+                "companyCode": "A",
+                "docNo": "SO2026001",
+                "planId": "40b12b0a0a2844778eb17ef0365a1d52",
+                "reportName": "销售报表",
+                "amount": "128000.00",
+                "currency": "CNY",
+                "date": "2026-01-15",
+                "status": "待执行",
+                "planStatus": "待确认",
+                "requestId": null,
+                "message": null,
+                "operatorName": "字段筛选验收员",
+                "createdDate": "2026-10-06"
+              },
+              {
+                "rowKey": "40b12b0a0a2844778eb17ef0365a1d52:2",
+                "reportId": "rpt-sales-order",
+                "recordId": "3",
+                "companyCode": "A",
+                "docNo": "SO2026007",
+                "planId": "40b12b0a0a2844778eb17ef0365a1d52",
+                "reportName": "销售报表",
+                "amount": "96000.00",
+                "currency": "CNY",
+                "date": "2026-04-05",
+                "status": "待执行",
+                "planStatus": "待确认",
+                "requestId": null,
+                "message": null,
+                "operatorName": "字段筛选验收员",
+                "createdDate": "2026-10-06"
+              },
+              {
+                "rowKey": "40b12b0a0a2844778eb17ef0365a1d52:3",
+                "reportId": "rpt-ar-invoice",
+                "recordId": "3",
+                "companyCode": "A",
+                "docNo": "INV-2026-0007",
+                "planId": "40b12b0a0a2844778eb17ef0365a1d52",
+                "reportName": "应收报表",
+                "amount": "12.50",
+                "currency": "CNY",
+                "date": "2026-05-10",
+                "status": "待执行",
+                "planStatus": "待确认",
+                "requestId": null,
+                "message": null,
+                "operatorName": "字段筛选验收员",
+                "createdDate": "2026-10-06"
+              },
+              {
+                "rowKey": "40b12b0a0a2844778eb17ef0365a1d52:4",
+                "reportId": "rpt-ar-invoice",
+                "recordId": "4",
+                "companyCode": "A",
+                "docNo": "INV-2026-0008",
+                "planId": "40b12b0a0a2844778eb17ef0365a1d52",
+                "reportName": "应收报表",
+                "amount": "8.00",
+                "currency": "CNY",
+                "date": "2026-06-01",
+                "status": "待执行",
+                "planStatus": "待确认",
+                "requestId": null,
+                "message": null,
+                "operatorName": "字段筛选验收员",
+                "createdDate": "2026-10-06"
+              },
+              {
+                "rowKey": "40b12b0a0a2844778eb17ef0365a1d52:5",
+                "reportId": "rpt-ar-invoice",
+                "recordId": "11",
+                "companyCode": "A",
+                "docNo": "INV-V3-DEMO-1",
+                "planId": "40b12b0a0a2844778eb17ef0365a1d52",
+                "reportName": "应收报表",
+                "amount": "11.00",
+                "currency": "CNY",
+                "date": "2026-10-06",
+                "status": "待执行",
+                "planStatus": "待确认",
+                "requestId": null,
+                "message": null,
+                "operatorName": "字段筛选验收员",
+                "createdDate": "2026-10-06"
+              },
+              {
+                "rowKey": "40b12b0a0a2844778eb17ef0365a1d52:6",
+                "reportId": "rpt-ar-invoice",
+                "recordId": "12",
+                "companyCode": "A",
+                "docNo": "INV-V3-DEMO-2",
+                "planId": "40b12b0a0a2844778eb17ef0365a1d52",
+                "reportName": "应收报表",
+                "amount": "12.00",
+                "currency": "CNY",
+                "date": "2026-10-06",
+                "status": "待执行",
+                "planStatus": "待确认",
+                "requestId": null,
+                "message": null,
+                "operatorName": "字段筛选验收员",
+                "createdDate": "2026-10-06"
+              },
+              {
+                "rowKey": "40b12b0a0a2844778eb17ef0365a1d52:7",
+                "reportId": "rpt-expense-claim",
+                "recordId": "1",
+                "companyCode": "A",
+                "docNo": "EXP-2026-0001",
+                "planId": "40b12b0a0a2844778eb17ef0365a1d52",
+                "reportName": "费用报表",
+                "amount": "8600.00",
+                "currency": "CNY",
+                "date": "2026-01-09",
+                "status": "待执行",
+                "planStatus": "待确认",
+                "requestId": null,
+                "message": null,
+                "operatorName": "字段筛选验收员",
+                "createdDate": "2026-10-06"
+              },
+              {
+                "rowKey": "40b12b0a0a2844778eb17ef0365a1d52:8",
+                "reportId": "rpt-expense-claim",
+                "recordId": "2",
+                "companyCode": "A",
+                "docNo": "EXP-2026-0002",
+                "planId": "40b12b0a0a2844778eb17ef0365a1d52",
+                "reportName": "费用报表",
+                "amount": "3200.00",
+                "currency": "CNY",
+                "date": "2026-02-14",
+                "status": "待执行",
+                "planStatus": "待确认",
+                "requestId": null,
+                "message": null,
+                "operatorName": "字段筛选验收员",
+                "createdDate": "2026-10-06"
+              },
+              {
+                "rowKey": "f057f0f7f33a4c3888ddc6e22b20717a:17",
+                "reportId": "rpt-sales-order",
+                "recordId": "1",
+                "companyCode": "A",
+                "docNo": "SO2026001",
+                "planId": "f057f0f7f33a4c3888ddc6e22b20717a",
+                "reportName": "销售报表",
+                "amount": "128000.00",
+                "currency": "CNY",
+                "date": "2026-01-15",
+                "status": "待执行",
+                "planStatus": "待确认",
+                "requestId": null,
+                "message": null,
+                "operatorName": "字段筛选验收员",
+                "createdDate": "2026-10-06"
+              },
+              {
+                "rowKey": "f057f0f7f33a4c3888ddc6e22b20717a:18",
+                "reportId": "rpt-sales-order",
+                "recordId": "3",
+                "companyCode": "A",
+                "docNo": "SO2026007",
+                "planId": "f057f0f7f33a4c3888ddc6e22b20717a",
+                "reportName": "销售报表",
+                "amount": "96000.00",
+                "currency": "CNY",
+                "date": "2026-04-05",
+                "status": "待执行",
+                "planStatus": "待确认",
+                "requestId": null,
+                "message": null,
+                "operatorName": "字段筛选验收员",
+                "createdDate": "2026-10-06"
+              },
+              {
+                "rowKey": "f057f0f7f33a4c3888ddc6e22b20717a:19",
+                "reportId": "rpt-ar-invoice",
+                "recordId": "3",
+                "companyCode": "A",
+                "docNo": "INV-2026-0007",
+                "planId": "f057f0f7f33a4c3888ddc6e22b20717a",
+                "reportName": "应收报表",
+                "amount": "12.50",
+                "currency": "CNY",
+                "date": "2026-05-10",
+                "status": "待执行",
+                "planStatus": "待确认",
+                "requestId": null,
+                "message": null,
+                "operatorName": "字段筛选验收员",
+                "createdDate": "2026-10-06"
+              },
+              {
+                "rowKey": "f057f0f7f33a4c3888ddc6e22b20717a:20",
+                "reportId": "rpt-ar-invoice",
+                "recordId": "4",
+                "companyCode": "A",
+                "docNo": "INV-2026-0008",
+                "planId": "f057f0f7f33a4c3888ddc6e22b20717a",
+                "reportName": "应收报表",
+                "amount": "8.00",
+                "currency": "CNY",
+                "date": "2026-06-01",
+                "status": "待执行",
+                "planStatus": "待确认",
+                "requestId": null,
+                "message": null,
+                "operatorName": "字段筛选验收员",
+                "createdDate": "2026-10-06"
+              }
+            ],
+            "total": 24,
+            "summary": {
+              "count": 24,
+              "amountsByCurrency": {
+                "CNY": "707530.50"
+              },
+              "statusCounts": {
+                "待执行": 24
+              },
+              "groups": {},
+              "pendingApprovers": {},
+              "unclassifiedAmountCount": 0
+            }
+          },
+          "type": "business_query"
+        },
+        {
+          "data": {
+            "delta": "本次查询匹配 24 条派单条目，当前第 1 页展示 20 条。"
+          },
+          "type": "text"
+        },
+        {
+          "data": {},
+          "type": "done"
+        }
+      ]
+    },
+    {
+      "message": "只看失败的，按公司汇总一下",
+      "scenario": "派单历史查询",
+      "conversationId": "07e944ccd5ac419d879e47ae09014093",
+      "passed": true,
+      "errors": [],
+      "expected": {
+        "message": "只看失败的，按公司汇总一下",
+        "domain": "DISPATCH",
+        "view": "SUMMARY",
+        "status": "失败",
+        "groupBy": "companyCode"
+      },
+      "events": [
+        {
+          "data": {
+            "requestId": "010a675c45d24a2081734c79ccdeaacf",
+            "title": "查询我创建过的派单记录",
+            "conversationId": "07e944ccd5ac419d879e47ae09014093"
+          },
+          "type": "conversation"
+        },
+        {
+          "data": {
+            "query": {
+              "domain": "DISPATCH",
+              "view": "SUMMARY",
+              "reportIds": [
+                "rpt-ar-invoice",
+                "rpt-expense-claim",
+                "rpt-sales-order"
+              ],
+              "companyCode": null,
+              "conditions": [
+                {
+                  "allOf": [
+                    {
+                      "field": "status",
+                      "operator": "EQ",
+                      "values": [
+                        "失败"
+                      ]
+                    }
+                  ]
+                }
+              ],
+              "sortField": null,
+              "descending": false,
+              "page": 1,
+              "size": 20,
+              "groupBy": "companyCode"
+            },
+            "observedAt": "2026-10-06T23:14:12.360926600+08:00",
+            "source": "HTTP MCP 当前业务数据",
+            "columns": [
+              {
+                "name": "reportId",
+                "type": "string",
+                "description": "报表稳定标识"
+              },
+              {
+                "name": "reportName",
+                "type": "string",
+                "description": "报表名称"
+              },
+              {
+                "name": "companyCode",
+                "type": "string",
+                "description": "所属公司代码"
+              },
+              {
+                "name": "docNo",
+                "type": "string",
+                "description": "来源单据号"
+              },
+              {
+                "name": "amount",
+                "type": "decimal",
+                "description": "来源金额，币种见 currency；空值表示未提供"
+              },
+              {
+                "name": "currency",
+                "type": "string",
+                "description": "来源声明币种；空值表示未声明，不能跨币种合计"
+              },
+              {
+                "name": "date",
+                "type": "date",
+                "description": "业务日期；空值表示未配置"
+              },
+              {
+                "name": "status",
+                "type": "string",
+                "description": "报表：未派单/已派单；派单：待执行/处理中/成功/失败/结果未知/已跳过；工单：待审批/处理中/已完成/已驳回"
+              },
+              {
+                "name": "planId",
+                "type": "string",
+                "description": "清单标识"
+              },
+              {
+                "name": "requestId",
+                "type": "string",
+                "description": "稳定派单请求号，未发送时为空"
+              },
+              {
+                "name": "operatorName",
+                "type": "string",
+                "description": "清单创建人展示名"
+              },
+              {
+                "name": "planStatus",
+                "type": "string",
+                "description": "清单当前状态"
+              },
+              {
+                "name": "message",
+                "type": "string",
+                "description": "最近派单结果说明，空值表示未提供"
+              },
+              {
+                "name": "createdDate",
+                "type": "date",
+                "description": "清单创建日期，Asia/Shanghai"
+              }
+            ],
+            "rows": [],
+            "total": 0,
+            "summary": {
+              "count": 0,
+              "amountsByCurrency": {},
+              "statusCounts": {},
+              "groups": {},
+              "pendingApprovers": {},
+              "unclassifiedAmountCount": 0
+            }
+          },
+          "type": "business_query"
+        },
+        {
+          "data": {
+            "delta": "本次查询匹配 0 条派单条目，当前第 1 页展示 0 条。状态分布：暂无记录。"
+          },
+          "type": "text"
+        },
+        {
+          "data": {},
+          "type": "done"
+        }
+      ]
+    },
+    {
+      "message": "A公司现在有哪些工单",
+      "scenario": "工单列表与状态",
+      "conversationId": "b0d98998159a44b2b1a4e905dc49115f",
+      "passed": true,
+      "errors": [],
+      "expected": {
+        "message": "A公司现在有哪些工单",
+        "domain": "WORK_ORDER",
+        "orderIds": [
+          "WO-DEMO-001",
+          "WO-DEMO-002",
+          "WO-DEMO-003",
+          "WO-DEMO-004",
+          "WO-DEMO-005"
+        ]
+      },
+      "events": [
+        {
+          "data": {
+            "requestId": "d6dd3789950d421a86890209eaf9e8ee",
+            "title": "",
+            "conversationId": "b0d98998159a44b2b1a4e905dc49115f"
+          },
+          "type": "conversation"
+        },
+        {
+          "data": {
+            "query": {
+              "domain": "WORK_ORDER",
+              "view": "LIST",
+              "reportIds": [
+                "rpt-ar-invoice",
+                "rpt-expense-claim",
+                "rpt-sales-order"
+              ],
+              "companyCode": "A",
+              "conditions": [],
+              "sortField": null,
+              "descending": false,
+              "page": 1,
+              "size": 20,
+              "groupBy": null
+            },
+            "observedAt": "2026-10-06T23:14:14.925627300+08:00",
+            "source": "演示工单接口：固定环节和审批人；不代表真实外部审批进度",
+            "columns": [
+              {
+                "name": "reportId",
+                "type": "string",
+                "description": "报表稳定标识"
+              },
+              {
+                "name": "reportName",
+                "type": "string",
+                "description": "报表名称"
+              },
+              {
+                "name": "companyCode",
+                "type": "string",
+                "description": "所属公司代码"
+              },
+              {
+                "name": "docNo",
+                "type": "string",
+                "description": "来源单据号"
+              },
+              {
+                "name": "amount",
+                "type": "decimal",
+                "description": "来源金额，币种见 currency；空值表示未提供"
+              },
+              {
+                "name": "currency",
+                "type": "string",
+                "description": "来源声明币种；空值表示未声明，不能跨币种合计"
+              },
+              {
+                "name": "date",
+                "type": "date",
+                "description": "业务日期；空值表示未配置"
+              },
+              {
+                "name": "status",
+                "type": "string",
+                "description": "报表：未派单/已派单；派单：待执行/处理中/成功/失败/结果未知/已跳过；工单：待审批/处理中/已完成/已驳回"
+              },
+              {
+                "name": "orderId",
+                "type": "string",
+                "description": "工单编号，须准确匹配"
+              },
+              {
+                "name": "title",
+                "type": "string",
+                "description": "工单主题"
+              },
+              {
+                "name": "stage",
+                "type": "string",
+                "description": "当前环节，已结束时为归档或退回"
+              },
+              {
+                "name": "assignee",
+                "type": "string",
+                "description": "当前处理人，已结束时为空"
+              },
+              {
+                "name": "requestId",
+                "type": "string",
+                "description": "关联派单请求号，固定演示示例为空"
+              },
+              {
+                "name": "source",
+                "type": "string",
+                "description": "固定演示示例或实际演示派单关联"
+              },
+              {
+                "name": "createdDate",
+                "type": "date",
+                "description": "工单创建日期，Asia/Shanghai"
+              },
+              {
+                "name": "updatedDate",
+                "type": "date",
+                "description": "最近流程变化日期；固定演示不会随查询推进"
+              }
+            ],
+            "rows": [
+              {
+                "orderId": "WO-DEMO-001",
+                "reportId": "rpt-sales-order",
+                "companyCode": "A",
+                "docNo": "DEMO-SO-001",
+                "title": "销售合同复核",
+                "amount": "96000.00",
+                "currency": "CNY",
+                "date": "2026-10-01",
+                "createdDate": "2026-10-01",
+                "updatedDate": "2026-10-02",
+                "status": "待审批",
+                "rowKey": "fixture:WO-DEMO-001",
+                "source": "固定演示示例",
+                "requestId": null,
+                "stage": "部门审批",
+                "assignee": "林主管（演示）",
+                "steps": [
+                  {
+                    "name": "提交登记",
+                    "approver": "演示经办人",
+                    "status": "已完成",
+                    "date": "2026-10-02"
+                  },
+                  {
+                    "name": "部门审批",
+                    "approver": "林主管（演示）",
+                    "status": "处理中",
+                    "date": null
+                  },
+                  {
+                    "name": "财务复核",
+                    "approver": "陈会计（演示）",
+                    "status": "未到达",
+                    "date": null
+                  },
+                  {
+                    "name": "业务处理",
+                    "approver": "赵专员（演示）",
+                    "status": "未到达",
+                    "date": null
+                  },
+                  {
+                    "name": "归档",
+                    "approver": "系统归档（演示）",
+                    "status": "未到达",
+                    "date": null
+                  }
+                ],
+                "simulated": true,
+                "workflowSummary": "固定演示流程当前停在部门审批，处理人为林主管（演示）；后续环节尚未完成。",
+                "reportName": "销售报表"
+              },
+              {
+                "orderId": "WO-DEMO-002",
+                "reportId": "rpt-ar-invoice",
+                "companyCode": "A",
+                "docNo": "DEMO-AR-002",
+                "title": "应收款核对",
+                "amount": "6800.50",
+                "currency": "CNY",
+                "date": "2026-10-02",
+                "createdDate": "2026-10-02",
+                "updatedDate": "2026-10-03",
+                "status": "待审批",
+                "rowKey": "fixture:WO-DEMO-002",
+                "source": "固定演示示例",
+                "requestId": null,
+                "stage": "财务复核",
+                "assignee": "陈会计（演示）",
+                "steps": [
+                  {
+                    "name": "提交登记",
+                    "approver": "演示经办人",
+                    "status": "已完成",
+                    "date": "2026-10-03"
+                  },
+                  {
+                    "name": "部门审批",
+                    "approver": "林主管（演示）",
+                    "status": "已完成",
+                    "date": "2026-10-03"
+                  },
+                  {
+                    "name": "财务复核",
+                    "approver": "陈会计（演示）",
+                    "status": "处理中",
+                    "date": null
+                  },
+                  {
+                    "name": "业务处理",
+                    "approver": "赵专员（演示）",
+                    "status": "未到达",
+                    "date": null
+                  },
+                  {
+                    "name": "归档",
+                    "approver": "系统归档（演示）",
+                    "status": "未到达",
+                    "date": null
+                  }
+                ],
+                "simulated": true,
+                "workflowSummary": "固定演示流程当前停在财务复核，处理人为陈会计（演示）；后续环节尚未完成。",
+                "reportName": "应收报表"
+              },
+              {
+                "orderId": "WO-DEMO-003",
+                "reportId": "rpt-expense-claim",
+                "companyCode": "A",
+                "docNo": "DEMO-EX-003",
+                "title": "差旅费用处理",
+                "amount": "2400.00",
+                "currency": "CNY",
+                "date": "2026-10-02",
+                "createdDate": "2026-10-02",
+                "updatedDate": "2026-10-04",
+                "status": "处理中",
+                "rowKey": "fixture:WO-DEMO-003",
+                "source": "固定演示示例",
+                "requestId": null,
+                "stage": "业务处理",
+                "assignee": "赵专员（演示）",
+                "steps": [
+                  {
+                    "name": "提交登记",
+                    "approver": "演示经办人",
+                    "status": "已完成",
+                    "date": "2026-10-04"
+                  },
+                  {
+                    "name": "部门审批",
+                    "approver": "林主管（演示）",
+                    "status": "已完成",
+                    "date": "2026-10-04"
+                  },
+                  {
+                    "name": "财务复核",
+                    "approver": "陈会计（演示）",
+                    "status": "已完成",
+                    "date": "2026-10-04"
+                  },
+                  {
+                    "name": "业务处理",
+                    "approver": "赵专员（演示）",
+                    "status": "处理中",
+                    "date": null
+                  },
+                  {
+                    "name": "归档",
+                    "approver": "系统归档（演示）",
+                    "status": "未到达",
+                    "date": null
+                  }
+                ],
+                "simulated": true,
+                "workflowSummary": "固定演示流程当前停在业务处理，处理人为赵专员（演示）；后续环节尚未完成。",
+                "reportName": "费用报表"
+              },
+              {
+                "orderId": "WO-DEMO-004",
+                "reportId": "rpt-sales-order",
+                "companyCode": "A",
+                "docNo": "DEMO-SO-004",
+                "title": "销售订单归档",
+                "amount": "12500.00",
+                "currency": "CNY",
+                "date": "2026-09-28",
+                "createdDate": "2026-09-28",
+                "updatedDate": "2026-10-01",
+                "status": "已完成",
+                "rowKey": "fixture:WO-DEMO-004",
+                "source": "固定演示示例",
+                "requestId": null,
+                "stage": "归档",
+                "assignee": null,
+                "steps": [
+                  {
+                    "name": "提交登记",
+                    "approver": "演示经办人",
+                    "status": "已完成",
+                    "date": "2026-10-01"
+                  },
+                  {
+                    "name": "部门审批",
+                    "approver": "林主管（演示）",
+                    "status": "已完成",
+                    "date": "2026-10-01"
+                  },
+                  {
+                    "name": "财务复核",
+                    "approver": "陈会计（演示）",
+                    "status": "已完成",
+                    "date": "2026-10-01"
+                  },
+                  {
+                    "name": "业务处理",
+                    "approver": "赵专员（演示）",
+                    "status": "已完成",
+                    "date": "2026-10-01"
+                  },
+                  {
+                    "name": "归档",
+                    "approver": "系统归档（演示）",
+                    "status": "已完成",
+                    "date": "2026-10-01"
+                  }
+                ],
+                "simulated": true,
+                "workflowSummary": "固定演示流程全部完成并归档。",
+                "reportName": "销售报表"
+              },
+              {
+                "orderId": "WO-DEMO-005",
+                "reportId": "rpt-expense-claim",
+                "companyCode": "A",
+                "docNo": "DEMO-EX-005",
+                "title": "费用凭证补正",
+                "amount": "1800.00",
+                "currency": "CNY",
+                "date": "2026-10-01",
+                "createdDate": "2026-10-01",
+                "updatedDate": "2026-10-02",
+                "status": "已驳回",
+                "rowKey": "fixture:WO-DEMO-005",
+                "source": "固定演示示例",
+                "requestId": null,
+                "stage": "退回",
+                "assignee": null,
+                "steps": [
+                  {
+                    "name": "提交登记",
+                    "approver": "演示经办人",
+                    "status": "已完成",
+                    "date": "2026-10-02"
+                  },
+                  {
+                    "name": "部门审批",
+                    "approver": "林主管（演示）",
+                    "status": "已完成",
+                    "date": "2026-10-02"
+                  },
+                  {
+                    "name": "财务复核",
+                    "approver": "陈会计（演示）",
+                    "status": "已驳回",
+                    "date": "2026-10-02"
+                  },
+                  {
+                    "name": "业务处理",
+                    "approver": "赵专员（演示）",
+                    "status": "未到达",
+                    "date": null
+                  },
+                  {
+                    "name": "归档",
+                    "approver": "系统归档（演示）",
+                    "status": "未到达",
+                    "date": null
+                  }
+                ],
+                "simulated": true,
+                "workflowSummary": "固定演示流程在财务复核被驳回，需经办人核对后重新发起。",
+                "reportName": "费用报表"
+              }
+            ],
+            "total": 5,
+            "summary": {
+              "count": 5,
+              "amountsByCurrency": {
+                "CNY": "119500.50"
+              },
+              "statusCounts": {
+                "处理中": 1,
+                "已完成": 1,
+                "已驳回": 1,
+                "待审批": 2
+              },
+              "groups": {},
+              "pendingApprovers": {
+                "林主管（演示）": 1,
+                "陈会计（演示）": 1
+              },
+              "unclassifiedAmountCount": 0
+            }
+          },
+          "type": "business_query"
+        },
+        {
+          "data": {
+            "delta": "本次查询匹配 5 条工单，当前第 1 页展示 5 条。工单为固定演示流程，查询不会推进审批；后续环节见卡片，尚未到达的环节不代表已完成。"
+          },
+          "type": "text"
+        },
+        {
+          "data": {},
+          "type": "done"
+        }
+      ]
+    },
+    {
+      "message": "只看还在等待审批的工单",
+      "scenario": "工单列表与状态",
+      "conversationId": "b0d98998159a44b2b1a4e905dc49115f",
+      "passed": true,
+      "errors": [],
+      "expected": {
+        "message": "只看还在等待审批的工单",
+        "domain": "WORK_ORDER",
+        "orderIds": [
+          "WO-DEMO-001",
+          "WO-DEMO-002"
+        ]
+      },
+      "events": [
+        {
+          "data": {
+            "requestId": "9452fdbe94e34b86af361c669d33850f",
+            "title": "A公司现在有哪些工单",
+            "conversationId": "b0d98998159a44b2b1a4e905dc49115f"
+          },
+          "type": "conversation"
+        },
+        {
+          "data": {
+            "query": {
+              "domain": "WORK_ORDER",
+              "view": "LIST",
+              "reportIds": [
+                "rpt-ar-invoice",
+                "rpt-expense-claim",
+                "rpt-sales-order"
+              ],
+              "companyCode": "A",
+              "conditions": [
+                {
+                  "allOf": [
+                    {
+                      "field": "status",
+                      "operator": "EQ",
+                      "values": [
+                        "待审批"
+                      ]
+                    }
+                  ]
+                }
+              ],
+              "sortField": null,
+              "descending": false,
+              "page": 1,
+              "size": 20,
+              "groupBy": null
+            },
+            "observedAt": "2026-10-06T23:14:18.603683100+08:00",
+            "source": "演示工单接口：固定环节和审批人；不代表真实外部审批进度",
+            "columns": [
+              {
+                "name": "reportId",
+                "type": "string",
+                "description": "报表稳定标识"
+              },
+              {
+                "name": "reportName",
+                "type": "string",
+                "description": "报表名称"
+              },
+              {
+                "name": "companyCode",
+                "type": "string",
+                "description": "所属公司代码"
+              },
+              {
+                "name": "docNo",
+                "type": "string",
+                "description": "来源单据号"
+              },
+              {
+                "name": "amount",
+                "type": "decimal",
+                "description": "来源金额，币种见 currency；空值表示未提供"
+              },
+              {
+                "name": "currency",
+                "type": "string",
+                "description": "来源声明币种；空值表示未声明，不能跨币种合计"
+              },
+              {
+                "name": "date",
+                "type": "date",
+                "description": "业务日期；空值表示未配置"
+              },
+              {
+                "name": "status",
+                "type": "string",
+                "description": "报表：未派单/已派单；派单：待执行/处理中/成功/失败/结果未知/已跳过；工单：待审批/处理中/已完成/已驳回"
+              },
+              {
+                "name": "orderId",
+                "type": "string",
+                "description": "工单编号，须准确匹配"
+              },
+              {
+                "name": "title",
+                "type": "string",
+                "description": "工单主题"
+              },
+              {
+                "name": "stage",
+                "type": "string",
+                "description": "当前环节，已结束时为归档或退回"
+              },
+              {
+                "name": "assignee",
+                "type": "string",
+                "description": "当前处理人，已结束时为空"
+              },
+              {
+                "name": "requestId",
+                "type": "string",
+                "description": "关联派单请求号，固定演示示例为空"
+              },
+              {
+                "name": "source",
+                "type": "string",
+                "description": "固定演示示例或实际演示派单关联"
+              },
+              {
+                "name": "createdDate",
+                "type": "date",
+                "description": "工单创建日期，Asia/Shanghai"
+              },
+              {
+                "name": "updatedDate",
+                "type": "date",
+                "description": "最近流程变化日期；固定演示不会随查询推进"
+              }
+            ],
+            "rows": [
+              {
+                "orderId": "WO-DEMO-001",
+                "reportId": "rpt-sales-order",
+                "companyCode": "A",
+                "docNo": "DEMO-SO-001",
+                "title": "销售合同复核",
+                "amount": "96000.00",
+                "currency": "CNY",
+                "date": "2026-10-01",
+                "createdDate": "2026-10-01",
+                "updatedDate": "2026-10-02",
+                "status": "待审批",
+                "rowKey": "fixture:WO-DEMO-001",
+                "source": "固定演示示例",
+                "requestId": null,
+                "stage": "部门审批",
+                "assignee": "林主管（演示）",
+                "steps": [
+                  {
+                    "name": "提交登记",
+                    "approver": "演示经办人",
+                    "status": "已完成",
+                    "date": "2026-10-02"
+                  },
+                  {
+                    "name": "部门审批",
+                    "approver": "林主管（演示）",
+                    "status": "处理中",
+                    "date": null
+                  },
+                  {
+                    "name": "财务复核",
+                    "approver": "陈会计（演示）",
+                    "status": "未到达",
+                    "date": null
+                  },
+                  {
+                    "name": "业务处理",
+                    "approver": "赵专员（演示）",
+                    "status": "未到达",
+                    "date": null
+                  },
+                  {
+                    "name": "归档",
+                    "approver": "系统归档（演示）",
+                    "status": "未到达",
+                    "date": null
+                  }
+                ],
+                "simulated": true,
+                "workflowSummary": "固定演示流程当前停在部门审批，处理人为林主管（演示）；后续环节尚未完成。",
+                "reportName": "销售报表"
+              },
+              {
+                "orderId": "WO-DEMO-002",
+                "reportId": "rpt-ar-invoice",
+                "companyCode": "A",
+                "docNo": "DEMO-AR-002",
+                "title": "应收款核对",
+                "amount": "6800.50",
+                "currency": "CNY",
+                "date": "2026-10-02",
+                "createdDate": "2026-10-02",
+                "updatedDate": "2026-10-03",
+                "status": "待审批",
+                "rowKey": "fixture:WO-DEMO-002",
+                "source": "固定演示示例",
+                "requestId": null,
+                "stage": "财务复核",
+                "assignee": "陈会计（演示）",
+                "steps": [
+                  {
+                    "name": "提交登记",
+                    "approver": "演示经办人",
+                    "status": "已完成",
+                    "date": "2026-10-03"
+                  },
+                  {
+                    "name": "部门审批",
+                    "approver": "林主管（演示）",
+                    "status": "已完成",
+                    "date": "2026-10-03"
+                  },
+                  {
+                    "name": "财务复核",
+                    "approver": "陈会计（演示）",
+                    "status": "处理中",
+                    "date": null
+                  },
+                  {
+                    "name": "业务处理",
+                    "approver": "赵专员（演示）",
+                    "status": "未到达",
+                    "date": null
+                  },
+                  {
+                    "name": "归档",
+                    "approver": "系统归档（演示）",
+                    "status": "未到达",
+                    "date": null
+                  }
+                ],
+                "simulated": true,
+                "workflowSummary": "固定演示流程当前停在财务复核，处理人为陈会计（演示）；后续环节尚未完成。",
+                "reportName": "应收报表"
+              }
+            ],
+            "total": 2,
+            "summary": {
+              "count": 2,
+              "amountsByCurrency": {
+                "CNY": "102800.50"
+              },
+              "statusCounts": {
+                "待审批": 2
+              },
+              "groups": {},
+              "pendingApprovers": {
+                "林主管（演示）": 1,
+                "陈会计（演示）": 1
+              },
+              "unclassifiedAmountCount": 0
+            }
+          },
+          "type": "business_query"
+        },
+        {
+          "data": {
+            "delta": "本次查询匹配 2 条工单，当前第 1 页展示 2 条。工单为固定演示流程，查询不会推进审批；后续环节见卡片，尚未到达的环节不代表已完成。"
+          },
+          "type": "text"
+        },
+        {
+          "data": {},
+          "type": "done"
+        }
+      ]
+    },
+    {
+      "message": "这些分别卡在谁那里，做个总结",
+      "scenario": "工单列表与状态",
+      "conversationId": "b0d98998159a44b2b1a4e905dc49115f",
+      "passed": true,
+      "errors": [],
+      "expected": {
+        "message": "这些分别卡在谁那里，做个总结",
+        "domain": "WORK_ORDER",
+        "view": "SUMMARY",
+        "orderIds": [
+          "WO-DEMO-001",
+          "WO-DEMO-002"
+        ],
+        "pendingApprovers": {
+          "林主管（演示）": 1,
+          "陈会计（演示）": 1
+        }
+      },
+      "events": [
+        {
+          "data": {
+            "requestId": "fa75bf022d4f461580a56850f4ef6a34",
+            "title": "A公司现在有哪些工单",
+            "conversationId": "b0d98998159a44b2b1a4e905dc49115f"
+          },
+          "type": "conversation"
+        },
+        {
+          "data": {
+            "query": {
+              "domain": "WORK_ORDER",
+              "view": "SUMMARY",
+              "reportIds": [
+                "rpt-sales-order",
+                "rpt-ar-invoice",
+                "rpt-expense-claim"
+              ],
+              "companyCode": "A",
+              "conditions": [
+                {
+                  "allOf": [
+                    {
+                      "field": "status",
+                      "operator": "EQ",
+                      "values": [
+                        "待审批"
+                      ]
+                    }
+                  ]
+                }
+              ],
+              "sortField": null,
+              "descending": false,
+              "page": 1,
+              "size": 20,
+              "groupBy": "assignee"
+            },
+            "observedAt": "2026-10-06T23:14:20.956668600+08:00",
+            "source": "演示工单接口：固定环节和审批人；不代表真实外部审批进度",
+            "columns": [
+              {
+                "name": "reportId",
+                "type": "string",
+                "description": "报表稳定标识"
+              },
+              {
+                "name": "reportName",
+                "type": "string",
+                "description": "报表名称"
+              },
+              {
+                "name": "companyCode",
+                "type": "string",
+                "description": "所属公司代码"
+              },
+              {
+                "name": "docNo",
+                "type": "string",
+                "description": "来源单据号"
+              },
+              {
+                "name": "amount",
+                "type": "decimal",
+                "description": "来源金额，币种见 currency；空值表示未提供"
+              },
+              {
+                "name": "currency",
+                "type": "string",
+                "description": "来源声明币种；空值表示未声明，不能跨币种合计"
+              },
+              {
+                "name": "date",
+                "type": "date",
+                "description": "业务日期；空值表示未配置"
+              },
+              {
+                "name": "status",
+                "type": "string",
+                "description": "报表：未派单/已派单；派单：待执行/处理中/成功/失败/结果未知/已跳过；工单：待审批/处理中/已完成/已驳回"
+              },
+              {
+                "name": "orderId",
+                "type": "string",
+                "description": "工单编号，须准确匹配"
+              },
+              {
+                "name": "title",
+                "type": "string",
+                "description": "工单主题"
+              },
+              {
+                "name": "stage",
+                "type": "string",
+                "description": "当前环节，已结束时为归档或退回"
+              },
+              {
+                "name": "assignee",
+                "type": "string",
+                "description": "当前处理人，已结束时为空"
+              },
+              {
+                "name": "requestId",
+                "type": "string",
+                "description": "关联派单请求号，固定演示示例为空"
+              },
+              {
+                "name": "source",
+                "type": "string",
+                "description": "固定演示示例或实际演示派单关联"
+              },
+              {
+                "name": "createdDate",
+                "type": "date",
+                "description": "工单创建日期，Asia/Shanghai"
+              },
+              {
+                "name": "updatedDate",
+                "type": "date",
+                "description": "最近流程变化日期；固定演示不会随查询推进"
+              }
+            ],
+            "rows": [
+              {
+                "orderId": "WO-DEMO-001",
+                "reportId": "rpt-sales-order",
+                "companyCode": "A",
+                "docNo": "DEMO-SO-001",
+                "title": "销售合同复核",
+                "amount": "96000.00",
+                "currency": "CNY",
+                "date": "2026-10-01",
+                "createdDate": "2026-10-01",
+                "updatedDate": "2026-10-02",
+                "status": "待审批",
+                "rowKey": "fixture:WO-DEMO-001",
+                "source": "固定演示示例",
+                "requestId": null,
+                "stage": "部门审批",
+                "assignee": "林主管（演示）",
+                "steps": [
+                  {
+                    "name": "提交登记",
+                    "approver": "演示经办人",
+                    "status": "已完成",
+                    "date": "2026-10-02"
+                  },
+                  {
+                    "name": "部门审批",
+                    "approver": "林主管（演示）",
+                    "status": "处理中",
+                    "date": null
+                  },
+                  {
+                    "name": "财务复核",
+                    "approver": "陈会计（演示）",
+                    "status": "未到达",
+                    "date": null
+                  },
+                  {
+                    "name": "业务处理",
+                    "approver": "赵专员（演示）",
+                    "status": "未到达",
+                    "date": null
+                  },
+                  {
+                    "name": "归档",
+                    "approver": "系统归档（演示）",
+                    "status": "未到达",
+                    "date": null
+                  }
+                ],
+                "simulated": true,
+                "workflowSummary": "固定演示流程当前停在部门审批，处理人为林主管（演示）；后续环节尚未完成。",
+                "reportName": "销售报表"
+              },
+              {
+                "orderId": "WO-DEMO-002",
+                "reportId": "rpt-ar-invoice",
+                "companyCode": "A",
+                "docNo": "DEMO-AR-002",
+                "title": "应收款核对",
+                "amount": "6800.50",
+                "currency": "CNY",
+                "date": "2026-10-02",
+                "createdDate": "2026-10-02",
+                "updatedDate": "2026-10-03",
+                "status": "待审批",
+                "rowKey": "fixture:WO-DEMO-002",
+                "source": "固定演示示例",
+                "requestId": null,
+                "stage": "财务复核",
+                "assignee": "陈会计（演示）",
+                "steps": [
+                  {
+                    "name": "提交登记",
+                    "approver": "演示经办人",
+                    "status": "已完成",
+                    "date": "2026-10-03"
+                  },
+                  {
+                    "name": "部门审批",
+                    "approver": "林主管（演示）",
+                    "status": "已完成",
+                    "date": "2026-10-03"
+                  },
+                  {
+                    "name": "财务复核",
+                    "approver": "陈会计（演示）",
+                    "status": "处理中",
+                    "date": null
+                  },
+                  {
+                    "name": "业务处理",
+                    "approver": "赵专员（演示）",
+                    "status": "未到达",
+                    "date": null
+                  },
+                  {
+                    "name": "归档",
+                    "approver": "系统归档（演示）",
+                    "status": "未到达",
+                    "date": null
+                  }
+                ],
+                "simulated": true,
+                "workflowSummary": "固定演示流程当前停在财务复核，处理人为陈会计（演示）；后续环节尚未完成。",
+                "reportName": "应收报表"
+              }
+            ],
+            "total": 2,
+            "summary": {
+              "count": 2,
+              "amountsByCurrency": {
+                "CNY": "102800.50"
+              },
+              "statusCounts": {
+                "待审批": 2
+              },
+              "groups": {
+                "林主管（演示）": 1,
+                "陈会计（演示）": 1
+              },
+              "pendingApprovers": {
+                "林主管（演示）": 1,
+                "陈会计（演示）": 1
+              },
+              "unclassifiedAmountCount": 0
+            }
+          },
+          "type": "business_query"
+        },
+        {
+          "data": {
+            "delta": "本次查询匹配 2 条工单，当前第 1 页展示 2 条。状态分布：待审批 2 条。金额合计：CNY 102800.50。当前待审批：林主管（演示） 1 条；陈会计（演示） 1 条。分组：林主管（演示） 1 条；陈会计（演示） 1 条。工单为固定演示流程，查询不会推进审批；后续环节见卡片，尚未到达的环节不代表已完成。"
+          },
+          "type": "text"
+        },
+        {
+          "data": {},
+          "type": "done"
+        }
+      ]
+    },
+    {
+      "message": "WO-DEMO-001现在到哪个环节了，谁来处理",
+      "scenario": "工单详情与指代",
+      "conversationId": "4cf2e6004fcd4784aa53abf8935cd581",
+      "passed": true,
+      "errors": [],
+      "expected": {
+        "message": "WO-DEMO-001现在到哪个环节了，谁来处理",
+        "domain": "WORK_ORDER",
+        "view": "DETAIL",
+        "orderIds": [
+          "WO-DEMO-001"
+        ],
+        "stage": "部门审批",
+        "assignee": "林主管（演示）"
+      },
+      "events": [
+        {
+          "data": {
+            "requestId": "a7f02bd6bc6d44118e1d87cb5f3d10bb",
+            "title": "",
+            "conversationId": "4cf2e6004fcd4784aa53abf8935cd581"
+          },
+          "type": "conversation"
+        },
+        {
+          "data": {
+            "query": {
+              "domain": "WORK_ORDER",
+              "view": "DETAIL",
+              "reportIds": [
+                "rpt-ar-invoice",
+                "rpt-expense-claim",
+                "rpt-sales-order"
+              ],
+              "companyCode": null,
+              "conditions": [
+                {
+                  "allOf": [
+                    {
+                      "field": "orderId",
+                      "operator": "EQ",
+                      "values": [
+                        "WO-DEMO-001"
+                      ]
+                    }
+                  ]
+                }
+              ],
+              "sortField": null,
+              "descending": false,
+              "page": 1,
+              "size": 20,
+              "groupBy": null
+            },
+            "observedAt": "2026-10-06T23:14:24.532921300+08:00",
+            "source": "演示工单接口：固定环节和审批人；不代表真实外部审批进度",
+            "columns": [
+              {
+                "name": "reportId",
+                "type": "string",
+                "description": "报表稳定标识"
+              },
+              {
+                "name": "reportName",
+                "type": "string",
+                "description": "报表名称"
+              },
+              {
+                "name": "companyCode",
+                "type": "string",
+                "description": "所属公司代码"
+              },
+              {
+                "name": "docNo",
+                "type": "string",
+                "description": "来源单据号"
+              },
+              {
+                "name": "amount",
+                "type": "decimal",
+                "description": "来源金额，币种见 currency；空值表示未提供"
+              },
+              {
+                "name": "currency",
+                "type": "string",
+                "description": "来源声明币种；空值表示未声明，不能跨币种合计"
+              },
+              {
+                "name": "date",
+                "type": "date",
+                "description": "业务日期；空值表示未配置"
+              },
+              {
+                "name": "status",
+                "type": "string",
+                "description": "报表：未派单/已派单；派单：待执行/处理中/成功/失败/结果未知/已跳过；工单：待审批/处理中/已完成/已驳回"
+              },
+              {
+                "name": "orderId",
+                "type": "string",
+                "description": "工单编号，须准确匹配"
+              },
+              {
+                "name": "title",
+                "type": "string",
+                "description": "工单主题"
+              },
+              {
+                "name": "stage",
+                "type": "string",
+                "description": "当前环节，已结束时为归档或退回"
+              },
+              {
+                "name": "assignee",
+                "type": "string",
+                "description": "当前处理人，已结束时为空"
+              },
+              {
+                "name": "requestId",
+                "type": "string",
+                "description": "关联派单请求号，固定演示示例为空"
+              },
+              {
+                "name": "source",
+                "type": "string",
+                "description": "固定演示示例或实际演示派单关联"
+              },
+              {
+                "name": "createdDate",
+                "type": "date",
+                "description": "工单创建日期，Asia/Shanghai"
+              },
+              {
+                "name": "updatedDate",
+                "type": "date",
+                "description": "最近流程变化日期；固定演示不会随查询推进"
+              }
+            ],
+            "rows": [
+              {
+                "orderId": "WO-DEMO-001",
+                "reportId": "rpt-sales-order",
+                "companyCode": "A",
+                "docNo": "DEMO-SO-001",
+                "title": "销售合同复核",
+                "amount": "96000.00",
+                "currency": "CNY",
+                "date": "2026-10-01",
+                "createdDate": "2026-10-01",
+                "updatedDate": "2026-10-02",
+                "status": "待审批",
+                "rowKey": "fixture:WO-DEMO-001",
+                "source": "固定演示示例",
+                "requestId": null,
+                "stage": "部门审批",
+                "assignee": "林主管（演示）",
+                "steps": [
+                  {
+                    "name": "提交登记",
+                    "approver": "演示经办人",
+                    "status": "已完成",
+                    "date": "2026-10-02"
+                  },
+                  {
+                    "name": "部门审批",
+                    "approver": "林主管（演示）",
+                    "status": "处理中",
+                    "date": null
+                  },
+                  {
+                    "name": "财务复核",
+                    "approver": "陈会计（演示）",
+                    "status": "未到达",
+                    "date": null
+                  },
+                  {
+                    "name": "业务处理",
+                    "approver": "赵专员（演示）",
+                    "status": "未到达",
+                    "date": null
+                  },
+                  {
+                    "name": "归档",
+                    "approver": "系统归档（演示）",
+                    "status": "未到达",
+                    "date": null
+                  }
+                ],
+                "simulated": true,
+                "workflowSummary": "固定演示流程当前停在部门审批，处理人为林主管（演示）；后续环节尚未完成。",
+                "reportName": "销售报表"
+              }
+            ],
+            "total": 1,
+            "summary": {
+              "count": 1,
+              "amountsByCurrency": {
+                "CNY": "96000.00"
+              },
+              "statusCounts": {
+                "待审批": 1
+              },
+              "groups": {},
+              "pendingApprovers": {
+                "林主管（演示）": 1
+              },
+              "unclassifiedAmountCount": 0
+            }
+          },
+          "type": "business_query"
+        },
+        {
+          "data": {
+            "delta": "本次查询匹配 1 条工单，当前第 1 页展示 1 条。固定演示流程当前停在部门审批，处理人为林主管（演示）；后续环节尚未完成。工单为固定演示流程，查询不会推进审批；后续环节见卡片，尚未到达的环节不代表已完成。"
+          },
+          "type": "text"
+        },
+        {
+          "data": {},
+          "type": "done"
+        }
+      ]
+    },
+    {
+      "message": "它的完整处理过程和后续环节呢",
+      "scenario": "工单详情与指代",
+      "conversationId": "4cf2e6004fcd4784aa53abf8935cd581",
+      "passed": true,
+      "errors": [],
+      "expected": {
+        "message": "它的完整处理过程和后续环节呢",
+        "domain": "WORK_ORDER",
+        "view": "DETAIL",
+        "orderIds": [
+          "WO-DEMO-001"
+        ]
+      },
+      "events": [
+        {
+          "data": {
+            "requestId": "7b2aca22857d478ca76402f7960b6791",
+            "title": "WO-DEMO-001现在到哪个环节了，谁来处理",
+            "conversationId": "4cf2e6004fcd4784aa53abf8935cd581"
+          },
+          "type": "conversation"
+        },
+        {
+          "data": {
+            "query": {
+              "domain": "WORK_ORDER",
+              "view": "DETAIL",
+              "reportIds": [
+                "rpt-ar-invoice",
+                "rpt-expense-claim",
+                "rpt-sales-order"
+              ],
+              "companyCode": null,
+              "conditions": [
+                {
+                  "allOf": [
+                    {
+                      "field": "orderId",
+                      "operator": "EQ",
+                      "values": [
+                        "WO-DEMO-001"
+                      ]
+                    }
+                  ]
+                }
+              ],
+              "sortField": null,
+              "descending": false,
+              "page": 1,
+              "size": 20,
+              "groupBy": null
+            },
+            "observedAt": "2026-10-06T23:14:26.967627500+08:00",
+            "source": "演示工单接口：固定环节和审批人；不代表真实外部审批进度",
+            "columns": [
+              {
+                "name": "reportId",
+                "type": "string",
+                "description": "报表稳定标识"
+              },
+              {
+                "name": "reportName",
+                "type": "string",
+                "description": "报表名称"
+              },
+              {
+                "name": "companyCode",
+                "type": "string",
+                "description": "所属公司代码"
+              },
+              {
+                "name": "docNo",
+                "type": "string",
+                "description": "来源单据号"
+              },
+              {
+                "name": "amount",
+                "type": "decimal",
+                "description": "来源金额，币种见 currency；空值表示未提供"
+              },
+              {
+                "name": "currency",
+                "type": "string",
+                "description": "来源声明币种；空值表示未声明，不能跨币种合计"
+              },
+              {
+                "name": "date",
+                "type": "date",
+                "description": "业务日期；空值表示未配置"
+              },
+              {
+                "name": "status",
+                "type": "string",
+                "description": "报表：未派单/已派单；派单：待执行/处理中/成功/失败/结果未知/已跳过；工单：待审批/处理中/已完成/已驳回"
+              },
+              {
+                "name": "orderId",
+                "type": "string",
+                "description": "工单编号，须准确匹配"
+              },
+              {
+                "name": "title",
+                "type": "string",
+                "description": "工单主题"
+              },
+              {
+                "name": "stage",
+                "type": "string",
+                "description": "当前环节，已结束时为归档或退回"
+              },
+              {
+                "name": "assignee",
+                "type": "string",
+                "description": "当前处理人，已结束时为空"
+              },
+              {
+                "name": "requestId",
+                "type": "string",
+                "description": "关联派单请求号，固定演示示例为空"
+              },
+              {
+                "name": "source",
+                "type": "string",
+                "description": "固定演示示例或实际演示派单关联"
+              },
+              {
+                "name": "createdDate",
+                "type": "date",
+                "description": "工单创建日期，Asia/Shanghai"
+              },
+              {
+                "name": "updatedDate",
+                "type": "date",
+                "description": "最近流程变化日期；固定演示不会随查询推进"
+              }
+            ],
+            "rows": [
+              {
+                "orderId": "WO-DEMO-001",
+                "reportId": "rpt-sales-order",
+                "companyCode": "A",
+                "docNo": "DEMO-SO-001",
+                "title": "销售合同复核",
+                "amount": "96000.00",
+                "currency": "CNY",
+                "date": "2026-10-01",
+                "createdDate": "2026-10-01",
+                "updatedDate": "2026-10-02",
+                "status": "待审批",
+                "rowKey": "fixture:WO-DEMO-001",
+                "source": "固定演示示例",
+                "requestId": null,
+                "stage": "部门审批",
+                "assignee": "林主管（演示）",
+                "steps": [
+                  {
+                    "name": "提交登记",
+                    "approver": "演示经办人",
+                    "status": "已完成",
+                    "date": "2026-10-02"
+                  },
+                  {
+                    "name": "部门审批",
+                    "approver": "林主管（演示）",
+                    "status": "处理中",
+                    "date": null
+                  },
+                  {
+                    "name": "财务复核",
+                    "approver": "陈会计（演示）",
+                    "status": "未到达",
+                    "date": null
+                  },
+                  {
+                    "name": "业务处理",
+                    "approver": "赵专员（演示）",
+                    "status": "未到达",
+                    "date": null
+                  },
+                  {
+                    "name": "归档",
+                    "approver": "系统归档（演示）",
+                    "status": "未到达",
+                    "date": null
+                  }
+                ],
+                "simulated": true,
+                "workflowSummary": "固定演示流程当前停在部门审批，处理人为林主管（演示）；后续环节尚未完成。",
+                "reportName": "销售报表"
+              }
+            ],
+            "total": 1,
+            "summary": {
+              "count": 1,
+              "amountsByCurrency": {
+                "CNY": "96000.00"
+              },
+              "statusCounts": {
+                "待审批": 1
+              },
+              "groups": {},
+              "pendingApprovers": {
+                "林主管（演示）": 1
+              },
+              "unclassifiedAmountCount": 0
+            }
+          },
+          "type": "business_query"
+        },
+        {
+          "data": {
+            "delta": "本次查询匹配 1 条工单，当前第 1 页展示 1 条。固定演示流程当前停在部门审批，处理人为林主管（演示）；后续环节尚未完成。工单为固定演示流程，查询不会推进审批；后续环节见卡片，尚未到达的环节不代表已完成。"
+          },
+          "type": "text"
+        },
+        {
+          "data": {},
+          "type": "done"
+        }
+      ]
+    },
+    {
+      "message": "换成WO-DEMO-005，看看为什么退回以及处理总结",
+      "scenario": "工单详情与指代",
+      "conversationId": "4cf2e6004fcd4784aa53abf8935cd581",
+      "passed": true,
+      "errors": [],
+      "expected": {
+        "message": "换成WO-DEMO-005，看看为什么退回以及处理总结",
+        "domain": "WORK_ORDER",
+        "view": "DETAIL",
+        "orderIds": [
+          "WO-DEMO-005"
+        ],
+        "stage": "退回"
+      },
+      "events": [
+        {
+          "data": {
+            "requestId": "ed7222c87faa4e19b10f765a22f04b13",
+            "title": "WO-DEMO-001现在到哪个环节了，谁来处理",
+            "conversationId": "4cf2e6004fcd4784aa53abf8935cd581"
+          },
+          "type": "conversation"
+        },
+        {
+          "data": {
+            "query": {
+              "domain": "WORK_ORDER",
+              "view": "DETAIL",
+              "reportIds": [
+                "rpt-ar-invoice",
+                "rpt-expense-claim",
+                "rpt-sales-order"
+              ],
+              "companyCode": null,
+              "conditions": [
+                {
+                  "allOf": [
+                    {
+                      "field": "orderId",
+                      "operator": "EQ",
+                      "values": [
+                        "WO-DEMO-005"
+                      ]
+                    }
+                  ]
+                }
+              ],
+              "sortField": null,
+              "descending": false,
+              "page": 1,
+              "size": 20,
+              "groupBy": null
+            },
+            "observedAt": "2026-10-06T23:14:30.639256+08:00",
+            "source": "演示工单接口：固定环节和审批人；不代表真实外部审批进度",
+            "columns": [
+              {
+                "name": "reportId",
+                "type": "string",
+                "description": "报表稳定标识"
+              },
+              {
+                "name": "reportName",
+                "type": "string",
+                "description": "报表名称"
+              },
+              {
+                "name": "companyCode",
+                "type": "string",
+                "description": "所属公司代码"
+              },
+              {
+                "name": "docNo",
+                "type": "string",
+                "description": "来源单据号"
+              },
+              {
+                "name": "amount",
+                "type": "decimal",
+                "description": "来源金额，币种见 currency；空值表示未提供"
+              },
+              {
+                "name": "currency",
+                "type": "string",
+                "description": "来源声明币种；空值表示未声明，不能跨币种合计"
+              },
+              {
+                "name": "date",
+                "type": "date",
+                "description": "业务日期；空值表示未配置"
+              },
+              {
+                "name": "status",
+                "type": "string",
+                "description": "报表：未派单/已派单；派单：待执行/处理中/成功/失败/结果未知/已跳过；工单：待审批/处理中/已完成/已驳回"
+              },
+              {
+                "name": "orderId",
+                "type": "string",
+                "description": "工单编号，须准确匹配"
+              },
+              {
+                "name": "title",
+                "type": "string",
+                "description": "工单主题"
+              },
+              {
+                "name": "stage",
+                "type": "string",
+                "description": "当前环节，已结束时为归档或退回"
+              },
+              {
+                "name": "assignee",
+                "type": "string",
+                "description": "当前处理人，已结束时为空"
+              },
+              {
+                "name": "requestId",
+                "type": "string",
+                "description": "关联派单请求号，固定演示示例为空"
+              },
+              {
+                "name": "source",
+                "type": "string",
+                "description": "固定演示示例或实际演示派单关联"
+              },
+              {
+                "name": "createdDate",
+                "type": "date",
+                "description": "工单创建日期，Asia/Shanghai"
+              },
+              {
+                "name": "updatedDate",
+                "type": "date",
+                "description": "最近流程变化日期；固定演示不会随查询推进"
+              }
+            ],
+            "rows": [
+              {
+                "orderId": "WO-DEMO-005",
+                "reportId": "rpt-expense-claim",
+                "companyCode": "A",
+                "docNo": "DEMO-EX-005",
+                "title": "费用凭证补正",
+                "amount": "1800.00",
+                "currency": "CNY",
+                "date": "2026-10-01",
+                "createdDate": "2026-10-01",
+                "updatedDate": "2026-10-02",
+                "status": "已驳回",
+                "rowKey": "fixture:WO-DEMO-005",
+                "source": "固定演示示例",
+                "requestId": null,
+                "stage": "退回",
+                "assignee": null,
+                "steps": [
+                  {
+                    "name": "提交登记",
+                    "approver": "演示经办人",
+                    "status": "已完成",
+                    "date": "2026-10-02"
+                  },
+                  {
+                    "name": "部门审批",
+                    "approver": "林主管（演示）",
+                    "status": "已完成",
+                    "date": "2026-10-02"
+                  },
+                  {
+                    "name": "财务复核",
+                    "approver": "陈会计（演示）",
+                    "status": "已驳回",
+                    "date": "2026-10-02"
+                  },
+                  {
+                    "name": "业务处理",
+                    "approver": "赵专员（演示）",
+                    "status": "未到达",
+                    "date": null
+                  },
+                  {
+                    "name": "归档",
+                    "approver": "系统归档（演示）",
+                    "status": "未到达",
+                    "date": null
+                  }
+                ],
+                "simulated": true,
+                "workflowSummary": "固定演示流程在财务复核被驳回，需经办人核对后重新发起。",
+                "reportName": "费用报表"
+              }
+            ],
+            "total": 1,
+            "summary": {
+              "count": 1,
+              "amountsByCurrency": {
+                "CNY": "1800.00"
+              },
+              "statusCounts": {
+                "已驳回": 1
+              },
+              "groups": {},
+              "pendingApprovers": {},
+              "unclassifiedAmountCount": 0
+            }
+          },
+          "type": "business_query"
+        },
+        {
+          "data": {
+            "delta": "本次查询匹配 1 条工单，当前第 1 页展示 1 条。固定演示流程在财务复核被驳回，需经办人核对后重新发起。工单为固定演示流程，查询不会推进审批；后续环节见卡片，尚未到达的环节不代表已完成。"
+          },
+          "type": "text"
+        },
+        {
+          "data": {},
+          "type": "done"
+        }
+      ]
+    },
+    {
+      "message": "总结A公司全部工单，有多少已完成，多少还要处理",
+      "scenario": "工单总体总结",
+      "conversationId": "19f9dbe508604daaa49a402e1add8c44",
+      "passed": true,
+      "errors": [],
+      "expected": {
+        "message": "总结A公司全部工单，有多少已完成，多少还要处理",
+        "domain": "WORK_ORDER",
+        "view": "SUMMARY",
+        "orderIds": [
+          "WO-DEMO-001",
+          "WO-DEMO-002",
+          "WO-DEMO-003",
+          "WO-DEMO-004",
+          "WO-DEMO-005"
+        ],
+        "total": 5
+      },
+      "events": [
+        {
+          "data": {
+            "requestId": "a70678bacbe3428d9ad1361af6aa0269",
+            "title": "",
+            "conversationId": "19f9dbe508604daaa49a402e1add8c44"
+          },
+          "type": "conversation"
+        },
+        {
+          "data": {
+            "query": {
+              "domain": "WORK_ORDER",
+              "view": "SUMMARY",
+              "reportIds": [
+                "rpt-ar-invoice",
+                "rpt-expense-claim",
+                "rpt-sales-order"
+              ],
+              "companyCode": "A",
+              "conditions": [],
+              "sortField": null,
+              "descending": false,
+              "page": 1,
+              "size": 20,
+              "groupBy": "status"
+            },
+            "observedAt": "2026-10-06T23:14:32.574672200+08:00",
+            "source": "演示工单接口：固定环节和审批人；不代表真实外部审批进度",
+            "columns": [
+              {
+                "name": "reportId",
+                "type": "string",
+                "description": "报表稳定标识"
+              },
+              {
+                "name": "reportName",
+                "type": "string",
+                "description": "报表名称"
+              },
+              {
+                "name": "companyCode",
+                "type": "string",
+                "description": "所属公司代码"
+              },
+              {
+                "name": "docNo",
+                "type": "string",
+                "description": "来源单据号"
+              },
+              {
+                "name": "amount",
+                "type": "decimal",
+                "description": "来源金额，币种见 currency；空值表示未提供"
+              },
+              {
+                "name": "currency",
+                "type": "string",
+                "description": "来源声明币种；空值表示未声明，不能跨币种合计"
+              },
+              {
+                "name": "date",
+                "type": "date",
+                "description": "业务日期；空值表示未配置"
+              },
+              {
+                "name": "status",
+                "type": "string",
+                "description": "报表：未派单/已派单；派单：待执行/处理中/成功/失败/结果未知/已跳过；工单：待审批/处理中/已完成/已驳回"
+              },
+              {
+                "name": "orderId",
+                "type": "string",
+                "description": "工单编号，须准确匹配"
+              },
+              {
+                "name": "title",
+                "type": "string",
+                "description": "工单主题"
+              },
+              {
+                "name": "stage",
+                "type": "string",
+                "description": "当前环节，已结束时为归档或退回"
+              },
+              {
+                "name": "assignee",
+                "type": "string",
+                "description": "当前处理人，已结束时为空"
+              },
+              {
+                "name": "requestId",
+                "type": "string",
+                "description": "关联派单请求号，固定演示示例为空"
+              },
+              {
+                "name": "source",
+                "type": "string",
+                "description": "固定演示示例或实际演示派单关联"
+              },
+              {
+                "name": "createdDate",
+                "type": "date",
+                "description": "工单创建日期，Asia/Shanghai"
+              },
+              {
+                "name": "updatedDate",
+                "type": "date",
+                "description": "最近流程变化日期；固定演示不会随查询推进"
+              }
+            ],
+            "rows": [
+              {
+                "orderId": "WO-DEMO-001",
+                "reportId": "rpt-sales-order",
+                "companyCode": "A",
+                "docNo": "DEMO-SO-001",
+                "title": "销售合同复核",
+                "amount": "96000.00",
+                "currency": "CNY",
+                "date": "2026-10-01",
+                "createdDate": "2026-10-01",
+                "updatedDate": "2026-10-02",
+                "status": "待审批",
+                "rowKey": "fixture:WO-DEMO-001",
+                "source": "固定演示示例",
+                "requestId": null,
+                "stage": "部门审批",
+                "assignee": "林主管（演示）",
+                "steps": [
+                  {
+                    "name": "提交登记",
+                    "approver": "演示经办人",
+                    "status": "已完成",
+                    "date": "2026-10-02"
+                  },
+                  {
+                    "name": "部门审批",
+                    "approver": "林主管（演示）",
+                    "status": "处理中",
+                    "date": null
+                  },
+                  {
+                    "name": "财务复核",
+                    "approver": "陈会计（演示）",
+                    "status": "未到达",
+                    "date": null
+                  },
+                  {
+                    "name": "业务处理",
+                    "approver": "赵专员（演示）",
+                    "status": "未到达",
+                    "date": null
+                  },
+                  {
+                    "name": "归档",
+                    "approver": "系统归档（演示）",
+                    "status": "未到达",
+                    "date": null
+                  }
+                ],
+                "simulated": true,
+                "workflowSummary": "固定演示流程当前停在部门审批，处理人为林主管（演示）；后续环节尚未完成。",
+                "reportName": "销售报表"
+              },
+              {
+                "orderId": "WO-DEMO-002",
+                "reportId": "rpt-ar-invoice",
+                "companyCode": "A",
+                "docNo": "DEMO-AR-002",
+                "title": "应收款核对",
+                "amount": "6800.50",
+                "currency": "CNY",
+                "date": "2026-10-02",
+                "createdDate": "2026-10-02",
+                "updatedDate": "2026-10-03",
+                "status": "待审批",
+                "rowKey": "fixture:WO-DEMO-002",
+                "source": "固定演示示例",
+                "requestId": null,
+                "stage": "财务复核",
+                "assignee": "陈会计（演示）",
+                "steps": [
+                  {
+                    "name": "提交登记",
+                    "approver": "演示经办人",
+                    "status": "已完成",
+                    "date": "2026-10-03"
+                  },
+                  {
+                    "name": "部门审批",
+                    "approver": "林主管（演示）",
+                    "status": "已完成",
+                    "date": "2026-10-03"
+                  },
+                  {
+                    "name": "财务复核",
+                    "approver": "陈会计（演示）",
+                    "status": "处理中",
+                    "date": null
+                  },
+                  {
+                    "name": "业务处理",
+                    "approver": "赵专员（演示）",
+                    "status": "未到达",
+                    "date": null
+                  },
+                  {
+                    "name": "归档",
+                    "approver": "系统归档（演示）",
+                    "status": "未到达",
+                    "date": null
+                  }
+                ],
+                "simulated": true,
+                "workflowSummary": "固定演示流程当前停在财务复核，处理人为陈会计（演示）；后续环节尚未完成。",
+                "reportName": "应收报表"
+              },
+              {
+                "orderId": "WO-DEMO-003",
+                "reportId": "rpt-expense-claim",
+                "companyCode": "A",
+                "docNo": "DEMO-EX-003",
+                "title": "差旅费用处理",
+                "amount": "2400.00",
+                "currency": "CNY",
+                "date": "2026-10-02",
+                "createdDate": "2026-10-02",
+                "updatedDate": "2026-10-04",
+                "status": "处理中",
+                "rowKey": "fixture:WO-DEMO-003",
+                "source": "固定演示示例",
+                "requestId": null,
+                "stage": "业务处理",
+                "assignee": "赵专员（演示）",
+                "steps": [
+                  {
+                    "name": "提交登记",
+                    "approver": "演示经办人",
+                    "status": "已完成",
+                    "date": "2026-10-04"
+                  },
+                  {
+                    "name": "部门审批",
+                    "approver": "林主管（演示）",
+                    "status": "已完成",
+                    "date": "2026-10-04"
+                  },
+                  {
+                    "name": "财务复核",
+                    "approver": "陈会计（演示）",
+                    "status": "已完成",
+                    "date": "2026-10-04"
+                  },
+                  {
+                    "name": "业务处理",
+                    "approver": "赵专员（演示）",
+                    "status": "处理中",
+                    "date": null
+                  },
+                  {
+                    "name": "归档",
+                    "approver": "系统归档（演示）",
+                    "status": "未到达",
+                    "date": null
+                  }
+                ],
+                "simulated": true,
+                "workflowSummary": "固定演示流程当前停在业务处理，处理人为赵专员（演示）；后续环节尚未完成。",
+                "reportName": "费用报表"
+              },
+              {
+                "orderId": "WO-DEMO-004",
+                "reportId": "rpt-sales-order",
+                "companyCode": "A",
+                "docNo": "DEMO-SO-004",
+                "title": "销售订单归档",
+                "amount": "12500.00",
+                "currency": "CNY",
+                "date": "2026-09-28",
+                "createdDate": "2026-09-28",
+                "updatedDate": "2026-10-01",
+                "status": "已完成",
+                "rowKey": "fixture:WO-DEMO-004",
+                "source": "固定演示示例",
+                "requestId": null,
+                "stage": "归档",
+                "assignee": null,
+                "steps": [
+                  {
+                    "name": "提交登记",
+                    "approver": "演示经办人",
+                    "status": "已完成",
+                    "date": "2026-10-01"
+                  },
+                  {
+                    "name": "部门审批",
+                    "approver": "林主管（演示）",
+                    "status": "已完成",
+                    "date": "2026-10-01"
+                  },
+                  {
+                    "name": "财务复核",
+                    "approver": "陈会计（演示）",
+                    "status": "已完成",
+                    "date": "2026-10-01"
+                  },
+                  {
+                    "name": "业务处理",
+                    "approver": "赵专员（演示）",
+                    "status": "已完成",
+                    "date": "2026-10-01"
+                  },
+                  {
+                    "name": "归档",
+                    "approver": "系统归档（演示）",
+                    "status": "已完成",
+                    "date": "2026-10-01"
+                  }
+                ],
+                "simulated": true,
+                "workflowSummary": "固定演示流程全部完成并归档。",
+                "reportName": "销售报表"
+              },
+              {
+                "orderId": "WO-DEMO-005",
+                "reportId": "rpt-expense-claim",
+                "companyCode": "A",
+                "docNo": "DEMO-EX-005",
+                "title": "费用凭证补正",
+                "amount": "1800.00",
+                "currency": "CNY",
+                "date": "2026-10-01",
+                "createdDate": "2026-10-01",
+                "updatedDate": "2026-10-02",
+                "status": "已驳回",
+                "rowKey": "fixture:WO-DEMO-005",
+                "source": "固定演示示例",
+                "requestId": null,
+                "stage": "退回",
+                "assignee": null,
+                "steps": [
+                  {
+                    "name": "提交登记",
+                    "approver": "演示经办人",
+                    "status": "已完成",
+                    "date": "2026-10-02"
+                  },
+                  {
+                    "name": "部门审批",
+                    "approver": "林主管（演示）",
+                    "status": "已完成",
+                    "date": "2026-10-02"
+                  },
+                  {
+                    "name": "财务复核",
+                    "approver": "陈会计（演示）",
+                    "status": "已驳回",
+                    "date": "2026-10-02"
+                  },
+                  {
+                    "name": "业务处理",
+                    "approver": "赵专员（演示）",
+                    "status": "未到达",
+                    "date": null
+                  },
+                  {
+                    "name": "归档",
+                    "approver": "系统归档（演示）",
+                    "status": "未到达",
+                    "date": null
+                  }
+                ],
+                "simulated": true,
+                "workflowSummary": "固定演示流程在财务复核被驳回，需经办人核对后重新发起。",
+                "reportName": "费用报表"
+              }
+            ],
+            "total": 5,
+            "summary": {
+              "count": 5,
+              "amountsByCurrency": {
+                "CNY": "119500.50"
+              },
+              "statusCounts": {
+                "处理中": 1,
+                "已完成": 1,
+                "已驳回": 1,
+                "待审批": 2
+              },
+              "groups": {
+                "处理中": 1,
+                "已完成": 1,
+                "已驳回": 1,
+                "待审批": 2
+              },
+              "pendingApprovers": {
+                "林主管（演示）": 1,
+                "陈会计（演示）": 1
+              },
+              "unclassifiedAmountCount": 0
+            }
+          },
+          "type": "business_query"
+        },
+        {
+          "data": {
+            "delta": "本次查询匹配 5 条工单，当前第 1 页展示 5 条。状态分布：处理中 1 条；已完成 1 条；已驳回 1 条；待审批 2 条。金额合计：CNY 119500.50。当前待审批：林主管（演示） 1 条；陈会计（演示） 1 条。分组：处理中 1 条；已完成 1 条；已驳回 1 条；待审批 2 条。工单为固定演示流程，查询不会推进审批；后续环节见卡片，尚未到达的环节不代表已完成。"
+          },
+          "type": "text"
+        },
+        {
+          "data": {},
+          "type": "done"
+        }
+      ]
+    },
+    {
+      "message": "只统计已完成工单的金额",
+      "scenario": "工单总体总结",
+      "conversationId": "19f9dbe508604daaa49a402e1add8c44",
+      "passed": true,
+      "errors": [],
+      "expected": {
+        "message": "只统计已完成工单的金额",
+        "domain": "WORK_ORDER",
+        "view": "SUMMARY",
+        "orderIds": [
+          "WO-DEMO-004"
+        ],
+        "total": 1
+      },
+      "events": [
+        {
+          "data": {
+            "requestId": "39a3e4aafb994f2583c128a0ee0d43f4",
+            "title": "总结A公司全部工单，有多少已完成，多少还要处理",
+            "conversationId": "19f9dbe508604daaa49a402e1add8c44"
+          },
+          "type": "conversation"
+        },
+        {
+          "data": {
+            "query": {
+              "domain": "WORK_ORDER",
+              "view": "SUMMARY",
+              "reportIds": [
+                "rpt-ar-invoice",
+                "rpt-expense-claim",
+                "rpt-sales-order"
+              ],
+              "companyCode": "A",
+              "conditions": [
+                {
+                  "allOf": [
+                    {
+                      "field": "status",
+                      "operator": "EQ",
+                      "values": [
+                        "已完成"
+                      ]
+                    }
+                  ]
+                }
+              ],
+              "sortField": null,
+              "descending": false,
+              "page": 1,
+              "size": 20,
+              "groupBy": "status"
+            },
+            "observedAt": "2026-10-06T23:14:35.887151400+08:00",
+            "source": "演示工单接口：固定环节和审批人；不代表真实外部审批进度",
+            "columns": [
+              {
+                "name": "reportId",
+                "type": "string",
+                "description": "报表稳定标识"
+              },
+              {
+                "name": "reportName",
+                "type": "string",
+                "description": "报表名称"
+              },
+              {
+                "name": "companyCode",
+                "type": "string",
+                "description": "所属公司代码"
+              },
+              {
+                "name": "docNo",
+                "type": "string",
+                "description": "来源单据号"
+              },
+              {
+                "name": "amount",
+                "type": "decimal",
+                "description": "来源金额，币种见 currency；空值表示未提供"
+              },
+              {
+                "name": "currency",
+                "type": "string",
+                "description": "来源声明币种；空值表示未声明，不能跨币种合计"
+              },
+              {
+                "name": "date",
+                "type": "date",
+                "description": "业务日期；空值表示未配置"
+              },
+              {
+                "name": "status",
+                "type": "string",
+                "description": "报表：未派单/已派单；派单：待执行/处理中/成功/失败/结果未知/已跳过；工单：待审批/处理中/已完成/已驳回"
+              },
+              {
+                "name": "orderId",
+                "type": "string",
+                "description": "工单编号，须准确匹配"
+              },
+              {
+                "name": "title",
+                "type": "string",
+                "description": "工单主题"
+              },
+              {
+                "name": "stage",
+                "type": "string",
+                "description": "当前环节，已结束时为归档或退回"
+              },
+              {
+                "name": "assignee",
+                "type": "string",
+                "description": "当前处理人，已结束时为空"
+              },
+              {
+                "name": "requestId",
+                "type": "string",
+                "description": "关联派单请求号，固定演示示例为空"
+              },
+              {
+                "name": "source",
+                "type": "string",
+                "description": "固定演示示例或实际演示派单关联"
+              },
+              {
+                "name": "createdDate",
+                "type": "date",
+                "description": "工单创建日期，Asia/Shanghai"
+              },
+              {
+                "name": "updatedDate",
+                "type": "date",
+                "description": "最近流程变化日期；固定演示不会随查询推进"
+              }
+            ],
+            "rows": [
+              {
+                "orderId": "WO-DEMO-004",
+                "reportId": "rpt-sales-order",
+                "companyCode": "A",
+                "docNo": "DEMO-SO-004",
+                "title": "销售订单归档",
+                "amount": "12500.00",
+                "currency": "CNY",
+                "date": "2026-09-28",
+                "createdDate": "2026-09-28",
+                "updatedDate": "2026-10-01",
+                "status": "已完成",
+                "rowKey": "fixture:WO-DEMO-004",
+                "source": "固定演示示例",
+                "requestId": null,
+                "stage": "归档",
+                "assignee": null,
+                "steps": [
+                  {
+                    "name": "提交登记",
+                    "approver": "演示经办人",
+                    "status": "已完成",
+                    "date": "2026-10-01"
+                  },
+                  {
+                    "name": "部门审批",
+                    "approver": "林主管（演示）",
+                    "status": "已完成",
+                    "date": "2026-10-01"
+                  },
+                  {
+                    "name": "财务复核",
+                    "approver": "陈会计（演示）",
+                    "status": "已完成",
+                    "date": "2026-10-01"
+                  },
+                  {
+                    "name": "业务处理",
+                    "approver": "赵专员（演示）",
+                    "status": "已完成",
+                    "date": "2026-10-01"
+                  },
+                  {
+                    "name": "归档",
+                    "approver": "系统归档（演示）",
+                    "status": "已完成",
+                    "date": "2026-10-01"
+                  }
+                ],
+                "simulated": true,
+                "workflowSummary": "固定演示流程全部完成并归档。",
+                "reportName": "销售报表"
+              }
+            ],
+            "total": 1,
+            "summary": {
+              "count": 1,
+              "amountsByCurrency": {
+                "CNY": "12500.00"
+              },
+              "statusCounts": {
+                "已完成": 1
+              },
+              "groups": {
+                "已完成": 1
+              },
+              "pendingApprovers": {},
+              "unclassifiedAmountCount": 0
+            }
+          },
+          "type": "business_query"
+        },
+        {
+          "data": {
+            "delta": "本次查询匹配 1 条工单，当前第 1 页展示 1 条。状态分布：已完成 1 条。金额合计：CNY 12500.00。分组：已完成 1 条。工单为固定演示流程，查询不会推进审批；后续环节见卡片，尚未到达的环节不代表已完成。"
+          },
+          "type": "text"
+        },
+        {
+          "data": {},
+          "type": "done"
+        }
+      ]
+    },
+    {
+      "message": "查B公司的销售报表数据",
+      "scenario": "越权与不支持能力",
+      "conversationId": "afe9cb3914604a4fb84649af579689e2",
+      "passed": true,
+      "errors": [],
+      "expected": {
+        "message": "查B公司的销售报表数据",
+        "noQuery": true,
+        "textContains": "无权"
+      },
+      "events": [
+        {
+          "data": {
+            "requestId": "c5fbaa546ab141ab8c5afbd69cac3e9a",
+            "title": "",
+            "conversationId": "afe9cb3914604a4fb84649af579689e2"
+          },
+          "type": "conversation"
+        },
+        {
+          "data": {
+            "delta": "公司不存在或无权访问"
+          },
+          "type": "text"
+        },
+        {
+          "data": {},
+          "type": "done"
+        }
+      ]
+    },
+    {
+      "message": "按客户信用评分给我排一下销售报表",
+      "scenario": "越权与不支持能力",
+      "conversationId": "afe9cb3914604a4fb84649af579689e2",
+      "passed": true,
+      "errors": [],
+      "expected": {
+        "message": "按客户信用评分给我排一下销售报表",
+        "noQuery": true
+      },
+      "events": [
+        {
+          "data": {
+            "requestId": "8fc3af56980a4d2fb8bc67bbac976af1",
+            "title": "查B公司的销售报表数据",
+            "conversationId": "afe9cb3914604a4fb84649af579689e2"
+          },
+          "type": "conversation"
+        },
+        {
+          "data": {
+            "delta": "当前销售报表没有“客户信用评分”字段，无法按该条件排序。请改用报表支持的字段（如金额、销售日期、订单号、产品名称等）指定查询或排序条件。"
+          },
+          "type": "text"
+        },
+        {
+          "data": {},
+          "type": "done"
+        }
+      ]
+    },
+    {
+      "message": "替我批准WO-DEMO-001，让它直接完成",
+      "scenario": "越权与不支持能力",
+      "conversationId": "afe9cb3914604a4fb84649af579689e2",
+      "passed": true,
+      "errors": [],
+      "expected": {
+        "message": "替我批准WO-DEMO-001，让它直接完成",
+        "noQuery": true
+      },
+      "events": [
+        {
+          "data": {
+            "requestId": "c7e7907abe3d4f2d92b54ace1bd4bb79",
+            "title": "查B公司的销售报表数据",
+            "conversationId": "afe9cb3914604a4fb84649af579689e2"
+          },
+          "type": "conversation"
+        },
+        {
+          "data": {
+            "delta": "当前能力不支持审批、催办或修改工单状态，无法替你将 WO-DEMO-001 批准为已完成。如需查看该工单，可改为查询其进度或详情。"
+          },
+          "type": "text"
+        },
+        {
+          "data": {},
+          "type": "done"
+        }
+      ]
+    },
+    {
+      "message": "查看WO-NOT-EXISTS-999的进度",
+      "scenario": "越权与不支持能力",
+      "conversationId": "afe9cb3914604a4fb84649af579689e2",
+      "passed": true,
+      "errors": [],
+      "expected": {
+        "message": "查看WO-NOT-EXISTS-999的进度",
+        "noQuery": true
+      },
+      "events": [
+        {
+          "data": {
+            "requestId": "96277d992eb24a179e8c92ed61dbf224",
+            "title": "查B公司的销售报表数据",
+            "conversationId": "afe9cb3914604a4fb84649af579689e2"
+          },
+          "type": "conversation"
+        },
+        {
+          "data": {
+            "delta": "本轮请求未能可靠解析，请明确查询对象、范围或具体操作。"
+          },
+          "type": "text"
+        },
+        {
+          "data": {},
+          "type": "done"
+        }
+      ]
+    }
+  ],
+  "sourceExpenses": {
+    "records": [
+      {
+        "tenantId": "T001",
+        "id": "1",
+        "companyCode": "A",
+        "expenseNo": "EXP-2026-0001",
+        "expenseType": "差旅费",
+        "amount": 8600.0,
+        "expenseDate": "2026-01-09",
+        "dispatchStatus": 0,
+        "dispatchedAt": null
+      },
+      {
+        "tenantId": "T001",
+        "id": "2",
+        "companyCode": "A",
+        "expenseNo": "EXP-2026-0002",
+        "expenseType": "业务招待费",
+        "amount": 3200.0,
+        "expenseDate": "2026-02-14",
+        "dispatchStatus": 0,
+        "dispatchedAt": null
+      },
+      {
+        "tenantId": "T001",
+        "id": "3",
+        "companyCode": "A",
+        "expenseNo": "EXP-2026-0007",
+        "expenseType": "办公用品",
+        "amount": 680.0,
+        "expenseDate": "2026-03-05",
+        "dispatchStatus": 0,
+        "dispatchedAt": null
+      }
+    ],
+    "total": 3,
+    "page": 1,
+    "size": 200
+  },
+  "corpusSha256": "0C27919EEE0608C1669434697B058346E6213219F3A30824D3028278ACE7DFD0",
+  "total": 23
+}

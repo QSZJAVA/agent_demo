@@ -6,6 +6,7 @@ const baseline=JSON.parse(read('demo-baseline.json'));
 const problems=[];
 const need=(ok,message)=>{if(!ok)problems.push(message)};
 need(baseline.semanticVersion===1 && baseline.profiles==='real,mcp' && baseline.semanticMode==='active' && baseline.nativeSchema===true,'Unexpected final semantic baseline');
+need(baseline.assistantMode==='business-and-dispatch' && JSON.stringify(baseline.readDomains)===JSON.stringify(['REPORT','DISPATCH','WORK_ORDER']),'Unexpected business assistant capabilities');
 need(JSON.parse(read(baseline.schema)).properties.version.enum[0]===baseline.semanticVersion,'Schema version differs from baseline');
 need(baseline.database==='report_demo','Demo database name must remain report_demo');
 need(baseline.releaseVersion==='1.0.0','Unexpected application release version');
@@ -34,4 +35,4 @@ for(const file of markdown) {
 }
 const generated=spawnSync(process.execPath,[path.join(root,'docs/diagrams/build-semantic-flows.cjs'),'--check'],{encoding:'utf8'});
 need(generated.status===0,'Generated diagrams differ from generator: '+(generated.stderr||generated.stdout));
-if(problems.length){process.stderr.write(problems.join('\n')+'\n');process.exitCode=1}else console.log(`Final V1 Demo baseline passed; ${markdown.length} Markdown files and 8 generated flows checked.`);
+if(problems.length){process.stderr.write(problems.join('\n')+'\n');process.exitCode=1}else console.log(`V1 business assistant baseline passed; ${markdown.length} Markdown files and ${JSON.parse(read('docs/diagrams/demo-final/flows.json')).length} generated flows checked.`);

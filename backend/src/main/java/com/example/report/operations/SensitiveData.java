@@ -66,6 +66,11 @@ public final class SensitiveData {
             // FieldFact格式把业务字段名放在name中，不能只检查JSON键value。
             if(model && node.path("name").isTextual() && PRIVATE.contains(privateKey(node.path("name").asText())) && copy.has("value"))
                 copy.set("value",TextNode.valueOf("[已脱敏]"));
+            // 当前查询的机器标识值是后续精确读取的绑定条件；和RecordKey一样在持久状态中保留。
+            // 模型出站仍全部脱敏，不把十八位记录号永久改成证件号占位符后再用于查询。
+            if(!model && node.path("field").isTextual() && node.path("operator").isTextual() && node.path("values").isArray()
+                    && Set.of("recordId","docNo","orderId","requestId","planId","reportId","counterpartyId").contains(node.path("field").asText()))
+                copy.set("values",clean(node.get("values"),"recordIds",false));
             return copy;
         }
         if (node.isArray()) {

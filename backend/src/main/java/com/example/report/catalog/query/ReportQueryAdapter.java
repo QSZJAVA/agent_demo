@@ -5,7 +5,7 @@ import java.util.List;
 import java.util.Set;
 
 /**
- * 报表查询适配器：把一张报表的数据统一成候选记录。标准报表由 {@link StandardReportAdapter} 按配置实现，
+ * 报表查询适配器：将来源数据统一为事实，分别提供全部业务数据读取与派单候选查询。标准报表由 {@link StandardReportAdapter} 按配置实现，
  * 复杂报表实现 {@link CustomReportAdapter} 并在目录里以 ADAPTER 模式引用。
  * 数据范围（租户、公司）由调用方从登录态传入，适配器必须把它作为查询条件，不能返回范围外的记录。
  */
@@ -14,6 +14,14 @@ public interface ReportQueryAdapter {
 
     /** 规则里可用的字段 */
     List<FieldInfo> fields();
+
+    /**
+     * 按稳定主键有界读取全部业务记录，包含已派单数据；租户和公司必须在数据源内过滤。
+     * 未实现此能力的自定义适配器明确拒绝，不能拿待派单子集冒充全部报表。
+     */
+    default List<ReportDataRow> dataRowsAfter(String tenantId,Set<String> companies,String afterId,int size) {
+        throw new com.example.report.common.ApiException(422,"该报表尚未提供全部业务数据查询接口");
+    }
 
     /** 单据号的展示名，例如“订单号”*/
     String docNoLabel();

@@ -26,9 +26,10 @@ public class McpConfiguration {
     private final IdentityStore identities;
     private final BusinessQueries queries;
     private final BusinessDispatch dispatch;
-    public McpConfiguration(ObjectMapper json,IdentityStore identities,BusinessQueries queries,BusinessDispatch dispatch) {
+    private final BusinessReadService reads;
+    public McpConfiguration(ObjectMapper json,IdentityStore identities,BusinessQueries queries,BusinessDispatch dispatch,BusinessReadService reads) {
         this.json=json.copy().enable(com.fasterxml.jackson.databind.DeserializationFeature.USE_BIG_DECIMAL_FOR_FLOATS);
-        this.identities=identities;this.queries=queries;this.dispatch=dispatch;
+        this.identities=identities;this.queries=queries;this.dispatch=dispatch;this.reads=reads;
     }
     @Bean public HttpServletStatelessServerTransport mcpTransport() {
         return HttpServletStatelessServerTransport.builder().jsonMapper(new JacksonMcpJsonMapper(json)).messageEndpoint("/mcp").build();
@@ -37,13 +38,16 @@ public class McpConfiguration {
         return new ServletRegistrationBean<>(transport,"/mcp");
     }
     /**
-     * 注册六个业务工具及严格字段契约；dispatch_submit 需要已确认清单和执行版本，report_probe 仅供受信服务发布前检查。
+     * 注册业务工具及严格字段契约；business_query 只读，dispatch_submit 需要已确认清单和执行版本，report_probe 仅供发布检查。
      */
     @Bean(destroyMethod="close") public McpStatelessSyncServer mcpServer(HttpServletStatelessServerTransport transport) {
         var builder=McpServer.sync(transport).serverInfo("report-business-service","1.0.0")
                 .jsonMapper(new JacksonMcpJsonMapper(json)).requestTimeout(Duration.ofSeconds(70))
                 .capabilities(McpSchema.ServerCapabilities.builder().tools(false).build());
         builder.tools(tool("report_catalog","列出操作者有权访问的报表及字段",true,props(),List.of(),a->queries.catalog(user(a))));
+        builder.tools(tool("business_query","按授权范围查询全部报表数据、派单条目或演示工单；返回完整统计和当前页，不执行审批或派单",true,
+                props("query",com.example.report.assistant.AssistantSchema.querySchema()),List.of("query"),
+                a->reads.query(user(a),com.example.report.assistant.AssistantCodec.query(a.get("query")))));
         builder.tools(tool("report_page","分页查询销售、应收、费用报表（含已派单状态）",true,
                 props("reportCode",str(),"page",integer(1,100000),"size",integer(1,200)),List.of("reportCode","page","size"),
                 a->queries.page(user(a),string(a,"reportCode"),integer(a,"page"),integer(a,"size"))));

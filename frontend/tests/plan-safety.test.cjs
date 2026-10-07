@@ -5,7 +5,7 @@ function component(name, extras = {}) {
   const source = fs.readFileSync(path.join(__dirname, '../src/components/agent', name + '.vue'), 'utf8')
     .match(/<script>([\s\S]*?)<\/script>/)[1]
     .replace(/import[\s\S]*?from\s+['"][^'"]+['"]/g, '').replace('export default', 'result =')
-  const sandbox = { result: null, DispatchTrace: {}, PreviewCard: {}, PlanCard: {}, ResultCard: {}, ReportChoiceCard: {},
+  const sandbox = { result: null, DispatchTrace: {}, PreviewCard: {}, PlanCard: {}, ResultCard: {}, ReportChoiceCard: {}, BusinessQueryCard: {},
     getCurrentUserId: () => 'user1', window: { crypto: require('node:crypto').webcrypto }, ...extras }
   vm.runInNewContext(source, sandbox)
   return sandbox.result

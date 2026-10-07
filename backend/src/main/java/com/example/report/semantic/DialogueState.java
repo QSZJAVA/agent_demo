@@ -52,4 +52,22 @@ public class DialogueState {
     private LocalDateTime attemptedAt;
     /** 最近最多4条脱敏用户消息，供有限上下文与恢复使用。 */
     private List<String> recentUserMessages = List.of();
+    /** 最近成功的只读业务查询，独立于派单范围；首次查询前为空。 */
+    private com.example.report.assistant.BusinessQuery businessQuery;
+    /** 最近成功查询当前页的有序业务标识，供明确指代使用，不包含未展示记录或新增权限。 */
+    private List<java.util.Map<String,String>> businessReferences = List.of();
+    /** 最近助手路由：BUSINESS_QUERY、DISPATCH、HELP或CLARIFY；尚未处理为空。 */
+    private String assistantRoute;
+    /** 当前业务焦点：最近使用的只读查询或派单规划；帮助、拒绝和澄清不清除已有焦点。 */
+    private String assistantFocus;
+    /** 最近业务查询未完成时为true，模糊追问不能沿用旧结果冒充成功。 */
+    private boolean businessUnresolved;
+    /** 会话首次查询事实的权限版本，后续权限变化需要新建会话，避免历史统计泄露已撤销范围。 */
+    private String businessPermissionVersion;
+    /** 本会话曾查询过的报表范围并集，恢复历史时逐个复核，不能只检查最后一次查询。 */
+    private List<String> businessReportIds = List.of();
+    /** 本会话曾查询公司范围的并集；管理员经派单追溯读取会话时也必须完整具备这些公司权限。 */
+    private List<String> businessCompanyCodes = List.of();
+    /** 尝试普通业务查询后置为true，即使查询失败也须重新取得派单候选，不能把普通结果或旧预览隐式当成新派单范围。 */
+    private boolean businessQueryAfterPreview;
 }

@@ -55,7 +55,7 @@
           </el-select>
           <template v-else><span>{{ users[0] && users[0].displayName }}</span><el-button size="small" @click="logout">退出登录</el-button></template>
           <el-button type="primary" size="small" icon="el-icon-chat-dot-round" @click="chatVisible = true">
-            派单助手
+            业务助手
           </el-button>
         </div>
       </el-header>

@@ -1,0 +1,12 @@
+[
+  {"name":"本人归属与空结果追问","turns":[
+    {"message":"请列出由本人发起的派单清单条目。","domain":"DISPATCH","requiredFilter":{"field":"createdByMe","value":"true"}},
+    {"message":"把其中结果未知的做个汇总。","domain":"DISPATCH","view":"SUMMARY","status":"结果未知","requiredFilter":{"field":"createdByMe","value":"true"}},
+    {"message":"另起一个查询，列出A公司所有费用报销记录。","domain":"REPORT","recordSet":"expense_all"}
+  ]},
+  {"name":"英文归属与显式切换","turns":[
+    {"message":"List dispatch records created by me.","domain":"DISPATCH","requiredFilter":{"field":"createdByMe","value":"true"}},
+    {"message":"From those, summarize only failed entries by company.","domain":"DISPATCH","view":"SUMMARY","status":"失败","groupBy":"companyCode","requiredFilter":{"field":"createdByMe","value":"true"}},
+    {"message":"Show work order WO-DEMO-003 and its full progress instead.","domain":"WORK_ORDER","view":"DETAIL","orderIds":["WO-DEMO-003"],"stage":"业务处理","assignee":"赵专员（演示）"}
+  ]}
+]

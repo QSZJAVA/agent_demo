@@ -9,7 +9,7 @@ import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 import java.util.List;
 
-/** 最终演示版对话入口；自由文本统一进入V1语义服务，不切换为旧工具对话或关键词兜底。 */
+/** 统一业务助手入口；通用只读查询与V1派单规划共享对话租约，模型不能直接确认派单或执行审批。 */
 @Service
 public class AgentChatService {
     private final SemanticConversationService semantic;

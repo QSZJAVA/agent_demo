@@ -38,6 +38,14 @@ security:
   tenant-id: ${AUTH_TENANT_ID:T001}
   bootstrap-password: ${AUTH_BOOTSTRAP_PASSWORD:}
 business:
+  query:
+    max-scan-rows: 100000
+    max-scan-seconds: 120
+    # 这三张本仓库演示报表的金额单位明确为人民币；外部目录须自行声明币种。
+    report-currencies:
+      rpt-sales-order: CNY
+      rpt-ar-invoice: CNY
+      rpt-expense-claim: CNY
   remote:
     enabled: false
   service-token: ${BUSINESS_SERVICE_TOKEN}

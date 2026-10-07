@@ -1,0 +1,822 @@
+- complementary:
+  - generic: 报表 Demo
+  - menubar:
+    - menuitem " 销售报表":
+      - generic: 
+      - text: 销售报表
+    - menuitem " 应收报表":
+      - generic: 
+      - text: 应收报表
+    - menuitem " 费用报表":
+      - generic: 
+      - text: 费用报表
+    - menuitem " 派单规则":
+      - generic: 
+      - text: 派单规则
+- generic: 销售报表
+- generic: 字段筛选验收员
+- button "退出登录"
+- button " 业务助手":
+  - generic: 
+  - text: 业务助手
+- main:
+  - generic: 销售报表
+  - generic: report_sales
+  - generic: 本页 4 条
+  - button " 派单" [disabled]:
+    - generic: 
+    - text: 派单
+  - button " 刷新":
+    - generic: 
+    - text: 刷新
+  - button "刷新派单记录"
+  - table:
+    - rowgroup:
+      - row "序号 公司代码 订单号 产品名称 金额(元) 销售日期 派单状态":
+        - columnheader:
+          - checkbox
+        - columnheader "序号":
+          - generic: 序号
+        - columnheader "公司代码":
+          - generic: 公司代码
+        - columnheader "订单号":
+          - generic: 订单号
+        - columnheader "产品名称":
+          - generic: 产品名称
+        - columnheader "金额(元)":
+          - generic: 金额(元)
+        - columnheader "销售日期":
+          - generic: 销售日期
+        - columnheader "派单状态":
+          - generic: 派单状态
+  - table:
+    - rowgroup:
+      - row "1 A SO2026001 服务器 128,000.00 2026-01-15 未派单":
+        - cell:
+          - checkbox
+        - cell "1":
+          - generic: "1"
+        - cell "A":
+          - generic: A
+        - cell "SO2026001":
+          - generic: SO2026001
+        - cell "服务器":
+          - generic: 服务器
+        - cell "128,000.00":
+          - generic: 128,000.00
+        - cell "2026-01-15":
+          - generic: 2026-01-15
+        - cell "未派单":
+          - generic: 未派单
+      - row "2 A SO2026002 交换机 32,000.00 2026-02-08 未派单":
+        - cell:
+          - checkbox
+        - cell "2":
+          - generic: "2"
+        - cell "A":
+          - generic: A
+        - cell "SO2026002":
+          - generic: SO2026002
+        - cell "交换机":
+          - generic: 交换机
+        - cell "32,000.00":
+          - generic: 32,000.00
+        - cell "2026-02-08":
+          - generic: 2026-02-08
+        - cell "未派单":
+          - generic: 未派单
+      - row "3 A SO2026007 云服务 96,000.00 2026-04-05 未派单":
+        - cell:
+          - checkbox
+        - cell "3":
+          - generic: "3"
+        - cell "A":
+          - generic: A
+        - cell "SO2026007":
+          - generic: SO2026007
+        - cell "云服务":
+          - generic: 云服务
+        - cell "96,000.00":
+          - generic: 96,000.00
+        - cell "2026-04-05":
+          - generic: 2026-04-05
+        - cell "未派单":
+          - generic: 未派单
+      - row "4 A SO2026008 网线 15.00 2026-04-12 未派单":
+        - cell:
+          - checkbox
+        - cell "4":
+          - generic: "4"
+        - cell "A":
+          - generic: A
+        - cell "SO2026008":
+          - generic: SO2026008
+        - cell "网线":
+          - generic: 网线
+        - cell "15.00":
+          - generic: "15.00"
+        - cell "2026-04-12":
+          - generic: 2026-04-12
+        - cell "未派单":
+          - generic: 未派单
+  - table:
+    - rowgroup:
+      - row "本页合计 256,015.00":
+        - cell
+        - cell "本页合计":
+          - generic: 本页合计
+        - cell
+        - cell
+        - cell
+        - cell "256,015.00":
+          - generic: 256,015.00
+        - cell
+        - cell
+  - generic: 共 4 条
+  - textbox "请选择": 50条/页
+  - generic: 
+  - button "" [disabled]:
+    - generic: 
+  - list:
+    - listitem: "1"
+  - button "" [disabled]:
+    - generic: 
+- document:
+  - dialog:
+    - generic: 历史会话
+    - button " 新建":
+      - generic: 
+      - text: 新建
+    - button "请查看 WO-DEMO-001 的完整进度和办理总结 2026-10-06 23:38  " [active]:
+      - generic "请查看 WO-DEMO-001 的完整进度和办理总结"
+      - generic: 2026-10-06 23:38
+      - generic "改名": 
+      - generic "删除": 
+    - button "帮我催一下林主管，并把工单标成已审批。 2026-10-06 23:16  ":
+      - generic "帮我催一下林主管，并把工单标成已审批。"
+      - generic: 2026-10-06 23:16
+      - generic "改名": 
+      - generic "删除": 
+    - button "把A公司的工单盘一盘，哪些在等审批、哪些处理完了，汇总金额。 2026-10-06 23:16  ":
+      - generic "把A公司的工单盘一盘，哪些在等审批、哪些处理完了，汇总金额。"
+      - generic: 2026-10-06 23:16
+      - generic "改名": 
+      - generic "删除": 
+    - button "WO-DEMO-003这件事办到哪了？目前找谁？ 2026-10-06 23:16  ":
+      - generic "WO-DEMO-003这件事办到哪了？目前找谁？"
+      - generic: 2026-10-06 23:16
+      - generic "改名": 
+      - generic "删除": 
+    - button "先别派任何单。我想浏览一下A公司销售台账里的所有记录。 2026-10-06 23:16  ":
+      - generic "先别派任何单。我想浏览一下A公司销售台账里的所有记录。"
+      - generic: 2026-10-06 23:16
+      - generic "改名": 
+      - generic "删除": 
+    - button "查B公司的销售报表数据 2026-10-06 23:14  ":
+      - generic "查B公司的销售报表数据"
+      - generic: 2026-10-06 23:14
+      - generic "改名": 
+      - generic "删除": 
+    - button "总结A公司全部工单，有多少已完成，多少还要处理 2026-10-06 23:14  ":
+      - generic "总结A公司全部工单，有多少已完成，多少还要处理"
+      - generic: 2026-10-06 23:14
+      - generic "改名": 
+      - generic "删除": 
+    - button "WO-DEMO-001现在到哪个环节了，谁来处理 2026-10-06 23:14  ":
+      - generic "WO-DEMO-001现在到哪个环节了，谁来处理"
+      - generic: 2026-10-06 23:14
+      - generic "改名": 
+      - generic "删除": 
+    - button "A公司现在有哪些工单 2026-10-06 23:14  ":
+      - generic "A公司现在有哪些工单"
+      - generic: 2026-10-06 23:14
+      - generic "改名": 
+      - generic "删除": 
+    - button "查询我创建过的派单记录 2026-10-06 23:14  ":
+      - generic "查询我创建过的派单记录"
+      - generic: 2026-10-06 23:14
+      - generic "改名": 
+      - generic "删除": 
+    - button "查询A公司的销售数据，按金额从低到高排，每页两条 2026-10-06 23:14  ":
+      - generic "查询A公司的销售数据，按金额从低到高排，每页两条"
+      - generic: 2026-10-06 23:14
+      - generic "改名": 
+      - generic "删除": 
+    - button "销售数据中，产品名称包含云的有哪些 2026-10-06 23:13  ":
+      - generic "销售数据中，产品名称包含云的有哪些"
+      - generic: 2026-10-06 23:13
+      - generic "改名": 
+      - generic "删除": 
+    - button "给我看看A公司的销售报表数据，不是可派单候选 2026-10-06 23:13  ":
+      - generic "给我看看A公司的销售报表数据，不是可派单候选"
+      - generic: 2026-10-06 23:13
+      - generic "改名": 
+      - generic "删除": 
+    - button "查一下我有哪些可以派单 2026-10-06 22:27  ":
+      - generic "查一下我有哪些可以派单"
+      - generic: 2026-10-06 22:27
+      - generic "改名": 
+      - generic "删除": 
+    - button "查一下我有哪些可以派单 2026-10-06 22:17  ":
+      - generic "查一下我有哪些可以派单"
+      - generic: 2026-10-06 22:17
+      - generic "改名": 
+      - generic "删除": 
+    - button "查一下我有哪些可以派单 2026-10-06 22:17  ":
+      - generic "查一下我有哪些可以派单"
+      - generic: 2026-10-06 22:17
+      - generic "改名": 
+      - generic "删除": 
+    - button "查一下我有哪些可以派单 2026-10-06 22:17  ":
+      - generic "查一下我有哪些可以派单"
+      - generic: 2026-10-06 22:17
+      - generic "改名": 
+      - generic "删除": 
+    - button "查一下我有哪些可以派单 2026-10-06 22:17  ":
+      - generic "查一下我有哪些可以派单"
+      - generic: 2026-10-06 22:17
+      - generic "改名": 
+      - generic "删除": 
+    - button "查一下我有哪些可以派单 2026-10-06 22:17  ":
+      - generic "查一下我有哪些可以派单"
+      - generic: 2026-10-06 22:17
+      - generic "改名": 
+      - generic "删除": 
+    - button "查一下我有哪些可以派单 2026-10-06 22:16  ":
+      - generic "查一下我有哪些可以派单"
+      - generic: 2026-10-06 22:16
+      - generic "改名": 
+      - generic "删除": 
+    - button "查一下我有哪些可以派单 2026-10-06 22:16  ":
+      - generic "查一下我有哪些可以派单"
+      - generic: 2026-10-06 22:16
+      - generic "改名": 
+      - generic "删除": 
+    - button "查一下我有哪些可以派单 2026-10-06 22:16  ":
+      - generic "查一下我有哪些可以派单"
+      - generic: 2026-10-06 22:16
+      - generic "改名": 
+      - generic "删除": 
+    - button "查一下我有哪些可以派单 2026-10-06 22:16  ":
+      - generic "查一下我有哪些可以派单"
+      - generic: 2026-10-06 22:16
+      - generic "改名": 
+      - generic "删除": 
+    - button "查一下我有哪些可以派单 2026-10-06 22:15  ":
+      - generic "查一下我有哪些可以派单"
+      - generic: 2026-10-06 22:15
+      - generic "改名": 
+      - generic "删除": 
+    - button "查一下我有哪些可以派单 2026-10-06 22:15  ":
+      - generic "查一下我有哪些可以派单"
+      - generic: 2026-10-06 22:15
+      - generic "改名": 
+      - generic "删除": 
+    - button "查一下我有哪些可以派单 2026-10-06 22:15  ":
+      - generic "查一下我有哪些可以派单"
+      - generic: 2026-10-06 22:15
+      - generic "改名": 
+      - generic "删除": 
+    - button "查一下我有哪些可以派单 2026-10-06 22:15  ":
+      - generic "查一下我有哪些可以派单"
+      - generic: 2026-10-06 22:15
+      - generic "改名": 
+      - generic "删除": 
+    - button "查一下我有哪些可以派单 2026-10-06 22:15  ":
+      - generic "查一下我有哪些可以派单"
+      - generic: 2026-10-06 22:15
+      - generic "改名": 
+      - generic "删除": 
+    - button "查一下我有哪些可以派单 2026-10-06 22:14  ":
+      - generic "查一下我有哪些可以派单"
+      - generic: 2026-10-06 22:14
+      - generic "改名": 
+      - generic "删除": 
+    - button "查一下我有哪些可以派单 2026-10-06 22:14  ":
+      - generic "查一下我有哪些可以派单"
+      - generic: 2026-10-06 22:14
+      - generic "改名": 
+      - generic "删除": 
+    - button "查一下我有哪些可以派单 2026-10-06 22:14  ":
+      - generic "查一下我有哪些可以派单"
+      - generic: 2026-10-06 22:14
+      - generic "改名": 
+      - generic "删除": 
+    - button "查一下我有哪些可以派单 2026-10-06 22:14  ":
+      - generic "查一下我有哪些可以派单"
+      - generic: 2026-10-06 22:14
+      - generic "改名": 
+      - generic "删除": 
+    - button "查一下我有哪些可以派单 2026-10-06 22:14  ":
+      - generic "查一下我有哪些可以派单"
+      - generic: 2026-10-06 22:14
+      - generic "改名": 
+      - generic "删除": 
+    - button "查一下我有哪些可以派单 2026-10-06 22:09  ":
+      - generic "查一下我有哪些可以派单"
+      - generic: 2026-10-06 22:09
+      - generic "改名": 
+      - generic "删除": 
+    - button "查一下我有哪些可以派单 2026-10-06 22:09  ":
+      - generic "查一下我有哪些可以派单"
+      - generic: 2026-10-06 22:09
+      - generic "改名": 
+      - generic "删除": 
+    - button "查一下我有哪些可以派单 2026-10-06 22:09  ":
+      - generic "查一下我有哪些可以派单"
+      - generic: 2026-10-06 22:09
+      - generic "改名": 
+      - generic "删除": 
+    - button "查一下我有哪些可以派单 2026-10-06 22:09  ":
+      - generic "查一下我有哪些可以派单"
+      - generic: 2026-10-06 22:09
+      - generic "改名": 
+      - generic "删除": 
+    - button "查一下我有哪些可以派单 2026-10-06 22:08  ":
+      - generic "查一下我有哪些可以派单"
+      - generic: 2026-10-06 22:08
+      - generic "改名": 
+      - generic "删除": 
+    - button "查一下我有哪些可以派单 2026-10-06 22:08  ":
+      - generic "查一下我有哪些可以派单"
+      - generic: 2026-10-06 22:08
+      - generic "改名": 
+      - generic "删除": 
+    - button "查一下我有哪些可以派单 2026-10-06 22:08  ":
+      - generic "查一下我有哪些可以派单"
+      - generic: 2026-10-06 22:08
+      - generic "改名": 
+      - generic "删除": 
+    - button "查一下我有哪些可以派单 2026-10-06 22:08  ":
+      - generic "查一下我有哪些可以派单"
+      - generic: 2026-10-06 22:08
+      - generic "改名": 
+      - generic "删除": 
+    - button "查一下我有哪些可以派单 2026-10-06 22:08  ":
+      - generic "查一下我有哪些可以派单"
+      - generic: 2026-10-06 22:08
+      - generic "改名": 
+      - generic "删除": 
+    - button "查一下我有哪些可以派单 2026-10-06 22:07  ":
+      - generic "查一下我有哪些可以派单"
+      - generic: 2026-10-06 22:07
+      - generic "改名": 
+      - generic "删除": 
+    - button "查一下我有哪些可以派单 2026-10-06 22:07  ":
+      - generic "查一下我有哪些可以派单"
+      - generic: 2026-10-06 22:07
+      - generic "改名": 
+      - generic "删除": 
+    - button "查一下我有哪些可以派单 2026-10-06 22:07  ":
+      - generic "查一下我有哪些可以派单"
+      - generic: 2026-10-06 22:07
+      - generic "改名": 
+      - generic "删除": 
+    - button "查一下我有哪些可以派单 2026-10-06 22:07  ":
+      - generic "查一下我有哪些可以派单"
+      - generic: 2026-10-06 22:07
+      - generic "改名": 
+      - generic "删除": 
+    - button "查一下我有哪些可以派单 2026-10-06 22:07  ":
+      - generic "查一下我有哪些可以派单"
+      - generic: 2026-10-06 22:07
+      - generic "改名": 
+      - generic "删除": 
+    - button "查一下我有哪些可以派单 2026-10-06 22:07  ":
+      - generic "查一下我有哪些可以派单"
+      - generic: 2026-10-06 22:07
+      - generic "改名": 
+      - generic "删除": 
+    - button "查一下我有哪些可以派单 2026-10-06 22:06  ":
+      - generic "查一下我有哪些可以派单"
+      - generic: 2026-10-06 22:06
+      - generic "改名": 
+      - generic "删除": 
+    - button "查一下我有哪些可以派单 2026-10-06 22:06  ":
+      - generic "查一下我有哪些可以派单"
+      - generic: 2026-10-06 22:06
+      - generic "改名": 
+      - generic "删除": 
+    - button "加载更多会话"
+    - generic: 业务助手
+    - generic: 模型：deepseek-v4.1-flash
+    - button "":
+      - generic: 
+    - generic: 请查看 WO-DEMO-001 的完整进度和办理总结
+    - paragraph: 本次查询匹配 1 条工单，当前第 1 页展示 1 条。固定演示流程当前停在部门审批，处理人为林主管（演示）；后续环节尚未完成。工单为固定演示流程，查询不会推进审批；后续环节见卡片，尚未到达的环节不代表已完成。
+    - strong: 工单查询
+    - generic: 只读查询
+    - paragraph: 演示工单：固定环节和审批人；不代表真实外部审批进度 · 查询时间 2026-10-06 23:36:48
+    - paragraph: 公司：当前全部授权公司；报表范围：已授权的 3 类报表；排序：稳定业务标识
+    - paragraph: 筛选：(工单编号 等于 WO-DEMO-001)
+    - generic: 匹配 1 条
+    - generic: CNY 合计 96000.00
+    - table:
+      - rowgroup:
+        - row "# 工单编号 主题 公司 报表 状态 当前环节 当前处理人 金额 币种 创建日期 更新日期":
+          - columnheader "#":
+            - generic: "#"
+          - columnheader "工单编号":
+            - generic: 工单编号
+          - columnheader "主题":
+            - generic: 主题
+          - columnheader "公司":
+            - generic: 公司
+          - columnheader "报表":
+            - generic: 报表
+          - columnheader "状态":
+            - generic: 状态
+          - columnheader "当前环节":
+            - generic: 当前环节
+          - columnheader "当前处理人":
+            - generic: 当前处理人
+          - columnheader "金额":
+            - generic: 金额
+          - columnheader "币种":
+            - generic: 币种
+          - columnheader "创建日期":
+            - generic: 创建日期
+          - columnheader "更新日期":
+            - generic: 更新日期
+          - columnheader
+    - table:
+      - rowgroup:
+        - row "1 WO-DEMO-001 销售合同复核 A 销售报表 待审批 部门审批 林主管（演示） 96000.00 CNY 2026-10-01 2026-10-02":
+          - cell "1":
+            - generic: "1"
+          - cell "WO-DEMO-001":
+            - generic: WO-DEMO-001
+          - cell "销售合同复核":
+            - generic: 销售合同复核
+          - cell "A":
+            - generic: A
+          - cell "销售报表":
+            - generic: 销售报表
+          - cell "待审批":
+            - generic: 待审批
+          - cell "部门审批":
+            - generic: 部门审批
+          - cell "林主管（演示）":
+            - generic: 林主管（演示）
+          - cell "96000.00":
+            - generic: "96000.00"
+          - cell "CNY":
+            - generic: CNY
+          - cell "2026-10-01":
+            - generic: 2026-10-01
+          - cell "2026-10-02":
+            - generic: 2026-10-02
+          - cell
+    - table:
+      - rowgroup:
+        - row "操作":
+          - columnheader
+          - columnheader
+          - columnheader
+          - columnheader
+          - columnheader
+          - columnheader
+          - columnheader
+          - columnheader
+          - columnheader
+          - columnheader
+          - columnheader
+          - columnheader
+          - columnheader "操作":
+            - generic: 操作
+    - table:
+      - rowgroup:
+        - row "查看进度":
+          - cell
+          - cell
+          - cell
+          - cell
+          - cell
+          - cell
+          - cell
+          - cell
+          - cell
+          - cell
+          - cell
+          - cell
+          - cell "查看进度":
+            - button "查看进度"
+    - generic: 第 1 页 · 每页 20 条
+    - button "上一页" [disabled]
+    - button "下一页" [disabled]
+    - generic: 历史查询快照
+    - paragraph:
+      - strong: WO-DEMO-001
+      - text: · 固定演示示例
+    - paragraph: 固定演示流程当前停在部门审批，处理人为林主管（演示）；后续环节尚未完成。
+    - list:
+      - strong: 提交登记
+      - generic: 演示经办人
+      - generic: 已完成
+      - generic: 2026-10-02
+      - strong: 部门审批
+      - generic: 林主管（演示）
+      - generic: 待审批
+      - generic: 尚无完成日期
+      - strong: 财务复核
+      - generic: 陈会计（演示）
+      - generic: 未到达
+      - generic: 尚无完成日期
+      - strong: 业务处理
+      - generic: 赵专员（演示）
+      - generic: 未到达
+      - generic: 尚无完成日期
+      - strong: 归档
+      - generic: 系统归档（演示）
+      - generic: 未到达
+      - generic: 尚无完成日期
+    - generic: 查询A公司全部工单，按工单编号升序，每页两条
+    - paragraph: 本次查询匹配 5 条工单，当前第 1 页展示 2 条。工单为固定演示流程，查询不会推进审批；后续环节见卡片，尚未到达的环节不代表已完成。
+    - strong: 工单查询
+    - generic: 只读查询
+    - paragraph: 演示工单：固定环节和审批人；不代表真实外部审批进度 · 查询时间 2026-10-06 23:37:53
+    - paragraph: 公司：A；报表范围：已授权的 3 类报表；排序：工单编号 升序
+    - paragraph: 筛选：无附加字段条件
+    - generic: 匹配 5 条
+    - generic: CNY 合计 119500.50
+    - table:
+      - rowgroup:
+        - row "# 工单编号 主题 公司 报表 状态 当前环节 当前处理人 金额 币种 创建日期 更新日期":
+          - columnheader "#":
+            - generic: "#"
+          - columnheader "工单编号":
+            - generic: 工单编号
+          - columnheader "主题":
+            - generic: 主题
+          - columnheader "公司":
+            - generic: 公司
+          - columnheader "报表":
+            - generic: 报表
+          - columnheader "状态":
+            - generic: 状态
+          - columnheader "当前环节":
+            - generic: 当前环节
+          - columnheader "当前处理人":
+            - generic: 当前处理人
+          - columnheader "金额":
+            - generic: 金额
+          - columnheader "币种":
+            - generic: 币种
+          - columnheader "创建日期":
+            - generic: 创建日期
+          - columnheader "更新日期":
+            - generic: 更新日期
+          - columnheader
+    - table:
+      - rowgroup:
+        - row "1 WO-DEMO-001 销售合同复核 A 销售报表 待审批 部门审批 林主管（演示） 96000.00 CNY 2026-10-01 2026-10-02":
+          - cell "1":
+            - generic: "1"
+          - cell "WO-DEMO-001":
+            - generic: WO-DEMO-001
+          - cell "销售合同复核":
+            - generic: 销售合同复核
+          - cell "A":
+            - generic: A
+          - cell "销售报表":
+            - generic: 销售报表
+          - cell "待审批":
+            - generic: 待审批
+          - cell "部门审批":
+            - generic: 部门审批
+          - cell "林主管（演示）":
+            - generic: 林主管（演示）
+          - cell "96000.00":
+            - generic: "96000.00"
+          - cell "CNY":
+            - generic: CNY
+          - cell "2026-10-01":
+            - generic: 2026-10-01
+          - cell "2026-10-02":
+            - generic: 2026-10-02
+          - cell
+        - row "2 WO-DEMO-002 应收款核对 A 应收报表 待审批 财务复核 陈会计（演示） 6800.50 CNY 2026-10-02 2026-10-03":
+          - cell "2":
+            - generic: "2"
+          - cell "WO-DEMO-002":
+            - generic: WO-DEMO-002
+          - cell "应收款核对":
+            - generic: 应收款核对
+          - cell "A":
+            - generic: A
+          - cell "应收报表":
+            - generic: 应收报表
+          - cell "待审批":
+            - generic: 待审批
+          - cell "财务复核":
+            - generic: 财务复核
+          - cell "陈会计（演示）":
+            - generic: 陈会计（演示）
+          - cell "6800.50":
+            - generic: "6800.50"
+          - cell "CNY":
+            - generic: CNY
+          - cell "2026-10-02":
+            - generic: 2026-10-02
+          - cell "2026-10-03":
+            - generic: 2026-10-03
+          - cell
+    - table:
+      - rowgroup:
+        - row "操作":
+          - columnheader
+          - columnheader
+          - columnheader
+          - columnheader
+          - columnheader
+          - columnheader
+          - columnheader
+          - columnheader
+          - columnheader
+          - columnheader
+          - columnheader
+          - columnheader
+          - columnheader "操作":
+            - generic: 操作
+    - table:
+      - rowgroup:
+        - row "查看进度":
+          - cell
+          - cell
+          - cell
+          - cell
+          - cell
+          - cell
+          - cell
+          - cell
+          - cell
+          - cell
+          - cell
+          - cell
+          - cell "查看进度":
+            - button "查看进度"
+        - row "查看进度":
+          - cell
+          - cell
+          - cell
+          - cell
+          - cell
+          - cell
+          - cell
+          - cell
+          - cell
+          - cell
+          - cell
+          - cell
+          - cell "查看进度":
+            - button "查看进度"
+    - generic: 第 1 页 · 每页 2 条
+    - button "上一页" [disabled]
+    - button "下一页" [disabled]
+    - generic: 历史查询快照
+    - generic: 把上一次业务查询翻到第2页
+    - paragraph: 本次查询匹配 5 条工单，当前第 2 页展示 2 条。工单为固定演示流程，查询不会推进审批；后续环节见卡片，尚未到达的环节不代表已完成。
+    - strong: 工单查询
+    - generic: 只读查询
+    - paragraph: 演示工单：固定环节和审批人；不代表真实外部审批进度 · 查询时间 2026-10-06 23:38:35
+    - paragraph: 公司：A；报表范围：已授权的 3 类报表；排序：工单编号 升序
+    - paragraph: 筛选：无附加字段条件
+    - generic: 匹配 5 条
+    - generic: CNY 合计 119500.50
+    - table:
+      - rowgroup:
+        - row "# 工单编号 主题 公司 报表 状态 当前环节 当前处理人 金额 币种 创建日期 更新日期":
+          - columnheader "#":
+            - generic: "#"
+          - columnheader "工单编号":
+            - generic: 工单编号
+          - columnheader "主题":
+            - generic: 主题
+          - columnheader "公司":
+            - generic: 公司
+          - columnheader "报表":
+            - generic: 报表
+          - columnheader "状态":
+            - generic: 状态
+          - columnheader "当前环节":
+            - generic: 当前环节
+          - columnheader "当前处理人":
+            - generic: 当前处理人
+          - columnheader "金额":
+            - generic: 金额
+          - columnheader "币种":
+            - generic: 币种
+          - columnheader "创建日期":
+            - generic: 创建日期
+          - columnheader "更新日期":
+            - generic: 更新日期
+          - columnheader
+    - table:
+      - rowgroup:
+        - row "3 WO-DEMO-003 差旅费用处理 A 费用报表 处理中 业务处理 赵专员（演示） 2400.00 CNY 2026-10-02 2026-10-04":
+          - cell "3":
+            - generic: "3"
+          - cell "WO-DEMO-003":
+            - generic: WO-DEMO-003
+          - cell "差旅费用处理":
+            - generic: 差旅费用处理
+          - cell "A":
+            - generic: A
+          - cell "费用报表":
+            - generic: 费用报表
+          - cell "处理中":
+            - generic: 处理中
+          - cell "业务处理":
+            - generic: 业务处理
+          - cell "赵专员（演示）":
+            - generic: 赵专员（演示）
+          - cell "2400.00":
+            - generic: "2400.00"
+          - cell "CNY":
+            - generic: CNY
+          - cell "2026-10-02":
+            - generic: 2026-10-02
+          - cell "2026-10-04":
+            - generic: 2026-10-04
+          - cell
+        - row "4 WO-DEMO-004 销售订单归档 A 销售报表 已完成 归档 — 12500.00 CNY 2026-09-28 2026-10-01":
+          - cell "4":
+            - generic: "4"
+          - cell "WO-DEMO-004":
+            - generic: WO-DEMO-004
+          - cell "销售订单归档":
+            - generic: 销售订单归档
+          - cell "A":
+            - generic: A
+          - cell "销售报表":
+            - generic: 销售报表
+          - cell "已完成":
+            - generic: 已完成
+          - cell "归档":
+            - generic: 归档
+          - cell "—":
+            - generic: —
+          - cell "12500.00":
+            - generic: "12500.00"
+          - cell "CNY":
+            - generic: CNY
+          - cell "2026-09-28":
+            - generic: 2026-09-28
+          - cell "2026-10-01":
+            - generic: 2026-10-01
+          - cell
+    - table:
+      - rowgroup:
+        - row "操作":
+          - columnheader
+          - columnheader
+          - columnheader
+          - columnheader
+          - columnheader
+          - columnheader
+          - columnheader
+          - columnheader
+          - columnheader
+          - columnheader
+          - columnheader
+          - columnheader
+          - columnheader "操作":
+            - generic: 操作
+    - table:
+      - rowgroup:
+        - row "查看进度":
+          - cell
+          - cell
+          - cell
+          - cell
+          - cell
+          - cell
+          - cell
+          - cell
+          - cell
+          - cell
+          - cell
+          - cell
+          - cell "查看进度":
+            - button "查看进度"
+        - row "查看进度":
+          - cell
+          - cell
+          - cell
+          - cell
+          - cell
+          - cell
+          - cell
+          - cell
+          - cell
+          - cell
+          - cell
+          - cell
+          - cell "查看进度":
+            - button "查看进度"
+    - generic: 第 2 页 · 每页 2 条
+    - button "上一页"
+    - button "下一页"
+    - textbox "例如：查询销售报表 / 查询失败的派单记录 / 总结A公司工单（Enter 发送，Shift+Enter 换行）"
+    - generic: 派单前会先生成待确认清单，点击"确认派单"才会真正执行
+    - button "发送"
