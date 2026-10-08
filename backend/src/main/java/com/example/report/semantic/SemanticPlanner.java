@@ -21,10 +21,7 @@ public class SemanticPlanner {
     public void requireAction(DialogueState state,SemanticIntent intent) {
         if (intent.forbids(intent.action())) throw new ApiException(422,"本次动作与禁止条件冲突，请明确本轮操作");
         if (intent.action()!=SemanticIntent.Action.CLARIFY) {
-            // 优先保留具体公司/报表/记录歧义的恢复提示；只有没有更具体阻断原因时使用整轮未完成提示。
-            if(state.isUnresolvedRequest() && !state.isUnresolvedCompany() && !state.isUnresolvedReports() && !state.isUnresolvedRecords()
-                    && intent.action()==SemanticIntent.Action.PREPARE_DISPATCH && intent.scopeChanges().isEmpty())
-                throw new ApiException(422,"上次请求未完成，请先明确新的查询或记录选择，再生成清单");
+            // 整轮失败不等于丢失已绑定对象。统一任务已复核本轮动作与来源；具体范围/记录歧义仍在正式求值时拒绝。
             return;
         }
         state.setUnresolvedRequest(true);
@@ -37,9 +34,7 @@ public class SemanticPlanner {
             case COMPANY -> "请明确要查询的一家公司，或说明查询全部可见公司";
             case REPORTS -> "请说明要查询的完整报表名称";
             case RECORDS -> "请说明单据号，或在预览表格中选择记录";
-            default -> intent.unsupportedConditions().isEmpty()?(state.isBusinessQueryAfterPreview()
-                    ?"本轮操作尚未确定，未应用任何修改。刚才查看的是只读业务数据；如需派单，请先明确查询可派候选的范围，再调整选择或生成待确认清单。"
-                    :"本轮操作尚未确定，未应用任何修改。请明确新的查询或记录选择，再生成清单。")
+            default -> intent.unsupportedConditions().isEmpty()?"本轮操作尚未确定，未应用任何修改。请明确要处理的对象及本轮操作。"
                     :"本轮条件暂无法执行："+String.join("、",intent.unsupportedConditions())+"。未应用本轮修改；可重新说明已配置字段条件或指定单据。";
         });
     }

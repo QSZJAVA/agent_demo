@@ -11,8 +11,9 @@ import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.stereotype.Service;
 import java.util.*;
 import java.util.function.Consumer;
+import java.util.function.Function;
 
-/** 统一助手只读分支；沿用外层对话租约，查询状态与派单状态分离，事实卡片由业务服务生成并持久化。 */
+/** 统一任务入口；在同一会话租约中规划并复核完整任务，只读查询产出事实卡片，派单任务原样交给确定性执行层。 */
 @Service
 @lombok.extern.slf4j.Slf4j
 public class BusinessAssistantService {
@@ -25,7 +26,7 @@ public class BusinessAssistantService {
         this.planner=planner;this.catalog=catalog;this.clients=clients;this.conversations=conversations;this.permissions=permissions;
     }
     /**
-     * 处理只读查询、帮助和澄清；返回false才允许进入既有派单规划，模型错误不回退到派单路径。
+     * 处理只读查询、帮助和澄清；派单返回已经复核的完整动作及来源，不允许下游再次解释原文。
      * @param user 当前身份
      * @param id 会话标识
      * @param requestId 本轮请求标识，供证据关联
@@ -34,22 +35,31 @@ public class BusinessAssistantService {
      * @param session 已持有的会话租约
      * @param guard 配额、连接和租约守卫
      * @param emit 有序 SSE 输出
-     * @return true表示本轮已在通用助手分支处理
+     * @param dispatchSelection 当前候选选择的只读事实及完整性，不能当作默认操作授权
+     * @param validateDispatch 派单草稿的无写入预检，返回实际目标或选择结果供通用语义复核
+     * @return 有值表示继续执行该完整派单任务；空表示本轮已处理完毕
      */
-    public boolean handle(CurrentUser user,String id,String requestId,String message,String model,DialogueStore.Session session,Runnable guard,Consumer<AgentEvent> emit) {
+    public Optional<DispatchDirective> handle(CurrentUser user,String id,String requestId,String message,String model,DialogueStore.Session session,Runnable guard,Consumer<AgentEvent> emit,
+            Map<String,Object> dispatchSelection,Function<DispatchDirective,Map<String,Object>> validateDispatch) {
         long started=System.nanoTime();var state=session.state();
         AssistantPlan plan;
         var validated=new HashMap<BusinessQuery,BusinessResult>();var attemptedRead=new boolean[]{false};
         try {
             catalog.refreshForValidation();
-            plan=planner.plan(message,state,catalog.visibleReports(user),user.companies(),draft->{
+            var history=conversations.messages(user,id,null,16).stream()
+                    .filter(m->Set.of("user","assistant").contains(m.role()) && m.content()!=null)
+                    .map(m->Map.of("role",m.role(),"content",m.content().length()>2000?m.content().substring(0,2000)+"[文本已截断]":m.content())).toList();
+            plan=planner.plan(message,state,catalog.visibleReports(user),user.companies(),new AssistantPlanningContext(history,dispatchSelection,draft->{
+                guard.run();
                 if(draft.route()==AssistantPlan.Route.BUSINESS_QUERY) {
-                    guard.run();attemptedRead[0]=true;
+                    attemptedRead[0]=true;
                     // 实际只读校验参与有界模型修正；详情匹配多条等错误不能在解析预算结束后才暴露。
                     // 成功事实留在本轮，避免同一草稿重复读取；不会投影卡片或修改派单状态。
-                    validated.put(draft.query(),read(user,draft.query()));
+                    var result=validated.computeIfAbsent(draft.query(),query->read(user,query));
+                    return queryEvidence(result);
                 }
-            });guard.run();
+                return draft.dispatch()==null?Map.of():validateDispatch.apply(draft.dispatch());
+            }));guard.run();
         } catch(Exception failure) {
             // 保留失败分类以区分模型契约、业务校验和传输故障；不记录模型原文、请求凭据或外部错误响应。
             log.warn("助手规划失败 conversation={} type={} reason={}",id,failure.getClass().getSimpleName(),
@@ -58,10 +68,15 @@ public class BusinessAssistantService {
             state.setUnresolvedRequest(true);
             if(attemptedRead[0])state.setBusinessQueryAfterPreview(true);
             if("DISPATCH".equals(state.getAssistantFocus()))state.setPhase(com.example.report.semantic.DialogueState.Phase.CLARIFY);
-            state.setBusinessUnresolved(true);state.setAssistantRoute("CLARIFY");
-            finish(user,id,requestId,message,"本轮请求未能可靠解析，未应用任何修改。请明确查询对象、范围或具体操作。",model,session,guard,emit,started);return true;
+            if(attemptedRead[0])state.setBusinessUnresolved(true);
+            state.setAssistantRoute("CLARIFY");
+            String reason=failure instanceof ApiException api?api.getMessage():"本轮请求未能可靠解析，请明确查询对象、范围或具体操作。";
+            finish(user,id,requestId,message,reason+" 本轮未应用任何修改。",model,session,guard,emit,started);return Optional.empty();
         }
-        if(plan.route()==AssistantPlan.Route.DISPATCH) {state.setAssistantRoute("DISPATCH");state.setAssistantFocus("DISPATCH");return false;}
+        state.setParserSource(planner.source());
+        var accepted=plan;
+        session.fenced(()->{guard.run();conversations.logToolCall(id,user.userId(),"assistant_task",Map.of("requestId",requestId,"parserSource",planner.source(),"plan",accepted));return null;});
+        if(plan.route()==AssistantPlan.Route.DISPATCH) {state.setAssistantRoute("DISPATCH");state.setAssistantFocus("DISPATCH");return Optional.of(plan.dispatch());}
         if(attemptedRead[0])state.setBusinessQueryAfterPreview(true);
         boolean previousDispatch="DISPATCH".equals(state.getAssistantFocus());
         state.setAssistantRoute(plan.route().name());
@@ -70,7 +85,7 @@ public class BusinessAssistantService {
             reply=switch(plan.route()) {
                 case HELP -> "我是业务助手，可以查询报表数据、派单记录、工单进度和工单总结，也可以准备派单清单。你可以问“销售报表金额大于五万元的有哪些”“查询失败的派单记录”“WO-DEMO-001 到哪个环节了”“总结 A 公司工单”。工单环节与审批人为明确标注的演示数据；派单仍需核对清单并点击确认。";
                 case CLARIFY -> {
-                    state.setBusinessUnresolved(true);
+                    if(previousDispatch)state.setUnresolvedRequest(true);else state.setBusinessUnresolved(true);
                     if(previousDispatch){state.setUnresolvedRequest(true);state.setPhase(com.example.report.semantic.DialogueState.Phase.CLARIFY);}
                     yield plan.clarification()+" 本轮未应用任何修改。";
                 }
@@ -96,7 +111,21 @@ public class BusinessAssistantService {
             state.setBusinessUnresolved(true);
             reply=failure instanceof ApiException api?api.getMessage():"业务查询暂未完成，请稍后重试；本轮没有执行派单或审批。";
         }
-        finish(user,id,requestId,message,reply,model,session,guard,emit,started);return true;
+        finish(user,id,requestId,message,reply,model,session,guard,emit,started);return Optional.empty();
+    }
+
+    /** 复核只使用有界事实；截断明确标注，不改变业务结果或把样本数量当作完整匹配总数。 */
+    static Map<String,Object> queryEvidence(BusinessResult result) {
+        var evidence=new LinkedHashMap<String,Object>();evidence.put("query",result.query());evidence.put("columns",result.columns());
+        evidence.put("totalCount",result.total());evidence.put("displayedCount",result.rows().size());
+        var rows=new ArrayList<Map<String,Object>>();int bytes=0;
+        for(var row:result.rows()) {
+            int size=JsonUtil.toJson(row).getBytes(java.nio.charset.StandardCharsets.UTF_8).length;
+            if(rows.size()>=20 || bytes+size>32768)break;
+            rows.add(row);bytes+=size;
+        }
+        evidence.put("rows",rows);evidence.put("evidenceCoversDisplayedRows",rows.size()==result.rows().size());
+        evidence.put("allMatchesIncluded",result.query().page()==1 && rows.size()==result.total());return evidence;
     }
     /** 身份由MCP客户端注入，当前全部报表先展开为明确授权集合，避免远端查询范围大于本地运营策略。 */
     public BusinessResult read(CurrentUser user,BusinessQuery query) {
@@ -112,6 +141,10 @@ public class BusinessAssistantService {
                 || result.total()<0 || result.rows().size()>query.size() || JsonUtil.toJson(result).getBytes(java.nio.charset.StandardCharsets.UTF_8).length>240000)
             throw new ApiException(502,"业务查询响应不完整或超过展示预算");
         for(var row:result.rows()) if(!ids.contains(row.get("reportId")) || !user.companies().contains(row.get("companyCode")))throw new ApiException(502,"业务接口返回范围外数据");
+        if(query.view()==BusinessQuery.View.ELIGIBILITY) {
+            if(result.total()!=1 || result.rows().size()!=1)throw new ApiException(502,"资格核验必须返回唯一记录");
+            eligibility(result.rows().get(0));
+        }
         catalog.refreshForValidation();for(String id:ids)catalog.requireVisible(user,id);
         var current=permissions.resolve(user.userId());
         if(!current.tenantId().equals(user.tenantId()) || !current.permissionVersion().equals(user.permissionVersion())) throw ApiException.forbidden("查询期间权限已变化，请重新登录后查询");
@@ -127,7 +160,7 @@ public class BusinessAssistantService {
         List<Map<String,String>> references=new ArrayList<>();
         for(int i=0;i<result.rows().size();i++) {
             var row=result.rows().get(i);var ref=new LinkedHashMap<String,String>();ref.put("displayIndex",String.valueOf((result.query().page()-1)*result.query().size()+i+1));
-            for(String key:List.of("reportId","recordId","docNo","planId","requestId","orderId"))if(row.get(key)!=null)ref.put(key,row.get(key).toString());references.add(ref);
+            for(String key:List.of("reportId","recordId","companyCode","docNo","planId","requestId","orderId"))if(row.get(key)!=null)ref.put(key,row.get(key).toString());references.add(ref);
             // 当前页展示过的标量字段也是指代依据，不能只给模型编号而丢失产品或费用类型。
             // 不加入未展示记录和嵌套流程；出站仍须统一脱敏并通过模型上下文字节预算。
             for(var column:result.columns()) {
@@ -138,6 +171,17 @@ public class BusinessAssistantService {
         return List.copyOf(references);
     }
     private static String summary(BusinessResult result) {
+        if(result.query().view()==BusinessQuery.View.ELIGIBILITY) {
+            var row=result.rows().get(0);var check=eligibility(row);
+            String text="单据 "+Objects.toString(row.get("docNo"),row.get("recordId").toString())
+                    +(check.eligible()?" 符合当前派单条件。":" 当前不符合派单条件。")+check.reason();
+            if(check.ruleName()!=null)text+="适用规则："+check.ruleName()+(check.ruleDescription()==null?"":"（"+check.ruleDescription()+"）")+"。";
+            if(!check.checkedFields().isEmpty())text+="核验依据："+check.checkedFields().stream().map(field->{
+                String name=result.columns().stream().filter(c->c.name().equals(field.name())).map(c->Objects.toString(c.description(),c.name()).split("[，；;]",2)[0]).findFirst().orElse(field.name());
+                return name+"="+Objects.toString(field.value(),"空值");
+            }).collect(java.util.stream.Collectors.joining("；"))+"。";
+            return text+"本次为只读核验，实际派单仍需核对清单并确认。";
+        }
         String domain=switch(result.query().domain()){case REPORT->"报表记录";case DISPATCH->"派单条目";case WORK_ORDER->"工单";};
         String text="本次查询匹配 "+result.total()+" 条"+domain+"，当前第 "+result.query().page()+" 页展示 "+result.rows().size()+" 条。";
         if(result.query().view()==BusinessQuery.View.SUMMARY) {
@@ -151,6 +195,14 @@ public class BusinessAssistantService {
             text+="工单为固定演示流程，查询不会推进审批；后续环节见卡片，尚未到达的环节不代表已完成。";
         }
         return text;
+    }
+    /** 资格结论必须带业务服务证据；缺失字段不能被JSON默认布尔值伪装成不符合条件。 */
+    private static DispatchEligibility eligibility(Map<String,Object> row) {
+        try {
+            var result=JsonUtil.MAPPER.convertValue(row.get("eligibility"),DispatchEligibility.class);
+            if(result==null)throw new IllegalArgumentException();
+            return result;
+        } catch(RuntimeException invalid) {throw new ApiException(502,"业务服务未返回完整的派单资格核验依据");}
     }
     private static String counts(Map<String,Integer> values){return values.isEmpty()?"暂无记录":values.entrySet().stream().map(e->e.getKey()+" "+e.getValue()+" 条").collect(java.util.stream.Collectors.joining("；"));}
 }

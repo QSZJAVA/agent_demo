@@ -22,7 +22,9 @@ MCP 使用 `/mcp` 上的 Streamable HTTP，支持 initialize、tools/list、tool
 
 工具结果使用 `{data: ...}`，错误带 isError 及 code/message。候选记录包含 `counterparty` 客户实体以及 `fields` 标量快照数组，每项为 name/type/value，空值显式为 null。业务服务核对其与确认清单一致，不能由调用方篡改；实际完整 Schema 以 tools/list 为准。
 
-`business_query` 接受 `query`：domain、view、reportIds、companyCode、conditions、sortField、descending、page、size、groupBy。domain 为 REPORT / DISPATCH / WORK_ORDER；view 为 LIST / DETAIL / SUMMARY。字段和操作依数据域校验，空 reportIds 表示当前全部可见报表；租户及操作者仍由服务器注入。返回 query、observedAt、source、columns、rows、total、summary。summary 与完整筛选范围一致，币种未声明的金额单独计数、不参与合计。默认扫描预算为 100000 条 / 120 秒，超限或读取不完整时失败，不返回部分汇总。工单提供者及边界见[通用业务助手](通用业务助手.md)。
+`business_query` 接受 `query`：domain、view、reportIds、companyCode、conditions、sortField、descending、page、size、groupBy。domain 为 REPORT / DISPATCH / WORK_ORDER；view 为 LIST / DETAIL / SUMMARY / ELIGIBILITY。字段和操作依数据域校验，普通查询的空 reportIds 表示当前全部可见报表；租户及操作者仍由服务器注入。返回 query、observedAt、source、columns、rows、total、summary。summary 与完整筛选范围一致，币种未声明的金额单独计数、不参与合计。默认扫描预算为 100000 条 / 120 秒，超限或读取不完整时失败，不返回部分汇总。工单提供者及边界见[通用业务助手](通用业务助手.md)。
+
+`ELIGIBILITY` 只用于 REPORT 的单条派单资格核验：必须指定一张报表，以 recordId 或 docNo 的 EQ 条件唯一定位，page=1，不附加金额、状态、排序或分组条件。完整匹配集不为一条时拒绝，不能截取第一条。唯一结果的 `eligibility` 包含 eligible、reason、ruleId、ruleName、ruleVersion、ruleDescription、checkedFields；在同一只读快照内检查报表启用、来源状态和生效规则，规则计算异常明确失败，不返回伪造的不符合结论。此操作不创建预览或清单，也不授予派单执行权限。
 
 `ModelAssistantPlanner` 固定请求原生 JSON Schema 并关闭 thinking；V1 派单解析和调查报告各有独立选项。统一查询入口所需能力不能通过关闭派单解析的 Schema 选项来替代。
 

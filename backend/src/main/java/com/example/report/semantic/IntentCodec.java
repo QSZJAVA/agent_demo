@@ -18,13 +18,6 @@ import static com.example.report.semantic.SemanticIntent.*;
  */
 @Component
 public class IntentCodec {
-    // KEEP_ONLY会排除匹配集合之外的全部记录，要求原文出现明确排他限定；未知表达宁可澄清。
-    // 此处只否决模型无依据的破坏性操作，不按关键词生成意图或接管模型解析。
-    private static final java.util.regex.Pattern EXCLUSIVE_SELECTION=java.util.regex.Pattern.compile(
-            "(?:只|仅|唯独|唯一|就)(?:需要|想要)?(?:保留|留|选择|选|要)|\\bonly\\b|\\bexclusively\\b",java.util.regex.Pattern.CASE_INSENSITIVE);
-    // 只拒绝把明确单笔引用扩大为ALL；具体是哪一笔仍交给实体解析，多个候选必须澄清。
-    private static final java.util.regex.Pattern SINGULAR_SELECTION=java.util.regex.Pattern.compile(
-            "(?:这|那|其中|指定)(?:一|1)(?:笔|条|张)|(?:一|1)(?:笔|条|张)(?:记录|单据|发票|订单)|\\b(?:one|single)\\s+(?:record|invoice|order)\\b",java.util.regex.Pattern.CASE_INSENSITIVE);
     private final ObjectMapper mapper = JsonUtil.MAPPER.copy()
             .enable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
             .enable(DeserializationFeature.FAIL_ON_MISSING_CREATOR_PROPERTIES)
@@ -71,8 +64,6 @@ public class IntentCodec {
                 throw new InvalidOutput("","SELECTOR_MENTIONS_REQUIRED：当前target="+c.target()+"，operation="+c.operation()+"，selectorKind="+c.selectorKind()
                         +"的mentions不能为空。公司/报表范围操作填写本轮实体原词；记录定位填写单据、摘要、客户原词或既有REFERENCE键。若原意是恢复某报表全部勾选，使用RECORDS RESTORE、selectorKind=ALL、quantifier=ALL，报表原词放reportMentions，mentions为空。");
             if(c.target()==Target.RECORDS) {
-                if(c.quantifier()==Quantifier.ALL && SINGULAR_SELECTION.matcher(c.evidence()).find())
-                    throw new InvalidOutput("","EXPLICIT_SINGLE_RECORD_CANNOT_USE_ALL：原文明确单笔时使用ONE，无法唯一定位必须澄清，不能扩大为全部客户记录；不同操作使用各自的连续原文证据");
                 if(!Set.of(Operation.EXCLUDE,Operation.RESTORE,Operation.REPLACE_EXCLUSIONS,Operation.RESTORE_ALL,Operation.KEEP_ONLY).contains(c.operation())) throw new InvalidOutput("","RECORD_OPERATION_MUST_BE_EXCLUDE_OR_RESTORE");
                 if(clear != (c.selectorKind()==SelectorKind.NONE)) throw invalid();
                 if(c.selectorKind()==SelectorKind.ALL && (c.quantifier()!=Quantifier.ALL || !Set.of(Operation.EXCLUDE,Operation.RESTORE).contains(c.operation())))
@@ -81,8 +72,6 @@ public class IntentCodec {
             } else if(!Set.of(Operation.REPLACE,Operation.ADD,Operation.REMOVE,Operation.CLEAR).contains(c.operation())
                     || c.selectorKind()!=SelectorKind.NONE || c.quantifier()!=Quantifier.UNSPECIFIED) throw invalid();
             if(c.operation()==Operation.KEEP_ONLY && Set.of(SelectorKind.NONE,SelectorKind.ALL).contains(c.selectorKind()))throw invalid();
-            if(c.operation()==Operation.KEEP_ONLY && !EXCLUSIVE_SELECTION.matcher(c.evidence()).find())
-                throw new InvalidOutput("","KEEP_ONLY_REQUIRES_EXPLICIT_EXCLUSIVITY：普通保留或选上不授权排除其余记录。查询某报表符合派单规则的候选使用PREVIEW及报表范围，不增加RECORDS条件，派单资格由服务端规则计算；仅描述已选好或留下的记录并要求准备清单时保留PREPARE_DISPATCH，不生成RECORDS操作。明确恢复勾选用RESTORE，明确只保留记录子集才用KEEP_ONLY。");
             if(c.selectorKind()==SelectorKind.FIELDS) {
                 if(c.conditions().isEmpty() || c.conditions().size()>4) throw invalid();
                 for(var group:c.conditions()) {
@@ -116,16 +105,7 @@ public class IntentCodec {
                     && c.reportMentions().stream().anyMatch(m -> contains(m,reference.mention()) || contains(reference.mention(),m))))
                 throw new InvalidOutput("","RECORD_SCOPE_REQUIRES_RECORD_SELECTOR：RECORD_SCOPE仅限定实际记录选择操作所属的报表。产品、费用类型或已选记录描述不是报表；仅要求准备当前已选记录时无需RECORDS或RECORD_SCOPE，保留PREPARE_DISPATCH及原有选择，不得为满足此约束新增修改。");
         }
-        // 同一个报表同时被当作查询范围和记录定语时，必须有独立的范围证据。
-        // 不能把“报表内的客户记录”整句复用成两种修改的理由；这是协议一致性校验，不按关键词构造意图。
-        for(var scope:intent.scopeChanges()) if(intent.action()!=Action.CLARIFY && scope.target()==Target.REPORTS)
-            for(var record:intent.scopeChanges()) if(record.target()==Target.RECORDS) {
-                // 字段条件没有实体mentions，但同样不能用其原文证明整张报表范围发生变化。
-                if(contains(scope.evidence(),record.evidence()) || record.mentions().stream().anyMatch(m -> contains(scope.evidence(),m))
-                        || record.conditions().stream().flatMap(g -> g.allOf().stream()).anyMatch(c -> contains(scope.evidence(),c.evidence()))
-                        || scope.mentions().stream().anyMatch(m -> TextNormalizer.normalize(m).equals(TextNormalizer.normalize(scope.evidence()))))
-                    throw new InvalidOutput("","INDEPENDENT_SCOPE_EVIDENCE_REQUIRED_RECORD_QUALIFIER_IS_NOT_A_SCOPE_CHANGE");
-            }
+        // 同一原句可以同时表达范围和记录条件；是否确有两种要求由统一语义复核判断，不能按证据重叠否决。
         for(String condition:intent.unsupportedConditions()) if(!grounded(message,condition)) throw new InvalidOutput("","UNSUPPORTED_CONDITIONS_MUST_BE_VERBATIM_INPUT");
         if(!intent.unsupportedConditions().isEmpty() && intent.action()!=Action.CLARIFY)
             throw new InvalidOutput("","UNSUPPORTED_CONDITION_REQUIRES_CLARIFY");
@@ -164,27 +144,19 @@ public class IntentCodec {
             if(!intent.unsupportedConditions().isEmpty() && intent.action()!=Action.CLARIFY)
                 issues.add("存在不支持条件时action必须为CLARIFY且clarify不能为NONE；整轮不能部分执行");
         }
-        // 一个草稿可能同时存在证据改写和范围误用，不能仅修第一个错误后耗尽修正预算。
-        for(var scope:intent.scopeChanges())if(scope!=null && scope.target()==Target.REPORTS && scope.mentions()!=null)
-            for(var record:intent.scopeChanges())if(record!=null && record.target()==Target.RECORDS && record.mentions()!=null && record.conditions()!=null) {
-                boolean reused=contains(scope.evidence(),record.evidence())
-                        || record.mentions().stream().anyMatch(m->contains(scope.evidence(),m))
-                        || record.conditions().stream().filter(Objects::nonNull).filter(g->g.allOf()!=null).flatMap(g->g.allOf().stream()).filter(Objects::nonNull).anyMatch(c->contains(scope.evidence(),c.evidence()))
-                        || scope.mentions().stream().anyMatch(m->Objects.equals(TextNormalizer.normalize(m),TextNormalizer.normalize(scope.evidence())));
-                if(reused)issues.add("REPORTS范围修改缺少独立原文依据；报表作为记录筛选限定时仅属于RECORDS.reportMentions，不得额外替换报表范围");
-            }
         return String.join("；",issues);
     }
     private static boolean contains(String source, String part) {
         return source != null && TextNormalizer.normalize(source).contains(TextNormalizer.normalize(part));
     }
     private static InvalidOutput invalid() { return new InvalidOutput("","INVALID_STRUCTURE_OR_EVIDENCE"); }
-    static final class InvalidOutput extends ApiException {
+    /** 可修正的结构契约失败；向统一规划器提供约束原因，不暴露原始模型输出。 */
+    public static final class InvalidOutput extends ApiException {
         private final String output;
         private final String reason;
         InvalidOutput(String output) { this(output,"MISSING_REPORT_ROLE"); }
         InvalidOutput(String output,String reason) { super(422,"未能可靠识别本次操作，请明确要查询的公司、报表或派单动作");this.output=output;this.reason=reason; }
-        String reason() { return reason; }
+        public String reason() { return reason; }
         String output() { return output; }
     }
 }

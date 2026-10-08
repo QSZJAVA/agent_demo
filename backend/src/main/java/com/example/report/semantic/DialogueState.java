@@ -44,7 +44,7 @@ public class DialogueState {
     private boolean unresolvedCompany;
     /** 记录选择未澄清标记；生成清单前必须解决。 */
     private boolean unresolvedRecords;
-    /** 上轮请求整体未完成；不污染已确定的公司/报表，裸建单须先明确新请求。 */
+    /** 上轮请求整体未完成；供统一规划和语义复核判断恢复要求，不等于已绑定对象失效。 */
     private boolean unresolvedRequest;
     /** 最近澄清、拒绝或失败原因；成功轮次清空。 */
     private String lastReason;
@@ -70,7 +70,7 @@ public class DialogueState {
     private List<String> businessReportIds = List.of();
     /** 本会话曾查询公司范围的并集；管理员经派单追溯读取会话时也必须完整具备这些公司权限。 */
     private List<String> businessCompanyCodes = List.of();
-    /** 尝试普通业务查询后置为true，即使查询失败也须重新取得派单候选，不能把普通结果或旧预览隐式当成新派单范围。 */
+    /** 最近业务查询发生在候选之后；提示话题边界，目标由统一计划显式绑定，查询对象用于派单时重新核验。 */
     private boolean businessQueryAfterPreview;
     /** 最近成功应用的记录选择及其实体证据；供跨轮唯一指代使用，新范围会清除，失败草稿不得覆盖。 */
     private List<SemanticIntent.ScopeChange> lastSuccessfulSelection = List.of();

@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mxfile host="app.diagrams.net"><diagram id="semantic-task" name="通用任务编排方案"><mxGraphModel page="1" pageWidth="1420" pageHeight="1320"><root><mxCell id="0"/>
+<mxCell id="1" parent="0"/>
+<mxCell id="title" value="通用语义任务编排方案 · 待实施设计
+真实模型 MODEL / 认证 HTTP MCP / 2026-10-08" style="text;html=0;fontSize=24;align=center;fontStyle=1;" vertex="1" parent="1"><mxGeometry x="80" y="20" width="1260" height="70" as="geometry"/></mxCell>
+<mxCell id="input" value="用户本轮要求
+询问、操作、禁止、条件与指代" style="rounded=1;whiteSpace=wrap;html=0;fillColor=#edf4fb;strokeColor=#6488ad;fontSize=16;fontFamily=Microsoft YaHei;spacing=12;" vertex="1" parent="1"><mxGeometry x="510" y="125" width="340" height="80" as="geometry"/></mxCell>
+<mxCell id="context" value="授权目录与可靠上下文
+字段含义、近期对话、对象引用
+来源、范围、版本、展示完整性" style="rounded=1;whiteSpace=wrap;html=0;fillColor=#edf4fb;strokeColor=#6488ad;fontSize=16;fontFamily=Microsoft YaHei;spacing=12;" vertex="1" parent="1"><mxGeometry x="80" y="270" width="330" height="120" as="geometry"/></mxCell>
+<mxCell id="plan" value="统一模型规划 MODEL
+动作 + 对象 + 条件 + 数量
+本轮依据 + 步骤依赖" style="rounded=1;whiteSpace=wrap;html=0;fillColor=#edf4fb;strokeColor=#6488ad;fontSize=16;fontFamily=Microsoft YaHei;spacing=12;" vertex="1" parent="1"><mxGeometry x="510" y="270" width="340" height="120" as="geometry"/></mxCell>
+<mxCell id="review" value="语义复核 MODEL
+是否遗漏、错指、误解否定
+有界修正，不执行业务" style="rounded=1;whiteSpace=wrap;html=0;fillColor=#edf4fb;strokeColor=#6488ad;fontSize=16;fontFamily=Microsoft YaHei;spacing=12;" vertex="1" parent="1"><mxGeometry x="1010" y="270" width="330" height="120" as="geometry"/></mxCell>
+<mxCell id="guard" value="业务契约与当前事实校验
+权限、类型、引用绑定、完整性
+规则、状态、租约与版本" style="rounded=1;whiteSpace=wrap;html=0;fillColor=#edf4fb;strokeColor=#6488ad;fontSize=16;fontFamily=Microsoft YaHei;spacing=12;" vertex="1" parent="1"><mxGeometry x="510" y="465" width="340" height="110" as="geometry"/></mxCell>
+<mxCell id="clarify" value="具体澄清或失败说明
+只询问缺失信息
+保留可靠对象及已完成步骤" style="rounded=1;whiteSpace=wrap;html=0;fillColor=#edf4fb;strokeColor=#6488ad;fontSize=16;fontFamily=Microsoft YaHei;spacing=12;" vertex="1" parent="1"><mxGeometry x="1010" y="465" width="330" height="110" as="geometry"/></mxCell>
+<mxCell id="read" value="明确只读动作
+查询、统计、详情、资格核验" style="rounded=1;whiteSpace=wrap;html=0;fillColor=#edf4fb;strokeColor=#6488ad;fontSize=16;fontFamily=Microsoft YaHei;spacing=12;" vertex="1" parent="1"><mxGeometry x="80" y="650" width="330" height="90" as="geometry"/></mxCell>
+<mxCell id="prepare" value="明确准备派单
+引用目标 → 重新核验
+生成准确的待确认清单" style="rounded=1;whiteSpace=wrap;html=0;fillColor=#edf4fb;strokeColor=#6488ad;fontSize=16;fontFamily=Microsoft YaHei;spacing=12;" vertex="1" parent="1"><mxGeometry x="510" y="650" width="340" height="110" as="geometry"/></mxCell>
+<mxCell id="confirm" value="用户核对并确认
+确认绑定清单与版本" style="rounded=1;whiteSpace=wrap;html=0;fillColor=#edf4fb;strokeColor=#6488ad;fontSize=16;fontFamily=Microsoft YaHei;spacing=12;" vertex="1" parent="1"><mxGeometry x="510" y="845" width="340" height="90" as="geometry"/></mxCell>
+<mxCell id="execute" value="受控执行
+确认、权限、幂等、租约
+来源及执行版本再次校验" style="rounded=1;whiteSpace=wrap;html=0;fillColor=#edf4fb;strokeColor=#6488ad;fontSize=16;fontFamily=Microsoft YaHei;spacing=12;" vertex="1" parent="1"><mxGeometry x="510" y="1010" width="340" height="110" as="geometry"/></mxCell>
+<mxCell id="evidence" value="持久化事实与任务进度
+每步对象、范围、结果及依据
+可恢复、可核对、可追溯" style="rounded=1;whiteSpace=wrap;html=0;fillColor=#edf4fb;strokeColor=#6488ad;fontSize=16;fontFamily=Microsoft YaHei;spacing=12;" vertex="1" parent="1"><mxGeometry x="1010" y="820" width="330" height="120" as="geometry"/></mxCell>
+<mxCell id="boundary" value="对象引用可延续；资格与执行授权必须按当前业务状态核验。
+真实模型调用不代表已经完成外部 ERP 或生产部署验收。" style="text;html=0;fontSize=16;align=center;" vertex="1" parent="1"><mxGeometry x="80" y="1190" width="1260" height="75" as="geometry"/></mxCell>
+<mxCell id="edge-0" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=0;endArrow=block;fontSize=13;strokeColor=#5c7087;" edge="1" parent="1" source="input" target="plan"><mxGeometry relative="1" as="geometry"/></mxCell>
+<mxCell id="edge-1" value="提供授权事实" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=0;endArrow=block;fontSize=13;strokeColor=#5c7087;" edge="1" parent="1" source="context" target="plan"><mxGeometry relative="1" as="geometry"/></mxCell>
+<mxCell id="edge-2" value="计划与依据" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=0;endArrow=block;fontSize=13;strokeColor=#5c7087;" edge="1" parent="1" source="plan" target="review"><mxGeometry relative="1" as="geometry"/></mxCell>
+<mxCell id="edge-3" value="发现偏差：有界修正" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=0;endArrow=block;fontSize=13;strokeColor=#5c7087;" edge="1" parent="1" source="review" target="plan"><mxGeometry relative="1" as="geometry"/></mxCell>
+<mxCell id="edge-4" value="语义复核通过" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=0;endArrow=block;fontSize=13;strokeColor=#5c7087;" edge="1" parent="1" source="review" target="guard"><mxGeometry relative="1" as="geometry"/></mxCell>
+<mxCell id="edge-5" value="对象不明、条件矛盾或前置失败" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=0;endArrow=block;fontSize=13;strokeColor=#5c7087;" edge="1" parent="1" source="guard" target="clarify"><mxGeometry relative="1" as="geometry"/></mxCell>
+<mxCell id="edge-6" value="只读" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=0;endArrow=block;fontSize=13;strokeColor=#5c7087;" edge="1" parent="1" source="guard" target="read"><mxGeometry relative="1" as="geometry"/></mxCell>
+<mxCell id="edge-7" value="准备清单" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=0;endArrow=block;fontSize=13;strokeColor=#5c7087;" edge="1" parent="1" source="guard" target="prepare"><mxGeometry relative="1" as="geometry"/></mxCell>
+<mxCell id="edge-8" value="保存结果与引用" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=0;endArrow=block;fontSize=13;strokeColor=#5c7087;" edge="1" parent="1" source="read" target="evidence"><mxGeometry relative="1" as="geometry"/></mxCell>
+<mxCell id="edge-9" value="待确认" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=0;endArrow=block;fontSize=13;strokeColor=#5c7087;" edge="1" parent="1" source="prepare" target="confirm"><mxGeometry relative="1" as="geometry"/></mxCell>
+<mxCell id="edge-10" value="用户确认" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=0;endArrow=block;fontSize=13;strokeColor=#5c7087;" edge="1" parent="1" source="confirm" target="execute"><mxGeometry relative="1" as="geometry"/></mxCell>
+<mxCell id="edge-11" value="执行结果" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=0;endArrow=block;fontSize=13;strokeColor=#5c7087;" edge="1" parent="1" source="execute" target="evidence"><mxGeometry relative="1" as="geometry"/></mxCell>
+<mxCell id="edge-12" value="记录具体缺项" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=0;endArrow=block;fontSize=13;strokeColor=#5c7087;" edge="1" parent="1" source="clarify" target="evidence"><mxGeometry relative="1" as="geometry"/></mxCell></root></mxGraphModel></diagram></mxfile>

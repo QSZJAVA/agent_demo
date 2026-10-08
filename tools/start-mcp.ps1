@@ -15,7 +15,8 @@ foreach($taskPort in $taskPorts) {
     if(Get-NetTCPConnection -State Listen -LocalPort $taskPort -ErrorAction SilentlyContinue){throw "Port $taskPort is already in use. Stop the previous verified process first."}
 }
 if($Build) {
-    & (Join-Path $taskRoot 'backend/mvnw.cmd') -f (Join-Path $taskRoot 'pom.xml') package '-DskipTests' -q
+    # 完整清理后再打包，确保运行包仅包含当前源码中的迁移与类。
+    & (Join-Path $taskRoot 'backend/mvnw.cmd') -f (Join-Path $taskRoot 'pom.xml') clean package '-DskipTests' -q
     if($LASTEXITCODE -ne 0){throw 'Build failed.'}
 }
 New-Item -ItemType Directory -Force -Path $taskRuntime | Out-Null

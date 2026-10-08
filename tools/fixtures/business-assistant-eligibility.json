@@ -1,0 +1,39 @@
+[
+  {
+    "name": "1417-original-conversation",
+    "turns": [
+      {"message":"查一下销售报表服务器的数据","domain":"REPORT","view":"LIST","recordSet":"sales_all","sourceEquals":{"field":"productName","value":"服务器"},"requiredFilter":{"field":"productName","value":"服务器"}},
+      {"message":"查一下销售报表产品为服务器的数据","domain":"REPORT","view":"LIST","recordSet":"sales_all","sourceEquals":{"field":"productName","value":"服务器"}},
+      {"message":"这条数据符合派单条件吗","domain":"REPORT","view":"ELIGIBILITY","recordSet":"sales_all","sourceEquals":{"field":"productName","value":"服务器"},"eligible":true,"ruleVersion":1}
+    ]
+  },
+  {
+    "name": "non-qualifying-product",
+    "turns": [
+      {"message":"查一下销售报表网线的数据","domain":"REPORT","view":"LIST","recordSet":"sales_all","sourceEquals":{"field":"productName","value":"网线"}},
+      {"message":"这条可以派单吗","domain":"REPORT","view":"ELIGIBILITY","recordSet":"sales_all","sourceEquals":{"field":"productName","value":"网线"},"eligible":false,"ruleVersion":1}
+    ]
+  },
+  {
+    "name": "alternative-product-and-question",
+    "turns": [
+      {"message":"查销售报表交换机的数据","domain":"REPORT","view":"LIST","recordSet":"sales_all","sourceEquals":{"field":"productName","value":"交换机"}},
+      {"message":"这笔是否符合派单规则","domain":"REPORT","view":"ELIGIBILITY","recordSet":"sales_all","sourceEquals":{"field":"productName","value":"交换机"},"eligible":true,"ruleVersion":1}
+    ]
+  },
+  {
+    "name": "ambiguous-reference-then-explicit-id",
+    "turns": [
+      {"message":"查一下销售报表数据","domain":"REPORT","view":"LIST","recordSet":"sales_all"},
+      {"message":"这条数据符合派单条件吗","noQuery":true},
+      {"message":"核验销售报表单据 SO2026001 的派单资格","domain":"REPORT","view":"ELIGIBILITY","recordSet":"sales_all","sourceEquals":{"field":"productName","value":"服务器"},"eligible":true,"ruleVersion":1}
+    ]
+  },
+  {
+    "name": "expense-category-without-field-name",
+    "turns": [
+      {"message":"查一下费用报表差旅费的数据","domain":"REPORT","view":"LIST","recordSet":"expense_all","sourceEquals":{"field":"expenseType","value":"差旅费"}},
+      {"message":"它满足派单规则吗","domain":"REPORT","view":"ELIGIBILITY","recordSet":"expense_all","sourceEquals":{"field":"expenseType","value":"差旅费"},"eligible":true,"ruleVersion":1}
+    ]
+  }
+]

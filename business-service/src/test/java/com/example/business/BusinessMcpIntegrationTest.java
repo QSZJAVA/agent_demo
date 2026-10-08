@@ -129,7 +129,7 @@ class BusinessMcpIntegrationTest {
         assertEquals(1,businessQuery(admin,readQuery(com.example.report.assistant.BusinessQuery.Domain.DISPATCH,"A",List.of(other))).total());
     }
     @Test void boundedQueryFailsRatherThanReturningPartialAggregate() {
-        var service=new BusinessReadService(context.getBean(BusinessQueries.class),new org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate(jdbc),context.getBean(WorkOrderProvider.class),1,120,context.getBean(BusinessQueryProperties.class));
+        var service=new BusinessReadService(context.getBean(BusinessQueries.class),new org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate(jdbc),context.getBean(WorkOrderProvider.class),1,120,context.getBean(BusinessQueryProperties.class),context.getBean(DispatchEligibilityService.class));
         assertThrows(ApiException.class,()->service.query(reader,readQuery(com.example.report.assistant.BusinessQuery.Domain.REPORT,"A",List.of())));
     }
     @Test void readOnlyDispatchQueryShowsExpiredPendingPlanWithoutMutatingIt() {

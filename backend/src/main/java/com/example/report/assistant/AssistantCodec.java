@@ -13,6 +13,8 @@ public final class AssistantCodec {
     private AssistantCodec() { }
     /** 解码一次模型计划，超长、缺失或损坏输出明确澄清，不将缺失 route 当作派单。 */
     public static AssistantPlan plan(String text){return decode(text,AssistantPlan.class);}
+    /** 语义复核也执行完整严格解码；缺少通过标志或问题依据不能视为已经通过。 */
+    public static SemanticReview review(String text){return decode(text,SemanticReview.class);}
     /** 解码 HTTP MCP 的查询参数，使用与模型输出相同的类型边界。 */
     public static BusinessQuery query(Object value){return decode(JsonUtil.toJson(value),BusinessQuery.class);}
     private static <T>T decode(String text,Class<T> type) {

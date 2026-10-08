@@ -27,6 +27,15 @@ public record PreviewSnapshot(DispatchPreview preview, List<DispatchPreviewItem>
         return JsonUtil.toMap(preview.getQueryJson());
     }
 
+    /** 精确记录预览的身份边界；普通范围预览为空，刷新时不能扩大已绑定目标。 */
+    public List<RecordTarget> targets() {
+        Object value=query().get("targetRecords");
+        return value==null?List.of():JsonUtil.MAPPER.convertValue(value,new com.fasterxml.jackson.core.type.TypeReference<List<RecordTarget>>(){});
+    }
+
+    /** 精确预览的原始查询引用；普通范围预览为空。 */
+    public String targetSourceRef() {return (String)query().get("targetSourceRef");}
+
     public static Candidate toCandidate(DispatchPreviewItem i) {
         return new Candidate(i.getReportId(), i.getReportName(), i.getRecordId(), i.getDocNo(), i.getCompanyCode(),
                 i.getLabel(), i.getAmount(), i.getBizDate(), i.getRuleId(), i.getRuleName(), i.getRuleVersion(),

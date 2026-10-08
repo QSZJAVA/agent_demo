@@ -25,15 +25,6 @@ class WholeReportSelectionTest {
         var reset=new ScopeChange(Target.RECORDS,Operation.RESTORE_ALL,List.of(),"从头来",List.of(),SelectorKind.NONE,Quantifier.UNSPECIFIED);
         assertDoesNotThrow(()->planner.validateModelDraft(USER1,state,new SemanticIntent(1,Action.PREVIEW,List.of(allReports,reset),List.of(),Clarify.NONE)));
     }
-    @Test void selectionOnlyRequestDoesNotAuthorizeAnAdditionalPendingPlan() {
-        var change=new ScopeChange(Target.RECORDS,Operation.EXCLUDE,List.of("交通"),"交通不选，其余照常",List.of(),SelectorKind.DESCRIPTION,Quantifier.ALL);
-        var prepare=new SemanticIntent(1,Action.PREPARE_DISPATCH,List.of(change),List.of(),Clarify.NONE);
-        assertTrue(SemanticConversationService.requiresExplicitPreparation(prepare,"交通不选，其余照常"));
-        assertFalse(SemanticConversationService.requiresExplicitPreparation(prepare,"交通不选，其余生成待确认清单"));
-        assertFalse(SemanticConversationService.requiresExplicitPreparation(prepare,"Exclude transport and draft a plan for the rest"));
-        var selection=new SemanticIntent(1,Action.PREVIEW,List.of(change),List.of(),Clarify.NONE);
-        assertFalse(SemanticConversationService.requiresExplicitPreparation(selection,"交通不选，其余照常"));
-    }
     @Test void repairFeedbackDistinguishesMissingEntitiesFromForbiddenEntities() {
         var codec=new IntentCodec();
         var missing=new ScopeChange(Target.REPORTS,Operation.ADD,List.of(),"追加销售");
@@ -55,23 +46,15 @@ class WholeReportSelectionTest {
             assertEquals(Set.of(new RecordKey(SALES,"s"),new RecordKey(EXPENSE,"e2")),Set.copyOf(result));
             assertEquals(result,SelectionResolver.apply(rows,result,change,catalog,USER1));
             var ordinary=new ScopeChange(Target.RECORDS,Operation.KEEP_ONLY,List.of(term),"保留"+term,List.of(),kind,Quantifier.ONE);
-            assertThrows(IntentCodec.InvalidOutput.class,()->new IntentCodec().validate(new SemanticIntent(1,Action.PREVIEW,List.of(ordinary),List.of(),Clarify.NONE),ordinary.evidence()));
+            // 原文是否授权排他操作交给统一语义复核；协议不再用措辞白名单判断。
+            assertDoesNotThrow(()->new IntentCodec().validate(new SemanticIntent(1,Action.PREVIEW,List.of(ordinary),List.of(),Clarify.NONE),ordinary.evidence()));
         }
     }
-    @Test void modelRepairCannotReplaceRejectedPreparationWithUnscopedPreview() {
-        var state=new DialogueState();state.setBusinessQueryAfterPreview(true);
-        assertTrue(SemanticConversationService.requiresFreshDispatchScope(state,new SemanticIntent(1,Action.PREPARE_DISPATCH,List.of(),List.of(),Clarify.NONE),"刚才那些直接准备清单"));
-        assertTrue(SemanticConversationService.requiresFreshDispatchScope(state,new SemanticIntent(1,Action.PREVIEW,List.of(),List.of(),Clarify.NONE),"刚才那些直接准备清单"));
-        assertFalse(SemanticConversationService.requiresFreshDispatchScope(state,new SemanticIntent(1,Action.PREVIEW,List.of(),List.of(),Clarify.NONE),"查一下我有哪些可以派单"));
-        var fresh=new SemanticIntent(1,Action.PREVIEW,List.of(new ScopeChange(Target.REPORTS,Operation.REPLACE,List.of("费用"),"重新查费用")),List.of(),Clarify.NONE);
-        assertFalse(SemanticConversationService.requiresFreshDispatchScope(state,fresh,"重新查费用"));
-        state.setBusinessQueryAfterPreview(false);assertFalse(SemanticConversationService.requiresFreshDispatchScope(state,new SemanticIntent(1,Action.PREVIEW,List.of(),List.of(),Clarify.NONE),"查询"));
-    }
-    @Test void actionClarificationAfterBusinessQueryExplainsDispatchBoundary() {
+    @Test void actionClarificationExplainsMissingTaskWithoutForbiddingQueryReuse() {
         var state=new DialogueState();state.setBusinessQueryAfterPreview(true);
         var planner=new SemanticPlanner(catalog);
         var failure=assertThrows(com.example.report.common.ApiException.class,()->planner.requireAction(state,SemanticIntent.clarify(Clarify.ACTION)));
-        assertTrue(failure.getMessage().contains("只读"));assertTrue(failure.getMessage().contains("可派候选"));assertTrue(state.isUnresolvedRequest());
+        assertTrue(failure.getMessage().contains("对象"));assertTrue(state.isUnresolvedRequest());
     }
     @Test void companyTypeLabelsNormalizeWithoutFuzzyNameOrIdentifierRewriting() {
         for(String label:List.of("A公司","公司 A","company a","A company"))assertEquals("A",SemanticPlanner.companyCode(label));

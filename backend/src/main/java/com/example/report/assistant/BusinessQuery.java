@@ -6,7 +6,7 @@ import java.util.List;
 /**
  * 通用只读业务查询协议；身份由服务器注入，字段来自目录，不能携带 SQL 或执行授权。
  * @param domain 数据域：报表、派单条目或工单
- * @param view 展示方式：列表、单项详情或完整查询范围总结
+ * @param view 展示方式：列表、单项详情、完整查询范围总结或单条报表记录的只读派单资格核验
  * @param reportIds 稳定报表标识；空集合表示当前全部授权报表，服务端必须重新解析权限
  * @param companyCode 公司代码；null 表示当前全部授权公司
  * @param conditions 有界析取范式：组间 OR、组内 AND；空集合表示没有字段条件
@@ -19,7 +19,7 @@ import java.util.List;
 public record BusinessQuery(Domain domain,View view,List<String> reportIds,String companyCode,
         List<Group> conditions,String sortField,boolean descending,int page,int size,String groupBy) {
     public enum Domain { REPORT, DISPATCH, WORK_ORDER }
-    public enum View { LIST, DETAIL, SUMMARY }
+    public enum View { LIST, DETAIL, SUMMARY, ELIGIBILITY }
     /**
      * 一组同时成立的条件。
      * @param allOf AND 条件集合，至少一项、最多八项
@@ -51,6 +51,12 @@ public record BusinessQuery(Domain domain,View view,List<String> reportIds,Strin
                     throw new ApiException(422,"查询条件的参数数量不正确");
             }
         }
+        // 资格询问必须先锁定业务对象；金额、状态等旧筛选不能把当前已不符合条件的记录隐藏成“未找到”。
+        // 一页一条只是展示约束，实际唯一性仍由完整匹配集核验，不靠截断列表取第一条。
+        if(view==View.ELIGIBILITY && (domain!=Domain.REPORT || reportIds.size()!=1 || page!=1
+                || sortField!=null || groupBy!=null || conditions.size()!=1
+                || conditions.get(0).allOf().stream().anyMatch(f->!List.of("recordId","docNo").contains(f.field()) || !"EQ".equals(f.operator()))))
+            throw new ApiException(422,"派单资格核验必须指定一张报表，以recordId或docNo等于准确编号定位单条记录；使用第一页，不附加金额、状态、排序或分组条件");
     }
     /** 复制当前条件到指定页码，不修改原查询或授予新增范围。 */
     public BusinessQuery atPage(int number) {return new BusinessQuery(domain,view,reportIds,companyCode,conditions,sortField,descending,number,size,groupBy);}

@@ -50,6 +50,12 @@ foreach($scenario in $taskScenarios) {
                 if($null -ne $turn.total -and $turn.total -ne $result.total){$errors.Add('Wrong full total')}
                 if($turn.status -and @($result.query.conditions.allOf|Where-Object {$_.field -eq 'status' -and $_.values -contains $turn.status}).Count -eq 0){$errors.Add('Missing status condition')}
                 if($turn.requiredFilter -and @($result.query.conditions.allOf|Where-Object {$_.field -ceq $turn.requiredFilter.field -and $_.values -ccontains $turn.requiredFilter.value}).Count -eq 0){$errors.Add('Stable query identifier was not preserved')}
+                if($null -ne $turn.eligible){
+                    $taskEligibility=$result.rows[0].eligibility
+                    if($result.total -ne 1 -or $null -eq $taskEligibility -or $null -eq $taskEligibility.eligible){$errors.Add('Missing single-record qualification evidence')}
+                    elseif($taskEligibility.eligible -cne $turn.eligible){$errors.Add('Wrong dispatch qualification')}
+                    if($null -ne $turn.ruleVersion -and $taskEligibility.ruleVersion -ne $turn.ruleVersion){$errors.Add('Wrong effective rule version')}
+                }
                 if($turn.orderIds){
                     $actual=@($result.rows.orderId|Sort-Object);$wanted=@($turn.orderIds|Sort-Object)
                     if(($actual -join '|') -cne ($wanted -join '|') -or $result.total -ne $wanted.Count){$errors.Add('Wrong work order set')}
@@ -66,6 +72,8 @@ foreach($scenario in $taskScenarios) {
                         'expense_all' {$taskExpenses.records}
                         default {throw 'Unknown source fixture'}
                     })
+                    # 预期集合来自独立报表页，再按事先固定的业务值筛选，不从模型返回集合反推预期。
+                    if($turn.sourceEquals){$wantedRows=@($wantedRows|Where-Object {[string]$_.($turn.sourceEquals.field) -ceq $turn.sourceEquals.value})}
                     if($wantedRows.Count -ne $result.total){$errors.Add('Total differs from independent report page')}
                     if($turn.sortField -eq 'amount'){$wantedRows=@($wantedRows|Sort-Object {[decimal]$_.amount} -Descending:([bool]$turn.descending))}
                     $expectedPage=@($wantedRows|Select-Object -Skip (($result.query.page-1)*$result.query.size) -First $result.query.size)

@@ -39,6 +39,58 @@ public class DispatchCandidateService {
         return report.fields();
     }
 
+    /**
+     * 重新核验明确绑定的记录，保持身份、公司和数量完全一致；任何目标失效都拒绝整组，不能悄悄少派。
+     * 只使用按标识读取的待派单事实与当前生效规则，不扫描或补入同报表的其他记录。
+     * @param tenantId 当前身份所属租户
+     * @param companies 已核验授权的公司集合
+     * @param reports 已核验可派单的报表目录
+     * @param targets 服务端绑定的精确目标及原公司边界
+     * @param progress 配额、取消与租约的只读守卫
+     * @return 与目标原顺序一致的完整合格记录；权限、来源和规则失败时不返回部分结果
+     */
+    public List<Candidate> findBoundCandidates(String tenantId,Set<String> companies,List<CatalogEntry> reports,
+            List<com.example.report.dispatch.RecordTarget> targets,java.util.function.IntConsumer progress) {
+        if(targets==null || targets.isEmpty() || targets.size()>maxScannedRows)
+            throw new com.example.report.common.ApiException(422,"目标集合为空或超过核验预算");
+        var requested=new java.util.LinkedHashMap<com.example.report.dispatch.RecordKey,String>();
+        for(var target:targets) {
+            if(!companies.contains(target.companyCode()))throw com.example.report.common.ApiException.forbidden("目标公司不存在或无权访问");
+            if(requested.putIfAbsent(target.key(),target.companyCode())!=null)
+                throw new com.example.report.common.ApiException(422,"派单目标重复，未生成预览");
+        }
+        Set<String> allowed=reports.stream().filter(r->tenantId.equals(r.tenantId()) && r.usable())
+                .map(CatalogEntry::reportId).collect(java.util.stream.Collectors.toSet());
+        if(requested.keySet().stream().anyMatch(k->!allowed.contains(k.reportId())))
+            throw com.example.report.common.ApiException.forbidden("目标报表不存在或不可派单");
+        var found=new java.util.LinkedHashMap<com.example.report.dispatch.RecordKey,Candidate>();
+        long deadline=System.nanoTime()+java.util.concurrent.TimeUnit.SECONDS.toNanos(maxScanSeconds);int scanned=0;
+        for(var report:reports) {
+            var ids=requested.keySet().stream().filter(k->k.reportId().equals(report.reportId())).map(com.example.report.dispatch.RecordKey::recordId).toList();
+            for(int start=0;start<ids.size();start+=500) {
+                checkScanBudget(deadline,scanned);progress.accept(scanned);
+                var batch=ids.subList(start,Math.min(start+500,ids.size()));
+                var rows=report.adapter().pendingRowsByIds(tenantId,batch);
+                if(rows.size()>batch.size())throw new com.example.report.common.ApiException(502,"来源返回了重复或范围外记录，未生成清单");
+                for(var row:rows) {
+                    checkScanBudget(deadline,++scanned);progress.accept(scanned);
+                    var key=new com.example.report.dispatch.RecordKey(report.reportId(),row.recordId());
+                    if(!batch.contains(row.recordId()) || found.containsKey(key))
+                        throw new com.example.report.common.ApiException(502,"来源返回了重复或范围外记录，未生成清单");
+                    if(!java.util.Objects.equals(requested.get(key),row.companyCode()))
+                        throw new com.example.report.common.ApiException(409,"目标记录所属公司已变化，请重新查询核对后派单");
+                    var rule=ruleCache.find(tenantId,report.reportId(),row.companyCode());
+                    if(rule.isEmpty() || !matchesRequired(rule.get().getExpression(),row))
+                        throw new com.example.report.common.ApiException(422,"指定记录 "+java.util.Objects.toString(row.docNo(),row.recordId())+" 当前不符合生效派单规则，未生成清单；请重新核验或调整目标");
+                    var active=rule.get();found.put(key,toCandidate(report,row,active.getId(),active.getName(),active.getVersion(),active.getDescription()));
+                }
+            }
+        }
+        checkScanBudget(deadline,scanned);progress.accept(scanned);
+        if(found.size()!=requested.size())throw new com.example.report.common.ApiException(409,"指定目标中有记录已派单、已不存在或不再可见，未生成部分清单；请重新查询核对");
+        return requested.keySet().stream().map(found::get).toList();
+    }
+
     /** 仅复核有界清单中的记录；规则异常必须上抛，不能把不完整资格集合用于执行。 */
     public Set<String> qualifiedPlanKeys(String tenantId, Set<String> companies, List<CatalogEntry> reports,
                                          Map<String, ? extends Collection<String>> recordIds) {

@@ -72,6 +72,16 @@ public final class DispatchHarness {
                             .filter(c -> ids.getOrDefault(c.reportId(), List.of()).contains(c.recordId()))
                             .map(Candidate::key).collect(java.util.stream.Collectors.toSet());
                 });
+        when(candidates.findBoundCandidates(anyString(),anySet(),anyList(),anyList(),org.mockito.ArgumentMatchers.any(java.util.function.IntConsumer.class)))
+                .thenAnswer(inv -> {
+                    List<com.example.report.dispatch.RecordTarget> targets=inv.getArgument(3);
+                    List<Candidate> available=candidates.findCandidates(inv.getArgument(0),inv.getArgument(1),inv.getArgument(2));
+                    List<Candidate> selected=new ArrayList<>();
+                    for(var target:targets)selected.add(available.stream().filter(c->target.key().reportId().equals(c.reportId())
+                            && target.key().recordId().equals(c.recordId()) && target.companyCode().equals(c.companyCode())).findFirst()
+                            .orElseThrow(()->new com.example.report.common.ApiException(409,"指定目标已变化，未生成部分清单")));
+                    return selected;
+                });
         when(candidates.findCandidates(anyString(), anySet(), anyList(), org.mockito.ArgumentMatchers.anyInt(),
                 org.mockito.ArgumentMatchers.any(java.util.function.IntConsumer.class))).thenAnswer(inv -> {
             List<Candidate> all = candidates.findCandidates(inv.getArgument(0), inv.getArgument(1), inv.getArgument(2));

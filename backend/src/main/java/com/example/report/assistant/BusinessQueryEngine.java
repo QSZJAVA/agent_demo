@@ -56,7 +56,7 @@ public final class BusinessQueryEngine {
             if("待审批".equals(row.get("status")) && row.get("assignee")!=null) approvers.merge(row.get("assignee").toString(),1,Integer::sum);
         }
         var exactAmounts=new TreeMap<String,String>();amounts.forEach((currency,value)->exactAmounts.put(currency,value.toPlainString()));
-        if(query.view()==BusinessQuery.View.DETAIL && matched.size()!=1)
+        if((query.view()==BusinessQuery.View.DETAIL || query.view()==BusinessQuery.View.ELIGIBILITY) && matched.size()!=1)
             throw new ApiException(422,matched.isEmpty()?"未找到匹配记录或无权查看，请核对编号":"匹配到多条记录，请指定准确编号后查看详情");
         int start=Math.min(matched.size(),Math.multiplyExact(query.page()-1,query.size()));
         var page=List.copyOf(matched.subList(start,Math.min(matched.size(),start+query.size())));

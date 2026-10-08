@@ -62,8 +62,6 @@ public final class SelectionResolver {
                                                  ReportCatalogService catalog,CurrentUser user,DialogueState references,String message) {
         if(change.selectorKind()==SemanticIntent.SelectorKind.REFERENCE) {
             var matched=SelectionReferences.resolve(references,rows,change);
-            SelectionReferences.validateExplicitMention(rows,matched,change.evidence());
-            SelectionReferences.validateExplicitMention(rows,matched,message);
             return updateSelection(rows,previous,change,matched);
         }
         // 整类取消选择只作用于传入的授权快照或报表子集，不用虚构恒真字段条件，也不改变报表查询范围。

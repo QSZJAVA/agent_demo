@@ -65,7 +65,8 @@ try {
     if($CheckOnly){Write-Output 'Configuration and dependency checks passed. Model authentication and output have not been verified.';return}
     if(-not $SkipBuild) {
         Write-Output 'Building Agent and HTTP MCP business service...'
-        & (Join-Path $taskRoot 'backend/mvnw.cmd') -f (Join-Path $taskRoot 'pom.xml') package '-DskipTests' -q
+        # 先清理构建产物，避免已从源码删除的旧迁移残留在 target 中并被重新打包。
+        & (Join-Path $taskRoot 'backend/mvnw.cmd') -f (Join-Path $taskRoot 'pom.xml') clean package '-DskipTests' -q
         if($LASTEXITCODE -ne 0){throw 'Backend build failed.'}
     }
     foreach($taskJar in @('backend/target/report-demo-1.0.0.jar','business-service/target/business-service-1.0.0.jar')) {

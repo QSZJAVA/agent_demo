@@ -1,6 +1,7 @@
 package com.example.report.semantic;
 
 import com.example.report.agent.*;
+import com.example.report.assistant.*;
 import com.example.report.catalog.*;
 import com.example.report.common.*;
 import com.example.report.config.*;
@@ -22,13 +23,12 @@ import java.util.function.Consumer;
 import static com.example.report.semantic.SemanticIntent.Target.*;
 
 /**
- * 统一对话租约与编排：先处理通用只读查询，再由派单分支解析意图、更新权威状态并发送事实卡片。
- * 模型不能确认派单或审批；SSE断开、租约过期或删除会话时停止旧轮次写入，两类查询上下文独立保存。
+ * 统一对话租约与任务编排：完整计划一次确定动作和目标，执行层只做确定性求值，不重复解释用户原文。
+ * 查询身份可以继续用于派单准备，但必须重新核验；模型不能确认派单，连接、租约和版本守卫覆盖整轮写入。
  */
 @Slf4j
 @Service
 public class SemanticConversationService {
-    private final IntentParser parser;
     private final IntentCodec codec;
     private final DialogueStore store;
     private final SemanticPlanner planner;
@@ -40,10 +40,10 @@ public class SemanticConversationService {
     private final ResourceQuotaService quotas;
     private final AgentProperties props;
     private final com.example.report.assistant.BusinessAssistantService assistant;
-    public SemanticConversationService(IntentParser parser, IntentCodec codec, DialogueStore store, SemanticPlanner planner,
+    public SemanticConversationService(IntentCodec codec, DialogueStore store, SemanticPlanner planner,
             ConversationService conversations, PreviewService previews, PlanService plans, PlanRepository planRepository,
             ReportCatalogService catalog, ResourceQuotaService quotas, AgentProperties props,com.example.report.assistant.BusinessAssistantService assistant) {
-        this.parser=parser;this.codec=codec;this.store=store;this.planner=planner;this.conversations=conversations;
+        this.codec=codec;this.store=store;this.planner=planner;this.conversations=conversations;
         this.previews=previews;this.plans=plans;this.planRepository=planRepository;this.catalog=catalog;this.quotas=quotas;this.props=props;
         this.assistant=assistant;
         if (!"active".equals(props.getSemantic().getMode())) throw new IllegalArgumentException("最终演示版仅支持 agent.semantic.mode=active");
@@ -86,36 +86,37 @@ public class SemanticConversationService {
         var state=session.state(); SemanticIntent intent=null; String reply;
         state.setParserSource(null);
         conversations.logUser(id,user.userId(),message);
-        // 业务查询独立维护上下文，不调用beginRequest、不刷新派单预览，也不改变原勾选集合。
-        if(assistant.handle(user,id,requestId,message,model,session,guard,emit)) return;
         try {
             hydrate(user,id,state);
+            // 统一计划直接交接完整动作和对象；只读分支结束本轮，不占用预览版本或修改候选选择。
+            var task=assistant.handle(user,id,requestId,message,model,session,guard,emit,currentSelection(user,state),
+                    directive->validateDispatchDraft(user,state,directive,message,uiPreviewId,uiExcludes));
+            if(task.isEmpty())return;
+            var directive=task.get();intent=directive.intent();
+            codec.validate(intent,message);AssistantReferences.validate(message,state,directive);guard.run();
             state.setAttemptedAt(LocalDateTime.now());
             // 新消息使此前排队的界面查询失效；即使新意图被拒绝，也不能让迟到任务覆盖当前状态。
             long previewVersion=previews.beginRequest(id);
             catalog.refreshForValidation();
-            var mentions=planner.mentions(user,message);
-            var interpreted=parser.interpret(message,new IntentParser.Context(state,catalog.dispatchableReports(user).stream().map(CatalogEntry::ref).toList(),mentions,SemanticCapabilities.selectors(catalog.dispatchableReports(user)),draft -> {
-                validateSelectionDraft(user,state,draft,message);planner.validateModelDraft(user,state,draft);
-            },SemanticCapabilities.fields(catalog.dispatchableReports(user)),currentSelection(user,state)));
-            codec.validate(interpreted.intent(),message); guard.run();
-            intent=interpreted.intent();state.setParserSource(interpreted.source());
-            if(requiresExplicitPreparation(intent,message))throw new IntentCodec.InvalidOutput("","EXPLICIT_PREPARATION_REQUIRED：本轮只调整候选选择，没有明确生成清单或派单动作；保留全部选择修改并使用PREVIEW，不得顺带生成待确认清单。");
-            // 普通查询结果没有派单资格语义；查询/派单切换时先取得新候选，禁止指代旧预览生成或修改清单。
-            if(requiresFreshDispatchScope(state,intent,message))
-                throw new ApiException(422,"刚才查看的是只读业务数据，请先明确查询可派单范围，再调整选择或生成待确认清单");
             state.setPendingIntent(intent);
-            planner.requireCoverage(state,intent,mentions);
-            planner.merge(user,state,intent);
-            session.save();
-            planner.requireAction(state,intent);
-            reply=switch(intent.action()) {
-                case HELP -> "可以查询某家公司或报表的可派单记录、追加或移除报表、排除单据、生成待确认清单，以及取消清单或查看结果。真正派单需要点击确认卡片。";
-                case CANCEL_PLAN -> cancel(user,id,state,session,guard);
-                case SHOW_RESULT -> result(user,id,state,emit);
-                case PREVIEW, PREPARE_DISPATCH, EXPLAIN_RULES -> query(user,id,requestId,previewVersion,intent,state,session,uiPreviewId,uiExcludes,guard,emit,message);
-                default -> throw new ApiException(422,"请明确本次操作");
-            };
+            if(directive.source()==DispatchDirective.Source.QUERY_ROWS || directive.source()==DispatchDirective.Source.QUERY_ALL) {
+                reply=queryTargets(user,id,requestId,previewVersion,directive,state,session,guard,emit);
+            } else {
+                boolean fresh=directive.source()==DispatchDirective.Source.EXPLICIT_SCOPE;
+                if(fresh) {
+                    // 明确新范围从初始授权边界计算，不继承不相关话题的公司、报表或排除集合。
+                    var draft=new DialogueState();planner.merge(user,draft,intent);planner.validate(user,draft);
+                    state.setDesired(draft.getDesired());state.setUnresolvedCompany(false);state.setUnresolvedReports(false);
+                } else planner.merge(user,state,intent);
+                session.save();planner.requireAction(state,intent);
+                reply=switch(intent.action()) {
+                    case CANCEL_PLAN -> cancel(user,id,state,session,guard);
+                    case SHOW_RESULT -> result(user,id,state,emit);
+                    case PREVIEW, PREPARE_DISPATCH, EXPLAIN_RULES -> query(user,id,requestId,previewVersion,intent,state,session,
+                            fresh?null:uiPreviewId,fresh?null:uiExcludes,guard,emit,message,fresh);
+                    default -> throw new ApiException(422,"请明确本次操作");
+                };
+            }
             state.setLastReason(null);state.setUnresolvedRequest(false);
         } catch (Exception failure) {
             if (intent==null) {
@@ -125,9 +126,6 @@ public class SemanticConversationService {
             state.setPhase(failure instanceof ApiException api && api.getCode()==422 ? DialogueState.Phase.CLARIFY
                     : failure instanceof ApiException ? DialogueState.Phase.REJECTED : DialogueState.Phase.FAILED);
             reply=friendly(failure); state.setLastReason(reply);
-            if(state.isBusinessQueryAfterPreview() && failure instanceof ApiException api && api.getCode()==422 && !reply.contains("只读")) {
-                reply+=" 刚才查看的是只读业务数据；如需派单，请先明确可派候选范围。";state.setLastReason(reply);
-            }
             // 只记录契约校验原因以便复现，不记录模型原始输出或认证凭据。
             if(failure instanceof IntentCodec.InvalidOutput invalid)log.warn("语义草稿拒绝 conversation={} reason={}",id,SensitiveData.text(invalid.reason()));
             if (!(failure instanceof ApiException)) log.warn("语义处理失败 conversation={} type={}",id,failure.getClass().getSimpleName());
@@ -145,13 +143,15 @@ public class SemanticConversationService {
      * 仅在期望范围与已生效范围一致且预览仍有效时复用事实。记录排除绑定当前预览，重新查询后需重新对齐选择；生成清单仍不代表执行派单。
      */
     private String query(CurrentUser user,String id,String requestId,long previewVersion,SemanticIntent intent,DialogueState state,
-            DialogueStore.Session session,String uiPreviewId,List<RecordKey> uiExcludes,Runnable guard,Consumer<AgentEvent> emit,String message) {
+            DialogueStore.Session session,String uiPreviewId,List<RecordKey> uiExcludes,Runnable guard,Consumer<AgentEvent> emit,String message,boolean fresh) {
         planner.validate(user,state);
         PreviewSnapshot snapshot=null;
         boolean afterBusinessQuery=state.isBusinessQueryAfterPreview();
-        boolean sameScope=Objects.equals(state.getDesired(),state.getEffective());
+        boolean sameScope=!fresh && Objects.equals(state.getDesired(),state.getEffective());
+        List<RecordTarget> exactTargets=List.of();String targetSourceRef=null;
         if (sameScope && state.getPreviewId()!=null) {
             var saved=previews.getOwned(user,state.getPreviewId());
+            if(!intent.changes(COMPANY) && !intent.changes(REPORTS)) {exactTargets=saved.targets();targetSourceRef=saved.targetSourceRef();}
             if (DispatchPreview.ACTIVE.equals(saved.preview().getStatus())) snapshot=saved;
         }
         boolean keepsReports=intent.reportConstraints().stream().anyMatch(c->c.role()==SemanticIntent.ReportRole.UNCHANGED || c.role()==SemanticIntent.ReportRole.UNCHANGED_OTHERS);
@@ -168,11 +168,14 @@ public class SemanticConversationService {
             emit.accept(new AgentEvent(AgentEvent.TEXT,Map.of("delta","正在查询可派单记录。\n")));
             var scope=state.getDesired();
             var command=new PreviewCommand("PREVIEW", "semantic", null, scope.allReports()?List.of():scope.reportIds(), new PreviewCommand.Filters(scope.companyCode()), "replace");
-            var outcome=previews.preview(user,id,command,n -> guard.run(),pid -> session.fenced(() -> { guard.run(); return null; }),previewVersion);
+            var outcome=exactTargets.isEmpty()
+                    ?previews.preview(user,id,command,n -> guard.run(),pid -> session.fenced(() -> { guard.run(); return null; }),previewVersion)
+                    :previews.previewRecords(user,id,exactTargets,targetSourceRef,n -> guard.run(),pid -> session.fenced(() -> { guard.run(); return null; }),previewVersion);
             if (outcome.status()!=PreviewOutcome.Status.OK) throw new ApiException(422,"当前范围没有可用报表，请重新指定报表名称");
             snapshot=outcome.snapshot();
             state.setPreviewId(snapshot.preview().getId()); state.setEffective(scope); state.setPlanId(null);
             state.setBusinessQueryAfterPreview(false);
+            if(fresh) {state.setExcludedRecords(List.of());state.setUnresolvedRecords(false);}
             SelectionReferences.clear(state);
             refreshed=true;
             session.save();
@@ -234,12 +237,7 @@ public class SemanticConversationService {
             return rules.isEmpty()?"当前预览没有命中规则说明。":"当前预览使用的规则："+String.join("；",rules.values());
         }
         if (intent.action()==SemanticIntent.Action.PREPARE_DISPATCH) {
-            if (snapshot.preview().getTotalCount()==0) return "当前查询结果为 0 条，没有可生成清单的记录。";
-            var plan=session.fenced(() -> { guard.run(); return plans.create(user,id,state.getPreviewId(),state.getExcludedRecords(),"semantic:"+requestId); });
-            state.setPlanId(plan.plan().getId()); state.setPhase(DialogueState.Phase.PLAN_READY);
-            var payload=PlanPayload.of(plan); conversations.logCard(id,user.userId(),"plan",payload,state.getPreviewId(),state.getPlanId());
-            emit.accept(new AgentEvent(AgentEvent.PLAN,payload));
-            return "已生成待确认清单，共 "+payload.count()+" 条。请核对卡片并点击“确认派单”后执行。";
+            return prepare(user,id,requestId,state,snapshot,session,guard,emit);
         }
         return "当前预览共 "+snapshot.preview().getTotalCount()+" 条，已排除 "+state.getExcludedRecords().size()+" 条。";
     }
@@ -262,94 +260,137 @@ public class SemanticConversationService {
         Set<RecordKey> keys=new HashSet<>(SelectionResolver.apply(rows,List.of(),target,catalog,user,state));
         SelectionReferences.capture(state,rows,keys);
     }
-    /** 当前预览上的无副作用预检，为有界模型修正提供选择错误；不新建预览、不提交草稿或替用户更换实体。 */
-    private void validateSelectionDraft(CurrentUser user,DialogueState state,SemanticIntent intent,String message) {
-        if(requiresExplicitPreparation(intent,message))
-            throw new IntentCodec.InvalidOutput("","EXPLICIT_PREPARATION_REQUIRED：本轮只调整候选选择，没有明确生成清单或派单动作；保留全部选择修改并使用PREVIEW，不得把照常、保留或某类不安排解释为额外建单。");
-        if(requiresFreshDispatchScope(state,intent,message))
-            throw new IntentCodec.InvalidOutput("","FRESH_DISPATCH_PREVIEW_REQUIRED：当前上下文是普通只读查询，不能直接准备清单或仅恢复旧预览的记录选择。当前要求重新查看可派候选时用PREVIEW并明确设置COMPANY/REPORTS范围；不能用RECORDS RESTORE_ALL和reportMentions代替新报表查询。若明确要求直接建单则澄清需要新预览，不能擅自改为查看或省略限制。");
-        if(!Set.of(SemanticIntent.Action.PREVIEW,SemanticIntent.Action.PREPARE_DISPATCH).contains(intent.action())
-                || state.getPreviewId()==null || state.isBusinessQueryAfterPreview() || !Objects.equals(state.getDesired(),state.getEffective())
-                || intent.changes(COMPANY) || intent.changes(REPORTS))return;
-        var snapshot=previews.getOwned(user,state.getPreviewId());
-        if(!DispatchPreview.ACTIVE.equals(snapshot.preview().getStatus()))return;
-        // 辅助预检不能迫使大预览完整加载；正式记录选择仍执行原有大小与完整性校验。
-        if(snapshot.preview().getTotalCount()>props.getPreview().getMaxItems())return;
+    /**
+     * 对完整任务进行无写入预检，返回可复核的实际对象和选择结果；失败不能让模型悄悄换对象或丢条件。
+     * 新范围只在草稿求值，查询引用只解析身份；真正预览仍会重新读取当前资格并绑定执行版本。
+     */
+    private Map<String,Object> validateDispatchDraft(CurrentUser user,DialogueState state,DispatchDirective directive,String message,
+            String uiPreviewId,List<RecordKey> uiExcludes) {
+        codec.validate(directive.intent(),message);AssistantReferences.validate(message,state,directive);
+        if(directive.source()==DispatchDirective.Source.QUERY_ROWS || directive.source()==DispatchDirective.Source.QUERY_ALL) {
+            var targets=resolveTargets(user,state,directive);
+            return Map.of("sourceRef",directive.sourceRef(),"targetRecords",targets,"targetCount",targets.size(),
+                    "qualification","PREPARATION_WILL_RECHECK_CURRENT_RULES_AND_STATUS");
+        }
+        if(directive.source()==DispatchDirective.Source.PLAN) {
+            var saved=plans.inspectOwned(user,state.getPlanId());
+            return Map.of("sourceRef",directive.sourceRef(),"planStatus",saved.getStatus(),"itemCount",saved.getItemCount());
+        }
+        boolean fresh=directive.source()==DispatchDirective.Source.EXPLICIT_SCOPE;
+        var draft=fresh?new DialogueState():JsonUtil.MAPPER.convertValue(state,DialogueState.class);
+        var intent=directive.intent();planner.merge(user,draft,intent);planner.validate(user,draft);
+        if(fresh || state.getPreviewId()==null || !Objects.equals(draft.getDesired(),state.getEffective())
+                || intent.changes(COMPANY) || intent.changes(REPORTS))
+            return Map.of("scope",draft.getDesired(),"requiresCandidateRead",true);
+        var snapshot=previews.inspectOwned(user,state.getPreviewId());
+        if(!DispatchPreview.ACTIVE.equals(snapshot.preview().getStatus()) || snapshot.preview().getTotalCount()>props.getPreview().getMaxItems())
+            return Map.of("scope",draft.getDesired(),"previewStatus",snapshot.preview().getStatus(),"requiresCandidateRead",true);
         var candidates=rows(user,snapshot);
-        var reportTerms=new ArrayList<String>();intent.reportConstraints().forEach(c->reportTerms.add(c.mention()));
-        intent.scopeChanges().forEach(c->reportTerms.addAll(c.reportMentions()));
-        for(String term:reportTerms)if(!catalog.resolve(user,term).resolved()) {
-            String normalized=TextNormalizer.normalize(term);
-            boolean recordValue=candidates.stream().flatMap(c->c.fields().stream()).anyMatch(f->f.value()!=null
-                    && !normalized.isBlank() && TextNormalizer.normalize(f.value()).contains(normalized));
-            if(recordValue)throw new IntentCodec.InvalidOutput("","RECORD_VALUE_IS_NOT_REPORT：报表限定中的“"+term+"”是当前候选的字段值，不是报表目录实体；请用记录字段条件保留该要求，不能删除对象或补写本轮未出现的报表名称。");
+        boolean uiMatches=Objects.equals(uiPreviewId,state.getPreviewId()) && uiExcludes!=null;
+        if(state.isUnresolvedRecords() && !intent.changes(RECORDS)
+                && (!uiMatches || uiExcludes.equals(state.getExcludedRecords())))
+            throw new ApiException(422,"上次记录选择尚未确定，请明确目标、恢复全部或重新选择后再生成清单");
+        var before=uiMatches?List.copyOf(uiExcludes):state.getExcludedRecords();SelectionResolver.validate(candidates,before);
+        var selected=before;
+        for(var change:intent.scopeChanges())if(change.target()==RECORDS)
+            selected=SelectionResolver.apply(candidates,selected,change,catalog,user,draft,message);
+        SelectionResolver.validate(candidates,selected);draft.setExcludedRecords(selected);
+        return Map.of("scope",draft.getDesired(),"sourceRef",directive.sourceRef(),
+                "selectionAfter",SelectionReferences.describeSelection(draft,candidates),"excludedCount",selected.size());
+    }
+
+    /** 当前身份必须继续拥有查询目标；引用的权限版本变化不能被一次新派单请求绕过。 */
+    private List<RecordTarget> resolveTargets(CurrentUser user,DialogueState state,DispatchDirective directive) {
+        if(!Objects.equals(user.permissionVersion(),state.getBusinessPermissionVersion()))
+            throw ApiException.forbidden("查询后权限已变化，请在当前授权范围重新查询");
+        var targets=AssistantReferences.resolveQuery(state,directive);
+        for(var target:targets) {
+            catalog.requireDispatchable(user,target.key().reportId());
+            if(!user.companies().contains(target.companyCode()))throw ApiException.forbidden("目标公司不存在或无权访问");
         }
-        if(!intent.changes(RECORDS))return;
-        try {
-            var selected=state.getExcludedRecords();
-            for(var change:intent.scopeChanges())if(change.target()==RECORDS)selected=SelectionResolver.apply(candidates,selected,change,catalog,user,state,message);
-            SelectionResolver.validate(candidates,selected);
-        } catch(ApiException invalid) {
-            if(invalid.getCode()!=422)throw invalid;
-            throw new IntentCodec.InvalidOutput("","RECORD_SELECTION_INVALID："+invalid.getMessage()
-                    +"。保留本轮对象、数量和全部限制；明确承接已定位对象时可用lastSelectionReferences的REFERENCE键，未知或多义对象必须澄清，不能替换成其他记录或省略选择操作。");
-        }
+        return targets;
     }
-    /** 仅否决无本轮建单依据的“选择+建单”组合，不按词语生成选择或切换动作；草稿仍由模型修正。 */
-    static boolean requiresExplicitPreparation(SemanticIntent intent,String message) {
-        return intent.action()==SemanticIntent.Action.PREPARE_DISPATCH && intent.changes(RECORDS)
-                && !java.util.regex.Pattern.compile("清单|待确认|单子|派单|生成|制作|出单|\\b(?:prepare|draft|plan|dispatch)\\b",java.util.regex.Pattern.CASE_INSENSITIVE).matcher(message).find();
+
+    /** 精确查询对象自动重新核验并生成候选；只有本轮请求准备时才继续生成PENDING清单。 */
+    private String queryTargets(CurrentUser user,String id,String requestId,long previewVersion,DispatchDirective directive,DialogueState state,
+            DialogueStore.Session session,Runnable guard,Consumer<AgentEvent> emit) {
+        var targets=resolveTargets(user,state,directive);
+        conversations.logToolCall(id,user.userId(),"dispatch_targets",Map.of("requestId",requestId,"sourceRef",directive.sourceRef(),"targets",targets));
+        emit.accept(new AgentEvent(AgentEvent.TEXT,Map.of("delta","正在核验指定记录的当前状态和派单规则。\n")));
+        var outcome=previews.previewRecords(user,id,targets,directive.sourceRef(),n->guard.run(),
+                pid->session.fenced(()->{guard.run();return null;}),previewVersion);
+        if(outcome.status()!=PreviewOutcome.Status.OK)throw new ApiException(422,"指定目标的报表当前不可派单，请重新查询核对");
+        var snapshot=outcome.snapshot();
+        var companyCodes=targets.stream().map(RecordTarget::companyCode).distinct().toList();
+        var scope=new DialogueState.Scope(companyCodes.size()==1?companyCodes.get(0):null,false,snapshot.reportIds());
+        state.setDesired(scope);state.setEffective(scope);state.setPreviewId(snapshot.preview().getId());state.setPlanId(null);
+        state.setExcludedRecords(List.of());state.setUnresolvedCompany(false);state.setUnresolvedReports(false);state.setUnresolvedRecords(false);
+        state.setBusinessQueryAfterPreview(false);state.setPhase(DialogueState.Phase.READY);SelectionReferences.clear(state);
+        SelectionReferences.capture(state,snapshot.candidates(),targets.stream().map(RecordTarget::key).collect(java.util.stream.Collectors.toSet()));
+        session.save();
+        var payload=PreviewPayload.of(snapshot,catalog);conversations.logCard(id,user.userId(),"preview",payload,payload.previewId(),null);
+        emit.accept(new AgentEvent(AgentEvent.PREVIEW,payload));
+        if(directive.intent().action()==SemanticIntent.Action.PREPARE_DISPATCH)return prepare(user,id,requestId,state,snapshot,session,guard,emit);
+        return "已核验指定的 "+targets.size()+" 条记录，当前均符合派单条件，可在候选卡片中核对。";
     }
-    /** 普通查询后不能凭旧派单范围准备、修改或无范围刷新；草稿修正和正式执行使用同一判定，避免修正改动作后绕过。 */
-    static boolean requiresFreshDispatchScope(DialogueState state,SemanticIntent intent,String message) {
-        if(!state.isBusinessQueryAfterPreview())return false;
-        boolean scope=intent.changes(REPORTS) || intent.changes(COMPANY);
-        // 用户也可以明确请求重新查看当前可派候选而不重复报表名称；这不同于模型把建单草稿改成无范围PREVIEW。
-        // 只检验已解析PREVIEW的查看依据，不按这些词生成意图、范围或记录选择。
-        boolean explicitPreview=java.util.regex.Pattern.compile("(?:查|看|列|预览).*(?:可派|可以派|能派|待派|候选)|(?:可派|可以派|能派|待派|候选).*(?:查|看|列)|预览|\\bpreview\\b|\\b(?:show|list|get)\\b.*\\bcandidates?\\b",java.util.regex.Pattern.CASE_INSENSITIVE).matcher(message).find();
-        return intent.action()==SemanticIntent.Action.PREPARE_DISPATCH
-                || (intent.action()==SemanticIntent.Action.PREVIEW && !scope && !explicitPreview)
-                || (intent.changes(RECORDS) && !scope)
-                || (intent.action()==SemanticIntent.Action.CLARIFY && intent.clarify()==SemanticIntent.Clarify.RECORDS);
+
+    /** 有效快照生成待确认清单；沿用请求幂等键与会话租约，不调用确认或执行接口。 */
+    private String prepare(CurrentUser user,String id,String requestId,DialogueState state,PreviewSnapshot snapshot,
+            DialogueStore.Session session,Runnable guard,Consumer<AgentEvent> emit) {
+        if(snapshot.preview().getTotalCount()==0)return "当前查询结果为 0 条，没有可生成清单的记录。";
+        var plan=session.fenced(()->{guard.run();return plans.create(user,id,state.getPreviewId(),state.getExcludedRecords(),"semantic:"+requestId);});
+        state.setPlanId(plan.plan().getId());state.setPhase(DialogueState.Phase.PLAN_READY);
+        var payload=PlanPayload.of(plan);conversations.logCard(id,user.userId(),"plan",payload,state.getPreviewId(),state.getPlanId());
+        emit.accept(new AgentEvent(AgentEvent.PLAN,payload));
+        return "已生成待确认清单，共 "+payload.count()+" 条。请核对卡片并点击“确认派单”后执行。";
     }
-    /** 只读取当前有效预览的已选事实；只读业务查询之后不暴露旧派单选择作为当前可用对象。 */
+
+    /** 候选作为有来源的独立对象供规划；当前话题变化不删除它，也不让它自动替代刚查询的对象。 */
     private Map<String,Object> currentSelection(CurrentUser user,DialogueState state) {
-        if(state.getPreviewId()==null || state.isBusinessQueryAfterPreview() || !Objects.equals(state.getDesired(),state.getEffective()))return Map.of();
-        var snapshot=previews.getOwned(user,state.getPreviewId());
-        if(!DispatchPreview.ACTIVE.equals(snapshot.preview().getStatus()))return Map.of();
-        if(snapshot.preview().getTotalCount()>props.getPreview().getMaxItems())
-            return Map.of("totalCount",snapshot.preview().getTotalCount(),"selectedRows",List.of(),"complete",false);
-        return SelectionReferences.describeSelection(state,rows(user,snapshot));
+        if(state.getPreviewId()==null)return Map.of();
+        var snapshot=previews.inspectOwned(user,state.getPreviewId());
+        var context=new LinkedHashMap<String,Object>();context.put("sourceRef",AssistantReferences.previewRef(state));
+        context.put("status",snapshot.preview().getStatus());context.put("totalCount",snapshot.preview().getTotalCount());
+        context.put("scopeMatches",Objects.equals(state.getDesired(),state.getEffective()));
+        context.put("exactTargets",snapshot.targets());
+        if(DispatchPreview.ACTIVE.equals(snapshot.preview().getStatus()) && snapshot.preview().getTotalCount()<=props.getPreview().getMaxItems())
+            context.putAll(SelectionReferences.describeSelection(state,rows(user,snapshot)));
+        else {context.put("selectedRows",List.of());context.put("complete",false);}
+        return context;
     }
     private void hydrate(CurrentUser user,String id,DialogueState state) {
+        // UI生成的清单也成为有来源对象；规划之后不再查询“最新清单”替换已经绑定的目标。
+        if(state.getPlanId()==null)planRepository.byConversation(id).stream().max(Comparator.comparing(DispatchPlan::getCreatedAt))
+                .ifPresent(plan->state.setPlanId(plan.getId()));
         previews.latest(user,id).ifPresent(latest -> {
             boolean initial=state.getAttemptedAt()==null;
             boolean explicitUi=Set.of("selection","api").contains(Objects.toString(latest.getSource(),""))
                     && state.getAttemptedAt()!=null && latest.getCreatedAt().isAfter(state.getAttemptedAt());
             if (!Objects.equals(latest.getId(),state.getPreviewId()) && (initial || explicitUi)) {
-                var snapshot=previews.getOwned(user,latest.getId());
+                var snapshot=previews.inspectOwned(user,latest.getId());
                 if (!DispatchPreview.ACTIVE.equals(snapshot.preview().getStatus())) return;
                 var query=snapshot.query(); Object filters=query.get("filters");
                 String company=filters instanceof Map<?,?> m ? (String)m.get("companyCode") : null;
                 var scope=new DialogueState.Scope(company,Boolean.TRUE.equals(query.get("allReports")),snapshot.reportIds());
                 state.setDesired(scope);state.setEffective(scope);state.setPreviewId(latest.getId());state.setExcludedRecords(List.of());
+                SelectionReferences.clear(state);state.setUnresolvedRecords(false);
                 state.setUnresolvedReports(false);state.setUnresolvedCompany(false);state.setPhase(DialogueState.Phase.READY);
             }
         });
     }
-    private PlanSnapshot latestPlan(CurrentUser user,String id,DialogueState state) {
-        var latest=planRepository.byConversation(id).stream().max(Comparator.comparing(DispatchPlan::getCreatedAt))
-                .orElseThrow(() -> new ApiException(422,"当前会话没有派单清单"));
-        var snapshot=plans.getOwned(user,latest.getId()); state.setPlanId(latest.getId()); return snapshot;
+    /** 清单必须与已验证的当前引用一致，不能在执行时重新挑选另一份最新清单。 */
+    private PlanSnapshot currentPlan(CurrentUser user,DialogueState state) {
+        if(state.getPlanId()==null)throw new ApiException(422,"当前会话没有可引用的派单清单");
+        return plans.getOwned(user,state.getPlanId());
     }
     private String cancel(CurrentUser user,String id,DialogueState state,DialogueStore.Session session,Runnable guard) {
-        var snapshot=latestPlan(user,id,state);
+        var snapshot=currentPlan(user,state);
         var plan=session.fenced(() -> { guard.run(); return plans.cancel(user,snapshot.plan().getId()); });
         state.setPhase(DialogueState.Phase.READY);
         return "当前清单状态："+statusName(plan.getStatus())+"。";
     }
     private String result(CurrentUser user,String id,DialogueState state,Consumer<AgentEvent> emit) {
-        var snapshot=latestPlan(user,id,state); var plan=snapshot.plan();
+        var snapshot=currentPlan(user,state); var plan=snapshot.plan();
         emit.accept(new AgentEvent(AgentEvent.PLAN,PlanPayload.of(snapshot)));
         return "当前清单状态："+statusName(plan.getStatus())+"；共 "+plan.getItemCount()+" 条，成功 "+Objects.toString(plan.getSuccessCount(),"0")+" 条，失败 "+Objects.toString(plan.getFailedCount(),"0")+" 条。";
     }
@@ -393,8 +434,6 @@ public class SemanticConversationService {
         Map<String,Object> value=new LinkedHashMap<>(); value.put("previewId",state.getPreviewId()); value.put("excludedRecords",state.getExcludedRecords()); value.put("phase",state.getPhase()); return value;
     }
     private static String friendly(Exception e) {
-        if(e instanceof IntentCodec.InvalidOutput invalid && invalid.reason().startsWith("FRESH_DISPATCH_PREVIEW_REQUIRED"))
-            return "刚才查看的是只读业务数据，请先明确查询可派单范围，再调整选择或生成待确认清单。";
         return e instanceof ApiException ? SensitiveData.text(e.getMessage()) : "本次处理暂时失败，请稍后重试；尚未确认的清单不会执行派单。";
     }
 }

@@ -10,7 +10,7 @@ import java.util.Map;
  * @param observedAt 业务服务查询完成时间，含时区偏移，不代表未来实时状态
  * @param source 业务事实来源说明；演示流程必须明确标注
  * @param columns 当前数据域可展示的字段名称、类型和说明
- * @param rows 当前页事实；工单详情可包含 steps 数组，非当前页不冒充全部数据
+ * @param rows 当前页事实；工单详情可含steps数组，单条资格核验含eligibility证据对象，非当前页不冒充全部数据
  * @param total 完整筛选范围记录总数，超过扫描预算时不返回部分总数
  * @param summary 完整筛选范围的确定性统计
  */

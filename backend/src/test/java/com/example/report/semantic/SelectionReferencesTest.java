@@ -13,19 +13,16 @@ import static org.junit.jupiter.api.Assertions.*;
 
 /** 跨轮引用必须绑定当前预览和授权复合记录；未知、过期、跨范围以及单笔歧义均不能修改选择。 */
 class SelectionReferencesTest {
-    @Test void explicitDifferentCandidateCannotReusePreviouslyBoundReference() {
-        var state=state();var ref=state.getLastSelectionReferences().get(0).get("referenceKey");
+    @Test void resolvedReferenceNeverChangesIdentityAccordingToWording() {
+        var state=state();String ref=state.getLastSelectionReferences().get(0).get("referenceKey");
         var original=List.of(new RecordKey(EXPENSE,"e"));
-        var wrong=new ScopeChange(Target.RECORDS,Operation.KEEP_ONLY,List.of(ref),"只留交通",List.of(),SelectorKind.REFERENCE,Quantifier.ONE);
-        assertThrows(com.example.report.common.ApiException.class,()->SelectionResolver.apply(rows,original,wrong,catalog,USER1,state));
-        // 即使模型只摘取操作词，整轮中的明确对象仍须核对；失败不得更换键或修改原选择。
-        var abbreviated=new ScopeChange(Target.RECORDS,Operation.KEEP_ONLY,List.of(ref),"只留",List.of(),SelectorKind.REFERENCE,Quantifier.ONE);
-        assertThrows(com.example.report.common.ApiException.class,()->SelectionResolver.apply(rows,original,abbreviated,catalog,USER1,state,"只留交通"));
+        var change=new ScopeChange(Target.RECORDS,Operation.KEEP_ONLY,List.of(ref),"保留刚选定的对象",List.of(),SelectorKind.REFERENCE,Quantifier.ONE);
+        // 原意与目标的符合性由统一语义复核负责；记录执行层只处理已经绑定的键，不从措辞重新猜另一对象。
+        assertEquals(original,SelectionResolver.apply(rows,original,change,catalog,USER1,state));
+        assertEquals(new RecordKey(SALES,"s"),state.getLastSelectionReferenceKeys().get(ref));
         assertEquals(List.of(new RecordKey(EXPENSE,"e")),original);
-        var valid=new ScopeChange(Target.RECORDS,Operation.KEEP_ONLY,List.of(ref),"只留设备",List.of(),SelectorKind.REFERENCE,Quantifier.ONE);
-        assertEquals(original,SelectionResolver.apply(rows,original,valid,catalog,USER1,state));
     }
-    @Test void keepOnlyReferenceStillRequiresCurrentBindingAndExplicitExclusivity() {
+    @Test void keepOnlyReferenceStillRequiresCurrentPreviewBinding() {
         var state=state();String ref=state.getLastSelectionReferences().get(0).get("referenceKey");
         var only=new ScopeChange(Target.RECORDS,Operation.KEEP_ONLY,List.of(ref),"只留刚才那一笔",List.of(),SelectorKind.REFERENCE,Quantifier.ONE);
         assertDoesNotThrow(()->new IntentCodec().validate(new SemanticIntent(1,Action.PREVIEW,List.of(only),List.of(),Clarify.NONE),only.evidence()));

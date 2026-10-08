@@ -124,9 +124,32 @@ public class PreviewService {
     public PreviewOutcome preview(CurrentUser user, String conversationId, PreviewCommand command,
     java.util.function.IntConsumer progress,
     java.util.function.Consumer<String> activation, long requestVersion) {
+        return runPreview(user,conversationId,command,progress,activation,requestVersion,List.of(),null);
+    }
+
+    /**
+     * 按已绑定的业务记录重新核验并生成精确预览；仅生成快照，不确认派单。
+     * 复用范围预览的权限、配额、版本及会话激活事务，失败保留原有效预览与待确认清单。
+     * @param targets 服务端解析的完整目标集合，不能由模型自由填入来源标识
+     * @param sourceRef 用于追溯原查询的对象集引用，不授予资格或权限
+     * @param requestVersion 本轮先取得的请求版本，后续请求使它失去激活资格
+     */
+    public PreviewOutcome previewRecords(CurrentUser user,String conversationId,List<RecordTarget> targets,String sourceRef,
+            java.util.function.IntConsumer progress,java.util.function.Consumer<String> activation,long requestVersion) {
+        if(targets==null || targets.isEmpty() || targets.size()>props.getPreview().getMaxItems() || sourceRef==null || sourceRef.isBlank())
+            throw new ApiException(422,"明确目标为空、过多或缺少来源引用，请缩小范围后重新查询");
+        var ids=targets.stream().map(t->t.key().reportId()).distinct().toList();
+        var companies=targets.stream().map(RecordTarget::companyCode).distinct().toList();
+        var command=new PreviewCommand("PREVIEW","semantic",null,ids,new PreviewCommand.Filters(companies.size()==1?companies.get(0):null),SCOPE_REPLACE);
+        return runPreview(user,conversationId,command,progress,activation,requestVersion,List.copyOf(targets),sourceRef);
+    }
+
+    private PreviewOutcome runPreview(CurrentUser user,String conversationId,PreviewCommand command,
+            java.util.function.IntConsumer progress,java.util.function.Consumer<String> activation,long requestVersion,
+            List<RecordTarget> targets,String sourceRef) {
         long started = System.nanoTime();
         try {
-            PreviewOutcome result = measuredPreview(user,conversationId,command,progress,activation,requestVersion);
+            PreviewOutcome result = measuredPreview(user,conversationId,command,progress,activation,requestVersion,targets,sourceRef);
             if (metrics != null) {
                 metrics.record(user,"PREVIEW","*","-",result.status().name(),started);
                 if (result.snapshot() != null) {
@@ -146,7 +169,8 @@ public class PreviewService {
      * 先解析可见报表与公司范围，再记录目录、规则和权限指纹，扫描匹配事实并激活快照。最终激活必须再次核对请求序号，旧结果不能替代新范围。
      */
     private PreviewOutcome measuredPreview(CurrentUser user,String conversationId,PreviewCommand command,
-            java.util.function.IntConsumer progress,java.util.function.Consumer<String> activation,long requestVersion) {
+            java.util.function.IntConsumer progress,java.util.function.Consumer<String> activation,long requestVersion,
+            List<RecordTarget> targets,String sourceRef) {
         String scopeMode = normalizeScope(command.scopeMode());
         ResolveResult resolution = resolve(user, command);
         if (resolution.matchType() == MatchType.NONE) {
@@ -176,12 +200,18 @@ public class PreviewService {
                 activation.accept(id);
             };
             Set<String> companies = resolveCompanies(user, command.filters().companyCode());
+            if(!targets.isEmpty()) {
+                Set<String> targetCompanies=targets.stream().map(RecordTarget::companyCode).collect(java.util.stream.Collectors.toSet());
+                if(!companies.containsAll(targetCompanies))throw ApiException.forbidden("目标公司不存在或无权访问");
+                companies=targetCompanies;
+            }
             // 版本必须在求值之前读：求值期间有人发布规则时，快照带着旧版本，派单会被拒绝；
             // 反过来先求值后读版本，旧规则算出的结果会配上新版本，"规则变更后旧预览不能执行"就被绕过了
             VersionStamp stamp = versions.stamp(user, reports, companies);
             int maxItems = props.getPreview().getMaxItems();
-            List<Candidate> candidates = candidateService.findCandidates(user.tenantId(), companies, reports,
-                maxItems + 1, guardedProgress);
+            List<Candidate> candidates = targets.isEmpty()
+                ?candidateService.findCandidates(user.tenantId(),companies,reports,maxItems+1,guardedProgress)
+                :candidateService.findBoundCandidates(user.tenantId(),companies,reports,targets,guardedProgress);
             if (candidates.size() > maxItems) {
                 return previewLarge(user, conversationId, command, resolution, scope, reports, companies, stamp,
                     scopeMode, guardedProgress, guardedActivation, requestVersion);
@@ -190,6 +220,11 @@ public class PreviewService {
             LocalDateTime now = LocalDateTime.now();
             DispatchPreview preview = newPreview(user, conversationId, command, resolution, scope, reports, companies,
                 stamp, scopeMode, candidates, now);
+            if(!targets.isEmpty()) {
+                // 精确目标也是快照范围的一部分；后续刷新必须沿用这组身份，不能退回整张报表扫描。
+                var query=JsonUtil.toMap(preview.getQueryJson());query.put("targetRecords",targets);query.put("targetSourceRef",sourceRef);
+                preview.setQueryJson(JsonUtil.toJson(query));
+            }
             List<DispatchPreviewItem> items = new ArrayList<>(candidates.size());
             for (int i = 0; i < candidates.size(); i++) {
                 items.add(toItem(preview.getId(), i, candidates.get(i)));
@@ -201,6 +236,7 @@ public class PreviewService {
                 previews.lockConversation(conversationId);
                 requireLatestRequest(conversationId, requestVersion);
                 guardedActivation.accept(preview.getId());
+                if(versions.verifyForRetry(user,preview)!=null)throw new ApiException(409,"查询期间报表、权限或规则发生变化，请重新查询");
                 for (DispatchPreview old : previews.active(conversationId)) {
                     if (previews.transition(old.getId(), DispatchPreview.ACTIVE, DispatchPreview.SUPERSEDED, StateReason.NEW_PREVIEW, now)) {
                         superseded.add(old.getId());
@@ -217,6 +253,21 @@ public class PreviewService {
         } finally {
             if (permit != null) permit.close();
         }
+    }
+
+    /**
+     * 规划阶段只读检查快照，不持久化惰性失效；状态投影在副本上计算，拒绝草稿不能提前改变既有业务状态。
+     * 当前授权与版本仍完整校验，正式业务操作继续通过getOwned和激活事务校验。
+     */
+    public PreviewSnapshot inspectOwned(CurrentUser user,String previewId) {
+        var original=findOwned(user,previewId).orElseThrow(()->ApiException.notFound("预览不存在或已过期"));
+        requireReadable(user,original);
+        var copy=JsonUtil.MAPPER.convertValue(original,DispatchPreview.class);
+        if(DispatchPreview.ACTIVE.equals(copy.getStatus())) {
+            String reason=versions.verify(user,copy);
+            if(reason!=null){copy.setStatus(DispatchPreview.EXPIRED);copy.setStatusReason(reason);}
+        }
+        return new PreviewSnapshot(copy,previews.page(copy.getId(),0,50));
     }
 
     /** 当前用户的预览，读取时做懒惰校验；不归属当前用户按不存在处理 */

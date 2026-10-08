@@ -4,6 +4,13 @@
     <p class="query-source">{{ payload.source }} · 查询时间 {{ observedTime }}</p>
     <p class="query-scope">{{ scopeDescription }}</p>
     <p class="query-scope">筛选：{{ filterDescription }}</p>
+    <div v-if="eligibility" class="query-summary eligibility-result">
+      <p><el-tag :type="eligibility.eligible ? 'success' : 'warning'" size="small">{{ eligibility.eligible ? '符合当前派单条件' : '当前不符合派单条件' }}</el-tag></p>
+      <p>{{ eligibility.reason }}</p>
+      <p v-if="eligibility.ruleName">适用规则：{{ eligibility.ruleName }}<span v-if="eligibility.ruleDescription"> · {{ eligibility.ruleDescription }}</span></p>
+      <p v-for="field in eligibility.checkedFields" :key="field.name">{{ label(payload.columns.find(c => c.name === field.name) || field) }}：{{ cell(field.value) }}</p>
+      <p class="query-source">结论基于本次查询时的数据与规则；实际派单仍需核对清单并确认。</p>
+    </div>
     <div class="query-totals">
       <span>匹配 <b>{{ payload.total }}</b> 条</span>
       <span v-for="(amount, currency) in payload.summary.amountsByCurrency" :key="currency">{{ currency }} 合计 {{ amount }}</span>
@@ -23,7 +30,7 @@
         <template slot-scope="scope"><el-button type="text" size="mini" :disabled="busy" @click="$emit('detail', scope.row.orderId)">查看进度</el-button></template>
       </el-table-column>
     </el-table>
-    <div class="query-pagination">
+    <div v-if="payload.query.view !== 'ELIGIBILITY'" class="query-pagination">
       <span>第 {{ payload.query.page }} 页 · 每页 {{ payload.query.size }} 条</span>
       <el-button size="mini" :disabled="busy || !latest || payload.query.page <= 1" @click="$emit('page', payload.query.page - 1)">上一页</el-button>
       <el-button size="mini" :disabled="busy || !latest || payload.query.page * payload.query.size >= payload.total" @click="$emit('page', payload.query.page + 1)">下一页</el-button>
@@ -42,13 +49,14 @@
 </template>
 
 <script>
-/** 只读业务结果快照：数字与标识按服务端字符串展示；分页仅作用于最新查询，工单步骤全部来自事实载荷。 */
+/** 只读业务结果快照：数字与标识按服务端字符串展示；派单资格及工单步骤均来自业务服务证据，分页仅作用于最新查询。 */
 import { displayLabel } from '../../utils/presentation'
 export default {
   name: 'BusinessQueryCard',
   props: { payload: { type: Object, required: true }, busy: Boolean, latest: Boolean },
   computed: {
-    title() { return { REPORT: '报表数据', DISPATCH: '派单记录', WORK_ORDER: '工单查询' }[this.payload.query.domain] + (this.payload.query.view === 'SUMMARY' ? ' · 总结' : '') },
+    title() { return this.payload.query.view === 'ELIGIBILITY' ? '派单资格核验' : { REPORT: '报表数据', DISPATCH: '派单记录', WORK_ORDER: '工单查询' }[this.payload.query.domain] + (this.payload.query.view === 'SUMMARY' ? ' · 总结' : '') },
+    eligibility() { return this.payload.query.view === 'ELIGIBILITY' && this.payload.rows.length === 1 ? this.payload.rows[0].eligibility : null },
     observedTime() { return String(this.payload.observedAt).replace('T', ' ').slice(0, 19) },
     scopeDescription() {
       const query = this.payload.query

@@ -60,6 +60,13 @@ class BusinessQueryEngineTest {
         var detail=new BusinessQuery(BusinessQuery.Domain.REPORT,BusinessQuery.View.DETAIL,List.of(),null,List.of(),null,false,1,20,null);
         assertThrows(ApiException.class,()->BusinessQueryEngine.execute(detail,fields,List.of(row,row("other","2","CNY","未派单")),"test"));
     }
+    @Test void qualificationCannotHideAmbiguousOrMissingSourceBehindPageSizeOne() {
+        var check=new BusinessQuery(BusinessQuery.Domain.REPORT,BusinessQuery.View.ELIGIBILITY,List.of("r1"),"A",List.of(group("docNo","EQ","DUP")),null,false,1,1,null);
+        var first=row("1","30","CNY","未派单");first.put("docNo","DUP");
+        var second=row("2","40","CNY","未派单");second.put("docNo","DUP");
+        assertThrows(ApiException.class,()->BusinessQueryEngine.execute(check,fields,List.of(first,second),"test"));
+        assertThrows(ApiException.class,()->BusinessQueryEngine.execute(check,fields,List.of(),"test"));
+    }
     @Test void codecRejectsUnknownKeysCoercionAndTrailingJson() {
         String valid=JsonUtil.toJson(query(List.of(),null,false,1,20));
         assertEquals(1,AssistantCodec.query(JsonUtil.toMap(valid)).page());

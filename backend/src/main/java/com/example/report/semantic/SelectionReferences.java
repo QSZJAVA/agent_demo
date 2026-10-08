@@ -4,7 +4,6 @@ import com.example.report.common.ApiException;
 import com.example.report.common.JsonUtil;
 import com.example.report.dispatch.RecordKey;
 import com.example.report.rule.Candidate;
-import com.example.report.catalog.TextNormalizer;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
 
@@ -57,20 +56,6 @@ public final class SelectionReferences {
         if(matched.isEmpty() || (change.quantifier()!=SemanticIntent.Quantifier.ALL && matched.size()!=1))
             throw new ApiException(422,"记录引用未唯一定位，请明确单笔或全部匹配记录");
         return Set.copyOf(matched);
-    }
-    /** 仅否决与本轮明确候选名称相冲突的引用；不按名称生成选择，不把冲突键替换成另一个记录。 */
-    public static void validateExplicitMention(List<Candidate> rows,Set<RecordKey> matched,String message) {
-        String normalized=TextNormalizer.normalize(message);var named=new HashSet<RecordKey>();
-        for(var row:rows) {
-            var terms=new ArrayList<String>();terms.add(row.docNo());terms.add(row.label());
-            if(row.counterparty()!=null)terms.add(row.counterparty().name());
-            // 只看可供用户定位的完整公开名称与编号；单字符和公司/报表范围不能作为另一记录的证据。
-            boolean explicit=terms.stream().filter(Objects::nonNull).map(TextNormalizer::normalize)
-                    .anyMatch(value->value.length()>=2 && normalized.contains(value));
-            if(explicit)named.add(new RecordKey(row.reportId(),row.recordId()));
-        }
-        if(!named.isEmpty() && Collections.disjoint(named,matched))
-            throw new ApiException(422,"记录引用与本轮明确点名的其他候选冲突，不能沿用上次定位对象。请按本轮原文用单据、摘要或字段条件重新定位；没有明确一致的事实时澄清，不能替换引用键或省略对象。");
     }
     /** 预览或手工选择变化后失效全部引用，不让旧键作用于新快照。 */
     public static void clear(DialogueState state) {
