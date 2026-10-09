@@ -1,0 +1,116 @@
+{
+  "recordedAt": "2026-10-09T00:03:26.070Z",
+  "status": "INCOMPLETE_HANDOFF",
+  "reason": "用户要求总结当前待办并推送远程以便异机接续，主动停止回放；不是整体验收通过。",
+  "baseRevision": "420c5cb110bd998774c0b787f43c04372b40ec5b",
+  "snapshotReference": "包含本文件的Git提交",
+  "model": {
+    "name": "deepseek-v4.1-flash",
+    "profiles": [
+      "real",
+      "mcp"
+    ],
+    "semanticMode": "active",
+    "nativeJsonSchema": true,
+    "thinkingEnabled": false
+  },
+  "mainReplay": {
+    "expectedTurns": 72,
+    "scoredTurns": 28,
+    "passed": 27,
+    "failed": 1,
+    "remainingUnscoredTurns": 44,
+    "finished": false,
+    "lastScored": {
+      "scenario": "dispatch-interruption",
+      "turn": 4,
+      "message": "剩下的给我弄成待确认清单吧。"
+    },
+    "failures": [
+      {
+        "scenario": "sales-manager",
+        "turn": 5,
+        "message": "再帮我翻一下费用报表，一千块以上的。",
+        "errors": [
+          "完整筛选语义与冻结预期不一致"
+        ],
+        "expected": {
+          "kind": "query",
+          "source": "expense",
+          "where": [
+            [
+              "amount",
+              "GTE",
+              "1000"
+            ]
+          ]
+        },
+        "actualQuery": {
+          "domain": "REPORT",
+          "view": "LIST",
+          "reportIds": [
+            "rpt-expense-claim"
+          ],
+          "companyCode": null,
+          "conditions": [
+            {
+              "allOf": [
+                {
+                  "field": "amount",
+                  "operator": "GT",
+                  "values": [
+                    "1000"
+                  ]
+                }
+              ]
+            }
+          ],
+          "sortField": null,
+          "descending": false,
+          "page": 1,
+          "size": 20,
+          "groupBy": null
+        }
+      }
+    ]
+  },
+  "holdout": {
+    "expectedTurns": 36,
+    "started": false
+  },
+  "backend": {
+    "schema": "mcp_it_b77e8261a689435380aaffbb540e7004",
+    "recordedAt": "2026-10-09T07:55:01.111675+08:00",
+    "semanticTurns": 29,
+    "modelCalls": 66,
+    "businessExecutionRequests": 0,
+    "browserWorkflowFinished": false,
+    "salesSnapshotUnchanged": true,
+    "note": "29个后端轮次包含停止时未评分的在途轮次，不能代替评分器28轮结果；初末快照只对比销售来源，不声称本轮已完成全部来源复核。"
+  },
+  "verification": {
+    "unitTests": {
+      "tests": 70,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "matchingReplaySourceFiles": 369,
+    "build": {
+      "command": "./backend/mvnw.cmd -f pom.xml install -DskipTests -q",
+      "reportedExitCode": 0,
+      "scope": "本轮此前工具执行成功；构建不运行测试。",
+      "localLogSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "fullRegressionOnFinalSource": false,
+    "browserAcceptanceOnFinalSource": false
+  },
+  "localShutdown": {
+    "replay": "stopped",
+    "frontend": "stopped",
+    "fixture": "stopped with expected incomplete-acceptance assertion",
+    "temporaryFixtureCredentialsPresent": [],
+    "databaseRemovalIndependentlyVerified": false,
+    "unrelatedDemoDatabase": "report_demo 未进行清理、重建或重命名"
+  }
+}

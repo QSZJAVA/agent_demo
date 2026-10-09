@@ -564,6 +564,8 @@ public class PreviewService {
                 if (Thread.currentThread().isInterrupted()) throw new ApiException(409, "查询已取消");
                 requireLatestRequest(conversationId, requestVersion);
                 activation.accept(preview.getId());
+                // 完整扫描后的预检不能覆盖等锁时间；与普通预览一致，在作废旧状态前再次核验版本。
+                if(versions.verifyForRetry(user,preview)!=null)throw new ApiException(409,"查询期间报表、权限或规则发生变化，请重新查询");
                 LocalDateTime now = LocalDateTime.now();
                 for (DispatchPreview old : previews.active(conversationId)) {
                     if (previews.transition(old.getId(), DispatchPreview.ACTIVE, DispatchPreview.SUPERSEDED,

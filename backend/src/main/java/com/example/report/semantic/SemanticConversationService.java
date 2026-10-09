@@ -160,8 +160,6 @@ public class SemanticConversationService {
             throw new ApiException(422,"原预览已变化，无法保持原选择，请先重新查询再指定选择");
         String previousPreviewId=state.getPreviewId();
         boolean refreshed=false;
-        boolean resetsRecords=intent.changesFor(RECORDS).stream().anyMatch(c ->
-                c.operation()==SemanticIntent.Operation.CLEAR || c.operation()==SemanticIntent.Operation.REPLACE);
         if (snapshot==null || (intent.action()==SemanticIntent.Action.PREVIEW && !onlySelection)) {
             state.setPhase(DialogueState.Phase.QUERYING); session.save();
             // Stream factual progress; the final count only comes from the completed snapshot.
@@ -196,7 +194,8 @@ public class SemanticConversationService {
             Set<String> activeReports=new HashSet<>(snapshot.reportIds());
             state.setExcludedRecords(state.getExcludedRecords().stream().filter(key->activeReports.contains(key.reportId())).toList());
         }
-        if (refreshed && !state.getExcludedRecords().isEmpty() && !resetsRecords) {
+        // 有记录操作时先按新快照求值并在下方校验最终集合，允许RESTORE_ALL/REPLACE_EXCLUSIONS修复旧失配。
+        if (refreshed && !state.getExcludedRecords().isEmpty() && !intent.changes(RECORDS)) {
             try { SelectionResolver.validate(rows(user,snapshot),state.getExcludedRecords()); }
             catch (ApiException unavailable) {
                 state.setUnresolvedRecords(true);
@@ -277,6 +276,9 @@ public class SemanticConversationService {
             return Map.of("sourceRef",directive.sourceRef(),"planStatus",saved.getStatus(),"itemCount",saved.getItemCount());
         }
         boolean fresh=directive.source()==DispatchDirective.Source.EXPLICIT_SCOPE;
+        // 旧页面的排除项在任何刷新/范围变更之前拒绝；明确新范围会丢弃旧UI选择，不受此限制。
+        if(!fresh && uiPreviewId!=null && !Objects.equals(uiPreviewId,state.getPreviewId()) && uiExcludes!=null && !uiExcludes.isEmpty())
+            throw new ApiException(422,"查询范围已变化，旧预览的勾选未应用；请在当前预览上重新选择后派单");
         var draft=fresh?new DialogueState():JsonUtil.MAPPER.convertValue(state,DialogueState.class);
         var intent=directive.intent();planner.merge(user,draft,intent);planner.validate(user,draft);
         if(fresh || state.getPreviewId()==null || !Objects.equals(draft.getDesired(),state.getEffective())
@@ -290,10 +292,12 @@ public class SemanticConversationService {
         if(state.isUnresolvedRecords() && !intent.changes(RECORDS)
                 && (!uiMatches || uiExcludes.equals(state.getExcludedRecords())))
             throw new ApiException(422,"上次记录选择尚未确定，请明确目标、恢复全部或重新选择后再生成清单");
-        var before=uiMatches?List.copyOf(uiExcludes):state.getExcludedRecords();SelectionResolver.validate(candidates,before);
+        var before=uiMatches?List.copyOf(uiExcludes):state.getExcludedRecords();
         var selected=before;
         for(var change:intent.scopeChanges())if(change.target()==RECORDS)
             selected=SelectionResolver.apply(candidates,selected,change,catalog,user,draft,message);
+        // 先求值完整的恢复/替换操作，再检查最终集合；旧失效键不能阻止用户显式恢复全部。
+        // 普通增量操作仍须保留并校验旧键，不能悄悄丢弃未解决的排除项。
         SelectionResolver.validate(candidates,selected);draft.setExcludedRecords(selected);
         return Map.of("scope",draft.getDesired(),"sourceRef",directive.sourceRef(),
                 "selectionAfter",SelectionReferences.describeSelection(draft,candidates),"excludedCount",selected.size());
@@ -360,8 +364,17 @@ public class SemanticConversationService {
     }
     private void hydrate(CurrentUser user,String id,DialogueState state) {
         // UI生成的清单也成为有来源对象；规划之后不再查询“最新清单”替换已经绑定的目标。
-        if(state.getPlanId()==null)planRepository.byConversation(id).stream().max(Comparator.comparing(DispatchPlan::getCreatedAt))
-                .ifPresent(plan->state.setPlanId(plan.getId()));
+        var conversationPlans=planRepository.byConversation(id);
+        conversationPlans.stream().map(DispatchPlan::getCreatedAt).max(Comparator.naturalOrder()).ifPresent(latestTime->{
+            var latest=conversationPlans.stream().filter(p->p.getCreatedAt().equals(latestTime)).toList();
+            var pending=latest.stream().filter(p->DispatchPlan.PENDING.equals(p.getStatus())).toList();
+            var current=latest.stream().filter(p->!Set.of(StateReason.NEW_PLAN,StateReason.NEW_PREVIEW)
+                    .contains(Objects.toString(p.getStatusReason(),""))).toList();
+            // 同刻的新清单即使已在UI取消，也不能回绑被它取代的旧清单；没有唯一依据时留空交由规划澄清。
+            String bound=pending.size()==1?pending.get(0).getId():latest.size()==1?latest.get(0).getId()
+                    :current.size()==1?current.get(0).getId():null;
+            state.setPlanId(bound);
+        });
         previews.latest(user,id).ifPresent(latest -> {
             boolean initial=state.getAttemptedAt()==null;
             boolean explicitUi=Set.of("selection","api").contains(Objects.toString(latest.getSource(),""))
@@ -373,6 +386,8 @@ public class SemanticConversationService {
                 String company=filters instanceof Map<?,?> m ? (String)m.get("companyCode") : null;
                 var scope=new DialogueState.Scope(company,Boolean.TRUE.equals(query.get("allReports")),snapshot.reportIds());
                 state.setDesired(scope);state.setEffective(scope);state.setPreviewId(latest.getId());state.setExcludedRecords(List.of());
+                // 新界面预览已经重新展示候选，恢复其业务焦点；旧查询不能继续阻断用户在该快照上的准备。
+                state.setBusinessQueryAfterPreview(false);state.setAssistantFocus("DISPATCH");
                 SelectionReferences.clear(state);state.setUnresolvedRecords(false);
                 state.setUnresolvedReports(false);state.setUnresolvedCompany(false);state.setPhase(DialogueState.Phase.READY);
             }

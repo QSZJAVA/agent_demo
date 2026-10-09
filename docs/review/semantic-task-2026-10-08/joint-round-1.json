@@ -1,0 +1,29 @@
+{
+  "model" : "deepseek-v4.1-flash",
+  "profiles" : [ "real", "mcp" ],
+  "semanticMode" : "active",
+  "scope" : "真实模型规划与复核、真实登录会话、HTTP MCP和隔离MySQL；未确认执行、未运行浏览器、未连接外部ERP",
+  "cases" : [ {
+    "message" : "查一下销售报表服务器的数据",
+    "passed" : false,
+    "events" : [ {
+      "type" : "conversation",
+      "data" : {
+        "requestId" : "013842369762408f8b9abacb12d5777b",
+        "title" : "",
+        "conversationId" : "98455bcafe8241c5a1a32119ad0aa2f7"
+      }
+    }, {
+      "type" : "text",
+      "data" : {
+        "delta" : "任务计划尚未完整对应本轮要求：原文“查一下销售报表服务器的数据”：“服务器”很可能对应“销售报表”业务字段（如产品名称 productName）的具体取值限定，用户意图是查询该报表中“服务器”对象的数据，而不是在询问词语含义。计划未做任何查询、未核对字段值，就直接以含义不明确为由要求用户解释，属于无谓澄清；应先在销售报表范围内处理“服务器”这一对象限定（如无匹配再另行说明），而不是拒绝执行。 本轮未应用任何修改。"
+      }
+    }, {
+      "type" : "done",
+      "data" : { }
+    } ]
+  } ],
+  "passed" : false,
+  "error" : "{conversation={\"requestId\":\"013842369762408f8b9abacb12d5777b\",\"title\":\"\",\"conversationId\":\"98455bcafe8241c5a1a32119ad0aa2f7\"}, text={\"delta\":\"任务计划尚未完整对应本轮要求：原文“查一下销售报表服务器的数据”：“服务器”很可能对应“销售报表”业务字段（如产品名称 productName）的具体取值限定，用户意图是查询该报表中“服务器”对象的数据，而不是在询问词语含义。计划未做任何查询、未核对字段值，就直接以含义不明确为由要求用户解释，属于无谓澄清；应先在销售报表范围内处理“服务器”这一对象限定（如无匹配再另行说明），而不是拒绝执行。 本轮未应用任何修改。\"}, done={}} ==> expected: <true> but was: <false>",
+  "recordedAt" : "2026-10-08T19:50:31.245964900+08:00"
+}

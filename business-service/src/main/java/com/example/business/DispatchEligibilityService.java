@@ -38,7 +38,7 @@ public class DispatchEligibilityService {
             throw ApiException.notFound("记录不存在或无权查看");
         if(!report.dispatchEnabled())return unavailable("该报表当前未启用派单，不能按规则派单。");
         if("已派单".equals(sourceStatus))return unavailable("该记录当前已派单，不符合再次派单的条件。");
-        if(!"未派单".equals(sourceStatus))throw new ApiException(422,"来源派单状态不明确，暂时无法判断该记录的派单资格，请核对来源状态后重试");
+        if(!"未派单".equals(sourceStatus))throw new ApiException(409,"来源派单状态不明确，暂时无法判断该记录的派单资格，请核对来源状态后重试");
         LocalDateTime now=LocalDateTime.now();
         // 普通快照读与正式执行的加锁读职责不同；资格结论仅描述此刻，执行时仍按确认版本重新校验。
         var active=rules.selectList(new LambdaQueryWrapper<DispatchRule>()
@@ -63,7 +63,8 @@ public class DispatchEligibilityService {
             return new DispatchEligibility(eligible,eligible?"该记录当前未派单，并且满足当前生效的派单规则。":"该记录当前未派单，但不满足当前生效的派单规则。",
                     String.valueOf(active.getId()),active.getName(),active.getVersion(),active.getDescription(),fields);
         } catch(RuntimeException invalid) {
-            throw new ApiException(422,"该记录的来源字段或派单规则计算异常，暂时无法判断是否符合条件，请检查规则和数据后重试");
+            // 当前业务事实/规则故障不能作为422语义纠错反馈，避免模型改换对象或降低核验要求。
+            throw new ApiException(409,"该记录的来源字段或派单规则计算异常，暂时无法判断是否符合条件，请检查规则和数据后重试");
         }
     }
 

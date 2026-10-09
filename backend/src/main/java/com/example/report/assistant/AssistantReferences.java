@@ -14,13 +14,13 @@ public final class AssistantReferences {
     /** 本轮模型可用的查询对象集；仅包含上次成功展示的事实，完整性由服务端计数确定。 */
     public static Map<String,Object> queryContext(DialogueState state) {
         boolean available=state.getBusinessQuery()!=null && !state.isBusinessUnresolved()
-                && state.getBusinessQuery().domain()==BusinessQuery.Domain.REPORT;
+                && state.getBusinessQuery().domain()==BusinessQuery.Domain.REPORT && state.getBusinessQuery().view()!=BusinessQuery.View.SUMMARY;
         var rows=new ArrayList<Map<String,String>>();
         if(available)for(int i=0;i<state.getBusinessReferences().size();i++) {
             var row=new LinkedHashMap<>(state.getBusinessReferences().get(i));row.put("referenceKey","row-"+(i+1));rows.add(row);
         }
         var result=new LinkedHashMap<String,Object>();result.put("available",available);result.put("sourceRef",available?queryRef(state):null);
-        result.put("allMatchesDisplayed",complete(state));result.put("totalCount",state.getBusinessTotalCount());result.put("rows",rows);return result;
+        result.put("allMatchesDisplayed",available && complete(state));result.put("totalCount",state.getBusinessTotalCount());result.put("rows",rows);return result;
     }
     /** 引用绑定查询、展示对象及权限版本；同一轮租约内解析和执行都重新计算，不能引用被替换的结果集。 */
     public static String queryRef(DialogueState state) {
@@ -40,6 +40,9 @@ public final class AssistantReferences {
             case QUERY_ROWS,QUERY_ALL -> resolveQuery(state,directive);
             case PREVIEW -> {
                 if(state.getPreviewId()==null || !Objects.equals(previewRef(state),directive.sourceRef()))throw new ApiException(422,"候选引用不存在或已变化，请依据当前上下文重新规划");
+                // 跨话题仍保留候选供恢复，但不能把隐藏的旧集合当作当前已核对的目标直接建单。
+                if(state.isBusinessQueryAfterPreview() && directive.intent().action()==SemanticIntent.Action.PREPARE_DISPATCH)
+                    throw new ApiException(422,"当前话题已切换到只读业务查询，原派单候选尚未重新展示核对；请先返回并核对候选范围，再生成待确认清单");
             }
             case PLAN -> {
                 if(state.getPlanId()==null || !Objects.equals(planRef(state),directive.sourceRef()))throw new ApiException(422,"清单引用不存在或已变化，请依据当前上下文重新规划");
@@ -58,6 +61,9 @@ public final class AssistantReferences {
      * @return 精确目标及其原公司边界；当前资格由后续业务读取复核
      */
     public static List<RecordTarget> resolveQuery(DialogueState state,DispatchDirective directive) {
+        // 汇总表达的是统计范围，不是用户已核对的可派对象清单；即使底层带当前页，也不能转为批量目标。
+        if(state.getBusinessQuery()!=null && state.getBusinessQuery().view()==BusinessQuery.View.SUMMARY)
+            throw new ApiException(422,"上次查询是只读汇总，不能直接作为派单目标；请先列出具体业务记录或核对可派候选范围");
         if(state.getBusinessQuery()==null || state.isBusinessUnresolved() || state.getBusinessQuery().domain()!=BusinessQuery.Domain.REPORT
                 || !queryRef(state).equals(directive.sourceRef()))throw new ApiException(422,"没有可引用的成功报表查询，或查询引用已变化，请明确当前目标");
         var rows=state.getBusinessReferences();

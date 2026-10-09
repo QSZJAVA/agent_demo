@@ -47,3 +47,19 @@ test('流程文本通过模板插值渲染，没有执行按钮或不可信HTML�
   assert.match(text, /!latest/)
   assert.match(text, /step\.status === '处理中'/)
 })
+
+test('资格核验完整保留正反结论与规则字段证据，普通查询不展示资格结论', () => {
+  const s = state()
+  s.payload.query.view = 'ELIGIBILITY'
+  const evidence = { eligible: false, reason: '不满足当前生效规则', ruleName: '金额规则', ruleVersion: 3, checkedFields: [{ name: 'amount', value: '9007199254740993.01' }] }
+  s.payload.rows = [{ eligibility: evidence }]
+  assert.equal(component.computed.title.call(s), '派单资格核验')
+  assert.equal(component.computed.eligibility.call(s), evidence)
+  assert.equal(s.cell(evidence.checkedFields[0].value), '9007199254740993.01')
+  evidence.eligible = true
+  assert.equal(component.computed.eligibility.call(s).eligible, true)
+  s.payload.query.view = 'LIST'
+  assert.equal(component.computed.eligibility.call(s), null)
+  assert.match(text, /v-if="payload\.query\.view !== 'ELIGIBILITY'"/)
+  assert.match(text, /实际派单仍需核对清单并确认/)
+})

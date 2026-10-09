@@ -1,28 +1,39 @@
 flowchart TD
-  input["自然语言或分页请求<br/>报表数据 / 派单记录 / 工单"]:::ui
+  input["自然语言或分页请求<br/>报表数据 / 单条资格 / 派单 / 工单"]:::ui
   lease{"会话租约与当前权限<br/>请求归属、配额、历史权限版本"}:::guard
-  model["ModelAssistantPlanner · MODEL<br/>成功查询、展示行、完整性和焦点<br/>撤销条件须有本轮原文证据"]:::model
-  dispatch["派单语义子流程<br/>尝试普通查询后先重查派单候选"]:::agent
-  query{"AssistantCodec / BusinessQuery<br/>路由/范围/追问与条件保留校验"}:::guard
-  clarify["帮助 / 澄清 / 拒绝<br/>不丢弃不支持条件、不执行写入"]:::error
+  model["统一任务草稿 → MODEL<br/>成功查询、展示行、完整性和焦点<br/>撤销条件须有本轮原文证据"]:::model
+  dispatch["派单目标与选择预检<br/>查询 row-N 与候选 ref_* 分离<br/>可靠明细可绑定精确目标"]:::agent
+  source{"可派单来源与业务焦点<br/>汇总须先列出记录或候选<br/>被查询打断的旧候选须重新展示"}:::guard
+  sourcefail["澄清并保留原有状态<br/>待补齐明细或重新展示候选<br/>不从未经核对的来源准备清单"]:::error
+  query{"AssistantCodec / BusinessQuery<br/>严格类型、来源及稳定身份校验"}:::guard
+  clarify["澄清 / 拒绝 / 失败<br/>不丢弃不支持条件、不执行写入"]:::error
   mcp["HTTP MCP business_query<br/>真实只读草稿预检及当前授权"]:::business
   facts["完整受限读取与确定性统计<br/>10万行 / 120秒 / 16MiB<br/>成功事实本轮复用；不重复读取"]:::business
-  card["持久查询卡片与独立上下文<br/>总数、展示引用、时点和权限并集"]:::store
+  card["复核当前权限后持久化<br/>总数、展示引用、时点和权限并集"]:::store
   ui["列表、详情、总结与翻页<br/>刷新可恢复；权限变化阻止旧事实展示"]:::ui
-  repair["有界草稿修正<br/>具体校验错误交回MODEL<br/>最终失败不更新成功查询"]:::model
+  repair["有界草稿修正<br/>契约和语义错误最多修正两次<br/>预算耗尽后澄清，其他故障直接返回"]:::model
+  review["独立语义复核 → MODEL<br/>有来源的要求与完整任务期望<br/>程序比较行为，详见流程02"]:::model
+  prepare["精确预览与待确认清单<br/>重核当前权限、来源、规则与条数<br/>新预览恢复焦点；等待用户确认"]:::agent
   input --> lease
   lease --> model
   model -->|"只读"| query
   model -->|"派单"| dispatch
-  model -->|"不确定"| clarify
+  model -->|"最终失败"| clarify
   query --> mcp
   mcp --> facts
-  facts --> card
   card --> ui
-  query -->|"草稿错误"| repair
-  facts -->|"确定性校验失败"| repair
+  query --> repair
+  facts -->|"契约错误"| repair
   repair -->|"预算内"| model
-  repair -->|"预算耗尽"| clarify
+  repair --> clarify
+  facts --> review
+  dispatch --> source
+  source -->|"来源合格"| review
+  source -->|"须列明细或重新展示"| sourcefail
+  review -->|"查询通过"| card
+  review -->|"派单通过"| prepare
+  review -->|"语义偏差"| repair
+  mcp -->|"业务故障"| clarify
   classDef ui fill:#eaf2ff,stroke:#386bc1,color:#1e354c
   classDef agent fill:#edf5ff,stroke:#3778a8,color:#1e354c
   classDef model fill:#f3edff,stroke:#8751bf,color:#1e354c

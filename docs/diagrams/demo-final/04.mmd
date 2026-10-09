@@ -1,8 +1,8 @@
 flowchart TD
-  desired["desired 与 effective 分开<br/>最近请求范围 / 最近成功范围"]:::agent
+  desired["desired 与 effective 分开<br/>通过预检的范围 / 最近成功范围"]:::agent
   reuse{"范围相同且预览有效？<br/>纯记录操作复用原预览"}:::guard
-  query["按权限与规则查询<br/>每页500条；总量10万、120秒<br/>异常整次失败，保留旧预览/清单"]:::business
-  snapshot["冻结预览<br/>客户实体 + FieldFact字段快照"]:::store
+  query["按权限与规则查询<br/>范围扫描或绑定精确目标读取<br/>异常整次失败，保留旧预览/清单"]:::business
+  snapshot["冻结预览<br/>客户实体 + FieldFact 字段快照<br/>精确目标和原查询引用随快照冻结"]:::store
   selection{"选择绑定预览ID与记录键<br/>预览权限校验 + 手动选择CAS保存<br/>只保留须排他限定；不动须UNCHANGED"}:::guard
   pending["未完成请求独立标记<br/>不污染已确定公司与报表"]:::error
   resume["明确新操作可继续<br/>含糊的直接建单仍被阻止"]:::agent

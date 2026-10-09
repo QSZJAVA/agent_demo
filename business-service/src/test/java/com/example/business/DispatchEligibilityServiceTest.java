@@ -76,10 +76,10 @@ class DispatchEligibilityServiceTest {
     @Test void ruleErrorsAndUnknownSourceStateAreNotNegativeQualificationResults() {
         var entry=report();
         published(rule(1,"*",1,"amount"));
-        assertThrows(ApiException.class,()->service.evaluate(user,entry,fact("1","A","50"),"未派单"));
+        assertEquals(409,assertThrows(ApiException.class,()->service.evaluate(user,entry,fact("1","A","50"),"未派单")).getCode());
         published(rule(1,"*",1,"unconfigured == nil"));
         assertThrows(ApiException.class,()->service.evaluate(user,entry,fact("1","A","50"),"未派单"));
-        assertThrows(ApiException.class,()->service.evaluate(user,entry,fact("1","A","50"),"处理中"));
+        assertEquals(409,assertThrows(ApiException.class,()->service.evaluate(user,entry,fact("1","A","50"),"处理中")).getCode());
         assertThrows(ApiException.class,()->service.evaluate(user,entry,fact("1","A","50"),null));
     }
     @Test void originalDateFactsKeepTheSameTypesAsDispatchEvaluation() {

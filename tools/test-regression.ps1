@@ -19,6 +19,8 @@ foreach($taskPair in @(@('TRACE_DB_HOST','DB_HOST'),@('TRACE_DB_PORT','DB_PORT')
 }
 $env:TRACE_IT='true';$env:P2_IT='true';$env:MCP_IT='true';$env:DEMO_IT='false';$env:P2_UI='false'
 $env:SEMANTIC_LIVE='false'
+$env:ASSISTANT_LIVE_REVIEW='false';$env:ASSISTANT_JOINT='false'
+$env:ASSISTANT_BROWSER='false'
 $env:INVESTIGATION_LIVE='false';$env:INVESTIGATION_CONTEXT_LIVE='false';$env:INVESTIGATION_JOINT='false';$env:INVESTIGATION_UI='false'
 & node (Join-Path $taskRoot 'tools/check-demo-baseline.cjs')
 if($LASTEXITCODE -ne 0){exit $LASTEXITCODE}

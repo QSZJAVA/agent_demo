@@ -1,22 +1,35 @@
 flowchart TD
-  in["统一路由判定为派单规划<br/>可派单预览、选择或待确认清单"]:::ui
-  context["构造有界受控上下文<br/>当前状态、授权报表及字段元数据"]:::agent
-  model["ModelIntentParser → MODEL<br/>V1 Schema、稳定规则与抽象对照<br/>明确凭据阻断、上下文统一脱敏"]:::model
-  codec{"IntentCodec 校验<br/>结构、类型、原文证据、禁止条件"}:::guard
-  retry["最多两次草稿修正<br/>回传拒绝草稿与校验诊断"]:::model
-  draft{"SemanticPlanner 草稿校验<br/>报表覆盖、范围与记录定位预检"}:::guard
-  fail["澄清 / 拒绝 / 失败<br/>不提交部分选择、不自动建单"]:::error
-  apply["确定性业务流程<br/>范围 → 快照 → 选择 → 待确认清单"]:::agent
+  in["本轮完整任务<br/>查询、资格核验或待确认派单"]:::ui
+  context["构造有界受控上下文<br/>授权目录、真实对话与可靠对象<br/>两阶段使用同一完整任务契约"]:::agent
+  model["统一任务规划 → MODEL<br/>AssistantPlan + DispatchDirective<br/>原生 Schema、thinking 关闭"]:::model
+  codec{"严格结构与引用校验<br/>类型、身份、原文与来源绑定"}:::guard
+  retry["最多两次草稿修正<br/>保留累计草稿、事实及全部差异<br/>合法独立期望保持不变"]:::model
+  draft{"只读业务预检<br/>MCP 查询事实 / 派单目标与选择"}:::guard
+  terms{"原文命中的字段词义<br/>授权字符串字段值，最多64项<br/>不提供行身份、草稿或结果全集"}:::guard
+  review["独立语义复核 → MODEL<br/>原文、受控上下文与词义线索<br/>合法完整期望在本轮固定"]:::model
+  compare{"程序比较完整任务与数量<br/>动作、条件及本轮原文依据<br/>最终条数另核对完整预检事实"}:::guard
+  reviewfix["修复复核自身<br/>仅修复无效依据或结构，不改草稿<br/>共享整轮三次复核预算"]:::model
+  fail["澄清 / 拒绝 / 失败<br/>保留原候选和清单<br/>失败原因留存供后续恢复"]:::error
+  apply["按已复核任务执行<br/>只应用已校验的操作字段<br/>澄清可采用已复核表达"]:::agent
   in --> context
   context --> model
   model --> codec
-  codec -->|"预算内"| retry
-  retry --> model
   codec -->|"合格"| draft
-  draft -->|"可修正矛盾"| retry
-  codec -->|"预算耗尽"| fail
-  draft -->|"最终拒绝"| fail
-  draft -->|"合格"| apply
+  codec -->|"可修正"| retry
+  codec -->|"拒绝或超预算"| fail
+  draft -->|"预检通过，不传草稿"| review
+  draft --> terms
+  terms -->|"仅词义线索"| review
+  draft -->|"契约错误"| retry
+  draft -->|"权限/版本/服务故障"| fail
+  review -->|"要求与完整期望"| compare
+  compare -->|"行为一致"| apply
+  compare -->|"有依据的行为差异"| retry
+  compare -->|"预算耗尽"| fail
+  compare -->|"复核结构或依据无效"| reviewfix
+  reviewfix -->|"重试同一草稿"| review
+  reviewfix -->|"复核预算耗尽"| fail
+  retry -->|"修正完整任务"| model
   classDef ui fill:#eaf2ff,stroke:#386bc1,color:#1e354c
   classDef agent fill:#edf5ff,stroke:#3778a8,color:#1e354c
   classDef model fill:#f3edff,stroke:#8751bf,color:#1e354c

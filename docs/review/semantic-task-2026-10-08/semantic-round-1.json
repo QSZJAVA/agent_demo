@@ -1,0 +1,104 @@
+{
+  "scope" : "真实模型规划与独立复核；合成目录及事实；未运行数据库、HTTP MCP、浏览器或业务执行",
+  "recordedAt" : "2026-10-08T18:55:28.614908200+08:00",
+  "model" : "deepseek-v4.1-flash",
+  "cases" : [ {
+    "message" : "查一下销售报表服务器的数据",
+    "passed" : false,
+    "error" : "业务查询计划不符合协议：queryUnresolved的字段类型、必填字段或枚举不符合Schema；可空字段仍需显式提供"
+  }, {
+    "message" : "这条数据符合派单条件吗",
+    "passed" : false,
+    "error" : "业务查询计划不符合协议：queryUnresolved的字段类型、必填字段或枚举不符合Schema；可空字段仍需显式提供"
+  }, {
+    "message" : "帮我派单这条",
+    "passed" : false,
+    "error" : "业务查询计划不符合协议：dispatch.intent.reportConstraints的字段类型、必填字段或枚举不符合Schema；可空字段仍需显式提供"
+  }, {
+    "message" : "不用派单，只核验这条是否符合规则",
+    "plan" : {
+      "route" : "BUSINESS_QUERY",
+      "query" : {
+        "domain" : "REPORT",
+        "view" : "ELIGIBILITY",
+        "reportIds" : [ "rpt-sales-order" ],
+        "companyCode" : "A",
+        "conditions" : [ {
+          "allOf" : [ {
+            "field" : "recordId",
+            "operator" : "EQ",
+            "values" : [ "1" ]
+          } ]
+        } ],
+        "sortField" : null,
+        "descending" : false,
+        "page" : 1,
+        "size" : 20,
+        "groupBy" : null
+      },
+      "followUp" : true,
+      "clarification" : null,
+      "removedFilters" : [ ],
+      "dispatch" : null
+    },
+    "passed" : true
+  }, {
+    "message" : "这条符合派单条件吗",
+    "plan" : {
+      "route" : "BUSINESS_QUERY",
+      "query" : {
+        "domain" : "REPORT",
+        "view" : "ELIGIBILITY",
+        "reportIds" : [ "rpt-sales-order" ],
+        "companyCode" : "A",
+        "conditions" : [ {
+          "allOf" : [ {
+            "field" : "recordId",
+            "operator" : "EQ",
+            "values" : [ "1" ]
+          } ]
+        } ],
+        "sortField" : null,
+        "descending" : false,
+        "page" : 1,
+        "size" : 20,
+        "groupBy" : null
+      },
+      "followUp" : true,
+      "clarification" : null,
+      "removedFilters" : [ ],
+      "dispatch" : null
+    },
+    "passed" : false,
+    "error" : "expected: <CLARIFY> but was: <BUSINESS_QUERY>"
+  }, {
+    "message" : "把上次查询的所有记录都准备清单",
+    "passed" : false,
+    "error" : "业务查询计划不符合协议：domain的字段类型、必填字段或枚举不符合Schema；可空字段仍需显式提供"
+  }, {
+    "message" : "只处理刚展示的第二条，生成待确认清单",
+    "plan" : {
+      "route" : "DISPATCH",
+      "query" : null,
+      "followUp" : false,
+      "clarification" : null,
+      "removedFilters" : [ ],
+      "dispatch" : {
+        "intent" : {
+          "version" : 1,
+          "action" : "PREPARE_DISPATCH",
+          "scopeChanges" : [ ],
+          "restrictions" : [ ],
+          "reportConstraints" : [ ],
+          "unsupportedConditions" : [ ],
+          "clarify" : "NONE"
+        },
+        "source" : "QUERY_ROWS",
+        "sourceRef" : "query-b45801017af43353",
+        "referenceKeys" : [ "row-2" ],
+        "evidence" : "只处理刚展示的第二条，生成待确认清单"
+      }
+    },
+    "passed" : true
+  } ]
+}

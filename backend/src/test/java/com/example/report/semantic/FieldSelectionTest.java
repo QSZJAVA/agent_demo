@@ -92,20 +92,20 @@ class FieldSelectionTest {
         assertEquals(Set.of(new RecordKey(SALES,"b"),new RecordKey(EXPENSE,"e")),Set.copyOf(SelectionResolver.apply(rows,previous,keep,catalog,USER1)));
     }
     @Test void fieldProgramWireContractRejectsEmptyOrUnboundedPredicates() {
-        String message="销售报表金额大于96000不要";
+        String message="查询销售报表，金额大于96000不要";
         var op=new ScopeChange(Target.RECORDS,Operation.EXCLUDE,List.of(),message,List.of("销售报表"),SelectorKind.FIELDS,Quantifier.ALL,
                 List.of(new ConditionGroup(List.of(new FieldCondition("amount",Comparison.GT,List.of("96000"),"金额大于96000")))));
         var intent=new SemanticIntent(1,Action.PREVIEW,List.of(op),List.of(),Clarify.NONE);var codec=new IntentCodec();
         assertEquals(intent,codec.decode(JsonUtil.toJson(intent),message));
-        var invented=new ScopeChange(Target.REPORTS,Operation.REPLACE,List.of("销售报表"),message);
-        assertThrows(ApiException.class,()->codec.validate(new SemanticIntent(1,Action.PREVIEW,List.of(invented,op),List.of(),Clarify.NONE),message));
+        var scoped=new ScopeChange(Target.REPORTS,Operation.REPLACE,List.of("销售报表"),message);
+        assertDoesNotThrow(()->codec.validate(new SemanticIntent(1,Action.PREVIEW,List.of(scoped,op),List.of(),Clarify.NONE),message));
         assertThrows(ApiException.class,()->codec.validate(new SemanticIntent(1,Action.PREVIEW,List.of(new ScopeChange(Target.RECORDS,Operation.EXCLUDE,List.of(),message,List.of(),SelectorKind.FIELDS,Quantifier.ALL)),List.of(),Clarify.NONE),message));
     }
-    @Test void unsupportedRequestDoesNotInventUnknownCompanyButBarePreparationIsBlocked() {
+    @Test void unsupportedRequestDoesNotInventUnknownCompanyOrInvalidateReviewedAction() {
         var planner=new SemanticPlanner(new ReportCatalogService(new TestCatalog().catalog(),new AgentProperties()));var state=new DialogueState();state.setEffective(state.getDesired());var before=state.getDesired();
         assertThrows(ApiException.class,()->planner.requireAction(state,new SemanticIntent(1,Action.CLARIFY,List.of(),List.of(),List.of(),List.of("未配置条件"),Clarify.ACTION)));
         assertEquals(before,state.getDesired());assertFalse(state.isUnresolvedCompany());assertFalse(state.isUnresolvedReports());assertTrue(state.isUnresolvedRequest());
-        assertThrows(ApiException.class,()->planner.requireAction(state,new SemanticIntent(1,Action.PREPARE_DISPATCH,List.of(),List.of(),Clarify.NONE)));
+        assertDoesNotThrow(()->planner.requireAction(state,new SemanticIntent(1,Action.PREPARE_DISPATCH,List.of(),List.of(),Clarify.NONE)));
         var corrected=new SemanticIntent(1,Action.PREVIEW,List.of(new ScopeChange(Target.RECORDS,Operation.EXCLUDE,List.of("SO1"),"SO1不要",List.of("销售报表"),SelectorKind.DOCUMENT,Quantifier.ONE)),List.of(),Clarify.NONE);
         assertDoesNotThrow(()->planner.merge(USER1,state,corrected));assertDoesNotThrow(()->planner.validate(USER1,state));
     }

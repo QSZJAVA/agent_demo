@@ -18,4 +18,15 @@ public record AssistantPlanningContext(List<Map<String,String>> history,Map<Stri
     public static AssistantPlanningContext empty(java.util.function.Consumer<AssistantPlan> validator) {
         return new AssistantPlanningContext(List.of(),Map.of(),plan->{validator.accept(plan);return Map.of();});
     }
+    /**
+     * 已持久化的本轮消息只保留一个证据位置（-1）；移除末尾重复项，保留更早的重复发言及其原下标。
+     * @param message 本轮完整用户原文，不通过模糊相似判断或重排历史消息
+     * @return 仅含此前对话的规划上下文；不修改业务选择或校验回调
+     */
+    public AssistantPlanningContext beforeCurrentMessage(String message) {
+        if(history.isEmpty())return this;
+        var last=history.get(history.size()-1);
+        return "user".equals(last.get("role")) && Objects.equals(message,last.get("content"))
+                ?new AssistantPlanningContext(history.subList(0,history.size()-1),dispatchSelection,validateDraft):this;
+    }
 }

@@ -45,4 +45,21 @@ class ExactPreviewTest {
         assertThrows(ApiException.class,()->h.previews.previewRecords(USER1,"rules",target("1"),"query-source",n->{},p->{},h.previews.beginRequest("rules")));
         assertTrue(h.previews.latest(USER1,"rules").isEmpty());
     }
+    @Test void permissionRevocationDuringReadStopsActivationWithTheOriginalUserObject() {
+        var h=harness();var permissions=mock(com.example.report.permission.PermissionService.class);
+        org.springframework.test.util.ReflectionTestUtils.setField(h.versions,"permissions",permissions);
+        when(permissions.resolve(USER1.userId())).thenReturn(new com.example.report.permission.CurrentUser(USER1.tenantId(),USER1.userId(),"权限已撤销",Set.of(),Set.of(),false));
+        assertThrows(ApiException.class,()->h.previews.previewRecords(USER1,"permissions",target("1"),"query-source",n->{},p->{},h.previews.beginRequest("permissions")));
+        assertTrue(h.previews.latest(USER1,"permissions").isEmpty());
+    }
+    @Test void largePreviewRechecksVersionsAfterActivationWaitBeforeSupersedingOldState() {
+        var h=harness();String conversation="large";
+        var old=h.previews.previewRecords(USER1,conversation,target("1"),"query-source",n->{},p->{},h.previews.beginRequest(conversation)).snapshot();
+        var plan=h.plans.create(USER1,conversation,old.preview().getId(),List.of(),"before-large");
+        h.props.getPreview().setMaxItems(1);
+        assertThrows(ApiException.class,()->h.previews.preview(USER1,conversation,new PreviewCommand(null,"api",null,List.of(SALES),null,null),n->{},p->h.ruleVersion.set("rules-v2")));
+        assertEquals("ACTIVE",h.store.previews().find(old.preview().getId()).orElseThrow().getStatus());
+        assertEquals("PENDING",h.store.plans().find(plan.plan().getId()).orElseThrow().getStatus());
+        assertEquals(1,h.store.previews().byConversation(conversation).size());
+    }
 }

@@ -1,0 +1,143 @@
+{
+  "model" : "deepseek-v4.1-flash",
+  "recordedAt" : "2026-10-08T18:57:44.985754200+08:00",
+  "scope" : "真实模型规划与独立复核；合成目录及事实；未运行数据库、HTTP MCP、浏览器或业务执行",
+  "cases" : [ {
+    "message" : "查一下销售报表服务器的数据",
+    "plan" : {
+      "route" : "BUSINESS_QUERY",
+      "query" : {
+        "domain" : "REPORT",
+        "view" : "LIST",
+        "reportIds" : [ "rpt-sales-order" ],
+        "companyCode" : null,
+        "conditions" : [ ],
+        "sortField" : null,
+        "descending" : false,
+        "page" : 1,
+        "size" : 20,
+        "groupBy" : null
+      },
+      "followUp" : false,
+      "clarification" : null,
+      "removedFilters" : [ ],
+      "dispatch" : null
+    },
+    "passed" : false,
+    "error" : "expected: <true> but was: <false>"
+  }, {
+    "message" : "这条数据符合派单条件吗",
+    "plan" : {
+      "route" : "BUSINESS_QUERY",
+      "query" : {
+        "domain" : "REPORT",
+        "view" : "ELIGIBILITY",
+        "reportIds" : [ "rpt-sales-order" ],
+        "companyCode" : "A",
+        "conditions" : [ {
+          "allOf" : [ {
+            "field" : "recordId",
+            "operator" : "EQ",
+            "values" : [ "1" ]
+          } ]
+        } ],
+        "sortField" : null,
+        "descending" : false,
+        "page" : 1,
+        "size" : 20,
+        "groupBy" : null
+      },
+      "followUp" : true,
+      "clarification" : null,
+      "removedFilters" : [ ],
+      "dispatch" : null
+    },
+    "passed" : true
+  }, {
+    "message" : "帮我派单这条",
+    "plan" : {
+      "route" : "DISPATCH",
+      "query" : null,
+      "followUp" : false,
+      "clarification" : null,
+      "removedFilters" : [ ],
+      "dispatch" : {
+        "intent" : {
+          "version" : 1,
+          "action" : "PREPARE_DISPATCH",
+          "scopeChanges" : [ ],
+          "restrictions" : [ ],
+          "reportConstraints" : [ ],
+          "unsupportedConditions" : [ ],
+          "clarify" : "NONE"
+        },
+        "source" : "QUERY_ROWS",
+        "sourceRef" : "query-7c7a821a377dfa36",
+        "referenceKeys" : [ "row-1" ],
+        "evidence" : "帮我派单这条"
+      }
+    },
+    "passed" : true
+  }, {
+    "message" : "不用派单，只核验这条是否符合规则",
+    "plan" : {
+      "route" : "BUSINESS_QUERY",
+      "query" : {
+        "domain" : "REPORT",
+        "view" : "ELIGIBILITY",
+        "reportIds" : [ "rpt-sales-order" ],
+        "companyCode" : "A",
+        "conditions" : [ {
+          "allOf" : [ {
+            "field" : "recordId",
+            "operator" : "EQ",
+            "values" : [ "1" ]
+          } ]
+        } ],
+        "sortField" : null,
+        "descending" : false,
+        "page" : 1,
+        "size" : 20,
+        "groupBy" : null
+      },
+      "followUp" : true,
+      "clarification" : null,
+      "removedFilters" : [ ],
+      "dispatch" : null
+    },
+    "passed" : true
+  }, {
+    "message" : "这条符合派单条件吗",
+    "passed" : false,
+    "error" : "任务计划尚未完整对应本轮要求：原文“这条符合派单条件吗”：用户问“这条”，但 queryObjects/previousRows 中有两条记录（recordId 1 与 2），原上下文无唯一区分依据，规划器选择澄清本身方向正确；但计划把用户意图限定为“核验哪一条记录是否符合派单条件”，并仅依赖当前展示候选让用户重申序号/单据号，未说明资格核验应由执行层按程序重新核验。用户询问的是资格（是否符合派单条件），属于只读资格核验/准入判断，不需要用户先给出唯一记录序号才能给出核验路径。这里的偏差是：把“资格核验”误处理为必须先在两条中选一条，导致无法回应用户对当前对象的资格询问；应保留核验资格的动作并说明可对当前候选项进行程序核验，或仅在确需唯一记录时按已有单据号/序号澄清，而不是要求用户重述原本已展示的候选范围。"
+  }, {
+    "message" : "把上次查询的所有记录都准备清单",
+    "passed" : false,
+    "error" : "当前仅展示查询的一部分，不能把当前页当作全部匹配目标；请先取得完整且有界的目标集合"
+  }, {
+    "message" : "只处理刚展示的第二条，生成待确认清单",
+    "plan" : {
+      "route" : "DISPATCH",
+      "query" : null,
+      "followUp" : false,
+      "clarification" : null,
+      "removedFilters" : [ ],
+      "dispatch" : {
+        "intent" : {
+          "version" : 1,
+          "action" : "PREPARE_DISPATCH",
+          "scopeChanges" : [ ],
+          "restrictions" : [ ],
+          "reportConstraints" : [ ],
+          "unsupportedConditions" : [ ],
+          "clarify" : "NONE"
+        },
+        "source" : "QUERY_ROWS",
+        "sourceRef" : "query-238aba67fbcc6006",
+        "referenceKeys" : [ "row-2" ],
+        "evidence" : "只处理刚展示的第二条，生成待确认清单"
+      }
+    },
+    "passed" : true
+  } ]
+}

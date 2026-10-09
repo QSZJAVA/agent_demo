@@ -27,6 +27,8 @@ public class DispatchVersionService {
 
     private final ReportCatalogService catalogService;
     private final RuleCache ruleCache;
+    @org.springframework.beans.factory.annotation.Autowired
+    private com.example.report.permission.PermissionService permissions;
 
     public DispatchVersionService(ReportCatalogService catalogService, RuleCache ruleCache) {
         this.catalogService = catalogService;
@@ -58,6 +60,9 @@ public class DispatchVersionService {
     }
 
     private String verifyVersions(CurrentUser user, DispatchPreview preview) {
+        // 长查询和模型复核期间授权可能变化；生产装配重新解析身份，不能只比较请求开始时的旧权限对象。
+        if(permissions!=null && !Objects.equals(permissions.resolve(user.userId()).permissionVersion(),user.permissionVersion()))
+            return StateReason.PERMISSION_CHANGED;
         if (!Objects.equals(user.permissionVersion(), preview.getPermissionVersion())) {
             return StateReason.PERMISSION_CHANGED;
         }

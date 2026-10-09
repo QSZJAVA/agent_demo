@@ -35,7 +35,7 @@ class EligibilityPlanningTest {
         var expected=eligibility("1",true);
         var model=ModelAssistantPlannerTest.repair(wrong,expected,message,"本轮仅要求只读资格核验",state);
         assertEquals("BUSINESS_QUERY",state.getAssistantFocus());assertNull(state.getPreviewId());
-        assertEquals(2,model.reviewPrompts.size());
+        assertEquals(1,model.reviewPrompts.size());
         assertDoesNotThrow(()->AssistantRouteGuard.validateRefinement(message,state,expected));
     }
     @Test void unshownIdentityIsRejectedAndAmbiguousPronounNeedsSemanticClarification() {
@@ -64,7 +64,7 @@ class EligibilityPlanningTest {
         assertThrows(RuntimeException.class,()->JsonUtil.MAPPER.convertValue(Map.of("reason","未能核验","checkedFields",List.of()),DispatchEligibility.class));
         assertThrows(ApiException.class,()->new DispatchEligibility(true,"符合",null,null,null,null,List.of()));
     }
-    @Test void observedFieldFactsReachGeneralReviewAndRepairAnOmittedCondition() throws Exception {
+    @Test void independentConditionExpectationReceivesTheSameReadOnlyValidation() throws Exception {
         for(var example:List.of(Map.of("report","rpt-sales-order","field","productName","description","产品名称","value","服务器"),
                 Map.of("report","contracts","field","projectTitle","description","项目名称","value","城南专项"))) {
             var query=new BusinessQuery(BusinessQuery.Domain.REPORT,BusinessQuery.View.LIST,List.of(example.get("report")),"A",List.of(),null,false,1,20,null);
@@ -74,11 +74,13 @@ class EligibilityPlanningTest {
                     List.of(new BusinessQuery.Group(List.of(new BusinessQuery.Filter(example.get("field"),"EQ",List.of(example.get("value")))))),null,false,1,20,null);
             String message="查一下"+example.get("value")+"的数据";
             var model=new ModelAssistantPlannerTest.Model(JsonUtil.toJson(new AssistantPlan(AssistantPlan.Route.BUSINESS_QUERY,query,false,null)),
-                    JsonUtil.toJson(new AssistantPlan(AssistantPlan.Route.BUSINESS_QUERY,filtered,false,null))).reject(message,"遗漏业务对象限定");
+                    JsonUtil.toJson(new AssistantPlan(AssistantPlan.Route.BUSINESS_QUERY,filtered,false,null)))
+                    .expect(new AssistantPlan(AssistantPlan.Route.BUSINESS_QUERY,filtered,false,null),message,"遗漏业务对象限定");
             var context=new AssistantPlanningContext(List.of(),Map.of(),draft->BusinessAssistantService.queryEvidence(BusinessQueryEngine.execute(draft.query(),fields,List.of(row),"内存来源事实")));
             var result=new ModelAssistantPlanner(model,new AgentProperties()).plan(message,new DialogueState(),List.of(),Set.of("A"),context);
-            assertEquals(filtered,result.query());assertEquals(2,model.reviewPrompts.size());
-            var evidence=JsonUtil.MAPPER.readTree(model.reviewPrompts.get(0).getUserMessage().getText()).path("readEvidence");
+            assertEquals(filtered,result.query());assertEquals(1,model.reviewPrompts.size());
+            assertFalse(JsonUtil.MAPPER.readTree(model.reviewPrompts.get(0).getUserMessage().getText()).has("readEvidence"));
+            var evidence=JsonUtil.MAPPER.readTree(model.planningPrompts.get(1).getUserMessage().getText()).at("/attemptHistory/0/readEvidence");
             assertTrue(evidence.path("columns").toString().contains(example.get("field")));assertTrue(evidence.path("rows").toString().contains(example.get("value")));
         }
     }

@@ -1,0 +1,171 @@
+{
+  "recordedAt": "2026-10-08 20:23:15+08:00",
+  "baseCommit": "420c5cb110bd998774c0b787f43c04372b40ec5b",
+  "scope": "提交420c5cb之后的当前工作区；程序回归、真实模型语义回放与真实登录/HTTP MCP联合回放分别计数",
+  "fullRegression": {
+    "command": "tools/test-regression.ps1 -AllowIsolatedDatabases",
+    "exitCode": 0,
+    "modules": {
+      "backend": {
+        "tests": 774,
+        "passed": 766,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 8
+      },
+      "business-service": {
+        "tests": 56,
+        "passed": 51,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 5
+      }
+    },
+    "frontend": {
+      "tests": 100,
+      "passed": 100
+    },
+    "tools": {
+      "tests": 12,
+      "passed": 12
+    },
+    "passed": 929,
+    "conditionalSkipped": 13
+  },
+  "semanticReplay": {
+    "model": "deepseek-v4.1-flash",
+    "total": 7,
+    "passed": 7,
+    "scope": "真实模型规划与独立复核；合成目录及事实；未运行数据库、HTTP MCP、浏览器或业务执行"
+  },
+  "jointReplay": {
+    "model": "deepseek-v4.1-flash",
+    "total": 8,
+    "passed": 8,
+    "modelCalls": 18,
+    "historyRestored": true,
+    "scope": "真实模型规划与复核、真实登录会话、HTTP MCP和隔离MySQL；未确认执行、未运行浏览器、未连接外部ERP"
+  },
+  "sourceFiles": [
+    {
+      "file": "backend/src/main/java/com/example/report/assistant/AssistantCodec.java",
+      "sha256": "f4887bc569be45c02a3308c6f57e01a963ee0fec631eb9ee462e27bd6edde7b2"
+    },
+    {
+      "file": "backend/src/main/java/com/example/report/assistant/BusinessAssistantService.java",
+      "sha256": "3fa15dc05c64be175162ec251f5ff63c46b55f2d71e7720be30a6eeedeb29e81"
+    },
+    {
+      "file": "backend/src/main/java/com/example/report/assistant/ModelAssistantPlanner.java",
+      "sha256": "2a94ccf5ac95ce668ce16680bcdca261d42edcec28924f69414843a9ea3a82f8"
+    },
+    {
+      "file": "backend/src/main/java/com/example/report/dispatch/DispatchVersionService.java",
+      "sha256": "5199df9f85e48769c0f431ca259310a4061894e8902d34018e329e1d6749e2b5"
+    },
+    {
+      "file": "backend/src/main/java/com/example/report/dispatch/PlanService.java",
+      "sha256": "be0fb79938fe5ddd1cb7eadeffc5e5e119631ccf95c46bbb6fea983051de76e2"
+    },
+    {
+      "file": "backend/src/main/java/com/example/report/dispatch/PreviewService.java",
+      "sha256": "e8b7d2d628aa7d4c385d930edaac14d3deb2c89ae16347ab7abf0654fc9822eb"
+    },
+    {
+      "file": "backend/src/main/java/com/example/report/semantic/DialogueState.java",
+      "sha256": "18e4dabffc22f21d4c95f102f4d0b95bad8f027386ce344777342125dd11da96"
+    },
+    {
+      "file": "backend/src/main/java/com/example/report/semantic/SemanticConversationService.java",
+      "sha256": "69fe3bde0adf96d5e7222d4ce6e6b6f35379f352cd733d394ff685eda948d4e4"
+    },
+    {
+      "file": "backend/src/main/java/com/example/report/semantic/SemanticPlanner.java",
+      "sha256": "9676d212818f45e5988e8248677b7dc414b7682146820ed753012ebaf2fa1ac8"
+    },
+    {
+      "file": "backend/src/main/resources/assistant/planner-instructions.txt",
+      "sha256": "bc5bd4123b0a072b423c7260327b77edd9615f7cf70dfff5947478cb384a8227"
+    },
+    {
+      "file": "backend/src/main/resources/assistant/review-instructions.txt",
+      "sha256": "b106ed1088028dca7ce97af22ba2fc883e433a35bc992278bb9fa336b57d42e8"
+    },
+    {
+      "file": "backend/src/main/resources/semantic/mock-intents.json",
+      "sha256": "83e786d0046a171a1e1a2c7bd394560c3c07eb9048569446cfdf9bf32f0c5e5e"
+    },
+    {
+      "file": "backend/src/test/java/com/example/report/assistant/AssistantLiveReviewTest.java",
+      "sha256": "a56eee0f75218a0d363fb431dbebf7c1b0dad62b77fe2dd0b4a184eb0df4543e"
+    },
+    {
+      "file": "backend/src/test/java/com/example/report/assistant/ModelAssistantPlannerTest.java",
+      "sha256": "5eb510a0b2fa719a84ec6775ae34f506026846ec5bf9d9f393c746ff96460b88"
+    },
+    {
+      "file": "backend/src/test/java/com/example/report/assistant/UnifiedTaskFlowTest.java",
+      "sha256": "5d9dfba3ee1115abdfe9dbcaae9db4aec36b4a38727b088892a6421fbbda94b6"
+    },
+    {
+      "file": "backend/src/test/java/com/example/report/dispatch/ExactPreviewTest.java",
+      "sha256": "00430614ea64a2fdf5f4e20bb2b7df1e39d0182f411c7677d2fd82be198fe03e"
+    },
+    {
+      "file": "backend/src/test/java/com/example/report/semantic/ClarificationRecoveryTest.java",
+      "sha256": "e758b2a00de74fd50cd9245fbb8ce4d4194de5935bba72b831b1ceddf8e332c2"
+    },
+    {
+      "file": "backend/src/test/java/com/example/report/semantic/CounterpartySelectionTest.java",
+      "sha256": "f9a1348df3cf9ea52f8deeafdf79ac0ed44efcdb3971b0fc494f5ee4d953bc07"
+    },
+    {
+      "file": "backend/src/test/java/com/example/report/semantic/FieldSelectionTest.java",
+      "sha256": "00da709f8452e8893090edd444025f2a0b6ed479217dc810ffff8cb0a792cb4c"
+    },
+    {
+      "file": "backend/src/test/java/com/example/report/semantic/SemanticIntegrationTest.java",
+      "sha256": "3db64f8cd978e2e71191c4b8c39bbba33b1e005700916715f3dd27bb98369124"
+    },
+    {
+      "file": "business-service/src/main/java/com/example/business/DispatchEligibilityService.java",
+      "sha256": "2457223226dafce0f3038fed956b6fcc0ca582041cb1ec058d0c26f5485fea8a"
+    },
+    {
+      "file": "business-service/src/test/java/com/example/business/AssistantMcpLiveReviewTest.java",
+      "sha256": "c86bbf55f8836be8446766c9aaacda1a00b9989fca4c3a6c81efbd4b053e5d19"
+    },
+    {
+      "file": "business-service/src/test/java/com/example/business/BusinessMcpIntegrationTest.java",
+      "sha256": "4b5205fb2ab12e4f6ef0798fdfa403debd88845677e479da6bf6b18baa9c59b4"
+    },
+    {
+      "file": "business-service/src/test/java/com/example/business/DispatchEligibilityServiceTest.java",
+      "sha256": "a72588c363666c3164e5d1e44ea6aefd6ba315252a7eb7c76d17f9e56bbe00b7"
+    },
+    {
+      "file": "frontend/tests/business-query.test.cjs",
+      "sha256": "eab0fce36ca85ed1ed6cedaa28a90a5cd9aa169d354854738cdc3aa16ad5ef9b"
+    },
+    {
+      "file": "tools/test-regression.ps1",
+      "sha256": "5c6a38a9c43cca45cba9d98beb64ce497cda18016c1ab3f629a17d880482eeac"
+    }
+  ],
+  "packages": [
+    {
+      "file": "backend/target/report-demo-1.0.0.jar",
+      "sha256": "b4843fabacd824f246ea4869c1b0bb7dac737106be0cc96ab230610aa88acfb6"
+    },
+    {
+      "file": "business-service/target/business-service-1.0.0.jar",
+      "sha256": "c8a4ac320973fee1f638a1919e0be94705b203aba7aa030cc3b40c2bcdbada62"
+    }
+  ],
+  "notPerformed": [
+    "浏览器端到端验收",
+    "report_demo清空或重建",
+    "外部ERP/正式外部认证接入",
+    "生产容量、灾备或部署验收"
+  ]
+}

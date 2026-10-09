@@ -17,7 +17,7 @@ import static com.example.report.semantic.SemanticIntent.Target.*;
 public class SemanticPlanner {
     private final ReportCatalogService catalog;
     public SemanticPlanner(ReportCatalogService catalog) { this.catalog=catalog; }
-    /** 拒绝本轮动作与禁止条件冲突；需要澄清时保留未解决标记，避免后续省略表达沿用旧范围。 */
+    /** 拒绝本轮动作与禁止条件冲突；需要澄清时保留未解决标记供统一规划复核，不自行推断后续动作。 */
     public void requireAction(DialogueState state,SemanticIntent intent) {
         if (intent.forbids(intent.action())) throw new ApiException(422,"本次动作与禁止条件冲突，请明确本轮操作");
         if (intent.action()!=SemanticIntent.Action.CLARIFY) {
@@ -26,7 +26,7 @@ public class SemanticPlanner {
         }
         state.setUnresolvedRequest(true);
         // CLARIFY中的候选修改仅供证据保存，尚未归并；不能仅因候选包含范围修改就污染既有范围。
-        // 仅明确的实体歧义设置范围标记；整轮未完成由unresolvedRequest阻止省略建单。
+        // 仅明确的实体歧义设置范围标记；整轮未完成由统一规划结合来源引用复核能否继续。
         if (intent.clarify()==SemanticIntent.Clarify.COMPANY) state.setUnresolvedCompany(true);
         if (intent.clarify()==SemanticIntent.Clarify.REPORTS) state.setUnresolvedReports(true);
         if (intent.clarify()==SemanticIntent.Clarify.RECORDS) state.setUnresolvedRecords(true);

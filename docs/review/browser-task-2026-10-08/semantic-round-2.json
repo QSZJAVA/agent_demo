@@ -1,0 +1,215 @@
+{
+  "recordedAt" : "2026-10-08T22:01:16.493623800+08:00",
+  "scope" : "真实模型规划与独立复核；合成目录及事实；未运行数据库、HTTP MCP、浏览器或业务执行",
+  "cases" : [ {
+    "message" : "查一下销售报表服务器的数据",
+    "plan" : {
+      "route" : "BUSINESS_QUERY",
+      "query" : {
+        "domain" : "REPORT",
+        "view" : "LIST",
+        "reportIds" : [ "rpt-sales-order" ],
+        "companyCode" : null,
+        "conditions" : [ {
+          "allOf" : [ {
+            "field" : "productName",
+            "operator" : "EQ",
+            "values" : [ "服务器" ]
+          } ]
+        } ],
+        "sortField" : null,
+        "descending" : false,
+        "page" : 1,
+        "size" : 20,
+        "groupBy" : null
+      },
+      "followUp" : false,
+      "clarification" : null,
+      "removedFilters" : [ ],
+      "dispatch" : null
+    },
+    "passed" : true
+  }, {
+    "message" : "这条数据符合派单条件吗",
+    "plan" : {
+      "route" : "BUSINESS_QUERY",
+      "query" : {
+        "domain" : "REPORT",
+        "view" : "ELIGIBILITY",
+        "reportIds" : [ "rpt-sales-order" ],
+        "companyCode" : "A",
+        "conditions" : [ {
+          "allOf" : [ {
+            "field" : "recordId",
+            "operator" : "EQ",
+            "values" : [ "1" ]
+          } ]
+        } ],
+        "sortField" : null,
+        "descending" : false,
+        "page" : 1,
+        "size" : 20,
+        "groupBy" : null
+      },
+      "followUp" : true,
+      "clarification" : null,
+      "removedFilters" : [ ],
+      "dispatch" : null
+    },
+    "passed" : true
+  }, {
+    "message" : "帮我派单这条",
+    "plan" : {
+      "route" : "DISPATCH",
+      "query" : null,
+      "followUp" : false,
+      "clarification" : null,
+      "removedFilters" : [ ],
+      "dispatch" : {
+        "intent" : {
+          "version" : 1,
+          "action" : "PREPARE_DISPATCH",
+          "scopeChanges" : [ ],
+          "restrictions" : [ ],
+          "reportConstraints" : [ ],
+          "unsupportedConditions" : [ ],
+          "clarify" : "NONE"
+        },
+        "source" : "QUERY_ROWS",
+        "sourceRef" : "query-9218add7ef3a7197",
+        "referenceKeys" : [ "row-1" ],
+        "evidence" : "帮我派单这条"
+      }
+    },
+    "passed" : true
+  }, {
+    "message" : "不用派单，只核验这条是否符合规则",
+    "plan" : {
+      "route" : "BUSINESS_QUERY",
+      "query" : {
+        "domain" : "REPORT",
+        "view" : "ELIGIBILITY",
+        "reportIds" : [ "rpt-sales-order" ],
+        "companyCode" : "A",
+        "conditions" : [ {
+          "allOf" : [ {
+            "field" : "recordId",
+            "operator" : "EQ",
+            "values" : [ "1" ]
+          } ]
+        } ],
+        "sortField" : null,
+        "descending" : false,
+        "page" : 1,
+        "size" : 20,
+        "groupBy" : null
+      },
+      "followUp" : true,
+      "clarification" : null,
+      "removedFilters" : [ ],
+      "dispatch" : null
+    },
+    "passed" : true
+  }, {
+    "message" : "这条符合派单条件吗",
+    "plan" : {
+      "route" : "CLARIFY",
+      "query" : null,
+      "followUp" : false,
+      "clarification" : "当前展示有两条销售报表记录（第1条 SO2026001 服务器、第2条 SO2026002 交换机），请指明要核验哪一条（序号或单据号）。",
+      "removedFilters" : [ ],
+      "dispatch" : null
+    },
+    "passed" : true
+  }, {
+    "message" : "把上次查询的所有记录都准备清单",
+    "plan" : {
+      "route" : "CLARIFY",
+      "query" : null,
+      "followUp" : false,
+      "clarification" : "上次查询共60条记录，当前仅展示2条，无法把「所有记录」作为完整有界对象集准备清单。请说明是处理已展示的2条，还是先调整查询范围以完整获取全部记录。",
+      "removedFilters" : [ ],
+      "dispatch" : null
+    },
+    "passed" : true
+  }, {
+    "message" : "只处理刚展示的第二条，生成待确认清单",
+    "plan" : {
+      "route" : "DISPATCH",
+      "query" : null,
+      "followUp" : false,
+      "clarification" : null,
+      "removedFilters" : [ ],
+      "dispatch" : {
+        "intent" : {
+          "version" : 1,
+          "action" : "PREPARE_DISPATCH",
+          "scopeChanges" : [ ],
+          "restrictions" : [ ],
+          "reportConstraints" : [ ],
+          "unsupportedConditions" : [ ],
+          "clarify" : "NONE"
+        },
+        "source" : "QUERY_ROWS",
+        "sourceRef" : "query-5d92558261d5432c",
+        "referenceKeys" : [ "row-2" ],
+        "evidence" : "只处理刚展示的第二条，生成待确认清单"
+      }
+    },
+    "passed" : true
+  }, {
+    "message" : "我指的是单据 SO2026002",
+    "plan" : {
+      "route" : "BUSINESS_QUERY",
+      "query" : {
+        "domain" : "REPORT",
+        "view" : "ELIGIBILITY",
+        "reportIds" : [ "rpt-sales-order" ],
+        "companyCode" : "A",
+        "conditions" : [ {
+          "allOf" : [ {
+            "field" : "docNo",
+            "operator" : "EQ",
+            "values" : [ "SO2026002" ]
+          } ]
+        } ],
+        "sortField" : null,
+        "descending" : false,
+        "page" : 1,
+        "size" : 20,
+        "groupBy" : null
+      },
+      "followUp" : false,
+      "clarification" : null,
+      "removedFilters" : [ ],
+      "dispatch" : null
+    },
+    "passed" : true
+  }, {
+    "message" : "查看当前清单",
+    "plan" : {
+      "route" : "DISPATCH",
+      "query" : null,
+      "followUp" : false,
+      "clarification" : null,
+      "removedFilters" : [ ],
+      "dispatch" : {
+        "intent" : {
+          "version" : 1,
+          "action" : "SHOW_RESULT",
+          "scopeChanges" : [ ],
+          "restrictions" : [ ],
+          "reportConstraints" : [ ],
+          "unsupportedConditions" : [ ],
+          "clarify" : "NONE"
+        },
+        "source" : "PLAN",
+        "sourceRef" : "plan-browser-current-plan",
+        "referenceKeys" : [ ],
+        "evidence" : "查看当前清单"
+      }
+    },
+    "passed" : true
+  } ],
+  "model" : "deepseek-v4.1-flash"
+}

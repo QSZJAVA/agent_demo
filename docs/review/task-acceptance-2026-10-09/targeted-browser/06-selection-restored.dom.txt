@@ -1,0 +1,381 @@
+- complementary:
+  - generic: 
+  - text: 报表工作台
+  - generic: 业务协同 · 演示系统
+  - generic: 业务空间
+  - menubar:
+    - menuitem " 销售报表":
+      - generic: 
+      - text: 销售报表
+    - menuitem " 派单规则":
+      - generic: 
+      - text: 派单规则
+- generic: 销售报表
+- generic: 
+- text: Reader A
+- button "退出登录"
+- button " 业务助手":
+  - generic: 
+  - text: 业务助手
+- main:
+  - generic: 销售报表
+  - generic: 共 4 条
+  - paragraph: 查看业务明细，勾选未派单记录后发起派单
+  - button " 发起派单" [disabled]:
+    - generic: 
+    - text: 发起派单
+  - button " 派单记录":
+    - generic: 
+    - text: 派单记录
+  - button " 刷新":
+    - generic: 
+    - text: 刷新
+  - generic: 
+  - text: 本页 4 条记录
+  - generic: 每次最多派单 50 条
+  - text: 
+  - table:
+    - rowgroup:
+      - row "序号 公司代码 订单号 产品名称 金额（元） 销售日期 派单状态":
+        - columnheader:
+          - checkbox
+        - columnheader "序号":
+          - generic: 序号
+        - columnheader "公司代码":
+          - generic: 公司代码
+        - columnheader "订单号":
+          - generic: 订单号
+        - columnheader "产品名称":
+          - generic: 产品名称
+        - columnheader "金额（元）":
+          - generic: 金额（元）
+        - columnheader "销售日期":
+          - generic: 销售日期
+        - columnheader "派单状态":
+          - generic: 派单状态
+  - table:
+    - rowgroup:
+      - row "1 A SO2026001 服务器 128,000.00 2026-01-15 未派单":
+        - cell:
+          - checkbox
+        - cell "1":
+          - generic: "1"
+        - cell "A":
+          - generic: A
+        - cell "SO2026001":
+          - generic: SO2026001
+        - cell "服务器":
+          - generic: 服务器
+        - cell "128,000.00":
+          - generic: 128,000.00
+        - cell "2026-01-15":
+          - generic: 2026-01-15
+        - cell "未派单":
+          - generic: 未派单
+      - row "2 A SO2026002 交换机 32,000.00 2026-02-08 未派单":
+        - cell:
+          - checkbox
+        - cell "2":
+          - generic: "2"
+        - cell "A":
+          - generic: A
+        - cell "SO2026002":
+          - generic: SO2026002
+        - cell "交换机":
+          - generic: 交换机
+        - cell "32,000.00":
+          - generic: 32,000.00
+        - cell "2026-02-08":
+          - generic: 2026-02-08
+        - cell "未派单":
+          - generic: 未派单
+      - row "3 A SO2026007 云服务 96,000.00 2026-04-05 未派单":
+        - cell:
+          - checkbox
+        - cell "3":
+          - generic: "3"
+        - cell "A":
+          - generic: A
+        - cell "SO2026007":
+          - generic: SO2026007
+        - cell "云服务":
+          - generic: 云服务
+        - cell "96,000.00":
+          - generic: 96,000.00
+        - cell "2026-04-05":
+          - generic: 2026-04-05
+        - cell "未派单":
+          - generic: 未派单
+      - row "4 A SO2026008 网线 15.00 2026-04-12 未派单":
+        - cell:
+          - checkbox
+        - cell "4":
+          - generic: "4"
+        - cell "A":
+          - generic: A
+        - cell "SO2026008":
+          - generic: SO2026008
+        - cell "网线":
+          - generic: 网线
+        - cell "15.00":
+          - generic: "15.00"
+        - cell "2026-04-12":
+          - generic: 2026-04-12
+        - cell "未派单":
+          - generic: 未派单
+  - table:
+    - rowgroup:
+      - row "本页合计 256,015.00":
+        - cell
+        - cell "本页合计":
+          - generic: 本页合计
+        - cell
+        - cell
+        - cell
+        - cell "256,015.00":
+          - generic: 256,015.00
+        - cell
+        - cell
+  - generic: 共 4 条
+  - textbox "请选择": 50条/页
+  - generic: 
+  - button "" [disabled]:
+    - generic: 
+  - list:
+    - listitem: "1"
+  - button "" [disabled]:
+    - generic: 
+- document:
+  - dialog "销售报表 · 手工派单记录 close 销售报表 · 手工派单记录":
+    - generic: 历史会话
+    - button " 新建":
+      - generic: 
+      - text: 新建
+    - button "查一下销售报表服务器的数据 2026-10-09 00:35  " [active]:
+      - generic "查一下销售报表服务器的数据"
+      - generic: 2026-10-09 00:35
+      - generic "改名": 
+      - generic "删除": 
+    - generic: 业务助手
+    - generic: 模型：deepseek-v4.1-flash
+    - button "":
+      - generic: 
+    - generic: 查一下销售报表服务器的数据
+    - paragraph: 本次查询匹配 1 条报表记录，当前第 1 页展示 1 条。
+    - strong: 报表数据
+    - generic: 只读查询
+    - paragraph: 业务系统当前记录 · 查询时间 2026-10-09 00:33:07
+    - paragraph: 公司：当前全部授权公司；报表范围：销售报表；排序：稳定业务标识
+    - paragraph: 筛选：(产品名称 等于 服务器)
+    - generic: 匹配 1 条
+    - generic: CNY 合计 128000.00
+    - table:
+      - rowgroup:
+        - row "序号 单据号 报表 公司 金额 业务日期 状态 订单号 产品名称 销售日期，字符串 yyyy-MM-dd 距销售日期的天数（派生） 来源记录是否已派单；true为已派单，false为未派单，不代表满足派单规则":
+          - columnheader "序号":
+            - generic: 序号
+          - columnheader "单据号":
+            - generic: 单据号
+          - columnheader "报表":
+            - generic: 报表
+          - columnheader "公司":
+            - generic: 公司
+          - columnheader "金额":
+            - generic: 金额
+          - columnheader "业务日期":
+            - generic: 业务日期
+          - columnheader "状态":
+            - generic: 状态
+          - columnheader "订单号":
+            - generic: 订单号
+          - columnheader "产品名称":
+            - generic: 产品名称
+          - columnheader "销售日期，字符串 yyyy-MM-dd":
+            - generic: 销售日期，字符串 yyyy-MM-dd
+          - columnheader "距销售日期的天数（派生）":
+            - generic: 距销售日期的天数（派生）
+          - columnheader "来源记录是否已派单；true为已派单，false为未派单，不代表满足派单规则":
+            - generic: 来源记录是否已派单；true为已派单，false为未派单，不代表满足派单规则
+    - table:
+      - rowgroup:
+        - row "1 SO2026001 销售报表 A 128000.00 2026-01-15 未派单 SO2026001 服务器 2026-01-15 267 false":
+          - cell "1":
+            - generic: "1"
+          - cell "SO2026001":
+            - generic: SO2026001
+          - cell "销售报表":
+            - generic: 销售报表
+          - cell "A":
+            - generic: A
+          - cell "128000.00":
+            - generic: "128000.00"
+          - cell "2026-01-15":
+            - generic: 2026-01-15
+          - cell "未派单":
+            - generic "未派单"
+          - cell "SO2026001":
+            - generic: SO2026001
+          - cell "服务器":
+            - generic: 服务器
+          - cell "2026-01-15":
+            - generic: 2026-01-15
+          - cell "267":
+            - generic: "267"
+          - cell "false":
+            - generic: "false"
+    - generic: 第 1 页 · 每页 20 条
+    - button "上一页" [disabled]
+    - button "下一页" [disabled]
+    - generic: 历史查询快照
+    - generic: 这条数据符合派单条件吗
+    - paragraph: 单据 SO2026001 符合当前派单条件。该记录当前未派单，并且满足当前生效的派单规则。适用规则：销售报表默认规则（销售订单金额大于 20 元需要派单）。核验依据：来源金额=128000.00。本次为只读核验，实际派单仍需核对清单并确认。
+    - strong: 派单资格核验
+    - generic: 只读查询
+    - paragraph: 业务系统当前记录与生效派单规则 · 查询时间 2026-10-09 00:34:05
+    - paragraph: 公司：A；报表范围：销售报表；排序：稳定业务标识
+    - paragraph: 筛选：(单据号 等于 SO2026001)
+    - paragraph:
+      - generic: 符合当前派单条件
+    - paragraph: 该记录当前未派单，并且满足当前生效的派单规则。
+    - paragraph: 适用规则：销售报表默认规则 · 销售订单金额大于 20 元需要派单
+    - paragraph: 金额：128000.00
+    - paragraph: 结论基于本次查询时的数据与规则；实际派单仍需核对清单并确认。
+    - generic: 匹配 1 条
+    - generic: CNY 合计 128000.00
+    - table:
+      - rowgroup:
+        - row "序号 单据号 报表 公司 金额 业务日期 状态 订单号 产品名称 销售日期，字符串 yyyy-MM-dd 距销售日期的天数（派生） 来源记录是否已派单；true为已派单，false为未派单，不代表满足派单规则":
+          - columnheader "序号":
+            - generic: 序号
+          - columnheader "单据号":
+            - generic: 单据号
+          - columnheader "报表":
+            - generic: 报表
+          - columnheader "公司":
+            - generic: 公司
+          - columnheader "金额":
+            - generic: 金额
+          - columnheader "业务日期":
+            - generic: 业务日期
+          - columnheader "状态":
+            - generic: 状态
+          - columnheader "订单号":
+            - generic: 订单号
+          - columnheader "产品名称":
+            - generic: 产品名称
+          - columnheader "销售日期，字符串 yyyy-MM-dd":
+            - generic: 销售日期，字符串 yyyy-MM-dd
+          - columnheader "距销售日期的天数（派生）":
+            - generic: 距销售日期的天数（派生）
+          - columnheader "来源记录是否已派单；true为已派单，false为未派单，不代表满足派单规则":
+            - generic: 来源记录是否已派单；true为已派单，false为未派单，不代表满足派单规则
+    - table:
+      - rowgroup:
+        - row "1 SO2026001 销售报表 A 128000.00 2026-01-15 未派单 SO2026001 服务器 2026-01-15 267 false":
+          - cell "1":
+            - generic: "1"
+          - cell "SO2026001":
+            - generic: SO2026001
+          - cell "销售报表":
+            - generic: 销售报表
+          - cell "A":
+            - generic: A
+          - cell "128000.00":
+            - generic: "128000.00"
+          - cell "2026-01-15":
+            - generic: 2026-01-15
+          - cell "未派单":
+            - generic "未派单"
+          - cell "SO2026001":
+            - generic: SO2026001
+          - cell "服务器":
+            - generic: 服务器
+          - cell "2026-01-15":
+            - generic: 2026-01-15
+          - cell "267":
+            - generic: "267"
+          - cell "false":
+            - generic: "false"
+    - generic: 帮我派单这条
+    - paragraph: 已生成待确认清单，共 1 条。请核对卡片并点击“确认派单”后执行。
+    - generic: 
+    - text: 可派单记录预览
+    - generic: 共 1 条
+    - generic: 销售报表 1 条
+    - table:
+      - rowgroup:
+        - row "报表 单据号 摘要 公司 金额(元) 日期 命中规则":
+          - columnheader:
+            - checkbox
+          - columnheader "报表":
+            - generic: 报表
+          - columnheader "单据号":
+            - generic: 单据号
+          - columnheader "摘要":
+            - generic: 摘要
+          - columnheader "公司":
+            - generic: 公司
+          - columnheader "金额(元)":
+            - generic: 金额(元)
+          - columnheader "日期":
+            - generic: 日期
+          - columnheader "命中规则":
+            - generic: 命中规则
+    - table:
+      - rowgroup:
+        - row "销售报表 SO2026001 服务器 A 128,000.00 2026-01-15 销售报表默认规则":
+          - cell:
+            - checkbox
+          - cell "销售报表":
+            - generic: 销售报表
+          - cell "SO2026001":
+            - generic: SO2026001
+          - cell "服务器":
+            - generic: 服务器
+          - cell "A":
+            - generic: A
+          - cell "128,000.00":
+            - generic: 128,000.00
+          - cell "2026-01-15":
+            - generic: 2026-01-15
+          - cell "销售报表默认规则":
+            - generic: 销售报表默认规则
+    - generic: 销售订单金额大于 20 元需要派单有效期至 01:05
+    - generic: 已勾选 0 / 1 条，取消勾选的记录派单时会排除
+    - button "派单已勾选记录" [disabled]
+    - generic: 
+    - text: 待确认派单清单
+    - generic: 1 条
+    - table:
+      - rowgroup:
+        - row "报表 单据号 摘要 公司 金额(元)":
+          - columnheader "报表":
+            - generic: 报表
+          - columnheader "单据号":
+            - generic: 单据号
+          - columnheader "摘要":
+            - generic: 摘要
+          - columnheader "公司":
+            - generic: 公司
+          - columnheader "金额(元)":
+            - generic: 金额(元)
+    - table:
+      - rowgroup:
+        - row "销售报表 SO2026001 服务器 A 128,000.00":
+          - cell "销售报表":
+            - generic: 销售报表
+          - cell "SO2026001":
+            - generic: SO2026001
+          - cell "服务器":
+            - generic: 服务器
+          - cell "A":
+            - generic: A
+          - cell "128,000.00":
+            - generic: 128,000.00
+    - button "查看完整追溯"
+    - generic: 派单不可撤销，请核对后确认。清单 00:45 前有效。
+    - button "取消"
+    - button "确认派单"
+    - textbox "例如：查询销售报表 / 查询失败的派单记录 / 总结A公司工单（Enter 发送，Shift+Enter 换行）"
+    - generic: 已在表格中取消勾选 1 条，派单时会自动排除
+    - button "发送"

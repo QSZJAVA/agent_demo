@@ -96,11 +96,11 @@ class CounterpartySelectionTest {
         var wrong=new SemanticIntent(1,Action.PREVIEW,intent.scopeChanges(),List.of(),List.of(new ReportConstraint("应收报表",ReportRole.INCLUDED,"应收报表")),List.of(),Clarify.NONE);
         var unchanged=state.getDesired();assertThrows(ApiException.class,()->planner.merge(USER1,state,wrong));assertEquals(unchanged,state.getDesired());
     }
-    @Test void recordQualifierCannotAlsoJustifyReplacingReportScope() {
-        String message="应收报表排除某客户的全部记录";
+    @Test void sharedEvidenceCanDescribeBothScopeAndRecordSelection() {
+        String message="查询应收报表并排除某客户的全部记录";
         var records=new ScopeChange(Target.RECORDS,Operation.EXCLUDE,List.of("某客户"),message,List.of("应收报表"),SelectorKind.COUNTERPARTY,Quantifier.ALL);
-        var invented=new ScopeChange(Target.REPORTS,Operation.REPLACE,List.of("应收报表"),message);
-        assertThrows(IntentCodec.InvalidOutput.class,()->new IntentCodec().validate(new SemanticIntent(1,Action.PREVIEW,List.of(invented,records),List.of(),Clarify.NONE),message));
+        var scopeFromClause=new ScopeChange(Target.REPORTS,Operation.REPLACE,List.of("应收报表"),message);
+        assertDoesNotThrow(()->new IntentCodec().validate(new SemanticIntent(1,Action.PREVIEW,List.of(scopeFromClause,records),List.of(),Clarify.NONE),message));
         String explicit="只查询应收报表，排除某客户的全部记录";
         var scope=new ScopeChange(Target.REPORTS,Operation.REPLACE,List.of("应收报表"),"只查询应收报表");
         var selection=new ScopeChange(Target.RECORDS,Operation.EXCLUDE,List.of("某客户"),explicit,List.of("应收报表"),SelectorKind.COUNTERPARTY,Quantifier.ALL);

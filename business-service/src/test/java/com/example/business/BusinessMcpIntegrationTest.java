@@ -87,6 +87,24 @@ class BusinessMcpIntegrationTest {
         assertEquals(0,jdbc.queryForObject("SELECT COUNT(*) FROM business_dispatch_request",Integer.class));
         assertEquals(0,jdbc.queryForObject("SELECT COUNT(*) FROM dispatch_plan",Integer.class));
     }
+    @Test void eligibilityOverAuthenticatedHttpKeepsUniqueIdentityAndDoesNotCreateDispatchState() {
+        var query=new com.example.report.assistant.BusinessQuery(com.example.report.assistant.BusinessQuery.Domain.REPORT,
+                com.example.report.assistant.BusinessQuery.View.ELIGIBILITY,List.of(REPORT),"A",
+                List.of(new com.example.report.assistant.BusinessQuery.Group(List.of(new com.example.report.assistant.BusinessQuery.Filter("recordId","EQ",List.of("1"))))),null,false,1,1,null);
+        var eligible=businessQuery(reader,query);
+        assertEquals(1,eligible.total());assertEquals("1",eligible.rows().get(0).get("recordId"));
+        var check=json.convertValue(eligible.rows().get(0).get("eligibility"),com.example.report.assistant.DispatchEligibility.class);
+        assertTrue(check.eligible());assertEquals("1",check.ruleId());assertEquals(1,check.ruleVersion());
+        assertTrue(check.checkedFields().stream().anyMatch(f->"amount".equals(f.name())));
+        jdbc.update("UPDATE report_sales SET dispatch_status=1 WHERE tenant_id='T001' AND id='1'");
+        var dispatched=businessQuery(reader,query);
+        assertEquals("1",dispatched.rows().get(0).get("recordId"));
+        check=json.convertValue(dispatched.rows().get(0).get("eligibility"),com.example.report.assistant.DispatchEligibility.class);
+        assertFalse(check.eligible());assertTrue(check.reason().contains("已派单"));assertNull(check.ruleId());
+        assertEquals(0,jdbc.queryForObject("SELECT COUNT(*) FROM business_dispatch_request",Integer.class));
+        assertEquals(0,jdbc.queryForObject("SELECT COUNT(*) FROM dispatch_preview",Integer.class));
+        assertEquals(0,jdbc.queryForObject("SELECT COUNT(*) FROM dispatch_plan",Integer.class));
+    }
     @Test void generalQueryRejectsCompanyReportAndForgedScalarTypes() {
         assertThrows(ApiException.class,()->businessQuery(reader,readQuery(com.example.report.assistant.BusinessQuery.Domain.REPORT,"B",List.of())));
         var forbidden=new com.example.report.assistant.BusinessQuery(com.example.report.assistant.BusinessQuery.Domain.REPORT,com.example.report.assistant.BusinessQuery.View.LIST,List.of("rpt-ar-invoice"),"A",List.of(),null,false,1,20,null);

@@ -33,7 +33,9 @@ fi
 ADDED="$(printf '%s\n' "$STAGED" | grep -E '^\+' | grep -vE '^\+\+\+' || true)"
 
 PATTERNS=(
-  'sk-[A-Za-z0-9_-]{20,}'
+  # 按凭据前缀的词边界匹配，避免把 task- 等普通单词内部的 sk- 当成密钥。
+  # 引号、空格、URL 分隔符后的真实前缀仍须拦截，不对某个文档路径添加白名单。
+  '(^|[^[:alnum:]_])sk-[A-Za-z0-9_-]{20,}'
   'AKIA[0-9A-Z]{16}'
   'LTAI[0-9A-Za-z]{12,}'
   'BEGIN [A-Z ]*PRIVATE KEY'

@@ -18,10 +18,17 @@ const outputPath = path.resolve(root, option('--output', '.runtime/whole-project
 const wanted = option('--scenarios', '').split(',').filter(Boolean);
 const delay = Number(option('--delay', '3000'));
 const baseline = readJson('demo-baseline.json');
-const apiBase = `http://127.0.0.1:${baseline.agentPort}/api/`;
-const mcpBase = `http://127.0.0.1:${baseline.businessPort}/mcp`;
-const account = readJson('.runtime/semantic-fields-account.json');
-const credentials = readJson('.runtime/mcp-credentials.json');
+// 显式测试环境可指向已授权的隔离夹具；默认仍使用本机当前基线，不改库名、不复制或重置演示数据。
+const localUrl = value => {
+  const url = new URL(value);
+  if (url.protocol !== 'http:' || !['127.0.0.1', 'localhost', '[::1]'].includes(url.hostname) || url.username || url.password)
+    throw new Error('Regression endpoints must be credential-free loopback HTTP URLs');
+  return url.toString().replace(/\/$/, '');
+};
+const apiBase = localUrl(option('--agent-url', `http://127.0.0.1:${baseline.agentPort}`)) + '/api/';
+const mcpBase = localUrl(option('--business-url', `http://127.0.0.1:${baseline.businessPort}`)) + '/mcp';
+const account = readJson(option('--account', '.runtime/semantic-fields-account.json'));
+const credentials = readJson(option('--mcp-credentials', '.runtime/mcp-credentials.json'));
 const reportIds = {sales:'rpt-sales-order', receivable:'rpt-ar-invoice', expense:'rpt-expense-claim'};
 const domain = source => source === 'dispatch' ? 'DISPATCH' : source === 'work_order' ? 'WORK_ORDER' : 'REPORT';
 const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));

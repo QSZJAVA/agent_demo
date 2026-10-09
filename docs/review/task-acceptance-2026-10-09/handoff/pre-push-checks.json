@@ -1,0 +1,89 @@
+{
+  "recordedAt": "2026-10-09T00:20:04.927Z",
+  "scope": "交接归档与提交前静态检查；不代表最终模型、HTTP MCP、浏览器或全仓程序验收。",
+  "status": "PASSED_FOR_HANDOFF_ONLY",
+  "snapshotFormatting": {
+    "operation": "仅移除机器生成AX/DOM文本快照的行尾空格和制表符；日期、版本、可见文本、结构、失败与执行范围保留。原始字节在旧电脑忽略目录留存，以下指纹记录格式整理前后。",
+    "files": [
+      {
+        "file": "docs/review/browser-task-2026-10-08/round-1/03-prepare.ax.txt",
+        "originalSha256": "928f5b4346d57084eb6456883b13f406d8863d5df83f08236ab6cc55d27a5ee4",
+        "archivedSha256": "7abb97651aec0b7060462db8993e3bdc73cc77aa067484a292197fc5cc492b1e"
+      },
+      {
+        "file": "docs/review/browser-task-2026-10-08/round-1/04-pending-restored.ax.txt",
+        "originalSha256": "dd943e3b98e13a6a816b06d0b95c919c72b24af896d5fb84943fc571fd484663",
+        "archivedSha256": "def68c7a8046d89173b2108bfff228056ed1395154302c8db0ebc20bdc0c4c55"
+      },
+      {
+        "file": "docs/review/browser-task-2026-10-08/round-1/06-current-cancelled.ax.txt",
+        "originalSha256": "699901aa4c7aded80bd0116e447aee307b3dd22c0b8a97678dbe8ca6f7280e75",
+        "archivedSha256": "5f7f68e7cc06dd9b9e8a8962bf0859a72c8aec3794e3becb53f464836f3b149d"
+      },
+      {
+        "file": "docs/review/browser-task-2026-10-08/round-1/07-refreshed-candidate.ax.txt",
+        "originalSha256": "9083e58ac65f2c8ada810b4a0a504de52e15740220537bbc527e4efe3a143535",
+        "archivedSha256": "e12c7e6efe48a091edbf8e372405750efada06e63d7cc781b9a3448955f7237b"
+      },
+      {
+        "file": "docs/review/browser-task-2026-10-08/round-1/08-reprepared.ax.txt",
+        "originalSha256": "8231fa853819f8c6eb59fad4c0bb9b4904a79bfd684a371adb184c280a51545f",
+        "archivedSha256": "4d1a613b591c69e25d40c9457290af7a3ccd0556c8deab141adf8a10c621692f"
+      },
+      {
+        "file": "docs/review/browser-task-2026-10-08/round-1/09-executed.ax.txt",
+        "originalSha256": "a86cf4c33b51d029ec46e18da1015c7c577cb042a0f0b7086ab88fd1b0455e2e",
+        "archivedSha256": "db54c823aa860f7dd03b6e61b74725aa78765e46c8d557657a0e8b2d5e7005ea"
+      },
+      {
+        "file": "docs/review/browser-task-2026-10-08/round-1/22-second-target-pending.ax.txt",
+        "originalSha256": "0c29ceb39bb7942069e713003d9062ffa0cef886c72f6871de947e103f1f0614",
+        "archivedSha256": "a56e9976508d48d6287584591c45293e86612206ea6d841520ec32be96b67a5b"
+      },
+      {
+        "file": "docs/review/task-acceptance-2026-10-09/overall-round-1/05-detail-before-fix.dom.txt",
+        "originalSha256": "55129cda9f0699cc966f1e61d8bdd36f95e9d3a832158fc57711c1930f26a98c",
+        "archivedSha256": "918ed6044e4ac4bc75c9b0422a4c85774d8c7e2dc3d822b815595d0d5705f858"
+      }
+    ]
+  },
+  "checks": [
+    {
+      "name": "comments",
+      "exitCode": 0,
+      "output": "注释检查通过：210 个生产类型、225 个实体字段、42 个请求/表单字段、104 个record、31 个前端模块；38 张表、456 个字段清单。"
+    },
+    {
+      "name": "documentation-and-generated-diagrams",
+      "exitCode": 0,
+      "output": "Real-model documentation check passed (146 files).\nV1 business assistant baseline passed; 80 Markdown files and 12 generated flows checked.\nGenerated 12 SVG/Mermaid pages, editable draw.io and standalone HTML in D:\\demo-v1\\demo\\docs\\diagrams\\demo-final"
+    },
+    {
+      "name": "staged-diff-and-command-syntax",
+      "exitCode": 0,
+      "output": "{\r\n  \"PowerShellBlocks\": 7,\r\n  \"SyntaxErrors\": 0\r\n}"
+    },
+    {
+      "name": "credential-scan",
+      "exitCode": 0,
+      "output": "{\"recordedAt\":\"2026-10-09T00:19:32.510Z\",\"candidateFiles\":334,\"textFiles\":276,\"binaryFiles\":58,\"privateCredentialFilesRead\":8,\"knownSecretValuesChecked\":12,\"findings\":[]}"
+    },
+    {
+      "name": "staged-scope",
+      "exitCode": 0,
+      "output": "{\"stagedFiles\":334,\"forbiddenFiles\":[]}"
+    },
+    {
+      "name": "commit-hook-boundary-regression",
+      "exitCode": 0,
+      "output": "10/10 isolated Git index cases passed; evidence: hook-boundary-check.json"
+    }
+  ],
+  "commitHookRepair": {
+    "initialCommitBlocked": true,
+    "cause": "旧模式把普通单词内部的密钥前缀片段误判为凭据。",
+    "resolution": "使用通用词边界并同步仓库与本机钩子；未跳过提交检查。",
+    "documentationAndBaselineRechecked": true,
+    "stagedDiffRechecked": true
+  }
+}

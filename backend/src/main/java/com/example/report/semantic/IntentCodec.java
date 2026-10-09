@@ -40,11 +40,17 @@ public class IntentCodec {
             intent = mapper.readValue(content, SemanticIntent.class);
             validate(intent, message);
             return intent;
-        } catch (InvalidOutput failure) { throw new InvalidOutput(content,diagnostics(intent,message,failure.reason())); }
+        } catch (InvalidOutput failure) { throw new InvalidOutput(content,failure.reason()); }
         catch (Exception failure) { throw new InvalidOutput(content,"INVALID_STRUCTURE_OR_ACTION"); }
     }
     /** 要求每次修改和禁止都有本轮连续原文证据，并校验范围顺序、单家公司、修改数量及动作冲突。*/
     public void validate(SemanticIntent intent, String message) {
+        // 统一任务入口直接调用validate，也必须得到与decode完全相同的字段诊断；否则模型只会反复提交同一错误。
+        try { validateStructure(intent,message); }
+        catch (InvalidOutput failure) { throw new InvalidOutput(failure.output(),diagnostics(intent,message,failure.reason())); }
+    }
+    /** 不改变任何意图字段；校验失败统一经validate补充具体证据路径后再交还规划器。 */
+    private void validateStructure(SemanticIntent intent,String message) {
         if (intent == null || intent.version()!=SemanticIntent.VERSION || intent.action()==null || intent.clarify()==null
                 || intent.scopeChanges()==null || intent.restrictions()==null || intent.reportConstraints()==null || intent.unsupportedConditions()==null
                 || intent.scopeChanges().size()>8 || intent.restrictions().size()>7 || intent.reportConstraints().size()>20 || intent.unsupportedConditions().size()>20) throw invalid();
@@ -133,7 +139,7 @@ public class IntentCodec {
             if(change.selectorKind()!=SelectorKind.REFERENCE && change.mentions()!=null && change.mentions().stream().anyMatch(m->!contains(change.evidence(),m)))
                 issues.add("mentions中的对象必须出现在该操作的evidence中；引用包含对象的连续原文，不能只引用动作");
             if(change.reportMentions()!=null && change.reportMentions().stream().anyMatch(m->!contains(message,m)))
-                issues.add("reportMentions只能使用本轮原文出现的报表，不得补标准名或历史名称");
+                issues.add("scopeChanges["+intent.scopeChanges().indexOf(change)+"].reportMentions只能使用本轮原文出现的报表，不得补标准名或历史名称；未提报表时为空数组，既有候选范围由sourceRef绑定");
             if(change.conditions()!=null)for(var group:change.conditions())if(group!=null && group.allOf()!=null)
                 for(var field:group.allOf())if(field!=null && !grounded(change.evidence(),field.evidence()))
                     issues.add("条件evidence须逐字引用所属操作evidence中的连续片段；不可补省略的字段名或把区间改写成比较句；同一原文片段可支持多个条件");
@@ -143,6 +149,11 @@ public class IntentCodec {
                 issues.add("unsupportedConditions只能逐字引用不支持的条件，不能添加原因、冒号解释或虚构字段");
             if(!intent.unsupportedConditions().isEmpty() && intent.action()!=Action.CLARIFY)
                 issues.add("存在不支持条件时action必须为CLARIFY且clarify不能为NONE；整轮不能部分执行");
+        }
+        if(intent.reportConstraints()!=null)for(int i=0;i<intent.reportConstraints().size();i++) {
+            var reference=intent.reportConstraints().get(i);if(reference==null)continue;
+            if(!grounded(message,reference.evidence()) || !contains(reference.evidence(),reference.mention()))
+                issues.add("reportConstraints["+i+"].mention须逐字来自其evidence所引用的本轮原文，不得把别名补写为目录标准全名；evidence也不能取自历史。已有scopeChanges完整表达的范围无需重复reportConstraints");
         }
         return String.join("；",issues);
     }

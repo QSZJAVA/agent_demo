@@ -18,8 +18,10 @@ public record DispatchDirective(SemanticIntent intent,Source source,String sourc
         if(intent==null || source==null || referenceKeys==null || referenceKeys.size()>50 || evidence==null || evidence.isBlank() || evidence.length()>1000)
             throw new ApiException(422,"派单任务缺少完整动作、目标来源或本轮依据");
         referenceKeys=List.copyOf(referenceKeys);
+        if(source!=Source.QUERY_ROWS && !referenceKeys.isEmpty())
+            throw new ApiException(422,"dispatch.referenceKeys仅用于QUERY_ROWS的row-N查询行键；当前source="+source+"时必须为空。候选REFERENCE的ref_键只填intent.scopeChanges中对应记录操作的mentions，不能放入referenceKeys");
         if(referenceKeys.stream().anyMatch(k->k==null || !k.matches("row-[1-9][0-9]{0,3}")) || referenceKeys.stream().distinct().count()!=referenceKeys.size())
-            throw new ApiException(422,"查询对象引用键无效或重复");
+            throw new ApiException(422,"dispatch.referenceKeys必须是不重复的row-N查询行键，只能从queryObjects.rows复制；候选ref_键只能用于记录操作的mentions");
         if((source==Source.EXPLICIT_SCOPE)!=(sourceRef==null) || (sourceRef!=null && sourceRef.length()>128))
             throw new ApiException(422,"目标来源必须携带对应上下文引用，明确新范围不得复用旧引用");
         if((source==Source.QUERY_ROWS)!=!referenceKeys.isEmpty())throw new ApiException(422,"仅QUERY_ROWS填写已展示对象键，且至少指定一个对象");

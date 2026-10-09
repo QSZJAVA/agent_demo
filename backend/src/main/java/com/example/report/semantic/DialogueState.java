@@ -6,7 +6,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 /**
- * 会话语义状态：desired 为用户最近提出的范围，effective 为最近成功查询的范围，两者不能因失败而混同。
+ * 会话语义状态：desired 为通过任务预检后尝试处理的范围，effective 为最近成功查询的范围，两者不能因执行失败而混同。
  * 标识和选择由服务端维护；未澄清范围阻止后续省略表达沿用过时事实执行。
  */
 @Data
@@ -22,7 +22,7 @@ public class DialogueState {
         public Scope { reportIds = reportIds == null ? List.of() : List.copyOf(reportIds); }
         public static Scope initial() { return new Scope(null, true, List.of()); }
     }
-    /** 用户最近请求的查询范围；查询失败时仍保留，不能当作已成功生效范围。 */
+    /** 最近通过任务预检的查询范围；执行失败时仍保留，未通过预检的草稿不得覆盖，也不能视为已生效范围。 */
     private Scope desired = Scope.initial();
     /** 最近成功查询的范围；未有成功快照时为空。 */
     private Scope effective;
@@ -70,7 +70,7 @@ public class DialogueState {
     private List<String> businessReportIds = List.of();
     /** 本会话曾查询公司范围的并集；管理员经派单追溯读取会话时也必须完整具备这些公司权限。 */
     private List<String> businessCompanyCodes = List.of();
-    /** 最近业务查询发生在候选之后；提示话题边界，目标由统一计划显式绑定，查询对象用于派单时重新核验。 */
+    /** 候选之后发生过业务查询时为true；旧候选须重新展示再建单，具体查询记录可另行绑定并重新核验。 */
     private boolean businessQueryAfterPreview;
     /** 最近成功应用的记录选择及其实体证据；供跨轮唯一指代使用，新范围会清除，失败草稿不得覆盖。 */
     private List<SemanticIntent.ScopeChange> lastSuccessfulSelection = List.of();

@@ -6,6 +6,7 @@ import com.example.report.common.*;
 import com.example.report.conversation.ConversationService;
 import com.example.report.mcp.BusinessMcpClient;
 import com.example.report.permission.CurrentUser;
+import com.example.report.semantic.DialogueState;
 import com.example.report.semantic.DialogueStore;
 import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.stereotype.Service;
@@ -46,8 +47,11 @@ public class BusinessAssistantService {
         var validated=new HashMap<BusinessQuery,BusinessResult>();var attemptedRead=new boolean[]{false};
         try {
             catalog.refreshForValidation();
-            var history=conversations.messages(user,id,null,16).stream()
-                    .filter(m->Set.of("user","assistant").contains(m.role()) && m.content()!=null)
+            var recent=conversations.messages(user,id,null,16);
+            // 本轮用户消息已先持久化，单独作为message传入；在截断之前移除重复来源，避免它既是历史又是当前授权。
+            if(!recent.isEmpty() && "user".equals(recent.get(recent.size()-1).role())
+                    && message.equals(recent.get(recent.size()-1).content()))recent=recent.subList(0,recent.size()-1);
+            var history=recent.stream().filter(m->Set.of("user","assistant").contains(m.role()) && m.content()!=null)
                     .map(m->Map.of("role",m.role(),"content",m.content().length()>2000?m.content().substring(0,2000)+"[文本已截断]":m.content())).toList();
             plan=planner.plan(message,state,catalog.visibleReports(user),user.companies(),new AssistantPlanningContext(history,dispatchSelection,draft->{
                 guard.run();
@@ -67,10 +71,12 @@ public class BusinessAssistantService {
             // 路由本身不可靠时也不能让下一轮省略建单沿用旧意图；明确的只读接口失败则只影响查询上下文。
             state.setUnresolvedRequest(true);
             if(attemptedRead[0])state.setBusinessQueryAfterPreview(true);
-            if("DISPATCH".equals(state.getAssistantFocus()))state.setPhase(com.example.report.semantic.DialogueState.Phase.CLARIFY);
+            state.setPhase(failurePhase(failure));
             if(attemptedRead[0])state.setBusinessUnresolved(true);
             state.setAssistantRoute("CLARIFY");
             String reason=failure instanceof ApiException api?api.getMessage():"本轮请求未能可靠解析，请明确查询对象、范围或具体操作。";
+            // 被拒草稿不写入范围；保留失败原因供下一轮复核和审计定位，首次请求也必须有正确阶段。
+            state.setLastReason(com.example.report.operations.SensitiveData.text(reason));
             finish(user,id,requestId,message,reason+" 本轮未应用任何修改。",model,session,guard,emit,started);return Optional.empty();
         }
         state.setParserSource(planner.source());
@@ -80,13 +86,16 @@ public class BusinessAssistantService {
         if(attemptedRead[0])state.setBusinessQueryAfterPreview(true);
         boolean previousDispatch="DISPATCH".equals(state.getAssistantFocus());
         state.setAssistantRoute(plan.route().name());
+        state.setLastReason(null);
         String reply;
         try {
             reply=switch(plan.route()) {
                 case HELP -> "我是业务助手，可以查询报表数据、派单记录、工单进度和工单总结，也可以准备派单清单。你可以问“销售报表金额大于五万元的有哪些”“查询失败的派单记录”“WO-DEMO-001 到哪个环节了”“总结 A 公司工单”。工单环节与审批人为明确标注的演示数据；派单仍需核对清单并点击确认。";
                 case CLARIFY -> {
-                    if(previousDispatch)state.setUnresolvedRequest(true);else state.setBusinessUnresolved(true);
-                    if(previousDispatch){state.setUnresolvedRequest(true);state.setPhase(com.example.report.semantic.DialogueState.Phase.CLARIFY);}
+                    state.setUnresolvedRequest(true);
+                    if(!previousDispatch)state.setBusinessUnresolved(true);
+                    state.setPhase(DialogueState.Phase.CLARIFY);
+                    state.setLastReason(com.example.report.operations.SensitiveData.text(plan.clarification()));
                     yield plan.clarification()+" 本轮未应用任何修改。";
                 }
                 case BUSINESS_QUERY -> {
@@ -94,8 +103,10 @@ public class BusinessAssistantService {
                     state.setBusinessQueryAfterPreview(true);
                     if(plan.followUp() && (state.getBusinessQuery()==null || state.isBusinessUnresolved())) throw new ApiException(422,"上一查询未完成，请重新明确查询对象和条件");
                     var result=validated.get(plan.query());if(result==null)result=read(user,plan.query());guard.run();
-                    // 取得业务事实前先复核当前目录授权；返回响应不能扩大模型提出的查询范围。
+                    // 复核模型可能耗时；即使复用本轮已读取的事实，发布卡片前也必须重新验证当前授权。
+                    requireCurrentQueryAccess(user,result.query().reportIds());
                     state.setBusinessPermissionVersion(user.permissionVersion());state.setBusinessQuery(result.query());state.setBusinessUnresolved(false);
+                    state.setUnresolvedRequest(false);state.setPhase(DialogueState.Phase.READY);
                     state.setAssistantFocus("BUSINESS_QUERY");
                     var historyReports=new TreeSet<>(state.getBusinessReportIds());historyReports.addAll(result.query().reportIds());state.setBusinessReportIds(List.copyOf(historyReports));
                     var historyCompanies=new TreeSet<>(state.getBusinessCompanyCodes());historyCompanies.addAll(result.query().companyCode()==null?user.companies():Set.of(result.query().companyCode()));state.setBusinessCompanyCodes(List.copyOf(historyCompanies));
@@ -109,7 +120,9 @@ public class BusinessAssistantService {
             };
         } catch(Exception failure) {
             state.setBusinessUnresolved(true);
+            state.setPhase(failurePhase(failure));
             reply=failure instanceof ApiException api?api.getMessage():"业务查询暂未完成，请稍后重试；本轮没有执行派单或审批。";
+            state.setLastReason(com.example.report.operations.SensitiveData.text(reply));
         }
         finish(user,id,requestId,message,reply,model,session,guard,emit,started);return Optional.empty();
     }
@@ -140,21 +153,31 @@ public class BusinessAssistantService {
         if(result==null || !resolved.equals(result.query()) || result.rows()==null || result.columns()==null || result.summary()==null || result.total()!=result.summary().count()
                 || result.total()<0 || result.rows().size()>query.size() || JsonUtil.toJson(result).getBytes(java.nio.charset.StandardCharsets.UTF_8).length>240000)
             throw new ApiException(502,"业务查询响应不完整或超过展示预算");
-        for(var row:result.rows()) if(!ids.contains(row.get("reportId")) || !user.companies().contains(row.get("companyCode")))throw new ApiException(502,"业务接口返回范围外数据");
+        for(var row:result.rows()) if(!ids.contains(row.get("reportId")) || !user.companies().contains(row.get("companyCode"))
+                || (query.companyCode()!=null && !query.companyCode().equals(row.get("companyCode"))))throw new ApiException(502,"业务接口返回范围外数据");
         if(query.view()==BusinessQuery.View.ELIGIBILITY) {
             if(result.total()!=1 || result.rows().size()!=1)throw new ApiException(502,"资格核验必须返回唯一记录");
             eligibility(result.rows().get(0));
         }
+        requireCurrentQueryAccess(user,ids);
+        return result;
+    }
+    /** 读取结束及语义复核结束各检查一次授权；权限变更时丢弃未发布事实，不更新查询引用或输出卡片。 */
+    private void requireCurrentQueryAccess(CurrentUser user,List<String> ids) {
         catalog.refreshForValidation();for(String id:ids)catalog.requireVisible(user,id);
         var current=permissions.resolve(user.userId());
         if(!current.tenantId().equals(user.tenantId()) || !current.permissionVersion().equals(user.permissionVersion())) throw ApiException.forbidden("查询期间权限已变化，请重新登录后查询");
-        return result;
     }
     /** 每轮事实与总结先持久化再发出完成文本；失败记录不覆盖派单预览和选择状态。 */
     private void finish(CurrentUser user,String id,String requestId,String message,String reply,String model,DialogueStore.Session session,Runnable guard,Consumer<AgentEvent> emit,long started) {
-        session.fenced(()->{guard.run();session.save();session.record(requestId,message,null,"ASSISTANT_"+session.state().getAssistantRoute(),null,model,(System.nanoTime()-started)/1_000_000);
+        session.fenced(()->{guard.run();session.save();session.record(requestId,message,null,"ASSISTANT_"+session.state().getAssistantRoute(),session.state().getLastReason(),model,(System.nanoTime()-started)/1_000_000);
             conversations.logAssistant(id,user.userId(),reply,model,null,(System.nanoTime()-started)/1_000_000);return null;});
         emit.accept(new AgentEvent(AgentEvent.TEXT,Map.of("delta",reply)));
+    }
+    /** 统一规划与派单执行使用同一失败分类；协议澄清、业务拒绝和非业务异常不伪装成就绪。 */
+    private static DialogueState.Phase failurePhase(Exception failure) {
+        return failure instanceof ApiException api && api.getCode()==422?DialogueState.Phase.CLARIFY
+                :failure instanceof ApiException?DialogueState.Phase.REJECTED:DialogueState.Phase.FAILED;
     }
     private static List<Map<String,String>> references(BusinessResult result) {
         List<Map<String,String>> references=new ArrayList<>();

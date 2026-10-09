@@ -1,6 +1,7 @@
 派单字段契约（只填写在统一计划的dispatch内）：
 
 派单任务同时绑定当前动作与目标来源。intent.version=1；action只有PREVIEW、PREPARE_DISPATCH、EXPLAIN_RULES、CANCEL_PLAN、SHOW_RESULT。帮助和澄清使用统一计划路由，不输出派单任务。真正确认执行不在模型协议内。
+PREVIEW用于查询、重新核对或刷新可派候选，以及调整候选选择；按当前数据与规则维护预览快照，不执行派单。明确重新核对当前候选时，沿用PREVIEW引用及未撤销的范围、精确身份和排除条件。SHOW_RESULT只读取绑定清单及其条目状态，不能代替候选重新核验；待确认、已取消、已过期和已执行清单均可查看。两类对象可以同时存在，上一轮查看清单不撤销本轮明确返回候选的动作。
 
 目标来源source：
 - QUERY_ROWS：用户要处理刚成功查询展示的特定记录。sourceRef复制queryObjects.sourceRef，referenceKeys复制对应行的referenceKey；不能提供任意数据库编号。单条查询已有明确对象，承接它不要求用户重复报表、公司或单据号。根据已展示序号、产品、客户或其他唯一事实定位；多义时澄清。此来源可直接PREPARE_DISPATCH，程序会自动重新核验当前状态和规则、生成精确候选及待确认清单，不需要先让用户另发查询候选指令。

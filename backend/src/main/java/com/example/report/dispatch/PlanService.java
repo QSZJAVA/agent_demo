@@ -220,7 +220,6 @@ public class PlanService {
         });
     }
 
-    /** 当前用户的清单，读取时做懒惰校验；不归属当前用户按不存在处理*/
     /** 规划阶段仅在副本上投影清单有效性；不写失效状态、不加载全部条目，也不赋予确认或取消权限。 */
     public DispatchPlan inspectOwned(CurrentUser user,String planId) {
         var original=findOwned(user,planId).orElseThrow(()->ApiException.notFound("当前清单不存在或无权访问"));
@@ -231,6 +230,7 @@ public class PlanService {
         return copy;
     }
 
+    /** 当前用户的清单，读取时做懒惰校验；不归属当前用户按不存在处理。 */
     public PlanSnapshot getOwned(CurrentUser user, String planId) {
         DispatchPlan plan = findOwned(user, planId)
                 .orElseThrow(() -> ApiException.notFound("待确认清单不存在或已过期，请重新预览"));

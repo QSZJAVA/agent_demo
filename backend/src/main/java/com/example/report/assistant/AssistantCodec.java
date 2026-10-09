@@ -13,13 +13,18 @@ public final class AssistantCodec {
     private AssistantCodec() { }
     /** 解码一次模型计划，超长、缺失或损坏输出明确澄清，不将缺失 route 当作派单。 */
     public static AssistantPlan plan(String text){return decode(text,AssistantPlan.class);}
-    /** 语义复核也执行完整严格解码；缺少通过标志或问题依据不能视为已经通过。 */
+    /** 语义复核也执行完整严格解码；缺少原文要求或完整期望不能视为已经通过。 */
     public static SemanticReview review(String text){return decode(text,SemanticReview.class);}
     /** 解码 HTTP MCP 的查询参数，使用与模型输出相同的类型边界。 */
     public static BusinessQuery query(Object value){return decode(JsonUtil.toJson(value),BusinessQuery.class);}
     private static <T>T decode(String text,Class<T> type) {
         if(text==null || text.length()>24000) throw new ApiException(422,"业务查询计划缺失或过长");
-        try{return MAPPER.readValue(text,type);}catch(Exception e){throw new ApiException(422,"业务查询计划不符合协议："+diagnostic(e));}
+        try {
+            T value=MAPPER.readValue(text,type);
+            // JSON null本身合法，但不是完整计划/复核对象，必须进入有界契约修正而非空指针失败。
+            if(value==null)throw new ApiException(422,"必须输出完整JSON对象，不能输出null");
+            return value;
+        } catch(Exception e){throw new ApiException(422,"业务查询计划不符合协议："+diagnostic(e));}
     }
     /** 只反馈服务端约束和JSON字段路径，不回显模型原文或错误字段值，供有界结构修正定位问题。 */
     private static String diagnostic(Exception failure) {

@@ -1,6 +1,7 @@
 package com.example.report.semantic;
 
 import com.example.report.agent.AgentChatService;
+import com.example.report.assistant.*;
 import com.example.report.common.*;
 import com.example.report.config.AgentProperties;
 import com.example.report.conversation.ConversationService;
@@ -19,7 +20,7 @@ import java.time.Duration;
 import java.util.*;
 import static org.junit.jupiter.api.Assertions.*;
 
-/** 使用隔离MySQL库验证对话、预览、选择恢复与待确认清单；模型及业务源使用测试替身，不代表真实模型或MCP验收。 */
+/** 使用隔离MySQL库验证对话、预览、选择恢复与待确认清单；注入完整任务及复核结论，语义理解另由模型测试验证。 */
 @EnabledIfEnvironmentVariable(named="P2_IT",matches="true")
 @SpringBootTest(webEnvironment=SpringBootTest.WebEnvironment.RANDOM_PORT,properties={"agent.semantic.mode=active","agent.retention-sweep-ms=3600000","spring.data.redis.database=15"})
 @ActiveProfiles("mock") @DirtiesContext
@@ -38,7 +39,8 @@ class SemanticIntegrationTest {
         var failed=new SemanticIntent(1,SemanticIntent.Action.PREVIEW,List.of(new SemanticIntent.ScopeChange(SemanticIntent.Target.RECORDS,
                 SemanticIntent.Operation.EXCLUDE,List.of("DOES-NOT-EXIST"),bad,List.of(),SemanticIntent.SelectorKind.DOCUMENT,SemanticIntent.Quantifier.ONE)),List.of(),SemanticIntent.Clarify.NONE);
         org.mockito.Mockito.doReturn(failed).when(parser).parse(org.mockito.ArgumentMatchers.eq(bad),org.mockito.ArgumentMatchers.any());
-        turn(id,bad);assertTrue(store.read(user(),id).isUnresolvedRecords());
+        turn(id,bad);assertTrue(store.read(user(),id).isUnresolvedRequest());
+        assertFalse(store.read(user(),id).isUnresolvedRecords(),"预检拒绝的草稿不能改写已成功的选择状态");
         assertEquals(accepted.scopeChanges(),store.read(user(),id).getLastSuccessfulSelection());
         String readMessage="先查询工单再处理派单";
         var businessQuery=new com.example.report.assistant.BusinessQuery(com.example.report.assistant.BusinessQuery.Domain.WORK_ORDER,
@@ -52,7 +54,7 @@ class SemanticIntegrationTest {
         String fresh="重新查询费用报表可派的";
         var query=new SemanticIntent(1,SemanticIntent.Action.PREVIEW,List.of(new SemanticIntent.ScopeChange(SemanticIntent.Target.REPORTS,
                 SemanticIntent.Operation.REPLACE,List.of("费用报表"),fresh)),List.of(),SemanticIntent.Clarify.NONE);
-        org.mockito.Mockito.doReturn(query).when(parser).parse(org.mockito.ArgumentMatchers.eq(fresh),org.mockito.ArgumentMatchers.any());
+        task(fresh,s->AssistantPlan.dispatch(new DispatchDirective(query,DispatchDirective.Source.EXPLICIT_SCOPE,null,List.of(),fresh)));
         var events=turn(id,fresh);assertTrue(events.stream().anyMatch(e->"preview".equals(e.event())),text(events));
         var state=store.read(user(),id);assertFalse(state.isUnresolvedRecords());assertEquals(DialogueState.Phase.READY,state.getPhase());
         assertEquals(List.of(),state.getExcludedRecords());assertEquals(List.of("rpt-expense-claim"),state.getEffective().reportIds());
@@ -102,6 +104,18 @@ class SemanticIntegrationTest {
     String conversation(){return conversations.create(user(),"test").getId();}
     List<ServerSentEvent<Object>> turn(String id,String message){return chat.chat(user(), id, message, null, List.of()).collectList().block(Duration.ofSeconds(30));}
     String text(List<ServerSentEvent<Object>> events){return events.stream().filter(e->"text".equals(e.event())||"error".equals(e.event())).map(e->JsonUtil.toJson(e.data())).reduce("",String::concat);}
+    /** 在统一任务边界注入固定复核结果；生产预检、状态持久化及执行约束仍真实运行，不推断自然语言。 */
+    private void task(String message,java.util.function.Function<DialogueState,AssistantPlan> result) {
+        org.mockito.Mockito.doAnswer(call->result.apply(call.getArgument(1))).when(businessPlanner)
+                .plan(org.mockito.ArgumentMatchers.eq(message),org.mockito.ArgumentMatchers.any(),org.mockito.ArgumentMatchers.anyList(),org.mockito.ArgumentMatchers.anySet());
+    }
+    /** 固定的歧义复核结论用于验证拒绝后的无副作用边界；真实复核能力由ModelAssistantPlannerTest单独覆盖。 */
+    private void unresolvedContinuation(String message) {
+        task(message,s->{
+            assertTrue(s.isUnresolvedRequest() || s.isBusinessQueryAfterPreview(),"必须把前轮失败或话题切换交给统一规划器");
+            return new AssistantPlan(AssistantPlan.Route.CLARIFY,null,false,"本轮目标尚未确定，请明确公司、报表或是否继续原候选");
+        });
+    }
     @Test void businessQueryKeepsDispatchPreviewSelectionAndPendingPlanUnchanged() {
         String id=conversation();turn(id,"A公司销售报表的");
         var before=store.read(user(),id);String preview=before.getPreviewId();
@@ -129,6 +143,7 @@ class SemanticIntegrationTest {
         var fullAdmin=new CurrentUser(user().tenantId(),"other-admin","管理员",Set.of("A"),Set.of("*"),true);
         assertTrue(businessHistory.readable(fullAdmin,id));
         assertThrows(ApiException.class,()->previews.requireConversationReadable(narrowAdmin,id));
+        unresolvedContinuation("剩下的帮我派单吧");
         assertFalse(turn(id,"剩下的帮我派单吧").stream().anyMatch(e->"plan".equals(e.event())));
         assertEquals(plansBefore,jdbc.queryForObject("SELECT COUNT(*) FROM dispatch_plan",Long.class));
         // 历史读取需要当前业务权限，但仅删除本人会话不应被已撤销的业务范围阻挡。
@@ -139,7 +154,10 @@ class SemanticIntegrationTest {
         org.mockito.Mockito.doThrow(new ApiException(422,"bad model")).when(businessPlanner).plan(org.mockito.ArgumentMatchers.eq("查询未知业务"),org.mockito.ArgumentMatchers.any(),org.mockito.ArgumentMatchers.anyList(),org.mockito.ArgumentMatchers.anySet());
         var events=turn(id,"查询未知业务");assertFalse(events.stream().anyMatch(e->Set.of("preview","plan","business_query").contains(e.event())));
         assertTrue(text(events).contains("未应用任何修改"));
-        var after=store.read(user(),id);assertEquals(before.getPreviewId(),after.getPreviewId());assertEquals(before.getDesired(),after.getDesired());assertTrue(after.isBusinessUnresolved());assertEquals("DISPATCH",after.getAssistantFocus());
+        var after=store.read(user(),id);assertEquals(before.getPreviewId(),after.getPreviewId());assertEquals(before.getDesired(),after.getDesired());
+        assertTrue(after.isUnresolvedRequest());assertEquals(before.isBusinessUnresolved(),after.isBusinessUnresolved());assertEquals("DISPATCH",after.getAssistantFocus());
+        assertEquals("bad model",after.getLastReason());
+        assertEquals("bad model",jdbc.queryForObject("SELECT reason FROM semantic_turn WHERE conversation_id=? AND utterance=?",String.class,id,"查询未知业务"));
     }
     @Test void failedBusinessReadAlsoRequiresFreshDispatchPreviewBeforeImplicitPreparation() {
         String id=conversation();turn(id,"A公司销售报表的");var before=store.read(user(),id);
@@ -150,13 +168,14 @@ class SemanticIntegrationTest {
         var failed=turn(id,"查看工单");assertFalse(failed.stream().anyMatch(e->"business_query".equals(e.event())));
         var state=store.read(user(),id);assertEquals(before.getPreviewId(),state.getPreviewId());assertNull(state.getBusinessQuery());assertTrue(state.isBusinessQueryAfterPreview());
         String unsupportedMessage="直接准备这个清单";
-        var unsupported=new SemanticIntent(1,SemanticIntent.Action.CLARIFY,List.of(),List.of(),List.of(),List.of(unsupportedMessage),SemanticIntent.Clarify.ACTION);
-        org.mockito.Mockito.doReturn(unsupported).when(parser).parse(org.mockito.ArgumentMatchers.eq(unsupportedMessage),org.mockito.ArgumentMatchers.any());
-        var explained=turn(id,unsupportedMessage);assertTrue(text(explained).contains("只读"),text(explained));
+        unresolvedContinuation(unsupportedMessage);
+        var explained=turn(id,unsupportedMessage);assertTrue(text(explained).contains("目标尚未确定"),text(explained));
         assertEquals(before.getPreviewId(),store.read(user(),id).getPreviewId());
+        unresolvedContinuation("剩下的帮我派单吧");
         assertFalse(turn(id,"剩下的帮我派单吧").stream().anyMatch(e->"plan".equals(e.event())));
         assertTrue(turn(id,"查一下我有哪些可以派单").stream().anyMatch(e->"preview".equals(e.event())));
         assertFalse(store.read(user(),id).isBusinessQueryAfterPreview());
+        org.mockito.Mockito.doCallRealMethod().when(businessPlanner).plan(org.mockito.ArgumentMatchers.eq("剩下的帮我派单吧"),org.mockito.ArgumentMatchers.any(),org.mockito.ArgumentMatchers.anyList(),org.mockito.ArgumentMatchers.anySet());
         assertTrue(turn(id,"剩下的帮我派单吧").stream().anyMatch(e->"plan".equals(e.event())));
     }
     @Test void reportedConversationReplaysWithoutInventedPermissionOrScope() {
@@ -168,9 +187,12 @@ class SemanticIntegrationTest {
         assertTrue(text(b).contains("无权查看 B 公司"),text(b));
         assertFalse(b.stream().anyMatch(e->"preview".equals(e.event())));
         var rejected=store.read(user(),id);
-        assertEquals("B",rejected.getDesired().companyCode());assertEquals("A",rejected.getEffective().companyCode());
+        assertEquals("A",rejected.getDesired().companyCode());assertEquals("A",rejected.getEffective().companyCode());
+        assertEquals(DialogueState.Phase.REJECTED,rejected.getPhase());assertTrue(rejected.isUnresolvedRequest());
+        assertTrue(rejected.getLastReason().contains("无权查看 B 公司"));
+        unresolvedContinuation("现在我只想派销售报表的");
         var inherited=turn(id,"现在我只想派销售报表的");
-        assertTrue(text(inherited).contains("无权查看 B 公司"),text(inherited));
+        assertTrue(text(inherited).contains("目标尚未确定"),text(inherited));
         assertFalse(inherited.stream().anyMatch(e->"plan".equals(e.event())));
         assertEquals(first,store.read(user(),id).getPreviewId());
         var corrected=turn(id,"A公司销售报表的");
@@ -335,6 +357,7 @@ class SemanticIntegrationTest {
         String id=conversation();turn(id,"只查销售报表");
         var ambiguous=turn(id,"查一下客户对账有哪些可以派单");
         assertTrue(text(ambiguous).contains("需要确认"),text(ambiguous));
+        unresolvedContinuation("剩下的帮我派单吧");
         var again=turn(id,"剩下的帮我派单吧");
         assertFalse(again.stream().anyMatch(e->"plan".equals(e.event())));
         assertTrue(text(again).contains("尚未确定"),text(again));
@@ -358,16 +381,19 @@ class SemanticIntegrationTest {
             assertEquals(0,jdbc.queryForObject("SELECT COUNT(*) FROM semantic_dialogue WHERE conversation_id=?",Integer.class,id));
         }
     }
-    @Test void unknownMockInputClarifiesAndDoesNotExecute() {
+    @Test void clarificationOnFirstTurnPersistsItsPhaseAndReasonWithoutExecution() {
         String id=conversation();var events=turn(id,"完全未收录的模拟输入");
         assertFalse(events.stream().anyMatch(e->Set.of("preview","plan","result").contains(e.event())));
         assertEquals(DialogueState.Phase.CLARIFY,store.read(user(),id).getPhase());
+        assertEquals("请明确本轮对象及操作",store.read(user(),id).getLastReason());
+        assertEquals("请明确本轮对象及操作",jdbc.queryForObject("SELECT reason FROM semantic_turn WHERE conversation_id=?",String.class,id));
     }
     @Test void parserFailureCannotBeFollowedByDispatchOfOldScope() {
         String id=conversation();turn(id,"A公司销售报表的");
         org.mockito.Mockito.doThrow(new ApiException(422,"协议无效"))
                 .when(parser).parse(org.mockito.ArgumentMatchers.eq("解析故障"),org.mockito.ArgumentMatchers.any());
         turn(id,"解析故障");
+        unresolvedContinuation("剩下的帮我派单吧");
         var events=turn(id,"剩下的帮我派单吧");
         assertFalse(events.stream().anyMatch(e->"plan".equals(e.event())),text(events));
         assertTrue(store.read(user(),id).isUnresolvedRequest());
@@ -397,6 +423,7 @@ class SemanticIntegrationTest {
         assertFalse(refused.stream().anyMatch(e->Set.of("preview","plan").contains(e.event())));
         assertTrue(store.read(user(),id).isUnresolvedRequest());
         org.mockito.Mockito.doCallRealMethod().when(parser).parse(org.mockito.ArgumentMatchers.anyString(),org.mockito.ArgumentMatchers.any());
+        unresolvedContinuation("剩下的帮我派单吧");
         assertFalse(turn(id,"剩下的帮我派单吧").stream().anyMatch(e->"plan".equals(e.event())));
         var corrected=turn(id,"A公司销售报表的");
         assertTrue(corrected.stream().anyMatch(e->"preview".equals(e.event())),text(corrected));
@@ -437,7 +464,9 @@ class SemanticIntegrationTest {
         var failed=turn(id,"排除SO2026002，再排除UNKNOWN99");
         assertFalse(failed.stream().anyMatch(e->"plan".equals(e.event())));
         assertTrue(store.read(user(),id).getExcludedRecords().isEmpty());
-        assertTrue(store.read(user(),id).isUnresolvedRecords());
+        assertTrue(store.read(user(),id).isUnresolvedRequest());
+        assertFalse(store.read(user(),id).isUnresolvedRecords(),"拒绝草稿不覆盖原有已成功选择");
+        unresolvedContinuation("剩下的帮我派单吧");
         assertFalse(turn(id,"剩下的帮我派单吧").stream().anyMatch(e->"plan".equals(e.event())));
     }
 
@@ -452,6 +481,7 @@ class SemanticIntegrationTest {
         assertFalse(events.stream().anyMatch(e->Set.of("plan","preview").contains(e.event())));
         assertEquals(before,store.read(user(),id).getDesired());
         assertTrue(store.read(user(),id).isUnresolvedRequest());
+        unresolvedContinuation("剩下的帮我派单吧");
         assertFalse(turn(id,"剩下的帮我派单吧").stream().anyMatch(e->"plan".equals(e.event())));
         assertEquals(0,jdbc.queryForObject("SELECT COUNT(*) FROM dispatch_plan WHERE conversation_id=?",Integer.class,id));
     }
@@ -477,6 +507,7 @@ class SemanticIntegrationTest {
         String bad="按未配置的信用评分排除";
         org.mockito.Mockito.doReturn(new SemanticIntent(1,SemanticIntent.Action.CLARIFY,List.of(),List.of(),List.of(),List.of(bad),SemanticIntent.Clarify.ACTION)).when(parser).parse(org.mockito.ArgumentMatchers.eq(bad),org.mockito.ArgumentMatchers.any());
         turn(id,bad);var failed=store.read(user(),id);assertEquals(before.getDesired(),failed.getDesired());assertFalse(failed.isUnresolvedCompany());assertFalse(failed.isUnresolvedReports());
+        unresolvedContinuation("剩下的帮我派单吧");
         assertFalse(turn(id,"剩下的帮我派单吧").stream().anyMatch(e->"plan".equals(e.event())));
         var corrected=turn(id,"排除SO2026002");assertTrue(text(corrected).contains("已排除 1 条"),text(corrected));assertFalse(store.read(user(),id).isUnresolvedRequest());
     }
