@@ -90,7 +90,7 @@ public class BusinessAssistantService {
         String reply;
         try {
             reply=switch(plan.route()) {
-                case HELP -> "我是业务助手，可以查询报表数据、派单记录、工单进度和工单总结，也可以准备派单清单。你可以问“销售报表金额大于五万元的有哪些”“查询失败的派单记录”“WO-DEMO-001 到哪个环节了”“总结 A 公司工单”。工单环节与审批人为明确标注的演示数据；派单仍需核对清单并点击确认。";
+                case HELP -> "我是业务助手，可以查询报表数据、派单记录、工单进度和工单总结，也可以准备派单清单。你可以问“销售报表金额大于五万元的有哪些”“查询失败的派单记录”“WO-DEMO-001 到哪个环节了”“总结 A 公司工单”。工单环节与审批人为明确标注的演示数据，查询是只读的，我不能代为审批或推进工单；派单仍需核对清单并点击确认。";
                 case CLARIFY -> {
                     state.setUnresolvedRequest(true);
                     if(!previousDispatch)state.setBusinessUnresolved(true);

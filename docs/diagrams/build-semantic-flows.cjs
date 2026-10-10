@@ -1,8 +1,9 @@
 // 最终演示基线图表生成器：一个数据源同步生成HTML、SVG、Mermaid与draw.io。
 const fs=require('node:fs'),path=require('node:path');
+/** 核对生成内容时只统一Git可能转换的行尾；不忽略文字、空格、节点或连线差异。 */
 function writeOutput(file, content) {
   if(process.argv.includes('--check')) {
-    if(!fs.existsSync(file) || fs.readFileSync(file,'utf8')!==content) throw Error('Stale generated artifact: '+file);
+    if(!fs.existsSync(file) || fs.readFileSync(file,'utf8').replace(/\r\n/g,'\n')!==content.replace(/\r\n/g,'\n')) throw Error('Stale generated artifact: '+file);
   } else fs.writeFileSync(file,content);
 }
 const out=path.join(__dirname,'demo-final');
@@ -146,7 +147,7 @@ const charts=[
   },
   {
     "name": "02 统一任务规划与语义复核",
-    "note": "共享任务契约与有界词义证据；独立期望本轮冻结，最多三次规划及三次复核。",
+    "note": "先校验当前焦点、目标、数据域与最终总数，再分别规划和复核；最多三次规划、三次独立判断（含目标重试）。",
     "nodes": [
       {
         "id": "in",
@@ -166,13 +167,13 @@ const charts=[
         "title": "构造有界受控上下文",
         "lines": [
           "授权目录、真实对话与可靠对象",
-          "两阶段使用同一完整任务契约"
+          "授权报表原词与完整任务契约"
         ]
       },
       {
         "id": "model",
         "col": 1,
-        "row": 2,
+        "row": 3,
         "kind": "model",
         "title": "统一任务规划 → MODEL",
         "lines": [
@@ -183,17 +184,17 @@ const charts=[
       {
         "id": "codec",
         "col": 1,
-        "row": 3,
+        "row": 4,
         "kind": "guard",
-        "title": "严格结构与引用校验",
+        "title": "严格结构解析",
         "lines": [
-          "类型、身份、原文与来源绑定"
+          "字段、类型和枚举，拒绝不可解析输出"
         ]
       },
       {
         "id": "retry",
         "col": 0,
-        "row": 4,
+        "row": 5,
         "kind": "model",
         "title": "最多两次草稿修正",
         "lines": [
@@ -204,17 +205,18 @@ const charts=[
       {
         "id": "draft",
         "col": 1,
-        "row": 4,
+        "row": 5,
         "kind": "guard",
-        "title": "只读业务预检",
+        "title": "程序约束与只读业务预检",
         "lines": [
-          "MCP 查询事实 / 派单目标与选择"
+          "身份、原文、范围及当前业务事实",
+          "保留契约错误，不应用草稿"
         ]
       },
       {
         "id": "terms",
         "col": 2,
-        "row": 4,
+        "row": 5,
         "kind": "guard",
         "title": "原文命中的字段词义",
         "lines": [
@@ -223,42 +225,53 @@ const charts=[
         ]
       },
       {
+        "id": "purpose",
+        "col": 1,
+        "row": 2,
+        "kind": "model",
+        "title": "独立判断目标 → MODEL",
+        "lines": [
+          "结果、数据域、查询承接及最终总数",
+          "核对当前焦点，自身可修正一次"
+        ]
+      },
+      {
         "id": "review",
         "col": 1,
-        "row": 5,
+        "row": 6,
         "kind": "model",
         "title": "独立语义复核 → MODEL",
         "lines": [
           "原文、受控上下文与词义线索",
-          "合法完整期望在本轮固定"
+          "完整期望、新条件来源及旧条件变化"
         ]
       },
       {
         "id": "compare",
         "col": 1,
-        "row": 6,
+        "row": 7,
         "kind": "guard",
-        "title": "程序比较完整任务与数量",
+        "title": "校验期望、比较任务与数量",
         "lines": [
-          "动作、条件及本轮原文依据",
-          "最终条数另核对完整预检事实"
+          "新旧条件逐项核对 / 端点与本轮依据",
+          "固定独立总数，漏填与不足同时反馈"
         ]
       },
       {
         "id": "reviewfix",
         "col": 0,
-        "row": 6,
+        "row": 7,
         "kind": "model",
         "title": "修复复核自身",
         "lines": [
-          "仅修复无效依据或结构，不改草稿",
-          "共享整轮三次复核预算"
+          "同时修复前提与证据，不改草稿",
+          "与目标判断共用整轮三次预算"
         ]
       },
       {
         "id": "fail",
         "col": 2,
-        "row": 5,
+        "row": 6,
         "kind": "error",
         "title": "澄清 / 拒绝 / 失败",
         "lines": [
@@ -269,7 +282,7 @@ const charts=[
       {
         "id": "apply",
         "col": 1,
-        "row": 7,
+        "row": 8,
         "kind": "agent",
         "title": "按已复核任务执行",
         "lines": [
@@ -284,10 +297,6 @@ const charts=[
         "context"
       ],
       [
-        "context",
-        "model"
-      ],
-      [
         "model",
         "codec"
       ],
@@ -299,17 +308,12 @@ const charts=[
       [
         "codec",
         "retry",
-        "可修正"
+        "结构不可解析"
       ],
       [
         "codec",
         "fail",
         "拒绝或超预算"
-      ],
-      [
-        "draft",
-        "review",
-        "预检通过，不传草稿"
       ],
       [
         "draft",
@@ -319,11 +323,6 @@ const charts=[
         "terms",
         "review",
         "仅词义线索"
-      ],
-      [
-        "draft",
-        "retry",
-        "契约错误"
       ],
       [
         "draft",
@@ -338,12 +337,12 @@ const charts=[
       [
         "compare",
         "apply",
-        "行为一致"
+        "契约与语义均通过"
       ],
       [
         "compare",
         "retry",
-        "有依据的行为差异"
+        "修正草稿"
       ],
       [
         "compare",
@@ -353,22 +352,36 @@ const charts=[
       [
         "compare",
         "reviewfix",
-        "复核结构或依据无效"
+        "复核无效"
       ],
       [
         "reviewfix",
         "review",
-        "重试同一草稿"
-      ],
-      [
-        "reviewfix",
-        "fail",
-        "复核预算耗尽"
+        "修正复核"
       ],
       [
         "retry",
         "model",
-        "修正完整任务"
+        "重新规划"
+      ],
+      [
+        "context",
+        "purpose"
+      ],
+      [
+        "purpose",
+        "model",
+        "有效目标"
+      ],
+      [
+        "purpose",
+        "fail",
+        "目标无效"
+      ],
+      [
+        "draft",
+        "review",
+        "独立完整期望"
       ]
     ]
   },
@@ -1183,7 +1196,7 @@ const charts=[
         "title": "统一任务草稿 → MODEL",
         "lines": [
           "成功查询、展示行、完整性和焦点",
-          "撤销条件须有本轮原文证据"
+          "旧条件逐项核对，修改一端保留另一端"
         ]
       },
       {
@@ -1866,16 +1879,16 @@ function points(a,b){
 function render(chart,index){const W=1340,H=300+Math.max(...chart.nodes.map(x=>x.row))*165;const byId=Object.fromEntries(chart.nodes.map(x=>[x.id,x]));let parts=[`<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" role="img" aria-label="${esc(chart.name)}"><defs><marker id="arrow${index}" markerWidth="10" markerHeight="8" refX="9" refY="4" orient="auto"><path d="M0,0 L10,4 L0,8 Z" fill="#657891"/></marker></defs><rect width="100%" height="100%" fill="#fff"/><g font-family="Microsoft YaHei,PingFang SC,Arial,sans-serif"><text x="60" y="44" font-size="26" font-weight="700" fill="#15334b">${esc(chart.name)}</text><text x="60" y="79" font-size="14" fill="#53697e">${esc(chart.note)}</text>`];
 for(const [from,to,label=''] of chart.edges){if(!byId[from]||!byId[to])throw Error('Unknown edge');const p=points(byId[from],byId[to]);const d=p.map((v,i)=>(i?'L':'M')+v.join(',')).join(' ');parts.push(`<path d="${d}" fill="none" stroke="#657891" stroke-width="1.7" marker-end="url(#arrow${index})"/>`);if(label){const A=p.length>2?p[1]:p[0],B=p.length>2?p[2]:p[1],anchor=chart.edgeLabels?.[`${from}:${to}`],x=anchor?anchor[0]:(A[0]+B[0])/2,y=anchor?anchor[1]:(A[1]+B[1])/2-8;const width=label.length*13+10;parts.push(`<rect x="${x-width/2}" y="${y-14}" width="${width}" height="20" fill="white" rx="3"/><text x="${x}" y="${y}" font-size="12" text-anchor="middle" fill="#53697e">${esc(label)}</text>`);}}
 for(const node of chart.nodes){const g=geom(node),[fill,stroke]=colors[node.kind];if(node.kind==='guard')parts.push(`<polygon points="${g.x+g.w/2},${g.y} ${g.x+g.w},${g.y+g.h/2} ${g.x+g.w/2},${g.y+g.h} ${g.x},${g.y+g.h/2}" fill="${fill}" stroke="${stroke}" stroke-width="1.5"/>`);else parts.push(`<rect x="${g.x}" y="${g.y}" width="${g.w}" height="${g.h}" rx="12" fill="${fill}" stroke="${stroke}" stroke-width="1.5"/>`);const texts=[...wrap(node.title),...node.lines.flatMap(s=>wrap(s))];if(texts.length>5)throw Error('Node text too long: '+node.id);texts.forEach((line,i)=>parts.push(`<text x="${g.x+g.w/2}" y="${g.y+g.h/2-(texts.length-1)*10+i*20+5}" text-anchor="middle" font-size="${i===0?15:13}" font-weight="${i===0?700:400}" fill="#1e354c">${esc(line)}</text>`));}
-parts.push(`<text x="60" y="${H-26}" font-size="12" fill="#64748b">2026-10-09 · 依据当前工作区源码 · 模型解析 / 确定性业务 / 实际派单边界分离</text></g></svg>`);return parts.join('');}
+parts.push(`<text x="60" y="${H-26}" font-size="12" fill="#64748b">2026-10-10 · 依据当前工作区源码 · 模型解析 / 确定性业务 / 实际派单边界分离</text></g></svg>`);return parts.join('');}
 function mermaid(chart){return 'flowchart TD\n'+chart.nodes.map(node=>{const text=[node.title,...node.lines].join('<br/>').replaceAll('"','&quot;');return `  ${node.id}${node.kind==='guard'?'{"'+text+'"}':'["'+text+'"]'}:::${node.kind}`;}).join('\n')+'\n'+chart.edges.map(([a,b,label])=>`  ${a} -->${label?'|"'+label+'"|':''} ${b}`).join('\n')+'\n'+Object.entries(colors).map(([k,[f,s]])=>`  classDef ${k} fill:${f},stroke:${s},color:#1e354c`).join('\n');}
 const svgs=charts.map(render);
 charts.forEach((chart,i)=>{const number=String(i+1).padStart(2,'0');writeOutput(path.join(out,`${number}.svg`),svgs[i]);writeOutput(path.join(out,`${number}.mmd`),mermaid(chart));});
-let xml='<mxfile host="app.diagrams.net" modified="2026-10-09T00:00:00.000Z" agent="Codex" version="26.0.0">';
+let xml='<mxfile host="app.diagrams.net" modified="2026-10-10T00:00:00.000Z" agent="Codex" version="26.0.0">';
 charts.forEach((chart,index)=>{xml+=`<diagram id="semantic-${index+1}" name="${esc(chart.name)}"><mxGraphModel dx="1340" dy="2000" grid="1" gridSize="10" page="0"><root><mxCell id="0"/><mxCell id="1" parent="0"/>`;for(const node of chart.nodes){const g=geom(node),[fill,stroke]=colors[node.kind],value=[`<b>${node.title}</b>`,...node.lines].join('<br>');xml+=`<mxCell id="${node.id}" value="${esc(value)}" style="${node.kind==='guard'?'rhombus;':'rounded=1;'}whiteSpace=wrap;html=1;fillColor=${fill};strokeColor=${stroke};fontColor=#1e354c;fontFamily=Microsoft YaHei;fontSize=14;" vertex="1" parent="1"><mxGeometry x="${g.x}" y="${g.y}" width="${g.w}" height="${g.h}" as="geometry"/></mxCell>`;}chart.edges.forEach(([a,b,label=''],i)=>{xml+=`<mxCell id="e${i}" value="${esc(label)}" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#657891;fontFamily=Microsoft YaHei;fontSize=12;" edge="1" parent="1" source="${a}" target="${b}"><mxGeometry relative="1" as="geometry"/></mxCell>`;});xml+='</root></mxGraphModel></diagram>';});xml+='</mxfile>';writeOutput(path.join(out,'demo-final.drawio'),xml);
 writeOutput(path.join(out,'flows.json'),JSON.stringify(charts,null,2));
-const html=`<!doctype html><html lang="zh-CN"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>通用业务助手与 V1 派单流程</title><style>*{box-sizing:border-box}body{margin:0;font-family:"Microsoft YaHei",sans-serif;color:#1d354a;background:#f1f5f9}header{padding:24px 32px;background:#102a43;color:white}header h1{font-size:25px;margin:0 0 10px}header p{margin:0;color:#c3d4e7;font-size:14px}.bar{position:sticky;top:0;z-index:3;display:flex;gap:8px;flex-wrap:wrap;background:white;padding:12px 20px;border-bottom:1px solid #d7e2ed}button,a{font:inherit}button{cursor:pointer;border:1px solid #c5d5e5;background:#fff;border-radius:7px;padding:8px 11px;color:#214b70}button.active{background:#214b70;color:white}.zoom{padding:10px 24px;display:flex;align-items:center;gap:10px;background:#e8eef5}main{padding:22px;overflow:auto}.chart{background:white;max-width:1800px;margin:auto;box-shadow:0 2px 12px #102a4310}.chart svg{display:block;width:100%;height:auto}.hidden{display:none}small{color:#52687a}a{color:#27649d}.legend{display:flex;gap:14px;flex-wrap:wrap;margin-left:auto;font-size:12px}.legend span{padding:4px 7px;border-radius:4px}.summary{padding:14px 24px;background:#fff;border-bottom:1px solid #d7e2ed;line-height:1.7;font-size:14px}</style></head><body><header><h1>统一业务助手 → 受控查询 / 待确认派单</h1><p>当前基线：real,mcp · active · V1 · 原生 JSON Schema · thinking 关闭 · 2026-10-09</p></header><div class="summary">模型只解析本轮动作和范围变化；原文证据、实体映射、权限、规则、版本和实际派单由服务端负责。<br>${charts.length} 页可切换、缩放；下方节点颜色区分责任边界。金额、日期、文本和布尔筛选来自配置；普通查询支持分页、排序与统计；派单选择仍按独立候选和确认流程处理。<a href="demo-final.drawio" download>下载可编辑 draw.io</a> · <a href="../../语义V1配置字段筛选.md">字段协议说明</a> · <a href="../../工作台操作与运营治理.md">工作台操作</a> · <a href="../../异常调查Agent.md">异常调查</a></div><nav class="bar">${charts.map((c,i)=>`<button data-page="${i}" class="${i===0?'active':''}">${c.name}</button>`).join('')}</nav><div class="zoom"><button id="less">缩小</button><button id="fit">适配宽度</button><button id="more">放大</button><small id="percent">100%</small><div class="legend">${Object.entries({ui:'前端',agent:'Agent 服务',model:'模型',business:'MCP 业务',guard:'校验/判断',store:'持久状态',error:'拒绝/异常'}).map(([k,t])=>`<span style="background:${colors[k][0]};color:${colors[k][1]}">${t}</span>`).join('')}</div></div><main>${svgs.map((s,i)=>`<section class="chart ${i?'hidden':''}" data-chart="${i}">${s}</section>`).join('')}</main><script>let selected=0,zoom=1;const sections=[...document.querySelectorAll('[data-chart]')];function update(){sections.forEach((s,i)=>{s.classList.toggle('hidden',i!==selected);s.style.width=(100*zoom)+'%';s.style.maxWidth=zoom>1?'none':'1800px'});document.querySelectorAll('[data-page]').forEach(b=>b.classList.toggle('active',Number(b.dataset.page)===selected));document.querySelector('#percent').textContent=Math.round(zoom*100)+'%'}document.querySelectorAll('[data-page]').forEach(b=>b.onclick=()=>{selected=Number(b.dataset.page);zoom=1;update();window.scrollTo({top:0})});document.querySelector('#less').onclick=()=>{zoom=Math.max(.35,zoom-.15);update()};document.querySelector('#more').onclick=()=>{zoom=Math.min(2.5,zoom+.15);update()};document.querySelector('#fit').onclick=()=>{zoom=1;update()};</script></body></html>`;
+const html=`<!doctype html><html lang="zh-CN"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>通用业务助手与 V1 派单流程</title><style>*{box-sizing:border-box}body{margin:0;font-family:"Microsoft YaHei",sans-serif;color:#1d354a;background:#f1f5f9}header{padding:24px 32px;background:#102a43;color:white}header h1{font-size:25px;margin:0 0 10px}header p{margin:0;color:#c3d4e7;font-size:14px}.bar{position:sticky;top:0;z-index:3;display:flex;gap:8px;flex-wrap:wrap;background:white;padding:12px 20px;border-bottom:1px solid #d7e2ed}button,a{font:inherit}button{cursor:pointer;border:1px solid #c5d5e5;background:#fff;border-radius:7px;padding:8px 11px;color:#214b70}button.active{background:#214b70;color:white}.zoom{padding:10px 24px;display:flex;align-items:center;gap:10px;background:#e8eef5}main{padding:22px;overflow:auto}.chart{background:white;max-width:1800px;margin:auto;box-shadow:0 2px 12px #102a4310}.chart svg{display:block;width:100%;height:auto}.hidden{display:none}small{color:#52687a}a{color:#27649d}.legend{display:flex;gap:14px;flex-wrap:wrap;margin-left:auto;font-size:12px}.legend span{padding:4px 7px;border-radius:4px}.summary{padding:14px 24px;background:#fff;border-bottom:1px solid #d7e2ed;line-height:1.7;font-size:14px}</style></head><body><header><h1>统一业务助手 → 受控查询 / 待确认派单</h1><p>当前基线：real,mcp · active · V1 · 原生 JSON Schema · thinking 关闭 · 2026-10-10</p></header><div class="summary">模型只解析本轮动作和范围变化；原文证据、实体映射、权限、规则、版本和实际派单由服务端负责。<br>${charts.length} 页可切换、缩放；下方节点颜色区分责任边界。金额、日期、文本和布尔筛选来自配置；普通查询支持分页、排序与统计；派单选择仍按独立候选和确认流程处理。<a href="demo-final.drawio" download>下载可编辑 draw.io</a> · <a href="../../语义V1配置字段筛选.md">字段协议说明</a> · <a href="../../工作台操作与运营治理.md">工作台操作</a> · <a href="../../异常调查Agent.md">异常调查</a></div><nav class="bar">${charts.map((c,i)=>`<button data-page="${i}" class="${i===0?'active':''}">${c.name}</button>`).join('')}</nav><div class="zoom"><button id="less">缩小</button><button id="fit">适配宽度</button><button id="more">放大</button><small id="percent">100%</small><div class="legend">${Object.entries({ui:'前端',agent:'Agent 服务',model:'模型',business:'MCP 业务',guard:'校验/判断',store:'持久状态',error:'拒绝/异常'}).map(([k,t])=>`<span style="background:${colors[k][0]};color:${colors[k][1]}">${t}</span>`).join('')}</div></div><main>${svgs.map((s,i)=>`<section class="chart ${i?'hidden':''}" data-chart="${i}">${s}</section>`).join('')}</main><script>let selected=0,zoom=1;const sections=[...document.querySelectorAll('[data-chart]')];function update(){sections.forEach((s,i)=>{s.classList.toggle('hidden',i!==selected);s.style.width=(100*zoom)+'%';s.style.maxWidth=zoom>1?'none':'1800px'});document.querySelectorAll('[data-page]').forEach(b=>b.classList.toggle('active',Number(b.dataset.page)===selected));document.querySelector('#percent').textContent=Math.round(zoom*100)+'%'}document.querySelectorAll('[data-page]').forEach(b=>b.onclick=()=>{selected=Number(b.dataset.page);zoom=1;update();window.scrollTo({top:0})});document.querySelector('#less').onclick=()=>{zoom=Math.max(.35,zoom-.15);update()};document.querySelector('#more').onclick=()=>{zoom=Math.min(2.5,zoom+.15);update()};document.querySelector('#fit').onclick=()=>{zoom=1;update()};</script></body></html>`;
 writeOutput(path.join(out,'index.html'),html);
 const fence=String.fromCharCode(96).repeat(3);
 const sections=charts.map((chart,i)=>`## ${chart.name}\n\n${chart.note}\n\n${fence}mermaid\n${mermaid(chart)}\n${fence}\n`);
-writeOutput(path.join(out,'流程图.md'),'# 当前业务助手、手工派单与运营治理流程图\n\n2026-10-09，按当前工作区代码绘制。配合 [详细说明](../../语义V1配置字段筛选.md) 阅读。\n\n'+sections.join('\n'));
+writeOutput(path.join(out,'流程图.md'),'# 当前业务助手、手工派单与运营治理流程图\n\n2026-10-10，按当前工作区代码绘制。配合 [详细说明](../../语义V1配置字段筛选.md) 阅读。\n\n'+sections.join('\n'));
 console.log(`Generated ${charts.length} SVG/Mermaid pages, editable draw.io and standalone HTML in ${out}`);

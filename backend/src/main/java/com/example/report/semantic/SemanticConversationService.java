@@ -207,7 +207,7 @@ public class SemanticConversationService {
         // 明确替换/恢复全部报表并重新取得成功快照，已建立新的查询基线；不继续携带旧失败选择的歧义。
         // 先完整验证保留下来的排除键，不能借此放过来源范围变化导致的选择失配，也不适用于省略建单。
         if(refreshed && intent.action()==SemanticIntent.Action.PREVIEW && !intent.changes(RECORDS)
-                && intent.changesFor(REPORTS).stream().anyMatch(c->Set.of(SemanticIntent.Operation.REPLACE,SemanticIntent.Operation.CLEAR).contains(c.operation())))
+                && intent.changesFor(REPORTS).stream().anyMatch(c->Set.of(SemanticIntent.Operation.REPLACE,SemanticIntent.Operation.ALL_AUTHORIZED).contains(c.operation())))
             state.setUnresolvedRecords(false);
         if (state.isUnresolvedRecords() && !intent.changes(RECORDS)
                 && (!uiMatches || uiExcludes==null || uiExcludes.equals(state.getExcludedRecords())))
@@ -280,11 +280,20 @@ public class SemanticConversationService {
         if(!fresh && uiPreviewId!=null && !Objects.equals(uiPreviewId,state.getPreviewId()) && uiExcludes!=null && !uiExcludes.isEmpty())
             throw new ApiException(422,"查询范围已变化，旧预览的勾选未应用；请在当前预览上重新选择后派单");
         var draft=fresh?new DialogueState():JsonUtil.MAPPER.convertValue(state,DialogueState.class);
-        var intent=directive.intent();planner.merge(user,draft,intent);planner.validate(user,draft);
+        var intent=directive.intent();
+        // 整类记录操作省略报表限定会扩大目标，须在预检拒绝；准备既有选择没有增量操作，
+        // 明确REPLACE也已表达完整范围，两者不能被迫补做选择或重复列出已排除报表。
+        if(intent.scopeChanges().stream().anyMatch(change->change.target()==RECORDS && change.selectorKind()==SemanticIntent.SelectorKind.ALL))
+            planner.requireCoverage(draft,intent,planner.mentions(user,message));
+        planner.merge(user,draft,intent);planner.validate(user,draft);
         if(fresh || state.getPreviewId()==null || !Objects.equals(draft.getDesired(),state.getEffective())
                 || intent.changes(COMPANY) || intent.changes(REPORTS))
             return Map.of("scope",draft.getDesired(),"requiresCandidateRead",true);
         var snapshot=previews.inspectOwned(user,state.getPreviewId());
+        // 已用于执行的候选不能再次建单；这不是“数量未知”，也不能诱导模型换一组可成功记录来重试。
+        // 显式新范围在上方独立预检，单纯重新查看候选仍可按现行规则刷新；失败项须走原清单的核对/重试流程。
+        if(DispatchPreview.CONSUMED.equals(snapshot.preview().getStatus()) && intent.action()==SemanticIntent.Action.PREPARE_DISPATCH)
+            throw new ApiException(409,"该候选预览已用于派单，不能重复生成清单。请查看原清单的执行结果；失败项按原清单的核对或重试流程处理");
         if(!DispatchPreview.ACTIVE.equals(snapshot.preview().getStatus()) || snapshot.preview().getTotalCount()>props.getPreview().getMaxItems())
             return Map.of("scope",draft.getDesired(),"previewStatus",snapshot.preview().getStatus(),"requiresCandidateRead",true);
         var candidates=rows(user,snapshot);

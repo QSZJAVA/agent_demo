@@ -71,7 +71,7 @@ public final class SelectionResolver {
             if(change.operation()==SemanticIntent.Operation.RESTORE)result.removeAll(matched);else result.addAll(matched);
             return List.copyOf(result);
         }
-        if(change.selectorKind()!=SemanticIntent.SelectorKind.FIELDS) return applyTyped(rows,previous,change);
+        if(change.selectorKind()!=SemanticIntent.SelectorKind.FIELDS) return applyTyped(rows,previous,change,references);
         Map<String,List<com.example.report.catalog.query.FieldInfo>> fields=new HashMap<>();
         for(String reportId:rows.stream().map(Candidate::reportId).distinct().toList())fields.put(reportId,catalog.requireDispatchable(user,reportId).fields());
         Map<String,List<SemanticIntent.ConditionGroup>> applicable=new HashMap<>();
@@ -91,7 +91,7 @@ public final class SelectionResolver {
         return updateSelection(rows,previous,change,matched);
     }
     /** 在完整授权快照中先解析实体再展开记录集合；多客户歧义不能用ALL绕过，任何一项失败整次选择不提交。 */
-    private static List<RecordKey> applyTyped(List<Candidate> rows,List<RecordKey> previous,SemanticIntent.ScopeChange change) {
+    private static List<RecordKey> applyTyped(List<Candidate> rows,List<RecordKey> previous,SemanticIntent.ScopeChange change,DialogueState references) {
         if(change.operation()==SemanticIntent.Operation.RESTORE_ALL) return List.of();
         Set<RecordKey> matched=new LinkedHashSet<>();
         for(String mention:change.mentions()) {
@@ -105,7 +105,12 @@ public final class SelectionResolver {
                 if(entities.size()!=1) {
                     String candidates=rows.stream().filter(r -> r.counterparty()!=null && term.equals(TextNormalizer.normalize(r.counterparty().name())))
                             .limit(5).map(r -> r.counterparty().name()+"（公司"+r.companyCode()+"，单据"+r.docNo()+"）").distinct().collect(java.util.stream.Collectors.joining("、"));
-                    throw new ApiException(422,"“"+mention+"”未唯一定位客户，请提供已维护的客户全称、别名或单据号"+(candidates.isEmpty()?"":"；候选："+candidates));
+                    String message="“"+mention+"”未唯一定位客户，请提供已维护的客户全称、别名或单据号"+(candidates.isEmpty()?"":"；候选："+candidates);
+                    // 字面名称匹配失败不等于对话指代失败；仅解释可用契约，不替模型选择任何记录。
+                    String referenceHint=references!=null && references.getPreviewId()!=null && !references.getLastSelectionReferences().isEmpty()
+                            ?"当前上下文已提供lastSelectionReferences；若本轮指代能唯一对应且引用仍绑定当前预览，应使用REFERENCE并复制referenceKey。键不要求出现在用户原文，evidence才须引用本轮；不能把自然指代当作新增客户别名。"
+                            :"当前没有可用的最近选择引用；没有唯一对象依据时仍须澄清，不能模糊合并客户。";
+                    throw new com.example.report.common.ModelContractViolation(message,"COUNTERPARTY字面匹配未唯一命中已维护客户；这只否定当前字面选择器，不否定其他已提供的可靠对象引用。"+referenceHint);
                 }
                 var key=entities.get(0);
                 found=rows.stream().filter(r -> r.counterparty()!=null && Objects.equals(r.companyCode(),key.get(0)) && r.counterparty().id().equals(key.get(1))).toList();

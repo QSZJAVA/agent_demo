@@ -47,7 +47,7 @@ class SemanticV1Test {
         assertFalse(state.isUnresolvedReports());
     }
     @Test void actionRestrictionsCannotBeContradictedAndDoNotChangeReports() {
-        var restriction=new Restriction(Action.PREPARE_DISPATCH,RestrictionScope.THIS_TURN,"不要派单");
+        var restriction=new Restriction(ForbiddenAction.PREPARE_DISPATCH,RestrictionScope.THIS_TURN,"不要派单");
         var query=new SemanticIntent(1,Action.PREVIEW,List.of(change(Target.REPORTS,Operation.REPLACE,"销售报表")),List.of(restriction),Clarify.NONE);
         codec.validate(query,"只查销售报表，不要派单");
         var state=new DialogueState();planner.merge(USER1,state,query);
@@ -66,8 +66,22 @@ class SemanticV1Test {
         String json=JsonUtil.toJson(query);
         for(String bad:List.of(json.replace("\"version\":1","\"version\":0"),json.replace("\"version\":1","\"version\":1.5"),
                 json.replace("\"version\":1","\"version\":\"2\""),json.replace("REPLACE","KEEP"),json.replace("PREVIEW","EXECUTE"),
-                json.replace("\"restrictions\":[]","\"restrictions\":[{\"action\":\"PREPARE_DISPATCH\",\"scope\":\"FOREVER\",\"evidence\":\"销售报表\"}]")))
+                json.replace("\"restrictions\":[]","\"restrictions\":[{\"forbiddenAction\":\"PREPARE_DISPATCH\",\"scope\":\"FOREVER\",\"evidence\":\"销售报表\"}]")))
             assertThrows(ApiException.class,()->codec.decode(bad,"销售报表"));
+    }
+    /** 禁止提交只约束执行阶段，不能被解析成执行能力或阻断用户明确要求的清单准备。 */
+    @Test void executionProhibitionNeverBecomesAnExecutableAction() {
+        String message="先准备当前清单，不提交执行";
+        var prepared=new SemanticIntent(1,Action.PREPARE_DISPATCH,List.of(),
+                List.of(new Restriction(ForbiddenAction.EXECUTE_DISPATCH,RestrictionScope.THIS_TURN,"不提交执行")),List.of(),List.of(),Clarify.NONE);
+        assertEquals(prepared,codec.decode(JsonUtil.toJson(prepared),message));
+        assertFalse(prepared.forbids(Action.PREPARE_DISPATCH));
+        assertDoesNotThrow(()->planner.requireAction(new DialogueState(),prepared));
+        String executable=JsonUtil.toJson(prepared).replace("\"action\":\"PREPARE_DISPATCH\"","\"action\":\"EXECUTE_DISPATCH\"");
+        assertThrows(ApiException.class,()->codec.decode(executable,message));
+        var contradicted=new SemanticIntent(1,Action.PREPARE_DISPATCH,List.of(),
+                List.of(new Restriction(ForbiddenAction.PREPARE_DISPATCH,RestrictionScope.THIS_TURN,"不准备清单")),List.of(),List.of(),Clarify.NONE);
+        assertThrows(ApiException.class,()->codec.validate(contradicted,"准备清单又不准备清单"));
     }
     @Test void clarificationNeverAppliesProposedScopeAndClearCannotHideOmittedReports() {
         var changed=new SemanticIntent(1,Action.CLARIFY,List.of(change(Target.REPORTS,Operation.REPLACE,"销售报表")),List.of(),Clarify.REPORTS);
@@ -75,7 +89,7 @@ class SemanticV1Test {
         var state=new DialogueState();var before=state.getDesired();
         assertThrows(ApiException.class,()->planner.merge(USER1,state,changed));
         assertEquals(before,state.getDesired());
-        var clear=intent(Action.PREVIEW,new ScopeChange(Target.REPORTS,Operation.CLEAR,List.of(),"全部"));
+        var clear=intent(Action.PREVIEW,new ScopeChange(Target.REPORTS,Operation.ALL_AUTHORIZED,List.of(),"全部"));
         assertThrows(ApiException.class,()->planner.requireCoverage(new DialogueState(),clear,List.of("销售报表")));
     }
     @Test void currentStateRoundTripsAndOldProtocolIsRejected() {

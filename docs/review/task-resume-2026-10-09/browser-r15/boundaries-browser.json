@@ -1,0 +1,75 @@
+{
+  "version": "r15",
+  "phase": "trace-repeat-permissions-boundaries",
+  "passed": false,
+  "errors": [
+    {
+      "id": "12-repeat-rejected",
+      "error": "Error: 重复请求未明确拒绝或创建了新清单"
+    }
+  ],
+  "steps": [
+    {
+      "id": "11-trace-items",
+      "passed": true,
+      "text": "清单：6a4178a1af124938ab0a49960ef71d16\n操作人：readerA\n记录：1 条\n证据完整\n\n追溯完整性与派单结果分别判断。待核对的派单结果请使用“查询外部结果”；补写记录不会重新派单。\n\n刷新记录\n查询范围、排除项与当时的规则\n可靠事件审计记录相关会话逐条结果\n\t时间\t类型 / 阶段\t单据 / 操作人\t记录内容\n\t\n2026-10-10 14:14:58.412\n\t\n成功\n\t\nSO2026001\n\t\n成功\n已加载 1 / 1 条，展开行可查看完整内容。",
+      "screenshot": "output/playwright/r15-11-trace-items.png"
+    },
+    {
+      "id": "12-repeat-rejected",
+      "message": "把订单 SO2026001 再派一次，生成待确认清单",
+      "reply": "把订单 SO2026001 再派一次，生成待确认清单\n当前无法确认订单 SO2026001 仍对应唯一可派记录，因此不能直接生成共 1 条的待确认派单清单。请先重新核对该订单的可派候选，或明确指定要处理的记录，再生成待确认清单。 本轮未应用任何修改。",
+      "beforeQueries": 2,
+      "afterQueries": 2,
+      "pending": 0,
+      "screenshot": "output/playwright/r15-12-repeat-rejected.png",
+      "latestQuery": null,
+      "passed": false,
+      "error": "Error: 重复请求未明确拒绝或创建了新清单"
+    },
+    {
+      "id": "13-company-denied",
+      "message": "查询B公司的销售报表",
+      "reply": "查询B公司的销售报表\n公司不存在或无权访问 本轮未应用任何修改。",
+      "beforeQueries": 2,
+      "afterQueries": 2,
+      "pending": 0,
+      "screenshot": "output/playwright/r15-13-company-denied.png",
+      "latestQuery": null,
+      "passed": true
+    },
+    {
+      "id": "14-report-denied",
+      "message": "查询A公司的应收报表",
+      "reply": "查询A公司的应收报表\n当前已授权的报表中没有找到“应收报表”。目前可查询的报表为销售报表（销售订单台账）。请确认您要查询的是销售报表，还是其他已授权的报表名称？ 本轮未应用任何修改。",
+      "beforeQueries": 2,
+      "afterQueries": 2,
+      "pending": 0,
+      "screenshot": "output/playwright/r15-14-report-denied.png",
+      "latestQuery": null,
+      "passed": true
+    },
+    {
+      "id": "15-inclusive-boundary",
+      "message": "查询A公司销售报表，金额九万六千元以上的",
+      "reply": "查询A公司销售报表，金额九万六千元以上的\n本次查询匹配 2 条报表记录，当前第 1 页展示 2 条。\n报表数据只读查询业务系统当前记录 · 查询时间 2026-10-10 14:29:44公司：A；报表范围：销售报表；排序：稳定业务标识筛选：(金额 大于等于 96000)匹配 2 条CNY 合计 224000.00序号单据号报表公司金额业务日期状态订单号产品名称销售日期，字符串 yyyy-MM-dd距销售日期的天数（派生）来源记录是否已派单；true为已派单，false为未派单，不代表满足派单规则1SO2026001销售报表A128000.002026-01-15已派单SO2026001服务器2026-01-15268true2SO2026007销售报表A96000.002026-04-05未派单SO2026007云服务2026-04-05188false第 1 页 · 每页 20 条上一页下一页",
+      "beforeQueries": 2,
+      "afterQueries": 3,
+      "pending": 0,
+      "screenshot": "output/playwright/r15-15-inclusive-boundary.png",
+      "latestQuery": "报表数据\n只读查询\n\n业务系统当前记录 · 查询时间 2026-10-10 14:29:44\n\n公司：A；报表范围：销售报表；排序：稳定业务标识\n\n筛选：(金额 大于等于 96000)\n\n匹配 2 条\nCNY 合计 224000.00\n序号\t单据号\t报表\t公司\t金额\t业务日期\t状态\t订单号\t产品名称\t销售日期，字符串 yyyy-MM-dd\t距销售日期的天数（派生）\t来源记录是否已派单；true为已派单，false为未派单，不代表满足派单规则\n1\n\t\nSO2026001\n\t\n销售报表\n\t\nA\n\t\n128000.00\n\t\n2026-01-15\n\t\n已派单\n\t\nSO2026001\n\t\n服务器\n\t\n2026-01-15\n\t\n268\n\t\ntrue\n\n\n2\n\t\nSO2026007\n\t\n销售报表\n\t\nA\n\t\n96000.00\n\t\n2026-04-05\n\t\n未派单\n\t\nSO2026007\n\t\n云服务\n\t\n2026-04-05\n\t\n188\n\t\nfalse\n第 1 页 · 每页 20 条\n上一页\n下一页",
+      "passed": true
+    },
+    {
+      "id": "16-exclusive-boundary",
+      "message": "金额改为严格超过九万六千元",
+      "reply": "金额改为严格超过九万六千元\n本次查询匹配 1 条报表记录，当前第 1 页展示 1 条。\n报表数据只读查询业务系统当前记录 · 查询时间 2026-10-10 14:29:51公司：A；报表范围：销售报表；排序：稳定业务标识筛选：(金额 大于 96000)匹配 1 条CNY 合计 128000.00序号单据号报表公司金额业务日期状态订单号产品名称销售日期，字符串 yyyy-MM-dd距销售日期的天数（派生）来源记录是否已派单；true为已派单，false为未派单，不代表满足派单规则1SO2026001销售报表A128000.002026-01-15已派单SO2026001服务器2026-01-15268true第 1 页 · 每页 20 条上一页下一页",
+      "beforeQueries": 3,
+      "afterQueries": 4,
+      "pending": 0,
+      "screenshot": "output/playwright/r15-16-exclusive-boundary.png",
+      "latestQuery": "报表数据\n只读查询\n\n业务系统当前记录 · 查询时间 2026-10-10 14:29:51\n\n公司：A；报表范围：销售报表；排序：稳定业务标识\n\n筛选：(金额 大于 96000)\n\n匹配 1 条\nCNY 合计 128000.00\n序号\t单据号\t报表\t公司\t金额\t业务日期\t状态\t订单号\t产品名称\t销售日期，字符串 yyyy-MM-dd\t距销售日期的天数（派生）\t来源记录是否已派单；true为已派单，false为未派单，不代表满足派单规则\n1\n\t\nSO2026001\n\t\n销售报表\n\t\nA\n\t\n128000.00\n\t\n2026-01-15\n\t\n已派单\n\t\nSO2026001\n\t\n服务器\n\t\n2026-01-15\n\t\n268\n\t\ntrue\n第 1 页 · 每页 20 条\n上一页\n下一页",
+      "passed": true
+    }
+  ]
+}

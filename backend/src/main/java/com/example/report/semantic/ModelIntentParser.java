@@ -115,7 +115,7 @@ public class ModelIntentParser implements IntentParser {
         return new SemanticIntent(parsed.version(),parsed.action(),parsed.scopeChanges().stream()
                 .map(c -> new SemanticIntent.ScopeChange(c.target(),c.operation(),c.mentions().stream().map(protectedInput::restore).toList(),
                         protectedInput.restore(c.evidence()),c.reportMentions().stream().map(protectedInput::restore).toList(),c.selectorKind(),c.quantifier(),c.conditions().stream().map(g -> new SemanticIntent.ConditionGroup(g.allOf().stream().map(f -> new SemanticIntent.FieldCondition(f.field(),f.operator(),f.values().stream().map(protectedInput::restore).toList(),protectedInput.restore(f.evidence()))).toList())).toList())).toList(),
-                parsed.restrictions().stream().map(r -> new SemanticIntent.Restriction(r.action(),r.scope(),protectedInput.restore(r.evidence()))).toList(),
+                parsed.restrictions().stream().map(r -> new SemanticIntent.Restriction(r.forbiddenAction(),r.scope(),protectedInput.restore(r.evidence()))).toList(),
                 parsed.reportConstraints().stream().map(r -> new SemanticIntent.ReportConstraint(protectedInput.restore(r.mention()),r.role(),protectedInput.restore(r.evidence()))).toList(),
                 parsed.unsupportedConditions().stream().map(protectedInput::restore).toList(),parsed.clarify());
     }

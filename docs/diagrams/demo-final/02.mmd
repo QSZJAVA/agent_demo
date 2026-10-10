@@ -1,35 +1,36 @@
 flowchart TD
   in["本轮完整任务<br/>查询、资格核验或待确认派单"]:::ui
-  context["构造有界受控上下文<br/>授权目录、真实对话与可靠对象<br/>两阶段使用同一完整任务契约"]:::agent
+  context["构造有界受控上下文<br/>授权目录、真实对话与可靠对象<br/>授权报表原词与完整任务契约"]:::agent
   model["统一任务规划 → MODEL<br/>AssistantPlan + DispatchDirective<br/>原生 Schema、thinking 关闭"]:::model
-  codec{"严格结构与引用校验<br/>类型、身份、原文与来源绑定"}:::guard
+  codec{"严格结构解析<br/>字段、类型和枚举，拒绝不可解析输出"}:::guard
   retry["最多两次草稿修正<br/>保留累计草稿、事实及全部差异<br/>合法独立期望保持不变"]:::model
-  draft{"只读业务预检<br/>MCP 查询事实 / 派单目标与选择"}:::guard
+  draft{"程序约束与只读业务预检<br/>身份、原文、范围及当前业务事实<br/>保留契约错误，不应用草稿"}:::guard
   terms{"原文命中的字段词义<br/>授权字符串字段值，最多64项<br/>不提供行身份、草稿或结果全集"}:::guard
-  review["独立语义复核 → MODEL<br/>原文、受控上下文与词义线索<br/>合法完整期望在本轮固定"]:::model
-  compare{"程序比较完整任务与数量<br/>动作、条件及本轮原文依据<br/>最终条数另核对完整预检事实"}:::guard
-  reviewfix["修复复核自身<br/>仅修复无效依据或结构，不改草稿<br/>共享整轮三次复核预算"]:::model
+  purpose["独立判断目标 → MODEL<br/>结果、数据域、查询承接及最终总数<br/>核对当前焦点，自身可修正一次"]:::model
+  review["独立语义复核 → MODEL<br/>原文、受控上下文与词义线索<br/>完整期望、新条件来源及旧条件变化"]:::model
+  compare{"校验期望、比较任务与数量<br/>新旧条件逐项核对 / 端点与本轮依据<br/>固定独立总数，漏填与不足同时反馈"}:::guard
+  reviewfix["修复复核自身<br/>同时修复前提与证据，不改草稿<br/>与目标判断共用整轮三次预算"]:::model
   fail["澄清 / 拒绝 / 失败<br/>保留原候选和清单<br/>失败原因留存供后续恢复"]:::error
   apply["按已复核任务执行<br/>只应用已校验的操作字段<br/>澄清可采用已复核表达"]:::agent
   in --> context
-  context --> model
   model --> codec
   codec -->|"合格"| draft
-  codec -->|"可修正"| retry
+  codec -->|"结构不可解析"| retry
   codec -->|"拒绝或超预算"| fail
-  draft -->|"预检通过，不传草稿"| review
   draft --> terms
   terms -->|"仅词义线索"| review
-  draft -->|"契约错误"| retry
   draft -->|"权限/版本/服务故障"| fail
   review -->|"要求与完整期望"| compare
-  compare -->|"行为一致"| apply
-  compare -->|"有依据的行为差异"| retry
+  compare -->|"契约与语义均通过"| apply
+  compare -->|"修正草稿"| retry
   compare -->|"预算耗尽"| fail
-  compare -->|"复核结构或依据无效"| reviewfix
-  reviewfix -->|"重试同一草稿"| review
-  reviewfix -->|"复核预算耗尽"| fail
-  retry -->|"修正完整任务"| model
+  compare -->|"复核无效"| reviewfix
+  reviewfix -->|"修正复核"| review
+  retry -->|"重新规划"| model
+  context --> purpose
+  purpose -->|"有效目标"| model
+  purpose -->|"目标无效"| fail
+  draft -->|"独立完整期望"| review
   classDef ui fill:#eaf2ff,stroke:#386bc1,color:#1e354c
   classDef agent fill:#edf5ff,stroke:#3778a8,color:#1e354c
   classDef model fill:#f3edff,stroke:#8751bf,color:#1e354c

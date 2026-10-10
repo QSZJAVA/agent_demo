@@ -15,7 +15,7 @@ import static org.junit.jupiter.api.Assertions.*;
 class WholeReportSelectionTest {
     @Test void globalReportPhraseCannotReachPreviewAsConcreteRecordQualifier() {
         var state=new DialogueState();state.setExcludedRecords(List.of(new RecordKey(EXPENSE,"e")));var before=state.getDesired();
-        var allReports=new ScopeChange(Target.REPORTS,Operation.CLEAR,List.of(),"所有报表");
+        var allReports=new ScopeChange(Target.REPORTS,Operation.ALL_AUTHORIZED,List.of(),"所有报表");
         var invalidReset=new ScopeChange(Target.RECORDS,Operation.RESTORE_ALL,List.of(),"从头来",List.of("所有报表"),SelectorKind.NONE,Quantifier.UNSPECIFIED);
         var invalid=new SemanticIntent(1,Action.PREVIEW,List.of(allReports,invalidReset),List.of(),Clarify.NONE);
         var planner=new SemanticPlanner(catalog);

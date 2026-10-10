@@ -111,6 +111,20 @@ class UnifiedTaskFlowTest {
         assertEquals(List.of("1"),plan.items().stream().map(i->i.getRecordId()).toList());assertEquals(2,h.data.get(SALES).size());
         verify(conversations).logToolCall(eq(id),eq(USER1.userId()),eq("dispatch_targets"),any());
     }
+    /** 选择意图在模型阶段失败也不能把旧集合当作选择成功；重新展示后的当前事实才成为可准备基线。 */
+    @Test void failedSelectionCannotSilentlyPrepareThePreviousSetAndExplicitRedisplayRecovers() {
+        turn("查看销售候选",(m,s)->AssistantPlan.dispatch(new DispatchDirective(new SemanticIntent(1,Action.PREVIEW,
+                List.of(new ScopeChange(Target.REPORTS,Operation.REPLACE,List.of("销售"),m)),List.of(),Clarify.NONE),DispatchDirective.Source.EXPLICIT_SCOPE,null,List.of(),m)));
+        String preview=state.getPreviewId();assertNull(state.getPlanId());
+        turn("排除其中一条",(m,s)->{throw new ApiException(422,"本轮选择未能可靠确定");});
+        assertTrue(state.isUnresolvedRequest());assertEquals(preview,state.getPreviewId());assertTrue(state.getExcludedRecords().isEmpty());
+        var refused=turn("把留下的准备清单",(m,s)->dispatch(m,s,DispatchDirective.Source.PREVIEW,Action.PREPARE_DISPATCH));
+        assertFalse(refused.contains("plan"));assertNull(state.getPlanId());assertTrue(state.getLastReason().contains("上一轮要求尚未完成"));
+        assertTrue(turn("先重新显示当前实际选中的候选",(m,s)->dispatch(m,s,DispatchDirective.Source.PREVIEW,Action.PREVIEW)).contains("preview"));
+        assertFalse(state.isUnresolvedRequest());
+        assertTrue(turn("按刚核对的选择准备",(m,s)->dispatch(m,s,DispatchDirective.Source.PREVIEW,Action.PREPARE_DISPATCH)).contains("plan"));
+        assertEquals(2,h.plans.getOwned(USER1,state.getPlanId()).plan().getItemCount());
+    }
     @Test void directPreparationRefreshAndAnotherPreparationNeverExpandTheExactTargets() {
         queryServer();turn("就安排刚查的这笔",(m,s)->dispatch(m,s,DispatchDirective.Source.QUERY_ROWS,Action.PREPARE_DISPATCH));
         String oldPlan=state.getPlanId();
@@ -134,6 +148,37 @@ class UnifiedTaskFlowTest {
         assertFalse(state.isBusinessQueryAfterPreview());
         assertTrue(turn("为已核对的候选准备清单",(m,s)->dispatch(m,s,DispatchDirective.Source.PREVIEW,Action.PREPARE_DISPATCH)).contains("plan"));
     }
+    /** 省略具名报表的记录操作必须在预检失败；恢复时只影响该报表，不能波及其余候选。 */
+    @Test void missingReportQualifierCannotExpandASelectionDuringPreflight() {
+        h.put(EXPENSE,candidate(EXPENSE,"9","E9","A","差旅"));
+        turn("查询全部可派候选",(m,s)->AssistantPlan.dispatch(new DispatchDirective(new SemanticIntent(1,Action.PREVIEW,
+                List.of(new ScopeChange(Target.REPORTS,Operation.ALL_AUTHORIZED,List.of(),m)),List.of(),Clarify.NONE),DispatchDirective.Source.EXPLICIT_SCOPE,null,List.of(),m)));
+        String preview=state.getPreviewId();
+        var refused=turn("销售的记录全部取消选择",(m,s)->AssistantPlan.dispatch(new DispatchDirective(new SemanticIntent(1,Action.PREVIEW,
+                List.of(new ScopeChange(Target.RECORDS,Operation.EXCLUDE,List.of(),m,List.of(),SelectorKind.ALL,Quantifier.ALL)),List.of(),Clarify.NONE),
+                DispatchDirective.Source.PREVIEW,AssistantReferences.previewRef(s),List.of(),m)));
+        assertFalse(refused.contains("preview"));assertFalse(refused.contains("plan"));
+        assertEquals(preview,state.getPreviewId());assertTrue(state.getExcludedRecords().isEmpty());
+        assertTrue(state.getLastReason().contains("报表未被完整识别"));
+        turn("销售的记录全部取消选择",(m,s)->AssistantPlan.dispatch(new DispatchDirective(new SemanticIntent(1,Action.PREVIEW,
+                List.of(new ScopeChange(Target.RECORDS,Operation.EXCLUDE,List.of(),m,List.of("销售"),SelectorKind.ALL,Quantifier.ALL)),List.of(),Clarify.NONE),
+                DispatchDirective.Source.PREVIEW,AssistantReferences.previewRef(s),List.of(),m)));
+        assertEquals(Set.of(new RecordKey(SALES,"1"),new RecordKey(SALES,"2")),new HashSet<>(state.getExcludedRecords()));
+        assertEquals(3,h.previews.getOwned(USER1,state.getPreviewId()).preview().getTotalCount());
+        assertEquals(DialogueState.Phase.READY,state.getPhase());
+    }
+    /** 完整范围已排除其他报表时不要求重复编码；准备该范围只读保存的选择，不伪造新的记录操作。 */
+    @Test void completeReplacementAndNamedPreparationDoNotRequireRedundantCoverageChanges() {
+        h.put(EXPENSE,candidate(EXPENSE,"9","E9","A","差旅"));
+        var shown=turn("只看费用报表候选，销售和应收都不看",(m,s)->AssistantPlan.dispatch(new DispatchDirective(new SemanticIntent(1,Action.PREVIEW,
+                List.of(new ScopeChange(Target.REPORTS,Operation.REPLACE,List.of("费用报表"),m)),List.of(),List.of(),List.of(),Clarify.NONE),
+                DispatchDirective.Source.EXPLICIT_SCOPE,null,List.of(),m)));
+        assertTrue(shown.contains("preview"));assertEquals(List.of(EXPENSE),state.getDesired().reportIds());
+        var prepared=turn("就当前选中的费用记录生成清单",(m,s)->dispatch(m,s,DispatchDirective.Source.PREVIEW,Action.PREPARE_DISPATCH));
+        assertTrue(prepared.contains("plan"));
+        var saved=h.plans.getOwned(USER1,state.getPlanId());
+        assertEquals("PENDING",saved.plan().getStatus());assertEquals(List.of("9"),saved.items().stream().map(DispatchPlanItem::getRecordId).toList());
+    }
     @Test void aggregateFocusCannotSupplyDispatchTargetsButARecordListCanRecover() {
         var summary=new BusinessQuery(BusinessQuery.Domain.REPORT,BusinessQuery.View.SUMMARY,List.of(SALES),"A",List.of(),null,false,1,20,null);
         turn("销售记录总额",(m,s)->new AssistantPlan(AssistantPlan.Route.BUSINESS_QUERY,summary,false,null));
@@ -154,7 +199,7 @@ class UnifiedTaskFlowTest {
         queryServer();turn("准备这条",(m,s)->dispatch(m,s,DispatchDirective.Source.QUERY_ROWS,Action.PREPARE_DISPATCH));
         state.setExcludedRecords(List.of(new RecordKey(SALES,"1")));
         var events=turn("从头查询全部可派报表",(m,s)->AssistantPlan.dispatch(new DispatchDirective(new SemanticIntent(1,Action.PREVIEW,
-                List.of(new ScopeChange(Target.REPORTS,Operation.CLEAR,List.of(),m)),List.of(),Clarify.NONE),DispatchDirective.Source.EXPLICIT_SCOPE,null,List.of(),m)));
+                List.of(new ScopeChange(Target.REPORTS,Operation.ALL_AUTHORIZED,List.of(),m)),List.of(),Clarify.NONE),DispatchDirective.Source.EXPLICIT_SCOPE,null,List.of(),m)));
         assertTrue(events.contains("preview"));assertNull(state.getDesired().companyCode());assertTrue(state.getDesired().allReports());
         assertTrue(state.getExcludedRecords().isEmpty());assertEquals(2,h.previews.getOwned(USER1,state.getPreviewId()).preview().getTotalCount());
     }

@@ -1,0 +1,68 @@
+[
+  {
+    "id": "numeric-lower-bound",
+    "persona": "费用经办人调整下限，当前来源含恰好3200元的记录",
+    "turns": [
+      { "message": "查A公司费用报表，金额三千二百元以上的。", "expect": { "kind": "query", "source": "expense", "where": [["amount", "GTE", "3200"]] } },
+      { "message": "改成超过3200元，正好3200的不要。", "expect": { "kind": "query", "source": "expense", "where": [["amount", "GT", "3200"]] } },
+      { "message": "现在金额至少3200元的都要。", "expect": { "kind": "query", "source": "expense", "where": [["amount", "GTE", "3200"]] } },
+      { "message": "下限改为不少于三千二百块。", "expect": { "kind": "query", "source": "expense", "where": [["amount", "GTE", "3200"]] } },
+      { "message": "金额不低于3200元，其他条件不变。", "expect": { "kind": "query", "source": "expense", "where": [["amount", "GTE", "3200"]] } }
+    ]
+  },
+  {
+    "id": "numeric-upper-bound",
+    "persona": "费用经办人核对含本数和不含本数的上限",
+    "turns": [
+      { "message": "查询A公司费用报表，三千二百元以下的记录。", "expect": { "kind": "query", "source": "expense", "where": [["amount", "LTE", "3200"]] } },
+      { "message": "这次只要小于3200元的。", "expect": { "kind": "query", "source": "expense", "where": [["amount", "LT", "3200"]] } },
+      { "message": "改成金额不超过3200元。", "expect": { "kind": "query", "source": "expense", "where": [["amount", "LTE", "3200"]] } },
+      { "message": "金额至多三千二百元，正好这个数也算。", "expect": { "kind": "query", "source": "expense", "where": [["amount", "LTE", "3200"]] } },
+      { "message": "改为3200元以下，但不含3200本身。", "expect": { "kind": "query", "source": "expense", "where": [["amount", "LT", "3200"]] } }
+    ]
+  },
+  {
+    "id": "numeric-interval-recovery",
+    "persona": "连续调整双端区间，再分别撤销端点和整个字段限制",
+    "turns": [
+      { "message": "看A公司费用报表，金额不少于680元且不高于3200元。", "expect": { "kind": "query", "source": "expense", "where": [["amount", "GTE", "680"], ["amount", "LTE", "3200"]] } },
+      { "message": "下限不再限制，上限3200元继续保留并包含等于。", "expect": { "kind": "query", "source": "expense", "where": [["amount", "LTE", "3200"]] } },
+      { "message": "办公用品也不要，其余限制不变。", "expect": { "kind": "query", "source": "expense", "where": [["amount", "LTE", "3200"], ["expenseType", "NE", "办公用品"]] } },
+      { "message": "取消金额限制，办公用品还是不要。", "expect": { "kind": "query", "source": "expense", "where": [["expenseType", "NE", "办公用品"]] } },
+      { "message": "费用类型也不限制了，金额只看大于680且小于3200元的。", "expect": { "kind": "query", "source": "expense", "where": [["amount", "GT", "680"], ["amount", "LT", "3200"]] } },
+      { "message": "上下限都包含本数，还是680到3200元。", "expect": { "kind": "query", "source": "expense", "where": [["amount", "GTE", "680"], ["amount", "LTE", "3200"]] } }
+    ]
+  },
+  {
+    "id": "numeric-domain-switch",
+    "persona": "从工单切换费用再切换销售，核对边界和万元换算",
+    "turns": [
+      { "message": "查询WO-DEMO-002的当前进度。", "expect": { "kind": "query", "source": "work_order", "where": [["orderId", "EQ", "WO-DEMO-002"]], "view": "DETAIL" } },
+      { "message": "再帮我翻一下费用报表，一千块以上的。", "expect": { "kind": "query", "source": "expense", "where": [["amount", "GTE", "1000"]] } },
+      { "message": "现在改查A公司销售报表，金额九万六千元以上的。", "expect": { "kind": "query", "source": "sales", "where": [["amount", "GTE", "96000"]] } },
+      { "message": "金额超过9.6万元的才显示。", "expect": { "kind": "query", "source": "sales", "where": [["amount", "GT", "96000"]] } },
+      { "message": "金额至少9.6万元，包括正好9.6万的。", "expect": { "kind": "query", "source": "sales", "where": [["amount", "GTE", "96000"]] } }
+    ]
+  },
+  {
+    "id": "numeric-decimal-boundary",
+    "persona": "应收经办人核对小数金额及英文比较，不按当前返回集合放宽条件",
+    "turns": [
+      { "message": "查A公司应收报表，金额不少于12.50元。", "expect": { "kind": "query", "source": "receivable", "where": [["amount", "GTE", "12.5"]] } },
+      { "message": "改成大于12.50元。", "expect": { "kind": "query", "source": "receivable", "where": [["amount", "GT", "12.5"]] } },
+      { "message": "Show the same receivables with amount at least 12.50 yuan.", "expect": { "kind": "query", "source": "receivable", "where": [["amount", "GTE", "12.5"]] } },
+      { "message": "Now show amounts at most 12.50 yuan.", "expect": { "kind": "query", "source": "receivable", "where": [["amount", "LTE", "12.5"]] } }
+    ]
+  },
+  {
+    "id": "numeric-dispatch-selection",
+    "persona": "候选选择使用同一边界含义，排除和恢复不重复反转比较",
+    "turns": [
+      { "message": "查看A公司销售报表的全部可派单候选。", "expect": { "kind": "preview", "source": "sales" } },
+      { "message": "金额96000元以上的全部取消选择。", "expect": { "kind": "selection", "source": "sales", "where": [["amount", "LT", "96000"]] } },
+      { "message": "恢复金额不少于96000元的全部候选。", "expect": { "kind": "selection", "source": "sales" } },
+      { "message": "这次只排除超过96000元的，正好96000元的保留。", "expect": { "kind": "selection", "source": "sales", "where": [["amount", "LTE", "96000"]] } },
+      { "message": "按当前选中的销售记录生成待确认清单。", "expect": { "kind": "plan", "source": "sales", "where": [["amount", "LTE", "96000"]] } }
+    ]
+  }
+]

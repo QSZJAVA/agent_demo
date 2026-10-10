@@ -19,7 +19,7 @@
         "CLARIFY",
         "HELP"
       ],
-      "description": "本轮当前要求执行的动作；背景中的未来派单目的不等于当前建单。先查看候选用PREVIEW，准备当前选择用PREPARE_DISPATCH。"
+      "description": "本轮当前目标；不包含确认、提交或执行派单。查看候选用PREVIEW，形成待确认清单用PREPARE_DISPATCH，准备仍须之后由用户在页面确认。背景中的未来派单目的不等于当前建单。"
     },
     "scopeChanges": {
       "type": "array",
@@ -40,8 +40,9 @@
                 "type": "string",
                 "enum": [
                   "REPLACE",
-                  "CLEAR"
-                ]
+                  "ALL_AUTHORIZED"
+                ],
+                "description": "REPLACE一次设置完整具名范围；ALL_AUTHORIZED直接选择全部当前授权公司或报表，绝不是空集合，不用于先清空后追加。"
               },
               "mentions": {
                 "type": "array",
@@ -51,7 +52,7 @@
                   "minLength": 1,
                   "maxLength": 160
                 },
-                "description": "CLEAR时为空；其他公司或报表范围操作必须填写本轮实体原词，不填在reportMentions。"
+                "description": "ALL_AUTHORIZED时为空；其他公司或报表范围操作必须填写本轮实体原词，不填在reportMentions。"
               },
               "evidence": {
                 "type": "string",
@@ -115,8 +116,9 @@
                   "REPLACE",
                   "ADD",
                   "REMOVE",
-                  "CLEAR"
-                ]
+                  "ALL_AUTHORIZED"
+                ],
+                "description": "REPLACE一次设置完整具名范围；ALL_AUTHORIZED直接选择全部当前授权公司或报表，绝不是空集合，不用于先清空后追加。"
               },
               "mentions": {
                 "type": "array",
@@ -126,7 +128,7 @@
                   "minLength": 1,
                   "maxLength": 160
                 },
-                "description": "CLEAR时为空；其他公司或报表范围操作必须填写本轮实体原词，不填在reportMentions。"
+                "description": "每项逐字复制本轮evidence中的报表简称或别名；不得补成目录标准全名。ADD/REMOVE仅列本轮增量对象，未变报表自动保留；REPLACE需要本轮明确的完整集合；ALL_AUTHORIZED时为空。"
               },
               "evidence": {
                 "type": "string",
@@ -216,7 +218,7 @@
                   "minLength": 1,
                   "maxLength": 160
                 },
-                "description": "仅填写本轮明确出现、目录中可定位的具体报表原词。所有/全部报表等范围泛称不得填写；作用于当前完整范围或未限定具体报表时为空数组，不补写历史名称。"
+                "description": "仅填写本轮出现的具体报表原词，简称/别名原样复制，不能补成标准全名。所有/全部等泛称不填。用户已限定的报表不可省略，只有本轮确未限定报表时才为空。"
               },
               "selectorKind": {
                 "type": "string",
@@ -291,7 +293,7 @@
                   "minLength": 1,
                   "maxLength": 160
                 },
-                "description": "仅填写本轮明确出现、目录中可定位的具体报表原词。所有/全部报表等范围泛称不得填写；作用于当前完整范围或未限定具体报表时为空数组，不补写历史名称。"
+                "description": "仅填写本轮出现的具体报表原词，简称/别名原样复制，不能补成标准全名。所有/全部等泛称不填。用户已限定的报表不可省略，只有本轮确未限定报表时才为空。"
               },
               "selectorKind": {
                 "type": "string",
@@ -366,7 +368,7 @@
                   "minLength": 1,
                   "maxLength": 160
                 },
-                "description": "仅填写本轮明确出现、目录中可定位的具体报表原词。所有/全部报表等范围泛称不得填写；作用于当前完整范围或未限定具体报表时为空数组，不补写历史名称。"
+                "description": "仅填写本轮出现的具体报表原词，简称/别名原样复制，不能补成标准全名。所有/全部等泛称不填。用户已限定的报表不可省略，只有本轮确未限定报表时才为空。"
               },
               "selectorKind": {
                 "type": "string",
@@ -404,6 +406,7 @@
                           },
                           "operator": {
                             "type": "string",
+                            "description": "GTE为大于等于（以上、至少、不少于、不低于），LTE为小于等于（以下、至多、不超过、不高于），都包含等于；GT为严格大于（超过、大于），LT为严格小于（少于、小于），都排除等于。先按原文核对恰好阈值，再选算子。条件描述被排除、恢复或保留的集合，不因EXCLUDE再反转比较符。",
                             "enum": [
                               "EQ",
                               "NE",
@@ -500,7 +503,7 @@
                   "minLength": 1,
                   "maxLength": 160
                 },
-                "description": "仅填写本轮明确出现、目录中可定位的具体报表原词。所有/全部报表等范围泛称不得填写；作用于当前完整范围或未限定具体报表时为空数组，不补写历史名称。"
+                "description": "仅填写本轮出现的具体报表原词，简称/别名原样复制，不能补成标准全名。所有/全部等泛称不填。用户已限定的报表不可省略，只有本轮确未限定报表时才为空。"
               },
               "selectorKind": {
                 "type": "string",
@@ -562,7 +565,7 @@
                   "pattern": "^ref_[a-f0-9]{32}$"
                 },
                 "minItems": 1,
-                "description": "只填当前预览提供的ref_引用键；不能填写报表名称、客户名称或原话代词。"
+                "description": "只复制当前预览lastSelectionReferences提供的ref_引用键。用于自然语言指代已经唯一定位的对象；键不必出现在本轮原文，evidence才须引用用户原话。不能把口语指代当作新的客户别名；引用多义或失效时须澄清。"
               },
               "evidence": {
                 "type": "string",
@@ -577,7 +580,7 @@
                   "minLength": 1,
                   "maxLength": 160
                 },
-                "description": "仅填写本轮明确出现、目录中可定位的具体报表原词。所有/全部报表等范围泛称不得填写；作用于当前完整范围或未限定具体报表时为空数组，不补写历史名称。"
+                "description": "仅填写本轮出现的具体报表原词，简称/别名原样复制，不能补成标准全名。所有/全部等泛称不填。用户已限定的报表不可省略，只有本轮确未限定报表时才为空。"
               },
               "selectorKind": {
                 "type": "string",
@@ -614,7 +617,7 @@
           }
         ]
       },
-      "description": "只表达本轮改变公司、报表或记录选择的要求。仅准备当前已选记录时为空，不能把已选对象描述转换成KEEP_ONLY或恢复操作。"
+      "description": "只表达本轮改变公司、报表或记录选择的增量，每项evidence来自本轮。已生效的历史操作保存在当前预览，不在此重复；仅准备当前已选记录时为空，不能重放历史排除或把已选对象描述转换成KEEP_ONLY、恢复操作。"
     },
     "restrictions": {
       "type": "array",
@@ -623,7 +626,7 @@
         "type": "object",
         "additionalProperties": false,
         "properties": {
-          "action": {
+          "forbiddenAction": {
             "type": "string",
             "enum": [
               "PREVIEW",
@@ -631,8 +634,10 @@
               "CANCEL_PLAN",
               "SHOW_RESULT",
               "EXPLAIN_RULES",
-              "HELP"
-            ]
+              "HELP",
+              "EXECUTE_DISPATCH"
+            ],
+            "description": "仅表示本轮被禁止的动作。EXECUTE_DISPATCH只在禁止集合中表达不提交/不执行，不是可执行action；它不禁止PREPARE_DISPATCH。禁止准备清单才用PREPARE_DISPATCH。"
           },
           "scope": {
             "type": "string",
@@ -647,11 +652,12 @@
           }
         },
         "required": [
-          "action",
+          "forbiddenAction",
           "scope",
           "evidence"
         ]
-      }
+      },
+      "description": "本轮明确禁止的动作集合，不是允许列表。先准备但不提交：action为PREPARE_DISPATCH，禁止EXECUTE_DISPATCH。只预览不能禁止PREVIEW。真正提交只能由用户页面确认，本对象永远不能授权执行。"
     },
     "clarify": {
       "type": "string",

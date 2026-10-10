@@ -15,6 +15,8 @@ public final class AssistantCodec {
     public static AssistantPlan plan(String text){return decode(text,AssistantPlan.class);}
     /** 语义复核也执行完整严格解码；缺少原文要求或完整期望不能视为已经通过。 */
     public static SemanticReview review(String text){return decode(text,SemanticReview.class);}
+    /** 目标裁定使用相同严格边界；不能让缺字段或额外输出成为动作授权。 */
+    public static TaskPurpose purpose(String text){return decode(text,TaskPurpose.class);}
     /** 解码 HTTP MCP 的查询参数，使用与模型输出相同的类型边界。 */
     public static BusinessQuery query(Object value){return decode(JsonUtil.toJson(value),BusinessQuery.class);}
     private static <T>T decode(String text,Class<T> type) {
@@ -33,6 +35,13 @@ public final class AssistantCodec {
         if(failure instanceof JsonMappingException mapping) {
             String path=mapping.getPath().stream().map(JsonMappingException.Reference::getFieldName).filter(java.util.Objects::nonNull)
                     .filter(n->n.matches("[A-Za-z_][A-Za-z0-9_]{0,63}")).collect(java.util.stream.Collectors.joining("."));
+            // 未知字段应明确要求删除；模糊地说“字段类型不符”会诱使模型保留同一多余字段反复改写其值。
+            if(mapping instanceof com.fasterxml.jackson.databind.exc.UnrecognizedPropertyException unknown) {
+                var allowed=unknown.getKnownPropertyIds()==null?java.util.List.of():unknown.getKnownPropertyIds();
+                String names=allowed.stream().map(Object::toString).filter(n->n.matches("[A-Za-z_][A-Za-z0-9_]{0,63}"))
+                        .sorted().limit(32).collect(java.util.stream.Collectors.joining("、"));
+                return (path.isBlank()?"JSON":path)+"是Schema未声明的字段，必须删除该字段，不要改动业务条件；该对象允许的字段为："+names;
+            }
             return (path.isBlank()?"JSON":path)+"的字段类型、必填字段或枚举不符合Schema；可空字段仍需显式提供";
         }
         return "字段类型或对象结构不符合Schema";

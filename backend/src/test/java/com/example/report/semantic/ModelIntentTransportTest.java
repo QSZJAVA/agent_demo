@@ -75,7 +75,7 @@ class ModelIntentTransportTest {
             var state=new DialogueState();
             state.setRecentUserMessages(List.of("电话13812345678"));
             state.setPendingIntent(new SemanticIntent(1,SemanticIntent.Action.PREVIEW,List.of(),List.of(
-                    new SemanticIntent.Restriction(SemanticIntent.Action.PREPARE_DISPATCH,SemanticIntent.RestrictionScope.THIS_TURN,"上轮不要派单")),SemanticIntent.Clarify.NONE));
+                    new SemanticIntent.Restriction(SemanticIntent.ForbiddenAction.PREPARE_DISPATCH,SemanticIntent.RestrictionScope.THIS_TURN,"上轮不要派单")),SemanticIntent.Clarify.NONE));
             var parser=new ModelIntentParser(model,new IntentCodec(),new AgentProperties());
             var intent=parser.parse("排除单据"+document,new IntentParser.Context(state,List.of(),List.of(),Map.of(),
                     draft->assertEquals(document,draft.scopeChanges().get(0).mentions().get(0),"业务预检必须收到恢复后的真实标识")));

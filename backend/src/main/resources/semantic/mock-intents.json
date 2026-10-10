@@ -4,16 +4,18 @@
     "intent": {
       "version": 1,
       "action": "PREVIEW",
-      "scopeChanges": [{
-        "target": "REPORTS",
-        "operation": "CLEAR",
-        "mentions": [],
-        "evidence": "查一下我有哪些可以派单",
-        "reportMentions": [],
-        "selectorKind": "NONE",
-        "quantifier": "UNSPECIFIED",
-        "conditions": []
-      }],
+      "scopeChanges": [
+        {
+          "target": "REPORTS",
+          "operation": "ALL_AUTHORIZED",
+          "mentions": [],
+          "evidence": "查一下我有哪些可以派单",
+          "reportMentions": [],
+          "selectorKind": "NONE",
+          "quantifier": "UNSPECIFIED",
+          "conditions": []
+        }
+      ],
       "restrictions": [],
       "clarify": "NONE",
       "reportConstraints": [],
@@ -343,7 +345,7 @@
       "scopeChanges": [
         {
           "target": "COMPANY",
-          "operation": "CLEAR",
+          "operation": "ALL_AUTHORIZED",
           "mentions": [],
           "evidence": "查询全部可见公司",
           "reportMentions": [],
@@ -366,7 +368,7 @@
       "scopeChanges": [
         {
           "target": "REPORTS",
-          "operation": "CLEAR",
+          "operation": "ALL_AUTHORIZED",
           "mentions": [],
           "evidence": "查询所有报表",
           "reportMentions": [],
@@ -696,7 +698,7 @@
       "scopeChanges": [
         {
           "target": "REPORTS",
-          "operation": "CLEAR",
+          "operation": "ALL_AUTHORIZED",
           "mentions": [],
           "evidence": "所有报表",
           "reportMentions": [],
@@ -762,7 +764,7 @@
       "scopeChanges": [
         {
           "target": "COMPANY",
-          "operation": "CLEAR",
+          "operation": "ALL_AUTHORIZED",
           "mentions": [],
           "evidence": "查我能看的全部公司",
           "reportMentions": [],
@@ -785,9 +787,9 @@
       "scopeChanges": [],
       "restrictions": [
         {
-          "action": "PREPARE_DISPATCH",
           "scope": "THIS_TURN",
-          "evidence": "先别派"
+          "evidence": "先别派",
+          "forbiddenAction": "PREPARE_DISPATCH"
         }
       ],
       "clarify": "NONE",
@@ -1148,9 +1150,9 @@
       ],
       "restrictions": [
         {
-          "action": "PREPARE_DISPATCH",
           "scope": "THIS_TURN",
-          "evidence": "不要派单"
+          "evidence": "不要派单",
+          "forbiddenAction": "PREPARE_DISPATCH"
         }
       ],
       "clarify": "NONE",
@@ -1185,9 +1187,9 @@
       ],
       "restrictions": [
         {
-          "action": "PREPARE_DISPATCH",
           "scope": "THIS_TURN",
-          "evidence": "不要派单"
+          "evidence": "不要派单",
+          "forbiddenAction": "PREPARE_DISPATCH"
         }
       ],
       "clarify": "NONE",
@@ -1222,9 +1224,9 @@
       ],
       "restrictions": [
         {
-          "action": "PREPARE_DISPATCH",
           "scope": "THIS_TURN",
-          "evidence": "先别派单"
+          "evidence": "先别派单",
+          "forbiddenAction": "PREPARE_DISPATCH"
         }
       ],
       "clarify": "NONE",
@@ -1447,9 +1449,9 @@
       ],
       "restrictions": [
         {
-          "action": "PREPARE_DISPATCH",
           "scope": "THIS_TURN",
-          "evidence": "不要派单"
+          "evidence": "不要派单",
+          "forbiddenAction": "PREPARE_DISPATCH"
         }
       ],
       "clarify": "NONE",

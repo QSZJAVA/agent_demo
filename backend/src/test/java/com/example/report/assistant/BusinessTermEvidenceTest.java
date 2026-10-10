@@ -8,8 +8,16 @@ import java.util.*;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
-/** 字段词义线索的权限、类型、边界及最小披露检查；不以合成命中证明模型理解正确。 */
+/** 报表原词与字段线索的权限、类型、边界及最小披露检查；不以合成命中证明模型理解正确。 */
 class BusinessTermEvidenceTest {
+    @Test void reportMentionsPreserveActualAliasesWithoutInferringFromRecordTypes() {
+        var report=mock(CatalogEntry.class);when(report.reportId()).thenReturn("expense");when(report.reportName()).thenReturn("费用报表");
+        when(report.ref()).thenReturn(new com.example.report.catalog.ReportRef("expense","费用报表","EXPENSE","费用明细",List.of("费用","Cost")));
+        assertTrue(BusinessTermEvidence.reportMentions("恢复3200元的业务招待费",List.of(report)).isEmpty());
+        assertEquals(List.of(new BusinessTermEvidence.ReportMention("expense",List.of("费用","COST"))),BusinessTermEvidence.reportMentions("恢复费用里COST的记录",List.of(report)));
+        assertTrue(BusinessTermEvidence.reportMentions("Costing",List.of(report)).isEmpty());
+        assertTrue(BusinessTermEvidence.reportMentions("销售报表",List.of(report)).isEmpty());
+    }
     private CatalogEntry report(String id,FieldInfo... fields) {
         var report=mock(CatalogEntry.class);when(report.reportId()).thenReturn(id);when(report.fields()).thenReturn(List.of(fields));return report;
     }

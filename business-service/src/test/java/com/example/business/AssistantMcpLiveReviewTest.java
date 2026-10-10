@@ -29,6 +29,20 @@ class AssistantMcpLiveReviewTest {
         // 活跃浏览器验收也可只读取证；在同一监视器内复制每条记录，避免响应完成时修改正在序列化的Map。
         synchronized(modelCalls){return modelCalls.stream().map(call->Collections.unmodifiableMap(new LinkedHashMap<>(call))).toList();}
     }
+    /**
+     * 长期浏览器夹具每次模型调用结束即落盘；进程意外中断时保留已完成的真实诊断。
+     * 仅写入显式配置且已限制访问的本轮目录，不采集认证配置，不改变模型返回值或业务操作。
+     * 调用方持有modelCalls监视器，避免并发响应交错写入同一JSON行。
+     */
+    private static void persistBrowserModelCall(Map<String,Object> call) {
+        if(!"true".equals(System.getenv("ASSISTANT_BROWSER")))return;
+        String configured=System.getenv("ASSISTANT_BROWSER_DIR");
+        if(configured==null || !Files.isDirectory(Path.of(configured)))throw new IllegalStateException("浏览器验收私有取证目录未准备");
+        try {
+            Files.writeString(Path.of(configured).resolve("model-calls.jsonl"),JsonUtil.toJson(SensitiveData.value(call))+"\n",
+                    java.nio.charset.StandardCharsets.UTF_8,StandardOpenOption.CREATE,StandardOpenOption.APPEND);
+        } catch(java.io.IOException failure){throw new IllegalStateException("浏览器验收模型证据写入失败",failure);}
+    }
     private final List<Map<String,Object>> evidence=new ArrayList<>();
     private final HttpClient http=HttpClient.newBuilder().connectTimeout(Duration.ofSeconds(10)).build();
     private String agentUrl,token,conversationId;
@@ -155,9 +169,18 @@ class AssistantMcpLiveReviewTest {
                     return new org.springframework.ai.chat.model.ChatModel() {
                         @Override public org.springframework.ai.chat.prompt.ChatOptions getDefaultOptions(){return delegate.getDefaultOptions();}
                         @Override public org.springframework.ai.chat.model.ChatResponse call(org.springframework.ai.chat.prompt.Prompt prompt) {
-                            var call=new LinkedHashMap<String,Object>();call.put("input",JsonUtil.toMap(prompt.getUserMessage().getText()));modelCalls.add(call);
-                            var response=delegate.call(prompt);
-                            synchronized(modelCalls){call.put("output",SensitiveData.text(response.getResult().getOutput().getText()));}return response;
+                            var call=new LinkedHashMap<String,Object>();call.put("input",JsonUtil.toMap(prompt.getUserMessage().getText()));
+                            synchronized(modelCalls){call.put("callIndex",modelCalls.size());modelCalls.add(call);}
+                            try {
+                                var response=delegate.call(prompt);
+                                synchronized(modelCalls){call.put("output",SensitiveData.text(response.getResult().getOutput().getText()));}
+                                return response;
+                            } catch(RuntimeException failure) {
+                                synchronized(modelCalls){call.put("error",SensitiveData.text(Objects.toString(failure.getMessage(),failure.getClass().getSimpleName())));}
+                                throw failure;
+                            } finally {
+                                synchronized(modelCalls){call.put("completedAt",OffsetDateTime.now(ZoneId.of("Asia/Shanghai")).toString());persistBrowserModelCall(call);}
+                            }
                         }
                         @Override public reactor.core.publisher.Flux<org.springframework.ai.chat.model.ChatResponse> stream(org.springframework.ai.chat.prompt.Prompt prompt) {
                             return delegate.stream(prompt);

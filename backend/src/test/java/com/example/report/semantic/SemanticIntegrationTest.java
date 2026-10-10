@@ -475,7 +475,7 @@ class SemanticIntegrationTest {
         var before=store.read(user(),id).getDesired();
         var conflict=new SemanticIntent(1,SemanticIntent.Action.PREPARE_DISPATCH,List.of(
                 new SemanticIntent.ScopeChange(SemanticIntent.Target.REPORTS,SemanticIntent.Operation.REPLACE,List.of("费用报表"),"费用报表")),
-                List.of(new SemanticIntent.Restriction(SemanticIntent.Action.PREPARE_DISPATCH,SemanticIntent.RestrictionScope.THIS_TURN,"不要派单")),SemanticIntent.Clarify.NONE);
+                List.of(new SemanticIntent.Restriction(SemanticIntent.ForbiddenAction.PREPARE_DISPATCH,SemanticIntent.RestrictionScope.THIS_TURN,"不要派单")),SemanticIntent.Clarify.NONE);
         org.mockito.Mockito.doReturn(conflict).when(parser).parse(org.mockito.ArgumentMatchers.eq("费用报表不要派单"),org.mockito.ArgumentMatchers.any());
         var events=turn(id,"费用报表不要派单");
         assertFalse(events.stream().anyMatch(e->Set.of("plan","preview").contains(e.event())));

@@ -18,9 +18,11 @@ public record SemanticIntent(int version, Action action, List<ScopeChange> scope
     /** 当前唯一语义协议版本；重新编号后的V1包含全部字段筛选能力，不解析历史协议。 */
     public static final int VERSION = 1;
     public enum Action { PREVIEW, PREPARE_DISPATCH, CANCEL_PLAN, SHOW_RESULT, EXPLAIN_RULES, CLARIFY, HELP }
+    /** 仅用于禁止声明；EXECUTE_DISPATCH表达不得提交执行，不能成为可执行Action或调用确认接口。 */
+    public enum ForbiddenAction { PREVIEW, PREPARE_DISPATCH, CANCEL_PLAN, SHOW_RESULT, EXPLAIN_RULES, HELP, EXECUTE_DISPATCH }
     public enum Target { COMPANY, REPORTS, RECORDS }
-    // KEEP仅用于服务端集合求值；模型记录操作使用直接的排除与恢复语义。
-    public enum Operation { KEEP, REPLACE, ADD, REMOVE, CLEAR, EXCLUDE, RESTORE, REPLACE_EXCLUSIONS, RESTORE_ALL, KEEP_ONLY }
+    // KEEP/CLEAR仅用于服务端集合求值；模型范围明确使用ALL_AUTHORIZED，记录使用直接的排除与恢复语义。
+    public enum Operation { KEEP, REPLACE, ADD, REMOVE, CLEAR, ALL_AUTHORIZED, EXCLUDE, RESTORE, REPLACE_EXCLUSIONS, RESTORE_ALL, KEEP_ONLY }
     public enum SelectorKind { NONE, DOCUMENT, DESCRIPTION, COUNTERPARTY, FIELDS, ALL, REFERENCE }
     public enum Comparison { EQ, NE, GT, GTE, LT, LTE, CONTAINS, STARTS_WITH, IN, NOT_IN, IS_NULL, NOT_NULL }
     public enum Quantifier { UNSPECIFIED, ONE, ALL }
@@ -29,7 +31,7 @@ public record SemanticIntent(int version, Action action, List<ScopeChange> scope
     public enum RestrictionScope { THIS_TURN }
     /**
      * 范围或配置修改请求，保存前须校验相应协议。
-     * @param operation KEEP、REPLACE、ADD、REMOVE或CLEAR；仅用于服务端集合求值
+     * @param operation KEEP、REPLACE、ADD、REMOVE、ALL_AUTHORIZED用于范围求值；CLEAR仅清空服务端排除集合
      * @param mentions 本轮原文实体片段，必须出现在对应evidence中
      * @param evidence 支撑该修改或禁止的连续原文证据
      */
@@ -39,7 +41,7 @@ public record SemanticIntent(int version, Action action, List<ScopeChange> scope
     /**
      * 本轮语义范围修改及其原文证据。
      * @param target COMPANY、REPORTS或RECORDS范围目标
-     * @param operation 范围使用REPLACE/ADD/REMOVE/CLEAR；记录使用EXCLUDE/RESTORE/REPLACE_EXCLUSIONS/RESTORE_ALL/KEEP_ONLY
+     * @param operation 范围使用REPLACE/ADD/REMOVE/ALL_AUTHORIZED；ALL_AUTHORIZED表示全部当前授权范围，绝不是空集合。记录使用EXCLUDE/RESTORE/REPLACE_EXCLUSIONS/RESTORE_ALL/KEEP_ONLY
      * @param mentions 本轮原文实体片段；REFERENCE使用服务端提供的随机引用键，其余实体须出现在evidence中；FIELDS、ALL和恢复全部时为空
      * @param evidence 支撑该修改或禁止的连续原文证据
      * @param reportMentions 仅用于RECORDS的报表限定原话；空集合表示在当前完整预览定位，不改变查询报表范围
@@ -89,11 +91,11 @@ public record SemanticIntent(int version, Action action, List<ScopeChange> scope
     public record ReportConstraint(String mention, ReportRole role, String evidence) { }
     /**
      * 仅对本轮生效的业务禁止，不继承到后续轮次。
-     * @param action 本次业务动作，必须属于协议允许的动作集合
+     * @param forbiddenAction 本轮明确禁止的业务动作；EXECUTE_DISPATCH仅声明禁止提交，不禁止准备，也不提供执行能力
      * @param scope 业务禁止生效范围，当前只允许THIS_TURN
      * @param evidence 支撑该修改或禁止的连续原文证据
      */
-    public record Restriction(Action action, RestrictionScope scope, String evidence) { }
+    public record Restriction(ForbiddenAction forbiddenAction, RestrictionScope scope, String evidence) { }
     /** 服务端测试及确定性调用的构造器，输出仍为完整V1协议。 */
     public SemanticIntent(int version, Action action, List<ScopeChange> changes, List<Restriction> restrictions, Clarify clarify) {
         this(version, action, changes, restrictions, constraints(changes), List.of(), clarify);
@@ -132,7 +134,8 @@ public record SemanticIntent(int version, Action action, List<ScopeChange> scope
         return scopeChanges.stream().filter(c -> c.target()==target).map(ScopeChange::change).toList();
     }
     public boolean changes(Target target) { return scopeChanges.stream().anyMatch(c -> c.target()==target); }
-    public boolean forbids(Action requested) { return restrictions.stream().anyMatch(r -> r.action()==requested); }
+    /** 两种枚举按业务动作名比较；仅禁止声明中的执行值永远不能扩充可执行动作集合。 */
+    public boolean forbids(Action requested) { return restrictions.stream().anyMatch(r -> r.forbiddenAction().name().equals(requested.name())); }
     public static SemanticIntent clarify(Clarify slot) {
         return new SemanticIntent(VERSION, Action.CLARIFY, List.of(), List.of(), slot);
     }

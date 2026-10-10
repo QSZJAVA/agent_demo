@@ -7,7 +7,7 @@ PREVIEW用于查询、重新核对或刷新可派候选，以及调整候选选�
 - QUERY_ROWS：用户要处理刚成功查询展示的特定记录。sourceRef复制queryObjects.sourceRef，referenceKeys复制对应行的referenceKey；不能提供任意数据库编号。单条查询已有明确对象，承接它不要求用户重复报表、公司或单据号。根据已展示序号、产品、客户或其他唯一事实定位；多义时澄清。此来源可直接PREPARE_DISPATCH，程序会自动重新核验当前状态和规则、生成精确候选及待确认清单，不需要先让用户另发查询候选指令。
 - QUERY_ALL：用户要处理上一成功查询的完整结果，且queryObjects.allMatchesDisplayed=true。sourceRef复制查询引用，referenceKeys=[]。如果只展示部分，不能把当前页冒充全部；可明确处理已展示子集用QUERY_ROWS，否则说明缺少完整有界对象集。查询得到零条不能建单。
 - PREVIEW：承接已有派单候选、调整选择、切换候选范围或基于当前选择生成清单。sourceRef复制dispatchContext.previewRef，referenceKeys=[]。按scopeChanges表达本轮修改。候选可以作为独立对象被明确返回使用；业务查询与旧候选同时存在时，必须依据用户语义选择正确来源，不能默认用旧候选取代刚查到的记录。
-- EXPLICIT_SCOPE：本轮发起完整的新派单范围，不依赖旧候选或旧查询。sourceRef=null，referenceKeys=[]。公司或报表至少有REPLACE/CLEAR建立范围；未限定维度表示全部当前授权范围，不能继承上一个话题的公司、报表或选择。无候选时明确查询全部可派记录用REPORTS CLEAR。已有候选的增量修改用PREVIEW来源。
+- EXPLICIT_SCOPE：本轮发起完整的新派单范围，不依赖旧候选或旧查询。sourceRef=null，referenceKeys=[]。公司或报表至少有REPLACE/ALL_AUTHORIZED建立范围；未限定维度表示全部当前授权范围，不能继承上一个话题的公司、报表或选择。无候选时明确查询全部可派记录用REPORTS ALL_AUTHORIZED。已有候选的增量修改用PREVIEW来源。
 - PLAN：取消或查看已存在清单。sourceRef复制dispatchContext.planRef，referenceKeys=[]；scopeChanges和reportConstraints=[]。只复制上下文中现有引用，不要求用户给出内部标识，不编造新清单。
 
 QUERY_ROWS和QUERY_ALL只绑定所选身份，intent.scopeChanges=[]、reportConstraints=[]。想排除查询结果中的部分记录后派单，可在已有展示事实足够明确时直接用QUERY_ROWS选择最终子集；不能顺带修改旧候选。QUERY来源的action只能PREVIEW（只核验并看候选）或PREPARE_DISPATCH（准备清单）。仅询问能否派单仍是只读REPORT/ELIGIBILITY。
@@ -15,20 +15,22 @@ QUERY_ROWS和QUERY_ALL只绑定所选身份，intent.scopeChanges=[]、reportCon
 dispatch.evidence逐字引用本轮明确动作及对象的连续原文，可引用整条message。它不使用历史指令作为当前操作授权。已识别的动作不能为了通过校验而被偷偷改为另一动作；不能省略筛选、换对象或把请求准备清单降为只看候选。
 
 intent.scopeChanges按本轮含义先计算公司/报表，再应用记录选择：
-- COMPANY：数据归属组织，只支持REPLACE一家、CLEAR全部授权公司；不是交易对方名称。
-- REPORTS：REPLACE完整替换报表集合、ADD追加、REMOVE移除、CLEAR全部。只有改变候选报表范围时使用；报表作为某条记录的定语时放在该RECORDS操作的reportMentions，不据此改查整张报表。只查看某张报表的候选用REPORTS，不制造记录选择。
+- COMPANY：数据归属组织，只支持REPLACE一家、ALL_AUTHORIZED全部授权公司；不是交易对方名称。
+- REPORTS：REPLACE完整替换报表集合、ADD追加、REMOVE移除、ALL_AUTHORIZED全部。只把本轮改变的具名报表写入增量操作，未修改报表及其选择由当前状态保留；不要把追加/移除改写为枚举全部结果的REPLACE，也不要补写本轮未出现的报表名称。剩余/其余是集合描述，不是目录实体，不填写到mentions或reportConstraints。只有改变候选报表范围时使用；报表作为某条记录的定语时放在该RECORDS操作的reportMentions，不据此改查整张报表。只查看某张报表的候选用REPORTS，不制造记录选择。
 - RECORDS：EXCLUDE排除匹配、RESTORE恢复匹配、REPLACE_EXCLUSIONS替换排除集合、RESTORE_ALL恢复全部、KEEP_ONLY只保留匹配并排除其余。普通保留当前记录不等于只保留，必须完整理解作用范围。只调整选择用PREVIEW；只有本轮另外明确要求准备时才用PREPARE_DISPATCH。描述已经留下的记录不意味着再次修改选择，准备现有选择通常scopeChanges=[]。
 
 selectorKind：DOCUMENT单据号；DESCRIPTION摘要/产品描述；COUNTERPARTY客户或往来单位；FIELDS已配置字段条件；REFERENCE最近成功定位对象的引用键；ALL当前范围或指定报表全部记录；非记录操作及RESTORE_ALL用NONE。
 mentions只填本轮原话的实体，不加动作词；REFERENCE只复制dispatchContext.lastSelectionReferences的referenceKey。不把代词当成客户全称，不从历史补写mentions；需要历史事实时使用可靠REFERENCE或有依据的FIELDS值。lastSelectionReferencesComplete=false不可把有界引用当作完整集合。
+REFERENCE用于自然语言指代已经定位的对象，用户不需要输入引用键，也不需要把口语指代登记成客户别名。COUNTERPARTY字面匹配失败只说明该文字不是唯一的已维护名称；若当前可靠引用已唯一解释本轮对象，应转用REFERENCE，不据此断言对象不存在。引用失效、截断或多义时仍须澄清，不能任取一条。
 ALL只与EXCLUDE或RESTORE组合，quantifier=ALL、mentions=[]、conditions=[]，报表原话只放reportMentions。恢复全部使用RESTORE_ALL、NONE、mentions=[]。
 FIELDS的mentions=[]；conditions是OR组，组内allOf为AND，每个条件包含field、operator、values和连续原文evidence。只用dispatchFieldsByReport声明的字段和类型操作，数值保留原单位、日期用ISO日期，相对日期依据today。缺失字段的报表不匹配，不把缺失字段当NULL。条件表达要匹配的集合，操作表示排除/恢复/只留该集合，不反转比较符。其他选择器conditions=[]。
 quantifier=ONE表示用户要求单笔，匹配多笔须澄清；ALL表示明确的全部匹配集合；UNSPECIFIED在多条匹配时不擅自扩大。单据号通常ONE，完整集合ALL。不要因措辞相似合并不同客户。
-COMPANY和REPORTS的reportMentions=[]、selectorKind=NONE、quantifier=UNSPECIFIED、conditions=[]。CLEAR的mentions=[]；其他范围操作填写本轮实体原词，由目录验证。
+COMPANY和REPORTS的reportMentions=[]、selectorKind=NONE、quantifier=UNSPECIFIED、conditions=[]。ALL_AUTHORIZED的mentions=[]；它直接选择全部当前授权范围，不能当作“清空后追加”的起点。明确完整指定一张或多张报表用REPLACE一次完成；不提供空报表集合操作。其他范围操作填写本轮实体原词，由目录验证。
 
 reportConstraints通常为空。需要保存最终角色时：INCLUDED范围内、EXCLUDED范围外、RECORD_SCOPE记录所属范围、UNCHANGED保持具名报表及其记录选择、UNCHANGED_OTHERS保持明确记录范围以外的报表不变。UNCHANGED_OTHERS要求本轮不修改公司/报表范围且记录操作都有reportMentions。实体已由scopeChanges表达可不重复；普通保留其余记录不需要构造“其余”报表实体。
 每个操作或约束的evidence来自本轮连续原文，mentions须在对应证据中；reportMentions可以来自本轮其他分句。一个自然句可以支持多项实际要求，但不允许虚构额外范围修改。REFERENCE的键不必出现在原文，但其作用对象必须符合原文。
+currentReportMentions列出本轮实际出现的授权报表名/别名，只是字面事实，不决定纳入或排除。reportMentions使用其中与本轮记录限定对应的原词；目录的标准全名、字段所属报表和历史焦点都不能代替原词。当前只描述记录字段而没有说报表时，reportMentions=[]，仍在当前预览按字段或引用精确定位。命中为空也不能把实际未知报表限定悄悄删除，应澄清未识别的实体。
 
-restrictions只表达本轮明确禁止的动作，不继承历史禁止。否定某条记录派单属于记录排除，不等于禁止整个清单。先准备、暂不提交允许PREPARE_DISPATCH；明确不要准备则不能建单。动作与禁止矛盾时统一CLARIFY。
+restrictions是本轮禁止集合，每项为forbiddenAction、scope=THIS_TURN、evidence；forbiddenAction只能填写明确被禁止的动作，绝不是允许列表，不继承历史禁止。仅禁止提交或执行使用EXECUTE_DISPATCH；该值只存在于禁止枚举，绝对不能写入intent.action，也不会调用确认接口。先准备、暂不提交允许PREPARE_DISPATCH，同时禁止EXECUTE_DISPATCH；明确不生成清单才禁止PREPARE_DISPATCH。只预览不等于禁止PREVIEW。否定某条记录派单属于记录排除。若实际指令确实同时要求并禁止同一动作，应澄清；若是模型把允许动作误放进禁止集合，则修正该错误，不应人为制造冲突。
 unsupportedConditions必须为空才可以执行；不能表达的条件或多步要求用统一CLARIFY说明，不通过丢掉条件执行一部分。clarify在有效任务中始终NONE。
 unresolvedCompany、unresolvedReports、unresolvedRecords是具体未解决范围，不能凭省略要求跳过；本轮明确重建范围或明确调整相应目标可恢复。dispatchUnresolved仅表明上一轮整体失败，不代表成功查询的对象或现有候选都不存在；明确的新动作和可靠来源仍可继续处理。

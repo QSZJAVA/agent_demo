@@ -17,29 +17,25 @@ public final class TaskPlanComparison {
     /**
      * 核对复核原文依据并比较完整计划；每个不同维度都必须有本轮原文支持，否则属于无效复核。
      * @param message 本轮原始要求，保持脱敏占位恢复后的文本
-     * @param history 实际发送给模型的有界对话快照，按0起下标验证引用，不从外部再加载历史
      * @param actual 已通过程序与只读预检的草稿
      * @param review 独立模型给出的要求及完整期望
      * @return 可直接供规划器阅读的结构化差异；空集合才表示通过
      * @throws ApiException 复核依据不属于本轮或无法支持实际差异，不能将此类错误归咎于草稿
      */
-    public static List<Difference> compare(String message,List<Map<String,String>> history,AssistantPlan actual,SemanticReview review) {
-        validateEvidence(message,history,review);
+    public static List<Difference> compare(String message,AssistantPlan actual,SemanticReview review) {
+        validateEvidence(message,review);
         var before=canonical(actual);var after=canonical(review.expectedPlan());
         var differences=new ArrayList<Difference>();
         compareNode("",before,after,review.requirements(),differences);
         return List.copyOf(differences);
     }
-    /** 独立期望必须先通过来源核对；显式索引由服务端提供，错误引用不能被模糊匹配到另一条消息。 */
-    public static void validateEvidence(String message,List<Map<String,String>> history,SemanticReview review) {
-        for(var requirement:review.requirements()) {
-            int index=requirement.messageIndex();
-            String source=index<0?message:index<history.size()?history.get(index).getOrDefault("content",""):"";
-            if(!source.contains(requirement.evidence()))throw new ApiException(422,"语义复核依据与messageIndex="+index+"指向的实际对话不符");
-        }
-        if(review.requirements().stream().noneMatch(r->r.messageIndex()==-1))throw new ApiException(422,"语义复核必须包含本轮消息的要求，历史不能单独授权操作");
-        if(review.targetCount()!=null && !message.contains(review.targetCount().evidence()))
-            throw new ApiException(422,"目标总条数必须引用本轮连续原文");
+    /** 独立期望只以本轮原话作为要求证据；历史可解释含义，不能授权新操作或替代当前指代短语。 */
+    public static void validateEvidence(String message,SemanticReview review) {
+        var evidence=new LinkedHashMap<String,String>();
+        for(int index=0;index<review.requirements().size();index++)
+            evidence.put("requirements["+index+"].evidence",review.requirements().get(index).evidence());
+        if(review.targetCount()!=null)evidence.put("targetCount.evidence",review.targetCount().evidence());
+        CurrentTextEvidence.requireAll(message,evidence);
     }
     /**
      * 将用户指定总数与完整只读选择事实比较；事实未知或数量不符必须澄清，不能缩小清单或自行恢复额外条目。
@@ -47,16 +43,17 @@ public final class TaskPlanComparison {
      * @param facts 同一会话租约内对该期望取得的预检事实，不读取未授权对象
      */
     public static void validateTargetCount(SemanticReview review,Map<String,Object> facts) {
-        if(review.targetCount()==null || review.expectedPlan().route()==AssistantPlan.Route.CLARIFY)return;
-        if(review.expectedPlan().dispatch()==null)throw new ApiException(422,"targetCount只约束派单目标，普通查询不填该字段");
+        validateTargetCount(review.targetCount(),review.expectedPlan(),facts);
+    }
+    /** 独立目标的总数直接核对事实；详细复核漏填时也须一次反馈实际数量差异，不能多耗一轮才发现不足。 */
+    public static void validateTargetCount(SemanticReview.TargetCount targetCount,AssistantPlan plan,Map<String,Object> facts) {
+        if(targetCount==null || plan.route()==AssistantPlan.Route.CLARIFY)return;
+        if(plan.dispatch()==null)throw new ApiException(422,"targetCount只约束派单目标，普通查询不填该字段");
         var evidence=JsonUtil.MAPPER.valueToTree(facts);
         var count=evidence.has("targetCount")?evidence.path("targetCount"):evidence.has("itemCount")?evidence.path("itemCount"):evidence.at("/selectionAfter/selectedCount");
-        if(!count.isIntegralNumber() || count.asInt()!=review.targetCount().count())
-            throw new ApiException(422,"用户要求最终 "+review.targetCount().count()+" 条，但当前完整预检为 "+(count.isIntegralNumber()?count.asInt():"未知")+" 条；未完成的选择不能当作成功，请澄清对象或先由用户完成选择，不得自行增加、减少目标或删除数量要求");
+        if(!count.isIntegralNumber() || count.asInt()!=targetCount.count())
+            throw new ApiException(422,"用户要求最终 "+targetCount.count()+" 条，但当前完整预检为 "+(count.isIntegralNumber()?count.asInt():"未知")+" 条；未完成的选择不能当作成功，请澄清对象或先由用户完成选择，不得自行增加、减少目标或删除数量要求");
     }
-    /** 无历史的内部或程序测试调用，仍执行同一证据验证。 */
-    public static List<Difference> compare(String message,AssistantPlan actual,SemanticReview review){return compare(message,List.of(),actual,review);}
-
     /** 比较对象字段；数组作为完整逻辑单元比较，避免将AND/OR、完整目标集合拆成可任意应用的补丁。 */
     private static void compareNode(String path,JsonNode before,JsonNode after,List<SemanticReview.Requirement> requirements,List<Difference> differences) {
         if(before.equals(after))return;
@@ -65,18 +62,33 @@ public final class TaskPlanComparison {
             for(String name:names)compareNode(path+"/"+name,before.path(name),after.path(name),requirements,differences);
             return;
         }
-        var aspect=aspect(path);
-        var evidence=requirements.stream().filter(r->r.aspect()==aspect && r.messageIndex()==-1).map(SemanticReview.Requirement::evidence).distinct().toList();
-        if(evidence.isEmpty())throw new ApiException(422,"语义复核对"+path+"的期望变化缺少"+aspect+"维度的本轮依据");
-        differences.add(new Difference(path,aspect,before,after,evidence));
+        for(var aspect:aspects(path,before,after)) {
+            var evidence=requirements.stream().filter(r->r.aspect()==aspect && r.messageIndex()==-1).map(SemanticReview.Requirement::evidence).distinct().toList();
+            if(evidence.isEmpty())throw new ApiException(422,"语义复核对"+path+"的期望变化缺少"+aspect+"维度的本轮依据");
+            differences.add(new Difference(path,aspect,before,after,evidence));
+        }
+    }
+
+    /** 公司/报表范围与记录选择属于不同维度；混合操作仍整组比较，不能将数组拆成可执行补丁。 */
+    private static List<SemanticReview.Aspect> aspects(String path,JsonNode before,JsonNode after) {
+        if(!path.equals("/dispatch/intent/scopeChanges") || !before.isArray() || !after.isArray())return List.of(aspect(path));
+        var changed=new ArrayList<SemanticReview.Aspect>();
+        for(boolean records:List.of(false,true)) {
+            var left=JsonUtil.MAPPER.createArrayNode();var right=JsonUtil.MAPPER.createArrayNode();
+            for(var node:before)if(records=="RECORDS".equals(node.path("target").asText()))left.add(node);
+            for(var node:after)if(records=="RECORDS".equals(node.path("target").asText()))right.add(node);
+            if(!left.equals(right))changed.add(records?SemanticReview.Aspect.CONDITIONS:SemanticReview.Aspect.SCOPE);
+        }
+        // 只有跨类别顺序不同仍须记录差异；协议预检另拒绝先记录、后范围的非法顺序。
+        return changed.isEmpty()?List.of(SemanticReview.Aspect.CONDITIONS):List.copyOf(changed);
     }
 
     /** 维度由协议字段决定，不采信模型将范围或动作变化归类成无关的展示修正。 */
     private static SemanticReview.Aspect aspect(String path) {
-        if(path.equals("/route") || path.startsWith("/dispatch/intent/action"))return SemanticReview.Aspect.ACTION;
+        if(path.equals("/route") || path.startsWith("/dispatch/intent/action") || path.startsWith("/dispatch/intent/restrictions"))return SemanticReview.Aspect.ACTION;
         if(path.equals("/followUp") || path.startsWith("/removedFilters"))return SemanticReview.Aspect.CONTINUITY;
         if(path.equals("/clarification") || path.startsWith("/dispatch/intent/clarify") || path.startsWith("/dispatch/intent/unsupportedConditions"))return SemanticReview.Aspect.CAPABILITY;
-        if(path.startsWith("/query/conditions") || path.startsWith("/dispatch/intent/scopeChanges") || path.startsWith("/dispatch/intent/restrictions")
+        if(path.startsWith("/query/conditions") || path.startsWith("/dispatch/intent/scopeChanges")
                 || path.startsWith("/dispatch/intent/reportConstraints"))return SemanticReview.Aspect.CONDITIONS;
         if(path.startsWith("/dispatch/source") || path.startsWith("/dispatch/referenceKeys"))return SemanticReview.Aspect.REFERENCE;
         if(path.equals("/query/domain") || path.equals("/query/reportIds") || path.equals("/query/companyCode"))return SemanticReview.Aspect.SCOPE;

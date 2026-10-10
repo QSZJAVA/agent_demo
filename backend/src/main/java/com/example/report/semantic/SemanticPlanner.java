@@ -100,7 +100,7 @@ public class SemanticPlanner {
         for(var change:intent.scopeChanges())if(change.target()==RECORDS)for(String mention:change.reportMentions()) {
             var concrete=catalog.resolve(user,mention);
             if(concrete.matchType()==MatchType.ALL)
-                throw new IntentCodec.InvalidOutput("","RECORD_SCOPE_MUST_NAME_REPORT：reportMentions仅填写具体所属报表；所有/全部报表是范围泛称，不能作为单张报表名称。作用于当前完整范围时reportMentions为空；重查全部报表仍由REPORTS CLEAR表达，恢复全部选择保留RESTORE_ALL，不得删除重置要求。");
+                throw new IntentCodec.InvalidOutput("","RECORD_SCOPE_MUST_NAME_REPORT：reportMentions仅填写具体所属报表；所有/全部报表是范围泛称，不能作为单张报表名称。作用于当前完整范围时reportMentions为空；重查全部报表仍由REPORTS ALL_AUTHORIZED表达，恢复全部选择保留RESTORE_ALL，不得删除重置要求。");
             if(!concrete.resolved() || concrete.matchType()==MatchType.FUZZY || !concrete.unrecognized().isEmpty())
                 throw new ApiException(422,"记录所属报表尚未确定，请说明具体报表名称");
             concrete.reportIds().forEach(id->catalog.requireDispatchable(user,id));
@@ -159,9 +159,9 @@ public class SemanticPlanner {
         var previous = state.getDesired();
         String company = previous.companyCode();
         var companyChange=scoped.target()==COMPANY?scoped.change():SemanticIntent.Change.keep();
-        if (companyChange.operation() == CLEAR) { company=null; state.setUnresolvedCompany(false); }
+        if (companyChange.operation() == ALL_AUTHORIZED) { company=null; state.setUnresolvedCompany(false); }
         if (companyChange.operation() == REPLACE) {
-            // Company codes currently are the authoritative company identifiers in PermissionService.
+            // 公司原词只进行统一表示转换，随后按当前用户的实际授权代码校验，不能退回其他可访问公司。
             company = companyCode(companyChange.mentions().get(0));
             if (company.isBlank()) {
                 state.setUnresolvedCompany(true);
@@ -171,7 +171,7 @@ public class SemanticPlanner {
         }
         state.setDesired(new DialogueState.Scope(company, previous.allReports(), previous.reportIds()));
         var change = scoped.target()==REPORTS?scoped.change():SemanticIntent.Change.keep();
-        if (change.operation() == CLEAR) {
+        if (change.operation() == ALL_AUTHORIZED) {
             state.setDesired(new DialogueState.Scope(company, true, List.of()));
             state.setUnresolvedReports(false);
         } else if (change.operation() != KEEP) {
@@ -183,8 +183,9 @@ public class SemanticPlanner {
                 var result = catalog.resolve(user, mention);
                 if (!result.resolved() || result.matchType()==MatchType.FUZZY || result.matchType()==MatchType.ALL || !result.unrecognized().isEmpty()) {
                     var choices = java.util.stream.Stream.concat(result.reports().stream(),result.candidates().stream()).map(ReportRef::reportName).distinct().toList();
-                    throw new ApiException(422, choices.isEmpty() ? "未找到“"+mention+"”对应的可用报表，请说明完整报表名称"
-                            : "“"+mention+"”需要确认，请明确要查询的报表："+String.join("、",choices));
+                    String reason=choices.isEmpty() ? "未找到“"+mention+"”对应的可用报表，请说明完整报表名称"
+                            : "“"+mention+"”需要确认，请明确要查询的报表："+String.join("、",choices);
+                    throw new com.example.report.common.ModelContractViolation(reason,"REPORTS的具名实体未唯一匹配目录。若原文表达全部授权报表，应使用operation=ALL_AUTHORIZED、mentions=[]；全部范围不能作为REPLACE的具名报表。若确实指定某张报表，继续核对原词和授权目录；不猜测或缩小请求范围。");
                 }
                 mentioned.addAll(result.reportIds());
             }

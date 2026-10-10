@@ -60,7 +60,7 @@ public class IntentCodec {
             if (c==null || c.target()==null || c.operation()==null || c.operation()==Operation.KEEP
                     || c.mentions()==null || c.mentions().size()>20 || c.reportMentions()==null
                     || c.reportMentions().size()>20 || c.selectorKind()==null || c.quantifier()==null || c.conditions()==null || !grounded(message,c.evidence())) throw invalid();
-            boolean clear=c.operation()==Operation.CLEAR || c.operation()==Operation.RESTORE_ALL;
+            boolean clear=c.operation()==Operation.ALL_AUTHORIZED || c.operation()==Operation.RESTORE_ALL;
             boolean emptyMentions=clear || c.selectorKind()==SelectorKind.FIELDS || c.selectorKind()==SelectorKind.ALL;
             // 缺少实体与实体放错字段需要相反的修正，不能用同一条“必须为空”反馈让模型反复删掉必填实体。
             if(emptyMentions && !c.mentions().isEmpty())
@@ -75,7 +75,7 @@ public class IntentCodec {
                 if(c.selectorKind()==SelectorKind.ALL && (c.quantifier()!=Quantifier.ALL || !Set.of(Operation.EXCLUDE,Operation.RESTORE).contains(c.operation())))
                     throw new InvalidOutput("","ALL_SELECTOR_REQUIRES_EXCLUDE_OR_RESTORE_WITH_ALL_QUANTIFIER");
                 if(c.selectorKind()==SelectorKind.REFERENCE && !Set.of(Operation.EXCLUDE,Operation.RESTORE,Operation.REPLACE_EXCLUSIONS,Operation.KEEP_ONLY).contains(c.operation()))throw invalid();
-            } else if(!Set.of(Operation.REPLACE,Operation.ADD,Operation.REMOVE,Operation.CLEAR).contains(c.operation())
+            } else if(!Set.of(Operation.REPLACE,Operation.ADD,Operation.REMOVE,Operation.ALL_AUTHORIZED).contains(c.operation())
                     || c.selectorKind()!=SelectorKind.NONE || c.quantifier()!=Quantifier.UNSPECIFIED) throw invalid();
             if(c.operation()==Operation.KEEP_ONLY && Set.of(SelectorKind.NONE,SelectorKind.ALL).contains(c.selectorKind()))throw invalid();
             if(c.selectorKind()==SelectorKind.FIELDS) {
@@ -99,7 +99,7 @@ public class IntentCodec {
             for (String report : c.reportMentions())
                 if (report==null || report.isBlank() || report.length()>160 || !contains(message,report)) throw invalid();
             if (c.target()==Target.COMPANY && (++companies>1 || c.mentions().size()>1
-                    || !Set.of(Operation.REPLACE,Operation.CLEAR).contains(c.operation()))) throw invalid();
+                    || !Set.of(Operation.REPLACE,Operation.ALL_AUTHORIZED).contains(c.operation()))) throw invalid();
             if (c.target()==Target.RECORDS) recordsStarted=true;
             else if (recordsStarted) throw invalid();
         }
@@ -115,12 +115,12 @@ public class IntentCodec {
         for(String condition:intent.unsupportedConditions()) if(!grounded(message,condition)) throw new InvalidOutput("","UNSUPPORTED_CONDITIONS_MUST_BE_VERBATIM_INPUT");
         if(!intent.unsupportedConditions().isEmpty() && intent.action()!=Action.CLARIFY)
             throw new InvalidOutput("","UNSUPPORTED_CONDITION_REQUIRES_CLARIFY");
-        Set<Action> forbidden=new HashSet<>();
+        Set<ForbiddenAction> forbidden=new HashSet<>();
         for (var r : intent.restrictions()) {
-            if (r==null || r.action()==null || r.action()==Action.CLARIFY || r.scope()!=RestrictionScope.THIS_TURN
-                    || !grounded(message,r.evidence()) || !forbidden.add(r.action())) throw invalid();
+            if (r==null || r.forbiddenAction()==null || r.scope()!=RestrictionScope.THIS_TURN
+                    || !grounded(message,r.evidence()) || !forbidden.add(r.forbiddenAction())) throw invalid();
         }
-        if (intent.forbids(intent.action())) throw new InvalidOutput("","ACTION_CONFLICT_REQUIRES_CLARIFY_ACTION_WITH_EMPTY_CHANGES");
+        if (intent.forbids(intent.action())) throw new InvalidOutput("","REQUESTED_ACTION_IS_IN_FORBIDDEN_SET");
         if ((intent.action()==Action.CLARIFY)!=(intent.clarify()!=Clarify.NONE)) throw new InvalidOutput("","NON_CLARIFY_ACTION_REQUIRES_CLARIFY_NONE");
         // 澄清可以保留已经识别的候选操作供审计；Planner.requireAction会在任何归并之前终止，不执行候选。
         if (Set.of(Action.HELP,Action.CANCEL_PLAN,Action.SHOW_RESULT).contains(intent.action())
@@ -133,13 +133,24 @@ public class IntentCodec {
     private static String diagnostics(SemanticIntent intent,String message,String first) {
         if(intent==null || intent.scopeChanges()==null)return first;
         var issues=new LinkedHashSet<String>();issues.add(first);
+        if(intent.action()!=null && intent.restrictions()!=null && intent.restrictions().stream().anyMatch(r->r!=null && r.forbiddenAction()!=null && r.forbiddenAction().name().equals(intent.action().name())))
+            issues.add("当前action="+intent.action()+"同时出现在restrictions.forbiddenAction中。请区分用户实际禁止的动作与模型误编码：不提交/不执行使用仅存在于禁止集合的EXECUTE_DISPATCH，仍可准备清单；只预览不禁止PREVIEW。原文确实要求并禁止同一动作时才CLARIFY，不自动删除用户真正的禁止");
         for(var change:intent.scopeChanges()) {
             if(change==null)continue;
-            if(!grounded(message,change.evidence()))issues.add("操作evidence须逐字引用本轮连续原文，不得补词或改写");
-            if(change.selectorKind()!=SelectorKind.REFERENCE && change.mentions()!=null && change.mentions().stream().anyMatch(m->!contains(change.evidence(),m)))
-                issues.add("mentions中的对象必须出现在该操作的evidence中；引用包含对象的连续原文，不能只引用动作");
-            if(change.reportMentions()!=null && change.reportMentions().stream().anyMatch(m->!contains(message,m)))
-                issues.add("scopeChanges["+intent.scopeChanges().indexOf(change)+"].reportMentions只能使用本轮原文出现的报表，不得补标准名或历史名称；未提报表时为空数组，既有候选范围由sourceRef绑定");
+            String path="scopeChanges["+intent.scopeChanges().indexOf(change)+"]";
+            if(!grounded(message,change.evidence()))issues.add(path+".evidence="+JsonUtil.toJson(change.evidence())+"不是本轮连续原文。scopeChanges仅描述本轮增量；历史已生效选择由当前预览保存，不能重新操作，也不能换一段本轮证据伪装成新授权；本轮未改变该选择时删除重复操作，保留当前目标与已保存选择");
+            if(change.selectorKind()!=SelectorKind.REFERENCE && change.mentions()!=null)for(int index=0;index<change.mentions().size();index++) {
+                String mention=change.mentions().get(index);
+                if(!contains(change.evidence(),mention))issues.add(path+".mentions["+index+"]="+JsonUtil.toJson(mention)
+                        +(contains(message,mention)?"在本轮出现但未被该项evidence覆盖，请引用包含对象的连续原文。"
+                        :"未逐字出现在本轮，错误在mentions的值，不能通过扩写evidence补造原话。照抄本轮对象简称/别名，不补成目录标准全名；保留该对象限定，不能删掉它来通过校验。"));
+            }
+            if(change.target()==Target.COMPANY)issues.add("公司mentions复制原语言的公司原词或代码，不翻译、不补写称谓");
+            if(change.target()==Target.REPORTS)issues.add("REPORTS只表达本轮范围变化：ADD追加具名报表，REMOVE移除具名报表，未改报表由当前范围保留；REPLACE仅用于本轮明确给出完整目标集合，不能补写未出现的报表名。ALL_AUTHORIZED才是全部授权报表且mentions=[]。剩余/其余等集合描述不是目录名称，不放mentions或reportConstraints");
+            if(change.reportMentions()!=null)for(int index=0;index<change.reportMentions().size();index++) {
+                String mention=change.reportMentions().get(index);
+                if(!contains(message,mention))issues.add(path+".reportMentions["+index+"]="+JsonUtil.toJson(mention)+"未逐字出现在本轮；须改为本轮原有的报表简称/别名，不补标准全名、不引用历史。仅本轮未提报表时为空数组；用户给出的报表限定必须保留，不能清空限定而扩大到全部报表");
+            }
             if(change.conditions()!=null)for(var group:change.conditions())if(group!=null && group.allOf()!=null)
                 for(var field:group.allOf())if(field!=null && !grounded(change.evidence(),field.evidence()))
                     issues.add("条件evidence须逐字引用所属操作evidence中的连续片段；不可补省略的字段名或把区间改写成比较句；同一原文片段可支持多个条件");
@@ -149,6 +160,11 @@ public class IntentCodec {
                 issues.add("unsupportedConditions只能逐字引用不支持的条件，不能添加原因、冒号解释或虚构字段");
             if(!intent.unsupportedConditions().isEmpty() && intent.action()!=Action.CLARIFY)
                 issues.add("存在不支持条件时action必须为CLARIFY且clarify不能为NONE；整轮不能部分执行");
+        }
+        if(intent.restrictions()!=null)for(int i=0;i<intent.restrictions().size();i++) {
+            var restriction=intent.restrictions().get(i);
+            if(restriction!=null && !grounded(message,restriction.evidence()))issues.add("restrictions["+i+"].evidence="+JsonUtil.toJson(restriction.evidence())
+                    +"不是本轮连续原文。THIS_TURN只声明本轮禁止动作，不能复制历史禁止语句；准备待确认清单本身不执行派单，无需为此前的禁止动作补造本轮证据");
         }
         if(intent.reportConstraints()!=null)for(int i=0;i<intent.reportConstraints().size();i++) {
             var reference=intent.reportConstraints().get(i);if(reference==null)continue;
@@ -162,11 +178,11 @@ public class IntentCodec {
     }
     private static InvalidOutput invalid() { return new InvalidOutput("","INVALID_STRUCTURE_OR_EVIDENCE"); }
     /** 可修正的结构契约失败；向统一规划器提供约束原因，不暴露原始模型输出。 */
-    public static final class InvalidOutput extends ApiException {
+    public static final class InvalidOutput extends com.example.report.common.ModelContractViolation {
         private final String output;
         private final String reason;
         InvalidOutput(String output) { this(output,"MISSING_REPORT_ROLE"); }
-        InvalidOutput(String output,String reason) { super(422,"未能可靠识别本次操作，请明确要查询的公司、报表或派单动作");this.output=output;this.reason=reason; }
+        InvalidOutput(String output,String reason) { super("未能可靠识别本次操作，请明确要查询的公司、报表或派单动作",reason);this.output=output;this.reason=reason; }
         public String reason() { return reason; }
         String output() { return output; }
     }

@@ -14,6 +14,7 @@ import static com.example.report.support.TestCatalog.*;
 import static com.example.report.support.DispatchHarness.candidate;
 import static org.junit.jupiter.api.Assertions.*;
 
+/** 范围协议的原文、权限和集合语义测试；内部排除集合操作不能被当成模型范围操作。 */
 class SemanticProtocolTest {
     final IntentCodec codec=new IntentCodec();
     static Change change(Operation operation,String... mentions) { return new Change(operation,List.of(mentions),String.join("、",mentions)); }
@@ -29,12 +30,13 @@ class SemanticProtocolTest {
     }
     @ParameterizedTest @ValueSource(strings={"{}","null","[]","{\"version\":1}","{\"version\":null}","not json"})
     void invalidOutputsRequireClarification(String json) { assertThrows(ApiException.class,()->codec.decode(json,"查询")); }
-    @Test void keepClearAndUnsupportedCompanyOperationsAreDistinct() {
+    @Test void keepAllAuthorizedAndUnsupportedCompanyOperationsAreDistinct() {
         assertThrows(ApiException.class,()->codec.validate(intent(change(Operation.ADD,"A公司"),Change.keep()),"A公司"));
         assertThrows(ApiException.class,()->codec.validate(intent(change(Operation.REPLACE,"A公司","B公司"),Change.keep()),"A公司、B公司"));
         assertThrows(ApiException.class,()->codec.validate(intent(change(Operation.KEEP,"A公司"),Change.keep()),"A公司"));
-        var clear=new Change(Operation.CLEAR,List.of(),"查询全部公司");
+        var clear=new Change(Operation.ALL_AUTHORIZED,List.of(),"查询全部公司");
         assertDoesNotThrow(()->codec.validate(intent(clear,Change.keep()),"查询全部公司"));
+        assertThrows(ApiException.class,()->codec.decode(JsonUtil.toJson(intent(clear,Change.keep())).replace("ALL_AUTHORIZED","CLEAR"),"查询全部公司"));
     }
     @Test void refusedCompanyDoesNotBecomeEffectiveOrFallBackOnNextTurn() {
         var planner=new SemanticPlanner(new ReportCatalogService(new TestCatalog().catalog(),new AgentProperties()));
@@ -59,7 +61,7 @@ class SemanticProtocolTest {
         assertEquals(List.of(SALES,RECEIVABLE),state.getDesired().reportIds());
         planner.merge(USER1,state,intent(Change.keep(),change(Operation.REMOVE,"销售报表")));
         assertEquals(List.of(RECEIVABLE),state.getDesired().reportIds());
-        planner.merge(USER1,state,intent(Change.keep(),new Change(Operation.CLEAR,List.of(),"所有报表")));
+        planner.merge(USER1,state,intent(Change.keep(),new Change(Operation.ALL_AUTHORIZED,List.of(),"所有报表")));
         assertTrue(state.getDesired().allReports());
     }
     @Test void ambiguousAndUnavailableReportsCannotFallBackToOldReports() {
