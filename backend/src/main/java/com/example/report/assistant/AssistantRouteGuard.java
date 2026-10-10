@@ -71,6 +71,9 @@ public final class AssistantRouteGuard {
         }
         if(!QueryScope.same(before,after,authorizedReports,authorizedCompanies))return;
         oldFields.removeAll(newFields);oldFields.removeAll(removed);
-        if(!oldFields.isEmpty())throw new ApiException(422,"追问遗漏上轮字段限制："+String.join("、",new TreeSet<>(oldFields))+"；保留限制，或在removedFilters声明本轮明确撤销的依据");
+        // 旧条件变更审计与整字段撤销声明承担不同约束，反馈须区分二者，避免复核只修审计后重复遗漏授权字段。
+        if(!oldFields.isEmpty())throw new ApiException(422,"追问遗漏上轮字段限制："+String.join("、",new TreeSet<>(oldFields))
+                +"；未被本轮撤销的限制必须保留。若本轮明确撤销整个字段，removedFilters须逐项声明field及本轮连续原文evidence；"
+                +"priorConditionChanges只审计消失的旧条件，不能替代removedFilters的整字段撤销声明，两处须分别完整提供。不得编造撤销依据或改变已固定的查询连续性来通过校验");
     }
 }

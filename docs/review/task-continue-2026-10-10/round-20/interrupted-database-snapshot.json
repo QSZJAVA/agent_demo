@@ -1,0 +1,5829 @@
+{
+  "items": [],
+  "plans": [],
+  "schema": "mcp_it_184fa0049f83482ab28b8cb8a5030e9e",
+  "source": [
+    {
+      "id": 1,
+      "amount": 128000.0,
+      "order_no": "SO2026001",
+      "company_code": "A",
+      "product_name": "服务器",
+      "dispatch_status": 0
+    },
+    {
+      "id": 2,
+      "amount": 32000.0,
+      "order_no": "SO2026002",
+      "company_code": "A",
+      "product_name": "交换机",
+      "dispatch_status": 0
+    },
+    {
+      "id": 3,
+      "amount": 96000.0,
+      "order_no": "SO2026007",
+      "company_code": "A",
+      "product_name": "云服务",
+      "dispatch_status": 0
+    },
+    {
+      "id": 4,
+      "amount": 15.0,
+      "order_no": "SO2026008",
+      "company_code": "A",
+      "product_name": "网线",
+      "dispatch_status": 0
+    },
+    {
+      "id": 5,
+      "amount": 86000.0,
+      "order_no": "SO2026003",
+      "company_code": "B",
+      "product_name": "笔记本电脑",
+      "dispatch_status": 0
+    },
+    {
+      "id": 6,
+      "amount": 15400.0,
+      "order_no": "SO2026004",
+      "company_code": "B",
+      "product_name": "显示器",
+      "dispatch_status": 0
+    },
+    {
+      "id": 7,
+      "amount": 18.0,
+      "order_no": "SO2026009",
+      "company_code": "B",
+      "product_name": "鼠标",
+      "dispatch_status": 0
+    },
+    {
+      "id": 8,
+      "amount": 256000.0,
+      "order_no": "SO2026005",
+      "company_code": "C",
+      "product_name": "存储阵列",
+      "dispatch_status": 0
+    },
+    {
+      "id": 9,
+      "amount": 47800.0,
+      "order_no": "SO2026006",
+      "company_code": "C",
+      "product_name": "防火墙",
+      "dispatch_status": 0
+    }
+  ],
+  "queryCards": [
+    {
+      "userId": "operatorA",
+      "payload": {
+        "rows": [
+          {
+            "date": "2026-01-09",
+            "docNo": "EXP-2026-0001",
+            "amount": "8600.00",
+            "rowKey": "rpt-expense-claim:1",
+            "status": "未派单",
+            "currency": "CNY",
+            "recordId": "1",
+            "reportId": "rpt-expense-claim",
+            "expenseNo": "EXP-2026-0001",
+            "dispatched": "false",
+            "reportName": "费用报表",
+            "companyCode": "A",
+            "expenseDate": "2026-01-09",
+            "expenseType": "差旅费",
+            "daysSinceExpense": "274"
+          },
+          {
+            "date": "2026-02-14",
+            "docNo": "EXP-2026-0002",
+            "amount": "3200.00",
+            "rowKey": "rpt-expense-claim:2",
+            "status": "未派单",
+            "currency": "CNY",
+            "recordId": "2",
+            "reportId": "rpt-expense-claim",
+            "expenseNo": "EXP-2026-0002",
+            "dispatched": "false",
+            "reportName": "费用报表",
+            "companyCode": "A",
+            "expenseDate": "2026-02-14",
+            "expenseType": "业务招待费",
+            "daysSinceExpense": "238"
+          },
+          {
+            "date": "2026-03-05",
+            "docNo": "EXP-2026-0007",
+            "amount": "680.00",
+            "rowKey": "rpt-expense-claim:3",
+            "status": "未派单",
+            "currency": "CNY",
+            "recordId": "3",
+            "reportId": "rpt-expense-claim",
+            "expenseNo": "EXP-2026-0007",
+            "dispatched": "false",
+            "reportName": "费用报表",
+            "companyCode": "A",
+            "expenseDate": "2026-03-05",
+            "expenseType": "办公用品",
+            "daysSinceExpense": "219"
+          }
+        ],
+        "query": {
+          "page": 1,
+          "size": 20,
+          "view": "LIST",
+          "domain": "REPORT",
+          "groupBy": null,
+          "reportIds": [
+            "rpt-expense-claim"
+          ],
+          "sortField": null,
+          "conditions": [
+            {
+              "allOf": [
+                {
+                  "field": "amount",
+                  "values": [
+                    "680"
+                  ],
+                  "operator": "GTE"
+                }
+              ]
+            }
+          ],
+          "descending": false,
+          "companyCode": "A"
+        },
+        "total": 3,
+        "source": "业务系统当前记录",
+        "columns": [
+          {
+            "name": "reportId",
+            "type": "string",
+            "description": "报表稳定标识"
+          },
+          {
+            "name": "reportName",
+            "type": "string",
+            "description": "报表名称"
+          },
+          {
+            "name": "companyCode",
+            "type": "string",
+            "description": "所属公司代码"
+          },
+          {
+            "name": "docNo",
+            "type": "string",
+            "description": "来源单据号"
+          },
+          {
+            "name": "amount",
+            "type": "decimal",
+            "description": "来源金额，币种见 currency；空值表示未提供"
+          },
+          {
+            "name": "currency",
+            "type": "string",
+            "description": "来源声明币种；空值表示未声明，不能跨币种合计"
+          },
+          {
+            "name": "date",
+            "type": "date",
+            "description": "业务日期；空值表示未配置"
+          },
+          {
+            "name": "status",
+            "type": "string",
+            "description": "报表派单状态：未派单/已派单"
+          },
+          {
+            "name": "expenseNo",
+            "type": "string",
+            "description": "报销单号"
+          },
+          {
+            "name": "expenseType",
+            "type": "string",
+            "description": "费用类型，如 差旅费 / 业务招待费 / 办公用品"
+          },
+          {
+            "name": "expenseDate",
+            "type": "date",
+            "description": "发生日期，字符串 yyyy-MM-dd"
+          },
+          {
+            "name": "daysSinceExpense",
+            "type": "long",
+            "description": "距发生日期的天数（派生）"
+          },
+          {
+            "name": "dispatched",
+            "type": "boolean",
+            "description": "来源记录是否已派单；true为已派单，false为未派单，不代表满足派单规则"
+          },
+          {
+            "name": "recordId",
+            "type": "string",
+            "description": "报表内稳定记录标识"
+          }
+        ],
+        "summary": {
+          "count": 3,
+          "groups": {},
+          "statusCounts": {
+            "未派单": 3
+          },
+          "pendingApprovers": {},
+          "amountsByCurrency": {
+            "CNY": "12480.00"
+          },
+          "unclassifiedAmountCount": 0
+        },
+        "observedAt": "2026-10-10T19:30:15.829396200+08:00"
+      },
+      "messageId": 3
+    },
+    {
+      "userId": "operatorA",
+      "payload": {
+        "rows": [
+          {
+            "date": "2026-01-09",
+            "docNo": "EXP-2026-0001",
+            "amount": "8600.00",
+            "rowKey": "rpt-expense-claim:1",
+            "status": "未派单",
+            "currency": "CNY",
+            "recordId": "1",
+            "reportId": "rpt-expense-claim",
+            "expenseNo": "EXP-2026-0001",
+            "dispatched": "false",
+            "reportName": "费用报表",
+            "companyCode": "A",
+            "expenseDate": "2026-01-09",
+            "expenseType": "差旅费",
+            "daysSinceExpense": "274"
+          }
+        ],
+        "query": {
+          "page": 1,
+          "size": 1,
+          "view": "DETAIL",
+          "domain": "REPORT",
+          "groupBy": null,
+          "reportIds": [
+            "rpt-expense-claim"
+          ],
+          "sortField": null,
+          "conditions": [
+            {
+              "allOf": [
+                {
+                  "field": "expenseType",
+                  "values": [
+                    "差旅费"
+                  ],
+                  "operator": "EQ"
+                },
+                {
+                  "field": "amount",
+                  "values": [
+                    "680"
+                  ],
+                  "operator": "GTE"
+                }
+              ]
+            }
+          ],
+          "descending": false,
+          "companyCode": "A"
+        },
+        "total": 1,
+        "source": "业务系统当前记录",
+        "columns": [
+          {
+            "name": "reportId",
+            "type": "string",
+            "description": "报表稳定标识"
+          },
+          {
+            "name": "reportName",
+            "type": "string",
+            "description": "报表名称"
+          },
+          {
+            "name": "companyCode",
+            "type": "string",
+            "description": "所属公司代码"
+          },
+          {
+            "name": "docNo",
+            "type": "string",
+            "description": "来源单据号"
+          },
+          {
+            "name": "amount",
+            "type": "decimal",
+            "description": "来源金额，币种见 currency；空值表示未提供"
+          },
+          {
+            "name": "currency",
+            "type": "string",
+            "description": "来源声明币种；空值表示未声明，不能跨币种合计"
+          },
+          {
+            "name": "date",
+            "type": "date",
+            "description": "业务日期；空值表示未配置"
+          },
+          {
+            "name": "status",
+            "type": "string",
+            "description": "报表派单状态：未派单/已派单"
+          },
+          {
+            "name": "expenseNo",
+            "type": "string",
+            "description": "报销单号"
+          },
+          {
+            "name": "expenseType",
+            "type": "string",
+            "description": "费用类型，如 差旅费 / 业务招待费 / 办公用品"
+          },
+          {
+            "name": "expenseDate",
+            "type": "date",
+            "description": "发生日期，字符串 yyyy-MM-dd"
+          },
+          {
+            "name": "daysSinceExpense",
+            "type": "long",
+            "description": "距发生日期的天数（派生）"
+          },
+          {
+            "name": "dispatched",
+            "type": "boolean",
+            "description": "来源记录是否已派单；true为已派单，false为未派单，不代表满足派单规则"
+          },
+          {
+            "name": "recordId",
+            "type": "string",
+            "description": "报表内稳定记录标识"
+          }
+        ],
+        "summary": {
+          "count": 1,
+          "groups": {},
+          "statusCounts": {
+            "未派单": 1
+          },
+          "pendingApprovers": {},
+          "amountsByCurrency": {
+            "CNY": "8600.00"
+          },
+          "unclassifiedAmountCount": 0
+        },
+        "observedAt": "2026-10-10T19:30:32.741674500+08:00"
+      },
+      "messageId": 7
+    },
+    {
+      "userId": "operatorA",
+      "payload": {
+        "rows": [
+          {
+            "date": "2026-01-09",
+            "docNo": "EXP-2026-0001",
+            "amount": "8600.00",
+            "rowKey": "rpt-expense-claim:1",
+            "status": "未派单",
+            "currency": "CNY",
+            "recordId": "1",
+            "reportId": "rpt-expense-claim",
+            "expenseNo": "EXP-2026-0001",
+            "dispatched": "false",
+            "reportName": "费用报表",
+            "companyCode": "A",
+            "expenseDate": "2026-01-09",
+            "expenseType": "差旅费",
+            "daysSinceExpense": "274"
+          },
+          {
+            "date": "2026-02-14",
+            "docNo": "EXP-2026-0002",
+            "amount": "3200.00",
+            "rowKey": "rpt-expense-claim:2",
+            "status": "未派单",
+            "currency": "CNY",
+            "recordId": "2",
+            "reportId": "rpt-expense-claim",
+            "expenseNo": "EXP-2026-0002",
+            "dispatched": "false",
+            "reportName": "费用报表",
+            "companyCode": "A",
+            "expenseDate": "2026-02-14",
+            "expenseType": "业务招待费",
+            "daysSinceExpense": "238"
+          },
+          {
+            "date": "2026-03-05",
+            "docNo": "EXP-2026-0007",
+            "amount": "680.00",
+            "rowKey": "rpt-expense-claim:3",
+            "status": "未派单",
+            "currency": "CNY",
+            "recordId": "3",
+            "reportId": "rpt-expense-claim",
+            "expenseNo": "EXP-2026-0007",
+            "dispatched": "false",
+            "reportName": "费用报表",
+            "companyCode": "A",
+            "expenseDate": "2026-03-05",
+            "expenseType": "办公用品",
+            "daysSinceExpense": "219"
+          }
+        ],
+        "query": {
+          "page": 1,
+          "size": 20,
+          "view": "LIST",
+          "domain": "REPORT",
+          "groupBy": null,
+          "reportIds": [
+            "rpt-expense-claim"
+          ],
+          "sortField": null,
+          "conditions": [
+            {
+              "allOf": [
+                {
+                  "field": "amount",
+                  "values": [
+                    "680"
+                  ],
+                  "operator": "GTE"
+                }
+              ]
+            }
+          ],
+          "descending": false,
+          "companyCode": "A"
+        },
+        "total": 3,
+        "source": "业务系统当前记录",
+        "columns": [
+          {
+            "name": "reportId",
+            "type": "string",
+            "description": "报表稳定标识"
+          },
+          {
+            "name": "reportName",
+            "type": "string",
+            "description": "报表名称"
+          },
+          {
+            "name": "companyCode",
+            "type": "string",
+            "description": "所属公司代码"
+          },
+          {
+            "name": "docNo",
+            "type": "string",
+            "description": "来源单据号"
+          },
+          {
+            "name": "amount",
+            "type": "decimal",
+            "description": "来源金额，币种见 currency；空值表示未提供"
+          },
+          {
+            "name": "currency",
+            "type": "string",
+            "description": "来源声明币种；空值表示未声明，不能跨币种合计"
+          },
+          {
+            "name": "date",
+            "type": "date",
+            "description": "业务日期；空值表示未配置"
+          },
+          {
+            "name": "status",
+            "type": "string",
+            "description": "报表派单状态：未派单/已派单"
+          },
+          {
+            "name": "expenseNo",
+            "type": "string",
+            "description": "报销单号"
+          },
+          {
+            "name": "expenseType",
+            "type": "string",
+            "description": "费用类型，如 差旅费 / 业务招待费 / 办公用品"
+          },
+          {
+            "name": "expenseDate",
+            "type": "date",
+            "description": "发生日期，字符串 yyyy-MM-dd"
+          },
+          {
+            "name": "daysSinceExpense",
+            "type": "long",
+            "description": "距发生日期的天数（派生）"
+          },
+          {
+            "name": "dispatched",
+            "type": "boolean",
+            "description": "来源记录是否已派单；true为已派单，false为未派单，不代表满足派单规则"
+          },
+          {
+            "name": "recordId",
+            "type": "string",
+            "description": "报表内稳定记录标识"
+          }
+        ],
+        "summary": {
+          "count": 3,
+          "groups": {},
+          "statusCounts": {
+            "未派单": 3
+          },
+          "pendingApprovers": {},
+          "amountsByCurrency": {
+            "CNY": "12480.00"
+          },
+          "unclassifiedAmountCount": 0
+        },
+        "observedAt": "2026-10-10T19:30:45.577609900+08:00"
+      },
+      "messageId": 11
+    },
+    {
+      "userId": "operatorA",
+      "payload": {
+        "rows": [
+          {
+            "date": "2026-02-14",
+            "docNo": "EXP-2026-0002",
+            "amount": "3200.00",
+            "rowKey": "rpt-expense-claim:2",
+            "status": "未派单",
+            "currency": "CNY",
+            "recordId": "2",
+            "reportId": "rpt-expense-claim",
+            "expenseNo": "EXP-2026-0002",
+            "dispatched": "false",
+            "reportName": "费用报表",
+            "companyCode": "A",
+            "expenseDate": "2026-02-14",
+            "expenseType": "业务招待费",
+            "daysSinceExpense": "238"
+          }
+        ],
+        "query": {
+          "page": 1,
+          "size": 20,
+          "view": "DETAIL",
+          "domain": "REPORT",
+          "groupBy": null,
+          "reportIds": [
+            "rpt-expense-claim"
+          ],
+          "sortField": null,
+          "conditions": [
+            {
+              "allOf": [
+                {
+                  "field": "amount",
+                  "values": [
+                    "680"
+                  ],
+                  "operator": "GTE"
+                },
+                {
+                  "field": "expenseType",
+                  "values": [
+                    "业务招待费"
+                  ],
+                  "operator": "EQ"
+                }
+              ]
+            }
+          ],
+          "descending": false,
+          "companyCode": "A"
+        },
+        "total": 1,
+        "source": "业务系统当前记录",
+        "columns": [
+          {
+            "name": "reportId",
+            "type": "string",
+            "description": "报表稳定标识"
+          },
+          {
+            "name": "reportName",
+            "type": "string",
+            "description": "报表名称"
+          },
+          {
+            "name": "companyCode",
+            "type": "string",
+            "description": "所属公司代码"
+          },
+          {
+            "name": "docNo",
+            "type": "string",
+            "description": "来源单据号"
+          },
+          {
+            "name": "amount",
+            "type": "decimal",
+            "description": "来源金额，币种见 currency；空值表示未提供"
+          },
+          {
+            "name": "currency",
+            "type": "string",
+            "description": "来源声明币种；空值表示未声明，不能跨币种合计"
+          },
+          {
+            "name": "date",
+            "type": "date",
+            "description": "业务日期；空值表示未配置"
+          },
+          {
+            "name": "status",
+            "type": "string",
+            "description": "报表派单状态：未派单/已派单"
+          },
+          {
+            "name": "expenseNo",
+            "type": "string",
+            "description": "报销单号"
+          },
+          {
+            "name": "expenseType",
+            "type": "string",
+            "description": "费用类型，如 差旅费 / 业务招待费 / 办公用品"
+          },
+          {
+            "name": "expenseDate",
+            "type": "date",
+            "description": "发生日期，字符串 yyyy-MM-dd"
+          },
+          {
+            "name": "daysSinceExpense",
+            "type": "long",
+            "description": "距发生日期的天数（派生）"
+          },
+          {
+            "name": "dispatched",
+            "type": "boolean",
+            "description": "来源记录是否已派单；true为已派单，false为未派单，不代表满足派单规则"
+          },
+          {
+            "name": "recordId",
+            "type": "string",
+            "description": "报表内稳定记录标识"
+          }
+        ],
+        "summary": {
+          "count": 1,
+          "groups": {},
+          "statusCounts": {
+            "未派单": 1
+          },
+          "pendingApprovers": {},
+          "amountsByCurrency": {
+            "CNY": "3200.00"
+          },
+          "unclassifiedAmountCount": 0
+        },
+        "observedAt": "2026-10-10T19:31:09.223692500+08:00"
+      },
+      "messageId": 15
+    },
+    {
+      "userId": "operatorA",
+      "payload": {
+        "rows": [
+          {
+            "date": "2026-01-09",
+            "docNo": "EXP-2026-0001",
+            "amount": "8600.00",
+            "rowKey": "rpt-expense-claim:1",
+            "status": "未派单",
+            "currency": "CNY",
+            "recordId": "1",
+            "reportId": "rpt-expense-claim",
+            "expenseNo": "EXP-2026-0001",
+            "dispatched": "false",
+            "reportName": "费用报表",
+            "companyCode": "A",
+            "expenseDate": "2026-01-09",
+            "expenseType": "差旅费",
+            "daysSinceExpense": "274"
+          },
+          {
+            "date": "2026-02-14",
+            "docNo": "EXP-2026-0002",
+            "amount": "3200.00",
+            "rowKey": "rpt-expense-claim:2",
+            "status": "未派单",
+            "currency": "CNY",
+            "recordId": "2",
+            "reportId": "rpt-expense-claim",
+            "expenseNo": "EXP-2026-0002",
+            "dispatched": "false",
+            "reportName": "费用报表",
+            "companyCode": "A",
+            "expenseDate": "2026-02-14",
+            "expenseType": "业务招待费",
+            "daysSinceExpense": "238"
+          },
+          {
+            "date": "2026-03-05",
+            "docNo": "EXP-2026-0007",
+            "amount": "680.00",
+            "rowKey": "rpt-expense-claim:3",
+            "status": "未派单",
+            "currency": "CNY",
+            "recordId": "3",
+            "reportId": "rpt-expense-claim",
+            "expenseNo": "EXP-2026-0007",
+            "dispatched": "false",
+            "reportName": "费用报表",
+            "companyCode": "A",
+            "expenseDate": "2026-03-05",
+            "expenseType": "办公用品",
+            "daysSinceExpense": "219"
+          }
+        ],
+        "query": {
+          "page": 1,
+          "size": 20,
+          "view": "SUMMARY",
+          "domain": "REPORT",
+          "groupBy": "expenseType",
+          "reportIds": [
+            "rpt-expense-claim"
+          ],
+          "sortField": null,
+          "conditions": [
+            {
+              "allOf": [
+                {
+                  "field": "amount",
+                  "values": [
+                    "680"
+                  ],
+                  "operator": "GTE"
+                }
+              ]
+            }
+          ],
+          "descending": false,
+          "companyCode": "A"
+        },
+        "total": 3,
+        "source": "业务系统当前记录",
+        "columns": [
+          {
+            "name": "reportId",
+            "type": "string",
+            "description": "报表稳定标识"
+          },
+          {
+            "name": "reportName",
+            "type": "string",
+            "description": "报表名称"
+          },
+          {
+            "name": "companyCode",
+            "type": "string",
+            "description": "所属公司代码"
+          },
+          {
+            "name": "docNo",
+            "type": "string",
+            "description": "来源单据号"
+          },
+          {
+            "name": "amount",
+            "type": "decimal",
+            "description": "来源金额，币种见 currency；空值表示未提供"
+          },
+          {
+            "name": "currency",
+            "type": "string",
+            "description": "来源声明币种；空值表示未声明，不能跨币种合计"
+          },
+          {
+            "name": "date",
+            "type": "date",
+            "description": "业务日期；空值表示未配置"
+          },
+          {
+            "name": "status",
+            "type": "string",
+            "description": "报表派单状态：未派单/已派单"
+          },
+          {
+            "name": "expenseNo",
+            "type": "string",
+            "description": "报销单号"
+          },
+          {
+            "name": "expenseType",
+            "type": "string",
+            "description": "费用类型，如 差旅费 / 业务招待费 / 办公用品"
+          },
+          {
+            "name": "expenseDate",
+            "type": "date",
+            "description": "发生日期，字符串 yyyy-MM-dd"
+          },
+          {
+            "name": "daysSinceExpense",
+            "type": "long",
+            "description": "距发生日期的天数（派生）"
+          },
+          {
+            "name": "dispatched",
+            "type": "boolean",
+            "description": "来源记录是否已派单；true为已派单，false为未派单，不代表满足派单规则"
+          },
+          {
+            "name": "recordId",
+            "type": "string",
+            "description": "报表内稳定记录标识"
+          }
+        ],
+        "summary": {
+          "count": 3,
+          "groups": {
+            "差旅费": 1,
+            "办公用品": 1,
+            "业务招待费": 1
+          },
+          "statusCounts": {
+            "未派单": 3
+          },
+          "pendingApprovers": {},
+          "amountsByCurrency": {
+            "CNY": "12480.00"
+          },
+          "unclassifiedAmountCount": 0
+        },
+        "observedAt": "2026-10-10T19:31:19.382693300+08:00"
+      },
+      "messageId": 19
+    },
+    {
+      "userId": "operatorA",
+      "payload": {
+        "rows": [
+          {
+            "date": "2026-02-14",
+            "docNo": "EXP-2026-0002",
+            "amount": "3200.00",
+            "rowKey": "rpt-expense-claim:2",
+            "status": "未派单",
+            "currency": "CNY",
+            "recordId": "2",
+            "reportId": "rpt-expense-claim",
+            "expenseNo": "EXP-2026-0002",
+            "dispatched": "false",
+            "reportName": "费用报表",
+            "companyCode": "A",
+            "expenseDate": "2026-02-14",
+            "expenseType": "业务招待费",
+            "daysSinceExpense": "238"
+          }
+        ],
+        "query": {
+          "page": 1,
+          "size": 20,
+          "view": "LIST",
+          "domain": "REPORT",
+          "groupBy": null,
+          "reportIds": [
+            "rpt-expense-claim"
+          ],
+          "sortField": null,
+          "conditions": [
+            {
+              "allOf": [
+                {
+                  "field": "amount",
+                  "values": [
+                    "680"
+                  ],
+                  "operator": "GTE"
+                },
+                {
+                  "field": "expenseType",
+                  "values": [
+                    "业务招待费"
+                  ],
+                  "operator": "EQ"
+                }
+              ]
+            }
+          ],
+          "descending": false,
+          "companyCode": "A"
+        },
+        "total": 1,
+        "source": "业务系统当前记录",
+        "columns": [
+          {
+            "name": "reportId",
+            "type": "string",
+            "description": "报表稳定标识"
+          },
+          {
+            "name": "reportName",
+            "type": "string",
+            "description": "报表名称"
+          },
+          {
+            "name": "companyCode",
+            "type": "string",
+            "description": "所属公司代码"
+          },
+          {
+            "name": "docNo",
+            "type": "string",
+            "description": "来源单据号"
+          },
+          {
+            "name": "amount",
+            "type": "decimal",
+            "description": "来源金额，币种见 currency；空值表示未提供"
+          },
+          {
+            "name": "currency",
+            "type": "string",
+            "description": "来源声明币种；空值表示未声明，不能跨币种合计"
+          },
+          {
+            "name": "date",
+            "type": "date",
+            "description": "业务日期；空值表示未配置"
+          },
+          {
+            "name": "status",
+            "type": "string",
+            "description": "报表派单状态：未派单/已派单"
+          },
+          {
+            "name": "expenseNo",
+            "type": "string",
+            "description": "报销单号"
+          },
+          {
+            "name": "expenseType",
+            "type": "string",
+            "description": "费用类型，如 差旅费 / 业务招待费 / 办公用品"
+          },
+          {
+            "name": "expenseDate",
+            "type": "date",
+            "description": "发生日期，字符串 yyyy-MM-dd"
+          },
+          {
+            "name": "daysSinceExpense",
+            "type": "long",
+            "description": "距发生日期的天数（派生）"
+          },
+          {
+            "name": "dispatched",
+            "type": "boolean",
+            "description": "来源记录是否已派单；true为已派单，false为未派单，不代表满足派单规则"
+          },
+          {
+            "name": "recordId",
+            "type": "string",
+            "description": "报表内稳定记录标识"
+          }
+        ],
+        "summary": {
+          "count": 1,
+          "groups": {},
+          "statusCounts": {
+            "未派单": 1
+          },
+          "pendingApprovers": {},
+          "amountsByCurrency": {
+            "CNY": "3200.00"
+          },
+          "unclassifiedAmountCount": 0
+        },
+        "observedAt": "2026-10-10T19:31:28.798104100+08:00"
+      },
+      "messageId": 23
+    },
+    {
+      "userId": "operatorA",
+      "payload": {
+        "rows": [
+          {
+            "date": "2026-02-14",
+            "docNo": "EXP-2026-0002",
+            "amount": "3200.00",
+            "rowKey": "rpt-expense-claim:2",
+            "status": "未派单",
+            "currency": "CNY",
+            "recordId": "2",
+            "reportId": "rpt-expense-claim",
+            "expenseNo": "EXP-2026-0002",
+            "dispatched": "false",
+            "reportName": "费用报表",
+            "companyCode": "A",
+            "expenseDate": "2026-02-14",
+            "expenseType": "业务招待费",
+            "daysSinceExpense": "238"
+          }
+        ],
+        "query": {
+          "page": 1,
+          "size": 20,
+          "view": "DETAIL",
+          "domain": "REPORT",
+          "groupBy": null,
+          "reportIds": [
+            "rpt-expense-claim"
+          ],
+          "sortField": null,
+          "conditions": [
+            {
+              "allOf": [
+                {
+                  "field": "expenseType",
+                  "values": [
+                    "业务招待费"
+                  ],
+                  "operator": "EQ"
+                },
+                {
+                  "field": "amount",
+                  "values": [
+                    "680"
+                  ],
+                  "operator": "GTE"
+                }
+              ]
+            }
+          ],
+          "descending": false,
+          "companyCode": "A"
+        },
+        "total": 1,
+        "source": "业务系统当前记录",
+        "columns": [
+          {
+            "name": "reportId",
+            "type": "string",
+            "description": "报表稳定标识"
+          },
+          {
+            "name": "reportName",
+            "type": "string",
+            "description": "报表名称"
+          },
+          {
+            "name": "companyCode",
+            "type": "string",
+            "description": "所属公司代码"
+          },
+          {
+            "name": "docNo",
+            "type": "string",
+            "description": "来源单据号"
+          },
+          {
+            "name": "amount",
+            "type": "decimal",
+            "description": "来源金额，币种见 currency；空值表示未提供"
+          },
+          {
+            "name": "currency",
+            "type": "string",
+            "description": "来源声明币种；空值表示未声明，不能跨币种合计"
+          },
+          {
+            "name": "date",
+            "type": "date",
+            "description": "业务日期；空值表示未配置"
+          },
+          {
+            "name": "status",
+            "type": "string",
+            "description": "报表派单状态：未派单/已派单"
+          },
+          {
+            "name": "expenseNo",
+            "type": "string",
+            "description": "报销单号"
+          },
+          {
+            "name": "expenseType",
+            "type": "string",
+            "description": "费用类型，如 差旅费 / 业务招待费 / 办公用品"
+          },
+          {
+            "name": "expenseDate",
+            "type": "date",
+            "description": "发生日期，字符串 yyyy-MM-dd"
+          },
+          {
+            "name": "daysSinceExpense",
+            "type": "long",
+            "description": "距发生日期的天数（派生）"
+          },
+          {
+            "name": "dispatched",
+            "type": "boolean",
+            "description": "来源记录是否已派单；true为已派单，false为未派单，不代表满足派单规则"
+          },
+          {
+            "name": "recordId",
+            "type": "string",
+            "description": "报表内稳定记录标识"
+          }
+        ],
+        "summary": {
+          "count": 1,
+          "groups": {},
+          "statusCounts": {
+            "未派单": 1
+          },
+          "pendingApprovers": {},
+          "amountsByCurrency": {
+            "CNY": "3200.00"
+          },
+          "unclassifiedAmountCount": 0
+        },
+        "observedAt": "2026-10-10T19:31:38.076909200+08:00"
+      },
+      "messageId": 27
+    },
+    {
+      "userId": "operatorA",
+      "payload": {
+        "rows": [
+          {
+            "date": "2026-01-15",
+            "docNo": "SO2026001",
+            "amount": "128000.00",
+            "rowKey": "rpt-sales-order:1",
+            "status": "未派单",
+            "orderNo": "SO2026001",
+            "currency": "CNY",
+            "recordId": "1",
+            "reportId": "rpt-sales-order",
+            "saleDate": "2026-01-15",
+            "dispatched": "false",
+            "reportName": "销售报表",
+            "companyCode": "A",
+            "productName": "服务器",
+            "daysSinceSale": "268"
+          }
+        ],
+        "query": {
+          "page": 1,
+          "size": 20,
+          "view": "LIST",
+          "domain": "REPORT",
+          "groupBy": null,
+          "reportIds": [
+            "rpt-sales-order"
+          ],
+          "sortField": null,
+          "conditions": [
+            {
+              "allOf": [
+                {
+                  "field": "productName",
+                  "values": [
+                    "服务器"
+                  ],
+                  "operator": "EQ"
+                }
+              ]
+            }
+          ],
+          "descending": false,
+          "companyCode": "A"
+        },
+        "total": 1,
+        "source": "业务系统当前记录",
+        "columns": [
+          {
+            "name": "reportId",
+            "type": "string",
+            "description": "报表稳定标识"
+          },
+          {
+            "name": "reportName",
+            "type": "string",
+            "description": "报表名称"
+          },
+          {
+            "name": "companyCode",
+            "type": "string",
+            "description": "所属公司代码"
+          },
+          {
+            "name": "docNo",
+            "type": "string",
+            "description": "来源单据号"
+          },
+          {
+            "name": "amount",
+            "type": "decimal",
+            "description": "来源金额，币种见 currency；空值表示未提供"
+          },
+          {
+            "name": "currency",
+            "type": "string",
+            "description": "来源声明币种；空值表示未声明，不能跨币种合计"
+          },
+          {
+            "name": "date",
+            "type": "date",
+            "description": "业务日期；空值表示未配置"
+          },
+          {
+            "name": "status",
+            "type": "string",
+            "description": "报表派单状态：未派单/已派单"
+          },
+          {
+            "name": "orderNo",
+            "type": "string",
+            "description": "订单号"
+          },
+          {
+            "name": "productName",
+            "type": "string",
+            "description": "产品名称"
+          },
+          {
+            "name": "saleDate",
+            "type": "date",
+            "description": "销售日期，字符串 yyyy-MM-dd"
+          },
+          {
+            "name": "daysSinceSale",
+            "type": "long",
+            "description": "距销售日期的天数（派生）"
+          },
+          {
+            "name": "dispatched",
+            "type": "boolean",
+            "description": "来源记录是否已派单；true为已派单，false为未派单，不代表满足派单规则"
+          },
+          {
+            "name": "recordId",
+            "type": "string",
+            "description": "报表内稳定记录标识"
+          }
+        ],
+        "summary": {
+          "count": 1,
+          "groups": {},
+          "statusCounts": {
+            "未派单": 1
+          },
+          "pendingApprovers": {},
+          "amountsByCurrency": {
+            "CNY": "128000.00"
+          },
+          "unclassifiedAmountCount": 0
+        },
+        "observedAt": "2026-10-10T19:31:47.135128300+08:00"
+      },
+      "messageId": 31
+    },
+    {
+      "userId": "operatorA",
+      "payload": {
+        "rows": [
+          {
+            "date": "2026-01-15",
+            "docNo": "SO2026001",
+            "amount": "128000.00",
+            "rowKey": "rpt-sales-order:1",
+            "status": "未派单",
+            "orderNo": "SO2026001",
+            "currency": "CNY",
+            "recordId": "1",
+            "reportId": "rpt-sales-order",
+            "saleDate": "2026-01-15",
+            "dispatched": "false",
+            "reportName": "销售报表",
+            "companyCode": "A",
+            "productName": "服务器",
+            "daysSinceSale": "268"
+          },
+          {
+            "date": "2026-02-08",
+            "docNo": "SO2026002",
+            "amount": "32000.00",
+            "rowKey": "rpt-sales-order:2",
+            "status": "未派单",
+            "orderNo": "SO2026002",
+            "currency": "CNY",
+            "recordId": "2",
+            "reportId": "rpt-sales-order",
+            "saleDate": "2026-02-08",
+            "dispatched": "false",
+            "reportName": "销售报表",
+            "companyCode": "A",
+            "productName": "交换机",
+            "daysSinceSale": "244"
+          },
+          {
+            "date": "2026-04-05",
+            "docNo": "SO2026007",
+            "amount": "96000.00",
+            "rowKey": "rpt-sales-order:3",
+            "status": "未派单",
+            "orderNo": "SO2026007",
+            "currency": "CNY",
+            "recordId": "3",
+            "reportId": "rpt-sales-order",
+            "saleDate": "2026-04-05",
+            "dispatched": "false",
+            "reportName": "销售报表",
+            "companyCode": "A",
+            "productName": "云服务",
+            "daysSinceSale": "188"
+          },
+          {
+            "date": "2026-04-12",
+            "docNo": "SO2026008",
+            "amount": "15.00",
+            "rowKey": "rpt-sales-order:4",
+            "status": "未派单",
+            "orderNo": "SO2026008",
+            "currency": "CNY",
+            "recordId": "4",
+            "reportId": "rpt-sales-order",
+            "saleDate": "2026-04-12",
+            "dispatched": "false",
+            "reportName": "销售报表",
+            "companyCode": "A",
+            "productName": "网线",
+            "daysSinceSale": "181"
+          }
+        ],
+        "query": {
+          "page": 1,
+          "size": 20,
+          "view": "LIST",
+          "domain": "REPORT",
+          "groupBy": null,
+          "reportIds": [
+            "rpt-sales-order"
+          ],
+          "sortField": null,
+          "conditions": [],
+          "descending": false,
+          "companyCode": "A"
+        },
+        "total": 4,
+        "source": "业务系统当前记录",
+        "columns": [
+          {
+            "name": "reportId",
+            "type": "string",
+            "description": "报表稳定标识"
+          },
+          {
+            "name": "reportName",
+            "type": "string",
+            "description": "报表名称"
+          },
+          {
+            "name": "companyCode",
+            "type": "string",
+            "description": "所属公司代码"
+          },
+          {
+            "name": "docNo",
+            "type": "string",
+            "description": "来源单据号"
+          },
+          {
+            "name": "amount",
+            "type": "decimal",
+            "description": "来源金额，币种见 currency；空值表示未提供"
+          },
+          {
+            "name": "currency",
+            "type": "string",
+            "description": "来源声明币种；空值表示未声明，不能跨币种合计"
+          },
+          {
+            "name": "date",
+            "type": "date",
+            "description": "业务日期；空值表示未配置"
+          },
+          {
+            "name": "status",
+            "type": "string",
+            "description": "报表派单状态：未派单/已派单"
+          },
+          {
+            "name": "orderNo",
+            "type": "string",
+            "description": "订单号"
+          },
+          {
+            "name": "productName",
+            "type": "string",
+            "description": "产品名称"
+          },
+          {
+            "name": "saleDate",
+            "type": "date",
+            "description": "销售日期，字符串 yyyy-MM-dd"
+          },
+          {
+            "name": "daysSinceSale",
+            "type": "long",
+            "description": "距销售日期的天数（派生）"
+          },
+          {
+            "name": "dispatched",
+            "type": "boolean",
+            "description": "来源记录是否已派单；true为已派单，false为未派单，不代表满足派单规则"
+          },
+          {
+            "name": "recordId",
+            "type": "string",
+            "description": "报表内稳定记录标识"
+          }
+        ],
+        "summary": {
+          "count": 4,
+          "groups": {},
+          "statusCounts": {
+            "未派单": 4
+          },
+          "pendingApprovers": {},
+          "amountsByCurrency": {
+            "CNY": "256015.00"
+          },
+          "unclassifiedAmountCount": 0
+        },
+        "observedAt": "2026-10-10T19:32:40.394478100+08:00"
+      },
+      "messageId": 47
+    },
+    {
+      "userId": "operatorA",
+      "payload": {
+        "rows": [
+          {
+            "date": "2026-01-15",
+            "docNo": "SO2026001",
+            "amount": "128000.00",
+            "rowKey": "rpt-sales-order:1",
+            "status": "未派单",
+            "orderNo": "SO2026001",
+            "currency": "CNY",
+            "recordId": "1",
+            "reportId": "rpt-sales-order",
+            "saleDate": "2026-01-15",
+            "dispatched": "false",
+            "reportName": "销售报表",
+            "companyCode": "A",
+            "productName": "服务器",
+            "daysSinceSale": "268"
+          },
+          {
+            "date": "2026-02-08",
+            "docNo": "SO2026002",
+            "amount": "32000.00",
+            "rowKey": "rpt-sales-order:2",
+            "status": "未派单",
+            "orderNo": "SO2026002",
+            "currency": "CNY",
+            "recordId": "2",
+            "reportId": "rpt-sales-order",
+            "saleDate": "2026-02-08",
+            "dispatched": "false",
+            "reportName": "销售报表",
+            "companyCode": "A",
+            "productName": "交换机",
+            "daysSinceSale": "244"
+          },
+          {
+            "date": "2026-04-05",
+            "docNo": "SO2026007",
+            "amount": "96000.00",
+            "rowKey": "rpt-sales-order:3",
+            "status": "未派单",
+            "orderNo": "SO2026007",
+            "currency": "CNY",
+            "recordId": "3",
+            "reportId": "rpt-sales-order",
+            "saleDate": "2026-04-05",
+            "dispatched": "false",
+            "reportName": "销售报表",
+            "companyCode": "A",
+            "productName": "云服务",
+            "daysSinceSale": "188"
+          },
+          {
+            "date": "2026-04-12",
+            "docNo": "SO2026008",
+            "amount": "15.00",
+            "rowKey": "rpt-sales-order:4",
+            "status": "未派单",
+            "orderNo": "SO2026008",
+            "currency": "CNY",
+            "recordId": "4",
+            "reportId": "rpt-sales-order",
+            "saleDate": "2026-04-12",
+            "dispatched": "false",
+            "reportName": "销售报表",
+            "companyCode": "A",
+            "productName": "网线",
+            "daysSinceSale": "181"
+          }
+        ],
+        "query": {
+          "page": 1,
+          "size": 20,
+          "view": "LIST",
+          "domain": "REPORT",
+          "groupBy": null,
+          "reportIds": [
+            "rpt-sales-order"
+          ],
+          "sortField": null,
+          "conditions": [],
+          "descending": false,
+          "companyCode": "A"
+        },
+        "total": 4,
+        "source": "业务系统当前记录",
+        "columns": [
+          {
+            "name": "reportId",
+            "type": "string",
+            "description": "报表稳定标识"
+          },
+          {
+            "name": "reportName",
+            "type": "string",
+            "description": "报表名称"
+          },
+          {
+            "name": "companyCode",
+            "type": "string",
+            "description": "所属公司代码"
+          },
+          {
+            "name": "docNo",
+            "type": "string",
+            "description": "来源单据号"
+          },
+          {
+            "name": "amount",
+            "type": "decimal",
+            "description": "来源金额，币种见 currency；空值表示未提供"
+          },
+          {
+            "name": "currency",
+            "type": "string",
+            "description": "来源声明币种；空值表示未声明，不能跨币种合计"
+          },
+          {
+            "name": "date",
+            "type": "date",
+            "description": "业务日期；空值表示未配置"
+          },
+          {
+            "name": "status",
+            "type": "string",
+            "description": "报表派单状态：未派单/已派单"
+          },
+          {
+            "name": "orderNo",
+            "type": "string",
+            "description": "订单号"
+          },
+          {
+            "name": "productName",
+            "type": "string",
+            "description": "产品名称"
+          },
+          {
+            "name": "saleDate",
+            "type": "date",
+            "description": "销售日期，字符串 yyyy-MM-dd"
+          },
+          {
+            "name": "daysSinceSale",
+            "type": "long",
+            "description": "距销售日期的天数（派生）"
+          },
+          {
+            "name": "dispatched",
+            "type": "boolean",
+            "description": "来源记录是否已派单；true为已派单，false为未派单，不代表满足派单规则"
+          },
+          {
+            "name": "recordId",
+            "type": "string",
+            "description": "报表内稳定记录标识"
+          }
+        ],
+        "summary": {
+          "count": 4,
+          "groups": {},
+          "statusCounts": {
+            "未派单": 4
+          },
+          "pendingApprovers": {},
+          "amountsByCurrency": {
+            "CNY": "256015.00"
+          },
+          "unclassifiedAmountCount": 0
+        },
+        "observedAt": "2026-10-10T19:32:57.799069600+08:00"
+      },
+      "messageId": 54
+    },
+    {
+      "userId": "operatorA",
+      "payload": {
+        "rows": [
+          {
+            "date": "2026-01-09",
+            "docNo": "EXP-2026-0001",
+            "amount": "8600.00",
+            "rowKey": "rpt-expense-claim:1",
+            "status": "未派单",
+            "currency": "CNY",
+            "recordId": "1",
+            "reportId": "rpt-expense-claim",
+            "expenseNo": "EXP-2026-0001",
+            "dispatched": "false",
+            "reportName": "费用报表",
+            "companyCode": "A",
+            "expenseDate": "2026-01-09",
+            "expenseType": "差旅费",
+            "daysSinceExpense": "274"
+          },
+          {
+            "date": "2026-02-14",
+            "docNo": "EXP-2026-0002",
+            "amount": "3200.00",
+            "rowKey": "rpt-expense-claim:2",
+            "status": "未派单",
+            "currency": "CNY",
+            "recordId": "2",
+            "reportId": "rpt-expense-claim",
+            "expenseNo": "EXP-2026-0002",
+            "dispatched": "false",
+            "reportName": "费用报表",
+            "companyCode": "A",
+            "expenseDate": "2026-02-14",
+            "expenseType": "业务招待费",
+            "daysSinceExpense": "238"
+          }
+        ],
+        "query": {
+          "page": 1,
+          "size": 20,
+          "view": "LIST",
+          "domain": "REPORT",
+          "groupBy": null,
+          "reportIds": [
+            "rpt-expense-claim"
+          ],
+          "sortField": null,
+          "conditions": [
+            {
+              "allOf": [
+                {
+                  "field": "amount",
+                  "values": [
+                    "3200"
+                  ],
+                  "operator": "GTE"
+                }
+              ]
+            }
+          ],
+          "descending": false,
+          "companyCode": "A"
+        },
+        "total": 2,
+        "source": "业务系统当前记录",
+        "columns": [
+          {
+            "name": "reportId",
+            "type": "string",
+            "description": "报表稳定标识"
+          },
+          {
+            "name": "reportName",
+            "type": "string",
+            "description": "报表名称"
+          },
+          {
+            "name": "companyCode",
+            "type": "string",
+            "description": "所属公司代码"
+          },
+          {
+            "name": "docNo",
+            "type": "string",
+            "description": "来源单据号"
+          },
+          {
+            "name": "amount",
+            "type": "decimal",
+            "description": "来源金额，币种见 currency；空值表示未提供"
+          },
+          {
+            "name": "currency",
+            "type": "string",
+            "description": "来源声明币种；空值表示未声明，不能跨币种合计"
+          },
+          {
+            "name": "date",
+            "type": "date",
+            "description": "业务日期；空值表示未配置"
+          },
+          {
+            "name": "status",
+            "type": "string",
+            "description": "报表派单状态：未派单/已派单"
+          },
+          {
+            "name": "expenseNo",
+            "type": "string",
+            "description": "报销单号"
+          },
+          {
+            "name": "expenseType",
+            "type": "string",
+            "description": "费用类型，如 差旅费 / 业务招待费 / 办公用品"
+          },
+          {
+            "name": "expenseDate",
+            "type": "date",
+            "description": "发生日期，字符串 yyyy-MM-dd"
+          },
+          {
+            "name": "daysSinceExpense",
+            "type": "long",
+            "description": "距发生日期的天数（派生）"
+          },
+          {
+            "name": "dispatched",
+            "type": "boolean",
+            "description": "来源记录是否已派单；true为已派单，false为未派单，不代表满足派单规则"
+          },
+          {
+            "name": "recordId",
+            "type": "string",
+            "description": "报表内稳定记录标识"
+          }
+        ],
+        "summary": {
+          "count": 2,
+          "groups": {},
+          "statusCounts": {
+            "未派单": 2
+          },
+          "pendingApprovers": {},
+          "amountsByCurrency": {
+            "CNY": "11800.00"
+          },
+          "unclassifiedAmountCount": 0
+        },
+        "observedAt": "2026-10-10T19:33:10.343563100+08:00"
+      },
+      "messageId": 58
+    },
+    {
+      "userId": "operatorA",
+      "payload": {
+        "rows": [
+          {
+            "date": "2026-01-09",
+            "docNo": "EXP-2026-0001",
+            "amount": "8600.00",
+            "rowKey": "rpt-expense-claim:1",
+            "status": "未派单",
+            "currency": "CNY",
+            "recordId": "1",
+            "reportId": "rpt-expense-claim",
+            "expenseNo": "EXP-2026-0001",
+            "dispatched": "false",
+            "reportName": "费用报表",
+            "companyCode": "A",
+            "expenseDate": "2026-01-09",
+            "expenseType": "差旅费",
+            "daysSinceExpense": "274"
+          }
+        ],
+        "query": {
+          "page": 1,
+          "size": 20,
+          "view": "LIST",
+          "domain": "REPORT",
+          "groupBy": null,
+          "reportIds": [
+            "rpt-expense-claim"
+          ],
+          "sortField": null,
+          "conditions": [
+            {
+              "allOf": [
+                {
+                  "field": "amount",
+                  "values": [
+                    "3200"
+                  ],
+                  "operator": "GT"
+                }
+              ]
+            }
+          ],
+          "descending": false,
+          "companyCode": "A"
+        },
+        "total": 1,
+        "source": "业务系统当前记录",
+        "columns": [
+          {
+            "name": "reportId",
+            "type": "string",
+            "description": "报表稳定标识"
+          },
+          {
+            "name": "reportName",
+            "type": "string",
+            "description": "报表名称"
+          },
+          {
+            "name": "companyCode",
+            "type": "string",
+            "description": "所属公司代码"
+          },
+          {
+            "name": "docNo",
+            "type": "string",
+            "description": "来源单据号"
+          },
+          {
+            "name": "amount",
+            "type": "decimal",
+            "description": "来源金额，币种见 currency；空值表示未提供"
+          },
+          {
+            "name": "currency",
+            "type": "string",
+            "description": "来源声明币种；空值表示未声明，不能跨币种合计"
+          },
+          {
+            "name": "date",
+            "type": "date",
+            "description": "业务日期；空值表示未配置"
+          },
+          {
+            "name": "status",
+            "type": "string",
+            "description": "报表派单状态：未派单/已派单"
+          },
+          {
+            "name": "expenseNo",
+            "type": "string",
+            "description": "报销单号"
+          },
+          {
+            "name": "expenseType",
+            "type": "string",
+            "description": "费用类型，如 差旅费 / 业务招待费 / 办公用品"
+          },
+          {
+            "name": "expenseDate",
+            "type": "date",
+            "description": "发生日期，字符串 yyyy-MM-dd"
+          },
+          {
+            "name": "daysSinceExpense",
+            "type": "long",
+            "description": "距发生日期的天数（派生）"
+          },
+          {
+            "name": "dispatched",
+            "type": "boolean",
+            "description": "来源记录是否已派单；true为已派单，false为未派单，不代表满足派单规则"
+          },
+          {
+            "name": "recordId",
+            "type": "string",
+            "description": "报表内稳定记录标识"
+          }
+        ],
+        "summary": {
+          "count": 1,
+          "groups": {},
+          "statusCounts": {
+            "未派单": 1
+          },
+          "pendingApprovers": {},
+          "amountsByCurrency": {
+            "CNY": "8600.00"
+          },
+          "unclassifiedAmountCount": 0
+        },
+        "observedAt": "2026-10-10T19:33:17.988044100+08:00"
+      },
+      "messageId": 62
+    },
+    {
+      "userId": "operatorA",
+      "payload": {
+        "rows": [
+          {
+            "date": "2026-01-09",
+            "docNo": "EXP-2026-0001",
+            "amount": "8600.00",
+            "rowKey": "rpt-expense-claim:1",
+            "status": "未派单",
+            "currency": "CNY",
+            "recordId": "1",
+            "reportId": "rpt-expense-claim",
+            "expenseNo": "EXP-2026-0001",
+            "dispatched": "false",
+            "reportName": "费用报表",
+            "companyCode": "A",
+            "expenseDate": "2026-01-09",
+            "expenseType": "差旅费",
+            "daysSinceExpense": "274"
+          },
+          {
+            "date": "2026-02-14",
+            "docNo": "EXP-2026-0002",
+            "amount": "3200.00",
+            "rowKey": "rpt-expense-claim:2",
+            "status": "未派单",
+            "currency": "CNY",
+            "recordId": "2",
+            "reportId": "rpt-expense-claim",
+            "expenseNo": "EXP-2026-0002",
+            "dispatched": "false",
+            "reportName": "费用报表",
+            "companyCode": "A",
+            "expenseDate": "2026-02-14",
+            "expenseType": "业务招待费",
+            "daysSinceExpense": "238"
+          }
+        ],
+        "query": {
+          "page": 1,
+          "size": 20,
+          "view": "LIST",
+          "domain": "REPORT",
+          "groupBy": null,
+          "reportIds": [
+            "rpt-expense-claim"
+          ],
+          "sortField": null,
+          "conditions": [
+            {
+              "allOf": [
+                {
+                  "field": "amount",
+                  "values": [
+                    "3200"
+                  ],
+                  "operator": "GTE"
+                }
+              ]
+            }
+          ],
+          "descending": false,
+          "companyCode": "A"
+        },
+        "total": 2,
+        "source": "业务系统当前记录",
+        "columns": [
+          {
+            "name": "reportId",
+            "type": "string",
+            "description": "报表稳定标识"
+          },
+          {
+            "name": "reportName",
+            "type": "string",
+            "description": "报表名称"
+          },
+          {
+            "name": "companyCode",
+            "type": "string",
+            "description": "所属公司代码"
+          },
+          {
+            "name": "docNo",
+            "type": "string",
+            "description": "来源单据号"
+          },
+          {
+            "name": "amount",
+            "type": "decimal",
+            "description": "来源金额，币种见 currency；空值表示未提供"
+          },
+          {
+            "name": "currency",
+            "type": "string",
+            "description": "来源声明币种；空值表示未声明，不能跨币种合计"
+          },
+          {
+            "name": "date",
+            "type": "date",
+            "description": "业务日期；空值表示未配置"
+          },
+          {
+            "name": "status",
+            "type": "string",
+            "description": "报表派单状态：未派单/已派单"
+          },
+          {
+            "name": "expenseNo",
+            "type": "string",
+            "description": "报销单号"
+          },
+          {
+            "name": "expenseType",
+            "type": "string",
+            "description": "费用类型，如 差旅费 / 业务招待费 / 办公用品"
+          },
+          {
+            "name": "expenseDate",
+            "type": "date",
+            "description": "发生日期，字符串 yyyy-MM-dd"
+          },
+          {
+            "name": "daysSinceExpense",
+            "type": "long",
+            "description": "距发生日期的天数（派生）"
+          },
+          {
+            "name": "dispatched",
+            "type": "boolean",
+            "description": "来源记录是否已派单；true为已派单，false为未派单，不代表满足派单规则"
+          },
+          {
+            "name": "recordId",
+            "type": "string",
+            "description": "报表内稳定记录标识"
+          }
+        ],
+        "summary": {
+          "count": 2,
+          "groups": {},
+          "statusCounts": {
+            "未派单": 2
+          },
+          "pendingApprovers": {},
+          "amountsByCurrency": {
+            "CNY": "11800.00"
+          },
+          "unclassifiedAmountCount": 0
+        },
+        "observedAt": "2026-10-10T19:33:30.798099100+08:00"
+      },
+      "messageId": 66
+    },
+    {
+      "userId": "operatorA",
+      "payload": {
+        "rows": [
+          {
+            "date": "2026-01-09",
+            "docNo": "EXP-2026-0001",
+            "amount": "8600.00",
+            "rowKey": "rpt-expense-claim:1",
+            "status": "未派单",
+            "currency": "CNY",
+            "recordId": "1",
+            "reportId": "rpt-expense-claim",
+            "expenseNo": "EXP-2026-0001",
+            "dispatched": "false",
+            "reportName": "费用报表",
+            "companyCode": "A",
+            "expenseDate": "2026-01-09",
+            "expenseType": "差旅费",
+            "daysSinceExpense": "274"
+          },
+          {
+            "date": "2026-02-14",
+            "docNo": "EXP-2026-0002",
+            "amount": "3200.00",
+            "rowKey": "rpt-expense-claim:2",
+            "status": "未派单",
+            "currency": "CNY",
+            "recordId": "2",
+            "reportId": "rpt-expense-claim",
+            "expenseNo": "EXP-2026-0002",
+            "dispatched": "false",
+            "reportName": "费用报表",
+            "companyCode": "A",
+            "expenseDate": "2026-02-14",
+            "expenseType": "业务招待费",
+            "daysSinceExpense": "238"
+          }
+        ],
+        "query": {
+          "page": 1,
+          "size": 20,
+          "view": "LIST",
+          "domain": "REPORT",
+          "groupBy": null,
+          "reportIds": [
+            "rpt-expense-claim"
+          ],
+          "sortField": null,
+          "conditions": [
+            {
+              "allOf": [
+                {
+                  "field": "amount",
+                  "values": [
+                    "3200"
+                  ],
+                  "operator": "GTE"
+                }
+              ]
+            }
+          ],
+          "descending": false,
+          "companyCode": "A"
+        },
+        "total": 2,
+        "source": "业务系统当前记录",
+        "columns": [
+          {
+            "name": "reportId",
+            "type": "string",
+            "description": "报表稳定标识"
+          },
+          {
+            "name": "reportName",
+            "type": "string",
+            "description": "报表名称"
+          },
+          {
+            "name": "companyCode",
+            "type": "string",
+            "description": "所属公司代码"
+          },
+          {
+            "name": "docNo",
+            "type": "string",
+            "description": "来源单据号"
+          },
+          {
+            "name": "amount",
+            "type": "decimal",
+            "description": "来源金额，币种见 currency；空值表示未提供"
+          },
+          {
+            "name": "currency",
+            "type": "string",
+            "description": "来源声明币种；空值表示未声明，不能跨币种合计"
+          },
+          {
+            "name": "date",
+            "type": "date",
+            "description": "业务日期；空值表示未配置"
+          },
+          {
+            "name": "status",
+            "type": "string",
+            "description": "报表派单状态：未派单/已派单"
+          },
+          {
+            "name": "expenseNo",
+            "type": "string",
+            "description": "报销单号"
+          },
+          {
+            "name": "expenseType",
+            "type": "string",
+            "description": "费用类型，如 差旅费 / 业务招待费 / 办公用品"
+          },
+          {
+            "name": "expenseDate",
+            "type": "date",
+            "description": "发生日期，字符串 yyyy-MM-dd"
+          },
+          {
+            "name": "daysSinceExpense",
+            "type": "long",
+            "description": "距发生日期的天数（派生）"
+          },
+          {
+            "name": "dispatched",
+            "type": "boolean",
+            "description": "来源记录是否已派单；true为已派单，false为未派单，不代表满足派单规则"
+          },
+          {
+            "name": "recordId",
+            "type": "string",
+            "description": "报表内稳定记录标识"
+          }
+        ],
+        "summary": {
+          "count": 2,
+          "groups": {},
+          "statusCounts": {
+            "未派单": 2
+          },
+          "pendingApprovers": {},
+          "amountsByCurrency": {
+            "CNY": "11800.00"
+          },
+          "unclassifiedAmountCount": 0
+        },
+        "observedAt": "2026-10-10T19:33:38.670339400+08:00"
+      },
+      "messageId": 70
+    },
+    {
+      "userId": "operatorA",
+      "payload": {
+        "rows": [
+          {
+            "date": "2026-01-09",
+            "docNo": "EXP-2026-0001",
+            "amount": "8600.00",
+            "rowKey": "rpt-expense-claim:1",
+            "status": "未派单",
+            "currency": "CNY",
+            "recordId": "1",
+            "reportId": "rpt-expense-claim",
+            "expenseNo": "EXP-2026-0001",
+            "dispatched": "false",
+            "reportName": "费用报表",
+            "companyCode": "A",
+            "expenseDate": "2026-01-09",
+            "expenseType": "差旅费",
+            "daysSinceExpense": "274"
+          },
+          {
+            "date": "2026-02-14",
+            "docNo": "EXP-2026-0002",
+            "amount": "3200.00",
+            "rowKey": "rpt-expense-claim:2",
+            "status": "未派单",
+            "currency": "CNY",
+            "recordId": "2",
+            "reportId": "rpt-expense-claim",
+            "expenseNo": "EXP-2026-0002",
+            "dispatched": "false",
+            "reportName": "费用报表",
+            "companyCode": "A",
+            "expenseDate": "2026-02-14",
+            "expenseType": "业务招待费",
+            "daysSinceExpense": "238"
+          }
+        ],
+        "query": {
+          "page": 1,
+          "size": 20,
+          "view": "LIST",
+          "domain": "REPORT",
+          "groupBy": null,
+          "reportIds": [
+            "rpt-expense-claim"
+          ],
+          "sortField": null,
+          "conditions": [
+            {
+              "allOf": [
+                {
+                  "field": "amount",
+                  "values": [
+                    "3200"
+                  ],
+                  "operator": "GTE"
+                }
+              ]
+            }
+          ],
+          "descending": false,
+          "companyCode": "A"
+        },
+        "total": 2,
+        "source": "业务系统当前记录",
+        "columns": [
+          {
+            "name": "reportId",
+            "type": "string",
+            "description": "报表稳定标识"
+          },
+          {
+            "name": "reportName",
+            "type": "string",
+            "description": "报表名称"
+          },
+          {
+            "name": "companyCode",
+            "type": "string",
+            "description": "所属公司代码"
+          },
+          {
+            "name": "docNo",
+            "type": "string",
+            "description": "来源单据号"
+          },
+          {
+            "name": "amount",
+            "type": "decimal",
+            "description": "来源金额，币种见 currency；空值表示未提供"
+          },
+          {
+            "name": "currency",
+            "type": "string",
+            "description": "来源声明币种；空值表示未声明，不能跨币种合计"
+          },
+          {
+            "name": "date",
+            "type": "date",
+            "description": "业务日期；空值表示未配置"
+          },
+          {
+            "name": "status",
+            "type": "string",
+            "description": "报表派单状态：未派单/已派单"
+          },
+          {
+            "name": "expenseNo",
+            "type": "string",
+            "description": "报销单号"
+          },
+          {
+            "name": "expenseType",
+            "type": "string",
+            "description": "费用类型，如 差旅费 / 业务招待费 / 办公用品"
+          },
+          {
+            "name": "expenseDate",
+            "type": "date",
+            "description": "发生日期，字符串 yyyy-MM-dd"
+          },
+          {
+            "name": "daysSinceExpense",
+            "type": "long",
+            "description": "距发生日期的天数（派生）"
+          },
+          {
+            "name": "dispatched",
+            "type": "boolean",
+            "description": "来源记录是否已派单；true为已派单，false为未派单，不代表满足派单规则"
+          },
+          {
+            "name": "recordId",
+            "type": "string",
+            "description": "报表内稳定记录标识"
+          }
+        ],
+        "summary": {
+          "count": 2,
+          "groups": {},
+          "statusCounts": {
+            "未派单": 2
+          },
+          "pendingApprovers": {},
+          "amountsByCurrency": {
+            "CNY": "11800.00"
+          },
+          "unclassifiedAmountCount": 0
+        },
+        "observedAt": "2026-10-10T19:33:47.338988600+08:00"
+      },
+      "messageId": 74
+    },
+    {
+      "userId": "operatorA",
+      "payload": {
+        "rows": [
+          {
+            "date": "2026-02-14",
+            "docNo": "EXP-2026-0002",
+            "amount": "3200.00",
+            "rowKey": "rpt-expense-claim:2",
+            "status": "未派单",
+            "currency": "CNY",
+            "recordId": "2",
+            "reportId": "rpt-expense-claim",
+            "expenseNo": "EXP-2026-0002",
+            "dispatched": "false",
+            "reportName": "费用报表",
+            "companyCode": "A",
+            "expenseDate": "2026-02-14",
+            "expenseType": "业务招待费",
+            "daysSinceExpense": "238"
+          },
+          {
+            "date": "2026-03-05",
+            "docNo": "EXP-2026-0007",
+            "amount": "680.00",
+            "rowKey": "rpt-expense-claim:3",
+            "status": "未派单",
+            "currency": "CNY",
+            "recordId": "3",
+            "reportId": "rpt-expense-claim",
+            "expenseNo": "EXP-2026-0007",
+            "dispatched": "false",
+            "reportName": "费用报表",
+            "companyCode": "A",
+            "expenseDate": "2026-03-05",
+            "expenseType": "办公用品",
+            "daysSinceExpense": "219"
+          }
+        ],
+        "query": {
+          "page": 1,
+          "size": 20,
+          "view": "LIST",
+          "domain": "REPORT",
+          "groupBy": null,
+          "reportIds": [
+            "rpt-expense-claim"
+          ],
+          "sortField": null,
+          "conditions": [
+            {
+              "allOf": [
+                {
+                  "field": "amount",
+                  "values": [
+                    "3200"
+                  ],
+                  "operator": "LTE"
+                }
+              ]
+            }
+          ],
+          "descending": false,
+          "companyCode": "A"
+        },
+        "total": 2,
+        "source": "业务系统当前记录",
+        "columns": [
+          {
+            "name": "reportId",
+            "type": "string",
+            "description": "报表稳定标识"
+          },
+          {
+            "name": "reportName",
+            "type": "string",
+            "description": "报表名称"
+          },
+          {
+            "name": "companyCode",
+            "type": "string",
+            "description": "所属公司代码"
+          },
+          {
+            "name": "docNo",
+            "type": "string",
+            "description": "来源单据号"
+          },
+          {
+            "name": "amount",
+            "type": "decimal",
+            "description": "来源金额，币种见 currency；空值表示未提供"
+          },
+          {
+            "name": "currency",
+            "type": "string",
+            "description": "来源声明币种；空值表示未声明，不能跨币种合计"
+          },
+          {
+            "name": "date",
+            "type": "date",
+            "description": "业务日期；空值表示未配置"
+          },
+          {
+            "name": "status",
+            "type": "string",
+            "description": "报表派单状态：未派单/已派单"
+          },
+          {
+            "name": "expenseNo",
+            "type": "string",
+            "description": "报销单号"
+          },
+          {
+            "name": "expenseType",
+            "type": "string",
+            "description": "费用类型，如 差旅费 / 业务招待费 / 办公用品"
+          },
+          {
+            "name": "expenseDate",
+            "type": "date",
+            "description": "发生日期，字符串 yyyy-MM-dd"
+          },
+          {
+            "name": "daysSinceExpense",
+            "type": "long",
+            "description": "距发生日期的天数（派生）"
+          },
+          {
+            "name": "dispatched",
+            "type": "boolean",
+            "description": "来源记录是否已派单；true为已派单，false为未派单，不代表满足派单规则"
+          },
+          {
+            "name": "recordId",
+            "type": "string",
+            "description": "报表内稳定记录标识"
+          }
+        ],
+        "summary": {
+          "count": 2,
+          "groups": {},
+          "statusCounts": {
+            "未派单": 2
+          },
+          "pendingApprovers": {},
+          "amountsByCurrency": {
+            "CNY": "3880.00"
+          },
+          "unclassifiedAmountCount": 0
+        },
+        "observedAt": "2026-10-10T19:33:59.560207600+08:00"
+      },
+      "messageId": 78
+    },
+    {
+      "userId": "operatorA",
+      "payload": {
+        "rows": [
+          {
+            "date": "2026-03-05",
+            "docNo": "EXP-2026-0007",
+            "amount": "680.00",
+            "rowKey": "rpt-expense-claim:3",
+            "status": "未派单",
+            "currency": "CNY",
+            "recordId": "3",
+            "reportId": "rpt-expense-claim",
+            "expenseNo": "EXP-2026-0007",
+            "dispatched": "false",
+            "reportName": "费用报表",
+            "companyCode": "A",
+            "expenseDate": "2026-03-05",
+            "expenseType": "办公用品",
+            "daysSinceExpense": "219"
+          }
+        ],
+        "query": {
+          "page": 1,
+          "size": 20,
+          "view": "LIST",
+          "domain": "REPORT",
+          "groupBy": null,
+          "reportIds": [
+            "rpt-expense-claim"
+          ],
+          "sortField": null,
+          "conditions": [
+            {
+              "allOf": [
+                {
+                  "field": "amount",
+                  "values": [
+                    "3200"
+                  ],
+                  "operator": "LT"
+                }
+              ]
+            }
+          ],
+          "descending": false,
+          "companyCode": "A"
+        },
+        "total": 1,
+        "source": "业务系统当前记录",
+        "columns": [
+          {
+            "name": "reportId",
+            "type": "string",
+            "description": "报表稳定标识"
+          },
+          {
+            "name": "reportName",
+            "type": "string",
+            "description": "报表名称"
+          },
+          {
+            "name": "companyCode",
+            "type": "string",
+            "description": "所属公司代码"
+          },
+          {
+            "name": "docNo",
+            "type": "string",
+            "description": "来源单据号"
+          },
+          {
+            "name": "amount",
+            "type": "decimal",
+            "description": "来源金额，币种见 currency；空值表示未提供"
+          },
+          {
+            "name": "currency",
+            "type": "string",
+            "description": "来源声明币种；空值表示未声明，不能跨币种合计"
+          },
+          {
+            "name": "date",
+            "type": "date",
+            "description": "业务日期；空值表示未配置"
+          },
+          {
+            "name": "status",
+            "type": "string",
+            "description": "报表派单状态：未派单/已派单"
+          },
+          {
+            "name": "expenseNo",
+            "type": "string",
+            "description": "报销单号"
+          },
+          {
+            "name": "expenseType",
+            "type": "string",
+            "description": "费用类型，如 差旅费 / 业务招待费 / 办公用品"
+          },
+          {
+            "name": "expenseDate",
+            "type": "date",
+            "description": "发生日期，字符串 yyyy-MM-dd"
+          },
+          {
+            "name": "daysSinceExpense",
+            "type": "long",
+            "description": "距发生日期的天数（派生）"
+          },
+          {
+            "name": "dispatched",
+            "type": "boolean",
+            "description": "来源记录是否已派单；true为已派单，false为未派单，不代表满足派单规则"
+          },
+          {
+            "name": "recordId",
+            "type": "string",
+            "description": "报表内稳定记录标识"
+          }
+        ],
+        "summary": {
+          "count": 1,
+          "groups": {},
+          "statusCounts": {
+            "未派单": 1
+          },
+          "pendingApprovers": {},
+          "amountsByCurrency": {
+            "CNY": "680.00"
+          },
+          "unclassifiedAmountCount": 0
+        },
+        "observedAt": "2026-10-10T19:34:06.657852500+08:00"
+      },
+      "messageId": 82
+    },
+    {
+      "userId": "operatorA",
+      "payload": {
+        "rows": [
+          {
+            "date": "2026-02-14",
+            "docNo": "EXP-2026-0002",
+            "amount": "3200.00",
+            "rowKey": "rpt-expense-claim:2",
+            "status": "未派单",
+            "currency": "CNY",
+            "recordId": "2",
+            "reportId": "rpt-expense-claim",
+            "expenseNo": "EXP-2026-0002",
+            "dispatched": "false",
+            "reportName": "费用报表",
+            "companyCode": "A",
+            "expenseDate": "2026-02-14",
+            "expenseType": "业务招待费",
+            "daysSinceExpense": "238"
+          },
+          {
+            "date": "2026-03-05",
+            "docNo": "EXP-2026-0007",
+            "amount": "680.00",
+            "rowKey": "rpt-expense-claim:3",
+            "status": "未派单",
+            "currency": "CNY",
+            "recordId": "3",
+            "reportId": "rpt-expense-claim",
+            "expenseNo": "EXP-2026-0007",
+            "dispatched": "false",
+            "reportName": "费用报表",
+            "companyCode": "A",
+            "expenseDate": "2026-03-05",
+            "expenseType": "办公用品",
+            "daysSinceExpense": "219"
+          }
+        ],
+        "query": {
+          "page": 1,
+          "size": 20,
+          "view": "LIST",
+          "domain": "REPORT",
+          "groupBy": null,
+          "reportIds": [
+            "rpt-expense-claim"
+          ],
+          "sortField": null,
+          "conditions": [
+            {
+              "allOf": [
+                {
+                  "field": "amount",
+                  "values": [
+                    "3200"
+                  ],
+                  "operator": "LTE"
+                }
+              ]
+            }
+          ],
+          "descending": false,
+          "companyCode": "A"
+        },
+        "total": 2,
+        "source": "业务系统当前记录",
+        "columns": [
+          {
+            "name": "reportId",
+            "type": "string",
+            "description": "报表稳定标识"
+          },
+          {
+            "name": "reportName",
+            "type": "string",
+            "description": "报表名称"
+          },
+          {
+            "name": "companyCode",
+            "type": "string",
+            "description": "所属公司代码"
+          },
+          {
+            "name": "docNo",
+            "type": "string",
+            "description": "来源单据号"
+          },
+          {
+            "name": "amount",
+            "type": "decimal",
+            "description": "来源金额，币种见 currency；空值表示未提供"
+          },
+          {
+            "name": "currency",
+            "type": "string",
+            "description": "来源声明币种；空值表示未声明，不能跨币种合计"
+          },
+          {
+            "name": "date",
+            "type": "date",
+            "description": "业务日期；空值表示未配置"
+          },
+          {
+            "name": "status",
+            "type": "string",
+            "description": "报表派单状态：未派单/已派单"
+          },
+          {
+            "name": "expenseNo",
+            "type": "string",
+            "description": "报销单号"
+          },
+          {
+            "name": "expenseType",
+            "type": "string",
+            "description": "费用类型，如 差旅费 / 业务招待费 / 办公用品"
+          },
+          {
+            "name": "expenseDate",
+            "type": "date",
+            "description": "发生日期，字符串 yyyy-MM-dd"
+          },
+          {
+            "name": "daysSinceExpense",
+            "type": "long",
+            "description": "距发生日期的天数（派生）"
+          },
+          {
+            "name": "dispatched",
+            "type": "boolean",
+            "description": "来源记录是否已派单；true为已派单，false为未派单，不代表满足派单规则"
+          },
+          {
+            "name": "recordId",
+            "type": "string",
+            "description": "报表内稳定记录标识"
+          }
+        ],
+        "summary": {
+          "count": 2,
+          "groups": {},
+          "statusCounts": {
+            "未派单": 2
+          },
+          "pendingApprovers": {},
+          "amountsByCurrency": {
+            "CNY": "3880.00"
+          },
+          "unclassifiedAmountCount": 0
+        },
+        "observedAt": "2026-10-10T19:34:15.209812700+08:00"
+      },
+      "messageId": 86
+    },
+    {
+      "userId": "operatorA",
+      "payload": {
+        "rows": [
+          {
+            "date": "2026-02-14",
+            "docNo": "EXP-2026-0002",
+            "amount": "3200.00",
+            "rowKey": "rpt-expense-claim:2",
+            "status": "未派单",
+            "currency": "CNY",
+            "recordId": "2",
+            "reportId": "rpt-expense-claim",
+            "expenseNo": "EXP-2026-0002",
+            "dispatched": "false",
+            "reportName": "费用报表",
+            "companyCode": "A",
+            "expenseDate": "2026-02-14",
+            "expenseType": "业务招待费",
+            "daysSinceExpense": "238"
+          },
+          {
+            "date": "2026-03-05",
+            "docNo": "EXP-2026-0007",
+            "amount": "680.00",
+            "rowKey": "rpt-expense-claim:3",
+            "status": "未派单",
+            "currency": "CNY",
+            "recordId": "3",
+            "reportId": "rpt-expense-claim",
+            "expenseNo": "EXP-2026-0007",
+            "dispatched": "false",
+            "reportName": "费用报表",
+            "companyCode": "A",
+            "expenseDate": "2026-03-05",
+            "expenseType": "办公用品",
+            "daysSinceExpense": "219"
+          }
+        ],
+        "query": {
+          "page": 1,
+          "size": 20,
+          "view": "LIST",
+          "domain": "REPORT",
+          "groupBy": null,
+          "reportIds": [
+            "rpt-expense-claim"
+          ],
+          "sortField": null,
+          "conditions": [
+            {
+              "allOf": [
+                {
+                  "field": "amount",
+                  "values": [
+                    "3200"
+                  ],
+                  "operator": "LTE"
+                }
+              ]
+            }
+          ],
+          "descending": false,
+          "companyCode": "A"
+        },
+        "total": 2,
+        "source": "业务系统当前记录",
+        "columns": [
+          {
+            "name": "reportId",
+            "type": "string",
+            "description": "报表稳定标识"
+          },
+          {
+            "name": "reportName",
+            "type": "string",
+            "description": "报表名称"
+          },
+          {
+            "name": "companyCode",
+            "type": "string",
+            "description": "所属公司代码"
+          },
+          {
+            "name": "docNo",
+            "type": "string",
+            "description": "来源单据号"
+          },
+          {
+            "name": "amount",
+            "type": "decimal",
+            "description": "来源金额，币种见 currency；空值表示未提供"
+          },
+          {
+            "name": "currency",
+            "type": "string",
+            "description": "来源声明币种；空值表示未声明，不能跨币种合计"
+          },
+          {
+            "name": "date",
+            "type": "date",
+            "description": "业务日期；空值表示未配置"
+          },
+          {
+            "name": "status",
+            "type": "string",
+            "description": "报表派单状态：未派单/已派单"
+          },
+          {
+            "name": "expenseNo",
+            "type": "string",
+            "description": "报销单号"
+          },
+          {
+            "name": "expenseType",
+            "type": "string",
+            "description": "费用类型，如 差旅费 / 业务招待费 / 办公用品"
+          },
+          {
+            "name": "expenseDate",
+            "type": "date",
+            "description": "发生日期，字符串 yyyy-MM-dd"
+          },
+          {
+            "name": "daysSinceExpense",
+            "type": "long",
+            "description": "距发生日期的天数（派生）"
+          },
+          {
+            "name": "dispatched",
+            "type": "boolean",
+            "description": "来源记录是否已派单；true为已派单，false为未派单，不代表满足派单规则"
+          },
+          {
+            "name": "recordId",
+            "type": "string",
+            "description": "报表内稳定记录标识"
+          }
+        ],
+        "summary": {
+          "count": 2,
+          "groups": {},
+          "statusCounts": {
+            "未派单": 2
+          },
+          "pendingApprovers": {},
+          "amountsByCurrency": {
+            "CNY": "3880.00"
+          },
+          "unclassifiedAmountCount": 0
+        },
+        "observedAt": "2026-10-10T19:34:23.585842600+08:00"
+      },
+      "messageId": 90
+    },
+    {
+      "userId": "operatorA",
+      "payload": {
+        "rows": [
+          {
+            "date": "2026-03-05",
+            "docNo": "EXP-2026-0007",
+            "amount": "680.00",
+            "rowKey": "rpt-expense-claim:3",
+            "status": "未派单",
+            "currency": "CNY",
+            "recordId": "3",
+            "reportId": "rpt-expense-claim",
+            "expenseNo": "EXP-2026-0007",
+            "dispatched": "false",
+            "reportName": "费用报表",
+            "companyCode": "A",
+            "expenseDate": "2026-03-05",
+            "expenseType": "办公用品",
+            "daysSinceExpense": "219"
+          }
+        ],
+        "query": {
+          "page": 1,
+          "size": 20,
+          "view": "LIST",
+          "domain": "REPORT",
+          "groupBy": null,
+          "reportIds": [
+            "rpt-expense-claim"
+          ],
+          "sortField": null,
+          "conditions": [
+            {
+              "allOf": [
+                {
+                  "field": "amount",
+                  "values": [
+                    "3200"
+                  ],
+                  "operator": "LT"
+                }
+              ]
+            }
+          ],
+          "descending": false,
+          "companyCode": "A"
+        },
+        "total": 1,
+        "source": "业务系统当前记录",
+        "columns": [
+          {
+            "name": "reportId",
+            "type": "string",
+            "description": "报表稳定标识"
+          },
+          {
+            "name": "reportName",
+            "type": "string",
+            "description": "报表名称"
+          },
+          {
+            "name": "companyCode",
+            "type": "string",
+            "description": "所属公司代码"
+          },
+          {
+            "name": "docNo",
+            "type": "string",
+            "description": "来源单据号"
+          },
+          {
+            "name": "amount",
+            "type": "decimal",
+            "description": "来源金额，币种见 currency；空值表示未提供"
+          },
+          {
+            "name": "currency",
+            "type": "string",
+            "description": "来源声明币种；空值表示未声明，不能跨币种合计"
+          },
+          {
+            "name": "date",
+            "type": "date",
+            "description": "业务日期；空值表示未配置"
+          },
+          {
+            "name": "status",
+            "type": "string",
+            "description": "报表派单状态：未派单/已派单"
+          },
+          {
+            "name": "expenseNo",
+            "type": "string",
+            "description": "报销单号"
+          },
+          {
+            "name": "expenseType",
+            "type": "string",
+            "description": "费用类型，如 差旅费 / 业务招待费 / 办公用品"
+          },
+          {
+            "name": "expenseDate",
+            "type": "date",
+            "description": "发生日期，字符串 yyyy-MM-dd"
+          },
+          {
+            "name": "daysSinceExpense",
+            "type": "long",
+            "description": "距发生日期的天数（派生）"
+          },
+          {
+            "name": "dispatched",
+            "type": "boolean",
+            "description": "来源记录是否已派单；true为已派单，false为未派单，不代表满足派单规则"
+          },
+          {
+            "name": "recordId",
+            "type": "string",
+            "description": "报表内稳定记录标识"
+          }
+        ],
+        "summary": {
+          "count": 1,
+          "groups": {},
+          "statusCounts": {
+            "未派单": 1
+          },
+          "pendingApprovers": {},
+          "amountsByCurrency": {
+            "CNY": "680.00"
+          },
+          "unclassifiedAmountCount": 0
+        },
+        "observedAt": "2026-10-10T19:34:39.710625400+08:00"
+      },
+      "messageId": 94
+    },
+    {
+      "userId": "operatorA",
+      "payload": {
+        "rows": [
+          {
+            "date": "2026-02-14",
+            "docNo": "EXP-2026-0002",
+            "amount": "3200.00",
+            "rowKey": "rpt-expense-claim:2",
+            "status": "未派单",
+            "currency": "CNY",
+            "recordId": "2",
+            "reportId": "rpt-expense-claim",
+            "expenseNo": "EXP-2026-0002",
+            "dispatched": "false",
+            "reportName": "费用报表",
+            "companyCode": "A",
+            "expenseDate": "2026-02-14",
+            "expenseType": "业务招待费",
+            "daysSinceExpense": "238"
+          },
+          {
+            "date": "2026-03-05",
+            "docNo": "EXP-2026-0007",
+            "amount": "680.00",
+            "rowKey": "rpt-expense-claim:3",
+            "status": "未派单",
+            "currency": "CNY",
+            "recordId": "3",
+            "reportId": "rpt-expense-claim",
+            "expenseNo": "EXP-2026-0007",
+            "dispatched": "false",
+            "reportName": "费用报表",
+            "companyCode": "A",
+            "expenseDate": "2026-03-05",
+            "expenseType": "办公用品",
+            "daysSinceExpense": "219"
+          }
+        ],
+        "query": {
+          "page": 1,
+          "size": 20,
+          "view": "LIST",
+          "domain": "REPORT",
+          "groupBy": null,
+          "reportIds": [
+            "rpt-expense-claim"
+          ],
+          "sortField": null,
+          "conditions": [
+            {
+              "allOf": [
+                {
+                  "field": "amount",
+                  "values": [
+                    "680"
+                  ],
+                  "operator": "GTE"
+                },
+                {
+                  "field": "amount",
+                  "values": [
+                    "3200"
+                  ],
+                  "operator": "LTE"
+                }
+              ]
+            }
+          ],
+          "descending": false,
+          "companyCode": "A"
+        },
+        "total": 2,
+        "source": "业务系统当前记录",
+        "columns": [
+          {
+            "name": "reportId",
+            "type": "string",
+            "description": "报表稳定标识"
+          },
+          {
+            "name": "reportName",
+            "type": "string",
+            "description": "报表名称"
+          },
+          {
+            "name": "companyCode",
+            "type": "string",
+            "description": "所属公司代码"
+          },
+          {
+            "name": "docNo",
+            "type": "string",
+            "description": "来源单据号"
+          },
+          {
+            "name": "amount",
+            "type": "decimal",
+            "description": "来源金额，币种见 currency；空值表示未提供"
+          },
+          {
+            "name": "currency",
+            "type": "string",
+            "description": "来源声明币种；空值表示未声明，不能跨币种合计"
+          },
+          {
+            "name": "date",
+            "type": "date",
+            "description": "业务日期；空值表示未配置"
+          },
+          {
+            "name": "status",
+            "type": "string",
+            "description": "报表派单状态：未派单/已派单"
+          },
+          {
+            "name": "expenseNo",
+            "type": "string",
+            "description": "报销单号"
+          },
+          {
+            "name": "expenseType",
+            "type": "string",
+            "description": "费用类型，如 差旅费 / 业务招待费 / 办公用品"
+          },
+          {
+            "name": "expenseDate",
+            "type": "date",
+            "description": "发生日期，字符串 yyyy-MM-dd"
+          },
+          {
+            "name": "daysSinceExpense",
+            "type": "long",
+            "description": "距发生日期的天数（派生）"
+          },
+          {
+            "name": "dispatched",
+            "type": "boolean",
+            "description": "来源记录是否已派单；true为已派单，false为未派单，不代表满足派单规则"
+          },
+          {
+            "name": "recordId",
+            "type": "string",
+            "description": "报表内稳定记录标识"
+          }
+        ],
+        "summary": {
+          "count": 2,
+          "groups": {},
+          "statusCounts": {
+            "未派单": 2
+          },
+          "pendingApprovers": {},
+          "amountsByCurrency": {
+            "CNY": "3880.00"
+          },
+          "unclassifiedAmountCount": 0
+        },
+        "observedAt": "2026-10-10T19:34:47.688343+08:00"
+      },
+      "messageId": 98
+    },
+    {
+      "userId": "operatorA",
+      "payload": {
+        "rows": [
+          {
+            "date": "2026-02-14",
+            "docNo": "EXP-2026-0002",
+            "amount": "3200.00",
+            "rowKey": "rpt-expense-claim:2",
+            "status": "未派单",
+            "currency": "CNY",
+            "recordId": "2",
+            "reportId": "rpt-expense-claim",
+            "expenseNo": "EXP-2026-0002",
+            "dispatched": "false",
+            "reportName": "费用报表",
+            "companyCode": "A",
+            "expenseDate": "2026-02-14",
+            "expenseType": "业务招待费",
+            "daysSinceExpense": "238"
+          },
+          {
+            "date": "2026-03-05",
+            "docNo": "EXP-2026-0007",
+            "amount": "680.00",
+            "rowKey": "rpt-expense-claim:3",
+            "status": "未派单",
+            "currency": "CNY",
+            "recordId": "3",
+            "reportId": "rpt-expense-claim",
+            "expenseNo": "EXP-2026-0007",
+            "dispatched": "false",
+            "reportName": "费用报表",
+            "companyCode": "A",
+            "expenseDate": "2026-03-05",
+            "expenseType": "办公用品",
+            "daysSinceExpense": "219"
+          }
+        ],
+        "query": {
+          "page": 1,
+          "size": 20,
+          "view": "LIST",
+          "domain": "REPORT",
+          "groupBy": null,
+          "reportIds": [
+            "rpt-expense-claim"
+          ],
+          "sortField": null,
+          "conditions": [
+            {
+              "allOf": [
+                {
+                  "field": "amount",
+                  "values": [
+                    "3200"
+                  ],
+                  "operator": "LTE"
+                }
+              ]
+            }
+          ],
+          "descending": false,
+          "companyCode": "A"
+        },
+        "total": 2,
+        "source": "业务系统当前记录",
+        "columns": [
+          {
+            "name": "reportId",
+            "type": "string",
+            "description": "报表稳定标识"
+          },
+          {
+            "name": "reportName",
+            "type": "string",
+            "description": "报表名称"
+          },
+          {
+            "name": "companyCode",
+            "type": "string",
+            "description": "所属公司代码"
+          },
+          {
+            "name": "docNo",
+            "type": "string",
+            "description": "来源单据号"
+          },
+          {
+            "name": "amount",
+            "type": "decimal",
+            "description": "来源金额，币种见 currency；空值表示未提供"
+          },
+          {
+            "name": "currency",
+            "type": "string",
+            "description": "来源声明币种；空值表示未声明，不能跨币种合计"
+          },
+          {
+            "name": "date",
+            "type": "date",
+            "description": "业务日期；空值表示未配置"
+          },
+          {
+            "name": "status",
+            "type": "string",
+            "description": "报表派单状态：未派单/已派单"
+          },
+          {
+            "name": "expenseNo",
+            "type": "string",
+            "description": "报销单号"
+          },
+          {
+            "name": "expenseType",
+            "type": "string",
+            "description": "费用类型，如 差旅费 / 业务招待费 / 办公用品"
+          },
+          {
+            "name": "expenseDate",
+            "type": "date",
+            "description": "发生日期，字符串 yyyy-MM-dd"
+          },
+          {
+            "name": "daysSinceExpense",
+            "type": "long",
+            "description": "距发生日期的天数（派生）"
+          },
+          {
+            "name": "dispatched",
+            "type": "boolean",
+            "description": "来源记录是否已派单；true为已派单，false为未派单，不代表满足派单规则"
+          },
+          {
+            "name": "recordId",
+            "type": "string",
+            "description": "报表内稳定记录标识"
+          }
+        ],
+        "summary": {
+          "count": 2,
+          "groups": {},
+          "statusCounts": {
+            "未派单": 2
+          },
+          "pendingApprovers": {},
+          "amountsByCurrency": {
+            "CNY": "3880.00"
+          },
+          "unclassifiedAmountCount": 0
+        },
+        "observedAt": "2026-10-10T19:35:03.866656+08:00"
+      },
+      "messageId": 102
+    },
+    {
+      "userId": "operatorA",
+      "payload": {
+        "rows": [
+          {
+            "date": "2026-02-14",
+            "docNo": "EXP-2026-0002",
+            "amount": "3200.00",
+            "rowKey": "rpt-expense-claim:2",
+            "status": "未派单",
+            "currency": "CNY",
+            "recordId": "2",
+            "reportId": "rpt-expense-claim",
+            "expenseNo": "EXP-2026-0002",
+            "dispatched": "false",
+            "reportName": "费用报表",
+            "companyCode": "A",
+            "expenseDate": "2026-02-14",
+            "expenseType": "业务招待费",
+            "daysSinceExpense": "238"
+          }
+        ],
+        "query": {
+          "page": 1,
+          "size": 20,
+          "view": "LIST",
+          "domain": "REPORT",
+          "groupBy": null,
+          "reportIds": [
+            "rpt-expense-claim"
+          ],
+          "sortField": null,
+          "conditions": [
+            {
+              "allOf": [
+                {
+                  "field": "amount",
+                  "values": [
+                    "3200"
+                  ],
+                  "operator": "LTE"
+                },
+                {
+                  "field": "expenseType",
+                  "values": [
+                    "办公用品"
+                  ],
+                  "operator": "NE"
+                }
+              ]
+            }
+          ],
+          "descending": false,
+          "companyCode": "A"
+        },
+        "total": 1,
+        "source": "业务系统当前记录",
+        "columns": [
+          {
+            "name": "reportId",
+            "type": "string",
+            "description": "报表稳定标识"
+          },
+          {
+            "name": "reportName",
+            "type": "string",
+            "description": "报表名称"
+          },
+          {
+            "name": "companyCode",
+            "type": "string",
+            "description": "所属公司代码"
+          },
+          {
+            "name": "docNo",
+            "type": "string",
+            "description": "来源单据号"
+          },
+          {
+            "name": "amount",
+            "type": "decimal",
+            "description": "来源金额，币种见 currency；空值表示未提供"
+          },
+          {
+            "name": "currency",
+            "type": "string",
+            "description": "来源声明币种；空值表示未声明，不能跨币种合计"
+          },
+          {
+            "name": "date",
+            "type": "date",
+            "description": "业务日期；空值表示未配置"
+          },
+          {
+            "name": "status",
+            "type": "string",
+            "description": "报表派单状态：未派单/已派单"
+          },
+          {
+            "name": "expenseNo",
+            "type": "string",
+            "description": "报销单号"
+          },
+          {
+            "name": "expenseType",
+            "type": "string",
+            "description": "费用类型，如 差旅费 / 业务招待费 / 办公用品"
+          },
+          {
+            "name": "expenseDate",
+            "type": "date",
+            "description": "发生日期，字符串 yyyy-MM-dd"
+          },
+          {
+            "name": "daysSinceExpense",
+            "type": "long",
+            "description": "距发生日期的天数（派生）"
+          },
+          {
+            "name": "dispatched",
+            "type": "boolean",
+            "description": "来源记录是否已派单；true为已派单，false为未派单，不代表满足派单规则"
+          },
+          {
+            "name": "recordId",
+            "type": "string",
+            "description": "报表内稳定记录标识"
+          }
+        ],
+        "summary": {
+          "count": 1,
+          "groups": {},
+          "statusCounts": {
+            "未派单": 1
+          },
+          "pendingApprovers": {},
+          "amountsByCurrency": {
+            "CNY": "3200.00"
+          },
+          "unclassifiedAmountCount": 0
+        },
+        "observedAt": "2026-10-10T19:35:12.101137900+08:00"
+      },
+      "messageId": 106
+    },
+    {
+      "userId": "operatorA",
+      "payload": {
+        "rows": [
+          {
+            "date": "2026-01-09",
+            "docNo": "EXP-2026-0001",
+            "amount": "8600.00",
+            "rowKey": "rpt-expense-claim:1",
+            "status": "未派单",
+            "currency": "CNY",
+            "recordId": "1",
+            "reportId": "rpt-expense-claim",
+            "expenseNo": "EXP-2026-0001",
+            "dispatched": "false",
+            "reportName": "费用报表",
+            "companyCode": "A",
+            "expenseDate": "2026-01-09",
+            "expenseType": "差旅费",
+            "daysSinceExpense": "274"
+          },
+          {
+            "date": "2026-02-14",
+            "docNo": "EXP-2026-0002",
+            "amount": "3200.00",
+            "rowKey": "rpt-expense-claim:2",
+            "status": "未派单",
+            "currency": "CNY",
+            "recordId": "2",
+            "reportId": "rpt-expense-claim",
+            "expenseNo": "EXP-2026-0002",
+            "dispatched": "false",
+            "reportName": "费用报表",
+            "companyCode": "A",
+            "expenseDate": "2026-02-14",
+            "expenseType": "业务招待费",
+            "daysSinceExpense": "238"
+          }
+        ],
+        "query": {
+          "page": 1,
+          "size": 20,
+          "view": "LIST",
+          "domain": "REPORT",
+          "groupBy": null,
+          "reportIds": [
+            "rpt-expense-claim"
+          ],
+          "sortField": null,
+          "conditions": [
+            {
+              "allOf": [
+                {
+                  "field": "expenseType",
+                  "values": [
+                    "办公用品"
+                  ],
+                  "operator": "NE"
+                }
+              ]
+            }
+          ],
+          "descending": false,
+          "companyCode": "A"
+        },
+        "total": 2,
+        "source": "业务系统当前记录",
+        "columns": [
+          {
+            "name": "reportId",
+            "type": "string",
+            "description": "报表稳定标识"
+          },
+          {
+            "name": "reportName",
+            "type": "string",
+            "description": "报表名称"
+          },
+          {
+            "name": "companyCode",
+            "type": "string",
+            "description": "所属公司代码"
+          },
+          {
+            "name": "docNo",
+            "type": "string",
+            "description": "来源单据号"
+          },
+          {
+            "name": "amount",
+            "type": "decimal",
+            "description": "来源金额，币种见 currency；空值表示未提供"
+          },
+          {
+            "name": "currency",
+            "type": "string",
+            "description": "来源声明币种；空值表示未声明，不能跨币种合计"
+          },
+          {
+            "name": "date",
+            "type": "date",
+            "description": "业务日期；空值表示未配置"
+          },
+          {
+            "name": "status",
+            "type": "string",
+            "description": "报表派单状态：未派单/已派单"
+          },
+          {
+            "name": "expenseNo",
+            "type": "string",
+            "description": "报销单号"
+          },
+          {
+            "name": "expenseType",
+            "type": "string",
+            "description": "费用类型，如 差旅费 / 业务招待费 / 办公用品"
+          },
+          {
+            "name": "expenseDate",
+            "type": "date",
+            "description": "发生日期，字符串 yyyy-MM-dd"
+          },
+          {
+            "name": "daysSinceExpense",
+            "type": "long",
+            "description": "距发生日期的天数（派生）"
+          },
+          {
+            "name": "dispatched",
+            "type": "boolean",
+            "description": "来源记录是否已派单；true为已派单，false为未派单，不代表满足派单规则"
+          },
+          {
+            "name": "recordId",
+            "type": "string",
+            "description": "报表内稳定记录标识"
+          }
+        ],
+        "summary": {
+          "count": 2,
+          "groups": {},
+          "statusCounts": {
+            "未派单": 2
+          },
+          "pendingApprovers": {},
+          "amountsByCurrency": {
+            "CNY": "11800.00"
+          },
+          "unclassifiedAmountCount": 0
+        },
+        "observedAt": "2026-10-10T19:35:29.408535500+08:00"
+      },
+      "messageId": 110
+    },
+    {
+      "userId": "operatorA",
+      "payload": {
+        "rows": [],
+        "query": {
+          "page": 1,
+          "size": 20,
+          "view": "LIST",
+          "domain": "REPORT",
+          "groupBy": null,
+          "reportIds": [
+            "rpt-expense-claim"
+          ],
+          "sortField": null,
+          "conditions": [
+            {
+              "allOf": [
+                {
+                  "field": "amount",
+                  "values": [
+                    "680"
+                  ],
+                  "operator": "GT"
+                },
+                {
+                  "field": "amount",
+                  "values": [
+                    "3200"
+                  ],
+                  "operator": "LT"
+                }
+              ]
+            }
+          ],
+          "descending": false,
+          "companyCode": "A"
+        },
+        "total": 0,
+        "source": "业务系统当前记录",
+        "columns": [
+          {
+            "name": "reportId",
+            "type": "string",
+            "description": "报表稳定标识"
+          },
+          {
+            "name": "reportName",
+            "type": "string",
+            "description": "报表名称"
+          },
+          {
+            "name": "companyCode",
+            "type": "string",
+            "description": "所属公司代码"
+          },
+          {
+            "name": "docNo",
+            "type": "string",
+            "description": "来源单据号"
+          },
+          {
+            "name": "amount",
+            "type": "decimal",
+            "description": "来源金额，币种见 currency；空值表示未提供"
+          },
+          {
+            "name": "currency",
+            "type": "string",
+            "description": "来源声明币种；空值表示未声明，不能跨币种合计"
+          },
+          {
+            "name": "date",
+            "type": "date",
+            "description": "业务日期；空值表示未配置"
+          },
+          {
+            "name": "status",
+            "type": "string",
+            "description": "报表派单状态：未派单/已派单"
+          },
+          {
+            "name": "expenseNo",
+            "type": "string",
+            "description": "报销单号"
+          },
+          {
+            "name": "expenseType",
+            "type": "string",
+            "description": "费用类型，如 差旅费 / 业务招待费 / 办公用品"
+          },
+          {
+            "name": "expenseDate",
+            "type": "date",
+            "description": "发生日期，字符串 yyyy-MM-dd"
+          },
+          {
+            "name": "daysSinceExpense",
+            "type": "long",
+            "description": "距发生日期的天数（派生）"
+          },
+          {
+            "name": "dispatched",
+            "type": "boolean",
+            "description": "来源记录是否已派单；true为已派单，false为未派单，不代表满足派单规则"
+          },
+          {
+            "name": "recordId",
+            "type": "string",
+            "description": "报表内稳定记录标识"
+          }
+        ],
+        "summary": {
+          "count": 0,
+          "groups": {},
+          "statusCounts": {},
+          "pendingApprovers": {},
+          "amountsByCurrency": {},
+          "unclassifiedAmountCount": 0
+        },
+        "observedAt": "2026-10-10T19:35:37.613478+08:00"
+      },
+      "messageId": 114
+    },
+    {
+      "userId": "operatorA",
+      "payload": {
+        "rows": [
+          {
+            "date": "2026-02-14",
+            "docNo": "EXP-2026-0002",
+            "amount": "3200.00",
+            "rowKey": "rpt-expense-claim:2",
+            "status": "未派单",
+            "currency": "CNY",
+            "recordId": "2",
+            "reportId": "rpt-expense-claim",
+            "expenseNo": "EXP-2026-0002",
+            "dispatched": "false",
+            "reportName": "费用报表",
+            "companyCode": "A",
+            "expenseDate": "2026-02-14",
+            "expenseType": "业务招待费",
+            "daysSinceExpense": "238"
+          },
+          {
+            "date": "2026-03-05",
+            "docNo": "EXP-2026-0007",
+            "amount": "680.00",
+            "rowKey": "rpt-expense-claim:3",
+            "status": "未派单",
+            "currency": "CNY",
+            "recordId": "3",
+            "reportId": "rpt-expense-claim",
+            "expenseNo": "EXP-2026-0007",
+            "dispatched": "false",
+            "reportName": "费用报表",
+            "companyCode": "A",
+            "expenseDate": "2026-03-05",
+            "expenseType": "办公用品",
+            "daysSinceExpense": "219"
+          }
+        ],
+        "query": {
+          "page": 1,
+          "size": 20,
+          "view": "LIST",
+          "domain": "REPORT",
+          "groupBy": null,
+          "reportIds": [
+            "rpt-expense-claim"
+          ],
+          "sortField": null,
+          "conditions": [
+            {
+              "allOf": [
+                {
+                  "field": "amount",
+                  "values": [
+                    "680"
+                  ],
+                  "operator": "GTE"
+                },
+                {
+                  "field": "amount",
+                  "values": [
+                    "3200"
+                  ],
+                  "operator": "LTE"
+                }
+              ]
+            }
+          ],
+          "descending": false,
+          "companyCode": "A"
+        },
+        "total": 2,
+        "source": "业务系统当前记录",
+        "columns": [
+          {
+            "name": "reportId",
+            "type": "string",
+            "description": "报表稳定标识"
+          },
+          {
+            "name": "reportName",
+            "type": "string",
+            "description": "报表名称"
+          },
+          {
+            "name": "companyCode",
+            "type": "string",
+            "description": "所属公司代码"
+          },
+          {
+            "name": "docNo",
+            "type": "string",
+            "description": "来源单据号"
+          },
+          {
+            "name": "amount",
+            "type": "decimal",
+            "description": "来源金额，币种见 currency；空值表示未提供"
+          },
+          {
+            "name": "currency",
+            "type": "string",
+            "description": "来源声明币种；空值表示未声明，不能跨币种合计"
+          },
+          {
+            "name": "date",
+            "type": "date",
+            "description": "业务日期；空值表示未配置"
+          },
+          {
+            "name": "status",
+            "type": "string",
+            "description": "报表派单状态：未派单/已派单"
+          },
+          {
+            "name": "expenseNo",
+            "type": "string",
+            "description": "报销单号"
+          },
+          {
+            "name": "expenseType",
+            "type": "string",
+            "description": "费用类型，如 差旅费 / 业务招待费 / 办公用品"
+          },
+          {
+            "name": "expenseDate",
+            "type": "date",
+            "description": "发生日期，字符串 yyyy-MM-dd"
+          },
+          {
+            "name": "daysSinceExpense",
+            "type": "long",
+            "description": "距发生日期的天数（派生）"
+          },
+          {
+            "name": "dispatched",
+            "type": "boolean",
+            "description": "来源记录是否已派单；true为已派单，false为未派单，不代表满足派单规则"
+          },
+          {
+            "name": "recordId",
+            "type": "string",
+            "description": "报表内稳定记录标识"
+          }
+        ],
+        "summary": {
+          "count": 2,
+          "groups": {},
+          "statusCounts": {
+            "未派单": 2
+          },
+          "pendingApprovers": {},
+          "amountsByCurrency": {
+            "CNY": "3880.00"
+          },
+          "unclassifiedAmountCount": 0
+        },
+        "observedAt": "2026-10-10T19:35:47.055012200+08:00"
+      },
+      "messageId": 118
+    },
+    {
+      "userId": "operatorA",
+      "payload": {
+        "rows": [
+          {
+            "date": "2026-10-02",
+            "docNo": "DEMO-AR-002",
+            "stage": "财务复核",
+            "steps": [
+              {
+                "date": "2026-10-03",
+                "name": "提交登记",
+                "status": "已完成",
+                "approver": "演示经办人"
+              },
+              {
+                "date": "2026-10-03",
+                "name": "部门审批",
+                "status": "已完成",
+                "approver": "林主管（演示）"
+              },
+              {
+                "date": null,
+                "name": "财务复核",
+                "status": "待审批",
+                "approver": "陈会计（演示）"
+              },
+              {
+                "date": null,
+                "name": "业务处理",
+                "status": "未到达",
+                "approver": "赵专员（演示）"
+              },
+              {
+                "date": null,
+                "name": "归档",
+                "status": "未到达",
+                "approver": "系统归档（演示）"
+              }
+            ],
+            "title": "应收款核对",
+            "amount": "6800.50",
+            "rowKey": "fixture:WO-DEMO-002",
+            "source": "固定演示示例",
+            "status": "待审批",
+            "orderId": "WO-DEMO-002",
+            "assignee": "陈会计（演示）",
+            "currency": "CNY",
+            "reportId": "rpt-ar-invoice",
+            "requestId": null,
+            "simulated": true,
+            "reportName": "应收报表",
+            "companyCode": "A",
+            "createdDate": "2026-10-02",
+            "updatedDate": "2026-10-03",
+            "workflowSummary": "固定演示流程当前停在财务复核，处理人为陈会计（演示）；后续环节尚未完成。"
+          }
+        ],
+        "query": {
+          "page": 1,
+          "size": 20,
+          "view": "DETAIL",
+          "domain": "WORK_ORDER",
+          "groupBy": null,
+          "reportIds": [
+            "rpt-ar-invoice",
+            "rpt-expense-claim",
+            "rpt-sales-order"
+          ],
+          "sortField": null,
+          "conditions": [
+            {
+              "allOf": [
+                {
+                  "field": "orderId",
+                  "values": [
+                    "WO-DEMO-002"
+                  ],
+                  "operator": "EQ"
+                }
+              ]
+            }
+          ],
+          "descending": false,
+          "companyCode": null
+        },
+        "total": 1,
+        "source": "演示工单：固定环节和审批人；不代表真实外部审批进度",
+        "columns": [
+          {
+            "name": "reportId",
+            "type": "string",
+            "description": "报表稳定标识"
+          },
+          {
+            "name": "reportName",
+            "type": "string",
+            "description": "报表名称"
+          },
+          {
+            "name": "companyCode",
+            "type": "string",
+            "description": "所属公司代码"
+          },
+          {
+            "name": "docNo",
+            "type": "string",
+            "description": "来源单据号"
+          },
+          {
+            "name": "amount",
+            "type": "decimal",
+            "description": "来源金额，币种见 currency；空值表示未提供"
+          },
+          {
+            "name": "currency",
+            "type": "string",
+            "description": "来源声明币种；空值表示未声明，不能跨币种合计"
+          },
+          {
+            "name": "date",
+            "type": "date",
+            "description": "业务日期；空值表示未配置"
+          },
+          {
+            "name": "status",
+            "type": "string",
+            "description": "工单办理状态：待审批/处理中/已完成/已驳回"
+          },
+          {
+            "name": "orderId",
+            "type": "string",
+            "description": "工单编号，须准确匹配"
+          },
+          {
+            "name": "title",
+            "type": "string",
+            "description": "工单主题"
+          },
+          {
+            "name": "stage",
+            "type": "string",
+            "description": "当前环节，已结束时为归档或退回"
+          },
+          {
+            "name": "assignee",
+            "type": "string",
+            "description": "当前处理人，已结束时为空"
+          },
+          {
+            "name": "requestId",
+            "type": "string",
+            "description": "关联派单请求号，固定演示示例为空"
+          },
+          {
+            "name": "source",
+            "type": "string",
+            "description": "固定演示示例或实际演示派单关联"
+          },
+          {
+            "name": "createdDate",
+            "type": "date",
+            "description": "工单创建日期，Asia/Shanghai"
+          },
+          {
+            "name": "updatedDate",
+            "type": "date",
+            "description": "最近流程变化日期；固定演示不会随查询推进"
+          }
+        ],
+        "summary": {
+          "count": 1,
+          "groups": {},
+          "statusCounts": {
+            "待审批": 1
+          },
+          "pendingApprovers": {
+            "陈会计（演示）": 1
+          },
+          "amountsByCurrency": {
+            "CNY": "6800.50"
+          },
+          "unclassifiedAmountCount": 0
+        },
+        "observedAt": "2026-10-10T19:35:56.903496500+08:00"
+      },
+      "messageId": 122
+    },
+    {
+      "userId": "operatorA",
+      "payload": {
+        "rows": [
+          {
+            "date": "2026-01-09",
+            "docNo": "EXP-2026-0001",
+            "amount": "8600.00",
+            "rowKey": "rpt-expense-claim:1",
+            "status": "未派单",
+            "currency": "CNY",
+            "recordId": "1",
+            "reportId": "rpt-expense-claim",
+            "expenseNo": "EXP-2026-0001",
+            "dispatched": "false",
+            "reportName": "费用报表",
+            "companyCode": "A",
+            "expenseDate": "2026-01-09",
+            "expenseType": "差旅费",
+            "daysSinceExpense": "274"
+          },
+          {
+            "date": "2026-02-14",
+            "docNo": "EXP-2026-0002",
+            "amount": "3200.00",
+            "rowKey": "rpt-expense-claim:2",
+            "status": "未派单",
+            "currency": "CNY",
+            "recordId": "2",
+            "reportId": "rpt-expense-claim",
+            "expenseNo": "EXP-2026-0002",
+            "dispatched": "false",
+            "reportName": "费用报表",
+            "companyCode": "A",
+            "expenseDate": "2026-02-14",
+            "expenseType": "业务招待费",
+            "daysSinceExpense": "238"
+          }
+        ],
+        "query": {
+          "page": 1,
+          "size": 20,
+          "view": "LIST",
+          "domain": "REPORT",
+          "groupBy": null,
+          "reportIds": [
+            "rpt-expense-claim"
+          ],
+          "sortField": null,
+          "conditions": [
+            {
+              "allOf": [
+                {
+                  "field": "amount",
+                  "values": [
+                    "1000"
+                  ],
+                  "operator": "GTE"
+                }
+              ]
+            }
+          ],
+          "descending": false,
+          "companyCode": null
+        },
+        "total": 2,
+        "source": "业务系统当前记录",
+        "columns": [
+          {
+            "name": "reportId",
+            "type": "string",
+            "description": "报表稳定标识"
+          },
+          {
+            "name": "reportName",
+            "type": "string",
+            "description": "报表名称"
+          },
+          {
+            "name": "companyCode",
+            "type": "string",
+            "description": "所属公司代码"
+          },
+          {
+            "name": "docNo",
+            "type": "string",
+            "description": "来源单据号"
+          },
+          {
+            "name": "amount",
+            "type": "decimal",
+            "description": "来源金额，币种见 currency；空值表示未提供"
+          },
+          {
+            "name": "currency",
+            "type": "string",
+            "description": "来源声明币种；空值表示未声明，不能跨币种合计"
+          },
+          {
+            "name": "date",
+            "type": "date",
+            "description": "业务日期；空值表示未配置"
+          },
+          {
+            "name": "status",
+            "type": "string",
+            "description": "报表派单状态：未派单/已派单"
+          },
+          {
+            "name": "expenseNo",
+            "type": "string",
+            "description": "报销单号"
+          },
+          {
+            "name": "expenseType",
+            "type": "string",
+            "description": "费用类型，如 差旅费 / 业务招待费 / 办公用品"
+          },
+          {
+            "name": "expenseDate",
+            "type": "date",
+            "description": "发生日期，字符串 yyyy-MM-dd"
+          },
+          {
+            "name": "daysSinceExpense",
+            "type": "long",
+            "description": "距发生日期的天数（派生）"
+          },
+          {
+            "name": "dispatched",
+            "type": "boolean",
+            "description": "来源记录是否已派单；true为已派单，false为未派单，不代表满足派单规则"
+          },
+          {
+            "name": "recordId",
+            "type": "string",
+            "description": "报表内稳定记录标识"
+          }
+        ],
+        "summary": {
+          "count": 2,
+          "groups": {},
+          "statusCounts": {
+            "未派单": 2
+          },
+          "pendingApprovers": {},
+          "amountsByCurrency": {
+            "CNY": "11800.00"
+          },
+          "unclassifiedAmountCount": 0
+        },
+        "observedAt": "2026-10-10T19:36:12.146789500+08:00"
+      },
+      "messageId": 126
+    },
+    {
+      "userId": "operatorA",
+      "payload": {
+        "rows": [
+          {
+            "date": "2026-01-15",
+            "docNo": "SO2026001",
+            "amount": "128000.00",
+            "rowKey": "rpt-sales-order:1",
+            "status": "未派单",
+            "orderNo": "SO2026001",
+            "currency": "CNY",
+            "recordId": "1",
+            "reportId": "rpt-sales-order",
+            "saleDate": "2026-01-15",
+            "dispatched": "false",
+            "reportName": "销售报表",
+            "companyCode": "A",
+            "productName": "服务器",
+            "daysSinceSale": "268"
+          },
+          {
+            "date": "2026-04-05",
+            "docNo": "SO2026007",
+            "amount": "96000.00",
+            "rowKey": "rpt-sales-order:3",
+            "status": "未派单",
+            "orderNo": "SO2026007",
+            "currency": "CNY",
+            "recordId": "3",
+            "reportId": "rpt-sales-order",
+            "saleDate": "2026-04-05",
+            "dispatched": "false",
+            "reportName": "销售报表",
+            "companyCode": "A",
+            "productName": "云服务",
+            "daysSinceSale": "188"
+          }
+        ],
+        "query": {
+          "page": 1,
+          "size": 20,
+          "view": "LIST",
+          "domain": "REPORT",
+          "groupBy": null,
+          "reportIds": [
+            "rpt-sales-order"
+          ],
+          "sortField": null,
+          "conditions": [
+            {
+              "allOf": [
+                {
+                  "field": "amount",
+                  "values": [
+                    "96000"
+                  ],
+                  "operator": "GTE"
+                }
+              ]
+            }
+          ],
+          "descending": false,
+          "companyCode": "A"
+        },
+        "total": 2,
+        "source": "业务系统当前记录",
+        "columns": [
+          {
+            "name": "reportId",
+            "type": "string",
+            "description": "报表稳定标识"
+          },
+          {
+            "name": "reportName",
+            "type": "string",
+            "description": "报表名称"
+          },
+          {
+            "name": "companyCode",
+            "type": "string",
+            "description": "所属公司代码"
+          },
+          {
+            "name": "docNo",
+            "type": "string",
+            "description": "来源单据号"
+          },
+          {
+            "name": "amount",
+            "type": "decimal",
+            "description": "来源金额，币种见 currency；空值表示未提供"
+          },
+          {
+            "name": "currency",
+            "type": "string",
+            "description": "来源声明币种；空值表示未声明，不能跨币种合计"
+          },
+          {
+            "name": "date",
+            "type": "date",
+            "description": "业务日期；空值表示未配置"
+          },
+          {
+            "name": "status",
+            "type": "string",
+            "description": "报表派单状态：未派单/已派单"
+          },
+          {
+            "name": "orderNo",
+            "type": "string",
+            "description": "订单号"
+          },
+          {
+            "name": "productName",
+            "type": "string",
+            "description": "产品名称"
+          },
+          {
+            "name": "saleDate",
+            "type": "date",
+            "description": "销售日期，字符串 yyyy-MM-dd"
+          },
+          {
+            "name": "daysSinceSale",
+            "type": "long",
+            "description": "距销售日期的天数（派生）"
+          },
+          {
+            "name": "dispatched",
+            "type": "boolean",
+            "description": "来源记录是否已派单；true为已派单，false为未派单，不代表满足派单规则"
+          },
+          {
+            "name": "recordId",
+            "type": "string",
+            "description": "报表内稳定记录标识"
+          }
+        ],
+        "summary": {
+          "count": 2,
+          "groups": {},
+          "statusCounts": {
+            "未派单": 2
+          },
+          "pendingApprovers": {},
+          "amountsByCurrency": {
+            "CNY": "224000.00"
+          },
+          "unclassifiedAmountCount": 0
+        },
+        "observedAt": "2026-10-10T19:36:19.477711700+08:00"
+      },
+      "messageId": 130
+    },
+    {
+      "userId": "operatorA",
+      "payload": {
+        "rows": [
+          {
+            "date": "2026-01-15",
+            "docNo": "SO2026001",
+            "amount": "128000.00",
+            "rowKey": "rpt-sales-order:1",
+            "status": "未派单",
+            "orderNo": "SO2026001",
+            "currency": "CNY",
+            "recordId": "1",
+            "reportId": "rpt-sales-order",
+            "saleDate": "2026-01-15",
+            "dispatched": "false",
+            "reportName": "销售报表",
+            "companyCode": "A",
+            "productName": "服务器",
+            "daysSinceSale": "268"
+          }
+        ],
+        "query": {
+          "page": 1,
+          "size": 20,
+          "view": "LIST",
+          "domain": "REPORT",
+          "groupBy": null,
+          "reportIds": [
+            "rpt-sales-order"
+          ],
+          "sortField": null,
+          "conditions": [
+            {
+              "allOf": [
+                {
+                  "field": "amount",
+                  "values": [
+                    "96000"
+                  ],
+                  "operator": "GT"
+                }
+              ]
+            }
+          ],
+          "descending": false,
+          "companyCode": "A"
+        },
+        "total": 1,
+        "source": "业务系统当前记录",
+        "columns": [
+          {
+            "name": "reportId",
+            "type": "string",
+            "description": "报表稳定标识"
+          },
+          {
+            "name": "reportName",
+            "type": "string",
+            "description": "报表名称"
+          },
+          {
+            "name": "companyCode",
+            "type": "string",
+            "description": "所属公司代码"
+          },
+          {
+            "name": "docNo",
+            "type": "string",
+            "description": "来源单据号"
+          },
+          {
+            "name": "amount",
+            "type": "decimal",
+            "description": "来源金额，币种见 currency；空值表示未提供"
+          },
+          {
+            "name": "currency",
+            "type": "string",
+            "description": "来源声明币种；空值表示未声明，不能跨币种合计"
+          },
+          {
+            "name": "date",
+            "type": "date",
+            "description": "业务日期；空值表示未配置"
+          },
+          {
+            "name": "status",
+            "type": "string",
+            "description": "报表派单状态：未派单/已派单"
+          },
+          {
+            "name": "orderNo",
+            "type": "string",
+            "description": "订单号"
+          },
+          {
+            "name": "productName",
+            "type": "string",
+            "description": "产品名称"
+          },
+          {
+            "name": "saleDate",
+            "type": "date",
+            "description": "销售日期，字符串 yyyy-MM-dd"
+          },
+          {
+            "name": "daysSinceSale",
+            "type": "long",
+            "description": "距销售日期的天数（派生）"
+          },
+          {
+            "name": "dispatched",
+            "type": "boolean",
+            "description": "来源记录是否已派单；true为已派单，false为未派单，不代表满足派单规则"
+          },
+          {
+            "name": "recordId",
+            "type": "string",
+            "description": "报表内稳定记录标识"
+          }
+        ],
+        "summary": {
+          "count": 1,
+          "groups": {},
+          "statusCounts": {
+            "未派单": 1
+          },
+          "pendingApprovers": {},
+          "amountsByCurrency": {
+            "CNY": "128000.00"
+          },
+          "unclassifiedAmountCount": 0
+        },
+        "observedAt": "2026-10-10T19:36:28.074459400+08:00"
+      },
+      "messageId": 134
+    },
+    {
+      "userId": "operatorA",
+      "payload": {
+        "rows": [
+          {
+            "date": "2026-01-15",
+            "docNo": "SO2026001",
+            "amount": "128000.00",
+            "rowKey": "rpt-sales-order:1",
+            "status": "未派单",
+            "orderNo": "SO2026001",
+            "currency": "CNY",
+            "recordId": "1",
+            "reportId": "rpt-sales-order",
+            "saleDate": "2026-01-15",
+            "dispatched": "false",
+            "reportName": "销售报表",
+            "companyCode": "A",
+            "productName": "服务器",
+            "daysSinceSale": "268"
+          },
+          {
+            "date": "2026-04-05",
+            "docNo": "SO2026007",
+            "amount": "96000.00",
+            "rowKey": "rpt-sales-order:3",
+            "status": "未派单",
+            "orderNo": "SO2026007",
+            "currency": "CNY",
+            "recordId": "3",
+            "reportId": "rpt-sales-order",
+            "saleDate": "2026-04-05",
+            "dispatched": "false",
+            "reportName": "销售报表",
+            "companyCode": "A",
+            "productName": "云服务",
+            "daysSinceSale": "188"
+          }
+        ],
+        "query": {
+          "page": 1,
+          "size": 20,
+          "view": "LIST",
+          "domain": "REPORT",
+          "groupBy": null,
+          "reportIds": [
+            "rpt-sales-order"
+          ],
+          "sortField": null,
+          "conditions": [
+            {
+              "allOf": [
+                {
+                  "field": "amount",
+                  "values": [
+                    "96000"
+                  ],
+                  "operator": "GTE"
+                }
+              ]
+            }
+          ],
+          "descending": false,
+          "companyCode": "A"
+        },
+        "total": 2,
+        "source": "业务系统当前记录",
+        "columns": [
+          {
+            "name": "reportId",
+            "type": "string",
+            "description": "报表稳定标识"
+          },
+          {
+            "name": "reportName",
+            "type": "string",
+            "description": "报表名称"
+          },
+          {
+            "name": "companyCode",
+            "type": "string",
+            "description": "所属公司代码"
+          },
+          {
+            "name": "docNo",
+            "type": "string",
+            "description": "来源单据号"
+          },
+          {
+            "name": "amount",
+            "type": "decimal",
+            "description": "来源金额，币种见 currency；空值表示未提供"
+          },
+          {
+            "name": "currency",
+            "type": "string",
+            "description": "来源声明币种；空值表示未声明，不能跨币种合计"
+          },
+          {
+            "name": "date",
+            "type": "date",
+            "description": "业务日期；空值表示未配置"
+          },
+          {
+            "name": "status",
+            "type": "string",
+            "description": "报表派单状态：未派单/已派单"
+          },
+          {
+            "name": "orderNo",
+            "type": "string",
+            "description": "订单号"
+          },
+          {
+            "name": "productName",
+            "type": "string",
+            "description": "产品名称"
+          },
+          {
+            "name": "saleDate",
+            "type": "date",
+            "description": "销售日期，字符串 yyyy-MM-dd"
+          },
+          {
+            "name": "daysSinceSale",
+            "type": "long",
+            "description": "距销售日期的天数（派生）"
+          },
+          {
+            "name": "dispatched",
+            "type": "boolean",
+            "description": "来源记录是否已派单；true为已派单，false为未派单，不代表满足派单规则"
+          },
+          {
+            "name": "recordId",
+            "type": "string",
+            "description": "报表内稳定记录标识"
+          }
+        ],
+        "summary": {
+          "count": 2,
+          "groups": {},
+          "statusCounts": {
+            "未派单": 2
+          },
+          "pendingApprovers": {},
+          "amountsByCurrency": {
+            "CNY": "224000.00"
+          },
+          "unclassifiedAmountCount": 0
+        },
+        "observedAt": "2026-10-10T19:36:36.772067+08:00"
+      },
+      "messageId": 138
+    },
+    {
+      "userId": "operatorA",
+      "payload": {
+        "rows": [
+          {
+            "date": "2026-03-15",
+            "docNo": "INV-2026-0001",
+            "amount": "128000.00",
+            "rowKey": "rpt-ar-invoice:1",
+            "status": "未派单",
+            "dueDate": "2026-03-15",
+            "overdue": "true",
+            "currency": "CNY",
+            "recordId": "1",
+            "reportId": "rpt-ar-invoice",
+            "invoiceNo": "INV-2026-0001",
+            "dispatched": "false",
+            "reportName": "应收报表",
+            "companyCode": "A",
+            "customerName": "北京某某科技有限公司",
+            "daysUntilDue": "-209",
+            "counterpartyId": "CUST-001",
+            "counterpartyName": "北京某某科技有限公司"
+          },
+          {
+            "date": "2026-04-08",
+            "docNo": "INV-2026-0002",
+            "amount": "32000.00",
+            "rowKey": "rpt-ar-invoice:2",
+            "status": "未派单",
+            "dueDate": "2026-04-08",
+            "overdue": "true",
+            "currency": "CNY",
+            "recordId": "2",
+            "reportId": "rpt-ar-invoice",
+            "invoiceNo": "INV-2026-0002",
+            "dispatched": "false",
+            "reportName": "应收报表",
+            "companyCode": "A",
+            "customerName": "上海某某信息有限公司",
+            "daysUntilDue": "-185",
+            "counterpartyId": "CUST-002",
+            "counterpartyName": "上海某某信息有限公司"
+          },
+          {
+            "date": "2026-05-10",
+            "docNo": "INV-2026-0007",
+            "amount": "12.50",
+            "rowKey": "rpt-ar-invoice:3",
+            "status": "未派单",
+            "dueDate": "2026-05-10",
+            "overdue": "true",
+            "currency": "CNY",
+            "recordId": "3",
+            "reportId": "rpt-ar-invoice",
+            "invoiceNo": "INV-2026-0007",
+            "dispatched": "false",
+            "reportName": "应收报表",
+            "companyCode": "A",
+            "customerName": "天津某某贸易有限公司",
+            "daysUntilDue": "-153",
+            "counterpartyId": "CUST-003",
+            "counterpartyName": "天津某某贸易有限公司"
+          }
+        ],
+        "query": {
+          "page": 1,
+          "size": 20,
+          "view": "LIST",
+          "domain": "REPORT",
+          "groupBy": null,
+          "reportIds": [
+            "rpt-ar-invoice"
+          ],
+          "sortField": null,
+          "conditions": [
+            {
+              "allOf": [
+                {
+                  "field": "amount",
+                  "values": [
+                    "12.50"
+                  ],
+                  "operator": "GTE"
+                }
+              ]
+            }
+          ],
+          "descending": false,
+          "companyCode": "A"
+        },
+        "total": 3,
+        "source": "业务系统当前记录",
+        "columns": [
+          {
+            "name": "reportId",
+            "type": "string",
+            "description": "报表稳定标识"
+          },
+          {
+            "name": "reportName",
+            "type": "string",
+            "description": "报表名称"
+          },
+          {
+            "name": "companyCode",
+            "type": "string",
+            "description": "所属公司代码"
+          },
+          {
+            "name": "docNo",
+            "type": "string",
+            "description": "来源单据号"
+          },
+          {
+            "name": "amount",
+            "type": "decimal",
+            "description": "来源金额，币种见 currency；空值表示未提供"
+          },
+          {
+            "name": "currency",
+            "type": "string",
+            "description": "来源声明币种；空值表示未声明，不能跨币种合计"
+          },
+          {
+            "name": "date",
+            "type": "date",
+            "description": "业务日期；空值表示未配置"
+          },
+          {
+            "name": "status",
+            "type": "string",
+            "description": "报表派单状态：未派单/已派单"
+          },
+          {
+            "name": "invoiceNo",
+            "type": "string",
+            "description": "发票号"
+          },
+          {
+            "name": "customerName",
+            "type": "string",
+            "description": "客户名称"
+          },
+          {
+            "name": "counterpartyId",
+            "type": "string",
+            "description": "交易对方稳定标识"
+          },
+          {
+            "name": "counterpartyName",
+            "type": "string",
+            "description": "交易对方完整名称"
+          },
+          {
+            "name": "dueDate",
+            "type": "date",
+            "description": "到期日，字符串 yyyy-MM-dd"
+          },
+          {
+            "name": "daysUntilDue",
+            "type": "long",
+            "description": "距到期日的天数，已过期为负数（派生）"
+          },
+          {
+            "name": "overdue",
+            "type": "boolean",
+            "description": "是否已逾期（派生）"
+          },
+          {
+            "name": "dispatched",
+            "type": "boolean",
+            "description": "来源记录是否已派单；true为已派单，false为未派单，不代表满足派单规则"
+          },
+          {
+            "name": "recordId",
+            "type": "string",
+            "description": "报表内稳定记录标识"
+          }
+        ],
+        "summary": {
+          "count": 3,
+          "groups": {},
+          "statusCounts": {
+            "未派单": 3
+          },
+          "pendingApprovers": {},
+          "amountsByCurrency": {
+            "CNY": "160012.50"
+          },
+          "unclassifiedAmountCount": 0
+        },
+        "observedAt": "2026-10-10T19:36:45.259212100+08:00"
+      },
+      "messageId": 142
+    },
+    {
+      "userId": "operatorA",
+      "payload": {
+        "rows": [
+          {
+            "date": "2026-03-15",
+            "docNo": "INV-2026-0001",
+            "amount": "128000.00",
+            "rowKey": "rpt-ar-invoice:1",
+            "status": "未派单",
+            "dueDate": "2026-03-15",
+            "overdue": "true",
+            "currency": "CNY",
+            "recordId": "1",
+            "reportId": "rpt-ar-invoice",
+            "invoiceNo": "INV-2026-0001",
+            "dispatched": "false",
+            "reportName": "应收报表",
+            "companyCode": "A",
+            "customerName": "北京某某科技有限公司",
+            "daysUntilDue": "-209",
+            "counterpartyId": "CUST-001",
+            "counterpartyName": "北京某某科技有限公司"
+          },
+          {
+            "date": "2026-04-08",
+            "docNo": "INV-2026-0002",
+            "amount": "32000.00",
+            "rowKey": "rpt-ar-invoice:2",
+            "status": "未派单",
+            "dueDate": "2026-04-08",
+            "overdue": "true",
+            "currency": "CNY",
+            "recordId": "2",
+            "reportId": "rpt-ar-invoice",
+            "invoiceNo": "INV-2026-0002",
+            "dispatched": "false",
+            "reportName": "应收报表",
+            "companyCode": "A",
+            "customerName": "上海某某信息有限公司",
+            "daysUntilDue": "-185",
+            "counterpartyId": "CUST-002",
+            "counterpartyName": "上海某某信息有限公司"
+          }
+        ],
+        "query": {
+          "page": 1,
+          "size": 20,
+          "view": "LIST",
+          "domain": "REPORT",
+          "groupBy": null,
+          "reportIds": [
+            "rpt-ar-invoice"
+          ],
+          "sortField": null,
+          "conditions": [
+            {
+              "allOf": [
+                {
+                  "field": "amount",
+                  "values": [
+                    "12.50"
+                  ],
+                  "operator": "GT"
+                }
+              ]
+            }
+          ],
+          "descending": false,
+          "companyCode": "A"
+        },
+        "total": 2,
+        "source": "业务系统当前记录",
+        "columns": [
+          {
+            "name": "reportId",
+            "type": "string",
+            "description": "报表稳定标识"
+          },
+          {
+            "name": "reportName",
+            "type": "string",
+            "description": "报表名称"
+          },
+          {
+            "name": "companyCode",
+            "type": "string",
+            "description": "所属公司代码"
+          },
+          {
+            "name": "docNo",
+            "type": "string",
+            "description": "来源单据号"
+          },
+          {
+            "name": "amount",
+            "type": "decimal",
+            "description": "来源金额，币种见 currency；空值表示未提供"
+          },
+          {
+            "name": "currency",
+            "type": "string",
+            "description": "来源声明币种；空值表示未声明，不能跨币种合计"
+          },
+          {
+            "name": "date",
+            "type": "date",
+            "description": "业务日期；空值表示未配置"
+          },
+          {
+            "name": "status",
+            "type": "string",
+            "description": "报表派单状态：未派单/已派单"
+          },
+          {
+            "name": "invoiceNo",
+            "type": "string",
+            "description": "发票号"
+          },
+          {
+            "name": "customerName",
+            "type": "string",
+            "description": "客户名称"
+          },
+          {
+            "name": "counterpartyId",
+            "type": "string",
+            "description": "交易对方稳定标识"
+          },
+          {
+            "name": "counterpartyName",
+            "type": "string",
+            "description": "交易对方完整名称"
+          },
+          {
+            "name": "dueDate",
+            "type": "date",
+            "description": "到期日，字符串 yyyy-MM-dd"
+          },
+          {
+            "name": "daysUntilDue",
+            "type": "long",
+            "description": "距到期日的天数，已过期为负数（派生）"
+          },
+          {
+            "name": "overdue",
+            "type": "boolean",
+            "description": "是否已逾期（派生）"
+          },
+          {
+            "name": "dispatched",
+            "type": "boolean",
+            "description": "来源记录是否已派单；true为已派单，false为未派单，不代表满足派单规则"
+          },
+          {
+            "name": "recordId",
+            "type": "string",
+            "description": "报表内稳定记录标识"
+          }
+        ],
+        "summary": {
+          "count": 2,
+          "groups": {},
+          "statusCounts": {
+            "未派单": 2
+          },
+          "pendingApprovers": {},
+          "amountsByCurrency": {
+            "CNY": "160000.00"
+          },
+          "unclassifiedAmountCount": 0
+        },
+        "observedAt": "2026-10-10T19:36:52.811894900+08:00"
+      },
+      "messageId": 146
+    },
+    {
+      "userId": "operatorA",
+      "payload": {
+        "rows": [
+          {
+            "date": "2026-03-15",
+            "docNo": "INV-2026-0001",
+            "amount": "128000.00",
+            "rowKey": "rpt-ar-invoice:1",
+            "status": "未派单",
+            "dueDate": "2026-03-15",
+            "overdue": "true",
+            "currency": "CNY",
+            "recordId": "1",
+            "reportId": "rpt-ar-invoice",
+            "invoiceNo": "INV-2026-0001",
+            "dispatched": "false",
+            "reportName": "应收报表",
+            "companyCode": "A",
+            "customerName": "北京某某科技有限公司",
+            "daysUntilDue": "-209",
+            "counterpartyId": "CUST-001",
+            "counterpartyName": "北京某某科技有限公司"
+          },
+          {
+            "date": "2026-04-08",
+            "docNo": "INV-2026-0002",
+            "amount": "32000.00",
+            "rowKey": "rpt-ar-invoice:2",
+            "status": "未派单",
+            "dueDate": "2026-04-08",
+            "overdue": "true",
+            "currency": "CNY",
+            "recordId": "2",
+            "reportId": "rpt-ar-invoice",
+            "invoiceNo": "INV-2026-0002",
+            "dispatched": "false",
+            "reportName": "应收报表",
+            "companyCode": "A",
+            "customerName": "上海某某信息有限公司",
+            "daysUntilDue": "-185",
+            "counterpartyId": "CUST-002",
+            "counterpartyName": "上海某某信息有限公司"
+          },
+          {
+            "date": "2026-05-10",
+            "docNo": "INV-2026-0007",
+            "amount": "12.50",
+            "rowKey": "rpt-ar-invoice:3",
+            "status": "未派单",
+            "dueDate": "2026-05-10",
+            "overdue": "true",
+            "currency": "CNY",
+            "recordId": "3",
+            "reportId": "rpt-ar-invoice",
+            "invoiceNo": "INV-2026-0007",
+            "dispatched": "false",
+            "reportName": "应收报表",
+            "companyCode": "A",
+            "customerName": "天津某某贸易有限公司",
+            "daysUntilDue": "-153",
+            "counterpartyId": "CUST-003",
+            "counterpartyName": "天津某某贸易有限公司"
+          }
+        ],
+        "query": {
+          "page": 1,
+          "size": 20,
+          "view": "LIST",
+          "domain": "REPORT",
+          "groupBy": null,
+          "reportIds": [
+            "rpt-ar-invoice"
+          ],
+          "sortField": null,
+          "conditions": [
+            {
+              "allOf": [
+                {
+                  "field": "amount",
+                  "values": [
+                    "12.50"
+                  ],
+                  "operator": "GTE"
+                }
+              ]
+            }
+          ],
+          "descending": false,
+          "companyCode": "A"
+        },
+        "total": 3,
+        "source": "业务系统当前记录",
+        "columns": [
+          {
+            "name": "reportId",
+            "type": "string",
+            "description": "报表稳定标识"
+          },
+          {
+            "name": "reportName",
+            "type": "string",
+            "description": "报表名称"
+          },
+          {
+            "name": "companyCode",
+            "type": "string",
+            "description": "所属公司代码"
+          },
+          {
+            "name": "docNo",
+            "type": "string",
+            "description": "来源单据号"
+          },
+          {
+            "name": "amount",
+            "type": "decimal",
+            "description": "来源金额，币种见 currency；空值表示未提供"
+          },
+          {
+            "name": "currency",
+            "type": "string",
+            "description": "来源声明币种；空值表示未声明，不能跨币种合计"
+          },
+          {
+            "name": "date",
+            "type": "date",
+            "description": "业务日期；空值表示未配置"
+          },
+          {
+            "name": "status",
+            "type": "string",
+            "description": "报表派单状态：未派单/已派单"
+          },
+          {
+            "name": "invoiceNo",
+            "type": "string",
+            "description": "发票号"
+          },
+          {
+            "name": "customerName",
+            "type": "string",
+            "description": "客户名称"
+          },
+          {
+            "name": "counterpartyId",
+            "type": "string",
+            "description": "交易对方稳定标识"
+          },
+          {
+            "name": "counterpartyName",
+            "type": "string",
+            "description": "交易对方完整名称"
+          },
+          {
+            "name": "dueDate",
+            "type": "date",
+            "description": "到期日，字符串 yyyy-MM-dd"
+          },
+          {
+            "name": "daysUntilDue",
+            "type": "long",
+            "description": "距到期日的天数，已过期为负数（派生）"
+          },
+          {
+            "name": "overdue",
+            "type": "boolean",
+            "description": "是否已逾期（派生）"
+          },
+          {
+            "name": "dispatched",
+            "type": "boolean",
+            "description": "来源记录是否已派单；true为已派单，false为未派单，不代表满足派单规则"
+          },
+          {
+            "name": "recordId",
+            "type": "string",
+            "description": "报表内稳定记录标识"
+          }
+        ],
+        "summary": {
+          "count": 3,
+          "groups": {},
+          "statusCounts": {
+            "未派单": 3
+          },
+          "pendingApprovers": {},
+          "amountsByCurrency": {
+            "CNY": "160012.50"
+          },
+          "unclassifiedAmountCount": 0
+        },
+        "observedAt": "2026-10-10T19:37:01.159183300+08:00"
+      },
+      "messageId": 150
+    }
+  ],
+  "semanticTurns": [
+    {
+      "model": "deepseek-v4.1-flash",
+      "reason": null,
+      "outcome": "ASSISTANT_BUSINESS_QUERY",
+      "user_id": "operatorA",
+      "utterance": "回到费用报表列表，金额不少于680元的全部列出。",
+      "created_at": "2026-10-10 19:30:55.717000",
+      "latency_ms": 15166,
+      "conversation_id": "483cd50789f041cd85943d1f3bdec4ff"
+    },
+    {
+      "model": "deepseek-v4.1-flash",
+      "reason": null,
+      "outcome": "ASSISTANT_BUSINESS_QUERY",
+      "user_id": "operatorA",
+      "utterance": "查询A公司费用报表，三千二百元以下的记录。",
+      "created_at": "2026-10-10 19:34:02.043000",
+      "latency_ms": 10808,
+      "conversation_id": "145436f8d5da4fe39f99430dfd29ecec"
+    },
+    {
+      "model": "deepseek-v4.1-flash",
+      "reason": null,
+      "outcome": "ASSISTANT_BUSINESS_QUERY",
+      "user_id": "operatorA",
+      "utterance": "请重新查A公司销售报表，产品名称为服务器的记录，用列表展示。",
+      "created_at": "2026-10-10 19:31:50.974000",
+      "latency_ms": 8606,
+      "conversation_id": "483cd50789f041cd85943d1f3bdec4ff"
+    },
+    {
+      "model": "deepseek-v4.1-flash",
+      "reason": null,
+      "outcome": "ASSISTANT_BUSINESS_QUERY",
+      "user_id": "operatorA",
+      "utterance": "金额至少9.6万元，包括正好9.6万的。",
+      "created_at": "2026-10-10 19:36:40.745000",
+      "latency_ms": 8960,
+      "conversation_id": "e8a88f9b66324cd4bd500799ba768cc7"
+    },
+    {
+      "model": "deepseek-v4.1-flash",
+      "reason": null,
+      "outcome": "ASSISTANT_BUSINESS_QUERY",
+      "user_id": "operatorA",
+      "utterance": "金额超过9.6万元的才显示。",
+      "created_at": "2026-10-10 19:36:31.701000",
+      "latency_ms": 8156,
+      "conversation_id": "e8a88f9b66324cd4bd500799ba768cc7"
+    },
+    {
+      "model": "deepseek-v4.1-flash",
+      "reason": null,
+      "outcome": "ASSISTANT_BUSINESS_QUERY",
+      "user_id": "operatorA",
+      "utterance": "Then start a new query for only company A's sales records.",
+      "created_at": "2026-10-10 19:33:01.231000",
+      "latency_ms": 8350,
+      "conversation_id": "b8e03dad46d4479db1e5b453be9993b6"
+    },
+    {
+      "model": "deepseek-v4.1-flash",
+      "reason": null,
+      "outcome": "ASSISTANT_BUSINESS_QUERY",
+      "user_id": "operatorA",
+      "utterance": "展开这条记录的详情。",
+      "created_at": "2026-10-10 19:31:42.282000",
+      "latency_ms": 9096,
+      "conversation_id": "483cd50789f041cd85943d1f3bdec4ff"
+    },
+    {
+      "model": "deepseek-v4.1-flash",
+      "reason": null,
+      "outcome": "ASSISTANT_BUSINESS_QUERY",
+      "user_id": "operatorA",
+      "utterance": "现在金额至少3200元的都要。",
+      "created_at": "2026-10-10 19:33:33.311000",
+      "latency_ms": 11155,
+      "conversation_id": "c1c05e1899d74f48aa089b20073a52dd"
+    },
+    {
+      "model": "deepseek-v4.1-flash",
+      "reason": null,
+      "outcome": "ASSISTANT_BUSINESS_QUERY",
+      "user_id": "operatorA",
+      "utterance": "这次只要小于3200元的。",
+      "created_at": "2026-10-10 19:34:10.386000",
+      "latency_ms": 8257,
+      "conversation_id": "145436f8d5da4fe39f99430dfd29ecec"
+    },
+    {
+      "model": "deepseek-v4.1-flash",
+      "reason": null,
+      "outcome": "ASSISTANT_BUSINESS_QUERY",
+      "user_id": "operatorA",
+      "utterance": "Show the same receivables with amount at least 12.50 yuan.",
+      "created_at": "2026-10-10 19:37:07.542000",
+      "latency_ms": 10915,
+      "conversation_id": "989a77f094084513842a912175bb0eef"
+    },
+    {
+      "model": "deepseek-v4.1-flash",
+      "reason": null,
+      "outcome": "READY",
+      "user_id": "operatorA",
+      "utterance": "重新核对A公司的销售可派候选，只要A公司。",
+      "created_at": "2026-10-10 19:32:35.325000",
+      "latency_ms": 12147,
+      "conversation_id": "b8e03dad46d4479db1e5b453be9993b6"
+    },
+    {
+      "model": "deepseek-v4.1-flash",
+      "reason": null,
+      "outcome": "ASSISTANT_BUSINESS_QUERY",
+      "user_id": "operatorA",
+      "utterance": "下限不再限制，上限3200元继续保留并包含等于。",
+      "created_at": "2026-10-10 19:35:06.486000",
+      "latency_ms": 14388,
+      "conversation_id": "4b6dbb5a41cb4bc7b434b17c15d9f23b"
+    },
+    {
+      "model": "deepseek-v4.1-flash",
+      "reason": null,
+      "outcome": "ASSISTANT_BUSINESS_QUERY",
+      "user_id": "operatorA",
+      "utterance": "办公用品也不要，其余限制不变。",
+      "created_at": "2026-10-10 19:35:24.622000",
+      "latency_ms": 18056,
+      "conversation_id": "4b6dbb5a41cb4bc7b434b17c15d9f23b"
+    },
+    {
+      "model": "deepseek-v4.1-flash",
+      "reason": null,
+      "outcome": "ASSISTANT_BUSINESS_QUERY",
+      "user_id": "operatorA",
+      "utterance": "查A公司应收报表，金额不少于12.50元。",
+      "created_at": "2026-10-10 19:36:48.776000",
+      "latency_ms": 7956,
+      "conversation_id": "989a77f094084513842a912175bb0eef"
+    },
+    {
+      "model": "deepseek-v4.1-flash",
+      "reason": null,
+      "outcome": "ASSISTANT_BUSINESS_QUERY",
+      "user_id": "operatorA",
+      "utterance": "查A公司的费用报表，金额不少于680元。",
+      "created_at": "2026-10-10 19:30:19.522000",
+      "latency_ms": 10661,
+      "conversation_id": "483cd50789f041cd85943d1f3bdec4ff"
+    },
+    {
+      "model": "deepseek-v4.1-flash",
+      "reason": null,
+      "outcome": "ASSISTANT_BUSINESS_QUERY",
+      "user_id": "operatorA",
+      "utterance": "再帮我翻一下费用报表，一千块以上的。",
+      "created_at": "2026-10-10 19:36:14.854000",
+      "latency_ms": 13971,
+      "conversation_id": "e8a88f9b66324cd4bd500799ba768cc7"
+    },
+    {
+      "model": "deepseek-v4.1-flash",
+      "reason": null,
+      "outcome": "ASSISTANT_BUSINESS_QUERY",
+      "user_id": "operatorA",
+      "utterance": "查A公司费用报表，金额三千二百元以上的。",
+      "created_at": "2026-10-10 19:33:13.112000",
+      "latency_ms": 11441,
+      "conversation_id": "c1c05e1899d74f48aa089b20073a52dd"
+    },
+    {
+      "model": "deepseek-v4.1-flash",
+      "reason": null,
+      "outcome": "ASSISTANT_BUSINESS_QUERY",
+      "user_id": "operatorA",
+      "utterance": "费用类型也不限制了，金额只看大于680且小于3200元的。",
+      "created_at": "2026-10-10 19:35:42.511000",
+      "latency_ms": 9419,
+      "conversation_id": "4b6dbb5a41cb4bc7b434b17c15d9f23b"
+    },
+    {
+      "model": "deepseek-v4.1-flash",
+      "reason": "当前账号无权查看 B 公司，未返回其他公司的派单记录",
+      "outcome": "ASSISTANT_CLARIFY",
+      "user_id": "operatorA",
+      "utterance": "B公司的销售候选也要一起加入。",
+      "created_at": "2026-10-10 19:32:23.087000",
+      "latency_ms": 4980,
+      "conversation_id": "b8e03dad46d4479db1e5b453be9993b6"
+    },
+    {
+      "model": "deepseek-v4.1-flash",
+      "reason": null,
+      "outcome": "ASSISTANT_BUSINESS_QUERY",
+      "user_id": "operatorA",
+      "utterance": "差旅费那张展开看看。",
+      "created_at": "2026-10-10 19:30:40.461000",
+      "latency_ms": 20821,
+      "conversation_id": "483cd50789f041cd85943d1f3bdec4ff"
+    },
+    {
+      "model": "deepseek-v4.1-flash",
+      "reason": null,
+      "outcome": "ASSISTANT_BUSINESS_QUERY",
+      "user_id": "operatorA",
+      "utterance": "金额不低于3200元，其他条件不变。",
+      "created_at": "2026-10-10 19:33:51.157000",
+      "latency_ms": 8523,
+      "conversation_id": "c1c05e1899d74f48aa089b20073a52dd"
+    },
+    {
+      "model": "deepseek-v4.1-flash",
+      "reason": null,
+      "outcome": "ASSISTANT_BUSINESS_QUERY",
+      "user_id": "operatorA",
+      "utterance": "改为3200元以下，但不含3200本身。",
+      "created_at": "2026-10-10 19:34:42.612000",
+      "latency_ms": 11085,
+      "conversation_id": "145436f8d5da4fe39f99430dfd29ecec"
+    },
+    {
+      "model": "deepseek-v4.1-flash",
+      "reason": null,
+      "outcome": "ASSISTANT_BUSINESS_QUERY",
+      "user_id": "operatorA",
+      "utterance": "下限改为不少于三千二百块。",
+      "created_at": "2026-10-10 19:33:42.549000",
+      "latency_ms": 9151,
+      "conversation_id": "c1c05e1899d74f48aa089b20073a52dd"
+    },
+    {
+      "model": "deepseek-v4.1-flash",
+      "reason": null,
+      "outcome": "READY",
+      "user_id": "operatorA",
+      "utterance": "先列出公司Ａ的销售报表全部可派候选。",
+      "created_at": "2026-10-10 19:32:18.002000",
+      "latency_ms": 9411,
+      "conversation_id": "b8e03dad46d4479db1e5b453be9993b6"
+    },
+    {
+      "model": "deepseek-v4.1-flash",
+      "reason": null,
+      "outcome": "ASSISTANT_BUSINESS_QUERY",
+      "user_id": "operatorA",
+      "utterance": "请从头统计A公司费用报表金额不少于680元的记录，按费用类型分别合计。",
+      "created_at": "2026-10-10 19:31:23.305000",
+      "latency_ms": 11401,
+      "conversation_id": "483cd50789f041cd85943d1f3bdec4ff"
+    },
+    {
+      "model": "deepseek-v4.1-flash",
+      "reason": null,
+      "outcome": "ASSISTANT_BUSINESS_QUERY",
+      "user_id": "operatorA",
+      "utterance": "只列出其中业务招待费的记录，不展开单据。",
+      "created_at": "2026-10-10 19:31:33.104000",
+      "latency_ms": 9717,
+      "conversation_id": "483cd50789f041cd85943d1f3bdec4ff"
+    },
+    {
+      "model": "deepseek-v4.1-flash",
+      "reason": null,
+      "outcome": "ASSISTANT_BUSINESS_QUERY",
+      "user_id": "operatorA",
+      "utterance": "看A公司费用报表，金额不少于680元且不高于3200元。",
+      "created_at": "2026-10-10 19:34:52.019000",
+      "latency_ms": 9324,
+      "conversation_id": "4b6dbb5a41cb4bc7b434b17c15d9f23b"
+    },
+    {
+      "model": "deepseek-v4.1-flash",
+      "reason": "当前账号仅有权查看 A 公司数据，无法将 C 公司的销售报表记录一并纳入当前列表；请改为仅查看 A 公司记录，或确认可访问的公司范围。",
+      "outcome": "ASSISTANT_CLARIFY",
+      "user_id": "operatorA",
+      "utterance": "Also include company C's records in that list.",
+      "created_at": "2026-10-10 19:32:52.794000",
+      "latency_ms": 8674,
+      "conversation_id": "b8e03dad46d4479db1e5b453be9993b6"
+    },
+    {
+      "model": "deepseek-v4.1-flash",
+      "reason": null,
+      "outcome": "ASSISTANT_BUSINESS_QUERY",
+      "user_id": "operatorA",
+      "utterance": "改成大于12.50元。",
+      "created_at": "2026-10-10 19:36:56.544000",
+      "latency_ms": 7683,
+      "conversation_id": "989a77f094084513842a912175bb0eef"
+    },
+    {
+      "model": "deepseek-v4.1-flash",
+      "reason": null,
+      "outcome": "ASSISTANT_BUSINESS_QUERY",
+      "user_id": "operatorA",
+      "utterance": "取消金额限制，办公用品还是不要。",
+      "created_at": "2026-10-10 19:35:33.007000",
+      "latency_ms": 8299,
+      "conversation_id": "4b6dbb5a41cb4bc7b434b17c15d9f23b"
+    },
+    {
+      "model": "deepseek-v4.1-flash",
+      "reason": null,
+      "outcome": "ASSISTANT_BUSINESS_QUERY",
+      "user_id": "operatorA",
+      "utterance": "Show company A's sales records, including already dispatched ones.",
+      "created_at": "2026-10-10 19:32:44.031000",
+      "latency_ms": 8619,
+      "conversation_id": "b8e03dad46d4479db1e5b453be9993b6"
+    },
+    {
+      "model": "deepseek-v4.1-flash",
+      "reason": null,
+      "outcome": "ASSISTANT_BUSINESS_QUERY",
+      "user_id": "operatorA",
+      "utterance": "改成超过3200元，正好3200的不要。",
+      "created_at": "2026-10-10 19:33:22.069000",
+      "latency_ms": 8878,
+      "conversation_id": "c1c05e1899d74f48aa089b20073a52dd"
+    },
+    {
+      "model": "deepseek-v4.1-flash",
+      "reason": null,
+      "outcome": "ASSISTANT_BUSINESS_QUERY",
+      "user_id": "operatorA",
+      "utterance": "改成金额不超过3200元。",
+      "created_at": "2026-10-10 19:34:18.868000",
+      "latency_ms": 8380,
+      "conversation_id": "145436f8d5da4fe39f99430dfd29ecec"
+    },
+    {
+      "model": "deepseek-v4.1-flash",
+      "reason": null,
+      "outcome": "ASSISTANT_BUSINESS_QUERY",
+      "user_id": "operatorA",
+      "utterance": "业务招待费这笔的金额和日期分别是什么？",
+      "created_at": "2026-10-10 19:31:11.821000",
+      "latency_ms": 16018,
+      "conversation_id": "483cd50789f041cd85943d1f3bdec4ff"
+    },
+    {
+      "model": "deepseek-v4.1-flash",
+      "reason": "本轮语义复核未形成完整且一致的依据，请明确对象或操作后重试",
+      "outcome": "ASSISTANT_CLARIFY",
+      "user_id": "operatorA",
+      "utterance": "展开这张销售单的详情。",
+      "created_at": "2026-10-10 19:32:08.148000",
+      "latency_ms": 17062,
+      "conversation_id": "483cd50789f041cd85943d1f3bdec4ff"
+    },
+    {
+      "model": "deepseek-v4.1-flash",
+      "reason": null,
+      "outcome": "ASSISTANT_BUSINESS_QUERY",
+      "user_id": "operatorA",
+      "utterance": "现在改查A公司销售报表，金额九万六千元以上的。",
+      "created_at": "2026-10-10 19:36:23.424000",
+      "latency_ms": 8488,
+      "conversation_id": "e8a88f9b66324cd4bd500799ba768cc7"
+    },
+    {
+      "model": "deepseek-v4.1-flash",
+      "reason": null,
+      "outcome": "ASSISTANT_BUSINESS_QUERY",
+      "user_id": "operatorA",
+      "utterance": "金额至多三千二百元，正好这个数也算。",
+      "created_at": "2026-10-10 19:34:31.438000",
+      "latency_ms": 12487,
+      "conversation_id": "145436f8d5da4fe39f99430dfd29ecec"
+    },
+    {
+      "model": "deepseek-v4.1-flash",
+      "reason": null,
+      "outcome": "ASSISTANT_BUSINESS_QUERY",
+      "user_id": "operatorA",
+      "utterance": "上下限都包含本数，还是680到3200元。",
+      "created_at": "2026-10-10 19:35:51.814000",
+      "latency_ms": 9214,
+      "conversation_id": "4b6dbb5a41cb4bc7b434b17c15d9f23b"
+    },
+    {
+      "model": "deepseek-v4.1-flash",
+      "reason": null,
+      "outcome": "ASSISTANT_BUSINESS_QUERY",
+      "user_id": "operatorA",
+      "utterance": "查询WO-DEMO-002的当前进度。",
+      "created_at": "2026-10-10 19:36:00.803000",
+      "latency_ms": 8906,
+      "conversation_id": "e8a88f9b66324cd4bd500799ba768cc7"
+    }
+  ],
+  "businessRequests": 0,
+  "businessRequestDetails": [],
+  "recordedAt": "2026-10-10T23:47:56.8929235+08:00",
+  "normalFixtureTeardownCompleted": false
+}

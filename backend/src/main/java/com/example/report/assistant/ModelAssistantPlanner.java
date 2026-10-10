@@ -166,6 +166,7 @@ public class ModelAssistantPlanner implements AssistantPlanner {
     private ReviewedDraft review(String message,Map<String,Object> context,DialogueState state,AssistantPlanningContext planning,AssistantPlan plan,SensitiveData.ModelText originals,ReviewBudget budget,Map<AssistantPlan,Map<String,Object>> validated,Set<String> authorizedReports,Set<String> authorizedCompanies) {
         var input=new LinkedHashMap<>(context);input.remove("rejectedDraft");input.remove("validationError");input.remove("attemptHistory");
         input.put("taskStage","INDEPENDENT_EXPECTATION");
+        var repairs=new ArrayList<Map<String,Object>>();input.put("reviewRepairHistory",repairs);
         var replacements=new LinkedHashMap<>(originals.originals());
         var options=options(AssistantSchema.reviewSchema());
         String previousFeedback=null;
@@ -196,6 +197,9 @@ public class ModelAssistantPlanner implements AssistantPlanner {
                     input.put("invalidReview",SensitiveData.text(reply==null?"":reply.length()>24000?"[超长输出]":reply));input.remove("repairMode");
                 }
                 input.remove("reviewValidationError");input.put("reviewValidationError",feedback);previousFeedback=feedback;
+                // 每次错误只记录独立复核自身的诊断；后续修正仍须满足已修好的约束，不能只盯最后一个错误而反复退回。
+                // 不带入规划草稿、草稿结果或差异值，完整复核仍受原三次调用预算约束。
+                repairs.add(Map.of("attempt",budget.reviewCalls,"validationError",feedback));
             }
         }
         throw new ReviewFailure("本轮语义复核未形成完整且一致的依据，请明确对象或操作后重试");
@@ -232,6 +236,7 @@ public class ModelAssistantPlanner implements AssistantPlanner {
         for(Runnable check:List.<Runnable>of(
                 ()->purpose.validate(review),
                 ()->TaskPlanComparison.validateEvidence(message,review),
+                ()->TaskPlanComparison.validateRequirementCoverage(review),
                 ()->TaskConditionEvidence.validate(message,state,planning,review,authorizedReports,authorizedCompanies))) {
             try {check.run();} catch(ApiException invalid) {collectReviewFailure(invalid,failures);}
         }
@@ -245,7 +250,7 @@ public class ModelAssistantPlanner implements AssistantPlanner {
         failures.add(invalid instanceof ModelContractViolation violation?violation.feedback():invalid.getMessage());
     }
     /**
-     * 独立目标只接收请求前焦点及授权目录；结构错误仅反馈本阶段自身，不挤占完整复核的修正次数。
+     * 独立目标只接收请求前焦点、授权目录及该焦点实际已展示行；结构错误仅反馈本阶段自身，不挤占完整复核的修正次数。
      * 不读取草稿、详细期望、业务预检错误或其修正历史；失败不会代为生成目标或转成详细复核。
      */
     private TaskPurpose purpose(String message,Map<String,Object> context,DialogueState state,SensitiveData.ModelText originals,ReviewBudget budget) {
@@ -254,16 +259,22 @@ public class ModelAssistantPlanner implements AssistantPlanner {
         // 目标只看当前焦点中的查询；保存以供显式返回的背景查询，不能抢占刚展示的候选选择。
         var activeQuery="BUSINESS_QUERY".equals(state.getAssistantFocus())?state.getBusinessQuery():null;
         input.put("activeQuery",activeQuery==null?null:context.get("previousQuery"));
-        // 目标判断需要目录原词才能区分同域中的新报表，不能仅凭内部报表ID猜测仍在承接原集合。
+        // 目标判断需要字段与已展示行才能区分报表名称、业务字段值和单据指代；不读取草稿预检或未展示记录。
+        // 候选焦点下不暴露背景查询行，避免旧业务对象抢占当前候选选择；查询失败也不提供可引用的成功对象。
+        boolean visibleQuery=activeQuery!=null && !state.isBusinessUnresolved();
+        input.put("visibleQueryRows",visibleQuery?context.get("previousRows"):List.of());
+        input.put("visibleQueryResult",visibleQuery?context.get("previousResult"):null);
         var reportCatalog=new ArrayList<Map<String,Object>>();
-        for(var report:JsonUtil.MAPPER.valueToTree(context.get("reports")))reportCatalog.add(Map.of("reportId",report.path("reportId").asText(),"name",report.path("name").asText(),"aliases",report.path("aliases")));
+        for(var report:JsonUtil.MAPPER.valueToTree(context.get("reports")))reportCatalog.add(Map.of("reportId",report.path("reportId").asText(),"name",report.path("name").asText(),"aliases",report.path("aliases"),"description",report.path("description"),"fields",report.path("fields")));
         input.put("reportCatalog",reportCatalog);input.put("currentReportMentions",context.get("currentReportMentions"));input.put("companies",context.get("companies"));
         var options=options(AssistantSchema.purposeSchema());
         if(props.getSemantic().getModel()!=null && !props.getSemantic().getModel().isBlank())options.model(props.getSemantic().getModel());
         while(budget.purposeCalls<2) {
             input.remove("message");input.put("message",originals.text());
+            String wire=JsonUtil.toJson(SensitiveData.forModel(input));
+            if(wire.getBytes(java.nio.charset.StandardCharsets.UTF_8).length>128000)throw new ReviewFailure("独立目标上下文超过预算，请缩小本轮业务范围");
             budget.purposeCalls++;
-            String reply=client.prompt().system(purposeInstructions).user(JsonUtil.toJson(SensitiveData.forModel(input))).options(options.build()).call().content();
+            String reply=client.prompt().system(purposeInstructions).user(wire).options(options.build()).call().content();
             try {
                 var purpose=AssistantCodec.purpose(reply);
                 purpose=AssistantCodec.purpose(restore(JsonUtil.MAPPER.valueToTree(purpose),originals).toString());
@@ -274,7 +285,9 @@ public class ModelAssistantPlanner implements AssistantPlanner {
             } catch(ApiException invalid) {
                 if(invalid.getCode()!=422)throw invalid;
                 input.put("purposeValidationError",invalid instanceof ModelContractViolation violation?violation.feedback():invalid.getMessage());
-                input.put("invalidPurpose",SensitiveData.text(reply==null?"":reply.length()>24000?"[超长输出]":reply));
+                // 目标尚未通过来源与状态校验，整份输出都不是已确认事实；回传旧目标会诱导只换引用、沿用历史动作。
+                // 在原有两次预算内重新判断，仍不读取任何规划草稿，也不由程序替模型选择新目标。
+                input.put("repairMode","REBUILD_PURPOSE_FROM_CURRENT_MESSAGE");
             }
         }
         throw new ReviewFailure("本轮独立业务目标未形成可靠依据，请明确希望得到的结果后重试");

@@ -210,6 +210,10 @@ public class SemanticPlanner {
     }
     static String companyCode(String mention) {
         String code = java.text.Normalizer.normalize(mention, java.text.Normalizer.Form.NFKC).trim();
+        // 公司后缀明确标出助词边界；前缀后的“的”仅对拉丁代码处理，中文名称末尾可能本身就是“的”，不能截断。
+        code=code.replaceFirst("公司\\s*的$","公司").replaceFirst("^(公司\\s*[A-Za-z0-9_-]+)的$","$1")
+                .replaceFirst("(?i)(\\s+company)[’']s$","$1")
+                .replaceFirst("(?i)^(company\\s+.+)[’']s$","$1");
         // 公司代码可带中英文类别称谓；只剥离边界称谓，后续仍按实际授权代码精确校验，不做名称模糊匹配。
         code=code.replaceFirst("(?i)^company\\s+","").replaceFirst("^公司\\s*","").replaceFirst("(?i)\\s+company$","");
         if (code.endsWith("公司")) code=code.substring(0,code.length()-2).trim();

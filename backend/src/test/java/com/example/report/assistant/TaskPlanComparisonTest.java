@@ -1,6 +1,7 @@
 package com.example.report.assistant;
 
 import com.example.report.common.ApiException;
+import com.example.report.common.ModelContractViolation;
 import com.example.report.semantic.SemanticIntent;
 import org.junit.jupiter.api.Test;
 import java.util.*;
@@ -67,7 +68,10 @@ class TaskPlanComparisonTest {
     @Test void reportScopeAndPaginationCannotHideBehindConditionEvidence() {
         var before=query(List.of());var q=before.query();
         var after=new AssistantPlan(before.route(),new BusinessQuery(q.domain(),q.view(),List.of(),null,q.conditions(),null,false,2,1,null),false,null);
-        assertThrows(ApiException.class,()->TaskPlanComparison.compare(MESSAGE,before,review(after,"范围与分页变化",SemanticReview.Aspect.CONDITIONS)));
+        var invalid=assertThrows(ModelContractViolation.class,()->TaskPlanComparison.compare(MESSAGE,before,review(after,"范围与分页变化",SemanticReview.Aspect.CONDITIONS)));
+        // 缺失依据必须一次指出全部独立维度，不因字段遍历顺序只反馈第一项。
+        for(String path:List.of("/query/reportIds","/query/companyCode","/query/page","/query/size"))assertTrue(invalid.feedback().contains(path));
+        assertTrue(invalid.feedback().contains("SCOPE"));assertTrue(invalid.feedback().contains("PRESENTATION"));
         var changes=TaskPlanComparison.compare(MESSAGE,before,review(after,"检查所有维度",SemanticReview.Aspect.SCOPE,SemanticReview.Aspect.PRESENTATION));
         assertEquals(Set.of("/query/reportIds","/query/companyCode","/query/page","/query/size"),changes.stream().map(TaskPlanComparison.Difference::path).collect(java.util.stream.Collectors.toSet()));
     }
@@ -84,6 +88,22 @@ class TaskPlanComparisonTest {
         var before=new AssistantPlan(AssistantPlan.Route.CLARIFY,null,false,"需要指定一条记录");
         var after=new AssistantPlan(AssistantPlan.Route.CLARIFY,null,false,"请补充所指记录的单据号");
         assertTrue(TaskPlanComparison.compare(MESSAGE,before,review(after,"完善相同澄清的表达",SemanticReview.Aspect.CAPABILITY)).isEmpty());
+    }
+    /** 条件摘要不依赖与草稿是否一致；普通条件、可见身份与候选选择均须具备本轮依据。 */
+    @Test void conditionRequirementCoverageIsIndependentOfDraftComparison() {
+        var selection=AssistantPlan.dispatch(new DispatchDirective(
+                new SemanticIntent(1,Action.PREVIEW,List.of(new ScopeChange(Target.RECORDS,Operation.EXCLUDE,List.of("设备甲"),MESSAGE)),List.of(),List.of(),List.of(),Clarify.NONE),
+                DispatchDirective.Source.PREVIEW,"preview-p",List.of(),MESSAGE));
+        for(var plan:List.of(query(List.of(new BusinessQuery.Group(List.of(filter("amount","GTE","10"))))),
+                query(List.of(new BusinessQuery.Group(List.of(filter("docNo","EQ","DOC-9"))))),selection)) {
+            var missing=review(plan,"条件来源另行校验，不能省略条件要求",SemanticReview.Aspect.ACTION);
+            assertTrue(assertThrows(ModelContractViolation.class,()->TaskPlanComparison.validateRequirementCoverage(missing)).feedback().contains("CONDITIONS"));
+            assertDoesNotThrow(()->TaskPlanComparison.validateRequirementCoverage(review(plan,"所有仍有效限定",SemanticReview.Aspect.CONDITIONS)));
+        }
+        var cleared=new SemanticReview(List.of(new SemanticReview.Requirement(SemanticReview.Aspect.CONTINUITY,MESSAGE,"撤销旧条件")),List.of(),
+                List.of(new SemanticReview.PriorConditionChange(filter("amount","GTE","10"),MESSAGE)),query(List.of()),null);
+        assertThrows(ModelContractViolation.class,()->TaskPlanComparison.validateRequirementCoverage(cleared));
+        assertDoesNotThrow(()->TaskPlanComparison.validateRequirementCoverage(review(query(List.of()),"没有字段条件的查询",SemanticReview.Aspect.ACTION)));
     }
     /** 范围修正不能要求伪造记录条件依据；同时改范围与选择则两类当前依据都不可缺少。 */
     @Test void dispatchScopeAndRecordChangesRequireTheirOwnCurrentEvidence() {

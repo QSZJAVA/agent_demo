@@ -16,7 +16,7 @@ final class CurrentTextEvidence {
      */
     static void require(String source,String evidence,String path) {
         if(evidence!=null && !evidence.isBlank() && source!=null && source.contains(evidence))return;
-        throw failure(path+"="+JsonUtil.toJson(evidence)+"不是本轮连续原文");
+        throw failure(source,path+"="+JsonUtil.toJson(evidence)+"不是本轮连续原文");
     }
     /** 同一来源的多个证据一次定位，避免修好第一处后才发现其他引用错误而耗尽有界复核次数。 */
     static void requireAll(String source,java.util.Map<String,String> evidenceByPath) {
@@ -24,10 +24,12 @@ final class CurrentTextEvidence {
         evidenceByPath.forEach((path,evidence)->{
             if(evidence==null || evidence.isBlank() || source==null || !source.contains(evidence))failures.add(path+"="+JsonUtil.toJson(evidence)+"不是本轮连续原文");
         });
-        if(!failures.isEmpty())throw failure(String.join("；",failures));
+        if(!failures.isEmpty())throw failure(source,String.join("；",failures));
     }
-    private static ModelContractViolation failure(String fields) {
+    /** 在同一反馈中明确唯一引用来源；它是待引用的数据，不是代填证据或重新授权业务动作。 */
+    private static ModelContractViolation failure(String source,String fields) {
         return new ModelContractViolation("本轮原文引用尚未一致",fields
-                +"。并列句省略的主语、字段名或单位不能补入evidence；引用实际存在的连续片段，必要时引用完整原句，业务解释写在meaning。只修正引用，不改动已正确的动作、对象、条件或比较关系；历史只能解释含义，不能替代本轮依据");
+                +"。本次校验的唯一原文source="+JsonUtil.toJson(source)
+                +"。从此source重新选择每个被指出的连续片段，不再复制无效引用。并列句省略的主语、字段名或单位不能补入evidence；必要时引用完整原句，业务解释写在meaning。只修正引用，不改动已正确的动作、对象、条件或比较关系；历史只能解释含义，不能替代本轮依据");
     }
 }

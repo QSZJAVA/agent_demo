@@ -1,0 +1,690 @@
+{
+  "items": [
+    {
+      "doc_no": "EXP-2026-0001",
+      "status": "PENDING",
+      "plan_id": "4c39fedf92b64e8081f8094b843317a7",
+      "record_id": "1",
+      "error_code": null,
+      "attempt_count": 0
+    },
+    {
+      "doc_no": "EXP-2026-0002",
+      "status": "PENDING",
+      "plan_id": "4c39fedf92b64e8081f8094b843317a7",
+      "record_id": "2",
+      "error_code": null,
+      "attempt_count": 0
+    },
+    {
+      "doc_no": "SO2026002",
+      "status": "PENDING",
+      "plan_id": "eb8176e26c4041d3b1ba7c2e3be67981",
+      "record_id": "2",
+      "error_code": null,
+      "attempt_count": 0
+    },
+    {
+      "doc_no": "SO2026007",
+      "status": "PENDING",
+      "plan_id": "eb8176e26c4041d3b1ba7c2e3be67981",
+      "record_id": "3",
+      "error_code": null,
+      "attempt_count": 0
+    }
+  ],
+  "plans": [
+    {
+      "id": "4c39fedf92b64e8081f8094b843317a7",
+      "status": "PENDING",
+      "user_id": "operatorA",
+      "item_count": 2,
+      "confirmed_at": null,
+      "failed_count": 0,
+      "success_count": 0,
+      "conversation_id": "74cc966bae534bc08a8555e2010e541a"
+    },
+    {
+      "id": "eb8176e26c4041d3b1ba7c2e3be67981",
+      "status": "PENDING",
+      "user_id": "operatorA",
+      "item_count": 2,
+      "confirmed_at": null,
+      "failed_count": 0,
+      "success_count": 0,
+      "conversation_id": "cc0449ba367a431d9abe7e56d0955f45"
+    }
+  ],
+  "schema": "mcp_it_bfe6200198934876ad3bdb8b14a694ab",
+  "source": [
+    {
+      "id": 1,
+      "amount": 128000.0,
+      "order_no": "SO2026001",
+      "company_code": "A",
+      "product_name": "服务器",
+      "dispatch_status": 0
+    },
+    {
+      "id": 2,
+      "amount": 32000.0,
+      "order_no": "SO2026002",
+      "company_code": "A",
+      "product_name": "交换机",
+      "dispatch_status": 0
+    },
+    {
+      "id": 3,
+      "amount": 96000.0,
+      "order_no": "SO2026007",
+      "company_code": "A",
+      "product_name": "云服务",
+      "dispatch_status": 0
+    },
+    {
+      "id": 4,
+      "amount": 15.0,
+      "order_no": "SO2026008",
+      "company_code": "A",
+      "product_name": "网线",
+      "dispatch_status": 0
+    },
+    {
+      "id": 5,
+      "amount": 86000.0,
+      "order_no": "SO2026003",
+      "company_code": "B",
+      "product_name": "笔记本电脑",
+      "dispatch_status": 0
+    },
+    {
+      "id": 6,
+      "amount": 15400.0,
+      "order_no": "SO2026004",
+      "company_code": "B",
+      "product_name": "显示器",
+      "dispatch_status": 0
+    },
+    {
+      "id": 7,
+      "amount": 18.0,
+      "order_no": "SO2026009",
+      "company_code": "B",
+      "product_name": "鼠标",
+      "dispatch_status": 0
+    },
+    {
+      "id": 8,
+      "amount": 256000.0,
+      "order_no": "SO2026005",
+      "company_code": "C",
+      "product_name": "存储阵列",
+      "dispatch_status": 0
+    },
+    {
+      "id": 9,
+      "amount": 47800.0,
+      "order_no": "SO2026006",
+      "company_code": "C",
+      "product_name": "防火墙",
+      "dispatch_status": 0
+    }
+  ],
+  "semanticTurns": [
+    {
+      "model": "deepseek-v4.1-flash",
+      "reason": null,
+      "outcome": "ASSISTANT_BUSINESS_QUERY",
+      "utterance": "下限不再限制，上限3200元继续保留并包含等于。",
+      "latency_ms": 14778,
+      "conversation_id": "b309475b011a40be9c895a14d56fece5"
+    },
+    {
+      "model": "deepseek-v4.1-flash",
+      "reason": null,
+      "outcome": "ASSISTANT_BUSINESS_QUERY",
+      "utterance": "查A公司的费用记录。",
+      "latency_ms": 8033,
+      "conversation_id": "e889fb2074064bac8f62413b849591d7"
+    },
+    {
+      "model": "deepseek-v4.1-flash",
+      "reason": null,
+      "outcome": "ASSISTANT_BUSINESS_QUERY",
+      "utterance": "Could you show every sales record for company A, including the ones already dispatched?",
+      "latency_ms": 8437,
+      "conversation_id": "35101c02fa5e42af8efddd4a8723806f"
+    },
+    {
+      "model": "deepseek-v4.1-flash",
+      "reason": null,
+      "outcome": "ASSISTANT_BUSINESS_QUERY",
+      "utterance": "金额至多三千二百元，正好这个数也算。",
+      "latency_ms": 11831,
+      "conversation_id": "9cad3c1d2328491c9c5463a72610ee11"
+    },
+    {
+      "model": "deepseek-v4.1-flash",
+      "reason": "当前只能访问公司A的数据，无法将公司C的销售报表记录加入列表；请确认是否改为仅查询公司A的销售报表记录，或先开通公司C的报表权限。",
+      "outcome": "ASSISTANT_CLARIFY",
+      "utterance": "Also include company C's records in that list.",
+      "latency_ms": 8084,
+      "conversation_id": "34fd146ff3704edfbeea09864b2ac98a"
+    },
+    {
+      "model": "deepseek-v4.1-flash",
+      "reason": null,
+      "outcome": "ASSISTANT_BUSINESS_QUERY",
+      "utterance": "再帮我翻一下费用报表，一千块以上的。",
+      "latency_ms": 12302,
+      "conversation_id": "ccdc81dcca084b909d327a32e931d734"
+    },
+    {
+      "model": "deepseek-v4.1-flash",
+      "reason": null,
+      "outcome": "ASSISTANT_BUSINESS_QUERY",
+      "utterance": "换个事，A公司全部销售记录给我一份",
+      "latency_ms": 7925,
+      "conversation_id": "3eb69e0734fc4d3ab28877e5bd08e456"
+    },
+    {
+      "model": "deepseek-v4.1-flash",
+      "reason": null,
+      "outcome": "ASSISTANT_BUSINESS_QUERY",
+      "utterance": "改成金额不超过3200元。",
+      "latency_ms": 11030,
+      "conversation_id": "9cad3c1d2328491c9c5463a72610ee11"
+    },
+    {
+      "model": "deepseek-v4.1-flash",
+      "reason": null,
+      "outcome": "ASSISTANT_BUSINESS_QUERY",
+      "utterance": "下限改为不少于三千二百块。",
+      "latency_ms": 11986,
+      "conversation_id": "1bd5b27527c845fc916284da4a9c8f58"
+    },
+    {
+      "model": "deepseek-v4.1-flash",
+      "reason": null,
+      "outcome": "ASSISTANT_BUSINESS_QUERY",
+      "utterance": "Show company A's sales records, including already dispatched ones.",
+      "latency_ms": 8281,
+      "conversation_id": "34fd146ff3704edfbeea09864b2ac98a"
+    },
+    {
+      "model": "deepseek-v4.1-flash",
+      "reason": null,
+      "outcome": "ASSISTANT_BUSINESS_QUERY",
+      "utterance": "金额超过9.6万元的才显示。",
+      "latency_ms": 16920,
+      "conversation_id": "32bd84c6d3bd4aa1b0d6b9dfb02df388"
+    },
+    {
+      "model": "deepseek-v4.1-flash",
+      "reason": null,
+      "outcome": "ASSISTANT_BUSINESS_QUERY",
+      "utterance": "Please show the expense report, not work orders. No amount restriction.",
+      "latency_ms": 8404,
+      "conversation_id": "35101c02fa5e42af8efddd4a8723806f"
+    },
+    {
+      "model": "deepseek-v4.1-flash",
+      "reason": null,
+      "outcome": "ASSISTANT_BUSINESS_QUERY",
+      "utterance": "插一句，WO-DEMO-002 现在轮到谁处理了？",
+      "latency_ms": 10308,
+      "conversation_id": "ccdc81dcca084b909d327a32e931d734"
+    },
+    {
+      "model": "deepseek-v4.1-flash",
+      "reason": null,
+      "outcome": "PLAN_READY",
+      "utterance": "就这批费用，出一份待确认清单给我核对。",
+      "latency_ms": 8433,
+      "conversation_id": "74cc966bae534bc08a8555e2010e541a"
+    },
+    {
+      "model": "deepseek-v4.1-flash",
+      "reason": null,
+      "outcome": "ASSISTANT_BUSINESS_QUERY",
+      "utterance": "把A公司的销售数据给我看看，已经派过的也要。",
+      "latency_ms": 8290,
+      "conversation_id": "ccdc81dcca084b909d327a32e931d734"
+    },
+    {
+      "model": "deepseek-v4.1-flash",
+      "reason": null,
+      "outcome": "READY",
+      "utterance": "查看A公司销售报表的全部可派单候选。",
+      "latency_ms": 11648,
+      "conversation_id": "cc0449ba367a431d9abe7e56d0955f45"
+    },
+    {
+      "model": "deepseek-v4.1-flash",
+      "reason": null,
+      "outcome": "ASSISTANT_BUSINESS_QUERY",
+      "utterance": "查询A公司费用报表，三千二百元以下的记录。",
+      "latency_ms": 9560,
+      "conversation_id": "9cad3c1d2328491c9c5463a72610ee11"
+    },
+    {
+      "model": "deepseek-v4.1-flash",
+      "reason": null,
+      "outcome": "ASSISTANT_BUSINESS_QUERY",
+      "utterance": "差旅费那张展开看看",
+      "latency_ms": 12138,
+      "conversation_id": "3eb69e0734fc4d3ab28877e5bd08e456"
+    },
+    {
+      "model": "deepseek-v4.1-flash",
+      "reason": null,
+      "outcome": "ASSISTANT_BUSINESS_QUERY",
+      "utterance": "现在改查A公司销售报表，金额九万六千元以上的。",
+      "latency_ms": 11415,
+      "conversation_id": "32bd84c6d3bd4aa1b0d6b9dfb02df388"
+    },
+    {
+      "model": "deepseek-v4.1-flash",
+      "reason": null,
+      "outcome": "ASSISTANT_BUSINESS_QUERY",
+      "utterance": "先不看销售了，工单 WO-DEMO-004 办完了吗？",
+      "latency_ms": 8774,
+      "conversation_id": "35101c02fa5e42af8efddd4a8723806f"
+    },
+    {
+      "model": "deepseek-v4.1-flash",
+      "reason": null,
+      "outcome": "READY",
+      "utterance": "先列出公司Ａ的销售报表全部可派候选。",
+      "latency_ms": 11998,
+      "conversation_id": "34fd146ff3704edfbeea09864b2ac98a"
+    },
+    {
+      "model": "deepseek-v4.1-flash",
+      "reason": null,
+      "outcome": "READY",
+      "utterance": "重新看A公司费用报表里能派的，这次不要销售和应收。",
+      "latency_ms": 22997,
+      "conversation_id": "74cc966bae534bc08a8555e2010e541a"
+    },
+    {
+      "model": "deepseek-v4.1-flash",
+      "reason": null,
+      "outcome": "ASSISTANT_BUSINESS_QUERY",
+      "utterance": "费用类型也不限制了，金额只看大于680且小于3200元的。",
+      "latency_ms": 9266,
+      "conversation_id": "b309475b011a40be9c895a14d56fece5"
+    },
+    {
+      "model": "deepseek-v4.1-flash",
+      "reason": null,
+      "outcome": "ASSISTANT_BUSINESS_QUERY",
+      "utterance": "算了，我只看A公司WO-DEMO-003的处理进度。",
+      "latency_ms": 8949,
+      "conversation_id": "e889fb2074064bac8f62413b849591d7"
+    },
+    {
+      "model": "deepseek-v4.1-flash",
+      "reason": null,
+      "outcome": "READY",
+      "utterance": "金额96000元以上的全部取消选择。",
+      "latency_ms": 16335,
+      "conversation_id": "cc0449ba367a431d9abe7e56d0955f45"
+    },
+    {
+      "model": "deepseek-v4.1-flash",
+      "reason": null,
+      "outcome": "ASSISTANT_BUSINESS_QUERY",
+      "utterance": "金额大于十万元的留下看看。",
+      "latency_ms": 7880,
+      "conversation_id": "e889fb2074064bac8f62413b849591d7"
+    },
+    {
+      "model": "deepseek-v4.1-flash",
+      "reason": null,
+      "outcome": "ASSISTANT_BUSINESS_QUERY",
+      "utterance": "改成大于12.50元。",
+      "latency_ms": 9008,
+      "conversation_id": "46f1c1d870734dc9873a1b4aa256b57b"
+    },
+    {
+      "model": "deepseek-v4.1-flash",
+      "reason": null,
+      "outcome": "ASSISTANT_BUSINESS_QUERY",
+      "utterance": "And WO-DEMO-002? Who has it now?",
+      "latency_ms": 8551,
+      "conversation_id": "35101c02fa5e42af8efddd4a8723806f"
+    },
+    {
+      "model": "deepseek-v4.1-flash",
+      "reason": null,
+      "outcome": "READY",
+      "utterance": "金额不足一千的先别选，其余保留。",
+      "latency_ms": 9286,
+      "conversation_id": "74cc966bae534bc08a8555e2010e541a"
+    },
+    {
+      "model": "deepseek-v4.1-flash",
+      "reason": null,
+      "outcome": "READY",
+      "utterance": "重新核对A公司的销售可派候选，只要A公司。",
+      "latency_ms": 11229,
+      "conversation_id": "34fd146ff3704edfbeea09864b2ac98a"
+    },
+    {
+      "model": "deepseek-v4.1-flash",
+      "reason": null,
+      "outcome": "ASSISTANT_BUSINESS_QUERY",
+      "utterance": "Now show amounts at most 12.50 yuan.",
+      "latency_ms": 8797,
+      "conversation_id": "46f1c1d870734dc9873a1b4aa256b57b"
+    },
+    {
+      "model": "deepseek-v4.1-flash",
+      "reason": null,
+      "outcome": "ASSISTANT_BUSINESS_QUERY",
+      "utterance": "查A公司应收报表，金额不少于12.50元。",
+      "latency_ms": 8502,
+      "conversation_id": "62b6c4b7218448a799030a047b23d492"
+    },
+    {
+      "model": "deepseek-v4.1-flash",
+      "reason": null,
+      "outcome": "ASSISTANT_BUSINESS_QUERY",
+      "utterance": "Now show amounts at most 12.50 yuan.",
+      "latency_ms": 11130,
+      "conversation_id": "62b6c4b7218448a799030a047b23d492"
+    },
+    {
+      "model": "deepseek-v4.1-flash",
+      "reason": null,
+      "outcome": "ASSISTANT_BUSINESS_QUERY",
+      "utterance": "这次只要小于3200元的。",
+      "latency_ms": 13028,
+      "conversation_id": "9cad3c1d2328491c9c5463a72610ee11"
+    },
+    {
+      "model": "deepseek-v4.1-flash",
+      "reason": null,
+      "outcome": "ASSISTANT_BUSINESS_QUERY",
+      "utterance": "Only amounts of 32,000 or more, please. Highest first.",
+      "latency_ms": 8958,
+      "conversation_id": "35101c02fa5e42af8efddd4a8723806f"
+    },
+    {
+      "model": "deepseek-v4.1-flash",
+      "reason": null,
+      "outcome": "ASSISTANT_BUSINESS_QUERY",
+      "utterance": "Then start a new query for only company A's sales records.",
+      "latency_ms": 7926,
+      "conversation_id": "34fd146ff3704edfbeea09864b2ac98a"
+    },
+    {
+      "model": "deepseek-v4.1-flash",
+      "reason": null,
+      "outcome": "ASSISTANT_BUSINESS_QUERY",
+      "utterance": "金额大的放前面，一页两条就行。",
+      "latency_ms": 7518,
+      "conversation_id": "ccdc81dcca084b909d327a32e931d734"
+    },
+    {
+      "model": "deepseek-v4.1-flash",
+      "reason": "公司不存在或无权访问",
+      "outcome": "ASSISTANT_CLARIFY",
+      "utterance": "那就先看B公司工单WO-DEMO-B01的详情。",
+      "latency_ms": 4250,
+      "conversation_id": "e889fb2074064bac8f62413b849591d7"
+    },
+    {
+      "model": "deepseek-v4.1-flash",
+      "reason": null,
+      "outcome": "ASSISTANT_BUSINESS_QUERY",
+      "utterance": "刚才说错了，不少于680块的都要",
+      "latency_ms": 10814,
+      "conversation_id": "3eb69e0734fc4d3ab28877e5bd08e456"
+    },
+    {
+      "model": "deepseek-v4.1-flash",
+      "reason": null,
+      "outcome": "READY",
+      "utterance": "这次只排除超过96000元的，正好96000元的保留。",
+      "latency_ms": 17551,
+      "conversation_id": "cc0449ba367a431d9abe7e56d0955f45"
+    },
+    {
+      "model": "deepseek-v4.1-flash",
+      "reason": null,
+      "outcome": "PLAN_READY",
+      "utterance": "按当前选中的销售记录生成待确认清单。",
+      "latency_ms": 7947,
+      "conversation_id": "cc0449ba367a431d9abe7e56d0955f45"
+    },
+    {
+      "model": "deepseek-v4.1-flash",
+      "reason": null,
+      "outcome": "ASSISTANT_BUSINESS_QUERY",
+      "utterance": "再帮我翻一下费用报表，一千块以上的。",
+      "latency_ms": 10160,
+      "conversation_id": "32bd84c6d3bd4aa1b0d6b9dfb02df388"
+    },
+    {
+      "model": "deepseek-v4.1-flash",
+      "reason": "目前仅授权查询A公司的费用记录，无法查询B公司数据；请确认是否需要改为查询A公司或其他已授权范围内的费用记录。",
+      "outcome": "ASSISTANT_CLARIFY",
+      "utterance": "B公司的也一起给我，领导要。",
+      "latency_ms": 7890,
+      "conversation_id": "e889fb2074064bac8f62413b849591d7"
+    },
+    {
+      "model": "deepseek-v4.1-flash",
+      "reason": null,
+      "outcome": "ASSISTANT_BUSINESS_QUERY",
+      "utterance": "Show the same receivables with amount at least 12.50 yuan.",
+      "latency_ms": 10997,
+      "conversation_id": "46f1c1d870734dc9873a1b4aa256b57b"
+    },
+    {
+      "model": "deepseek-v4.1-flash",
+      "reason": null,
+      "outcome": "ASSISTANT_BUSINESS_QUERY",
+      "utterance": "办公用品也不要，其余限制不变。",
+      "latency_ms": 8894,
+      "conversation_id": "b309475b011a40be9c895a14d56fece5"
+    },
+    {
+      "model": "deepseek-v4.1-flash",
+      "reason": null,
+      "outcome": "ASSISTANT_BUSINESS_QUERY",
+      "utterance": "改为3200元以下，但不含3200本身。",
+      "latency_ms": 8023,
+      "conversation_id": "9cad3c1d2328491c9c5463a72610ee11"
+    },
+    {
+      "model": "deepseek-v4.1-flash",
+      "reason": null,
+      "outcome": "ASSISTANT_BUSINESS_QUERY",
+      "utterance": "查A公司应收报表，金额不少于12.50元。",
+      "latency_ms": 8101,
+      "conversation_id": "46f1c1d870734dc9873a1b4aa256b57b"
+    },
+    {
+      "model": "deepseek-v4.1-flash",
+      "reason": "当前派单预览在切换话题后需要先重新核对候选范围，才能按现有选择生成待确认清单。请先重新展示并确认可派候选，然后再为您准备待确认清单。",
+      "outcome": "ASSISTANT_CLARIFY",
+      "utterance": "剩下的给我弄成待确认清单吧。",
+      "latency_ms": 11313,
+      "conversation_id": "74cc966bae534bc08a8555e2010e541a"
+    },
+    {
+      "model": "deepseek-v4.1-flash",
+      "reason": null,
+      "outcome": "ASSISTANT_BUSINESS_QUERY",
+      "utterance": "改成超过3200元，正好3200的不要。",
+      "latency_ms": 8134,
+      "conversation_id": "1bd5b27527c845fc916284da4a9c8f58"
+    },
+    {
+      "model": "deepseek-v4.1-flash",
+      "reason": null,
+      "outcome": "ASSISTANT_BUSINESS_QUERY",
+      "utterance": "金额不低于3200元，其他条件不变。",
+      "latency_ms": 11220,
+      "conversation_id": "1bd5b27527c845fc916284da4a9c8f58"
+    },
+    {
+      "model": "deepseek-v4.1-flash",
+      "reason": null,
+      "outcome": "ASSISTANT_BUSINESS_QUERY",
+      "utterance": "费用报表看下，大于1000的",
+      "latency_ms": 8260,
+      "conversation_id": "3eb69e0734fc4d3ab28877e5bd08e456"
+    },
+    {
+      "model": "deepseek-v4.1-flash",
+      "reason": null,
+      "outcome": "ASSISTANT_BUSINESS_QUERY",
+      "utterance": "现在金额至少3200元的都要。",
+      "latency_ms": 9005,
+      "conversation_id": "1bd5b27527c845fc916284da4a9c8f58"
+    },
+    {
+      "model": "deepseek-v4.1-flash",
+      "reason": null,
+      "outcome": "ASSISTANT_BUSINESS_QUERY",
+      "utterance": "WO-DEMO-001走到哪一步了",
+      "latency_ms": 9066,
+      "conversation_id": "3eb69e0734fc4d3ab28877e5bd08e456"
+    },
+    {
+      "model": "deepseek-v4.1-flash",
+      "reason": null,
+      "outcome": "ASSISTANT_BUSINESS_QUERY",
+      "utterance": "查询WO-DEMO-002的当前进度。",
+      "latency_ms": 8740,
+      "conversation_id": "32bd84c6d3bd4aa1b0d6b9dfb02df388"
+    },
+    {
+      "model": "deepseek-v4.1-flash",
+      "reason": null,
+      "outcome": "ASSISTANT_BUSINESS_QUERY",
+      "utterance": "等下，先查一下WO-DEMO-002的进度。",
+      "latency_ms": 8019,
+      "conversation_id": "74cc966bae534bc08a8555e2010e541a"
+    },
+    {
+      "model": "deepseek-v4.1-flash",
+      "reason": null,
+      "outcome": "ASSISTANT_BUSINESS_QUERY",
+      "utterance": "接着看后一页。",
+      "latency_ms": 8615,
+      "conversation_id": "ccdc81dcca084b909d327a32e931d734"
+    },
+    {
+      "model": "deepseek-v4.1-flash",
+      "reason": null,
+      "outcome": "ASSISTANT_BUSINESS_QUERY",
+      "utterance": "再看A公司全部应收记录。",
+      "latency_ms": 8307,
+      "conversation_id": "e889fb2074064bac8f62413b849591d7"
+    },
+    {
+      "model": "deepseek-v4.1-flash",
+      "reason": null,
+      "outcome": "ASSISTANT_BUSINESS_QUERY",
+      "utterance": "Show the same receivables with amount at least 12.50 yuan.",
+      "latency_ms": 10754,
+      "conversation_id": "62b6c4b7218448a799030a047b23d492"
+    },
+    {
+      "model": "deepseek-v4.1-flash",
+      "reason": "当前只能访问公司A的数据，无法把公司B的销售报表候选加入当前候选集合；请确认是否需要改为仅公司A范围，或先开通公司B的报表权限。",
+      "outcome": "ASSISTANT_CLARIFY",
+      "utterance": "B公司的销售候选也要一起加入。",
+      "latency_ms": 7690,
+      "conversation_id": "34fd146ff3704edfbeea09864b2ac98a"
+    },
+    {
+      "model": "deepseek-v4.1-flash",
+      "reason": null,
+      "outcome": "ASSISTANT_BUSINESS_QUERY",
+      "utterance": "取消金额限制，办公用品还是不要。",
+      "latency_ms": 8071,
+      "conversation_id": "b309475b011a40be9c895a14d56fece5"
+    },
+    {
+      "model": "deepseek-v4.1-flash",
+      "reason": null,
+      "outcome": "ASSISTANT_BUSINESS_QUERY",
+      "utterance": "上下限都包含本数，还是680到3200元。",
+      "latency_ms": 10069,
+      "conversation_id": "b309475b011a40be9c895a14d56fece5"
+    },
+    {
+      "model": "deepseek-v4.1-flash",
+      "reason": null,
+      "outcome": "ASSISTANT_BUSINESS_QUERY",
+      "utterance": "查A公司费用报表，金额三千二百元以上的。",
+      "latency_ms": 10650,
+      "conversation_id": "1bd5b27527c845fc916284da4a9c8f58"
+    },
+    {
+      "model": "deepseek-v4.1-flash",
+      "reason": null,
+      "outcome": "ASSISTANT_BUSINESS_QUERY",
+      "utterance": "看A公司费用报表，金额不少于680元且不高于3200元。",
+      "latency_ms": 8625,
+      "conversation_id": "b309475b011a40be9c895a14d56fece5"
+    },
+    {
+      "model": "deepseek-v4.1-flash",
+      "reason": null,
+      "outcome": "READY",
+      "utterance": "销售这边还有什么能派出去？先看候选，别直接执行。",
+      "latency_ms": 9429,
+      "conversation_id": "ccdc81dcca084b909d327a32e931d734"
+    },
+    {
+      "model": "deepseek-v4.1-flash",
+      "reason": null,
+      "outcome": "READY",
+      "utterance": "我这边能派的记录先全列出来，A公司的。",
+      "latency_ms": 14591,
+      "conversation_id": "74cc966bae534bc08a8555e2010e541a"
+    },
+    {
+      "model": "deepseek-v4.1-flash",
+      "reason": null,
+      "outcome": "ASSISTANT_BUSINESS_QUERY",
+      "utterance": "改成大于12.50元。",
+      "latency_ms": 8017,
+      "conversation_id": "62b6c4b7218448a799030a047b23d492"
+    },
+    {
+      "model": "deepseek-v4.1-flash",
+      "reason": null,
+      "outcome": "ASSISTANT_BUSINESS_QUERY",
+      "utterance": "金额至少9.6万元，包括正好9.6万的。",
+      "latency_ms": 10371,
+      "conversation_id": "32bd84c6d3bd4aa1b0d6b9dfb02df388"
+    },
+    {
+      "model": "deepseek-v4.1-flash",
+      "reason": null,
+      "outcome": "READY",
+      "utterance": "恢复金额不少于96000元的全部候选。",
+      "latency_ms": 9672,
+      "conversation_id": "cc0449ba367a431d9abe7e56d0955f45"
+    },
+    {
+      "model": "deepseek-v4.1-flash",
+      "reason": null,
+      "outcome": "ASSISTANT_BUSINESS_QUERY",
+      "utterance": "这些销售记录一共多少钱？",
+      "latency_ms": 8083,
+      "conversation_id": "3eb69e0734fc4d3ab28877e5bd08e456"
+    }
+  ],
+  "businessRequests": 0,
+  "recordedAt": "2026-10-10T18:36:03.4006583+08:00",
+  "normalFixtureTeardownCompleted": false
+}

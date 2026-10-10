@@ -190,7 +190,7 @@ async function main() {
             if(expect.sort && (query.query.sortField!==expect.sort || query.query.descending!==Boolean(expect.descending)))errors.push('排序含义错误');
             if(expect.groupBy && !(Array.isArray(expect.groupBy)?expect.groupBy:[expect.groupBy]).map(f=>canonicalField(f,query.query.domain)).includes(canonicalField(query.query.groupBy,query.query.domain)))errors.push('分组含义错误');
             // 相同演示数据可能掩盖扩大条件；详情按稳定编号定位，其他查询须另核完整条件语义。
-            if(expect.view!=='DETAIL' && !compareQueryFilters(expect,query.query,'A').equal)errors.push('完整筛选语义与冻结预期不一致');
+            if(expect.view!=='DETAIL' && !compareQueryFilters(expect,query.query,'A',query.columns).equal)errors.push('完整筛选语义与冻结预期不一致');
             const expectedPage=sorted(expectedRows,expect).slice((page-1)*size,page*size);
             if(!equal(keys(query.rows),keys(expectedPage)))errors.push('当前页记录集合错误');
             if(expect.sort && !equal(query.rows.map(key),expectedPage.map(key)))errors.push('当前页排序错误');

@@ -1,0 +1,14 @@
+[
+  {
+    "id": "company-scope-ownership-and-recovery",
+    "persona": "业务经办人使用中英文公司称谓，越权追加被拒绝后重新核对授权范围",
+    "turns": [
+      { "message": "先列出公司Ａ的销售报表全部可派候选。", "expect": { "kind": "preview", "source": "sales" } },
+      { "message": "B公司的销售候选也要一起加入。", "expect": { "kind": "clarify", "textAny": ["权限", "授权", "无权", "公司"] } },
+      { "message": "重新核对A公司的销售可派候选，只要A公司。", "expect": { "kind": "preview", "source": "sales" } },
+      { "message": "Show company A's sales records, including already dispatched ones.", "expect": { "kind": "query", "source": "sales" } },
+      { "message": "Also include company C's records in that list.", "expect": { "kind": "clarify", "textAny": ["权限", "授权", "无权", "公司", "authorized", "permission", "company"] } },
+      { "message": "Then start a new query for only company A's sales records.", "expect": { "kind": "query", "source": "sales" } }
+    ]
+  }
+]

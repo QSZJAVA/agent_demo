@@ -43,3 +43,36 @@ test('组合展开超出预算时失败而不是截断后判为相等',()=>{
   const groups=[[['a','IN',Array.from({length:17},(_,i)=>String(i))],['b','IN',Array.from({length:17},(_,i)=>String(i))]]];
   assert.throws(()=>compareQueryFilters({},query(groups)),/预算/);
 });
+test('同端点只消除被严格比较蕴含的包含限制，不能放宽等号或跨OR分支化简',()=>{
+  for(const [strict,inclusive] of [['GT','GTE'],['LT','LTE']]) {
+    const expected={where:[['amount',strict,'96000']]};
+    assert.equal(compareQueryFilters(expected,query([[['amount',inclusive,'96000.00'],['amount',strict,'96000']]])).equal,true);
+    assert.equal(compareQueryFilters(expected,query([[['amount',inclusive,'96000']]])).equal,false);
+    assert.equal(compareQueryFilters(expected,query([[['amount',inclusive,'96000']],[['amount',strict,'96000']]])).equal,false);
+  }
+});
+test('更强同向端点按精确数值归一，上下限、负数与超出安全整数的端点不能混淆',()=>{
+  const expected={where:[['amount','GTE','9007199254740993'],['amount','LTE','9007199254740994']]};
+  assert.equal(compareQueryFilters(expected,query([[['amount','GT','9007199254740992'],['amount','GTE','9007199254740993'],['amount','LTE','9007199254740994'],['amount','LT','9007199254740995']]])).equal,true);
+  assert.equal(compareQueryFilters(expected,query([[['amount','GT','9007199254740992'],['amount','LTE','9007199254740994']]])).equal,false);
+  assert.equal(compareQueryFilters({where:[['amount','LT','-0.0000000000000000002']]},query([[['amount','LTE','-0.0000000000000000001'],['amount','LT','-0.0000000000000000002']]])).equal,true);
+  assert.equal(compareQueryFilters({where:[['amount','GTE','10'],['amount','LTE','20']]},query([[['amount','GTE','10']]])).equal,false);
+});
+test('使用声明的日期和目录数值类型，数字形字符串标识不按数值顺序推断',()=>{
+  const expected={where:[['quantity','GTE','100']]},actual=query([[['quantity','GT','20'],['quantity','GTE','100']]]);
+  assert.equal(compareQueryFilters(expected,actual,'A',[{name:'quantity',type:'long'}]).equal,true);
+  assert.equal(compareQueryFilters(expected,actual,'A',[{name:'quantity',type:'string'}]).equal,false);
+  assert.equal(compareQueryFilters(expected,actual).equal,false);
+  assert.equal(compareQueryFilters({where:[['date','GTE','2026-03-02']]},query([[['expenseDate','GTE','2026-03-01'],['date','GT','2026-03-01']]])).equal,true);
+  assert.equal(compareQueryFilters({where:[['recordId','EQ','001']]},query([[['recordId','EQ','1']]])).equal,false);
+});
+test('端点化简与独立区间真值核对一致，覆盖所有方向、等号、交集和空值',()=>{
+  // 小整数阈值之间枚举端点、内侧、外侧及NULL；直接按数学关系求值，不复用比较器的化简算法。
+  const atoms=['GT','GTE','LT','LTE'].flatMap(op=>[-2,0,2].map(n=>['amount',op,String(n)]));
+  const witnesses=[null,-3,-2.25,-2,-1.75,-0.25,0,0.25,1.75,2,2.25,3];
+  const matches=(x,[,op,value])=>x!==null&&({GT:()=>x>Number(value),GTE:()=>x>=Number(value),LT:()=>x<Number(value),LTE:()=>x<=Number(value)})[op]();
+  for(const single of atoms)for(const first of atoms)for(const second of atoms) {
+    const truth=witnesses.every(x=>matches(x,single)===(matches(x,first)&&matches(x,second)));
+    assert.equal(compareQueryFilters({where:[single]},query([[first,second]])).equal,truth,JSON.stringify({single,first,second}));
+  }
+});

@@ -2,6 +2,7 @@ package com.example.report.assistant;
 
 import com.example.report.common.ApiException;
 import com.example.report.common.JsonUtil;
+import com.example.report.common.ModelContractViolation;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
@@ -26,8 +27,28 @@ public final class TaskPlanComparison {
         validateEvidence(message,review);
         var before=canonical(actual);var after=canonical(review.expectedPlan());
         var differences=new ArrayList<Difference>();
-        compareNode("",before,after,review.requirements(),differences);
+        var failures=new LinkedHashSet<String>();
+        compareNode("",before,after,review.requirements(),differences,failures);
+        if(!failures.isEmpty())throw new ModelContractViolation("语义复核缺少差异维度依据",String.join("；",failures));
         return List.copyOf(differences);
+    }
+    /**
+     * 独立期望中的条件必须先有条件维度的本轮要求，不能等到与草稿比较后才补摘要。
+     * @param review 模型自行形成的期望；只读取该对象，不读取规划草稿或替模型补写依据
+     * @throws ModelContractViolation 字段条件、记录选择或旧条件撤销没有CONDITIONS依据，须与其他独立错误一并修正
+     */
+    public static void validateRequirementCoverage(SemanticReview review) {
+        var plan=review.expectedPlan();
+        boolean hasConditions=!TaskConditionEvidence.conditions(plan).isEmpty()
+                || !plan.removedFilters().isEmpty() || !review.priorConditionChanges().isEmpty()
+                || plan.dispatch()!=null && plan.dispatch().intent().scopeChanges().stream()
+                    .anyMatch(change->change.target()==com.example.report.semantic.SemanticIntent.Target.RECORDS);
+        // 继承条件和可见对象身份仍影响目标集合；conditionChecks解释每个条件的来源，不能替代要求维度。
+        if(hasConditions && review.requirements().stream().noneMatch(requirement->requirement.aspect()==SemanticReview.Aspect.CONDITIONS))
+            throw new ModelContractViolation("语义复核缺少条件要求",
+                    "requirements缺少CONDITIONS维度的本轮依据。expectedPlan包含字段条件、记录选择或旧条件撤销时，"
+                    +"必须在该维度解释全部仍有效限定；继承ACTIVE_QUERY或引用VISIBLE_OBJECT也引用本轮承接/指代原话。"
+                    +"conditionChecks及priorConditionChanges不能替代requirements；补齐依据时保留已正确的旧条件、身份和比较关系，不得删掉条件绕过覆盖校验");
     }
     /** 独立期望只以本轮原话作为要求证据；历史可解释含义，不能授权新操作或替代当前指代短语。 */
     public static void validateEvidence(String message,SemanticReview review) {
@@ -55,17 +76,18 @@ public final class TaskPlanComparison {
             throw new ApiException(422,"用户要求最终 "+targetCount.count()+" 条，但当前完整预检为 "+(count.isIntegralNumber()?count.asInt():"未知")+" 条；未完成的选择不能当作成功，请澄清对象或先由用户完成选择，不得自行增加、减少目标或删除数量要求");
     }
     /** 比较对象字段；数组作为完整逻辑单元比较，避免将AND/OR、完整目标集合拆成可任意应用的补丁。 */
-    private static void compareNode(String path,JsonNode before,JsonNode after,List<SemanticReview.Requirement> requirements,List<Difference> differences) {
+    private static void compareNode(String path,JsonNode before,JsonNode after,List<SemanticReview.Requirement> requirements,List<Difference> differences,Set<String> failures) {
         if(before.equals(after))return;
         if(before.isObject() && after.isObject()) {
             var names=new TreeSet<String>();before.fieldNames().forEachRemaining(names::add);after.fieldNames().forEachRemaining(names::add);
-            for(String name:names)compareNode(path+"/"+name,before.path(name),after.path(name),requirements,differences);
+            for(String name:names)compareNode(path+"/"+name,before.path(name),after.path(name),requirements,differences,failures);
             return;
         }
         for(var aspect:aspects(path,before,after)) {
             var evidence=requirements.stream().filter(r->r.aspect()==aspect && r.messageIndex()==-1).map(SemanticReview.Requirement::evidence).distinct().toList();
-            if(evidence.isEmpty())throw new ApiException(422,"语义复核对"+path+"的期望变化缺少"+aspect+"维度的本轮依据");
-            differences.add(new Difference(path,aspect,before,after,evidence));
+            // 路径之间相互独立，一次列全缺失维度；任何一项无依据都不返回可供规划器采用的差异。
+            if(evidence.isEmpty())failures.add("语义复核对"+path+"的期望变化缺少"+aspect+"维度的本轮依据");
+            else differences.add(new Difference(path,aspect,before,after,evidence));
         }
     }
 

@@ -66,8 +66,10 @@ public final class AssistantSchema {
         var domain=props("type",List.of("string","null"),"enum",Arrays.asList("REPORT","DISPATCH","WORK_ORDER",null),
                 "description","BUSINESS_QUERY必须填写REPORT报表业务记录、DISPATCH派单记录或WORK_ORDER工单；其他目标填null。FOLLOW_UP必须与activeQuery.domain相同，跨域查询必须INDEPENDENT。");
         var result=string(false);result.put("description","先用一句业务语言说明用户本轮想得到的结果，包括明确总数与限定；这是目标，不是系统要先做的步骤。需要先核对候选时也不能把用户的建单目标改成预览。");
+        var view=props("type",List.of("string","null"),"enum",Arrays.asList("LIST","DETAIL","SUMMARY","ELIGIBILITY",null),
+                "description","BUSINESS_QUERY必须区分集合列表LIST、指定单条详情DETAIL、集合统计SUMMARY和单条规则资格ELIGIBILITY；其他目标填null。展开已展示且唯一定位的单据使用DETAIL，不能因列表也返回一条而替换展示目标。");
         return JsonUtil.toJson(object(props("requestedResult",result,"purpose",purpose,
-            "queryDomain",domain,"queryContext",enumeration(Arrays.stream(TaskPurpose.QueryContext.values()).map(Enum::name).toArray(String[]::new)),"evidence",string(false),"targetCount",targetCountSchema())));
+            "queryDomain",domain,"queryView",view,"queryContext",enumeration(Arrays.stream(TaskPurpose.QueryContext.values()).map(Enum::name).toArray(String[]::new)),"evidence",string(false),"targetCount",targetCountSchema())));
     }
     /** 轻量目标与完整复核共享最终数量结构；实际条数另由同一只读预检核对。 */
     private static Map<String,Object> targetCountSchema() {

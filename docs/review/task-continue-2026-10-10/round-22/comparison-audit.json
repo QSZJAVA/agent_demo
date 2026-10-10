@@ -1,0 +1,86 @@
+{
+  "recordedAt": "2026-10-10T16:34:00.426Z",
+  "method": "Offline deterministic audit of original real model and HTTP MCP responses. No model request, no source-data sampling, and no original result file was changed. Only filter-equivalence scoring was recomputed; all other original errors were preserved.",
+  "comparatorSha256": "6dccd4e506601e997205eb6513e0bbbbbd8dcbba0d20c37782a40577226f6a1c",
+  "runnerSha256": "b3f1891430593d0e3407f548e1f1c60f71cd84a93a8efa88c7a3e22b4dea08a3",
+  "toolRegressionLogSha256": "d997e2297af815a47189ca59697627873530121ab89aeb8ef2843bf91428bfa3",
+  "toolTests": 16,
+  "toolTestsPassed": 16,
+  "independentBoundaryCombinations": 1728,
+  "checkedQueries": 81,
+  "total": 153,
+  "passed": 153,
+  "failed": 0,
+  "results": [
+    {
+      "file": "query-presentation.json.gz",
+      "originalSha256": "d097641e81933d26fd7c8dbc1006c3740d6b3b34b1c3a0841e27b38a877e02dd",
+      "total": 9,
+      "originalPassed": 9,
+      "originalFailed": 0,
+      "auditedPassed": 9,
+      "auditedFailed": 0,
+      "correctedCases": [],
+      "remainingFailures": []
+    },
+    {
+      "file": "company-scope.json.gz",
+      "originalSha256": "6ee493e3d8d185e997883f076beb511bc5618466a61bc19283031de7c2d13887",
+      "total": 6,
+      "originalPassed": 6,
+      "originalFailed": 0,
+      "auditedPassed": 6,
+      "auditedFailed": 0,
+      "correctedCases": [],
+      "remainingFailures": []
+    },
+    {
+      "file": "numeric-boundaries.json.gz",
+      "originalSha256": "f6626ca0ff83bc3f0c52c7f3554ff29e8b718d32b143c50a95c8cec8725c163f",
+      "total": 30,
+      "originalPassed": 29,
+      "originalFailed": 1,
+      "auditedPassed": 30,
+      "auditedFailed": 0,
+      "correctedCases": [
+        {
+          "scenario": "numeric-domain-switch",
+          "turn": 4,
+          "message": "金额超过9.6万元的才显示。",
+          "originalErrors": [
+            "完整筛选语义与冻结预期不一致"
+          ],
+          "auditedErrors": [],
+          "comparison": {
+            "equal": true,
+            "expectedCanonical": "[\"[\\\"[\\\\\\\"amount\\\\\\\",\\\\\\\"GT\\\\\\\",[\\\\\\\"96000\\\\\\\"]]\\\"]\"]",
+            "actualCanonical": "[\"[\\\"[\\\\\\\"amount\\\\\\\",\\\\\\\"GT\\\\\\\",[\\\\\\\"96000\\\\\\\"]]\\\"]\"]"
+          }
+        }
+      ],
+      "remainingFailures": []
+    },
+    {
+      "file": "multiturn-main.json.gz",
+      "originalSha256": "283d1499a136d93971e0b5b3e45a7acf4631b180d2c1fa8774b8f5cf9bc08677",
+      "total": 72,
+      "originalPassed": 72,
+      "originalFailed": 0,
+      "auditedPassed": 72,
+      "auditedFailed": 0,
+      "correctedCases": [],
+      "remainingFailures": []
+    },
+    {
+      "file": "multiturn-holdout.json.gz",
+      "originalSha256": "87ed9e7292d61a357fe7d4ca11c61d19f1674f40e1aedcdc807080f25ee7eca9",
+      "total": 36,
+      "originalPassed": 36,
+      "originalFailed": 0,
+      "auditedPassed": 36,
+      "auditedFailed": 0,
+      "correctedCases": [],
+      "remainingFailures": []
+    }
+  ]
+}

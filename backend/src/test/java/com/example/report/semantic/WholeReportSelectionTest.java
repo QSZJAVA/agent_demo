@@ -57,9 +57,13 @@ class WholeReportSelectionTest {
         assertTrue(failure.getMessage().contains("对象"));assertTrue(state.isUnresolvedRequest());
     }
     @Test void companyTypeLabelsNormalizeWithoutFuzzyNameOrIdentifierRewriting() {
-        for(String label:List.of("A公司","公司 A","company a","A company"))assertEquals("A",SemanticPlanner.companyCode(label));
+        for(String label:List.of("A公司","公司 A","company a","A company","A公司的","公司Ａ的","A company's","company A’s"))assertEquals("A",SemanticPlanner.companyCode(label));
         assertEquals("COMPANY-A",SemanticPlanner.companyCode("COMPANY-A"));
         assertEquals("ACMECOMPANY",SemanticPlanner.companyCode("AcmeCompany"));
+        assertEquals("美的",SemanticPlanner.companyCode("美的公司"));
+        assertEquals("美的",SemanticPlanner.companyCode("公司美的"));
+        assertEquals("美的",SemanticPlanner.companyCode("美的公司的"));
+        assertEquals("B",SemanticPlanner.companyCode("B公司的"));
     }
     final ReportCatalogService catalog=new ReportCatalogService(new TestCatalog().catalog(),new AgentProperties());
     @Test void scopedWholeReportExclusionAndRestorePreserveOtherSelections() {

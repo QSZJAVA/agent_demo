@@ -43,7 +43,7 @@ class ModelAssistantPlannerTest {
                 if(target==null)target=AssistantCodec.plan(HELP);
                 var queryContext=target.route()!=AssistantPlan.Route.BUSINESS_QUERY?TaskPurpose.QueryContext.NOT_QUERY:
                         target.followUp()?TaskPurpose.QueryContext.FOLLOW_UP:TaskPurpose.QueryContext.INDEPENDENT;
-                String content=purposes.isEmpty()?JsonUtil.toJson(new TaskPurpose(TaskPurpose.action(target),queryContext,request.get("message").toString(),count,target.query()==null?null:target.query().domain())):purposes.removeFirst();
+                String content=purposes.isEmpty()?JsonUtil.toJson(new TaskPurpose(TaskPurpose.action(target),queryContext,request.get("message").toString(),count,target.query()==null?null:target.query().domain(),target.query()==null?null:target.query().view())):purposes.removeFirst();
                 return new ChatResponse(List.of(new Generation(new AssistantMessage(content))));
             }
             boolean review="INDEPENDENT_EXPECTATION".equals(request.get("taskStage"));
@@ -233,6 +233,48 @@ class ModelAssistantPlannerTest {
         assertEquals(1,model.planningPrompts.size());assertEquals(2,model.reviewPrompts.size());
         assertTrue(model.reviewPrompts.get(1).getUserMessage().getText().contains("已撤销条件不能"));
     }
+    /** 展开详情时同时反馈旧条件遗漏与条件摘要缺失；修好摘要不能又删除已继承的限定。 */
+    @org.junit.jupiter.params.ParameterizedTest
+    @org.junit.jupiter.params.provider.CsvSource({"productName,EQ,设备甲","amount,GTE,680"})
+    void detailReviewRepairsConditionCoverageAndRetentionTogether(String field,String operator,String value) throws Exception {
+        String message="展开这条记录的详情";var old=new BusinessQuery.Filter(field,operator,List.of(value));
+        var identity=new BusinessQuery.Filter("docNo","EQ",List.of("DOC-9"));
+        var state=new DialogueState();state.setAssistantFocus("BUSINESS_QUERY");
+        state.setBusinessQuery(query(BusinessQuery.Domain.REPORT,BusinessQuery.View.LIST,List.of(new BusinessQuery.Group(List.of(old)))));
+        state.setBusinessReferences(List.of(Map.of("docNo","DOC-9","reportId","r","companyCode","A",field,value)));state.setBusinessTotalCount(1L);
+        var correct=read(query(BusinessQuery.Domain.REPORT,BusinessQuery.View.DETAIL,List.of(new BusinessQuery.Group(List.of(old,identity)))),true);
+        var dropped=read(query(BusinessQuery.Domain.REPORT,BusinessQuery.View.DETAIL,List.of(new BusinessQuery.Group(List.of(identity)))),true);
+        var objectCheck=new SemanticReview.ConditionCheck(identity,SemanticReview.ConditionOrigin.VISIBLE_OBJECT,message,"");
+        var incomplete=new SemanticReview(List.of(new SemanticReview.Requirement(SemanticReview.Aspect.PRESENTATION,message,"展开同一笔详情")),
+                List.of(objectCheck),List.of(new SemanticReview.PriorConditionChange(old,message)),dropped,null);
+        var complete=new SemanticReview(Arrays.stream(SemanticReview.Aspect.values()).map(aspect->new SemanticReview.Requirement(aspect,message,"保留有效筛选并定位同一笔" )).toList(),
+                List.of(new SemanticReview.ConditionCheck(old,SemanticReview.ConditionOrigin.ACTIVE_QUERY,message,""),objectCheck),List.of(),correct,null);
+        var model=new Model(JsonUtil.toJson(correct));model.reviews.add(JsonUtil.toJson(incomplete));model.reviews.add(JsonUtil.toJson(complete));
+        assertEquals(correct,new ModelAssistantPlanner(model,new AgentProperties()).plan(message,state,List.of(),Set.of("A")));
+        assertEquals(1,model.planningPrompts.size());assertEquals(2,model.reviewPrompts.size());
+        var repair=JsonUtil.MAPPER.readTree(model.reviewPrompts.get(1).getUserMessage().getText());
+        String feedback=repair.path("reviewValidationError").asText();
+        assertTrue(feedback.contains("removedFilters"));assertTrue(feedback.contains("requirements缺少CONDITIONS"));
+        assertEquals(1,repair.path("reviewRepairHistory").size());assertFalse(repair.has("proposedPlan"));assertFalse(repair.has("attemptHistory"));
+        assertEquals(List.of(old),state.getBusinessQuery().conditions().get(0).allOf());
+    }
+    /** 不同轮次暴露的自身错误也要保留；复核始终只有三次机会，不向其提供草稿来诱导改意图。 */
+    @Test void reviewRepairHistoryKeepsEarlierConstraintsWhenTheLatestFailureChanges() throws Exception {
+        String message="查询金额不少于680元的记录";
+        var correct=read(query(BusinessQuery.Domain.REPORT,BusinessQuery.View.LIST,List.of(new BusinessQuery.Group(List.of(new BusinessQuery.Filter("amount","GTE",List.of("680")))))),false);
+        var withoutSummary=(com.fasterxml.jackson.databind.node.ObjectNode)JsonUtil.MAPPER.readTree(review(correct,message,"保留包含等号的下限"));
+        var requirements=withoutSummary.putArray("requirements");requirements.add(JsonUtil.MAPPER.valueToTree(new SemanticReview.Requirement(SemanticReview.Aspect.ACTION,message,"只读查询")));
+        var wrongSource=(com.fasterxml.jackson.databind.node.ObjectNode)JsonUtil.MAPPER.readTree(review(correct,message,"保持已修好的条件摘要"));
+        ((com.fasterxml.jackson.databind.node.ObjectNode)wrongSource.at("/conditionChecks/0")).put("evidence","历史原话并不是当前要求");
+        var model=new Model(JsonUtil.toJson(correct));model.reviews.add(withoutSummary.toString());model.reviews.add(wrongSource.toString());model.expect(correct,message,"全部约束均已满足");
+        assertEquals(correct,new ModelAssistantPlanner(model,new AgentProperties()).plan(message,new DialogueState(),List.of(),Set.of("A")));
+        assertEquals(1,model.planningPrompts.size());assertEquals(3,model.reviewPrompts.size());
+        var finalRepair=JsonUtil.MAPPER.readTree(model.reviewPrompts.get(2).getUserMessage().getText());
+        var history=finalRepair.path("reviewRepairHistory");assertEquals(2,history.size());
+        assertTrue(history.get(0).path("validationError").asText().contains("CONDITIONS"));
+        assertTrue(history.get(1).path("validationError").asText().contains("conditionChecks[0].evidence"));
+        assertFalse(finalRepair.has("rejectedDraft"));assertFalse(finalRepair.has("attemptHistory"));assertEquals(message,finalRepair.path("message").asText());
+    }
     @Test void independentPurposeKeepsViewingCandidatesFromBecomingPlanPreparation() throws Exception {
         String message="我准备看看能派的记录";var state=new DialogueState();state.setPreviewId("purpose-preview");
         var view=dispatch(state,message,Action.PREVIEW);var prepare=dispatch(state,message,Action.PREPARE_DISPATCH);
@@ -304,6 +346,7 @@ class ModelAssistantPlannerTest {
         for(var prompt:model.purposePrompts) {
             var input=JsonUtil.MAPPER.readTree(prompt.getUserMessage().getText());
             assertTrue(input.path("activeQuery").isNull());assertFalse(input.has("previousQuery"));
+            assertTrue(input.path("visibleQueryRows").isEmpty());assertTrue(input.path("visibleQueryResult").isNull());
         }
         assertTrue(model.purposePrompts.get(1).getUserMessage().getText().contains("当前候选与普通查询是不同对象"));
     }
@@ -525,7 +568,7 @@ class ModelAssistantPlannerTest {
             @Override public ChatResponse call(Prompt prompt){
                 observed.add(prompt);assertFalse(prompt.getUserMessage().getText().contains(identity));
                 var input=JsonUtil.toMap(prompt.getUserMessage().getText());String answer;
-                if("TASK_PURPOSE".equals(input.get("taskStage")))answer=JsonUtil.toJson(new TaskPurpose(TaskPurpose.Purpose.BUSINESS_QUERY,TaskPurpose.QueryContext.FOLLOW_UP,input.get("message").toString()));
+                if("TASK_PURPOSE".equals(input.get("taskStage")))answer=JsonUtil.toJson(new TaskPurpose(TaskPurpose.Purpose.BUSINESS_QUERY,TaskPurpose.QueryContext.FOLLOW_UP,input.get("message").toString(),null,BusinessQuery.Domain.REPORT,BusinessQuery.View.DETAIL));
                 else {
                     String token=((Map<?,?>)((List<?>)input.get("previousRows")).get(0)).get("recordId").toString();
                     answer=JsonUtil.toJson(read(query(BusinessQuery.Domain.REPORT,BusinessQuery.View.DETAIL,List.of(new BusinessQuery.Group(List.of(new BusinessQuery.Filter("recordId","EQ",List.of(token)))))),true));
@@ -564,6 +607,22 @@ class ModelAssistantPlannerTest {
         String feedback=model.reviewPrompts.get(1).getUserMessage().getText();
         assertTrue(feedback.contains("removedFilters必须为[]"));assertTrue(feedback.contains("不能为了保留removedFilters"));
     }
+    /** 整字段撤销声明与旧条件审计各自必需；复核须修好遗漏声明，不能反向改坏已完整声明的规划草稿。 */
+    @org.junit.jupiter.params.ParameterizedTest
+    @org.junit.jupiter.params.provider.ValueSource(strings={"expenseType","recordId"})
+    void oldConditionAuditCannotReplaceWholeFieldRemoval(String field) {
+        String message="撤销"+field+"筛选，列出金额不少于680元的记录";var state=new DialogueState();
+        var amount=new BusinessQuery.Filter("amount","GTE",List.of("680"));var object=new BusinessQuery.Filter(field,"EQ",List.of("1"));
+        state.setBusinessQuery(query(BusinessQuery.Domain.REPORT,BusinessQuery.View.DETAIL,List.of(new BusinessQuery.Group(List.of(amount,object)))));state.setAssistantFocus("BUSINESS_QUERY");
+        var after=query(BusinessQuery.Domain.REPORT,BusinessQuery.View.LIST,List.of(new BusinessQuery.Group(List.of(amount))));
+        var correct=new AssistantPlan(AssistantPlan.Route.BUSINESS_QUERY,after,true,null,List.of(new AssistantPlan.FilterRemoval(field,message)));
+        var missing=read(after,true);var change=new SemanticReview.PriorConditionChange(object,message);
+        var model=new Model(JsonUtil.toJson(correct)).expectChanged(missing,message,"仅填写旧条件审计仍然缺少撤销声明",change).expectChanged(correct,message,"完整声明撤销与审计",change);
+        assertEquals(correct,new ModelAssistantPlanner(model,new AgentProperties()).plan(message,state,List.of(),Set.of("A")));
+        assertEquals(1,model.planningPrompts.size());assertEquals(2,model.reviewPrompts.size());
+        String feedback=model.reviewPrompts.get(1).getUserMessage().getText();
+        assertTrue(feedback.contains("removedFilters须逐项声明field"));assertTrue(feedback.contains("不能替代removedFilters"));
+    }
     @Test void omittedOldBoundaryInReviewCannotExpandACorrectTwoSidedQuery() {
         String message="上限改为100，其他条件不变";var state=new DialogueState();
         var lower=new BusinessQuery.Filter("amount","GTE",List.of("20"));var upper=new BusinessQuery.Filter("amount","LTE",List.of("100"));
@@ -583,12 +642,16 @@ class ModelAssistantPlannerTest {
         var wrong=JsonUtil.MAPPER.readTree(review(correct,message,"保留闭区间"));
         ((com.fasterxml.jackson.databind.node.ObjectNode)wrong.at("/requirements/2")).put("evidence","金额不高于3200元");
         ((com.fasterxml.jackson.databind.node.ObjectNode)wrong.at("/conditionChecks/1")).put("evidence","金额不高于3200元");
-        var model=new Model(JsonUtil.toJson(correct));model.reviews.add(wrong.toString());model.expect(correct,message,"引用完整原句，不补省略字段名");
+        var model=new Model(JsonUtil.toJson(correct));model.reviews.add(wrong.toString());model.reviews.add(wrong.toString());model.expect(correct,message,"引用完整原句，不补省略字段名");
         assertEquals(correct,new ModelAssistantPlanner(model,new AgentProperties()).plan(message,new DialogueState(),List.of(),Set.of("A")));
-        assertEquals(1,model.planningPrompts.size());assertEquals(2,model.reviewPrompts.size());
+        assertEquals(1,model.planningPrompts.size());assertEquals(3,model.reviewPrompts.size());
         String feedback=JsonUtil.MAPPER.readTree(model.reviewPrompts.get(1).getUserMessage().getText()).path("reviewValidationError").asText();
         assertTrue(feedback.contains("requirements[2].evidence"));assertTrue(feedback.contains("conditionChecks[1].evidence"));
         assertTrue(feedback.contains("金额不高于3200元"));assertTrue(feedback.contains("省略的主语、字段名或单位不能补入"));
+        assertTrue(feedback.contains("source="+JsonUtil.toJson(message)));
+        var rebuilt=JsonUtil.MAPPER.readTree(model.reviewPrompts.get(2).getUserMessage().getText());
+        assertEquals("REBUILD_AFTER_REPEATED_ERROR",rebuilt.path("repairMode").asText());
+        assertFalse(rebuilt.has("invalidReview"));assertEquals(message,rebuilt.path("message").asText());
     }
     @Test void recoveryReconstructsAnUnfinishedQueryWithoutPretendingItSucceeded() {
         String message="上限改成50元，仍看刚才的范围";var state=new DialogueState();state.setBusinessUnresolved(true);
@@ -725,6 +788,53 @@ class ModelAssistantPlannerTest {
         assertFalse(model.reviewPrompts.get(2).getUserMessage().getText().contains("rejectedDraft"));
         var missing=(com.fasterxml.jackson.databind.node.ObjectNode)JsonUtil.MAPPER.valueToTree(purpose);missing.remove("requestedResult");
         assertThrows(ApiException.class,()->AssistantCodec.purpose(missing.toString()));
+        var missingView=(com.fasterxml.jackson.databind.node.ObjectNode)JsonUtil.MAPPER.valueToTree(purpose);missingView.remove("queryView");
+        assertThrows(ApiException.class,()->AssistantCodec.purpose(missingView.toString()));
+    }
+    /** 即使规划与详细复核一起选错展示类型，独立目标仍阻止同一行的列表冒充详情、统计或资格核验。 */
+    @org.junit.jupiter.params.ParameterizedTest
+    @org.junit.jupiter.params.provider.EnumSource(value=BusinessQuery.View.class,names={"DETAIL","SUMMARY","ELIGIBILITY"})
+    void independentPresentationRejectsTwoAgreeingButWrongListPlans(BusinessQuery.View view) throws Exception {
+        String message="按本轮要求查看编号1";var state=new DialogueState();
+        state.setBusinessQuery(query(BusinessQuery.Domain.REPORT,BusinessQuery.View.LIST,List.of()));state.setAssistantFocus("BUSINESS_QUERY");
+        state.setBusinessReferences(List.of(Map.of("recordId","1","reportId","r","companyCode","A","docNo","D1")));state.setBusinessTotalCount(1L);
+        var filters=List.of(new BusinessQuery.Group(List.of(new BusinessQuery.Filter("recordId","EQ",List.of("1")))));
+        var wrong=read(query(BusinessQuery.Domain.REPORT,BusinessQuery.View.LIST,filters),true);
+        var correct=read(query(BusinessQuery.Domain.REPORT,view,filters),true);
+        var model=new Model(JsonUtil.toJson(wrong),JsonUtil.toJson(correct)).expect(wrong,message,"错误地继续列表").expect(correct,message,"保持独立展示目标");
+        model.purposes.add(JsonUtil.toJson(new TaskPurpose(TaskPurpose.Purpose.BUSINESS_QUERY,TaskPurpose.QueryContext.FOLLOW_UP,message,null,BusinessQuery.Domain.REPORT,view)));
+        assertEquals(correct,new ModelAssistantPlanner(model,new AgentProperties()).plan(message,state,new com.example.report.support.TestCatalog().entries(),Set.of("A")));
+        assertEquals(2,model.planningPrompts.size());assertEquals(2,model.reviewPrompts.size());
+        var purposeInput=JsonUtil.MAPPER.readTree(model.purposePrompts.get(0).getUserMessage().getText());
+        assertEquals("D1",purposeInput.at("/visibleQueryRows/0/docNo").asText());assertTrue(purposeInput.at("/visibleQueryResult/allMatchesDisplayed").asBoolean());
+        assertFalse(purposeInput.at("/reportCatalog/0/fields").isEmpty());
+        assertTrue(model.reviewPrompts.get(1).getUserMessage().getText().contains("queryView="+view));
+    }
+    /** 历史目标的引用失败后须重新判断本轮动作与展示，不回传旧目标诱导仅替换证据；不扩大两次目标预算。 */
+    @org.junit.jupiter.params.ParameterizedTest
+    @org.junit.jupiter.params.provider.ValueSource(booleans={false,true})
+    void stalePurposeIsRebuiltWithoutRepeatingTheUnvalidatedGoal(boolean fromCandidates) throws Exception {
+        String previous=fromCandidates?"查看可派候选":"只列出记录，不展开单据";
+        String message=fromCandidates?"Show all sales records, including dispatched ones.":"展开这条记录的详情。";
+        var state=new DialogueState();
+        state.setAssistantFocus(fromCandidates?"DISPATCH":"BUSINESS_QUERY");
+        if(fromCandidates)state.setPreviewId("current-preview");
+        else {state.setBusinessQuery(query(BusinessQuery.Domain.REPORT,BusinessQuery.View.LIST,List.of()));state.setBusinessTotalCount(1L);state.setBusinessReferences(List.of(Map.of("recordId","1","reportId","r","companyCode","A")));}
+        var view=fromCandidates?BusinessQuery.View.LIST:BusinessQuery.View.DETAIL;
+        var correct=read(query(BusinessQuery.Domain.REPORT,view,List.of()),!fromCandidates);
+        var stale=fromCandidates?new TaskPurpose(TaskPurpose.Purpose.PREVIEW,TaskPurpose.QueryContext.NOT_QUERY,previous)
+                :new TaskPurpose(TaskPurpose.Purpose.BUSINESS_QUERY,TaskPurpose.QueryContext.FOLLOW_UP,previous);
+        var target=new TaskPurpose(TaskPurpose.Purpose.BUSINESS_QUERY,fromCandidates?TaskPurpose.QueryContext.INDEPENDENT:TaskPurpose.QueryContext.FOLLOW_UP,message,null,BusinessQuery.Domain.REPORT,view);
+        var model=new Model(JsonUtil.toJson(correct)).expect(correct,message,"按本轮要求切换结果");
+        model.purposes.add(JsonUtil.toJson(stale));model.purposes.add(JsonUtil.toJson(target));
+        var context=new AssistantPlanningContext(List.of(Map.of("role","user","content",previous),Map.of("role","assistant","content","上一轮结果")),Map.of(),p->Map.of());
+        assertEquals(correct,new ModelAssistantPlanner(model,new AgentProperties()).plan(message,state,List.of(),Set.of("A"),context));
+        assertEquals(2,model.purposePrompts.size());assertEquals(1,model.planningPrompts.size());assertEquals(1,model.reviewPrompts.size());
+        var repair=JsonUtil.MAPPER.readTree(model.purposePrompts.get(1).getUserMessage().getText());
+        assertEquals(message,repair.path("message").asText());assertFalse(repair.has("invalidPurpose"));
+        assertEquals("REBUILD_PURPOSE_FROM_CURRENT_MESSAGE",repair.path("repairMode").asText());
+        assertTrue(repair.path("purposeValidationError").asText().contains("taskPurpose.evidence"));
+        assertEquals(view.name(),JsonUtil.MAPPER.readTree(model.planningPrompts.get(0).getUserMessage().getText()).at("/taskPurpose/queryView").asText());
     }
     /** 目标结构失败仅在本阶段修正；原生Schema之外仍严格拒绝数组证据，不能吞错后假装目标已确定。 */
     @Test void purposeStructureRepairPrecedesDetailedReviewAndReservesItsBudget() throws Exception {

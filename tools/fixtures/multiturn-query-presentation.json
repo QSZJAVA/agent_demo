@@ -1,0 +1,17 @@
+[
+  {
+    "id": "query-presentation-single-and-collection",
+    "persona": "业务经办人在列表、指定单据详情和集合统计间切换，单行列表不自动变成详情",
+    "turns": [
+      { "message": "查A公司的费用报表，金额不少于680元。", "expect": { "kind": "query", "source": "expense", "where": [["amount", "GTE", "680"]], "view": "LIST" } },
+      { "message": "差旅费那张展开看看。", "expect": { "kind": "query", "source": "expense", "where": [["amount", "GTE", "680"], ["expenseType", "EQ", "差旅费"]], "view": "DETAIL" } },
+      { "message": "回到费用报表列表，金额不少于680元的全部列出。", "expect": { "kind": "query", "source": "expense", "where": [["amount", "GTE", "680"]], "view": "LIST" } },
+      { "message": "业务招待费这笔的金额和日期分别是什么？", "expect": { "kind": "query", "source": "expense", "where": [["amount", "GTE", "680"], ["expenseType", "EQ", "业务招待费"]], "view": "DETAIL" } },
+      { "message": "请从头统计A公司费用报表金额不少于680元的记录，按费用类型分别合计。", "expect": { "kind": "query", "source": "expense", "where": [["amount", "GTE", "680"]], "view": "SUMMARY", "groupBy": "expenseType" } },
+      { "message": "只列出其中业务招待费的记录，不展开单据。", "expect": { "kind": "query", "source": "expense", "where": [["amount", "GTE", "680"], ["expenseType", "EQ", "业务招待费"]], "view": "LIST" } },
+      { "message": "展开这条记录的详情。", "expect": { "kind": "query", "source": "expense", "where": [["amount", "GTE", "680"], ["expenseType", "EQ", "业务招待费"]], "view": "DETAIL" } },
+      { "message": "请重新查A公司销售报表，产品名称为服务器的记录，用列表展示。", "expect": { "kind": "query", "source": "sales", "where": [["productName", "EQ", "服务器"]], "view": "LIST" } },
+      { "message": "展开这张销售单的详情。", "expect": { "kind": "query", "source": "sales", "where": [["productName", "EQ", "服务器"]], "view": "DETAIL" } }
+    ]
+  }
+]
