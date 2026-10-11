@@ -40,6 +40,8 @@
         </el-menu-item>
         <el-menu-item index="/tasks"><i class="el-icon-tickets"></i><span slot="title">我的任务</span></el-menu-item>
         <el-menu-item index="/query-workspace"><i class="el-icon-collection"></i><span slot="title">查询工作区</span></el-menu-item>
+        <el-menu-item index="/analysis"><i class="el-icon-s-opportunity"></i><span slot="title">分析与问答</span></el-menu-item>
+        <el-menu-item v-if="isAdmin" index="/knowledge"><i class="el-icon-reading"></i><span slot="title">业务知识资料</span></el-menu-item>
         <el-menu-item index="/semantic-quality"><i class="el-icon-data-analysis"></i><span slot="title">语义质量</span></el-menu-item>
         <el-menu-item index="/rules">
           <i class="el-icon-setting"></i>

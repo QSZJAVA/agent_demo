@@ -1,0 +1,103 @@
+{
+  "id" : "96e09db506e74c4f9dce830e5d041af3",
+  "status" : "FAILED",
+  "stage" : "FINISHED",
+  "reason" : "INTERNAL_ERROR",
+  "message" : "分析暂未完成，请查看已完成步骤后重新提交",
+  "version" : 9,
+  "request" : {
+    "question" : "按产品汇总金额，取前两组并展开明细",
+    "reportId" : "rpt-sales-order",
+    "snapshotId" : null,
+    "companyCode" : "A"
+  },
+  "created_at" : "2026-10-11T15:26:12.212Z",
+  "started_at" : "2026-10-11T15:26:12.225Z",
+  "finished_at" : "2026-10-11T15:26:12.631Z",
+  "expires_at" : "2026-10-12T15:26:12.212Z",
+  "plan" : {
+    "mode" : "EXECUTE",
+    "steps" : [ {
+      "rank" : null,
+      "other" : null,
+      "query" : {
+        "page" : 1,
+        "size" : 20,
+        "view" : "LIST",
+        "domain" : "REPORT",
+        "groupBy" : null,
+        "reportIds" : [ "rpt-sales-order" ],
+        "sortField" : "amount",
+        "conditions" : [ ],
+        "descending" : true,
+        "companyCode" : "A"
+      },
+      "action" : "QUERY",
+      "source" : null,
+      "analysis" : null,
+      "knowledgeQuestion" : null
+    }, {
+      "rank" : null,
+      "other" : null,
+      "query" : null,
+      "action" : "GROUP",
+      "source" : 0,
+      "analysis" : {
+        "bucket" : "NONE",
+        "dateField" : null,
+        "dimensions" : [ "productName" ],
+        "compareMonth" : null
+      },
+      "knowledgeQuestion" : null
+    }, {
+      "rank" : {
+        "count" : 2,
+        "field" : "sum",
+        "descending" : true
+      },
+      "other" : null,
+      "query" : null,
+      "action" : "RANK",
+      "source" : 1,
+      "analysis" : null,
+      "knowledgeQuestion" : null
+    }, {
+      "rank" : null,
+      "other" : 2,
+      "query" : null,
+      "action" : "DRILLDOWN",
+      "source" : 0,
+      "analysis" : null,
+      "knowledgeQuestion" : null
+    } ],
+    "objective" : "按产品统计、排名并展开明细",
+    "clarification" : null
+  },
+  "steps" : [ {
+    "index" : 0,
+    "action" : "QUERY",
+    "status" : "RUNNING"
+  } ],
+  "answer" : null,
+  "usage" : [ {
+    "model" : "ISOLATED_TEST_DOUBLE",
+    "stage" : "PLAN",
+    "number" : 1,
+    "status" : "RESPONDED",
+    "elapsedMs" : 3,
+    "inputTokens" : null,
+    "outputTokens" : null,
+    "usageComplete" : false,
+    "cachedInputTokens" : null
+  }, {
+    "model" : "ISOLATED_TEST_DOUBLE",
+    "stage" : "PLAN_REVIEW",
+    "number" : 2,
+    "status" : "RESPONDED",
+    "elapsedMs" : 0,
+    "inputTokens" : null,
+    "outputTokens" : null,
+    "usageComplete" : false,
+    "cachedInputTokens" : null
+  } ]
+}

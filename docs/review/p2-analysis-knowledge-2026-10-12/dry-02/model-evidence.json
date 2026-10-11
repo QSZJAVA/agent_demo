@@ -1,0 +1,1028 @@
+[ {
+  "source" : "TEST_DOUBLE",
+  "at" : "2026-10-11T15:31:09.267685900Z",
+  "schemaHash" : "2d93ecb4d3e9ca388df0b3f9adc4fd93a8dbcec2da9fb7b0918c255818231e3e",
+  "inputHash" : "d2c608bee7a1fe6de200a85ed344f7c76c4c1413684c145163dc9eca079cce55",
+  "rawJson" : "{\"mode\":\"EXECUTE\",\"objective\":\"按产品统计、排名并展开明细\",\"clarification\":null,\"steps\":[{\"action\":\"QUERY\",\"source\":null,\"other\":null,\"query\":{\"domain\":\"REPORT\",\"view\":\"LIST\",\"reportIds\":[\"rpt-sales-order\"],\"companyCode\":\"A\",\"conditions\":[],\"sortField\":\"amount\",\"descending\":true,\"page\":1,\"size\":20,\"groupBy\":null},\"analysis\":null,\"rank\":null,\"knowledgeQuestion\":null},{\"action\":\"GROUP\",\"source\":0,\"other\":null,\"query\":null,\"analysis\":{\"dimensions\":[\"productName\"],\"dateField\":null,\"bucket\":\"NONE\",\"compareMonth\":null},\"rank\":null,\"knowledgeQuestion\":null},{\"action\":\"RANK\",\"source\":1,\"other\":null,\"query\":null,\"analysis\":null,\"rank\":{\"field\":\"sum\",\"descending\":true,\"count\":2},\"knowledgeQuestion\":null},{\"action\":\"DRILLDOWN\",\"source\":0,\"other\":2,\"query\":null,\"analysis\":null,\"rank\":null,\"knowledgeQuestion\":null}]}",
+  "reply" : {
+    "mode" : "EXECUTE",
+    "objective" : "按产品统计、排名并展开明细",
+    "clarification" : null,
+    "steps" : [ {
+      "action" : "QUERY",
+      "source" : null,
+      "other" : null,
+      "query" : {
+        "domain" : "REPORT",
+        "view" : "LIST",
+        "reportIds" : [ "rpt-sales-order" ],
+        "companyCode" : "A",
+        "conditions" : [ ],
+        "sortField" : "amount",
+        "descending" : true,
+        "page" : 1,
+        "size" : 20,
+        "groupBy" : null
+      },
+      "analysis" : null,
+      "rank" : null,
+      "knowledgeQuestion" : null
+    }, {
+      "action" : "GROUP",
+      "source" : 0,
+      "other" : null,
+      "query" : null,
+      "analysis" : {
+        "dimensions" : [ "productName" ],
+        "dateField" : null,
+        "bucket" : "NONE",
+        "compareMonth" : null
+      },
+      "rank" : null,
+      "knowledgeQuestion" : null
+    }, {
+      "action" : "RANK",
+      "source" : 1,
+      "other" : null,
+      "query" : null,
+      "analysis" : null,
+      "rank" : {
+        "field" : "sum",
+        "descending" : true,
+        "count" : 2
+      },
+      "knowledgeQuestion" : null
+    }, {
+      "action" : "DRILLDOWN",
+      "source" : 0,
+      "other" : 2,
+      "query" : null,
+      "analysis" : null,
+      "rank" : null,
+      "knowledgeQuestion" : null
+    } ]
+  },
+  "model" : "ISOLATED_TEST_DOUBLE",
+  "usage" : {
+    "inputTokens" : null,
+    "outputTokens" : null,
+    "cachedInputTokens" : null
+  },
+  "elapsedMs" : 3
+}, {
+  "source" : "TEST_DOUBLE",
+  "at" : "2026-10-11T15:31:09.304685500Z",
+  "schemaHash" : "45c04bc41a4d7f4e30d82d7c125be115725d60612b96ad0b9eb9115aca079817",
+  "inputHash" : "e6c6b0b3bd5a6391918fb0a26bdf569a6f948bd8dcf454be933e9fb704f9a17f",
+  "rawJson" : "{\"approved\":true,\"reason\":\"隔离状态机测试标签已核对，真实模型另外执行\"}",
+  "reply" : {
+    "approved" : true,
+    "reason" : "隔离状态机测试标签已核对，真实模型另外执行"
+  },
+  "model" : "ISOLATED_TEST_DOUBLE",
+  "usage" : {
+    "inputTokens" : null,
+    "outputTokens" : null,
+    "cachedInputTokens" : null
+  },
+  "elapsedMs" : 0
+}, {
+  "source" : "TEST_DOUBLE",
+  "at" : "2026-10-11T15:31:09.727401100Z",
+  "schemaHash" : "723d1b46da05a7ea892c8a57aee284763aef1bebecb85e5a08d90b1a09c7a9b5",
+  "inputHash" : "cc141558c7f51003f0dd12189fdbb0d0216916a9c22079b48ab493fed018f1ad",
+  "rawJson" : "{\"status\":\"ANSWERED\",\"claims\":[{\"text\":\"结果来自所引用的当前授权依据。\",\"citations\":[{\"sourceId\":\"step-1\",\"quote\":\"已完成操作：QUERY。\\n实际执行查询：{\\\"domain\\\":\\\"REPORT\\\",\\\"view\\\":\\\"LIST\\\",\\\"reportIds\\\":[\\\"rpt-sales-order\\\"],\\\"companyCode\\\":\\\"A\\\",\\\"conditions\\\":[],\\\"sortField\\\":\\\"amount\\\",\\\"descending\\\":true,\\\"page\\\":1,\\\"size\\\":20,\\\"groupBy\\\":null}\\n完整结果共120条记录。\\n金额合计：7141.20 CNY。\\n页面行预览为20条；全部行已展示：false。\\n\\n结构化事实：\\n{\\\"kind\\\":\\\"ROWS\\\",\\\"snapshotId\\\":\\\"c76e28e9735644bba9ba1684033ae09f\\\",\\\"count\\\":120,\\\"query\\\":{\\\"domain\\\":\\\"REPORT\\\",\\\"view\\\":\\\"LIST\\\",\\\"reportIds\\\":[\\\"rpt-sales-order\\\"],\\\"companyCode\\\":\\\"A\\\",\\\"conditions\\\":[],\\\"sortField\\\":\\\"amount\\\",\\\"descending\\\":true,\\\"page\\\":1,\\\"size\\\":20,\\\"groupBy\\\":null},\\\"rows\\\":[{\\\"companyCode\\\":\\\"A\\\",\\\"orderNo\\\":\\\"P2-119\\\",\\\"productName\\\":\\\"alpha \\\",\\\"amount\\\":\\\"119.01\\\",\\\"saleDate\\\":\\\"2026-09-08\\\",\\\"daysSinceSale\\\":\\\"33\\\",\\\"dispatched\\\":\\\"false\\\",\\\"rowKey\\\":\\\"rpt-sales-order:1119\\\",\\\"recordId\\\":\\\"1119\\\",\\\"reportId\\\":\\\"rpt-sales-order\\\",\\\"reportName\\\":\\\"销售报表\\\",\\\"docNo\\\":\\\"P2-119\\\",\\\"date\\\":\\\"2026-09-08\\\",\\\"currency\\\":\\\"CNY\\\",\\\"status\\\":\\\"未派单\\\"},{\\\"companyCode\\\":\\\"A\\\",\\\"orderNo\\\":\\\"P2-118\\\",\\\"productName\\\":\\\"Alpha\\\",\\\"amount\\\":\\\"118.01\\\",\\\"saleDate\\\":\\\"2026-09-07\\\",\\\"daysSinceSale\\\":\\\"34\\\",\\\"dispatched\\\":\\\"false\\\",\\\"rowKey\\\":\\\"rpt-sales-or\"}]}],\"limitations\":[]}",
+  "reply" : {
+    "status" : "ANSWERED",
+    "claims" : [ {
+      "text" : "结果来自所引用的当前授权依据。",
+      "citations" : [ {
+        "sourceId" : "step-1",
+        "quote" : "已完成操作：QUERY。\n实际执行查询：{\"domain\":\"REPORT\",\"view\":\"LIST\",\"reportIds\":[\"rpt-sales-order\"],\"companyCode\":\"A\",\"conditions\":[],\"sortField\":\"amount\",\"descending\":true,\"page\":1,\"size\":20,\"groupBy\":null}\n完整结果共120条记录。\n金额合计：7141.20 CNY。\n页面行预览为20条；全部行已展示：false。\n\n结构化事实：\n{\"kind\":\"ROWS\",\"snapshotId\":\"c76e28e9735644bba9ba1684033ae09f\",\"count\":120,\"query\":{\"domain\":\"REPORT\",\"view\":\"LIST\",\"reportIds\":[\"rpt-sales-order\"],\"companyCode\":\"A\",\"conditions\":[],\"sortField\":\"amount\",\"descending\":true,\"page\":1,\"size\":20,\"groupBy\":null},\"rows\":[{\"companyCode\":\"A\",\"orderNo\":\"P2-119\",\"productName\":\"alpha \",\"amount\":\"119.01\",\"saleDate\":\"2026-09-08\",\"daysSinceSale\":\"33\",\"dispatched\":\"false\",\"rowKey\":\"rpt-sales-order:1119\",\"recordId\":\"1119\",\"reportId\":\"rpt-sales-order\",\"reportName\":\"销售报表\",\"docNo\":\"P2-119\",\"date\":\"2026-09-08\",\"currency\":\"CNY\",\"status\":\"未派单\"},{\"companyCode\":\"A\",\"orderNo\":\"P2-118\",\"productName\":\"Alpha\",\"amount\":\"118.01\",\"saleDate\":\"2026-09-07\",\"daysSinceSale\":\"34\",\"dispatched\":\"false\",\"rowKey\":\"rpt-sales-or"
+      } ]
+    } ],
+    "limitations" : [ ]
+  },
+  "model" : "ISOLATED_TEST_DOUBLE",
+  "usage" : {
+    "inputTokens" : null,
+    "outputTokens" : null,
+    "cachedInputTokens" : null
+  },
+  "elapsedMs" : 1
+}, {
+  "source" : "TEST_DOUBLE",
+  "at" : "2026-10-11T15:31:09.762397700Z",
+  "schemaHash" : "45c04bc41a4d7f4e30d82d7c125be115725d60612b96ad0b9eb9115aca079817",
+  "inputHash" : "7245bc3272f5d9dac4304a05c73f676e6162a2d4047b999319c94266e3e6cfcf",
+  "rawJson" : "{\"approved\":true,\"reason\":\"隔离状态机测试标签已核对，真实模型另外执行\"}",
+  "reply" : {
+    "approved" : true,
+    "reason" : "隔离状态机测试标签已核对，真实模型另外执行"
+  },
+  "model" : "ISOLATED_TEST_DOUBLE",
+  "usage" : {
+    "inputTokens" : null,
+    "outputTokens" : null,
+    "cachedInputTokens" : null
+  },
+  "elapsedMs" : 0
+}, {
+  "source" : "TEST_DOUBLE",
+  "at" : "2026-10-11T15:31:10.682702500Z",
+  "schemaHash" : "2d93ecb4d3e9ca388df0b3f9adc4fd93a8dbcec2da9fb7b0918c255818231e3e",
+  "inputHash" : "65a0b2a78dca3563511034886cd95055277c239d592e09f0f02c6870c38833e6",
+  "rawJson" : "{\"mode\":\"EXECUTE\",\"objective\":\"按产品统计、排名并展开明细\",\"clarification\":null,\"steps\":[{\"action\":\"QUERY\",\"source\":null,\"other\":null,\"query\":{\"domain\":\"REPORT\",\"view\":\"LIST\",\"reportIds\":[\"rpt-sales-order\"],\"companyCode\":\"A\",\"conditions\":[],\"sortField\":\"amount\",\"descending\":true,\"page\":1,\"size\":20,\"groupBy\":null},\"analysis\":null,\"rank\":null,\"knowledgeQuestion\":null},{\"action\":\"GROUP\",\"source\":0,\"other\":null,\"query\":null,\"analysis\":{\"dimensions\":[\"productName\"],\"dateField\":null,\"bucket\":\"NONE\",\"compareMonth\":null},\"rank\":null,\"knowledgeQuestion\":null},{\"action\":\"RANK\",\"source\":1,\"other\":null,\"query\":null,\"analysis\":null,\"rank\":{\"field\":\"sum\",\"descending\":true,\"count\":2},\"knowledgeQuestion\":null},{\"action\":\"DRILLDOWN\",\"source\":0,\"other\":2,\"query\":null,\"analysis\":null,\"rank\":null,\"knowledgeQuestion\":null}]}",
+  "reply" : {
+    "mode" : "EXECUTE",
+    "objective" : "按产品统计、排名并展开明细",
+    "clarification" : null,
+    "steps" : [ {
+      "action" : "QUERY",
+      "source" : null,
+      "other" : null,
+      "query" : {
+        "domain" : "REPORT",
+        "view" : "LIST",
+        "reportIds" : [ "rpt-sales-order" ],
+        "companyCode" : "A",
+        "conditions" : [ ],
+        "sortField" : "amount",
+        "descending" : true,
+        "page" : 1,
+        "size" : 20,
+        "groupBy" : null
+      },
+      "analysis" : null,
+      "rank" : null,
+      "knowledgeQuestion" : null
+    }, {
+      "action" : "GROUP",
+      "source" : 0,
+      "other" : null,
+      "query" : null,
+      "analysis" : {
+        "dimensions" : [ "productName" ],
+        "dateField" : null,
+        "bucket" : "NONE",
+        "compareMonth" : null
+      },
+      "rank" : null,
+      "knowledgeQuestion" : null
+    }, {
+      "action" : "RANK",
+      "source" : 1,
+      "other" : null,
+      "query" : null,
+      "analysis" : null,
+      "rank" : {
+        "field" : "sum",
+        "descending" : true,
+        "count" : 2
+      },
+      "knowledgeQuestion" : null
+    }, {
+      "action" : "DRILLDOWN",
+      "source" : 0,
+      "other" : 2,
+      "query" : null,
+      "analysis" : null,
+      "rank" : null,
+      "knowledgeQuestion" : null
+    } ]
+  },
+  "model" : "ISOLATED_TEST_DOUBLE",
+  "usage" : {
+    "inputTokens" : null,
+    "outputTokens" : null,
+    "cachedInputTokens" : null
+  },
+  "elapsedMs" : 0
+}, {
+  "source" : "TEST_DOUBLE",
+  "at" : "2026-10-11T15:31:10.709780900Z",
+  "schemaHash" : "45c04bc41a4d7f4e30d82d7c125be115725d60612b96ad0b9eb9115aca079817",
+  "inputHash" : "1f827ab3593793301a567452489cfd6516d76d8822007a969a28d1ea22c781d6",
+  "rawJson" : "{\"approved\":true,\"reason\":\"隔离状态机测试标签已核对，真实模型另外执行\"}",
+  "reply" : {
+    "approved" : true,
+    "reason" : "隔离状态机测试标签已核对，真实模型另外执行"
+  },
+  "model" : "ISOLATED_TEST_DOUBLE",
+  "usage" : {
+    "inputTokens" : null,
+    "outputTokens" : null,
+    "cachedInputTokens" : null
+  },
+  "elapsedMs" : 0
+}, {
+  "source" : "TEST_DOUBLE",
+  "at" : "2026-10-11T15:31:10.920789900Z",
+  "schemaHash" : "723d1b46da05a7ea892c8a57aee284763aef1bebecb85e5a08d90b1a09c7a9b5",
+  "inputHash" : "46362e5e184251ab22d7af006b8162a6de3376f740efeda524c805b243058fde",
+  "rawJson" : "{\"status\":\"ANSWERED\",\"claims\":[{\"text\":\"结果来自所引用的当前授权依据。\",\"citations\":[{\"sourceId\":\"step-1\",\"quote\":\"已完成操作：QUERY。\\n实际执行查询：{\\\"domain\\\":\\\"REPORT\\\",\\\"view\\\":\\\"LIST\\\",\\\"reportIds\\\":[\\\"rpt-sales-order\\\"],\\\"companyCode\\\":\\\"A\\\",\\\"conditions\\\":[],\\\"sortField\\\":\\\"amount\\\",\\\"descending\\\":true,\\\"page\\\":1,\\\"size\\\":20,\\\"groupBy\\\":null}\\n完整结果共120条记录。\\n金额合计：7141.20 CNY。\\n页面行预览为20条；全部行已展示：false。\\n\\n结构化事实：\\n{\\\"kind\\\":\\\"ROWS\\\",\\\"snapshotId\\\":\\\"f9b3c58bb3d6409e896990562f840866\\\",\\\"count\\\":120,\\\"query\\\":{\\\"domain\\\":\\\"REPORT\\\",\\\"view\\\":\\\"LIST\\\",\\\"reportIds\\\":[\\\"rpt-sales-order\\\"],\\\"companyCode\\\":\\\"A\\\",\\\"conditions\\\":[],\\\"sortField\\\":\\\"amount\\\",\\\"descending\\\":true,\\\"page\\\":1,\\\"size\\\":20,\\\"groupBy\\\":null},\\\"rows\\\":[{\\\"companyCode\\\":\\\"A\\\",\\\"orderNo\\\":\\\"P2-119\\\",\\\"productName\\\":\\\"alpha \\\",\\\"amount\\\":\\\"119.01\\\",\\\"saleDate\\\":\\\"2026-09-08\\\",\\\"daysSinceSale\\\":\\\"33\\\",\\\"dispatched\\\":\\\"false\\\",\\\"rowKey\\\":\\\"rpt-sales-order:1119\\\",\\\"recordId\\\":\\\"1119\\\",\\\"reportId\\\":\\\"rpt-sales-order\\\",\\\"reportName\\\":\\\"销售报表\\\",\\\"docNo\\\":\\\"P2-119\\\",\\\"date\\\":\\\"2026-09-08\\\",\\\"currency\\\":\\\"CNY\\\",\\\"status\\\":\\\"未派单\\\"},{\\\"companyCode\\\":\\\"A\\\",\\\"orderNo\\\":\\\"P2-118\\\",\\\"productName\\\":\\\"Alpha\\\",\\\"amount\\\":\\\"118.01\\\",\\\"saleDate\\\":\\\"2026-09-07\\\",\\\"daysSinceSale\\\":\\\"34\\\",\\\"dispatched\\\":\\\"false\\\",\\\"rowKey\\\":\\\"rpt-sales-or\"}]}],\"limitations\":[]}",
+  "reply" : {
+    "status" : "ANSWERED",
+    "claims" : [ {
+      "text" : "结果来自所引用的当前授权依据。",
+      "citations" : [ {
+        "sourceId" : "step-1",
+        "quote" : "已完成操作：QUERY。\n实际执行查询：{\"domain\":\"REPORT\",\"view\":\"LIST\",\"reportIds\":[\"rpt-sales-order\"],\"companyCode\":\"A\",\"conditions\":[],\"sortField\":\"amount\",\"descending\":true,\"page\":1,\"size\":20,\"groupBy\":null}\n完整结果共120条记录。\n金额合计：7141.20 CNY。\n页面行预览为20条；全部行已展示：false。\n\n结构化事实：\n{\"kind\":\"ROWS\",\"snapshotId\":\"f9b3c58bb3d6409e896990562f840866\",\"count\":120,\"query\":{\"domain\":\"REPORT\",\"view\":\"LIST\",\"reportIds\":[\"rpt-sales-order\"],\"companyCode\":\"A\",\"conditions\":[],\"sortField\":\"amount\",\"descending\":true,\"page\":1,\"size\":20,\"groupBy\":null},\"rows\":[{\"companyCode\":\"A\",\"orderNo\":\"P2-119\",\"productName\":\"alpha \",\"amount\":\"119.01\",\"saleDate\":\"2026-09-08\",\"daysSinceSale\":\"33\",\"dispatched\":\"false\",\"rowKey\":\"rpt-sales-order:1119\",\"recordId\":\"1119\",\"reportId\":\"rpt-sales-order\",\"reportName\":\"销售报表\",\"docNo\":\"P2-119\",\"date\":\"2026-09-08\",\"currency\":\"CNY\",\"status\":\"未派单\"},{\"companyCode\":\"A\",\"orderNo\":\"P2-118\",\"productName\":\"Alpha\",\"amount\":\"118.01\",\"saleDate\":\"2026-09-07\",\"daysSinceSale\":\"34\",\"dispatched\":\"false\",\"rowKey\":\"rpt-sales-or"
+      } ]
+    } ],
+    "limitations" : [ ]
+  },
+  "model" : "ISOLATED_TEST_DOUBLE",
+  "usage" : {
+    "inputTokens" : null,
+    "outputTokens" : null,
+    "cachedInputTokens" : null
+  },
+  "elapsedMs" : 0
+}, {
+  "source" : "TEST_DOUBLE",
+  "at" : "2026-10-11T15:31:10.952792100Z",
+  "schemaHash" : "45c04bc41a4d7f4e30d82d7c125be115725d60612b96ad0b9eb9115aca079817",
+  "inputHash" : "89497aa64594ec66ecbea4173e9dec59bab1c6091601646785cf9ab750f9c82a",
+  "rawJson" : "{\"approved\":true,\"reason\":\"隔离状态机测试标签已核对，真实模型另外执行\"}",
+  "reply" : {
+    "approved" : true,
+    "reason" : "隔离状态机测试标签已核对，真实模型另外执行"
+  },
+  "model" : "ISOLATED_TEST_DOUBLE",
+  "usage" : {
+    "inputTokens" : null,
+    "outputTokens" : null,
+    "cachedInputTokens" : null
+  },
+  "elapsedMs" : 0
+}, {
+  "source" : "TEST_DOUBLE",
+  "at" : "2026-10-11T15:31:12.700319100Z",
+  "schemaHash" : "2d93ecb4d3e9ca388df0b3f9adc4fd93a8dbcec2da9fb7b0918c255818231e3e",
+  "inputHash" : "3cbf81cbba21f216b052ac08f746db913215434744717a0bc071398410440d79",
+  "rawJson" : "{\"mode\":\"EXECUTE\",\"objective\":\"按产品统计、排名并展开明细\",\"clarification\":null,\"steps\":[{\"action\":\"QUERY\",\"source\":null,\"other\":null,\"query\":{\"domain\":\"REPORT\",\"view\":\"LIST\",\"reportIds\":[\"rpt-sales-order\"],\"companyCode\":\"A\",\"conditions\":[],\"sortField\":\"amount\",\"descending\":true,\"page\":1,\"size\":20,\"groupBy\":null},\"analysis\":null,\"rank\":null,\"knowledgeQuestion\":null},{\"action\":\"GROUP\",\"source\":0,\"other\":null,\"query\":null,\"analysis\":{\"dimensions\":[\"productName\"],\"dateField\":null,\"bucket\":\"NONE\",\"compareMonth\":null},\"rank\":null,\"knowledgeQuestion\":null},{\"action\":\"RANK\",\"source\":1,\"other\":null,\"query\":null,\"analysis\":null,\"rank\":{\"field\":\"sum\",\"descending\":true,\"count\":2},\"knowledgeQuestion\":null},{\"action\":\"DRILLDOWN\",\"source\":0,\"other\":2,\"query\":null,\"analysis\":null,\"rank\":null,\"knowledgeQuestion\":null}]}",
+  "reply" : {
+    "mode" : "EXECUTE",
+    "objective" : "按产品统计、排名并展开明细",
+    "clarification" : null,
+    "steps" : [ {
+      "action" : "QUERY",
+      "source" : null,
+      "other" : null,
+      "query" : {
+        "domain" : "REPORT",
+        "view" : "LIST",
+        "reportIds" : [ "rpt-sales-order" ],
+        "companyCode" : "A",
+        "conditions" : [ ],
+        "sortField" : "amount",
+        "descending" : true,
+        "page" : 1,
+        "size" : 20,
+        "groupBy" : null
+      },
+      "analysis" : null,
+      "rank" : null,
+      "knowledgeQuestion" : null
+    }, {
+      "action" : "GROUP",
+      "source" : 0,
+      "other" : null,
+      "query" : null,
+      "analysis" : {
+        "dimensions" : [ "productName" ],
+        "dateField" : null,
+        "bucket" : "NONE",
+        "compareMonth" : null
+      },
+      "rank" : null,
+      "knowledgeQuestion" : null
+    }, {
+      "action" : "RANK",
+      "source" : 1,
+      "other" : null,
+      "query" : null,
+      "analysis" : null,
+      "rank" : {
+        "field" : "sum",
+        "descending" : true,
+        "count" : 2
+      },
+      "knowledgeQuestion" : null
+    }, {
+      "action" : "DRILLDOWN",
+      "source" : 0,
+      "other" : 2,
+      "query" : null,
+      "analysis" : null,
+      "rank" : null,
+      "knowledgeQuestion" : null
+    } ]
+  },
+  "model" : "ISOLATED_TEST_DOUBLE",
+  "usage" : {
+    "inputTokens" : null,
+    "outputTokens" : null,
+    "cachedInputTokens" : null
+  },
+  "elapsedMs" : 11
+}, {
+  "source" : "TEST_DOUBLE",
+  "at" : "2026-10-11T15:31:13.802470600Z",
+  "schemaHash" : "2d93ecb4d3e9ca388df0b3f9adc4fd93a8dbcec2da9fb7b0918c255818231e3e",
+  "inputHash" : "53e79ab92b096e294f15fa066bc2bf1ecfd5905656806f6f5a7fc600588ff133",
+  "rawJson" : "{\"mode\":\"EXECUTE\",\"objective\":\"按产品统计、排名并展开明细\",\"clarification\":null,\"steps\":[{\"action\":\"QUERY\",\"source\":null,\"other\":null,\"query\":{\"domain\":\"REPORT\",\"view\":\"LIST\",\"reportIds\":[\"rpt-sales-order\"],\"companyCode\":\"A\",\"conditions\":[],\"sortField\":\"amount\",\"descending\":true,\"page\":1,\"size\":20,\"groupBy\":null},\"analysis\":null,\"rank\":null,\"knowledgeQuestion\":null},{\"action\":\"GROUP\",\"source\":0,\"other\":null,\"query\":null,\"analysis\":{\"dimensions\":[\"productName\"],\"dateField\":null,\"bucket\":\"NONE\",\"compareMonth\":null},\"rank\":null,\"knowledgeQuestion\":null},{\"action\":\"RANK\",\"source\":1,\"other\":null,\"query\":null,\"analysis\":null,\"rank\":{\"field\":\"sum\",\"descending\":true,\"count\":2},\"knowledgeQuestion\":null},{\"action\":\"DRILLDOWN\",\"source\":0,\"other\":2,\"query\":null,\"analysis\":null,\"rank\":null,\"knowledgeQuestion\":null}]}",
+  "reply" : {
+    "mode" : "EXECUTE",
+    "objective" : "按产品统计、排名并展开明细",
+    "clarification" : null,
+    "steps" : [ {
+      "action" : "QUERY",
+      "source" : null,
+      "other" : null,
+      "query" : {
+        "domain" : "REPORT",
+        "view" : "LIST",
+        "reportIds" : [ "rpt-sales-order" ],
+        "companyCode" : "A",
+        "conditions" : [ ],
+        "sortField" : "amount",
+        "descending" : true,
+        "page" : 1,
+        "size" : 20,
+        "groupBy" : null
+      },
+      "analysis" : null,
+      "rank" : null,
+      "knowledgeQuestion" : null
+    }, {
+      "action" : "GROUP",
+      "source" : 0,
+      "other" : null,
+      "query" : null,
+      "analysis" : {
+        "dimensions" : [ "productName" ],
+        "dateField" : null,
+        "bucket" : "NONE",
+        "compareMonth" : null
+      },
+      "rank" : null,
+      "knowledgeQuestion" : null
+    }, {
+      "action" : "RANK",
+      "source" : 1,
+      "other" : null,
+      "query" : null,
+      "analysis" : null,
+      "rank" : {
+        "field" : "sum",
+        "descending" : true,
+        "count" : 2
+      },
+      "knowledgeQuestion" : null
+    }, {
+      "action" : "DRILLDOWN",
+      "source" : 0,
+      "other" : 2,
+      "query" : null,
+      "analysis" : null,
+      "rank" : null,
+      "knowledgeQuestion" : null
+    } ]
+  },
+  "model" : "ISOLATED_TEST_DOUBLE",
+  "usage" : {
+    "inputTokens" : null,
+    "outputTokens" : null,
+    "cachedInputTokens" : null
+  },
+  "elapsedMs" : 10
+}, {
+  "source" : "TEST_DOUBLE",
+  "at" : "2026-10-11T15:31:14.891819800Z",
+  "schemaHash" : "2d93ecb4d3e9ca388df0b3f9adc4fd93a8dbcec2da9fb7b0918c255818231e3e",
+  "inputHash" : "ffe3c25818ced2f3a4e7f164c8533599cf94fcb84947b2add6a21811ac80873c",
+  "rawJson" : "{\"mode\":\"EXECUTE\",\"objective\":\"按产品统计、排名并展开明细\",\"clarification\":null,\"steps\":[{\"action\":\"QUERY\",\"source\":null,\"other\":null,\"query\":{\"domain\":\"REPORT\",\"view\":\"LIST\",\"reportIds\":[\"rpt-sales-order\"],\"companyCode\":\"A\",\"conditions\":[],\"sortField\":\"amount\",\"descending\":true,\"page\":1,\"size\":20,\"groupBy\":null},\"analysis\":null,\"rank\":null,\"knowledgeQuestion\":null},{\"action\":\"GROUP\",\"source\":0,\"other\":null,\"query\":null,\"analysis\":{\"dimensions\":[\"productName\"],\"dateField\":null,\"bucket\":\"NONE\",\"compareMonth\":null},\"rank\":null,\"knowledgeQuestion\":null},{\"action\":\"RANK\",\"source\":1,\"other\":null,\"query\":null,\"analysis\":null,\"rank\":{\"field\":\"sum\",\"descending\":true,\"count\":2},\"knowledgeQuestion\":null},{\"action\":\"DRILLDOWN\",\"source\":0,\"other\":2,\"query\":null,\"analysis\":null,\"rank\":null,\"knowledgeQuestion\":null}]}",
+  "reply" : {
+    "mode" : "EXECUTE",
+    "objective" : "按产品统计、排名并展开明细",
+    "clarification" : null,
+    "steps" : [ {
+      "action" : "QUERY",
+      "source" : null,
+      "other" : null,
+      "query" : {
+        "domain" : "REPORT",
+        "view" : "LIST",
+        "reportIds" : [ "rpt-sales-order" ],
+        "companyCode" : "A",
+        "conditions" : [ ],
+        "sortField" : "amount",
+        "descending" : true,
+        "page" : 1,
+        "size" : 20,
+        "groupBy" : null
+      },
+      "analysis" : null,
+      "rank" : null,
+      "knowledgeQuestion" : null
+    }, {
+      "action" : "GROUP",
+      "source" : 0,
+      "other" : null,
+      "query" : null,
+      "analysis" : {
+        "dimensions" : [ "productName" ],
+        "dateField" : null,
+        "bucket" : "NONE",
+        "compareMonth" : null
+      },
+      "rank" : null,
+      "knowledgeQuestion" : null
+    }, {
+      "action" : "RANK",
+      "source" : 1,
+      "other" : null,
+      "query" : null,
+      "analysis" : null,
+      "rank" : {
+        "field" : "sum",
+        "descending" : true,
+        "count" : 2
+      },
+      "knowledgeQuestion" : null
+    }, {
+      "action" : "DRILLDOWN",
+      "source" : 0,
+      "other" : 2,
+      "query" : null,
+      "analysis" : null,
+      "rank" : null,
+      "knowledgeQuestion" : null
+    } ]
+  },
+  "model" : "ISOLATED_TEST_DOUBLE",
+  "usage" : {
+    "inputTokens" : null,
+    "outputTokens" : null,
+    "cachedInputTokens" : null
+  },
+  "elapsedMs" : 5
+}, {
+  "source" : "TEST_DOUBLE",
+  "at" : "2026-10-11T15:31:16.219597500Z",
+  "schemaHash" : "2d93ecb4d3e9ca388df0b3f9adc4fd93a8dbcec2da9fb7b0918c255818231e3e",
+  "inputHash" : "cbe72df61b8a1e94fccebac20dd4710404d069718c6df2f6fa6f8ca73938e800",
+  "rawJson" : "{\"mode\":\"EXECUTE\",\"objective\":\"按产品统计、排名并展开明细\",\"clarification\":null,\"steps\":[{\"action\":\"QUERY\",\"source\":null,\"other\":null,\"query\":{\"domain\":\"REPORT\",\"view\":\"LIST\",\"reportIds\":[\"rpt-sales-order\"],\"companyCode\":\"A\",\"conditions\":[],\"sortField\":\"amount\",\"descending\":true,\"page\":1,\"size\":20,\"groupBy\":null},\"analysis\":null,\"rank\":null,\"knowledgeQuestion\":null},{\"action\":\"GROUP\",\"source\":0,\"other\":null,\"query\":null,\"analysis\":{\"dimensions\":[\"productName\"],\"dateField\":null,\"bucket\":\"NONE\",\"compareMonth\":null},\"rank\":null,\"knowledgeQuestion\":null},{\"action\":\"RANK\",\"source\":1,\"other\":null,\"query\":null,\"analysis\":null,\"rank\":{\"field\":\"sum\",\"descending\":true,\"count\":2},\"knowledgeQuestion\":null},{\"action\":\"DRILLDOWN\",\"source\":0,\"other\":2,\"query\":null,\"analysis\":null,\"rank\":null,\"knowledgeQuestion\":null}]}",
+  "reply" : {
+    "mode" : "EXECUTE",
+    "objective" : "按产品统计、排名并展开明细",
+    "clarification" : null,
+    "steps" : [ {
+      "action" : "QUERY",
+      "source" : null,
+      "other" : null,
+      "query" : {
+        "domain" : "REPORT",
+        "view" : "LIST",
+        "reportIds" : [ "rpt-sales-order" ],
+        "companyCode" : "A",
+        "conditions" : [ ],
+        "sortField" : "amount",
+        "descending" : true,
+        "page" : 1,
+        "size" : 20,
+        "groupBy" : null
+      },
+      "analysis" : null,
+      "rank" : null,
+      "knowledgeQuestion" : null
+    }, {
+      "action" : "GROUP",
+      "source" : 0,
+      "other" : null,
+      "query" : null,
+      "analysis" : {
+        "dimensions" : [ "productName" ],
+        "dateField" : null,
+        "bucket" : "NONE",
+        "compareMonth" : null
+      },
+      "rank" : null,
+      "knowledgeQuestion" : null
+    }, {
+      "action" : "RANK",
+      "source" : 1,
+      "other" : null,
+      "query" : null,
+      "analysis" : null,
+      "rank" : {
+        "field" : "sum",
+        "descending" : true,
+        "count" : 2
+      },
+      "knowledgeQuestion" : null
+    }, {
+      "action" : "DRILLDOWN",
+      "source" : 0,
+      "other" : 2,
+      "query" : null,
+      "analysis" : null,
+      "rank" : null,
+      "knowledgeQuestion" : null
+    } ]
+  },
+  "model" : "ISOLATED_TEST_DOUBLE",
+  "usage" : {
+    "inputTokens" : null,
+    "outputTokens" : null,
+    "cachedInputTokens" : null
+  },
+  "elapsedMs" : 10
+}, {
+  "source" : "TEST_DOUBLE",
+  "at" : "2026-10-11T15:31:17.532851100Z",
+  "schemaHash" : "2d93ecb4d3e9ca388df0b3f9adc4fd93a8dbcec2da9fb7b0918c255818231e3e",
+  "inputHash" : "498a9b0f6527837c5661b095a7d6d58c21367fb75eecd6a869baed41a75d5c11",
+  "rawJson" : "{\"mode\":\"EXECUTE\",\"objective\":\"按产品统计、排名并展开明细\",\"clarification\":null,\"steps\":[{\"action\":\"QUERY\",\"source\":null,\"other\":null,\"query\":{\"domain\":\"REPORT\",\"view\":\"LIST\",\"reportIds\":[\"rpt-sales-order\"],\"companyCode\":\"A\",\"conditions\":[],\"sortField\":\"amount\",\"descending\":true,\"page\":1,\"size\":20,\"groupBy\":null},\"analysis\":null,\"rank\":null,\"knowledgeQuestion\":null},{\"action\":\"GROUP\",\"source\":0,\"other\":null,\"query\":null,\"analysis\":{\"dimensions\":[\"productName\"],\"dateField\":null,\"bucket\":\"NONE\",\"compareMonth\":null},\"rank\":null,\"knowledgeQuestion\":null},{\"action\":\"RANK\",\"source\":1,\"other\":null,\"query\":null,\"analysis\":null,\"rank\":{\"field\":\"sum\",\"descending\":true,\"count\":2},\"knowledgeQuestion\":null},{\"action\":\"DRILLDOWN\",\"source\":0,\"other\":2,\"query\":null,\"analysis\":null,\"rank\":null,\"knowledgeQuestion\":null}]}",
+  "reply" : {
+    "mode" : "EXECUTE",
+    "objective" : "按产品统计、排名并展开明细",
+    "clarification" : null,
+    "steps" : [ {
+      "action" : "QUERY",
+      "source" : null,
+      "other" : null,
+      "query" : {
+        "domain" : "REPORT",
+        "view" : "LIST",
+        "reportIds" : [ "rpt-sales-order" ],
+        "companyCode" : "A",
+        "conditions" : [ ],
+        "sortField" : "amount",
+        "descending" : true,
+        "page" : 1,
+        "size" : 20,
+        "groupBy" : null
+      },
+      "analysis" : null,
+      "rank" : null,
+      "knowledgeQuestion" : null
+    }, {
+      "action" : "GROUP",
+      "source" : 0,
+      "other" : null,
+      "query" : null,
+      "analysis" : {
+        "dimensions" : [ "productName" ],
+        "dateField" : null,
+        "bucket" : "NONE",
+        "compareMonth" : null
+      },
+      "rank" : null,
+      "knowledgeQuestion" : null
+    }, {
+      "action" : "RANK",
+      "source" : 1,
+      "other" : null,
+      "query" : null,
+      "analysis" : null,
+      "rank" : {
+        "field" : "sum",
+        "descending" : true,
+        "count" : 2
+      },
+      "knowledgeQuestion" : null
+    }, {
+      "action" : "DRILLDOWN",
+      "source" : 0,
+      "other" : 2,
+      "query" : null,
+      "analysis" : null,
+      "rank" : null,
+      "knowledgeQuestion" : null
+    } ]
+  },
+  "model" : "ISOLATED_TEST_DOUBLE",
+  "usage" : {
+    "inputTokens" : null,
+    "outputTokens" : null,
+    "cachedInputTokens" : null
+  },
+  "elapsedMs" : 0
+}, {
+  "source" : "TEST_DOUBLE",
+  "at" : "2026-10-11T15:31:17.557850900Z",
+  "schemaHash" : "45c04bc41a4d7f4e30d82d7c125be115725d60612b96ad0b9eb9115aca079817",
+  "inputHash" : "64fb671376184bb204b00c56e7ca558b69d29d78b0e20917584daf49188f2476",
+  "rawJson" : "{\"approved\":true,\"reason\":\"隔离状态机测试标签已核对，真实模型另外执行\"}",
+  "reply" : {
+    "approved" : true,
+    "reason" : "隔离状态机测试标签已核对，真实模型另外执行"
+  },
+  "model" : "ISOLATED_TEST_DOUBLE",
+  "usage" : {
+    "inputTokens" : null,
+    "outputTokens" : null,
+    "cachedInputTokens" : null
+  },
+  "elapsedMs" : 0
+}, {
+  "source" : "TEST_DOUBLE",
+  "at" : "2026-10-11T15:31:17.743337400Z",
+  "schemaHash" : "723d1b46da05a7ea892c8a57aee284763aef1bebecb85e5a08d90b1a09c7a9b5",
+  "inputHash" : "e57c349e1d99e8fea72167f64019ce7a39c5b42a6a14e7d29ab9af7fc9d8b128",
+  "rawJson" : "{\"status\":\"ANSWERED\",\"claims\":[{\"text\":\"结果来自所引用的当前授权依据。\",\"citations\":[{\"sourceId\":\"step-1\",\"quote\":\"已完成操作：QUERY。\\n实际执行查询：{\\\"domain\\\":\\\"REPORT\\\",\\\"view\\\":\\\"LIST\\\",\\\"reportIds\\\":[\\\"rpt-sales-order\\\"],\\\"companyCode\\\":\\\"A\\\",\\\"conditions\\\":[],\\\"sortField\\\":\\\"amount\\\",\\\"descending\\\":true,\\\"page\\\":1,\\\"size\\\":20,\\\"groupBy\\\":null}\\n完整结果共120条记录。\\n金额合计：7141.20 CNY。\\n页面行预览为20条；全部行已展示：false。\\n\\n结构化事实：\\n{\\\"kind\\\":\\\"ROWS\\\",\\\"snapshotId\\\":\\\"d91d621d72b54b7ba1031c78d7a10524\\\",\\\"count\\\":120,\\\"query\\\":{\\\"domain\\\":\\\"REPORT\\\",\\\"view\\\":\\\"LIST\\\",\\\"reportIds\\\":[\\\"rpt-sales-order\\\"],\\\"companyCode\\\":\\\"A\\\",\\\"conditions\\\":[],\\\"sortField\\\":\\\"amount\\\",\\\"descending\\\":true,\\\"page\\\":1,\\\"size\\\":20,\\\"groupBy\\\":null},\\\"rows\\\":[{\\\"companyCode\\\":\\\"A\\\",\\\"orderNo\\\":\\\"P2-119\\\",\\\"productName\\\":\\\"alpha \\\",\\\"amount\\\":\\\"119.01\\\",\\\"saleDate\\\":\\\"2026-09-08\\\",\\\"daysSinceSale\\\":\\\"33\\\",\\\"dispatched\\\":\\\"false\\\",\\\"rowKey\\\":\\\"rpt-sales-order:1119\\\",\\\"recordId\\\":\\\"1119\\\",\\\"reportId\\\":\\\"rpt-sales-order\\\",\\\"reportName\\\":\\\"销售报表\\\",\\\"docNo\\\":\\\"P2-119\\\",\\\"date\\\":\\\"2026-09-08\\\",\\\"currency\\\":\\\"CNY\\\",\\\"status\\\":\\\"未派单\\\"},{\\\"companyCode\\\":\\\"A\\\",\\\"orderNo\\\":\\\"P2-118\\\",\\\"productName\\\":\\\"Alpha\\\",\\\"amount\\\":\\\"118.01\\\",\\\"saleDate\\\":\\\"2026-09-07\\\",\\\"daysSinceSale\\\":\\\"34\\\",\\\"dispatched\\\":\\\"false\\\",\\\"rowKey\\\":\\\"rpt-sales-or\"}]}],\"limitations\":[]}",
+  "reply" : {
+    "status" : "ANSWERED",
+    "claims" : [ {
+      "text" : "结果来自所引用的当前授权依据。",
+      "citations" : [ {
+        "sourceId" : "step-1",
+        "quote" : "已完成操作：QUERY。\n实际执行查询：{\"domain\":\"REPORT\",\"view\":\"LIST\",\"reportIds\":[\"rpt-sales-order\"],\"companyCode\":\"A\",\"conditions\":[],\"sortField\":\"amount\",\"descending\":true,\"page\":1,\"size\":20,\"groupBy\":null}\n完整结果共120条记录。\n金额合计：7141.20 CNY。\n页面行预览为20条；全部行已展示：false。\n\n结构化事实：\n{\"kind\":\"ROWS\",\"snapshotId\":\"d91d621d72b54b7ba1031c78d7a10524\",\"count\":120,\"query\":{\"domain\":\"REPORT\",\"view\":\"LIST\",\"reportIds\":[\"rpt-sales-order\"],\"companyCode\":\"A\",\"conditions\":[],\"sortField\":\"amount\",\"descending\":true,\"page\":1,\"size\":20,\"groupBy\":null},\"rows\":[{\"companyCode\":\"A\",\"orderNo\":\"P2-119\",\"productName\":\"alpha \",\"amount\":\"119.01\",\"saleDate\":\"2026-09-08\",\"daysSinceSale\":\"33\",\"dispatched\":\"false\",\"rowKey\":\"rpt-sales-order:1119\",\"recordId\":\"1119\",\"reportId\":\"rpt-sales-order\",\"reportName\":\"销售报表\",\"docNo\":\"P2-119\",\"date\":\"2026-09-08\",\"currency\":\"CNY\",\"status\":\"未派单\"},{\"companyCode\":\"A\",\"orderNo\":\"P2-118\",\"productName\":\"Alpha\",\"amount\":\"118.01\",\"saleDate\":\"2026-09-07\",\"daysSinceSale\":\"34\",\"dispatched\":\"false\",\"rowKey\":\"rpt-sales-or"
+      } ]
+    } ],
+    "limitations" : [ ]
+  },
+  "model" : "ISOLATED_TEST_DOUBLE",
+  "usage" : {
+    "inputTokens" : null,
+    "outputTokens" : null,
+    "cachedInputTokens" : null
+  },
+  "elapsedMs" : 0
+}, {
+  "source" : "TEST_DOUBLE",
+  "at" : "2026-10-11T15:31:17.774534100Z",
+  "schemaHash" : "45c04bc41a4d7f4e30d82d7c125be115725d60612b96ad0b9eb9115aca079817",
+  "inputHash" : "1fc00912f9fc426805bb998d9422943cc54ccc428ee76e8cb4307a1acab3a76c",
+  "rawJson" : "{\"approved\":true,\"reason\":\"隔离状态机测试标签已核对，真实模型另外执行\"}",
+  "reply" : {
+    "approved" : true,
+    "reason" : "隔离状态机测试标签已核对，真实模型另外执行"
+  },
+  "model" : "ISOLATED_TEST_DOUBLE",
+  "usage" : {
+    "inputTokens" : null,
+    "outputTokens" : null,
+    "cachedInputTokens" : null
+  },
+  "elapsedMs" : 0
+}, {
+  "source" : "TEST_DOUBLE",
+  "at" : "2026-10-11T15:31:18.616396700Z",
+  "schemaHash" : "2d93ecb4d3e9ca388df0b3f9adc4fd93a8dbcec2da9fb7b0918c255818231e3e",
+  "inputHash" : "3cb679fa07fc1c3d1090ee2ae1477b206f8d7350134148ab272aaa15b34ec101",
+  "rawJson" : "{\"mode\":\"EXECUTE\",\"objective\":\"非法后向依赖\",\"clarification\":null,\"steps\":[{\"action\":\"QUERY\",\"source\":null,\"other\":null,\"query\":{\"domain\":\"REPORT\",\"view\":\"LIST\",\"reportIds\":[\"rpt-sales-order\"],\"companyCode\":\"A\",\"conditions\":[],\"sortField\":\"amount\",\"descending\":true,\"page\":1,\"size\":20,\"groupBy\":null},\"analysis\":null,\"rank\":null,\"knowledgeQuestion\":null},{\"action\":\"GROUP\",\"source\":2,\"other\":null,\"query\":null,\"analysis\":{\"dimensions\":[],\"dateField\":null,\"bucket\":\"NONE\",\"compareMonth\":null},\"rank\":null,\"knowledgeQuestion\":null}]}",
+  "reply" : {
+    "mode" : "EXECUTE",
+    "objective" : "非法后向依赖",
+    "clarification" : null,
+    "steps" : [ {
+      "action" : "QUERY",
+      "source" : null,
+      "other" : null,
+      "query" : {
+        "domain" : "REPORT",
+        "view" : "LIST",
+        "reportIds" : [ "rpt-sales-order" ],
+        "companyCode" : "A",
+        "conditions" : [ ],
+        "sortField" : "amount",
+        "descending" : true,
+        "page" : 1,
+        "size" : 20,
+        "groupBy" : null
+      },
+      "analysis" : null,
+      "rank" : null,
+      "knowledgeQuestion" : null
+    }, {
+      "action" : "GROUP",
+      "source" : 2,
+      "other" : null,
+      "query" : null,
+      "analysis" : {
+        "dimensions" : [ ],
+        "dateField" : null,
+        "bucket" : "NONE",
+        "compareMonth" : null
+      },
+      "rank" : null,
+      "knowledgeQuestion" : null
+    } ]
+  },
+  "model" : "ISOLATED_TEST_DOUBLE",
+  "usage" : {
+    "inputTokens" : null,
+    "outputTokens" : null,
+    "cachedInputTokens" : null
+  },
+  "elapsedMs" : 0
+}, {
+  "source" : "TEST_DOUBLE",
+  "at" : "2026-10-11T15:31:18.647397100Z",
+  "schemaHash" : "2d93ecb4d3e9ca388df0b3f9adc4fd93a8dbcec2da9fb7b0918c255818231e3e",
+  "inputHash" : "5e3a19425c89008ce930de06b99c4206128981c9e57b8bac25466e6e8d5e222d",
+  "rawJson" : "{\"mode\":\"EXECUTE\",\"objective\":\"非法后向依赖\",\"clarification\":null,\"steps\":[{\"action\":\"QUERY\",\"source\":null,\"other\":null,\"query\":{\"domain\":\"REPORT\",\"view\":\"LIST\",\"reportIds\":[\"rpt-sales-order\"],\"companyCode\":\"A\",\"conditions\":[],\"sortField\":\"amount\",\"descending\":true,\"page\":1,\"size\":20,\"groupBy\":null},\"analysis\":null,\"rank\":null,\"knowledgeQuestion\":null},{\"action\":\"GROUP\",\"source\":2,\"other\":null,\"query\":null,\"analysis\":{\"dimensions\":[],\"dateField\":null,\"bucket\":\"NONE\",\"compareMonth\":null},\"rank\":null,\"knowledgeQuestion\":null}]}",
+  "reply" : {
+    "mode" : "EXECUTE",
+    "objective" : "非法后向依赖",
+    "clarification" : null,
+    "steps" : [ {
+      "action" : "QUERY",
+      "source" : null,
+      "other" : null,
+      "query" : {
+        "domain" : "REPORT",
+        "view" : "LIST",
+        "reportIds" : [ "rpt-sales-order" ],
+        "companyCode" : "A",
+        "conditions" : [ ],
+        "sortField" : "amount",
+        "descending" : true,
+        "page" : 1,
+        "size" : 20,
+        "groupBy" : null
+      },
+      "analysis" : null,
+      "rank" : null,
+      "knowledgeQuestion" : null
+    }, {
+      "action" : "GROUP",
+      "source" : 2,
+      "other" : null,
+      "query" : null,
+      "analysis" : {
+        "dimensions" : [ ],
+        "dateField" : null,
+        "bucket" : "NONE",
+        "compareMonth" : null
+      },
+      "rank" : null,
+      "knowledgeQuestion" : null
+    } ]
+  },
+  "model" : "ISOLATED_TEST_DOUBLE",
+  "usage" : {
+    "inputTokens" : null,
+    "outputTokens" : null,
+    "cachedInputTokens" : null
+  },
+  "elapsedMs" : 0
+}, {
+  "source" : "TEST_DOUBLE",
+  "at" : "2026-10-11T15:31:18.804202200Z",
+  "schemaHash" : "2d93ecb4d3e9ca388df0b3f9adc4fd93a8dbcec2da9fb7b0918c255818231e3e",
+  "inputHash" : "377de031e2ca42533ad6d0638c183addc7008e88716e5c52e700b092bd933110",
+  "rawJson" : "{\"mode\":\"EXECUTE\",\"objective\":\"按产品统计、排名并展开明细\",\"clarification\":null,\"steps\":[{\"action\":\"QUERY\",\"source\":null,\"other\":null,\"query\":{\"domain\":\"REPORT\",\"view\":\"LIST\",\"reportIds\":[\"rpt-sales-order\"],\"companyCode\":\"A\",\"conditions\":[],\"sortField\":\"amount\",\"descending\":true,\"page\":1,\"size\":20,\"groupBy\":null},\"analysis\":null,\"rank\":null,\"knowledgeQuestion\":null},{\"action\":\"GROUP\",\"source\":0,\"other\":null,\"query\":null,\"analysis\":{\"dimensions\":[\"productName\"],\"dateField\":null,\"bucket\":\"NONE\",\"compareMonth\":null},\"rank\":null,\"knowledgeQuestion\":null},{\"action\":\"RANK\",\"source\":1,\"other\":null,\"query\":null,\"analysis\":null,\"rank\":{\"field\":\"sum\",\"descending\":true,\"count\":2},\"knowledgeQuestion\":null},{\"action\":\"DRILLDOWN\",\"source\":0,\"other\":2,\"query\":null,\"analysis\":null,\"rank\":null,\"knowledgeQuestion\":null}]}",
+  "reply" : {
+    "mode" : "EXECUTE",
+    "objective" : "按产品统计、排名并展开明细",
+    "clarification" : null,
+    "steps" : [ {
+      "action" : "QUERY",
+      "source" : null,
+      "other" : null,
+      "query" : {
+        "domain" : "REPORT",
+        "view" : "LIST",
+        "reportIds" : [ "rpt-sales-order" ],
+        "companyCode" : "A",
+        "conditions" : [ ],
+        "sortField" : "amount",
+        "descending" : true,
+        "page" : 1,
+        "size" : 20,
+        "groupBy" : null
+      },
+      "analysis" : null,
+      "rank" : null,
+      "knowledgeQuestion" : null
+    }, {
+      "action" : "GROUP",
+      "source" : 0,
+      "other" : null,
+      "query" : null,
+      "analysis" : {
+        "dimensions" : [ "productName" ],
+        "dateField" : null,
+        "bucket" : "NONE",
+        "compareMonth" : null
+      },
+      "rank" : null,
+      "knowledgeQuestion" : null
+    }, {
+      "action" : "RANK",
+      "source" : 1,
+      "other" : null,
+      "query" : null,
+      "analysis" : null,
+      "rank" : {
+        "field" : "sum",
+        "descending" : true,
+        "count" : 2
+      },
+      "knowledgeQuestion" : null
+    }, {
+      "action" : "DRILLDOWN",
+      "source" : 0,
+      "other" : 2,
+      "query" : null,
+      "analysis" : null,
+      "rank" : null,
+      "knowledgeQuestion" : null
+    } ]
+  },
+  "model" : "ISOLATED_TEST_DOUBLE",
+  "usage" : {
+    "inputTokens" : null,
+    "outputTokens" : null,
+    "cachedInputTokens" : null
+  },
+  "elapsedMs" : 0
+}, {
+  "source" : "TEST_DOUBLE",
+  "at" : "2026-10-11T15:31:18.829131700Z",
+  "schemaHash" : "45c04bc41a4d7f4e30d82d7c125be115725d60612b96ad0b9eb9115aca079817",
+  "inputHash" : "49afd85dc16fa0ef9efe5afb752ceee84256da25e928c0d0b4dda2499e297923",
+  "rawJson" : "{\"approved\":true,\"reason\":\"隔离状态机测试标签已核对，真实模型另外执行\"}",
+  "reply" : {
+    "approved" : true,
+    "reason" : "隔离状态机测试标签已核对，真实模型另外执行"
+  },
+  "model" : "ISOLATED_TEST_DOUBLE",
+  "usage" : {
+    "inputTokens" : null,
+    "outputTokens" : null,
+    "cachedInputTokens" : null
+  },
+  "elapsedMs" : 0
+}, {
+  "source" : "TEST_DOUBLE",
+  "at" : "2026-10-11T15:31:19.005279300Z",
+  "schemaHash" : "723d1b46da05a7ea892c8a57aee284763aef1bebecb85e5a08d90b1a09c7a9b5",
+  "inputHash" : "891c83f339860dd3bd0fd810c1460cb361c671647f7ea2a57052478a10f55bb8",
+  "rawJson" : "{\"status\":\"ANSWERED\",\"claims\":[{\"text\":\"结果来自所引用的当前授权依据。\",\"citations\":[{\"sourceId\":\"forged\",\"quote\":\"已完成操作：QUERY。\\n实际执行查询：{\\\"domain\\\":\\\"REPORT\\\",\\\"view\\\":\\\"LIST\\\",\\\"reportIds\\\":[\\\"rpt-sales-order\\\"],\\\"companyCode\\\":\\\"A\\\",\\\"conditions\\\":[],\\\"sortField\\\":\\\"amount\\\",\\\"descending\\\":true,\\\"page\\\":1,\\\"size\\\":20,\\\"groupBy\\\":null}\\n完整结果共120条记录。\\n金额合计：7141.20 CNY。\\n页面行预览为20条；全部行已展示：false。\\n\\n结构化事实：\\n{\\\"kind\\\":\\\"ROWS\\\",\\\"snapshotId\\\":\\\"8365219fc6ec4bb7a5b53f0cd23a6ba5\\\",\\\"count\\\":120,\\\"query\\\":{\\\"domain\\\":\\\"REPORT\\\",\\\"view\\\":\\\"LIST\\\",\\\"reportIds\\\":[\\\"rpt-sales-order\\\"],\\\"companyCode\\\":\\\"A\\\",\\\"conditions\\\":[],\\\"sortField\\\":\\\"amount\\\",\\\"descending\\\":true,\\\"page\\\":1,\\\"size\\\":20,\\\"groupBy\\\":null},\\\"rows\\\":[{\\\"companyCode\\\":\\\"A\\\",\\\"orderNo\\\":\\\"P2-119\\\",\\\"productName\\\":\\\"alpha \\\",\\\"amount\\\":\\\"119.01\\\",\\\"saleDate\\\":\\\"2026-09-08\\\",\\\"daysSinceSale\\\":\\\"33\\\",\\\"dispatched\\\":\\\"false\\\",\\\"rowKey\\\":\\\"rpt-sales-order:1119\\\",\\\"recordId\\\":\\\"1119\\\",\\\"reportId\\\":\\\"rpt-sales-order\\\",\\\"reportName\\\":\\\"销售报表\\\",\\\"docNo\\\":\\\"P2-119\\\",\\\"date\\\":\\\"2026-09-08\\\",\\\"currency\\\":\\\"CNY\\\",\\\"status\\\":\\\"未派单\\\"},{\\\"companyCode\\\":\\\"A\\\",\\\"orderNo\\\":\\\"P2-118\\\",\\\"productName\\\":\\\"Alpha\\\",\\\"amount\\\":\\\"118.01\\\",\\\"saleDate\\\":\\\"2026-09-07\\\",\\\"daysSinceSale\\\":\\\"34\\\",\\\"dispatched\\\":\\\"false\\\",\\\"rowKey\\\":\\\"rpt-sales-or\"}]}],\"limitations\":[]}",
+  "reply" : {
+    "status" : "ANSWERED",
+    "claims" : [ {
+      "text" : "结果来自所引用的当前授权依据。",
+      "citations" : [ {
+        "sourceId" : "forged",
+        "quote" : "已完成操作：QUERY。\n实际执行查询：{\"domain\":\"REPORT\",\"view\":\"LIST\",\"reportIds\":[\"rpt-sales-order\"],\"companyCode\":\"A\",\"conditions\":[],\"sortField\":\"amount\",\"descending\":true,\"page\":1,\"size\":20,\"groupBy\":null}\n完整结果共120条记录。\n金额合计：7141.20 CNY。\n页面行预览为20条；全部行已展示：false。\n\n结构化事实：\n{\"kind\":\"ROWS\",\"snapshotId\":\"8365219fc6ec4bb7a5b53f0cd23a6ba5\",\"count\":120,\"query\":{\"domain\":\"REPORT\",\"view\":\"LIST\",\"reportIds\":[\"rpt-sales-order\"],\"companyCode\":\"A\",\"conditions\":[],\"sortField\":\"amount\",\"descending\":true,\"page\":1,\"size\":20,\"groupBy\":null},\"rows\":[{\"companyCode\":\"A\",\"orderNo\":\"P2-119\",\"productName\":\"alpha \",\"amount\":\"119.01\",\"saleDate\":\"2026-09-08\",\"daysSinceSale\":\"33\",\"dispatched\":\"false\",\"rowKey\":\"rpt-sales-order:1119\",\"recordId\":\"1119\",\"reportId\":\"rpt-sales-order\",\"reportName\":\"销售报表\",\"docNo\":\"P2-119\",\"date\":\"2026-09-08\",\"currency\":\"CNY\",\"status\":\"未派单\"},{\"companyCode\":\"A\",\"orderNo\":\"P2-118\",\"productName\":\"Alpha\",\"amount\":\"118.01\",\"saleDate\":\"2026-09-07\",\"daysSinceSale\":\"34\",\"dispatched\":\"false\",\"rowKey\":\"rpt-sales-or"
+      } ]
+    } ],
+    "limitations" : [ ]
+  },
+  "model" : "ISOLATED_TEST_DOUBLE",
+  "usage" : {
+    "inputTokens" : null,
+    "outputTokens" : null,
+    "cachedInputTokens" : null
+  },
+  "elapsedMs" : 0
+}, {
+  "source" : "TEST_DOUBLE",
+  "at" : "2026-10-11T15:31:19.049279800Z",
+  "schemaHash" : "723d1b46da05a7ea892c8a57aee284763aef1bebecb85e5a08d90b1a09c7a9b5",
+  "inputHash" : "81855ee9e2795b4badb45f7c88c4f3746dca5f778d74be8b93cecf2e27349184",
+  "rawJson" : "{\"status\":\"ANSWERED\",\"claims\":[{\"text\":\"结果来自所引用的当前授权依据。\",\"citations\":[{\"sourceId\":\"forged\",\"quote\":\"已完成操作：QUERY。\\n实际执行查询：{\\\"domain\\\":\\\"REPORT\\\",\\\"view\\\":\\\"LIST\\\",\\\"reportIds\\\":[\\\"rpt-sales-order\\\"],\\\"companyCode\\\":\\\"A\\\",\\\"conditions\\\":[],\\\"sortField\\\":\\\"amount\\\",\\\"descending\\\":true,\\\"page\\\":1,\\\"size\\\":20,\\\"groupBy\\\":null}\\n完整结果共120条记录。\\n金额合计：7141.20 CNY。\\n页面行预览为20条；全部行已展示：false。\\n\\n结构化事实：\\n{\\\"kind\\\":\\\"ROWS\\\",\\\"snapshotId\\\":\\\"8365219fc6ec4bb7a5b53f0cd23a6ba5\\\",\\\"count\\\":120,\\\"query\\\":{\\\"domain\\\":\\\"REPORT\\\",\\\"view\\\":\\\"LIST\\\",\\\"reportIds\\\":[\\\"rpt-sales-order\\\"],\\\"companyCode\\\":\\\"A\\\",\\\"conditions\\\":[],\\\"sortField\\\":\\\"amount\\\",\\\"descending\\\":true,\\\"page\\\":1,\\\"size\\\":20,\\\"groupBy\\\":null},\\\"rows\\\":[{\\\"companyCode\\\":\\\"A\\\",\\\"orderNo\\\":\\\"P2-119\\\",\\\"productName\\\":\\\"alpha \\\",\\\"amount\\\":\\\"119.01\\\",\\\"saleDate\\\":\\\"2026-09-08\\\",\\\"daysSinceSale\\\":\\\"33\\\",\\\"dispatched\\\":\\\"false\\\",\\\"rowKey\\\":\\\"rpt-sales-order:1119\\\",\\\"recordId\\\":\\\"1119\\\",\\\"reportId\\\":\\\"rpt-sales-order\\\",\\\"reportName\\\":\\\"销售报表\\\",\\\"docNo\\\":\\\"P2-119\\\",\\\"date\\\":\\\"2026-09-08\\\",\\\"currency\\\":\\\"CNY\\\",\\\"status\\\":\\\"未派单\\\"},{\\\"companyCode\\\":\\\"A\\\",\\\"orderNo\\\":\\\"P2-118\\\",\\\"productName\\\":\\\"Alpha\\\",\\\"amount\\\":\\\"118.01\\\",\\\"saleDate\\\":\\\"2026-09-07\\\",\\\"daysSinceSale\\\":\\\"34\\\",\\\"dispatched\\\":\\\"false\\\",\\\"rowKey\\\":\\\"rpt-sales-or\"}]}],\"limitations\":[]}",
+  "reply" : {
+    "status" : "ANSWERED",
+    "claims" : [ {
+      "text" : "结果来自所引用的当前授权依据。",
+      "citations" : [ {
+        "sourceId" : "forged",
+        "quote" : "已完成操作：QUERY。\n实际执行查询：{\"domain\":\"REPORT\",\"view\":\"LIST\",\"reportIds\":[\"rpt-sales-order\"],\"companyCode\":\"A\",\"conditions\":[],\"sortField\":\"amount\",\"descending\":true,\"page\":1,\"size\":20,\"groupBy\":null}\n完整结果共120条记录。\n金额合计：7141.20 CNY。\n页面行预览为20条；全部行已展示：false。\n\n结构化事实：\n{\"kind\":\"ROWS\",\"snapshotId\":\"8365219fc6ec4bb7a5b53f0cd23a6ba5\",\"count\":120,\"query\":{\"domain\":\"REPORT\",\"view\":\"LIST\",\"reportIds\":[\"rpt-sales-order\"],\"companyCode\":\"A\",\"conditions\":[],\"sortField\":\"amount\",\"descending\":true,\"page\":1,\"size\":20,\"groupBy\":null},\"rows\":[{\"companyCode\":\"A\",\"orderNo\":\"P2-119\",\"productName\":\"alpha \",\"amount\":\"119.01\",\"saleDate\":\"2026-09-08\",\"daysSinceSale\":\"33\",\"dispatched\":\"false\",\"rowKey\":\"rpt-sales-order:1119\",\"recordId\":\"1119\",\"reportId\":\"rpt-sales-order\",\"reportName\":\"销售报表\",\"docNo\":\"P2-119\",\"date\":\"2026-09-08\",\"currency\":\"CNY\",\"status\":\"未派单\"},{\"companyCode\":\"A\",\"orderNo\":\"P2-118\",\"productName\":\"Alpha\",\"amount\":\"118.01\",\"saleDate\":\"2026-09-07\",\"daysSinceSale\":\"34\",\"dispatched\":\"false\",\"rowKey\":\"rpt-sales-or"
+      } ]
+    } ],
+    "limitations" : [ ]
+  },
+  "model" : "ISOLATED_TEST_DOUBLE",
+  "usage" : {
+    "inputTokens" : null,
+    "outputTokens" : null,
+    "cachedInputTokens" : null
+  },
+  "elapsedMs" : 0
+}, {
+  "source" : "TEST_DOUBLE",
+  "at" : "2026-10-11T15:31:21.555920Z",
+  "schemaHash" : "2d93ecb4d3e9ca388df0b3f9adc4fd93a8dbcec2da9fb7b0918c255818231e3e",
+  "inputHash" : "743ee4652024a03d08a039a20c10f9f07ec3390521d927527cf175e1a6fcdea4",
+  "rawJson" : "{\"mode\":\"EXECUTE\",\"objective\":\"分析选定快照\",\"clarification\":null,\"steps\":[{\"action\":\"SNAPSHOT\",\"source\":null,\"other\":null,\"query\":null,\"analysis\":null,\"rank\":null,\"knowledgeQuestion\":null},{\"action\":\"GROUP\",\"source\":0,\"other\":null,\"query\":null,\"analysis\":{\"dimensions\":[\"productName\"],\"dateField\":null,\"bucket\":\"NONE\",\"compareMonth\":null},\"rank\":null,\"knowledgeQuestion\":null},{\"action\":\"RANK\",\"source\":1,\"other\":null,\"query\":null,\"analysis\":null,\"rank\":{\"field\":\"sum\",\"descending\":true,\"count\":2},\"knowledgeQuestion\":null},{\"action\":\"DRILLDOWN\",\"source\":0,\"other\":2,\"query\":null,\"analysis\":null,\"rank\":null,\"knowledgeQuestion\":null}]}",
+  "reply" : {
+    "mode" : "EXECUTE",
+    "objective" : "分析选定快照",
+    "clarification" : null,
+    "steps" : [ {
+      "action" : "SNAPSHOT",
+      "source" : null,
+      "other" : null,
+      "query" : null,
+      "analysis" : null,
+      "rank" : null,
+      "knowledgeQuestion" : null
+    }, {
+      "action" : "GROUP",
+      "source" : 0,
+      "other" : null,
+      "query" : null,
+      "analysis" : {
+        "dimensions" : [ "productName" ],
+        "dateField" : null,
+        "bucket" : "NONE",
+        "compareMonth" : null
+      },
+      "rank" : null,
+      "knowledgeQuestion" : null
+    }, {
+      "action" : "RANK",
+      "source" : 1,
+      "other" : null,
+      "query" : null,
+      "analysis" : null,
+      "rank" : {
+        "field" : "sum",
+        "descending" : true,
+        "count" : 2
+      },
+      "knowledgeQuestion" : null
+    }, {
+      "action" : "DRILLDOWN",
+      "source" : 0,
+      "other" : 2,
+      "query" : null,
+      "analysis" : null,
+      "rank" : null,
+      "knowledgeQuestion" : null
+    } ]
+  },
+  "model" : "ISOLATED_TEST_DOUBLE",
+  "usage" : {
+    "inputTokens" : null,
+    "outputTokens" : null,
+    "cachedInputTokens" : null
+  },
+  "elapsedMs" : 0
+}, {
+  "source" : "TEST_DOUBLE",
+  "at" : "2026-10-11T15:31:21.583920300Z",
+  "schemaHash" : "45c04bc41a4d7f4e30d82d7c125be115725d60612b96ad0b9eb9115aca079817",
+  "inputHash" : "3310179146ab12fd8802c966d0352e9c18f2e059cefbecc5e1a5db95fab44f0b",
+  "rawJson" : "{\"approved\":true,\"reason\":\"隔离状态机测试标签已核对，真实模型另外执行\"}",
+  "reply" : {
+    "approved" : true,
+    "reason" : "隔离状态机测试标签已核对，真实模型另外执行"
+  },
+  "model" : "ISOLATED_TEST_DOUBLE",
+  "usage" : {
+    "inputTokens" : null,
+    "outputTokens" : null,
+    "cachedInputTokens" : null
+  },
+  "elapsedMs" : 0
+}, {
+  "source" : "TEST_DOUBLE",
+  "at" : "2026-10-11T15:31:21.749480200Z",
+  "schemaHash" : "723d1b46da05a7ea892c8a57aee284763aef1bebecb85e5a08d90b1a09c7a9b5",
+  "inputHash" : "e48b363a9eca3e092ae118d2a696656493c199cb4ba02d8b46e905f10f71d233",
+  "rawJson" : "{\"status\":\"ANSWERED\",\"claims\":[{\"text\":\"结果来自所引用的当前授权依据。\",\"citations\":[{\"sourceId\":\"step-1\",\"quote\":\"已完成操作：SNAPSHOT。\\n实际执行查询：{\\\"domain\\\":\\\"REPORT\\\",\\\"view\\\":\\\"LIST\\\",\\\"reportIds\\\":[\\\"rpt-sales-order\\\"],\\\"companyCode\\\":\\\"A\\\",\\\"conditions\\\":[],\\\"sortField\\\":\\\"amount\\\",\\\"descending\\\":true,\\\"page\\\":1,\\\"size\\\":20,\\\"groupBy\\\":null}\\n完整结果共120条记录。\\n金额合计：7141.20 CNY。\\n页面行预览为20条；全部行已展示：false。\\n\\n结构化事实：\\n{\\\"kind\\\":\\\"ROWS\\\",\\\"snapshotId\\\":\\\"d3fe4d9dbe4546aea3c4bd0597a80193\\\",\\\"count\\\":120,\\\"query\\\":{\\\"domain\\\":\\\"REPORT\\\",\\\"view\\\":\\\"LIST\\\",\\\"reportIds\\\":[\\\"rpt-sales-order\\\"],\\\"companyCode\\\":\\\"A\\\",\\\"conditions\\\":[],\\\"sortField\\\":\\\"amount\\\",\\\"descending\\\":true,\\\"page\\\":1,\\\"size\\\":20,\\\"groupBy\\\":null},\\\"rows\\\":[{\\\"companyCode\\\":\\\"A\\\",\\\"orderNo\\\":\\\"P2-119\\\",\\\"productName\\\":\\\"alpha \\\",\\\"amount\\\":\\\"119.01\\\",\\\"saleDate\\\":\\\"2026-09-08\\\",\\\"daysSinceSale\\\":\\\"33\\\",\\\"dispatched\\\":\\\"false\\\",\\\"rowKey\\\":\\\"rpt-sales-order:1119\\\",\\\"recordId\\\":\\\"1119\\\",\\\"reportId\\\":\\\"rpt-sales-order\\\",\\\"reportName\\\":\\\"销售报表\\\",\\\"docNo\\\":\\\"P2-119\\\",\\\"date\\\":\\\"2026-09-08\\\",\\\"currency\\\":\\\"CNY\\\",\\\"status\\\":\\\"未派单\\\"},{\\\"companyCode\\\":\\\"A\\\",\\\"orderNo\\\":\\\"P2-118\\\",\\\"productName\\\":\\\"Alpha\\\",\\\"amount\\\":\\\"118.01\\\",\\\"saleDate\\\":\\\"2026-09-07\\\",\\\"daysSinceSale\\\":\\\"34\\\",\\\"dispatched\\\":\\\"false\\\",\\\"rowKey\\\":\\\"rpt-sales\"}]}],\"limitations\":[]}",
+  "reply" : {
+    "status" : "ANSWERED",
+    "claims" : [ {
+      "text" : "结果来自所引用的当前授权依据。",
+      "citations" : [ {
+        "sourceId" : "step-1",
+        "quote" : "已完成操作：SNAPSHOT。\n实际执行查询：{\"domain\":\"REPORT\",\"view\":\"LIST\",\"reportIds\":[\"rpt-sales-order\"],\"companyCode\":\"A\",\"conditions\":[],\"sortField\":\"amount\",\"descending\":true,\"page\":1,\"size\":20,\"groupBy\":null}\n完整结果共120条记录。\n金额合计：7141.20 CNY。\n页面行预览为20条；全部行已展示：false。\n\n结构化事实：\n{\"kind\":\"ROWS\",\"snapshotId\":\"d3fe4d9dbe4546aea3c4bd0597a80193\",\"count\":120,\"query\":{\"domain\":\"REPORT\",\"view\":\"LIST\",\"reportIds\":[\"rpt-sales-order\"],\"companyCode\":\"A\",\"conditions\":[],\"sortField\":\"amount\",\"descending\":true,\"page\":1,\"size\":20,\"groupBy\":null},\"rows\":[{\"companyCode\":\"A\",\"orderNo\":\"P2-119\",\"productName\":\"alpha \",\"amount\":\"119.01\",\"saleDate\":\"2026-09-08\",\"daysSinceSale\":\"33\",\"dispatched\":\"false\",\"rowKey\":\"rpt-sales-order:1119\",\"recordId\":\"1119\",\"reportId\":\"rpt-sales-order\",\"reportName\":\"销售报表\",\"docNo\":\"P2-119\",\"date\":\"2026-09-08\",\"currency\":\"CNY\",\"status\":\"未派单\"},{\"companyCode\":\"A\",\"orderNo\":\"P2-118\",\"productName\":\"Alpha\",\"amount\":\"118.01\",\"saleDate\":\"2026-09-07\",\"daysSinceSale\":\"34\",\"dispatched\":\"false\",\"rowKey\":\"rpt-sales"
+      } ]
+    } ],
+    "limitations" : [ ]
+  },
+  "model" : "ISOLATED_TEST_DOUBLE",
+  "usage" : {
+    "inputTokens" : null,
+    "outputTokens" : null,
+    "cachedInputTokens" : null
+  },
+  "elapsedMs" : 0
+}, {
+  "source" : "TEST_DOUBLE",
+  "at" : "2026-10-11T15:31:21.780479100Z",
+  "schemaHash" : "45c04bc41a4d7f4e30d82d7c125be115725d60612b96ad0b9eb9115aca079817",
+  "inputHash" : "496f097eac207bb94eebd7186c1f3c6fd4981613bb230c8d016ec4c2aebbabec",
+  "rawJson" : "{\"approved\":true,\"reason\":\"隔离状态机测试标签已核对，真实模型另外执行\"}",
+  "reply" : {
+    "approved" : true,
+    "reason" : "隔离状态机测试标签已核对，真实模型另外执行"
+  },
+  "model" : "ISOLATED_TEST_DOUBLE",
+  "usage" : {
+    "inputTokens" : null,
+    "outputTokens" : null,
+    "cachedInputTokens" : null
+  },
+  "elapsedMs" : 0
+} ]

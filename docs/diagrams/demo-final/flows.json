@@ -60,7 +60,7 @@
         "kind": "store",
         "title": "MySQL + Redis",
         "lines": [
-          "单一 V1 空库基线 · 44 表 / 512 字段",
+          "单一 V1 空库基线 · 47 表 / 557 字段",
           "状态、字段快照、租约、版本"
         ]
       },
@@ -2183,6 +2183,267 @@
         "rank",
         "guard",
         "重核事实"
+      ]
+    ]
+  },
+  {
+    "name": "15 有限分析与知识问答",
+    "note": "real,mcp · active · MODEL；最多6步、2份基础查询、8次模型调用；真实工单和生产准入待完成。",
+    "edgeLabels": {
+      "execute:mcp": [
+        845,
+        620
+      ]
+    },
+    "nodes": [
+      {
+        "id": "request",
+        "col": 1,
+        "row": 0,
+        "kind": "ui",
+        "title": "明确问题与公司报表范围",
+        "lines": [
+          "可选本人查询快照",
+          "历史任务读取不重新分析"
+        ]
+      },
+      {
+        "id": "document",
+        "col": 0,
+        "row": 0,
+        "kind": "ui",
+        "title": "管理员维护知识草稿",
+        "lines": [
+          "正文、来源、生效期、明确原因",
+          "编辑不替换现行发布版本"
+        ]
+      },
+      {
+        "id": "publish",
+        "col": 0,
+        "row": 1,
+        "kind": "guard",
+        "title": "显式发布与版本核对",
+        "lines": [
+          "权限、当前编辑版本与发布确认",
+          "并发冲突不得自动覆盖"
+        ]
+      },
+      {
+        "id": "plan",
+        "col": 1,
+        "row": 1,
+        "kind": "model",
+        "title": "MODEL规划与独立复核",
+        "lines": [
+          "完整子目标、字段、条件与数量",
+          "修正次数纳入总预算"
+        ]
+      },
+      {
+        "id": "sources",
+        "col": 0,
+        "row": 2,
+        "kind": "store",
+        "title": "有效业务知识与原文片段",
+        "lines": [
+          "授权目录、词典、有效规则、制度",
+          "先检查范围和生效期，再有界检索"
+        ]
+      },
+      {
+        "id": "graph",
+        "col": 1,
+        "row": 2,
+        "kind": "guard",
+        "title": "有界只读执行图",
+        "lines": [
+          "只引用前序兼容步骤",
+          "禁止循环、SQL与任意工具"
+        ]
+      },
+      {
+        "id": "clarify",
+        "col": 2,
+        "row": 2,
+        "kind": "error",
+        "title": "澄清或明确失败",
+        "lines": [
+          "口径缺失、能力不支持或超预算",
+          "无依据不生成确定性结论"
+        ]
+      },
+      {
+        "id": "execute",
+        "col": 1,
+        "row": 3,
+        "kind": "agent",
+        "title": "受控计算与知识检索",
+        "lines": [
+          "完整统计、精确金额、稳定排名",
+          "明细展开仅使用同一来源快照"
+        ]
+      },
+      {
+        "id": "mcp",
+        "col": 2,
+        "row": 3,
+        "kind": "business",
+        "title": "认证HTTP MCP读取",
+        "lines": [
+          "公司、租户与报表逐次授权",
+          "不同基础查询各有观测时间"
+        ]
+      },
+      {
+        "id": "cancel",
+        "col": 0,
+        "row": 4,
+        "kind": "error",
+        "title": "取消、失租或依据变化",
+        "lines": [
+          "撤销令牌，拒绝迟到结果",
+          "不自动重放模型或业务写入"
+        ]
+      },
+      {
+        "id": "steps",
+        "col": 1,
+        "row": 4,
+        "kind": "store",
+        "title": "持久计划、步骤与实际用量",
+        "lines": [
+          "请求号幂等，展示完整性边界",
+          "失败与已完成步骤分别保留"
+        ]
+      },
+      {
+        "id": "snapshot",
+        "col": 2,
+        "row": 4,
+        "kind": "store",
+        "title": "P1完整不可变快照",
+        "lines": [
+          "翻页恢复不再请求来源或模型",
+          "过期、缺行与撤权明确拒绝"
+        ]
+      },
+      {
+        "id": "answer",
+        "col": 1,
+        "row": 5,
+        "kind": "model",
+        "title": "MODEL生成有依据的回答",
+        "lines": [
+          "仅使用本轮实际来源",
+          "简短结论逐项选择片段编号"
+        ]
+      },
+      {
+        "id": "citation",
+        "col": 1,
+        "row": 6,
+        "kind": "guard",
+        "title": "程序回填原文并核对数字",
+        "lines": [
+          "来源编号必须实际存在",
+          "失败反馈绑定被拒绝的草稿"
+        ]
+      },
+      {
+        "id": "answerReview",
+        "col": 1,
+        "row": 7,
+        "kind": "model",
+        "title": "MODEL独立依据复核",
+        "lines": [
+          "结论须被引用原文支持",
+          "制度描述不能冒充已执行事实"
+        ]
+      },
+      {
+        "id": "result",
+        "col": 1,
+        "row": 8,
+        "kind": "ui",
+        "title": "中间结果、明细与引用依据",
+        "lines": [
+          "有依据 / 依据不足 / 资料冲突",
+          "刷新读取原任务，重新分析须明确发起"
+        ]
+      }
+    ],
+    "edges": [
+      [
+        "request",
+        "plan"
+      ],
+      [
+        "document",
+        "publish"
+      ],
+      [
+        "publish",
+        "sources"
+      ],
+      [
+        "sources",
+        "plan",
+        "规划线索"
+      ],
+      [
+        "plan",
+        "graph"
+      ],
+      [
+        "graph",
+        "clarify",
+        "不可靠"
+      ],
+      [
+        "graph",
+        "execute"
+      ],
+      [
+        "sources",
+        "execute"
+      ],
+      [
+        "execute",
+        "mcp",
+        "需要业务事实"
+      ],
+      [
+        "mcp",
+        "snapshot"
+      ],
+      [
+        "execute",
+        "steps"
+      ],
+      [
+        "snapshot",
+        "steps"
+      ],
+      [
+        "cancel",
+        "steps"
+      ],
+      [
+        "steps",
+        "answer"
+      ],
+      [
+        "answer",
+        "citation"
+      ],
+      [
+        "citation",
+        "answerReview"
+      ],
+      [
+        "answerReview",
+        "result"
       ]
     ]
   }

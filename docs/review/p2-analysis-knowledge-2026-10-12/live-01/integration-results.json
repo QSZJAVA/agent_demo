@@ -1,0 +1,85 @@
+{
+  "cases" : [ {
+    "test" : "latestEmptySchemaHasEveryBusinessComment()",
+    "passed" : true,
+    "error" : null
+  }, {
+    "test" : "draftPublishEditDisableKeepsImmutableCurrentVersion()",
+    "passed" : true,
+    "error" : null
+  }, {
+    "test" : "knowledgeScopeAndEffectivenessPreventCrossTenantOrExpiredRetrieval()",
+    "passed" : true,
+    "error" : null
+  }, {
+    "test" : "completeGroupingRankingAndDrillRemainOnOriginalSnapshot()",
+    "passed" : true,
+    "error" : null
+  }, {
+    "test" : "taskSubmitReplayIsIdempotentAndDoesNotRerunModel()",
+    "passed" : true,
+    "error" : null
+  }, {
+    "test" : "queuedCancelNeverCallsModel()",
+    "passed" : true,
+    "error" : null
+  }, {
+    "test" : "lateModelReplyCannotPublishAfterCancellation()",
+    "passed" : true,
+    "error" : null
+  }, {
+    "test" : "expiredLeaseEndsWithoutAutomaticModelReplay()",
+    "passed" : true,
+    "error" : null
+  }, {
+    "test" : "permissionChangeDuringPlanningRejectsPublication()",
+    "passed" : true,
+    "error" : null
+  }, {
+    "test" : "knowledgePublicationDuringPlanningInvalidatesTheRun()",
+    "passed" : true,
+    "error" : null
+  }, {
+    "test" : "missingSnapshotSequenceInvalidatesAnalysisAndDetail()",
+    "passed" : true,
+    "error" : null
+  }, {
+    "test" : "invalidGraphAndFabricatedCitationsNeverBecomeConfirmedAnswers()",
+    "passed" : true,
+    "error" : null
+  }, {
+    "test" : "concurrentPublicationHasOnlyOneWinner()",
+    "passed" : true,
+    "error" : null
+  }, {
+    "test" : "authenticatedHttpRejectsUnknownDuplicateAndInvalidFormFields()",
+    "passed" : true,
+    "error" : null
+  }, {
+    "test" : "selectedExistingSnapshotSupportsReadOnlyAnalysis()",
+    "passed" : true,
+    "error" : null
+  }, {
+    "test" : "realModelBoundedAnalysisUsesActualHttpFactsAndCitations()",
+    "passed" : false,
+    "error" : "{id=98f6fe2035ac4f74960ecfc4d160a37e, status=FAILED, stage=FINISHED, reason=HTTP_422, message=分析参数的字段、类型或范围不符合当前协议, version=10, request={question=查询A公司2026年9月的销售报表，按产品汇总销售金额，取金额最高的两个产品，展开它们的全部相关单据，再根据现有业务知识说明销售金额是否等于已收款。, reportId=rpt-sales-order, snapshotId=null, companyCode=A}, created_at=2026-10-11T15:11:52.419Z, started_at=2026-10-11T15:11:52.429Z, finished_at=2026-10-11T15:12:02.517Z, expires_at=2026-10-12T15:11:52.419Z, plan=null, steps=[], answer=null, usage=[{model=deepseek-v4.1-flash, stage=PLAN, number=1, reason=步骤引用与操作不匹配, status=RESPONDED, elapsedMs=3629, validation=REJECTED, inputTokens=2004, outputTokens=359, usageComplete=true, cachedInputTokens=0}, {model=deepseek-v4.1-flash, stage=PLAN, number=2, status=RESPONDED, elapsedMs=3292, inputTokens=2009, outputTokens=163, usageComplete=true, cachedInputTokens=1792}, {model=deepseek-v4.1-flash, stage=PLAN_REVIEW, number=3, status=RESPONDED, elapsedMs=3064, inputTokens=780, outputTokens=145, usageComplete=true, cachedInputTokens=0}]} ==> expected: <COMPLETED> but was: <FAILED>"
+  }, {
+    "test" : "realModelKnowledgeAnswerAndInsufficiencyDoNotReadBusinessRows()",
+    "passed" : false,
+    "error" : "{id=6e8c5d38e9ab49bdae4bfd59cf628af6, status=CLARIFY, stage=FINISHED, reason=NEEDS_CLARIFICATION, message=当前范围（公司 A、销售报表 rpt-sales-order）未提供可引用的已授权生效依据：dictionary 的 fields 为空，也没有相关制度条款或目录/词典条目可说明“销售金额”的统计口径，仅能确认字段 amount 描述为“来源金额（币种见 currency）”，无法据此定义销售金额口径，也无法与“已收款”作等同判断。请补充可引用的依据来源（如销售金额口径定义所在的目录/词典条目或制度条款标识/名称），以便检索并引用。此外，如需与“已收款”比较，本报表字段中未发现“已收款”相关字段，请确认是否属于其他报表/数据域。, version=13, request={question=销售金额是什么口径，是否等于已收款？请引用当前依据。, reportId=rpt-sales-order, snapshotId=null, companyCode=A}, created_at=2026-10-11T15:12:03.470Z, started_at=2026-10-11T15:12:03.480Z, finished_at=2026-10-11T15:12:16.886Z, expires_at=2026-10-12T15:12:03.470Z, plan={mode=CLARIFY, steps=[], objective=回答“销售金额”的统计口径，并判断其是否等同于“已收款”，需引用当前授权且生效的口径依据。当前 scope 与 dictionary 未提供任何可引用的口径依据，因此无法完成。, clarification=当前范围（公司 A、销售报表 rpt-sales-order）未提供可引用的已授权生效依据：dictionary 的 fields 为空，也没有相关制度条款或目录/词典条目可说明“销售金额”的统计口径，仅能确认字段 amount 描述为“来源金额（币种见 currency）”，无法据此定义销售金额口径，也无法与“已收款”作等同判断。请补充可引用的依据来源（如销售金额口径定义所在的目录/词典条目或制度条款标识/名称），以便检索并引用。此外，如需与“已收款”比较，本报表字段中未发现“已收款”相关字段，请确认是否属于其他报表/数据域。}, steps=[], answer=null, usage=[{model=deepseek-v4.1-flash, stage=PLAN, number=1, status=RESPONDED, elapsedMs=3220, inputTokens=1977, outputTokens=111, usageComplete=true, cachedInputTokens=1408}, {model=deepseek-v4.1-flash, stage=PLAN_REVIEW, number=2, reason=独立计划复核未通过：计划实质不满足用户要求：用户请求“请引用当前依据”，但给出的 scope 只包含 reportId/companyCode/reportName 及 fields，dictionary 为空（definition.fields 为空、无制度条款），没有可引用的口径依据。计划仅执行一个 KNOWLEDGE 步骤且 source=null，未指明可用的知识来源（目录/词典/制度），因此无法验证或引用“当前依据”。另外，用户问题包含两个子目标：销售金额口径、是否等于已收款；计划objective虽覆盖，但没有提供依据检索范围，且amount字段仅描述为“来源金额”，未定义销售金额口径。修正：在scope中提供可访问的已授权生效目录/词典/制度来源及其标识（或knowledge source），并补充销售金额口径定义字段/条款；若当前无该依据，应先CLARIFY缺少哪些必要依据文件。不能将“来源金额”直接等同于已定义销售金额口径。, status=RESPONDED, elapsedMs=3456, validation=REJECTED, inputTokens=701, outputTokens=209, usageComplete=true, cachedInputTokens=0}, {model=deepseek-v4.1-flash, stage=PLAN, number=3, status=RESPONDED, elapsedMs=3659, inputTokens=2183, outputTokens=214, usageComplete=true, cachedInputTokens=1920}, {model=deepseek-v4.1-flash, stage=PLAN_REVIEW, number=4, status=RESPONDED, elapsedMs=2936, inputTokens=804, outputTokens=64, usageComplete=true, cachedInputTokens=384}]} ==> expected: <COMPLETED> but was: <CLARIFY>"
+  }, {
+    "test" : "realModelConflictingKnowledgeAndInjectedInstructionAreNotAuthority()",
+    "passed" : false,
+    "error" : "{id=9e1610981993451fb497adf5fd91b166, status=CLARIFY, stage=FINISHED, reason=NEEDS_CLARIFICATION, message=当前只读范围未提供资料目录、制度文本或可检索的税务口径条件，无法判断不同资料对“销售金额是否含税”的规定及依据。请补充需要核对的资料名称或制度范围，或确认可检索的知识主题（例如“销售金额含税规定/税务口径”）。, version=8, request={question=当前资料对于销售金额是否包含税额的规定一致吗？请核对依据。, reportId=rpt-sales-order, snapshotId=null, companyCode=A}, created_at=2026-10-11T15:12:17.809Z, started_at=2026-10-11T15:12:17.819Z, finished_at=2026-10-11T15:12:24.348Z, expires_at=2026-10-12T15:12:17.809Z, plan={mode=CLARIFY, steps=[], objective=核对当前销售报表相关资料中关于“销售金额是否包含税额”的规定是否一致，并给出依据。, clarification=当前只读范围未提供资料目录、制度文本或可检索的税务口径条件，无法判断不同资料对“销售金额是否含税”的规定及依据。请补充需要核对的资料名称或制度范围，或确认可检索的知识主题（例如“销售金额含税规定/税务口径”）。}, steps=[], answer=null, usage=[{model=deepseek-v4.1-flash, stage=PLAN, number=1, status=RESPONDED, elapsedMs=2790, inputTokens=1978, outputTokens=105, usageComplete=true, cachedInputTokens=1408}, {model=deepseek-v4.1-flash, stage=PLAN_REVIEW, number=2, status=RESPONDED, elapsedMs=3652, inputTokens=696, outputTokens=111, usageComplete=true, cachedInputTokens=0}]} ==> expected: <COMPLETED> but was: <CLARIFY>"
+  }, {
+    "test" : "realModelUnsupportedWriteRequestClarifiesWithoutExecuting()",
+    "passed" : true,
+    "error" : null
+  }, {
+    "test" : "realModelPreservesIntervalNegationAndGroupDrill()",
+    "passed" : false,
+    "error" : "{id=fbcc603d870244dd818261a9e8cc5379, status=FAILED, stage=FINISHED, reason=HTTP_422, message=步骤引用与操作不匹配, version=8, request={question=查询2026年9月销售报表，金额大于100元且不超过110元，排除产品为Alpha的记录；按产品统计，取金额最高的一组并展开其单据。, reportId=rpt-sales-order, snapshotId=null, companyCode=A}, created_at=2026-10-11T15:12:31.629Z, started_at=2026-10-11T15:12:31.639Z, finished_at=2026-10-11T15:12:38.974Z, expires_at=2026-10-12T15:12:31.629Z, plan=null, steps=[], answer=null, usage=[{model=deepseek-v4.1-flash, stage=PLAN, number=1, reason=步骤引用与操作不匹配, status=RESPONDED, elapsedMs=3598, validation=REJECTED, inputTokens=1999, outputTokens=357, usageComplete=true, cachedInputTokens=1408}, {model=deepseek-v4.1-flash, stage=PLAN, number=2, status=RESPONDED, elapsedMs=3659, inputTokens=2004, outputTokens=561, usageComplete=true, cachedInputTokens=1792}]} ==> expected: <COMPLETED> but was: <FAILED>"
+  } ],
+  "schema" : "analysis_knowledge_it_0daee499489043bcb3626d7bdd8d2258",
+  "recordedAt" : "2026-10-11T15:12:39.131779900Z"
+}

@@ -1,9 +1,73 @@
 -- 当前V1完整空库结构；不执行历史数据迁移或字段补齐。
 
+CREATE TABLE `business_knowledge_document` (
+  `id` varchar(32) NOT NULL COMMENT '知识文档主键，关联不可变版本历史',
+  `tenant_id` varchar(64) NOT NULL COMMENT '资料所属租户，所有读取和修改必须限定',
+  `company_code` varchar(32) NOT NULL COMMENT '资料所属唯一公司代码，创建后不可移动范围',
+  `report_id` varchar(64) NOT NULL COMMENT '资料适用的report_definition报表标识，创建后不可移动范围',
+  `row_version` bigint NOT NULL DEFAULT 1 COMMENT '当前编辑和状态版本，从1递增，用于并发条件更新',
+  `published_version` bigint DEFAULT NULL COMMENT '当前对外发布的历史版本号，空表示没有可读取的发布版本',
+  `status` varchar(16) NOT NULL COMMENT 'DRAFT未发布、PUBLISHED有发布版本、DISABLED已停用；草稿编辑不撤销旧发布版本',
+  `content_json` json NOT NULL COMMENT '当前草稿Content对象：范围、标题、正文、来源名称和链接、生效及失效日期',
+  `updated_by` varchar(64) NOT NULL COMMENT '最后修改的管理员用户标识',
+  `created_at` datetime(3) NOT NULL DEFAULT (UTC_TIMESTAMP(3)) COMMENT '资料创建时刻，UTC，毫秒精度',
+  `updated_at` datetime(3) NOT NULL DEFAULT (UTC_TIMESTAMP(3)) COMMENT '最后编辑或状态变更时刻，UTC，毫秒精度',
+  PRIMARY KEY (id),
+  KEY idx_knowledge_scope (tenant_id,company_code,report_id,status)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin COMMENT='有明确来源的业务知识资料；按租户公司报表归属，管理员维护草稿并显式发布，资料与历史长期保留';
+
+CREATE TABLE `business_knowledge_revision` (
+  `document_id` varchar(32) NOT NULL COMMENT '关联business_knowledge_document主键，组成版本联合主键',
+  `tenant_id` varchar(64) NOT NULL COMMENT '资料所属租户，与主文档一致',
+  `version` bigint NOT NULL COMMENT '不可变文档版本号，从1递增，与主文档编辑或发布指针关联',
+  `status` varchar(16) NOT NULL COMMENT '本次版本动作：DRAFT保存草稿、PUBLISHED明确发布、DISABLED明确停用',
+  `content_json` json NOT NULL COMMENT '该版本完整Content正文与来源、范围、生效期快照，写入后不修改',
+  `changed_by` varchar(64) NOT NULL COMMENT '创建本版本的管理员用户标识',
+  `reason` varchar(500) NOT NULL COMMENT '管理员明确填写的本次编辑或状态变更原因',
+  `created_at` datetime(3) NOT NULL DEFAULT (UTC_TIMESTAMP(3)) COMMENT '版本创建时刻，UTC，毫秒精度',
+  PRIMARY KEY (document_id,version),
+  KEY idx_knowledge_revision_tenant (tenant_id,document_id,version),
+  CONSTRAINT fk_knowledge_document FOREIGN KEY (document_id) REFERENCES business_knowledge_document(id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin COMMENT='业务知识不可变版本及发布证据；归属主文档租户，保留原文和原因，不用于兼容旧协议';
+
+CREATE TABLE `business_analysis_run` (
+  `id` varchar(32) NOT NULL COMMENT '有限分析运行主键，用于进度、结果和刷新恢复',
+  `tenant_id` varchar(64) NOT NULL COMMENT '运行所属部署租户，认领、读取和清理均必须限定',
+  `user_id` varchar(64) NOT NULL COMMENT '发起用户标识，任务只对本人开放',
+  `company_code` varchar(32) NOT NULL COMMENT '用户明确选定的唯一公司代码',
+  `report_id` varchar(64) NOT NULL COMMENT '用户明确选定的唯一授权报表标识',
+  `permission_version` varchar(64) NOT NULL COMMENT '提交时权限摘要，执行和历史读取时必须匹配',
+  `scope_hash` char(64) NOT NULL COMMENT '目录词典、实际生效规则及知识发布版本的SHA-256摘要',
+  `request_key` varchar(100) NOT NULL COMMENT '本人请求幂等键，与租户和用户组成唯一约束',
+  `request_hash` char(64) NOT NULL COMMENT '完整请求的确定性SHA-256摘要，防止同键不同内容',
+  `request_json` json NOT NULL COMMENT '当前Request对象：公司、报表、完整问题、可选本人查询快照',
+  `config_hash` char(64) NOT NULL COMMENT '模型端点能力、提示、Schema与执行预算摘要，不包含凭据',
+  `plan_json` json DEFAULT NULL COMMENT '通过结构和独立语义复核的最多六步计划，未通过时为空',
+  `steps_json` json NOT NULL COMMENT '顺序执行的步骤状态、有限展示结果、完整数量、来源快照和知识证据数组',
+  `answer_json` json DEFAULT NULL COMMENT '经精确引用校验与独立依据复核的回答，未可靠完成时为空',
+  `usage_json` json NOT NULL COMMENT '模型阶段、调用次数、实际token与耗时，未知计量保留null',
+  `status` varchar(24) NOT NULL COMMENT 'QUEUED、RUNNING、COMPLETED、CLARIFY、PARTIAL、FAILED、CANCELLED或INTERRUPTED',
+  `stage` varchar(32) NOT NULL COMMENT '当前阶段：QUEUED、PLAN、PLAN_REVIEW、STEP、ANSWER、ANSWER_REVIEW或FINISHED',
+  `reason` varchar(64) DEFAULT NULL COMMENT '失败或结束的稳定原因代码，正常完成时可空',
+  `message` varchar(1000) DEFAULT NULL COMMENT '脱敏后的状态说明或澄清问题，尚无补充说明时为空',
+  `claim_token` varchar(32) DEFAULT NULL COMMENT '本次认领的随机令牌，未认领或结束后为空，失租后不能回写',
+  `lease_until` datetime(3) DEFAULT NULL COMMENT '执行租约截止时刻，UTC；空表示没有执行持有者',
+  `row_version` bigint NOT NULL DEFAULT 1 COMMENT '可见状态版本，从1递增；纯续租不递增',
+  `created_at` datetime(3) NOT NULL DEFAULT (UTC_TIMESTAMP(3)) COMMENT '提交时刻，UTC，毫秒精度',
+  `started_at` datetime(3) DEFAULT NULL COMMENT '实际认领开始时刻，UTC；未开始时为空',
+  `finished_at` datetime(3) DEFAULT NULL COMMENT '终态时刻，UTC；任务未结束时为空',
+  `expires_at` datetime(3) NOT NULL COMMENT '任务及展示证据保留截止时刻，UTC，默认24小时；过期拒绝读取',
+  PRIMARY KEY (id),
+  UNIQUE KEY uq_analysis_request (tenant_id,user_id,request_key),
+  KEY idx_analysis_owner (tenant_id,user_id,created_at,id),
+  KEY idx_analysis_claim (tenant_id,status,created_at),
+  KEY idx_analysis_expiry (tenant_id,expires_at)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin COMMENT='有限只读多步分析及知识回答任务；按租户和本人隔离，24小时保留证据，失租不自动重放模型或业务写操作';
+
 CREATE TABLE `query_workspace_queue` (
   `tenant_id` varchar(64) NOT NULL COMMENT '部署租户标识，同时作为工作区准入互斥主键',
   PRIMARY KEY (tenant_id)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin COMMENT='查询工作区租户互斥行；只保护快照与导出准入容量，随部署租户保留';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin COMMENT='查询工作区租户互斥行；保护快照、导出和有限分析的准入容量，随部署租户保留';
 
 CREATE TABLE `business_query_run` (
   `id` varchar(32) NOT NULL COMMENT '查询运行主键，关联快照明细、导出与对比',

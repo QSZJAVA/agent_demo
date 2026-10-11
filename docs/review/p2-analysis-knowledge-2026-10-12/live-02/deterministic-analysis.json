@@ -1,0 +1,1110 @@
+{
+  "id" : "b9862d06008c4adf87343a00a307dd80",
+  "status" : "COMPLETED",
+  "stage" : "FINISHED",
+  "reason" : null,
+  "message" : "分析与依据核验已完成",
+  "version" : 20,
+  "request" : {
+    "question" : "按产品汇总金额，取前两组并展开明细",
+    "reportId" : "rpt-sales-order",
+    "snapshotId" : null,
+    "companyCode" : "A"
+  },
+  "created_at" : "2026-10-11T15:21:37.797Z",
+  "started_at" : "2026-10-11T15:21:37.810Z",
+  "finished_at" : "2026-10-11T15:21:38.403Z",
+  "expires_at" : "2026-10-12T15:21:37.797Z",
+  "plan" : {
+    "mode" : "EXECUTE",
+    "steps" : [ {
+      "rank" : null,
+      "other" : null,
+      "query" : {
+        "page" : 1,
+        "size" : 20,
+        "view" : "LIST",
+        "domain" : "REPORT",
+        "groupBy" : null,
+        "reportIds" : [ "rpt-sales-order" ],
+        "sortField" : "amount",
+        "conditions" : [ ],
+        "descending" : true,
+        "companyCode" : "A"
+      },
+      "action" : "QUERY",
+      "source" : null,
+      "analysis" : null,
+      "knowledgeQuestion" : null
+    }, {
+      "rank" : null,
+      "other" : null,
+      "query" : null,
+      "action" : "GROUP",
+      "source" : 0,
+      "analysis" : {
+        "bucket" : "NONE",
+        "dateField" : null,
+        "dimensions" : [ "productName" ],
+        "compareMonth" : null
+      },
+      "knowledgeQuestion" : null
+    }, {
+      "rank" : {
+        "count" : 2,
+        "field" : "sum",
+        "descending" : true
+      },
+      "other" : null,
+      "query" : null,
+      "action" : "RANK",
+      "source" : 1,
+      "analysis" : null,
+      "knowledgeQuestion" : null
+    }, {
+      "rank" : null,
+      "other" : 2,
+      "query" : null,
+      "action" : "DRILLDOWN",
+      "source" : 0,
+      "analysis" : null,
+      "knowledgeQuestion" : null
+    } ],
+    "objective" : "按产品统计、排名并展开明细",
+    "clarification" : null
+  },
+  "steps" : [ {
+    "index" : 0,
+    "action" : "QUERY",
+    "result" : {
+      "kind" : "ROWS",
+      "rows" : [ {
+        "date" : "2026-09-08",
+        "docNo" : "P2-119",
+        "amount" : "119.01",
+        "rowKey" : "rpt-sales-order:1119",
+        "status" : "未派单",
+        "orderNo" : "P2-119",
+        "currency" : "CNY",
+        "recordId" : "1119",
+        "reportId" : "rpt-sales-order",
+        "saleDate" : "2026-09-08",
+        "dispatched" : "false",
+        "reportName" : "销售报表",
+        "companyCode" : "A",
+        "productName" : "alpha ",
+        "daysSinceSale" : "33"
+      }, {
+        "date" : "2026-09-07",
+        "docNo" : "P2-118",
+        "amount" : "118.01",
+        "rowKey" : "rpt-sales-order:1118",
+        "status" : "未派单",
+        "orderNo" : "P2-118",
+        "currency" : "CNY",
+        "recordId" : "1118",
+        "reportId" : "rpt-sales-order",
+        "saleDate" : "2026-09-07",
+        "dispatched" : "false",
+        "reportName" : "销售报表",
+        "companyCode" : "A",
+        "productName" : "Alpha",
+        "daysSinceSale" : "34"
+      }, {
+        "date" : "2026-09-06",
+        "docNo" : "P2-117",
+        "amount" : "117.01",
+        "rowKey" : "rpt-sales-order:1117",
+        "status" : "未派单",
+        "orderNo" : "P2-117",
+        "currency" : "CNY",
+        "recordId" : "1117",
+        "reportId" : "rpt-sales-order",
+        "saleDate" : "2026-09-06",
+        "dispatched" : "false",
+        "reportName" : "销售报表",
+        "companyCode" : "A",
+        "productName" : "alpha ",
+        "daysSinceSale" : "35"
+      }, {
+        "date" : "2026-09-05",
+        "docNo" : "P2-116",
+        "amount" : "116.01",
+        "rowKey" : "rpt-sales-order:1116",
+        "status" : "未派单",
+        "orderNo" : "P2-116",
+        "currency" : "CNY",
+        "recordId" : "1116",
+        "reportId" : "rpt-sales-order",
+        "saleDate" : "2026-09-05",
+        "dispatched" : "false",
+        "reportName" : "销售报表",
+        "companyCode" : "A",
+        "productName" : "Alpha",
+        "daysSinceSale" : "36"
+      }, {
+        "date" : "2026-09-04",
+        "docNo" : "P2-115",
+        "amount" : "115.01",
+        "rowKey" : "rpt-sales-order:1115",
+        "status" : "未派单",
+        "orderNo" : "P2-115",
+        "currency" : "CNY",
+        "recordId" : "1115",
+        "reportId" : "rpt-sales-order",
+        "saleDate" : "2026-09-04",
+        "dispatched" : "false",
+        "reportName" : "销售报表",
+        "companyCode" : "A",
+        "productName" : "alpha ",
+        "daysSinceSale" : "37"
+      }, {
+        "date" : "2026-09-03",
+        "docNo" : "P2-114",
+        "amount" : "114.01",
+        "rowKey" : "rpt-sales-order:1114",
+        "status" : "未派单",
+        "orderNo" : "P2-114",
+        "currency" : "CNY",
+        "recordId" : "1114",
+        "reportId" : "rpt-sales-order",
+        "saleDate" : "2026-09-03",
+        "dispatched" : "false",
+        "reportName" : "销售报表",
+        "companyCode" : "A",
+        "productName" : "Alpha",
+        "daysSinceSale" : "38"
+      }, {
+        "date" : "2026-09-02",
+        "docNo" : "P2-113",
+        "amount" : "113.01",
+        "rowKey" : "rpt-sales-order:1113",
+        "status" : "未派单",
+        "orderNo" : "P2-113",
+        "currency" : "CNY",
+        "recordId" : "1113",
+        "reportId" : "rpt-sales-order",
+        "saleDate" : "2026-09-02",
+        "dispatched" : "false",
+        "reportName" : "销售报表",
+        "companyCode" : "A",
+        "productName" : "alpha ",
+        "daysSinceSale" : "39"
+      }, {
+        "date" : "2026-09-01",
+        "docNo" : "P2-112",
+        "amount" : "112.01",
+        "rowKey" : "rpt-sales-order:1112",
+        "status" : "未派单",
+        "orderNo" : "P2-112",
+        "currency" : "CNY",
+        "recordId" : "1112",
+        "reportId" : "rpt-sales-order",
+        "saleDate" : "2026-09-01",
+        "dispatched" : "false",
+        "reportName" : "销售报表",
+        "companyCode" : "A",
+        "productName" : "Alpha",
+        "daysSinceSale" : "40"
+      }, {
+        "date" : "2026-09-28",
+        "docNo" : "P2-111",
+        "amount" : "111.01",
+        "rowKey" : "rpt-sales-order:1111",
+        "status" : "未派单",
+        "orderNo" : "P2-111",
+        "currency" : "CNY",
+        "recordId" : "1111",
+        "reportId" : "rpt-sales-order",
+        "saleDate" : "2026-09-28",
+        "dispatched" : "false",
+        "reportName" : "销售报表",
+        "companyCode" : "A",
+        "productName" : "alpha ",
+        "daysSinceSale" : "13"
+      }, {
+        "date" : "2026-09-27",
+        "docNo" : "P2-110",
+        "amount" : "110.01",
+        "rowKey" : "rpt-sales-order:1110",
+        "status" : "未派单",
+        "orderNo" : "P2-110",
+        "currency" : "CNY",
+        "recordId" : "1110",
+        "reportId" : "rpt-sales-order",
+        "saleDate" : "2026-09-27",
+        "dispatched" : "false",
+        "reportName" : "销售报表",
+        "companyCode" : "A",
+        "productName" : "Alpha",
+        "daysSinceSale" : "14"
+      }, {
+        "date" : "2026-09-26",
+        "docNo" : "P2-109",
+        "amount" : "109.01",
+        "rowKey" : "rpt-sales-order:1109",
+        "status" : "未派单",
+        "orderNo" : "P2-109",
+        "currency" : "CNY",
+        "recordId" : "1109",
+        "reportId" : "rpt-sales-order",
+        "saleDate" : "2026-09-26",
+        "dispatched" : "false",
+        "reportName" : "销售报表",
+        "companyCode" : "A",
+        "productName" : "alpha ",
+        "daysSinceSale" : "15"
+      }, {
+        "date" : "2026-09-25",
+        "docNo" : "P2-108",
+        "amount" : "108.01",
+        "rowKey" : "rpt-sales-order:1108",
+        "status" : "未派单",
+        "orderNo" : "P2-108",
+        "currency" : "CNY",
+        "recordId" : "1108",
+        "reportId" : "rpt-sales-order",
+        "saleDate" : "2026-09-25",
+        "dispatched" : "false",
+        "reportName" : "销售报表",
+        "companyCode" : "A",
+        "productName" : "Alpha",
+        "daysSinceSale" : "16"
+      }, {
+        "date" : "2026-09-24",
+        "docNo" : "P2-107",
+        "amount" : "107.01",
+        "rowKey" : "rpt-sales-order:1107",
+        "status" : "未派单",
+        "orderNo" : "P2-107",
+        "currency" : "CNY",
+        "recordId" : "1107",
+        "reportId" : "rpt-sales-order",
+        "saleDate" : "2026-09-24",
+        "dispatched" : "false",
+        "reportName" : "销售报表",
+        "companyCode" : "A",
+        "productName" : "alpha ",
+        "daysSinceSale" : "17"
+      }, {
+        "date" : "2026-09-23",
+        "docNo" : "P2-106",
+        "amount" : "106.01",
+        "rowKey" : "rpt-sales-order:1106",
+        "status" : "未派单",
+        "orderNo" : "P2-106",
+        "currency" : "CNY",
+        "recordId" : "1106",
+        "reportId" : "rpt-sales-order",
+        "saleDate" : "2026-09-23",
+        "dispatched" : "false",
+        "reportName" : "销售报表",
+        "companyCode" : "A",
+        "productName" : "Alpha",
+        "daysSinceSale" : "18"
+      }, {
+        "date" : "2026-09-22",
+        "docNo" : "P2-105",
+        "amount" : "105.01",
+        "rowKey" : "rpt-sales-order:1105",
+        "status" : "未派单",
+        "orderNo" : "P2-105",
+        "currency" : "CNY",
+        "recordId" : "1105",
+        "reportId" : "rpt-sales-order",
+        "saleDate" : "2026-09-22",
+        "dispatched" : "false",
+        "reportName" : "销售报表",
+        "companyCode" : "A",
+        "productName" : "alpha ",
+        "daysSinceSale" : "19"
+      }, {
+        "date" : "2026-09-21",
+        "docNo" : "P2-104",
+        "amount" : "104.01",
+        "rowKey" : "rpt-sales-order:1104",
+        "status" : "未派单",
+        "orderNo" : "P2-104",
+        "currency" : "CNY",
+        "recordId" : "1104",
+        "reportId" : "rpt-sales-order",
+        "saleDate" : "2026-09-21",
+        "dispatched" : "false",
+        "reportName" : "销售报表",
+        "companyCode" : "A",
+        "productName" : "Alpha",
+        "daysSinceSale" : "20"
+      }, {
+        "date" : "2026-09-20",
+        "docNo" : "P2-103",
+        "amount" : "103.01",
+        "rowKey" : "rpt-sales-order:1103",
+        "status" : "未派单",
+        "orderNo" : "P2-103",
+        "currency" : "CNY",
+        "recordId" : "1103",
+        "reportId" : "rpt-sales-order",
+        "saleDate" : "2026-09-20",
+        "dispatched" : "false",
+        "reportName" : "销售报表",
+        "companyCode" : "A",
+        "productName" : "alpha ",
+        "daysSinceSale" : "21"
+      }, {
+        "date" : "2026-09-19",
+        "docNo" : "P2-102",
+        "amount" : "102.01",
+        "rowKey" : "rpt-sales-order:1102",
+        "status" : "未派单",
+        "orderNo" : "P2-102",
+        "currency" : "CNY",
+        "recordId" : "1102",
+        "reportId" : "rpt-sales-order",
+        "saleDate" : "2026-09-19",
+        "dispatched" : "false",
+        "reportName" : "销售报表",
+        "companyCode" : "A",
+        "productName" : "Alpha",
+        "daysSinceSale" : "22"
+      }, {
+        "date" : "2026-09-18",
+        "docNo" : "P2-101",
+        "amount" : "101.01",
+        "rowKey" : "rpt-sales-order:1101",
+        "status" : "未派单",
+        "orderNo" : "P2-101",
+        "currency" : "CNY",
+        "recordId" : "1101",
+        "reportId" : "rpt-sales-order",
+        "saleDate" : "2026-09-18",
+        "dispatched" : "false",
+        "reportName" : "销售报表",
+        "companyCode" : "A",
+        "productName" : "alpha ",
+        "daysSinceSale" : "23"
+      }, {
+        "date" : "2026-09-17",
+        "docNo" : "P2-100",
+        "amount" : "100.01",
+        "rowKey" : "rpt-sales-order:1100",
+        "status" : "未派单",
+        "orderNo" : "P2-100",
+        "currency" : "CNY",
+        "recordId" : "1100",
+        "reportId" : "rpt-sales-order",
+        "saleDate" : "2026-09-17",
+        "dispatched" : "false",
+        "reportName" : "销售报表",
+        "companyCode" : "A",
+        "productName" : "Alpha",
+        "daysSinceSale" : "24"
+      } ],
+      "count" : 120,
+      "source" : "业务系统当前记录",
+      "columns" : [ {
+        "name" : "reportId",
+        "type" : "string",
+        "description" : "报表稳定标识"
+      }, {
+        "name" : "reportName",
+        "type" : "string",
+        "description" : "报表名称"
+      }, {
+        "name" : "companyCode",
+        "type" : "string",
+        "description" : "所属公司代码"
+      }, {
+        "name" : "docNo",
+        "type" : "string",
+        "description" : "来源单据号"
+      }, {
+        "name" : "amount",
+        "type" : "decimal",
+        "description" : "来源金额，币种见 currency；空值表示未提供"
+      }, {
+        "name" : "currency",
+        "type" : "string",
+        "description" : "来源声明币种；空值表示未声明，不能跨币种合计"
+      }, {
+        "name" : "date",
+        "type" : "date",
+        "description" : "业务日期；空值表示未配置"
+      }, {
+        "name" : "status",
+        "type" : "string",
+        "description" : "报表派单状态：未派单/已派单"
+      }, {
+        "name" : "orderNo",
+        "type" : "string",
+        "description" : "订单号"
+      }, {
+        "name" : "productName",
+        "type" : "string",
+        "description" : "产品名称"
+      }, {
+        "name" : "saleDate",
+        "type" : "date",
+        "description" : "销售日期，字符串 yyyy-MM-dd"
+      }, {
+        "name" : "daysSinceSale",
+        "type" : "long",
+        "description" : "距销售日期的天数（派生）"
+      }, {
+        "name" : "dispatched",
+        "type" : "boolean",
+        "description" : "来源记录是否已派单；true为已派单，false为未派单，不代表满足派单规则"
+      }, {
+        "name" : "recordId",
+        "type" : "string",
+        "description" : "报表内稳定记录标识"
+      } ],
+      "summary" : {
+        "count" : 120,
+        "groups" : { },
+        "statusCounts" : {
+          "未派单" : 120
+        },
+        "pendingApprovers" : { },
+        "amountsByCurrency" : {
+          "CNY" : "7141.20"
+        },
+        "unclassifiedAmountCount" : 0
+      },
+      "complete" : true,
+      "observedAt" : "2026-10-11T15:21:38.100Z",
+      "snapshotId" : "dde6bb6411cb4243ade6425903432495",
+      "displayedCount" : 20,
+      "allRowsDisplayed" : false
+    },
+    "status" : "COMPLETED",
+    "sources" : [ {
+      "id" : "step-1",
+      "kind" : "DATA",
+      "text" : "{\"kind\":\"ROWS\",\"snapshotId\":\"dde6bb6411cb4243ade6425903432495\",\"count\":120,\"rows\":[{\"companyCode\":\"A\",\"orderNo\":\"P2-119\",\"productName\":\"alpha \",\"amount\":\"119.01\",\"saleDate\":\"2026-09-08\",\"daysSinceSale\":\"33\",\"dispatched\":\"false\",\"rowKey\":\"rpt-sales-order:1119\",\"recordId\":\"1119\",\"reportId\":\"rpt-sales-order\",\"reportName\":\"销售报表\",\"docNo\":\"P2-119\",\"date\":\"2026-09-08\",\"currency\":\"CNY\",\"status\":\"未派单\"},{\"companyCode\":\"A\",\"orderNo\":\"P2-118\",\"productName\":\"Alpha\",\"amount\":\"118.01\",\"saleDate\":\"2026-09-07\",\"daysSinceSale\":\"34\",\"dispatched\":\"false\",\"rowKey\":\"rpt-sales-order:1118\",\"recordId\":\"1118\",\"reportId\":\"rpt-sales-order\",\"reportName\":\"销售报表\",\"docNo\":\"P2-118\",\"date\":\"2026-09-07\",\"currency\":\"CNY\",\"status\":\"未派单\"},{\"companyCode\":\"A\",\"orderNo\":\"P2-117\",\"productName\":\"alpha \",\"amount\":\"117.01\",\"saleDate\":\"2026-09-06\",\"daysSinceSale\":\"35\",\"dispatched\":\"false\",\"rowKey\":\"rpt-sales-order:1117\",\"recordId\":\"1117\",\"reportId\":\"rpt-sales-order\",\"reportName\":\"销售报表\",\"docNo\":\"P2-117\",\"date\":\"2026-09-06\",\"currency\":\"CNY\",\"status\":\"未派单\"},{\"companyCode\":\"A\",\"orderNo\":\"P2-116\",\"productName\":\"Alpha\",\"amount\":\"116.01\",\"saleDate\":\"2026-09-05\",\"daysSinceSale\":\"36\",\"dispatched\":\"false\",\"rowKey\":\"rpt-sales-order:1116\",\"recordId\":\"1116\",\"reportId\":\"rpt-sales-order\",\"reportName\":\"销售报表\",\"docNo\":\"P2-116\",\"date\":\"2026-09-05\",\"currency\":\"CNY\",\"status\":\"未派单\"},{\"companyCode\":\"A\",\"orderNo\":\"P2-115\",\"productName\":\"alpha \",\"amount\":\"115.01\",\"saleDate\":\"2026-09-04\",\"daysSinceSale\":\"37\",\"dispatched\":\"false\",\"rowKey\":\"rpt-sales-order:1115\",\"recordId\":\"1115\",\"reportId\":\"rpt-sales-order\",\"reportName\":\"销售报表\",\"docNo\":\"P2-115\",\"date\":\"2026-09-04\",\"currency\":\"CNY\",\"status\":\"未派单\"},{\"companyCode\":\"A\",\"orderNo\":\"P2-114\",\"productName\":\"Alpha\",\"amount\":\"114.01\",\"saleDate\":\"2026-09-03\",\"daysSinceSale\":\"38\",\"dispatched\":\"false\",\"rowKey\":\"rpt-sales-order:1114\",\"recordId\":\"1114\",\"reportId\":\"rpt-sales-order\",\"reportName\":\"销售报表\",\"docNo\":\"P2-114\",\"date\":\"2026-09-03\",\"currency\":\"CNY\",\"status\":\"未派单\"},{\"companyCode\":\"A\",\"orderNo\":\"P2-113\",\"productName\":\"alpha \",\"amount\":\"113.01\",\"saleDate\":\"2026-09-02\",\"daysSinceSale\":\"39\",\"dispatched\":\"false\",\"rowKey\":\"rpt-sales-order:1113\",\"recordId\":\"1113\",\"reportId\":\"rpt-sales-order\",\"reportName\":\"销售报表\",\"docNo\":\"P2-113\",\"date\":\"2026-09-02\",\"currency\":\"CNY\",\"status\":\"未派单\"},{\"companyCode\":\"A\",\"orderNo\":\"P2-112\",\"productName\":\"Alpha\",\"amount\":\"112.01\",\"saleDate\":\"2026-09-01\",\"daysSinceSale\":\"40\",\"dispatched\":\"false\",\"rowKey\":\"rpt-sales-order:1112\",\"recordId\":\"1112\",\"reportId\":\"rpt-sales-order\",\"reportName\":\"销售报表\",\"docNo\":\"P2-112\",\"date\":\"2026-09-01\",\"currency\":\"CNY\",\"status\":\"未派单\"},{\"companyCode\":\"A\",\"orderNo\":\"P2-111\",\"productName\":\"alpha \",\"amount\":\"111.01\",\"saleDate\":\"2026-09-28\",\"daysSinceSale\":\"13\",\"dispatched\":\"false\",\"rowKey\":\"rpt-sales-order:1111\",\"recordId\":\"1111\",\"reportId\":\"rpt-sales-order\",\"reportName\":\"销售报表\",\"docNo\":\"P2-111\",\"date\":\"2026-09-28\",\"currency\":\"CNY\",\"status\":\"未派单\"},{\"companyCode\":\"A\",\"orderNo\":\"P2-110\",\"productName\":\"Alpha\",\"amount\":\"110.01\",\"saleDate\":\"2026-09-27\",\"daysSinceSale\":\"14\",\"dispatched\":\"false\",\"rowKey\":\"rpt-sales-order:1110\",\"recordId\":\"1110\",\"reportId\":\"rpt-sales-order\",\"reportName\":\"销售报表\",\"docNo\":\"P2-110\",\"date\":\"2026-09-27\",\"currency\":\"CNY\",\"status\":\"未派单\"},{\"companyCode\":\"A\",\"orderNo\":\"P2-109\",\"productName\":\"alpha \",\"amount\":\"109.01\",\"saleDate\":\"2026-09-26\",\"daysSinceSale\":\"15\",\"dispatched\":\"false\",\"rowKey\":\"rpt-sales-order:1109\",\"recordId\":\"1109\",\"reportId\":\"rpt-sales-order\",\"reportName\":\"销售报表\",\"docNo\":\"P2-109\",\"date\":\"2026-09-26\",\"currency\":\"CNY\",\"status\":\"未派单\"},{\"companyCode\":\"A\",\"orderNo\":\"P2-108\",\"productName\":\"Alpha\",\"amount\":\"108.01\",\"saleDate\":\"2026-09-25\",\"daysSinceSale\":\"16\",\"dispatched\":\"false\",\"rowKey\":\"rpt-sales-order:1108\",\"recordId\":\"1108\",\"reportId\":\"rpt-sales-order\",\"reportName\":\"销售报表\",\"docNo\":\"P2-108\",\"date\":\"2026-09-25\",\"currency\":\"CNY\",\"status\":\"未派单\"},{\"companyCode\":\"A\",\"orderNo\":\"P2-107\",\"productName\":\"alpha \",\"amount\":\"107.01\",\"saleDate\":\"2026-09-24\",\"daysSinceSale\":\"17\",\"dispatched\":\"false\",\"rowKey\":\"rpt-sales-order:1107\",\"recordId\":\"1107\",\"reportId\":\"rpt-sales-order\",\"reportName\":\"销售报表\",\"docNo\":\"P2-107\",\"date\":\"2026-09-24\",\"currency\":\"CNY\",\"status\":\"未派单\"},{\"companyCode\":\"A\",\"orderNo\":\"P2-106\",\"productName\":\"Alpha\",\"amount\":\"106.01\",\"saleDate\":\"2026-09-23\",\"daysSinceSale\":\"18\",\"dispatched\":\"false\",\"rowKey\":\"rpt-sales-order:1106\",\"recordId\":\"1106\",\"reportId\":\"rpt-sales-order\",\"reportName\":\"销售报表\",\"docNo\":\"P2-106\",\"date\":\"2026-09-23\",\"currency\":\"CNY\",\"status\":\"未派单\"},{\"companyCode\":\"A\",\"orderNo\":\"P2-105\",\"productName\":\"alpha \",\"amount\":\"105.01\",\"saleDate\":\"2026-09-22\",\"daysSinceSale\":\"19\",\"dispatched\":\"false\",\"rowKey\":\"rpt-sales-order:1105\",\"recordId\":\"1105\",\"reportId\":\"rpt-sales-order\",\"reportName\":\"销售报表\",\"docNo\":\"P2-105\",\"date\":\"2026-09-22\",\"currency\":\"CNY\",\"status\":\"未派单\"},{\"companyCode\":\"A\",\"orderNo\":\"P2-104\",\"productName\":\"Alpha\",\"amount\":\"104.01\",\"saleDate\":\"2026-09-21\",\"daysSinceSale\":\"20\",\"dispatched\":\"false\",\"rowKey\":\"rpt-sales-order:1104\",\"recordId\":\"1104\",\"reportId\":\"rpt-sales-order\",\"reportName\":\"销售报表\",\"docNo\":\"P2-104\",\"date\":\"2026-09-21\",\"currency\":\"CNY\",\"status\":\"未派单\"},{\"companyCode\":\"A\",\"orderNo\":\"P2-103\",\"productName\":\"alpha \",\"amount\":\"103.01\",\"saleDate\":\"2026-09-20\",\"daysSinceSale\":\"21\",\"dispatched\":\"false\",\"rowKey\":\"rpt-sales-order:1103\",\"recordId\":\"1103\",\"reportId\":\"rpt-sales-order\",\"reportName\":\"销售报表\",\"docNo\":\"P2-103\",\"date\":\"2026-09-20\",\"currency\":\"CNY\",\"status\":\"未派单\"},{\"companyCode\":\"A\",\"orderNo\":\"P2-102\",\"productName\":\"Alpha\",\"amount\":\"102.01\",\"saleDate\":\"2026-09-19\",\"daysSinceSale\":\"22\",\"dispatched\":\"false\",\"rowKey\":\"rpt-sales-order:1102\",\"recordId\":\"1102\",\"reportId\":\"rpt-sales-order\",\"reportName\":\"销售报表\",\"docNo\":\"P2-102\",\"date\":\"2026-09-19\",\"currency\":\"CNY\",\"status\":\"未派单\"},{\"companyCode\":\"A\",\"orderNo\":\"P2-101\",\"productName\":\"alpha \",\"amount\":\"101.01\",\"saleDate\":\"2026-09-18\",\"daysSinceSale\":\"23\",\"dispatched\":\"false\",\"rowKey\":\"rpt-sales-order:1101\",\"recordId\":\"1101\",\"reportId\":\"rpt-sales-order\",\"reportName\":\"销售报表\",\"docNo\":\"P2-101\",\"date\":\"2026-09-18\",\"currency\":\"CNY\",\"status\":\"未派单\"},{\"companyCode\":\"A\",\"orderNo\":\"P2-100\",\"productName\":\"Alpha\",\"amount\":\"100.01\",\"saleDate\":\"2026-09-17\",\"daysSinceSale\":\"24\",\"dispatched\":\"false\",\"rowKey\":\"rpt-sales-order:1100\",\"recordId\":\"1100\",\"reportId\":\"rpt-sales-order\",\"reportName\":\"销售报表\",\"docNo\":\"P2-100\",\"date\":\"2026-09-17\",\"currency\":\"CNY\",\"status\":\"未派单\"}],\"displayedCount\":20,\"allRowsDisplayed\":false,\"complete\":true,\"observedAt\":\"2026-10-11T15:21:38.100Z\",\"source\":\"业务系统当前记录\",\"summary\":{\"count\":120,\"amountsByCurrency\":{\"CNY\":\"7141.20\"},\"statusCounts\":{\"未派单\":120},\"groups\":{},\"pendingApprovers\":{},\"unclassifiedAmountCount\":0}}",
+      "scope" : "A / rpt-sales-order",
+      "title" : "第1步 QUERY",
+      "version" : "4636d22ce11cdf288fcaffd98cc766a36d243c0abf4a4dd2b929aa017d2e3d7a",
+      "observedAt" : "2026-10-11T15:21:38.100Z"
+    } ]
+  }, {
+    "index" : 1,
+    "action" : "GROUP",
+    "result" : {
+      "kind" : "GROUPS",
+      "count" : 120,
+      "groups" : [ {
+        "sum" : "1.01",
+        "count" : 1,
+        "period" : null,
+        "average" : "1.01",
+        "currency" : "CNY",
+        "dimensions" : {
+          "productName" : "=1+1"
+        },
+        "amountCount" : 1,
+        "missingAmountCount" : 0
+      }, {
+        "sum" : "3540.60",
+        "count" : 60,
+        "period" : null,
+        "average" : "59.01",
+        "currency" : "CNY",
+        "dimensions" : {
+          "productName" : "Alpha"
+        },
+        "amountCount" : 60,
+        "missingAmountCount" : 0
+      }, {
+        "sum" : "3599.59",
+        "count" : 59,
+        "period" : null,
+        "average" : "61.01",
+        "currency" : "CNY",
+        "dimensions" : {
+          "productName" : "alpha "
+        },
+        "amountCount" : 59,
+        "missingAmountCount" : 0
+      } ],
+      "snapshot" : {
+        "id" : "dde6bb6411cb4243ade6425903432495",
+        "expiresAt" : "2026-10-12T15:21:38.104Z",
+        "consistency" : "LOCAL_REPEATABLE_READ",
+        "contentHash" : "c0a56e9bf2df6fcc8bde4604eef6834fc38af61e1203926c3e2b089c3c136a00",
+        "scannedRows" : 120,
+        "completeness" : "COMPLETE"
+      },
+      "definition" : {
+        "bucket" : "NONE",
+        "dateField" : null,
+        "dimensions" : [ "productName" ],
+        "compareMonth" : null
+      },
+      "snapshotId" : "dde6bb6411cb4243ade6425903432495",
+      "groupsCount" : 3,
+      "averageScale" : 6,
+      "displayedCount" : 3,
+      "missingDateCount" : 0,
+      "allGroupsDisplayed" : true,
+      "unclassifiedAmountCount" : 0
+    },
+    "status" : "COMPLETED",
+    "sources" : [ {
+      "id" : "step-2",
+      "kind" : "DATA",
+      "text" : "{\"snapshot\":{\"id\":\"dde6bb6411cb4243ade6425903432495\",\"expiresAt\":\"2026-10-12T15:21:38.104Z\",\"completeness\":\"COMPLETE\",\"consistency\":\"LOCAL_REPEATABLE_READ\",\"contentHash\":\"c0a56e9bf2df6fcc8bde4604eef6834fc38af61e1203926c3e2b089c3c136a00\",\"scannedRows\":120},\"definition\":{\"dimensions\":[\"productName\"],\"dateField\":null,\"bucket\":\"NONE\",\"compareMonth\":null},\"groups\":[{\"dimensions\":{\"productName\":\"=1+1\"},\"currency\":\"CNY\",\"period\":null,\"count\":1,\"amountCount\":1,\"missingAmountCount\":0,\"sum\":\"1.01\",\"average\":\"1.01\"},{\"dimensions\":{\"productName\":\"Alpha\"},\"currency\":\"CNY\",\"period\":null,\"count\":60,\"amountCount\":60,\"missingAmountCount\":0,\"sum\":\"3540.60\",\"average\":\"59.01\"},{\"dimensions\":{\"productName\":\"alpha \"},\"currency\":\"CNY\",\"period\":null,\"count\":59,\"amountCount\":59,\"missingAmountCount\":0,\"sum\":\"3599.59\",\"average\":\"61.01\"}],\"count\":120,\"unclassifiedAmountCount\":0,\"missingDateCount\":0,\"averageScale\":6,\"kind\":\"GROUPS\",\"groupsCount\":3,\"displayedCount\":3,\"allGroupsDisplayed\":true,\"snapshotId\":\"dde6bb6411cb4243ade6425903432495\"}",
+      "scope" : "A / rpt-sales-order",
+      "title" : "第2步 GROUP",
+      "version" : "f982b60b22a08010ebf9fffbbf66ae7f707bd561c6820475e24549d6fc0dcc03",
+      "observedAt" : "2026-10-11T15:21:37.820492400Z"
+    } ]
+  }, {
+    "index" : 2,
+    "action" : "RANK",
+    "result" : {
+      "kind" : "GROUPS",
+      "groups" : [ {
+        "sum" : "3599.59",
+        "count" : 59,
+        "period" : null,
+        "average" : "61.01",
+        "currency" : "CNY",
+        "dimensions" : {
+          "productName" : "alpha "
+        },
+        "amountCount" : 59,
+        "missingAmountCount" : 0
+      }, {
+        "sum" : "3540.60",
+        "count" : 60,
+        "period" : null,
+        "average" : "59.01",
+        "currency" : "CNY",
+        "dimensions" : {
+          "productName" : "Alpha"
+        },
+        "amountCount" : 60,
+        "missingAmountCount" : 0
+      } ],
+      "ranking" : {
+        "count" : 2,
+        "field" : "sum",
+        "descending" : true
+      },
+      "definition" : {
+        "bucket" : "NONE",
+        "dateField" : null,
+        "dimensions" : [ "productName" ],
+        "compareMonth" : null
+      },
+      "snapshotId" : "dde6bb6411cb4243ade6425903432495",
+      "groupsCount" : 2,
+      "displayedCount" : 2,
+      "allGroupsDisplayed" : true
+    },
+    "status" : "COMPLETED",
+    "sources" : [ {
+      "id" : "step-3",
+      "kind" : "DATA",
+      "text" : "{\"kind\":\"GROUPS\",\"groups\":[{\"dimensions\":{\"productName\":\"alpha \"},\"currency\":\"CNY\",\"period\":null,\"count\":59,\"amountCount\":59,\"missingAmountCount\":0,\"sum\":\"3599.59\",\"average\":\"61.01\"},{\"dimensions\":{\"productName\":\"Alpha\"},\"currency\":\"CNY\",\"period\":null,\"count\":60,\"amountCount\":60,\"missingAmountCount\":0,\"sum\":\"3540.60\",\"average\":\"59.01\"}],\"groupsCount\":2,\"displayedCount\":2,\"allGroupsDisplayed\":true,\"definition\":{\"dimensions\":[\"productName\"],\"dateField\":null,\"bucket\":\"NONE\",\"compareMonth\":null},\"ranking\":{\"field\":\"sum\",\"descending\":true,\"count\":2},\"snapshotId\":\"dde6bb6411cb4243ade6425903432495\"}",
+      "scope" : "A / rpt-sales-order",
+      "title" : "第3步 RANK",
+      "version" : "2db5675eeca57d94007a0b8998988ec1a05003afb9f63b636192e8c1e7df05f5",
+      "observedAt" : "2026-10-11T15:21:37.820492400Z"
+    } ]
+  }, {
+    "index" : 3,
+    "action" : "DRILLDOWN",
+    "result" : {
+      "kind" : "ROWS",
+      "rows" : [ {
+        "date" : "2026-09-08",
+        "docNo" : "P2-119",
+        "amount" : "119.01",
+        "rowKey" : "rpt-sales-order:1119",
+        "status" : "未派单",
+        "orderNo" : "P2-119",
+        "currency" : "CNY",
+        "recordId" : "1119",
+        "reportId" : "rpt-sales-order",
+        "saleDate" : "2026-09-08",
+        "dispatched" : "false",
+        "reportName" : "销售报表",
+        "companyCode" : "A",
+        "productName" : "alpha ",
+        "daysSinceSale" : "33"
+      }, {
+        "date" : "2026-09-07",
+        "docNo" : "P2-118",
+        "amount" : "118.01",
+        "rowKey" : "rpt-sales-order:1118",
+        "status" : "未派单",
+        "orderNo" : "P2-118",
+        "currency" : "CNY",
+        "recordId" : "1118",
+        "reportId" : "rpt-sales-order",
+        "saleDate" : "2026-09-07",
+        "dispatched" : "false",
+        "reportName" : "销售报表",
+        "companyCode" : "A",
+        "productName" : "Alpha",
+        "daysSinceSale" : "34"
+      }, {
+        "date" : "2026-09-06",
+        "docNo" : "P2-117",
+        "amount" : "117.01",
+        "rowKey" : "rpt-sales-order:1117",
+        "status" : "未派单",
+        "orderNo" : "P2-117",
+        "currency" : "CNY",
+        "recordId" : "1117",
+        "reportId" : "rpt-sales-order",
+        "saleDate" : "2026-09-06",
+        "dispatched" : "false",
+        "reportName" : "销售报表",
+        "companyCode" : "A",
+        "productName" : "alpha ",
+        "daysSinceSale" : "35"
+      }, {
+        "date" : "2026-09-05",
+        "docNo" : "P2-116",
+        "amount" : "116.01",
+        "rowKey" : "rpt-sales-order:1116",
+        "status" : "未派单",
+        "orderNo" : "P2-116",
+        "currency" : "CNY",
+        "recordId" : "1116",
+        "reportId" : "rpt-sales-order",
+        "saleDate" : "2026-09-05",
+        "dispatched" : "false",
+        "reportName" : "销售报表",
+        "companyCode" : "A",
+        "productName" : "Alpha",
+        "daysSinceSale" : "36"
+      }, {
+        "date" : "2026-09-04",
+        "docNo" : "P2-115",
+        "amount" : "115.01",
+        "rowKey" : "rpt-sales-order:1115",
+        "status" : "未派单",
+        "orderNo" : "P2-115",
+        "currency" : "CNY",
+        "recordId" : "1115",
+        "reportId" : "rpt-sales-order",
+        "saleDate" : "2026-09-04",
+        "dispatched" : "false",
+        "reportName" : "销售报表",
+        "companyCode" : "A",
+        "productName" : "alpha ",
+        "daysSinceSale" : "37"
+      }, {
+        "date" : "2026-09-03",
+        "docNo" : "P2-114",
+        "amount" : "114.01",
+        "rowKey" : "rpt-sales-order:1114",
+        "status" : "未派单",
+        "orderNo" : "P2-114",
+        "currency" : "CNY",
+        "recordId" : "1114",
+        "reportId" : "rpt-sales-order",
+        "saleDate" : "2026-09-03",
+        "dispatched" : "false",
+        "reportName" : "销售报表",
+        "companyCode" : "A",
+        "productName" : "Alpha",
+        "daysSinceSale" : "38"
+      }, {
+        "date" : "2026-09-02",
+        "docNo" : "P2-113",
+        "amount" : "113.01",
+        "rowKey" : "rpt-sales-order:1113",
+        "status" : "未派单",
+        "orderNo" : "P2-113",
+        "currency" : "CNY",
+        "recordId" : "1113",
+        "reportId" : "rpt-sales-order",
+        "saleDate" : "2026-09-02",
+        "dispatched" : "false",
+        "reportName" : "销售报表",
+        "companyCode" : "A",
+        "productName" : "alpha ",
+        "daysSinceSale" : "39"
+      }, {
+        "date" : "2026-09-01",
+        "docNo" : "P2-112",
+        "amount" : "112.01",
+        "rowKey" : "rpt-sales-order:1112",
+        "status" : "未派单",
+        "orderNo" : "P2-112",
+        "currency" : "CNY",
+        "recordId" : "1112",
+        "reportId" : "rpt-sales-order",
+        "saleDate" : "2026-09-01",
+        "dispatched" : "false",
+        "reportName" : "销售报表",
+        "companyCode" : "A",
+        "productName" : "Alpha",
+        "daysSinceSale" : "40"
+      }, {
+        "date" : "2026-09-28",
+        "docNo" : "P2-111",
+        "amount" : "111.01",
+        "rowKey" : "rpt-sales-order:1111",
+        "status" : "未派单",
+        "orderNo" : "P2-111",
+        "currency" : "CNY",
+        "recordId" : "1111",
+        "reportId" : "rpt-sales-order",
+        "saleDate" : "2026-09-28",
+        "dispatched" : "false",
+        "reportName" : "销售报表",
+        "companyCode" : "A",
+        "productName" : "alpha ",
+        "daysSinceSale" : "13"
+      }, {
+        "date" : "2026-09-27",
+        "docNo" : "P2-110",
+        "amount" : "110.01",
+        "rowKey" : "rpt-sales-order:1110",
+        "status" : "未派单",
+        "orderNo" : "P2-110",
+        "currency" : "CNY",
+        "recordId" : "1110",
+        "reportId" : "rpt-sales-order",
+        "saleDate" : "2026-09-27",
+        "dispatched" : "false",
+        "reportName" : "销售报表",
+        "companyCode" : "A",
+        "productName" : "Alpha",
+        "daysSinceSale" : "14"
+      }, {
+        "date" : "2026-09-26",
+        "docNo" : "P2-109",
+        "amount" : "109.01",
+        "rowKey" : "rpt-sales-order:1109",
+        "status" : "未派单",
+        "orderNo" : "P2-109",
+        "currency" : "CNY",
+        "recordId" : "1109",
+        "reportId" : "rpt-sales-order",
+        "saleDate" : "2026-09-26",
+        "dispatched" : "false",
+        "reportName" : "销售报表",
+        "companyCode" : "A",
+        "productName" : "alpha ",
+        "daysSinceSale" : "15"
+      }, {
+        "date" : "2026-09-25",
+        "docNo" : "P2-108",
+        "amount" : "108.01",
+        "rowKey" : "rpt-sales-order:1108",
+        "status" : "未派单",
+        "orderNo" : "P2-108",
+        "currency" : "CNY",
+        "recordId" : "1108",
+        "reportId" : "rpt-sales-order",
+        "saleDate" : "2026-09-25",
+        "dispatched" : "false",
+        "reportName" : "销售报表",
+        "companyCode" : "A",
+        "productName" : "Alpha",
+        "daysSinceSale" : "16"
+      }, {
+        "date" : "2026-09-24",
+        "docNo" : "P2-107",
+        "amount" : "107.01",
+        "rowKey" : "rpt-sales-order:1107",
+        "status" : "未派单",
+        "orderNo" : "P2-107",
+        "currency" : "CNY",
+        "recordId" : "1107",
+        "reportId" : "rpt-sales-order",
+        "saleDate" : "2026-09-24",
+        "dispatched" : "false",
+        "reportName" : "销售报表",
+        "companyCode" : "A",
+        "productName" : "alpha ",
+        "daysSinceSale" : "17"
+      }, {
+        "date" : "2026-09-23",
+        "docNo" : "P2-106",
+        "amount" : "106.01",
+        "rowKey" : "rpt-sales-order:1106",
+        "status" : "未派单",
+        "orderNo" : "P2-106",
+        "currency" : "CNY",
+        "recordId" : "1106",
+        "reportId" : "rpt-sales-order",
+        "saleDate" : "2026-09-23",
+        "dispatched" : "false",
+        "reportName" : "销售报表",
+        "companyCode" : "A",
+        "productName" : "Alpha",
+        "daysSinceSale" : "18"
+      }, {
+        "date" : "2026-09-22",
+        "docNo" : "P2-105",
+        "amount" : "105.01",
+        "rowKey" : "rpt-sales-order:1105",
+        "status" : "未派单",
+        "orderNo" : "P2-105",
+        "currency" : "CNY",
+        "recordId" : "1105",
+        "reportId" : "rpt-sales-order",
+        "saleDate" : "2026-09-22",
+        "dispatched" : "false",
+        "reportName" : "销售报表",
+        "companyCode" : "A",
+        "productName" : "alpha ",
+        "daysSinceSale" : "19"
+      }, {
+        "date" : "2026-09-21",
+        "docNo" : "P2-104",
+        "amount" : "104.01",
+        "rowKey" : "rpt-sales-order:1104",
+        "status" : "未派单",
+        "orderNo" : "P2-104",
+        "currency" : "CNY",
+        "recordId" : "1104",
+        "reportId" : "rpt-sales-order",
+        "saleDate" : "2026-09-21",
+        "dispatched" : "false",
+        "reportName" : "销售报表",
+        "companyCode" : "A",
+        "productName" : "Alpha",
+        "daysSinceSale" : "20"
+      }, {
+        "date" : "2026-09-20",
+        "docNo" : "P2-103",
+        "amount" : "103.01",
+        "rowKey" : "rpt-sales-order:1103",
+        "status" : "未派单",
+        "orderNo" : "P2-103",
+        "currency" : "CNY",
+        "recordId" : "1103",
+        "reportId" : "rpt-sales-order",
+        "saleDate" : "2026-09-20",
+        "dispatched" : "false",
+        "reportName" : "销售报表",
+        "companyCode" : "A",
+        "productName" : "alpha ",
+        "daysSinceSale" : "21"
+      }, {
+        "date" : "2026-09-19",
+        "docNo" : "P2-102",
+        "amount" : "102.01",
+        "rowKey" : "rpt-sales-order:1102",
+        "status" : "未派单",
+        "orderNo" : "P2-102",
+        "currency" : "CNY",
+        "recordId" : "1102",
+        "reportId" : "rpt-sales-order",
+        "saleDate" : "2026-09-19",
+        "dispatched" : "false",
+        "reportName" : "销售报表",
+        "companyCode" : "A",
+        "productName" : "Alpha",
+        "daysSinceSale" : "22"
+      }, {
+        "date" : "2026-09-18",
+        "docNo" : "P2-101",
+        "amount" : "101.01",
+        "rowKey" : "rpt-sales-order:1101",
+        "status" : "未派单",
+        "orderNo" : "P2-101",
+        "currency" : "CNY",
+        "recordId" : "1101",
+        "reportId" : "rpt-sales-order",
+        "saleDate" : "2026-09-18",
+        "dispatched" : "false",
+        "reportName" : "销售报表",
+        "companyCode" : "A",
+        "productName" : "alpha ",
+        "daysSinceSale" : "23"
+      }, {
+        "date" : "2026-09-17",
+        "docNo" : "P2-100",
+        "amount" : "100.01",
+        "rowKey" : "rpt-sales-order:1100",
+        "status" : "未派单",
+        "orderNo" : "P2-100",
+        "currency" : "CNY",
+        "recordId" : "1100",
+        "reportId" : "rpt-sales-order",
+        "saleDate" : "2026-09-17",
+        "dispatched" : "false",
+        "reportName" : "销售报表",
+        "companyCode" : "A",
+        "productName" : "Alpha",
+        "daysSinceSale" : "24"
+      } ],
+      "count" : 119,
+      "source" : "业务系统当前记录",
+      "columns" : [ {
+        "name" : "reportId",
+        "type" : "string",
+        "description" : "报表稳定标识"
+      }, {
+        "name" : "reportName",
+        "type" : "string",
+        "description" : "报表名称"
+      }, {
+        "name" : "companyCode",
+        "type" : "string",
+        "description" : "所属公司代码"
+      }, {
+        "name" : "docNo",
+        "type" : "string",
+        "description" : "来源单据号"
+      }, {
+        "name" : "amount",
+        "type" : "decimal",
+        "description" : "来源金额，币种见 currency；空值表示未提供"
+      }, {
+        "name" : "currency",
+        "type" : "string",
+        "description" : "来源声明币种；空值表示未声明，不能跨币种合计"
+      }, {
+        "name" : "date",
+        "type" : "date",
+        "description" : "业务日期；空值表示未配置"
+      }, {
+        "name" : "status",
+        "type" : "string",
+        "description" : "报表派单状态：未派单/已派单"
+      }, {
+        "name" : "orderNo",
+        "type" : "string",
+        "description" : "订单号"
+      }, {
+        "name" : "productName",
+        "type" : "string",
+        "description" : "产品名称"
+      }, {
+        "name" : "saleDate",
+        "type" : "date",
+        "description" : "销售日期，字符串 yyyy-MM-dd"
+      }, {
+        "name" : "daysSinceSale",
+        "type" : "long",
+        "description" : "距销售日期的天数（派生）"
+      }, {
+        "name" : "dispatched",
+        "type" : "boolean",
+        "description" : "来源记录是否已派单；true为已派单，false为未派单，不代表满足派单规则"
+      }, {
+        "name" : "recordId",
+        "type" : "string",
+        "description" : "报表内稳定记录标识"
+      } ],
+      "summary" : {
+        "count" : 119,
+        "groups" : { },
+        "statusCounts" : {
+          "未派单" : 119
+        },
+        "pendingApprovers" : { },
+        "amountsByCurrency" : {
+          "CNY" : "7140.19"
+        },
+        "unclassifiedAmountCount" : 0
+      },
+      "complete" : true,
+      "selection" : [ {
+        "sum" : "3599.59",
+        "count" : 59,
+        "period" : null,
+        "average" : "61.01",
+        "currency" : "CNY",
+        "dimensions" : {
+          "productName" : "alpha "
+        },
+        "amountCount" : 59,
+        "missingAmountCount" : 0
+      }, {
+        "sum" : "3540.60",
+        "count" : 60,
+        "period" : null,
+        "average" : "59.01",
+        "currency" : "CNY",
+        "dimensions" : {
+          "productName" : "Alpha"
+        },
+        "amountCount" : 60,
+        "missingAmountCount" : 0
+      } ],
+      "definition" : {
+        "bucket" : "NONE",
+        "dateField" : null,
+        "dimensions" : [ "productName" ],
+        "compareMonth" : null
+      },
+      "observedAt" : "2026-10-11T15:21:38.100Z",
+      "snapshotId" : "dde6bb6411cb4243ade6425903432495",
+      "displayedCount" : 20,
+      "allRowsDisplayed" : false
+    },
+    "status" : "COMPLETED",
+    "sources" : [ {
+      "id" : "step-4",
+      "kind" : "DATA",
+      "text" : "{\"kind\":\"ROWS\",\"snapshotId\":\"dde6bb6411cb4243ade6425903432495\",\"count\":119,\"rows\":[{\"companyCode\":\"A\",\"orderNo\":\"P2-119\",\"productName\":\"alpha \",\"amount\":\"119.01\",\"saleDate\":\"2026-09-08\",\"daysSinceSale\":\"33\",\"dispatched\":\"false\",\"rowKey\":\"rpt-sales-order:1119\",\"recordId\":\"1119\",\"reportId\":\"rpt-sales-order\",\"reportName\":\"销售报表\",\"docNo\":\"P2-119\",\"date\":\"2026-09-08\",\"currency\":\"CNY\",\"status\":\"未派单\"},{\"companyCode\":\"A\",\"orderNo\":\"P2-118\",\"productName\":\"Alpha\",\"amount\":\"118.01\",\"saleDate\":\"2026-09-07\",\"daysSinceSale\":\"34\",\"dispatched\":\"false\",\"rowKey\":\"rpt-sales-order:1118\",\"recordId\":\"1118\",\"reportId\":\"rpt-sales-order\",\"reportName\":\"销售报表\",\"docNo\":\"P2-118\",\"date\":\"2026-09-07\",\"currency\":\"CNY\",\"status\":\"未派单\"},{\"companyCode\":\"A\",\"orderNo\":\"P2-117\",\"productName\":\"alpha \",\"amount\":\"117.01\",\"saleDate\":\"2026-09-06\",\"daysSinceSale\":\"35\",\"dispatched\":\"false\",\"rowKey\":\"rpt-sales-order:1117\",\"recordId\":\"1117\",\"reportId\":\"rpt-sales-order\",\"reportName\":\"销售报表\",\"docNo\":\"P2-117\",\"date\":\"2026-09-06\",\"currency\":\"CNY\",\"status\":\"未派单\"},{\"companyCode\":\"A\",\"orderNo\":\"P2-116\",\"productName\":\"Alpha\",\"amount\":\"116.01\",\"saleDate\":\"2026-09-05\",\"daysSinceSale\":\"36\",\"dispatched\":\"false\",\"rowKey\":\"rpt-sales-order:1116\",\"recordId\":\"1116\",\"reportId\":\"rpt-sales-order\",\"reportName\":\"销售报表\",\"docNo\":\"P2-116\",\"date\":\"2026-09-05\",\"currency\":\"CNY\",\"status\":\"未派单\"},{\"companyCode\":\"A\",\"orderNo\":\"P2-115\",\"productName\":\"alpha \",\"amount\":\"115.01\",\"saleDate\":\"2026-09-04\",\"daysSinceSale\":\"37\",\"dispatched\":\"false\",\"rowKey\":\"rpt-sales-order:1115\",\"recordId\":\"1115\",\"reportId\":\"rpt-sales-order\",\"reportName\":\"销售报表\",\"docNo\":\"P2-115\",\"date\":\"2026-09-04\",\"currency\":\"CNY\",\"status\":\"未派单\"},{\"companyCode\":\"A\",\"orderNo\":\"P2-114\",\"productName\":\"Alpha\",\"amount\":\"114.01\",\"saleDate\":\"2026-09-03\",\"daysSinceSale\":\"38\",\"dispatched\":\"false\",\"rowKey\":\"rpt-sales-order:1114\",\"recordId\":\"1114\",\"reportId\":\"rpt-sales-order\",\"reportName\":\"销售报表\",\"docNo\":\"P2-114\",\"date\":\"2026-09-03\",\"currency\":\"CNY\",\"status\":\"未派单\"},{\"companyCode\":\"A\",\"orderNo\":\"P2-113\",\"productName\":\"alpha \",\"amount\":\"113.01\",\"saleDate\":\"2026-09-02\",\"daysSinceSale\":\"39\",\"dispatched\":\"false\",\"rowKey\":\"rpt-sales-order:1113\",\"recordId\":\"1113\",\"reportId\":\"rpt-sales-order\",\"reportName\":\"销售报表\",\"docNo\":\"P2-113\",\"date\":\"2026-09-02\",\"currency\":\"CNY\",\"status\":\"未派单\"},{\"companyCode\":\"A\",\"orderNo\":\"P2-112\",\"productName\":\"Alpha\",\"amount\":\"112.01\",\"saleDate\":\"2026-09-01\",\"daysSinceSale\":\"40\",\"dispatched\":\"false\",\"rowKey\":\"rpt-sales-order:1112\",\"recordId\":\"1112\",\"reportId\":\"rpt-sales-order\",\"reportName\":\"销售报表\",\"docNo\":\"P2-112\",\"date\":\"2026-09-01\",\"currency\":\"CNY\",\"status\":\"未派单\"},{\"companyCode\":\"A\",\"orderNo\":\"P2-111\",\"productName\":\"alpha \",\"amount\":\"111.01\",\"saleDate\":\"2026-09-28\",\"daysSinceSale\":\"13\",\"dispatched\":\"false\",\"rowKey\":\"rpt-sales-order:1111\",\"recordId\":\"1111\",\"reportId\":\"rpt-sales-order\",\"reportName\":\"销售报表\",\"docNo\":\"P2-111\",\"date\":\"2026-09-28\",\"currency\":\"CNY\",\"status\":\"未派单\"},{\"companyCode\":\"A\",\"orderNo\":\"P2-110\",\"productName\":\"Alpha\",\"amount\":\"110.01\",\"saleDate\":\"2026-09-27\",\"daysSinceSale\":\"14\",\"dispatched\":\"false\",\"rowKey\":\"rpt-sales-order:1110\",\"recordId\":\"1110\",\"reportId\":\"rpt-sales-order\",\"reportName\":\"销售报表\",\"docNo\":\"P2-110\",\"date\":\"2026-09-27\",\"currency\":\"CNY\",\"status\":\"未派单\"},{\"companyCode\":\"A\",\"orderNo\":\"P2-109\",\"productName\":\"alpha \",\"amount\":\"109.01\",\"saleDate\":\"2026-09-26\",\"daysSinceSale\":\"15\",\"dispatched\":\"false\",\"rowKey\":\"rpt-sales-order:1109\",\"recordId\":\"1109\",\"reportId\":\"rpt-sales-order\",\"reportName\":\"销售报表\",\"docNo\":\"P2-109\",\"date\":\"2026-09-26\",\"currency\":\"CNY\",\"status\":\"未派单\"},{\"companyCode\":\"A\",\"orderNo\":\"P2-108\",\"productName\":\"Alpha\",\"amount\":\"108.01\",\"saleDate\":\"2026-09-25\",\"daysSinceSale\":\"16\",\"dispatched\":\"false\",\"rowKey\":\"rpt-sales-order:1108\",\"recordId\":\"1108\",\"reportId\":\"rpt-sales-order\",\"reportName\":\"销售报表\",\"docNo\":\"P2-108\",\"date\":\"2026-09-25\",\"currency\":\"CNY\",\"status\":\"未派单\"},{\"companyCode\":\"A\",\"orderNo\":\"P2-107\",\"productName\":\"alpha \",\"amount\":\"107.01\",\"saleDate\":\"2026-09-24\",\"daysSinceSale\":\"17\",\"dispatched\":\"false\",\"rowKey\":\"rpt-sales-order:1107\",\"recordId\":\"1107\",\"reportId\":\"rpt-sales-order\",\"reportName\":\"销售报表\",\"docNo\":\"P2-107\",\"date\":\"2026-09-24\",\"currency\":\"CNY\",\"status\":\"未派单\"},{\"companyCode\":\"A\",\"orderNo\":\"P2-106\",\"productName\":\"Alpha\",\"amount\":\"106.01\",\"saleDate\":\"2026-09-23\",\"daysSinceSale\":\"18\",\"dispatched\":\"false\",\"rowKey\":\"rpt-sales-order:1106\",\"recordId\":\"1106\",\"reportId\":\"rpt-sales-order\",\"reportName\":\"销售报表\",\"docNo\":\"P2-106\",\"date\":\"2026-09-23\",\"currency\":\"CNY\",\"status\":\"未派单\"},{\"companyCode\":\"A\",\"orderNo\":\"P2-105\",\"productName\":\"alpha \",\"amount\":\"105.01\",\"saleDate\":\"2026-09-22\",\"daysSinceSale\":\"19\",\"dispatched\":\"false\",\"rowKey\":\"rpt-sales-order:1105\",\"recordId\":\"1105\",\"reportId\":\"rpt-sales-order\",\"reportName\":\"销售报表\",\"docNo\":\"P2-105\",\"date\":\"2026-09-22\",\"currency\":\"CNY\",\"status\":\"未派单\"},{\"companyCode\":\"A\",\"orderNo\":\"P2-104\",\"productName\":\"Alpha\",\"amount\":\"104.01\",\"saleDate\":\"2026-09-21\",\"daysSinceSale\":\"20\",\"dispatched\":\"false\",\"rowKey\":\"rpt-sales-order:1104\",\"recordId\":\"1104\",\"reportId\":\"rpt-sales-order\",\"reportName\":\"销售报表\",\"docNo\":\"P2-104\",\"date\":\"2026-09-21\",\"currency\":\"CNY\",\"status\":\"未派单\"},{\"companyCode\":\"A\",\"orderNo\":\"P2-103\",\"productName\":\"alpha \",\"amount\":\"103.01\",\"saleDate\":\"2026-09-20\",\"daysSinceSale\":\"21\",\"dispatched\":\"false\",\"rowKey\":\"rpt-sales-order:1103\",\"recordId\":\"1103\",\"reportId\":\"rpt-sales-order\",\"reportName\":\"销售报表\",\"docNo\":\"P2-103\",\"date\":\"2026-09-20\",\"currency\":\"CNY\",\"status\":\"未派单\"},{\"companyCode\":\"A\",\"orderNo\":\"P2-102\",\"productName\":\"Alpha\",\"amount\":\"102.01\",\"saleDate\":\"2026-09-19\",\"daysSinceSale\":\"22\",\"dispatched\":\"false\",\"rowKey\":\"rpt-sales-order:1102\",\"recordId\":\"1102\",\"reportId\":\"rpt-sales-order\",\"reportName\":\"销售报表\",\"docNo\":\"P2-102\",\"date\":\"2026-09-19\",\"currency\":\"CNY\",\"status\":\"未派单\"},{\"companyCode\":\"A\",\"orderNo\":\"P2-101\",\"productName\":\"alpha \",\"amount\":\"101.01\",\"saleDate\":\"2026-09-18\",\"daysSinceSale\":\"23\",\"dispatched\":\"false\",\"rowKey\":\"rpt-sales-order:1101\",\"recordId\":\"1101\",\"reportId\":\"rpt-sales-order\",\"reportName\":\"销售报表\",\"docNo\":\"P2-101\",\"date\":\"2026-09-18\",\"currency\":\"CNY\",\"status\":\"未派单\"},{\"companyCode\":\"A\",\"orderNo\":\"P2-100\",\"productName\":\"Alpha\",\"amount\":\"100.01\",\"saleDate\":\"2026-09-17\",\"daysSinceSale\":\"24\",\"dispatched\":\"false\",\"rowKey\":\"rpt-sales-order:1100\",\"recordId\":\"1100\",\"reportId\":\"rpt-sales-order\",\"reportName\":\"销售报表\",\"docNo\":\"P2-100\",\"date\":\"2026-09-17\",\"currency\":\"CNY\",\"status\":\"未派单\"}],\"displayedCount\":20,\"allRowsDisplayed\":false,\"complete\":true,\"observedAt\":\"2026-10-11T15:21:38.100Z\",\"source\":\"业务系统当前记录\",\"summary\":{\"count\":119,\"amountsByCurrency\":{\"CNY\":\"7140.19\"},\"statusCounts\":{\"未派单\":119},\"groups\":{},\"pendingApprovers\":{},\"unclassifiedAmountCount\":0},\"definition\":{\"dimensions\":[\"productName\"],\"dateField\":null,\"bucket\":\"NONE\",\"compareMonth\":null}}",
+      "scope" : "A / rpt-sales-order",
+      "title" : "第4步 DRILLDOWN",
+      "version" : "de56b8e4cff3b0d09861b520d11d543682aa87d8a8bf5876aa5223557773eec9",
+      "observedAt" : "2026-10-11T15:21:38.100Z"
+    } ]
+  } ],
+  "answer" : {
+    "claims" : [ {
+      "text" : "结果来自所引用的当前授权依据。",
+      "citations" : [ {
+        "quote" : "{\"kind\":\"ROWS\",\"snapshotId\":\"dde6bb6411cb4243ade6425903432495\",\"count\":120,\"rows\":[{\"companyCode\":\"A\",\"orderNo\":\"P2-119\",\"productName\":\"alpha \",\"amount\":\"119.01\",\"saleDate\":\"2026-09-08\",\"daysSinceSale\":\"33\",\"dispatched\":\"false\",\"rowKey\":\"rpt-sales-order:1119\",\"recordId\":\"1119\",\"reportId\":\"rpt-sales-order\",\"reportName\":\"销售报表\",\"docNo\":\"P2-119\",\"date\":\"2026-09-08\",\"currency\":\"CNY\",\"status\":\"未派单\"},{\"companyCode\":\"A\",\"orderNo\":\"P2-118\",\"productName\":\"Alpha\",\"amount\":\"118.01\",\"saleDate\":\"2026-09-07\",\"daysSinceSale\":\"34\",\"dispatched\":\"false\",\"rowKey\":\"rpt-sales-order:1118\",\"recordId\":\"1118\",\"reportId\":\"rpt-sales-order\",\"reportName\":\"销售报表\",\"docNo\":\"P2-118\",\"date\":\"2026-09-07\",\"currency\":\"CNY\",\"status\":\"未派单\"},{\"companyCode\":\"A\",\"orderNo\":\"P2-117\",\"productName\":\"alpha \",\"amount\":\"117.01\",\"saleDate\":\"2026-09-06\",\"daysSinceSale\":\"35\",\"dispatched\":\"false\",\"rowKey\":\"rpt-sales-order:1117\",\"recordId\":\"1117\",\"reportId\":\"rpt-sales-order\",\"reportName\":\"销售报表\",\"docNo\":\"P2-117\",\"date\":\"2026-09-06\",\"currency",
+        "sourceId" : "step-1"
+      } ]
+    } ],
+    "status" : "ANSWERED",
+    "limitations" : [ ]
+  },
+  "usage" : [ {
+    "model" : "ISOLATED_TEST_DOUBLE",
+    "stage" : "PLAN",
+    "number" : 1,
+    "status" : "RESPONDED",
+    "elapsedMs" : 3,
+    "inputTokens" : null,
+    "outputTokens" : null,
+    "usageComplete" : false,
+    "cachedInputTokens" : null
+  }, {
+    "model" : "ISOLATED_TEST_DOUBLE",
+    "stage" : "PLAN_REVIEW",
+    "number" : 2,
+    "status" : "RESPONDED",
+    "elapsedMs" : 0,
+    "inputTokens" : null,
+    "outputTokens" : null,
+    "usageComplete" : false,
+    "cachedInputTokens" : null
+  }, {
+    "model" : "ISOLATED_TEST_DOUBLE",
+    "stage" : "ANSWER",
+    "number" : 3,
+    "status" : "RESPONDED",
+    "elapsedMs" : 1,
+    "inputTokens" : null,
+    "outputTokens" : null,
+    "usageComplete" : false,
+    "cachedInputTokens" : null
+  }, {
+    "model" : "ISOLATED_TEST_DOUBLE",
+    "stage" : "ANSWER_REVIEW",
+    "number" : 4,
+    "status" : "RESPONDED",
+    "elapsedMs" : 0,
+    "inputTokens" : null,
+    "outputTokens" : null,
+    "usageComplete" : false,
+    "cachedInputTokens" : null
+  } ]
+}

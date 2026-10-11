@@ -1,0 +1,143 @@
+{
+  "id" : "bbc1257cfd644cd2b967fd46b34f27f5",
+  "status" : "FAILED",
+  "stage" : "FINISHED",
+  "reason" : "INTERNAL_ERROR",
+  "message" : "分析暂未完成，请查看已完成步骤后重新提交",
+  "version" : 14,
+  "request" : {
+    "question" : "查询A公司2026年9月的销售报表，按产品汇总销售金额，取金额最高的两个产品，展开它们的全部相关单据，再根据现有业务知识说明销售金额是否等于已收款。",
+    "reportId" : "rpt-sales-order",
+    "snapshotId" : null,
+    "companyCode" : "A"
+  },
+  "created_at" : "2026-10-11T15:26:24.716Z",
+  "started_at" : "2026-10-11T15:26:24.728Z",
+  "finished_at" : "2026-10-11T15:26:39.704Z",
+  "expires_at" : "2026-10-12T15:26:24.716Z",
+  "plan" : {
+    "mode" : "EXECUTE",
+    "steps" : [ {
+      "rank" : null,
+      "other" : null,
+      "query" : {
+        "page" : 1,
+        "size" : 20,
+        "view" : "LIST",
+        "domain" : "REPORT",
+        "groupBy" : null,
+        "reportIds" : [ "rpt-sales-order" ],
+        "sortField" : null,
+        "conditions" : [ {
+          "allOf" : [ {
+            "field" : "saleDate",
+            "values" : [ "2026-09-01" ],
+            "operator" : "GTE"
+          }, {
+            "field" : "saleDate",
+            "values" : [ "2026-09-30" ],
+            "operator" : "LTE"
+          } ]
+        } ],
+        "descending" : false,
+        "companyCode" : "A"
+      },
+      "action" : "QUERY",
+      "source" : null,
+      "analysis" : null,
+      "knowledgeQuestion" : null
+    }, {
+      "rank" : null,
+      "other" : null,
+      "query" : null,
+      "action" : "GROUP",
+      "source" : 0,
+      "analysis" : {
+        "bucket" : "NONE",
+        "dateField" : null,
+        "dimensions" : [ "productName" ],
+        "compareMonth" : null
+      },
+      "knowledgeQuestion" : null
+    }, {
+      "rank" : {
+        "count" : 2,
+        "field" : "sum",
+        "descending" : true
+      },
+      "other" : null,
+      "query" : null,
+      "action" : "RANK",
+      "source" : 1,
+      "analysis" : null,
+      "knowledgeQuestion" : null
+    }, {
+      "rank" : null,
+      "other" : 2,
+      "query" : null,
+      "action" : "DRILLDOWN",
+      "source" : 0,
+      "analysis" : null,
+      "knowledgeQuestion" : null
+    }, {
+      "rank" : null,
+      "other" : null,
+      "query" : null,
+      "action" : "KNOWLEDGE",
+      "source" : null,
+      "analysis" : null,
+      "knowledgeQuestion" : "销售报表中的销售金额是否等于已收款？销售金额的含义与收款的关系是什么？"
+    } ],
+    "objective" : "查询A公司2026年9月销售报表，按产品汇总销售金额，取金额最高的两个产品，展开其全部相关单据，并依据现有业务知识说明销售金额是否等于已收款。",
+    "clarification" : null
+  },
+  "steps" : [ {
+    "index" : 0,
+    "action" : "QUERY",
+    "status" : "RUNNING"
+  } ],
+  "answer" : null,
+  "usage" : [ {
+    "model" : "deepseek-v4.1-flash",
+    "stage" : "PLAN",
+    "number" : 1,
+    "status" : "RESPONDED",
+    "elapsedMs" : 3743,
+    "inputTokens" : 3584,
+    "outputTokens" : 366,
+    "usageComplete" : true,
+    "cachedInputTokens" : 128
+  }, {
+    "model" : "deepseek-v4.1-flash",
+    "stage" : "PLAN_REVIEW",
+    "number" : 2,
+    "reason" : "分析参数的字段、类型或范围不符合当前协议",
+    "status" : "RESPONDED",
+    "elapsedMs" : 3247,
+    "validation" : "REJECTED",
+    "inputTokens" : 2775,
+    "outputTokens" : 168,
+    "usageComplete" : true,
+    "cachedInputTokens" : 256
+  }, {
+    "model" : "deepseek-v4.1-flash",
+    "stage" : "PLAN",
+    "number" : 3,
+    "status" : "RESPONDED",
+    "elapsedMs" : 3796,
+    "inputTokens" : 3593,
+    "outputTokens" : 366,
+    "usageComplete" : true,
+    "cachedInputTokens" : 3456
+  }, {
+    "model" : "deepseek-v4.1-flash",
+    "stage" : "PLAN_REVIEW",
+    "number" : 4,
+    "status" : "RESPONDED",
+    "elapsedMs" : 3970,
+    "inputTokens" : 2775,
+    "outputTokens" : 284,
+    "usageComplete" : true,
+    "cachedInputTokens" : 2176
+  } ]
+}

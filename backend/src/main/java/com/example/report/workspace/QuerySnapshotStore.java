@@ -98,6 +98,13 @@ public class QuerySnapshotStore {
         for(int offset=0;offset<count;offset+=500)rows.addAll(rows(run.result().snapshot().id(),offset,Math.min(500,count-offset)));
         if(rows.size()!=count)throw new ApiException(410,"快照明细已不可用，请重新查询");return rows;
     }
+    /** 只检查稳定序号覆盖，不加载全部事实；复用快照的历史分析必须拒绝中间缺行和额外序号。 */
+    public void requireComplete(Run run) {
+        var range=jdbc.queryForMap("SELECT COUNT(*) n,COALESCE(MIN(seq),0) first_seq,COALESCE(MAX(seq),0) last_seq FROM business_query_row WHERE run_id=?",run.result().snapshot().id());
+        int expected=run.result().total();
+        if(((Number)range.get("n")).intValue()!=expected||((Number)range.get("last_seq")).intValue()!=expected
+                ||((Number)range.get("first_seq")).intValue()!=(expected==0?0:1))throw new ApiException(410,"快照明细已不完整，请重新查询");
+    }
     /** 主动释放本人快照；不会删除业务记录，关联导出随后失效。 */
     public void expire(CurrentUser user,String id) {
         require(user,id);jdbc.update("UPDATE business_query_run SET expires_at=UTC_TIMESTAMP(3) WHERE id=? AND tenant_id=? AND user_id=?",id,user.tenantId(),user.userId());

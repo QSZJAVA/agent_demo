@@ -6,6 +6,8 @@ P0 已实现语义诊断与反馈、按公司/报表发布的业务词典、完�
 
 P1 增加安全条件下推、完整查询快照、私人常用查询、异步完整导出、指标与期间分析、查询对比、Top N 待确认清单及任务提醒。操作、恢复和预算见[查询工作区与日常分析](docs/查询工作区与日常分析.md)，本轮证据见[P1 验收报告](docs/review/P1查询工作区实现与验收_2026-10-11.md)。
 
+P2 本轮范围为有限多步分析与业务知识问答：在选定公司和报表内组合统计、排名、明细展开和查询对比，并引用有版本、来源和生效期的业务知识。入口与边界见[有限多步分析与业务知识问答](docs/有限多步分析与业务知识问答.md)；真实工单、外部系统和生产准入暂缓。
+
 当前基线为 **V1 通用业务助手**，应用包版本 **1.0.0**、派单语义协议版本 **1**，统一定义在 [demo-baseline.json](demo-baseline.json)。派单能力沿用此前重新编号的字段筛选和状态保护协议，普通查询使用独立的严格业务查询协议。运行链路为 `real,mcp`、`agent.semantic.mode=active`、真实模型接口和带认证的 HTTP MCP 业务服务。模型名称仍为 `deepseek-v4.1-flash`，请求原生 JSON Schema，thinking 关闭。
 
 ## 启动与账号
@@ -68,18 +70,21 @@ Windows 也可双击 `tools/start-app.cmd`。启动脚本会先构建两个后�
 
 ## 当前文档与流程图
 
-- [十四页完整流程图：HTML](docs/diagrams/demo-final/index.html) · [SVG/Mermaid 入口](docs/diagrams/README.md) · [可编辑 draw.io](docs/diagrams/demo-final/demo-final.drawio)
+- [十五页完整流程图：HTML](docs/diagrams/demo-final/index.html) · [SVG/Mermaid 入口](docs/diagrams/README.md) · [可编辑 draw.io](docs/diagrams/demo-final/demo-final.drawio)
 - [工作台操作、手工派单与运营治理](docs/工作台操作与运营治理.md)
 - [通用业务查询与工单说明](docs/通用业务助手.md) · [已完成的实施计划](docs/通用业务助手实施计划_2026-10-06.md)
 - [V1 配置字段与状态恢复设计](docs/语义V1配置字段筛选.md)
 - [MCP 业务服务与接口契约](docs/MCP业务服务契约.md) · [外部派单接入契约](docs/MCP派单接入契约.md)
 - [异常调查 Agent 当前实现](docs/异常调查Agent.md) · [上下文与证据工程](docs/上下文工程设计与验收_2026-10-06.md)
-- [数据库字典：44 表、512 字段](docs/db/表结构字典.md) · [Docker 部署说明](docs/Docker部署指南.md)
+- [数据库字典：47 表、557 字段](docs/db/表结构字典.md) · [Docker 部署说明](docs/Docker部署指南.md)
+- [有限多步分析与业务知识问答](docs/有限多步分析与业务知识问答.md)
 - [演示范围与生产待办](docs/演示范围与生产待办.md) · [历史资料索引](docs/history/README.md)
 
 流程图由 `node docs/diagrams/build-semantic-flows.cjs` 统一生成 HTML、SVG、Mermaid、draw.io 和数据文件；修改生成器后必须重新生成。
 
 ## 验证入口
+
+P2 有限多步分析与业务知识问答已完成，见[实现与验收（2026-10-12）](docs/review/P2有限多步分析与知识问答实现与验收_2026-10-12.md)：最后全仓 Java 实际执行 1,128 项、前端 200 项通过；专项真实模型、认证 HTTP MCP、浏览器、失败修复及隔离库清理分别归档。实际范围限定于本仓库合成数据与报告列明的真实调用链路。
 
 P0 之前的阶段结果见[整体优化实施与验收（2026-10-11）](docs/review/整体优化实施与验收_2026-10-11.md)：卡片与统计权限、留存清理、精确金额、执行版本、异步历史和任务恢复已完成修复；当时 Java 实际执行 1,008 条通过、14 条条件跳过，前端 147 条及生产构建通过，工具回归 16 条通过。该阶段最终浏览器恢复验收 29 个检查点、87 条断言通过，服务结束和隔离库清理证据已归档；原夹具的中断与失败仍保留，具体范围以历史报告为准。
 

@@ -1,0 +1,71 @@
+{
+  "recordedAt": "2026-10-11T17:09:08.605Z",
+  "accepted": true,
+  "stages": [
+    {
+      "directory": "browser-01",
+      "checks": 8,
+      "recordedPassed": 7,
+      "classification": {
+        "overallAccepted": false,
+        "classification": "REAL_MODEL_ANSWER_REVIEW_CONTRACT_GAP",
+        "facts": [
+          "首个问题真实执行的全集120条/7141.20 CNY、三组统计、前两组及展开119条/7140.19 CNY正确。",
+          "首次回答已分别引用全集与选集，独立复核同时称数字自洽又要求解释剩余组，并把已有分页入口视为未经证实。",
+          "模型在修正中增加全集减选集的说明，却漏选支持全集金额的来源，数值校验拒绝发布。保留PARTIAL且未产生业务写入。",
+          "明细第1、2页可读取；终态阶段错误显示原始FINISHED。",
+          "browser-02把正常QUEUED状态预期为RUNNING，是检查时机过早；browser-03已验证RUNNING刷新恢复。",
+          "旧夹具收到stop即通过，只证明进程收尾与业务只读，不能等同完整浏览器验收通过。后续夹具改为须明确accepted=true，abort或未接受均不计通过。"
+        ],
+        "fix": "回答与独立复核共享工作区展示契约，逐步骤说明统计所属集合；继续严格拒绝缺引用或无法证明的数字，不自动批准、不自动补引。终态显示使用空值合并，保留FINISHED的空展示。"
+      }
+    },
+    {
+      "directory": "browser-02",
+      "checks": 32,
+      "recordedPassed": 30,
+      "classification": {
+        "overallAccepted": false,
+        "completedCoverage": [
+          "原失败多步问题的最终回答",
+          "119行完整分页",
+          "刷新与引用不增加模型调用",
+          "取消与写操作澄清",
+          "知识草稿、取消发布、发布、编辑保留现行版本、历史、重发后失效、停用与无依据"
+        ],
+        "remainingFailure": "选定快照的回答从额外展示上下文复制内部0/3序号，且该界面说明没有作为证据提供。数字引用校验正确拒绝，但合法查看说明不应进入这条无法满足的契约。",
+        "fix": "回答上下文只提供从1开始的stepNumber，移除独立的零起点presentation数组；每个已完成行步骤把实际页面编号、分页大小和只读行为写入其引用原文，程序和独立复核使用同一份证据。",
+        "harnessNotes": [
+          "browser-05在刷新加载完成前采集；browser-06确认恢复且模型仍4次，前后探针也确认任务/调用数不变。",
+          "browser-01目录中的browser-07和browser-08是新库启动后的登录与提交记录，因采集闭包仍指向初始目录而保留在原路径；它们不属于初始失败轮的模型结果。",
+          "本轮发送abort，夹具按未完成整体验收退出1，完整保留模型响应。"
+        ]
+      }
+    },
+    {
+      "directory": "final",
+      "checks": 10,
+      "recordedPassed": 10,
+      "classification": {
+        "overallAccepted": true,
+        "coverage": "最终补充复验普通多步问题、选定快照、编号与分页原文、明细翻页和刷新；知识维护闭环见browser-02已通过记录。",
+        "finalChecks": 10,
+        "at": "2026-10-11T17:03:16.314Z"
+      }
+    }
+  ],
+  "final": {
+    "checks": 10,
+    "passed": 10,
+    "mainTaskModelResponses": 4,
+    "selectedSnapshotTaskModelResponses": 5,
+    "businessWrites": 0
+  },
+  "notes": [
+    "browser-01 initial answer/review failure is retained; its old stop acknowledgement was not full acceptance.",
+    "browser-01/browser-07 and browser-08 captured the next database session because the capture closure kept its original directory; the original files are preserved.",
+    "browser-02 had 30 passed and 2 failed checkpoints: refresh sampled during loading (recovered by checkpoint 06), and selected-snapshot answer citation/index failure (fixed and retested in final). Its abort exit is not counted as a passed full round.",
+    "Knowledge draft/publish/edit/history/republish/disable, cancellation and write refusal were completed in browser-02; final repeated the affected multi-step, selected-snapshot, paging and refresh paths.",
+    "The final read-only probe counted 85 aggregate responses including earlier integration cases; this is not 85 browser calls. The two final browser tasks recorded 4 + 5 responses."
+  ]
+}

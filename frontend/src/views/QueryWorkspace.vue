@@ -29,7 +29,7 @@
       <template v-if="result">
         <business-query-card :payload="result" :busy="loading || working" :latest="true" snapshot-details @page="loadPage" />
         <p class="muted">完整性：已完整读取 · 进入筛选 {{ result.snapshot.scannedRows }} 条 · {{ result.snapshot.consistency === 'LOCAL_REPEATABLE_READ' ? '本地来源使用同一次读取事务' : '按来源观测时间保存，不代表跨系统同时快照' }} · {{ time(result.snapshot.expiresAt) }} 到期</p>
-        <div class="workspace-toolbar"><el-button size="small" :disabled="working" @click="saveVisible = true">保存为常用查询</el-button><el-button size="small" :disabled="working" @click="startExport(false)">导出完整结果</el-button><el-button type="text" @click="$router.push('/tasks')">查看任务与提醒</el-button></div>
+        <div class="workspace-toolbar"><el-button size="small" :disabled="working" @click="saveVisible = true">保存为常用查询</el-button><el-button size="small" :disabled="working" @click="startExport(false)">导出完整结果</el-button><el-button v-if="result.query.domain === 'REPORT' && result.query.companyCode && result.query.reportIds.length === 1" size="small" :disabled="working" @click="$router.push({ path: '/analysis', query: { source: result.snapshot.id } })">分析此结果</el-button><el-button type="text" @click="$router.push('/tasks')">查看任务与提醒</el-button></div>
         <div v-if="exportJob" class="export-state" role="status">
           <strong>导出：{{ status(exportJob.status) }}</strong><span>{{ exportJob.message || '可以稍后刷新，也可从我的任务找回' }}</span><span>已处理 {{ exportJob.progressRows }} 条</span>
           <el-button size="mini" :disabled="working" @click="refreshExport">刷新导出状态</el-button>

@@ -42,7 +42,7 @@ class SchemaCommentsDatabaseTest {
         try(var stream=SchemaCommentsDatabaseTest.class.getResourceAsStream("/db/schema-comments.json")) {
             assertNotNull(stream); specs=JsonUtil.MAPPER.readTree(stream);
         }
-        assertEquals(44,specs.size()); int checked=0;
+        assertEquals(47,specs.size()); int checked=0;
         var names=specs.fieldNames();
         while(names.hasNext()) {
             String table=names.next(); JsonNode spec=specs.get(table);
@@ -53,7 +53,7 @@ class SchemaCommentsDatabaseTest {
                 assertEquals(field.getValue().asText(),jdbc.queryForObject("SELECT COLUMN_COMMENT FROM information_schema.columns WHERE TABLE_SCHEMA=DATABASE() AND TABLE_NAME=? AND COLUMN_NAME=?",String.class,table,field.getKey()),table+"."+field.getKey()); checked++;
             }
         }
-        assertEquals(512,checked);
+        assertEquals(557,checked);
         assertEquals(0,jdbc.queryForObject("SELECT COUNT(*) FROM information_schema.columns WHERE TABLE_SCHEMA=DATABASE() AND TABLE_NAME NOT IN ('flyway_schema_history','external_business') AND COLUMN_COMMENT=''",Integer.class));
     }
 }

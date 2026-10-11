@@ -1,0 +1,98 @@
+[
+  {
+    "index": "01",
+    "name": "读者登录与导航",
+    "at": "2026-10-11T16:15:05.046Z",
+    "url": "http://127.0.0.1:5196/#/sales",
+    "passed": true,
+    "expected": [
+      "分析与问答"
+    ],
+    "missing": []
+  },
+  {
+    "index": "02",
+    "name": "提交真实多步分析与进度",
+    "at": "2026-10-11T16:15:33.506Z",
+    "url": "http://127.0.0.1:5196/#/analysis?run=b693afb3143e474b95f1d9eb7285f735",
+    "passed": false,
+    "expected": [
+      "分析中",
+      "取消任务"
+    ],
+    "missing": [
+      "分析中"
+    ]
+  },
+  {
+    "index": "03",
+    "name": "执行中刷新恢复同一任务",
+    "at": "2026-10-11T16:15:48.194Z",
+    "url": "http://127.0.0.1:5196/#/analysis?run=b693afb3143e474b95f1d9eb7285f735",
+    "passed": true,
+    "expected": [
+      "b693afb3143e474b95f1d9eb7285f735",
+      "取消任务",
+      "分析中"
+    ],
+    "missing": []
+  },
+  {
+    "index": "04",
+    "name": "首次真实浏览器回答状态核对",
+    "at": "2026-10-11T16:16:40.338Z",
+    "url": "http://127.0.0.1:5196/#/analysis?run=b693afb3143e474b95f1d9eb7285f735",
+    "passed": true,
+    "expected": [],
+    "missing": []
+  },
+  {
+    "index": "05",
+    "name": "回答被拒后仍可查看已完成明细",
+    "at": "2026-10-11T16:17:20.176Z",
+    "url": "http://127.0.0.1:5196/#/analysis?run=b693afb3143e474b95f1d9eb7285f735",
+    "passed": true,
+    "expected": [
+      "分析步骤完整明细",
+      "共 119 条",
+      "P2-20"
+    ],
+    "missing": []
+  },
+  {
+    "index": "06",
+    "name": "部分完成任务的第二页稳定读取",
+    "at": "2026-10-11T16:17:48.563Z",
+    "url": "http://127.0.0.1:5196/#/analysis?run=b693afb3143e474b95f1d9eb7285f735",
+    "passed": true,
+    "expected": [
+      "共 119 条",
+      "P2-21",
+      "P2-40"
+    ],
+    "missing": []
+  },
+  {
+    "index": "07",
+    "name": "失效的上一轮任务被拒绝",
+    "at": "2026-10-11T16:29:35.764Z",
+    "url": "http://127.0.0.1:5196/#/analysis?run=b693afb3143e474b95f1d9eb7285f735",
+    "passed": true,
+    "expected": [
+      "分析不存在或当前无权访问",
+      "暂无可查看的任务"
+    ],
+    "missing": []
+  },
+  {
+    "index": "08",
+    "name": "重新提交原失败场景",
+    "at": "2026-10-11T16:29:36.013Z",
+    "url": "http://127.0.0.1:5196/#/analysis?run=6e1cf8b4d74d4d2aa954d80c64716728",
+    "passed": true,
+    "expected": [
+      "取消任务"
+    ],
+    "missing": []
+  }
+]

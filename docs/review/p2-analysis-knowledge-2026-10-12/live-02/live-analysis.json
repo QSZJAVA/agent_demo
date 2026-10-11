@@ -1,0 +1,52 @@
+{
+  "id" : "67658fc380144169a0e60ed9d755507c",
+  "status" : "FAILED",
+  "stage" : "FINISHED",
+  "reason" : "INTERNAL_ERROR",
+  "message" : "分析暂未完成，请查看已完成步骤后重新提交",
+  "version" : 9,
+  "request" : {
+    "question" : "查询A公司2026年9月的销售报表，按产品汇总销售金额，取金额最高的两个产品，展开它们的全部相关单据，再根据现有业务知识说明销售金额是否等于已收款。",
+    "reportId" : "rpt-sales-order",
+    "snapshotId" : null,
+    "companyCode" : "A"
+  },
+  "created_at" : "2026-10-11T15:21:51.178Z",
+  "started_at" : "2026-10-11T15:21:51.188Z",
+  "finished_at" : "2026-10-11T15:22:02.951Z",
+  "expires_at" : "2026-10-12T15:21:51.178Z",
+  "plan" : null,
+  "steps" : [ ],
+  "answer" : null,
+  "usage" : [ {
+    "model" : "deepseek-v4.1-flash",
+    "stage" : "PLAN",
+    "number" : 1,
+    "status" : "RESPONDED",
+    "elapsedMs" : 3781,
+    "inputTokens" : 3544,
+    "outputTokens" : 367,
+    "usageComplete" : true,
+    "cachedInputTokens" : 0
+  }, {
+    "model" : "deepseek-v4.1-flash",
+    "stage" : "PLAN_REVIEW",
+    "number" : 2,
+    "reason" : "独立计划复核未通过：DRILLDOWN的source不合法：要求source为QUERY/SNAPSHOT/DRILLDOWN行集合步骤序号，而此处source=0是QUERY步骤，但other=2（RANK）的入参分组的source应指向按产品汇总的GROUP步骤；DRILLDOWN必须从“原行集合步骤”展开同一快照中入选分组明细，正确应为source=1（GROUP步骤）或使用source=0+other指向基于0的RANK，这里other=2的RANK基于GROUP=1，链式不一致。需将DRILLDOWN改为source=1、other=2，或把GROUP/RANK链路调整为与source一致的序号。同时GROUP维度应只用productName（真实字段），currency并非用户要求汇总维度且会导致按币种拆分；若为金额排名唯一币种检查应由执行器在完整结果中处理，不应作为产品分组维度。其余目标（日期范围2026-09、A公司、取最高两个产品、展开全部单据、知识问答）基本覆盖。",
+    "status" : "RESPONDED",
+    "elapsedMs" : 4170,
+    "validation" : "REJECTED",
+    "inputTokens" : 2630,
+    "outputTokens" : 231,
+    "usageComplete" : true,
+    "cachedInputTokens" : 256
+  }, {
+    "stage" : "PLAN",
+    "number" : 3,
+    "status" : "FAILED",
+    "elapsedMs" : 3716,
+    "inputTokens" : null,
+    "outputTokens" : null,
+    "usageComplete" : false
+  } ]
+}
