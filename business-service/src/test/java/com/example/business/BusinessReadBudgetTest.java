@@ -26,8 +26,12 @@ class BusinessReadBudgetTest {
             for(int i=start+1;i<=Math.min(5000,start+size);i++)rows.add(new ReportDataRow(new FactRow(String.valueOf(i),"D"+i,"A","长字段",null,null,Map.of("detail",text)),"未派单"));
             observed.addAndGet(rows.size());return rows;
         });
-        var service=new BusinessReadService(queries,mock(NamedParameterJdbcTemplate.class),mock(WorkOrderProvider.class),10000,120,new BusinessQueryProperties(),mock(DispatchEligibilityService.class));
+        // 让带查询条件的新入口执行接口的真实默认委派；内存来源不声明SQL下推能力，仍须完整读取并受字节预算限制。
+        when(adapter.dataRowsAfter(anyString(),anySet(),nullable(String.class),anyInt(),any(BusinessQuery.class))).thenCallRealMethod();
+        var snapshots=mock(com.example.report.workspace.QuerySnapshotStore.class);
+        var service=new BusinessReadService(queries,mock(NamedParameterJdbcTemplate.class),mock(WorkOrderProvider.class),10000,120,new BusinessQueryProperties(),mock(DispatchEligibilityService.class),snapshots);
         var query=new BusinessQuery(BusinessQuery.Domain.REPORT,BusinessQuery.View.SUMMARY,List.of("r"),"A",List.of(),null,false,1,20,null);
         var failure=assertThrows(ApiException.class,()->service.query(user,query));assertTrue(failure.getMessage().contains("16MiB"));assertTrue(observed.get()<5000);
+        verifyNoInteractions(snapshots);
     }
 }

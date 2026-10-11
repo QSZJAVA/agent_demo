@@ -23,6 +23,15 @@ public interface ReportQueryAdapter {
         throw new com.example.report.common.ApiException(422,"该报表尚未提供全部业务数据查询接口");
     }
 
+    /**
+     * 对同一来源应用经过证明等价的查询条件。未提供下推能力时仍完整有界扫描，最终由共同谓词校验。
+     * 不能将不支持的 OR 分支丢弃，否则会漏掉合法结果；身份条件始终由数据源实施。
+     */
+    default List<ReportDataRow> dataRowsAfter(String tenantId,Set<String> companies,String afterId,int size,
+            com.example.report.assistant.BusinessQuery query) {
+        return dataRowsAfter(tenantId,companies,afterId,size);
+    }
+
     /** 单据号的展示名，例如“订单号”*/
     String docNoLabel();
 

@@ -24,6 +24,8 @@ class SourceIdentityDatabaseTest {
 
     @BeforeAll static void setupDatabase() {
         schema = "identity_it_" + UUID.randomUUID().toString().replace("-", "");
+        // 输出准确隔离库名，供授权测试前后核对与清理证据归档。
+        System.out.println("ISOLATED_DATABASE_TARGET="+schema);
         var ds = new DriverManagerDataSource("jdbc:mysql://" + System.getenv().getOrDefault("TRACE_DB_HOST", "127.0.0.1")
                 + ":" + System.getenv().getOrDefault("TRACE_DB_PORT", "3306") + "/" + schema
                 + "?createDatabaseIfNotExist=true&serverTimezone=Asia/Shanghai",

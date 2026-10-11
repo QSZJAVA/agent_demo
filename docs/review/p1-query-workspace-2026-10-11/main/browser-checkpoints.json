@@ -1,0 +1,485 @@
+[
+  {
+    "name": "登录后只显示授权销售报表",
+    "expected": [
+      "P1 验收用户",
+      "共 120 条"
+    ],
+    "passed": false,
+    "at": "2026-10-11T11:58:50.555Z",
+    "failureType": "检查器读取了差异树，改为完整可访问性树"
+  },
+  {
+    "name": "登录授权范围复核",
+    "expected": [
+      "P1 验收用户",
+      "共 120 条"
+    ],
+    "passed": true,
+    "at": "2026-10-11T11:59:07.462Z"
+  },
+  {
+    "name": "真实模型返回完整快照与第一页",
+    "expected": [
+      "匹配",
+      "120",
+      "7141.20",
+      "P1-119",
+      "第 1 页"
+    ],
+    "passed": true,
+    "at": "2026-10-11T11:59:56.304Z"
+  },
+  {
+    "name": "固定快照第二页",
+    "expected": [
+      "第 2 页",
+      "P1-114",
+      "7141.20",
+      "完整性：已完整读取"
+    ],
+    "passed": true,
+    "at": "2026-10-11T12:01:08.801Z"
+  },
+  {
+    "name": "快照查询时间必须与初始卡片保持同一时区",
+    "passed": false,
+    "failureType": "产品显示问题",
+    "actual": "初始卡片 19:59:13，工作区卡片显示 11:59:13，列表仍为 19:59:13",
+    "at": "2026-10-11T12:02:00.396Z"
+  },
+  {
+    "name": "重载后恢复第二页且查询时间一致",
+    "expected": [
+      "第 2 页",
+      "P1-114",
+      "查询时间 2026-10-11 19:59:13"
+    ],
+    "passed": true,
+    "at": "2026-10-11T12:03:35.560Z"
+  },
+  {
+    "name": "saved-fixed",
+    "expected": [
+      "P1固定销售全量",
+      "固定条件和日期"
+    ],
+    "passed": true,
+    "at": "2026-10-11T12:07:52.149Z"
+  },
+  {
+    "name": "saved-fixed-refresh",
+    "expected": [
+      "a3b543a436954661a99ea01673b6e9ee",
+      "第 1 页"
+    ],
+    "passed": true,
+    "at": "2026-10-11T12:11:53.558Z"
+  },
+  {
+    "name": "workspace-page-route",
+    "expected": [
+      "page=2",
+      "第 2 页",
+      "P1-114"
+    ],
+    "passed": false,
+    "at": "2026-10-11T12:11:53.908Z"
+  },
+  {
+    "name": "workspace-page-route-recheck",
+    "expected": [
+      "page=2",
+      "第 2 页",
+      "P1-114"
+    ],
+    "passed": true,
+    "at": "2026-10-11T12:13:05.333Z"
+  },
+  {
+    "name": "workspace-page-refresh",
+    "expected": [
+      "a3b543a436954661a99ea01673b6e9ee",
+      "page=2",
+      "第 2 页",
+      "P1-114"
+    ],
+    "passed": true,
+    "at": "2026-10-11T12:13:05.657Z"
+  },
+  {
+    "name": "saved-last-month",
+    "expected": [
+      "P1上月销售",
+      "每次重新计算上月"
+    ],
+    "passed": true,
+    "at": "2026-10-11T12:14:02.911Z"
+  },
+  {
+    "name": "last-month-run",
+    "expected": [
+      "2026-09-01",
+      "2026-09-30",
+      "7141.20",
+      "cee7cc7c2e744466865c5fe05d22234d"
+    ],
+    "passed": true,
+    "at": "2026-10-11T12:14:19.222Z"
+  },
+  {
+    "name": "analysis-full-total",
+    "expected": [
+      "全部记录",
+      "7141.20",
+      "59.51"
+    ],
+    "passed": true,
+    "at": "2026-10-11T12:14:33.012Z"
+  },
+  {
+    "name": "analysis-grouped",
+    "expected": [
+      "产品名称：Alpha",
+      "3540.60",
+      "产品名称：alpha",
+      "3599.59",
+      "产品名称：=1+1"
+    ],
+    "passed": true,
+    "at": "2026-10-11T12:16:02.353Z"
+  },
+  {
+    "name": "analysis-daily",
+    "expected": [
+      "日期口径",
+      "2026-09-01",
+      "280.05",
+      "2026-09-28",
+      "276.04"
+    ],
+    "passed": true,
+    "at": "2026-10-11T12:16:17.646Z"
+  },
+  {
+    "name": "analysis-month-incomplete",
+    "expected": [
+      "2026-09",
+      "7141.20",
+      "未被完整查询范围覆盖"
+    ],
+    "passed": true,
+    "at": "2026-10-11T12:18:28.107Z"
+  },
+  {
+    "name": "comparison-different-definition",
+    "expected": [
+      "不能解释为业务增长",
+      "新增 0、移除 0、字段变化 0",
+      "金额差额：0.00"
+    ],
+    "passed": true,
+    "at": "2026-10-11T12:19:12.340Z"
+  },
+  {
+    "name": "analysis-month-zero-baseline",
+    "expected": [
+      "完整查询范围按币种汇总",
+      "7141.20",
+      "不可计算"
+    ],
+    "passed": true,
+    "at": "2026-10-11T12:19:33.286Z"
+  },
+  {
+    "name": "comparison-same-definition",
+    "expected": [
+      "两次查询条件和业务口径一致",
+      "新增 0、移除 0、字段变化 0"
+    ],
+    "passed": true,
+    "at": "2026-10-11T12:19:34.659Z"
+  },
+  {
+    "name": "saved-rename",
+    "expected": [
+      "P1固定查询-已重命名"
+    ],
+    "passed": true,
+    "at": "2026-10-11T12:19:52.498Z"
+  },
+  {
+    "name": "saved-delete-surviving-run",
+    "expected": [
+      "P1上月销售",
+      "a3b543a436954661a99ea01673b6e9ee",
+      "7141.20"
+    ],
+    "passed": true,
+    "at": "2026-10-11T12:20:15.524Z"
+  },
+  {
+    "name": "export-complete",
+    "expected": [
+      "导出：已完成",
+      "已处理 120 条"
+    ],
+    "passed": true,
+    "at": "2026-10-11T12:21:08.916Z"
+  },
+  {
+    "name": "page-retains-export",
+    "expected": [
+      "第 2 页",
+      "导出：已完成"
+    ],
+    "passed": true,
+    "at": "2026-10-11T12:21:53.868Z"
+  },
+  {
+    "name": "rank-full-snapshot",
+    "expected": [
+      "第 2 页",
+      "P1-119",
+      "P1-118",
+      "P1-117",
+      "为这 3 条生成待确认清单"
+    ],
+    "passed": true,
+    "at": "2026-10-11T12:22:49.580Z"
+  },
+  {
+    "name": "rank-pending-plan",
+    "expected": [
+      "待确认派单清单",
+      "确认派单",
+      "P1-119",
+      "P1-118",
+      "P1-117"
+    ],
+    "passed": true,
+    "at": "2026-10-11T12:22:59.928Z"
+  },
+  {
+    "name": "inbox-recovers-plan-export",
+    "expected": [
+      "待确认清单",
+      "查询导出",
+      "刷新页面不会自动执行"
+    ],
+    "passed": true,
+    "at": "2026-10-11T12:23:21.230Z"
+  },
+  {
+    "name": "inbox-read-deduplicated",
+    "expected": [
+      "查询导出",
+      "已读",
+      "待确认清单"
+    ],
+    "passed": true,
+    "at": "2026-10-11T12:23:21.842Z"
+  },
+  {
+    "name": "export-restored-in-inbox",
+    "expected": [
+      "查询导出任务",
+      "已处理 120 条",
+      "下载 CSV"
+    ],
+    "passed": true,
+    "at": "2026-10-11T12:23:44.896Z"
+  },
+  {
+    "name": "plan-restored-before-confirm",
+    "expected": [
+      "144e3a5cfb0e4a4383493b977e863704",
+      "共 3 条",
+      "核对并确认派单"
+    ],
+    "passed": true,
+    "at": "2026-10-11T12:24:08.420Z"
+  },
+  {
+    "name": "plan-confirmed-three-success",
+    "expected": [
+      "已执行",
+      "P1-119",
+      "P1-118",
+      "P1-117",
+      "成功"
+    ],
+    "passed": true,
+    "at": "2026-10-11T12:25:36.986Z"
+  },
+  {
+    "name": "investigation-no-anomaly",
+    "expected": [
+      "当前范围没有可调查异常",
+      "144e3a5cfb0e4a4383493b977e863704"
+    ],
+    "passed": true,
+    "at": "2026-10-11T12:28:45.291Z"
+  },
+  {
+    "name": "inbox-unread-empty-after-read",
+    "expected": [
+      "当前筛选没有可见提醒"
+    ],
+    "passed": true,
+    "at": "2026-10-11T12:30:08.972Z"
+  },
+  {
+    "name": "tasks-reload-read-persisted",
+    "expected": [
+      "派单任务",
+      "查询导出",
+      "已读",
+      "处理完成"
+    ],
+    "passed": true,
+    "at": "2026-10-11T12:30:09.806Z"
+  },
+  {
+    "name": "rank-replay-executed-plan",
+    "expected": [
+      "已执行",
+      "成功",
+      "P1-119"
+    ],
+    "passed": true,
+    "at": "2026-10-11T12:32:06.473Z"
+  },
+  {
+    "name": "comparison-after-real-dispatch",
+    "expected": [
+      "两次查询条件和业务口径一致",
+      "字段变化 3 条",
+      "金额差额：0.00",
+      "dispatched、status"
+    ],
+    "passed": true,
+    "at": "2026-10-11T12:33:03.380Z"
+  },
+  {
+    "name": "changed-source-plan-pending",
+    "expected": [
+      "ae778174571c4777b8e0daa730a38ae3",
+      "共 1 条",
+      "119.01"
+    ],
+    "passed": true,
+    "at": "2026-10-11T12:52:06.215Z"
+  },
+  {
+    "name": "changed-source-confirm-skipped",
+    "expected": [
+      "已跳过",
+      "预览之后记录已变化",
+      "未派单"
+    ],
+    "passed": true,
+    "at": "2026-10-11T12:52:51.635Z"
+  },
+  {
+    "name": "real-investigation-completed",
+    "expected": [
+      "调查完成",
+      "P1-119",
+      "事实已核实",
+      "复核未通过",
+      "仍需核查",
+      "业务服务查询 0 次"
+    ],
+    "passed": true,
+    "at": "2026-10-11T12:55:59.746Z"
+  },
+  {
+    "name": "investigation-evidence-visible",
+    "expected": [
+      "ITEM_SNAPSHOT",
+      "RECORD_CHANGED",
+      "attemptCount",
+      "SKIPPED"
+    ],
+    "passed": true,
+    "at": "2026-10-11T12:56:29.146Z"
+  },
+  {
+    "name": "second-investigation-completed",
+    "expected": [
+      "调查完成",
+      "工具 8 次",
+      "复核未通过"
+    ],
+    "passed": true,
+    "at": "2026-10-11T13:00:59.881Z"
+  },
+  {
+    "name": "inbox-opens-selected-historical-investigation",
+    "expected": [
+      "调查编号：fbd0b7961b7c40f1ad7de9821ecbc00c",
+      "调查完成",
+      "工具 7 次"
+    ],
+    "passed": true,
+    "at": "2026-10-11T13:01:12.245Z"
+  },
+  {
+    "name": "investigation-read-persists",
+    "expected": [
+      "fbd0b7961b7c40f1ad7de9821ecbc00c",
+      "已读",
+      "a853aec3033246c3aac912cd436b7e11"
+    ],
+    "passed": true,
+    "at": "2026-10-11T13:01:13.252Z"
+  },
+  {
+    "name": "work-order-pending-snapshot-details",
+    "expected": [
+      "固定演示流程当前停在部门审批",
+      "林主管（演示）",
+      "后续环节尚未完成",
+      "不代表跨系统同时快照"
+    ],
+    "passed": true,
+    "at": "2026-10-11T13:02:38.657Z"
+  },
+  {
+    "name": "work-order-completed-snapshot-details",
+    "expected": [
+      "WO-DEMO-004",
+      "固定演示流程全部完成并归档"
+    ],
+    "passed": true,
+    "at": "2026-10-11T13:02:38.983Z"
+  },
+  {
+    "name": "final-export-complete",
+    "expected": [
+      "导出：已完成",
+      "已处理 2 条"
+    ],
+    "passed": true,
+    "at": "2026-10-11T13:03:05.906Z"
+  },
+  {
+    "name": "expired-snapshot-clears-restoration",
+    "expected": [
+      "查询工作区",
+      "报表数据 · A"
+    ],
+    "passed": true,
+    "at": "2026-10-11T13:04:47.243Z"
+  },
+  {
+    "name": "expired-export-not-disclosed-in-inbox",
+    "expected": [
+      "待处理异常",
+      "fbd0b7961b7c40f1ad7de9821ecbc00c"
+    ],
+    "passed": true,
+    "at": "2026-10-11T13:04:47.511Z"
+  }
+]

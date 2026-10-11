@@ -6,7 +6,7 @@ flowchart TD
   mcp["dispatch_submit<br/>服务认证与用户当前权限"]:::business
   lock{"业务事务与锁定复核<br/>行锁内复核全部确认字段及版本<br/>字段变化要求重新查询确认"}:::guard
   write["原子提交状态与请求结果<br/>相同请求号及负载可重放"]:::store
-  result["持久结果回到页面<br/>刷新与断线不导致重新派单<br/>我的任务读取本人已提交任务<br/>按当前权限查看关联清单"]:::ui
+  result["持久结果回到页面<br/>刷新与断线不导致重新派单<br/>我的任务恢复清单、调查与导出<br/>按当前权限查看关联清单"]:::ui
   plan --> confirm
   confirm --> gate
   gate --> intent

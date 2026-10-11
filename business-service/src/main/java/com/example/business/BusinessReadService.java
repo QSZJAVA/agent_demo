@@ -19,6 +19,7 @@ import java.util.*;
  */
 @Service
 public class BusinessReadService {
+    private final com.example.report.workspace.QuerySnapshotStore snapshots;
     private final BusinessQueries queries;
     private final NamedParameterJdbcTemplate jdbc;
     private final WorkOrderProvider orders;
@@ -29,9 +30,9 @@ public class BusinessReadService {
     private static final long MAX_FACT_BYTES=16L*1024*1024;
     public BusinessReadService(BusinessQueries queries,NamedParameterJdbcTemplate jdbc,WorkOrderProvider orders,
             @Value("${business.query.max-scan-rows:100000}") int maxRows,@Value("${business.query.max-scan-seconds:120}") int maxSeconds,BusinessQueryProperties units,
-            DispatchEligibilityService eligibility) {
+            DispatchEligibilityService eligibility,com.example.report.workspace.QuerySnapshotStore snapshots) {
         if(maxRows<1 || maxRows>100000 || maxSeconds<1 || maxSeconds>120) throw new IllegalArgumentException("业务查询预算无效");
-        this.queries=queries;this.jdbc=jdbc;this.orders=orders;this.maxRows=maxRows;this.maxSeconds=maxSeconds;this.units=units;this.eligibility=eligibility;
+        this.queries=queries;this.jdbc=jdbc;this.orders=orders;this.maxRows=maxRows;this.maxSeconds=maxSeconds;this.units=units;this.eligibility=eligibility;this.snapshots=Objects.requireNonNull(snapshots);
     }
     /**
      * 只读事务内执行完整授权范围查询；租户身份不来自请求，分页只截取最终结果，预算超限不会泄露部分统计。
@@ -47,18 +48,21 @@ public class BusinessReadService {
         Set<String> allowed=queries.catalog(user).stream().map(row->row.get("reportId").toString()).collect(java.util.stream.Collectors.toSet());
         List<String> ids=query.reportIds().isEmpty()?allowed.stream().sorted().toList():query.reportIds().stream().distinct().sorted().toList();
         if(!allowed.containsAll(ids)) throw ApiException.notFound("报表不存在或无权访问");
+        // 全部可见报表必须冻结为明确集合，后续分页及常用查询不能重新扩大范围或丢失定义指纹。
+        if(query.reportIds().isEmpty())query=new BusinessQuery(query.domain(),query.view(),ids,query.companyCode(),query.conditions(),query.sortField(),query.descending(),query.page(),query.size(),query.groupBy());
         List<CatalogEntry> entries=ids.stream().map(id->queries.require(user,id,false)).toList();
         List<Map<String,Object>> rows=new ArrayList<>();
         // 仅资格核验保留同一读取快照的原始类型事实；仍受下方行数和16MiB事实预算约束，不二次读取不同状态。
         var eligibilityFacts=new HashMap<String,com.example.report.catalog.query.FactRow>();
         long factBytes=0;
         List<FieldInfo> sourceFields=intersection(entries);
+        BusinessQueryEngine.validate(query,BusinessFields.forDomain(query.domain(),sourceFields));
         if(query.domain()==BusinessQuery.Domain.REPORT) {
             for(var entry:entries) {
                 String after=null;Set<String> seen=new HashSet<>();
                 while(true) {
                     budget(rows.size(),deadline);
-                    var batch=entry.adapter().dataRowsAfter(user.tenantId(),companies,after,Math.min(100,maxRows-rows.size()+1));
+                    var batch=entry.adapter().dataRowsAfter(user.tenantId(),companies,after,Math.min(100,maxRows-rows.size()+1),query);
                     if(batch.size()>500) throw new ApiException(502,"报表接口超过分页上限");
                     if(batch.isEmpty()) break;
                     for(var data:batch) {
@@ -90,16 +94,19 @@ public class BusinessReadService {
                 }
             }
         }
-        var result=BusinessQueryEngine.execute(query,BusinessFields.forDomain(query.domain(),sourceFields),rows,
+        var materialized=BusinessQueryEngine.materialize(query,BusinessFields.forDomain(query.domain(),sourceFields),rows,
                 query.domain()==BusinessQuery.Domain.WORK_ORDER?"演示工单：固定环节和审批人；不代表真实外部审批进度":"业务系统当前记录");
+        var result=materialized.result();
         if(query.view()==BusinessQuery.View.ELIGIBILITY) {
             // 完整匹配集已证明恰好一条，再进行规则求值；不能用第一页的第一条冒充用户指代的对象。
             var row=new LinkedHashMap<>(result.rows().get(0));
             var entry=entries.stream().filter(e->e.reportId().equals(row.get("reportId"))).findFirst().orElseThrow();
             row.put("eligibility",eligibility.evaluate(user,entry,eligibilityFacts.get(row.get("rowKey").toString()),Objects.toString(row.get("status"),null)));
             result=new BusinessResult(result.query(),result.observedAt(),"业务系统当前记录与生效派单规则",result.columns(),List.of(row),result.total(),result.summary());
+            materialized=new BusinessQueryEngine.Materialized(result,List.of(row));
         }
-        budget(rows.size(),deadline);return result;
+        budget(rows.size(),deadline);
+        return snapshots.save(user,materialized,entries,companies,rows.size());
     }
     /** 派单来源是持久清单条目，既含待执行也含已执行；参数绑定且在 SQL 中落实租户、公司和操作者范围。 */
     private List<Map<String,Object>> dispatchRows(CurrentUser user,List<String> ids,Set<String> companies) {

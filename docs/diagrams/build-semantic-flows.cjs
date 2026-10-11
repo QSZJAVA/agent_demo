@@ -70,7 +70,7 @@ const charts=[
         "kind": "store",
         "title": "MySQL + Redis",
         "lines": [
-          "单一 V1 空库基线 · 38 表 / 456 字段",
+          "单一 V1 空库基线 · 44 表 / 512 字段",
           "状态、字段快照、租约、版本"
         ]
       },
@@ -761,7 +761,7 @@ const charts=[
         "title": "持久结果回到页面",
         "lines": [
           "刷新与断线不导致重新派单",
-          "我的任务读取本人已提交任务",
+          "我的任务恢复清单、调查与导出",
           "按当前权限查看关联清单"
         ]
       }
@@ -1175,7 +1175,7 @@ const charts=[
         "col": 1,
         "row": 0,
         "kind": "ui",
-        "title": "自然语言或分页请求",
+        "title": "自然语言业务请求",
         "lines": [
           "报表数据 / 单条资格 / 派单 / 工单"
         ]
@@ -1290,9 +1290,9 @@ const charts=[
         "col": 1,
         "row": 8,
         "kind": "ui",
-        "title": "列表、详情、总结与翻页",
+        "title": "列表、详情与完整查询快照",
         "lines": [
-          "刷新可恢复；权限变化阻止旧事实展示"
+          "按钮翻页进入流程14，权限变化拒绝读取"
         ]
       },
       {
@@ -1866,6 +1866,20 @@ charts.push({name:'13 语义质量与业务词典',note:'按公司、报表和�
   {id:'feedback',col:2,row:3,kind:'ui',title:'本人诊断与幂等反馈',lines:['当前权限过滤，反馈待审核']},
   {id:'evaluate',col:2,row:4,kind:'agent',title:'版本化语料与独立事实评分',lines:['保存每次失败和版本差异','预留工程语料不冒称业务盲测']}
 ],edges:[['dictionary','dictionaryGuard'],['dictionaryGuard','version'],['version','model'],['request','reference'],['reference','model'],['model','review'],['review','card'],['model','diagnostic'],['diagnostic','feedback'],['feedback','evaluate']]});
+// P1结构化操作绑定完整快照，权限与版本逐次复核；来源变更和用户确认仍由原业务状态机处理。
+charts.push({name:'14 查询工作区与任务提醒',note:'real,mcp · active；模型解释新请求，结构化操作复用完整事实；外部ERP及生产容量仍待实际验收。',nodes:[
+  {id:'request',col:1,row:0,kind:'model',title:'真实模型规划与独立复核',lines:['自然语言新目标或条件变化 · MODEL']},
+  {id:'read',col:1,row:1,kind:'business',title:'认证HTTP MCP授权读取',lines:['安全条件参数化下推，共同谓词复核']},
+  {id:'snapshot',col:1,row:2,kind:'store',title:'完整不可变查询快照',lines:['运行、口径、权限与观测时刻','24小时有效期；本地事务内一致','外部来源说明观测边界']},
+  {id:'saved',col:0,row:3,kind:'ui',title:'私人常用查询',lines:['固定条件 / 按上海时间重算上月','重新运行访问当前授权来源']},
+  {id:'analysis',col:1,row:3,kind:'agent',title:'完整范围指标与对比',lines:['分组、趋势、币种金额、期间可比性','条件不同只解释集合差异']},
+  {id:'export',col:2,row:3,kind:'agent',title:'持久异步CSV导出',lines:['幂等、令牌租约、取消与有限恢复','全单元格文本保护，下载重新授权']},
+  {id:'page',col:0,row:4,kind:'ui',title:'分页与工单快照详情',lines:['运行与页码进入恢复地址','只读取已保存事实，不新增模型调用']},
+  {id:'rank',col:1,row:4,kind:'guard',title:'Top N完整范围排名',lines:['数量、币种、并列规则固定','来源与候选事实变化则重新核对']},
+  {id:'inbox',col:2,row:4,kind:'ui',title:'我的任务与站内提醒',lines:['清单、派单、异常、调查、导出','按状态去重与已读，只恢复所选任务']},
+  {id:'confirm',col:1,row:5,kind:'agent',title:'待确认清单与原执行状态机',lines:['仍须显式确认；核对不盲目重发','当前权限、规则、字段及执行版本保护']},
+  {id:'guard',col:0,row:5,kind:'guard',title:'统一读取与失效边界',lines:['撤权、口径变更、过期、缺行拒绝','历史运行数据不迁移']}
+],edges:[['request','read'],['read','snapshot'],['snapshot','saved'],['snapshot','analysis'],['snapshot','export'],['snapshot','page'],['saved','read','重新运行'],['analysis','rank'],['rank','confirm'],['export','inbox'],['confirm','inbox','恢复与提醒'],['page','guard'],['rank','guard','重核事实']]});
 const colors={ui:['#eaf2ff','#386bc1'],agent:['#edf5ff','#3778a8'],model:['#f3edff','#8751bf'],business:['#e8f7ef','#268255'],guard:['#fff4dc','#b58022'],error:['#fff0ef','#ba534e'],store:['#edf1f5','#60768b']};
 const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&apos;'}[c]));
 function wrap(s,max=33){let chunks=[],line='',count=0;for(const ch of s){const weight=ch.charCodeAt(0)>255?1.7:1;if(count+weight>max){chunks.push(line);line='';count=0;}line+=ch;count+=weight;}if(line)chunks.push(line);return chunks;}

@@ -19,6 +19,7 @@
         <el-button v-if="run" size="small" @click="resume">刷新结果</el-button>
       </div>
       <template v-if="run">
+        <p class="scope">调查编号：{{ run.id }}</p>
         <el-tag>{{ statusLabel }}</el-tag> <span>{{ run.message }}</span>
         <p>本次范围：{{ (run.itemRefs || []).map(item => item.docNo || item.itemId).join('、') }}</p>
         <el-alert v-if="run.status === 'PARTIAL' || run.sourceChangedSinceRun" :title="run.sourceChangedSinceRun ? '来源已变化，以下报告描述调查时点；可重新分析当前状态。' : '调查部分完成，请关注证据不足和结束原因。'" type="warning" :closable="false" />
@@ -58,7 +59,7 @@ import { getCurrentUserId, getSessionToken } from '../../auth'
 
 export default {
   name: 'InvestigationPanel',
-  props: { planId: { type: String, required: true } },
+  props: { planId: { type: String, required: true }, initialRunId: { type: String, default: null } },
   data() {
     return { question: '请分析这些条目的异常原因，列出依据和下一步建议。', selected: [], candidates: [], candidateCursor: '0', loadingCandidates: false,
       run: null, steps: [], afterSeq: 0, loading: false, submitting: false, submissionPending: false, error: '', disposed: false, generation: 0, timer: null,
@@ -68,10 +69,17 @@ export default {
     active() { return this.run && ['QUEUED', 'RUNNING'].includes(this.run.status) },
     statusLabel() { return { QUEUED: '排队', RUNNING: '调查中', COMPLETED: '调查完成', PARTIAL: '部分完成', FAILED: '调查失败', CANCELLED: '已取消', INTERRUPTED: '已中断' }[this.run?.status] || '' }
   },
-  mounted() { this.identity = getCurrentUserId(); this.sessionToken = getSessionToken(); this.resume(); this.loadCandidates() },
+  mounted() { this.identity = getCurrentUserId(); this.sessionToken = getSessionToken(); if (this.initialRunId) this.openExisting(this.initialRunId); else this.resume(); this.loadCandidates() },
   beforeDestroy() { this.dispose() },
   watch: { planId() { this.dispose(); this.$emit('close') } },
   methods: {
+    /** 任务中心只打开所选的既有调查，不把它替换为该清单的最新运行或重新提交。 */
+    async openExisting(id) {
+      const generation = ++this.generation; this.loading = true; this.error = ''
+      try { const run = await fetchInvestigation(id); if (!this.current(generation)) return; if (run.planId !== this.planId) throw new Error('调查与当前清单不匹配'); this.run = run; this.steps = []; this.afterSeq = 0; this.pollingStartedAt = Date.now(); await this.refresh(generation) }
+      catch (e) { if (this.current(generation)) this.error = e.message }
+      finally { if (this.current(generation)) this.loading = false }
+    },
     currentScope() { return !this.disposed && this.identity === getCurrentUserId() && this.sessionToken === getSessionToken() },
     current(generation) { return this.currentScope() && generation === this.generation },
     dispose() { this.disposed = true; this.generation++; this.evidenceRequest++; clearTimeout(this.timer) },

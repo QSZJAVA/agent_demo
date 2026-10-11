@@ -75,6 +75,22 @@ test('closed investigation panel ignores late report and evidence', async () => 
   let complete; const state = panel({ recoverInvestigation: () => new Promise(resolve => { complete = resolve }) })
   const work = state.resume(); state.dispose(); complete({ id: 'run' }); await work; assert.equal(state.run, null)
 })
+
+test('task inbox opens the selected historical investigation without switching to the latest run', async () => {
+  const reads = []; let recovered = 0
+  const state = panel({ fetchInvestigation: async id => { reads.push(id); return { id, planId: 'plan', status: 'COMPLETED' } },
+    fetchInvestigationSteps: async () => ({ records: [], nextCursor: 0 }), markInvestigationTerminal() {}, recoverInvestigation: async () => { recovered++; return { id: 'newer' } } })
+  await state.openExisting('selected-old-run')
+  assert.equal(state.run.id, 'selected-old-run'); assert.deepEqual(reads, ['selected-old-run', 'selected-old-run']); assert.equal(recovered, 0)
+})
+
+test('selected investigation must belong to the open plan and cannot populate a closed panel', async () => {
+  let reads = 0
+  const wrong = panel({ fetchInvestigation: async () => ({ id: 'wrong', planId: 'other' }), fetchInvestigationSteps: async () => { reads++; return {} } })
+  await wrong.openExisting('wrong'); assert.equal(wrong.run, null); assert.match(wrong.error, /不匹配/); assert.equal(reads, 0)
+  let complete; const closed = panel({ fetchInvestigation: () => new Promise(resolve => { complete = resolve }) })
+  const pending = closed.openExisting('late'); closed.dispose(); complete({ id: 'late', planId: 'plan' }); await pending; assert.equal(closed.run, null)
+})
 test('candidate ids and report are isolated when account changes', async () => {
   let complete, token = 'current'; const state = panel({ getSessionToken: () => token, fetchInvestigationCandidates: () => new Promise(resolve => { complete = resolve }) })
   const work = state.loadCandidates(); token = 'other'; complete({ records: [{ id: '9007199254740993' }], nextCursor: null }); await work; assert.equal(state.candidates.length, 0)

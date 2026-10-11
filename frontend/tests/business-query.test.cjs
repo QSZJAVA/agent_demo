@@ -25,6 +25,22 @@ test('展示序号在分页后保持全局位置', () => {
   assert.equal(s.rowIndex(0), 41)
   assert.equal(s.rowIndex(19), 60)
 })
+
+test('工作区详情绑定当前页快照行，翻页后不显示已离开的工单', () => {
+  const s = state('WORK_ORDER'), emitted = []; s.$emit = (...args) => emitted.push(args); s.snapshotDetails = true
+  const row = { rowKey: 'snapshot:one', orderId: 'WO-1', workflowSummary: '当前事实', steps: [{ name: '审核', status: '待审批' }] }
+  s.payload.rows = [row]; s.openDetail(row); assert.equal(component.computed.workflowRow.call(s), row); assert.equal(emitted.length, 0)
+  s.payload.rows = [{ rowKey: 'snapshot:two', orderId: 'WO-2' }]; assert.equal(component.computed.workflowRow.call(s), null)
+  s.snapshotDetails = false; s.openDetail(s.payload.rows[0]); assert.deepEqual(emitted, [['detail', 'WO-2']])
+})
+
+test('实时结果和UTC快照的同一时刻统一显示为上海时间', () => {
+  const first = state(), snapshot = state()
+  first.payload.observedAt = '2026-10-11T19:59:13+08:00'
+  snapshot.payload.observedAt = '2026-10-11T11:59:13Z'
+  assert.equal(component.computed.observedTime.call(first), '2026-10-11 19:59:13')
+  assert.equal(component.computed.observedTime.call(snapshot), '2026-10-11 19:59:13')
+})
 test('动态报表字段不重复展示且隐藏内部标识列', () => {
   const columns = component.computed.displayColumns.call(state())
   assert.equal(columns.filter(c => c.name === 'amount').length, 1)

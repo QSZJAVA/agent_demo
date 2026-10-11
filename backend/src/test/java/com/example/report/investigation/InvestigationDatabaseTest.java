@@ -25,6 +25,8 @@ class InvestigationDatabaseTest {
     static String env(String key,String fallback) {return System.getenv().getOrDefault(key,fallback);}
     @BeforeAll static void database() {
         schema="investigation_it_"+UUID.randomUUID().toString().replace("-","");
+        // 输出准确隔离库名，供授权测试前后核对与清理证据归档。
+        System.out.println("ISOLATED_DATABASE_TARGET="+schema);
         var ds=new DriverManagerDataSource("jdbc:mysql://"+env("TRACE_DB_HOST","127.0.0.1")+":"+env("TRACE_DB_PORT","3306")+"/"+schema+"?createDatabaseIfNotExist=true&serverTimezone=Asia/Shanghai",env("TRACE_DB_USER","root"),env("TRACE_DB_PASSWORD",""));
         jdbc=new JdbcTemplate(ds);manager=new DataSourceTransactionManager(ds);Flyway.configure().dataSource(ds).load().migrate();
     }

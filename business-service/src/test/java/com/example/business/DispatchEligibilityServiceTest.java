@@ -102,12 +102,18 @@ class DispatchEligibilityServiceTest {
         var rows=List.of(new ReportDataRow(fact("1","A","128000"),"已派单"),new ReportDataRow(fact("2","A","15"),"未派单"));
         when(adapter.dataRowsAfter(eq("T001"),eq(Set.of("A")),isNull(),anyInt())).thenReturn(rows);
         when(adapter.dataRowsAfter(eq("T001"),eq(Set.of("A")),eq("2"),anyInt())).thenReturn(List.of());
+        // 使用真实默认委派覆盖不提供SQL下推的适配器；筛选和资格计算仍针对同一次读取的原始事实。
+        when(adapter.dataRowsAfter(anyString(),anySet(),nullable(String.class),anyInt(),any(BusinessQuery.class))).thenCallRealMethod();
         var jdbc=mock(NamedParameterJdbcTemplate.class);var orders=mock(WorkOrderProvider.class);
-        var reader=new BusinessReadService(queries,jdbc,orders,1000,120,new BusinessQueryProperties(),service);
+        var snapshots=mock(com.example.report.workspace.QuerySnapshotStore.class);
+        when(snapshots.save(any(),any(),any(),any(),anyInt())).thenAnswer(call->((BusinessQueryEngine.Materialized)call.getArgument(1)).result());
+        var reader=new BusinessReadService(queries,jdbc,orders,1000,120,new BusinessQueryProperties(),service,snapshots);
         var query=new BusinessQuery(BusinessQuery.Domain.REPORT,BusinessQuery.View.ELIGIBILITY,List.of("sales"),"A",
                 List.of(new BusinessQuery.Group(List.of(new BusinessQuery.Filter("recordId","EQ",List.of("1"))))),null,false,1,1,null);
         var result=reader.query(user,query);assertEquals(1,result.total());assertEquals("1",result.rows().get(0).get("recordId"));
         var evidence=(DispatchEligibility)result.rows().get(0).get("eligibility");assertFalse(evidence.eligible());assertTrue(evidence.reason().contains("已派单"));
+        verify(adapter,times(2)).dataRowsAfter(eq("T001"),eq(Set.of("A")),nullable(String.class),anyInt(),eq(query));
+        verify(snapshots).save(eq(user),any(),eq(List.of(entry)),eq(Set.of("A")),eq(2));
         verifyNoInteractions(jdbc,orders,rules);verify(adapter,never()).rowsByIds(anyString(),anyCollection());
     }
 }

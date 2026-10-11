@@ -1,5 +1,95 @@
 -- 当前V1完整空库结构；不执行历史数据迁移或字段补齐。
 
+CREATE TABLE `query_workspace_queue` (
+  `tenant_id` varchar(64) NOT NULL COMMENT '部署租户标识，同时作为工作区准入互斥主键',
+  PRIMARY KEY (tenant_id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin COMMENT='查询工作区租户互斥行；只保护快照与导出准入容量，随部署租户保留';
+
+CREATE TABLE `business_query_run` (
+  `id` varchar(32) NOT NULL COMMENT '查询运行主键，关联快照明细、导出与对比',
+  `tenant_id` varchar(64) NOT NULL COMMENT '数据所属租户，所有读取与清理必须限定',
+  `user_id` varchar(64) NOT NULL COMMENT '创建用户标识，快照只对本人授权',
+  `permission_version` varchar(64) NOT NULL COMMENT '创建时权限摘要，当前权限不一致时拒绝读取',
+  `definition_hash` char(64) NOT NULL COMMENT '目录、字段映射及词典版本的SHA-256摘要',
+  `companies_json` json NOT NULL COMMENT '实际授权公司代码数组，包含没有匹配数据的公司',
+  `query_json` json NOT NULL COMMENT '完整受控BusinessQuery，包含解析后的报表及条件',
+  `columns_json` json NOT NULL COMMENT '字段名称、类型与业务说明数组',
+  `summary_json` json NOT NULL COMMENT '完整匹配范围统计，金额按币种使用十进制字符串',
+  `row_count` int NOT NULL COMMENT '完整匹配记录数，单位条，范围0至100000',
+  `fact_bytes` bigint NOT NULL COMMENT '快照明细UTF-8总字节数，单次不超过16MiB',
+  `source` text NOT NULL COMMENT '来源说明，不代表外部系统或全局事务已经验收',
+  `observed_at` datetime(3) NOT NULL COMMENT '来源读取完成时刻，UTC，毫秒精度',
+  `expires_at` datetime(3) NOT NULL COMMENT '快照到期时刻，UTC，含边界后不可读取',
+  `content_hash` char(64) NOT NULL COMMENT '查询、字段定义与完整有序明细的SHA-256摘要',
+  `scanned_rows` int NOT NULL COMMENT '实际进入共同谓词的来源行数，单位条',
+  `consistency` varchar(64) NOT NULL COMMENT 'LOCAL_REPEATABLE_READ本地事务或SOURCE_OBSERVATION外部来源观测边界',
+  `created_at` datetime(3) NOT NULL DEFAULT (UTC_TIMESTAMP(3)) COMMENT '运行落库时刻，UTC，毫秒精度',
+  PRIMARY KEY (id),
+  KEY idx_query_owner (tenant_id,user_id,created_at,id),
+  KEY idx_query_expiry (tenant_id,expires_at)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin COMMENT='完整只读查询运行；按租户和创建人隔离，事实默认保留24小时，过期清理不影响来源业务';
+
+CREATE TABLE `business_query_row` (
+  `run_id` varchar(32) NOT NULL COMMENT '关联business_query_run主键',
+  `seq` int NOT NULL COMMENT '快照内稳定序号，从1开始，用于分页与导出',
+  `row_key` varchar(512) COLLATE utf8mb4_bin NOT NULL COMMENT '来源复合记录标识，同一快照唯一且区分大小写',
+  `data_json` longtext NOT NULL COMMENT '单条业务事实JSON，数字与长标识按精确字符串保存',
+  PRIMARY KEY (run_id,seq),
+  UNIQUE KEY uk_query_row (run_id,row_key),
+  CONSTRAINT fk_query_row_run FOREIGN KEY (run_id) REFERENCES business_query_run(id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin COMMENT='不可变查询快照完整明细；归属查询运行，随运行过期级联清理';
+
+CREATE TABLE `saved_business_query` (
+  `id` varchar(32) NOT NULL COMMENT '常用查询主键',
+  `tenant_id` varchar(64) NOT NULL COMMENT '数据所属租户',
+  `user_id` varchar(64) NOT NULL COMMENT '定义所属用户，只允许本人查看、运行与修改',
+  `name` varchar(100) NOT NULL COMMENT '用户命名，最长100字符',
+  `query_json` json NOT NULL COMMENT '保存的完整受控查询定义，不包含历史查询结果',
+  `companies_json` json NOT NULL COMMENT '保存时实际公司范围，运行时重新检查',
+  `definition_hash` char(64) NOT NULL COMMENT '保存时目录、字段与词典版本摘要，变化后须重新保存',
+  `clock_mode` varchar(16) NOT NULL COMMENT 'FIXED固定日期或LAST_MONTH每次重算上个自然月',
+  `date_field` varchar(64) DEFAULT NULL COMMENT 'LAST_MONTH模式的日期字段；FIXED时为空',
+  `version` bigint NOT NULL DEFAULT 1 COMMENT '定义版本，从1开始，修改和删除使用条件更新',
+  `created_at` datetime(3) NOT NULL DEFAULT (UTC_TIMESTAMP(3)) COMMENT '创建时间，UTC',
+  `updated_at` datetime(3) NOT NULL DEFAULT (UTC_TIMESTAMP(3)) COMMENT '最近修改时间，UTC',
+  PRIMARY KEY (id),
+  KEY idx_saved_owner (tenant_id,user_id,created_at,id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin COMMENT='本人常用查询定义；按租户和用户隔离，保留至用户删除，不授予永久业务访问权';
+
+CREATE TABLE `query_export_job` (
+  `id` varchar(32) NOT NULL COMMENT '导出任务主键',
+  `tenant_id` varchar(64) NOT NULL COMMENT '数据所属租户，认领及恢复限定部署租户',
+  `user_id` varchar(64) NOT NULL COMMENT '发起用户标识，执行与下载重新授权',
+  `run_id` varchar(32) NOT NULL COMMENT '固定查询快照主键，不重新查询实时来源',
+  `idempotency_key` varchar(128) COLLATE utf8mb4_bin NOT NULL COMMENT '首次提交固定键，同一用户同键只能对应同一快照',
+  `status` varchar(16) NOT NULL DEFAULT 'QUEUED' COMMENT 'QUEUED排队、RUNNING生成、SUCCEEDED完成、FAILED失败、CANCELLED取消、EXPIRED过期',
+  `claim_token` varchar(32) DEFAULT NULL COMMENT '当前认领令牌；无执行者时为空，迟到写回必须匹配',
+  `lease_until` datetime(3) DEFAULT NULL COMMENT '执行租约截止UTC时间；未认领时为空',
+  `attempts` int NOT NULL DEFAULT 0 COMMENT '实际认领次数，最多3次恢复只读文件生成',
+  `row_version` bigint NOT NULL DEFAULT 1 COMMENT '任务状态版本；取消、认领及完成递增',
+  `progress_rows` int NOT NULL DEFAULT 0 COMMENT '已处理快照明细条数，不代表业务执行',
+  `message` varchar(512) DEFAULT NULL COMMENT '可展示的状态或错误说明，不含内部凭据',
+  `content` longblob DEFAULT NULL COMMENT '受控CSV文件UTF-8字节；未完成、取消或到期时为空',
+  `content_hash` char(64) DEFAULT NULL COMMENT '完整CSV字节SHA-256；没有文件时为空',
+  `expires_at` datetime(3) NOT NULL COMMENT '导出及下载截止UTC时间，不晚于来源快照',
+  `created_at` datetime(3) NOT NULL DEFAULT (UTC_TIMESTAMP(3)) COMMENT '创建时间，UTC',
+  `updated_at` datetime(3) NOT NULL DEFAULT (UTC_TIMESTAMP(3)) COMMENT '状态最近变化UTC时间，续租不改变通知版本',
+  PRIMARY KEY (id),
+  UNIQUE KEY uk_export_request (tenant_id,user_id,idempotency_key),
+  KEY idx_export_claim (tenant_id,status,created_at,id),
+  KEY idx_export_owner (tenant_id,user_id,created_at,id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin COMMENT='查询快照异步导出任务与受控文件；按租户和用户隔离，文件与快照同时到期，幂等头保留30天';
+
+CREATE TABLE `task_inbox_read` (
+  `tenant_id` varchar(64) NOT NULL COMMENT '提醒所属租户',
+  `user_id` varchar(64) NOT NULL COMMENT '阅读用户标识',
+  `event_key` char(64) NOT NULL COMMENT '任务类型、标识和业务状态版本的SHA-256，不含敏感事实',
+  `read_at` datetime(3) NOT NULL DEFAULT (UTC_TIMESTAMP(3)) COMMENT '已读UTC时间，重复标记保持同一事件',
+  PRIMARY KEY (tenant_id,user_id,event_key),
+  KEY idx_inbox_expiry (tenant_id,read_at)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin COMMENT='站内任务提醒已读标记；按当前任务状态与版本去重，归属租户用户，保留30天';
+
+
 CREATE TABLE `agent_conversation` (
   `id` varchar(32) NOT NULL COMMENT '服务端生成的会话主键',
   `tenant_id` varchar(64) NOT NULL COMMENT '数据所属租户标识；查询和写入必须限定租户',
@@ -511,7 +601,9 @@ CREATE TABLE `report_expense` (
   `dispatched_at` datetime DEFAULT NULL COMMENT '业务派单完成时间；未派单时为空',
   PRIMARY KEY (`id`),
   KEY `idx_company_status` (`company_code`,`dispatch_status`),
-  KEY `idx_tenant_company_status` (`tenant_id`,`company_code`,`dispatch_status`)
+  KEY `idx_tenant_company_status` (`tenant_id`,`company_code`,`dispatch_status`),
+  KEY `idx_query_amount` (`tenant_id`,`company_code`,`amount`,`id`),
+  KEY `idx_query_date` (`tenant_id`,`company_code`,`expense_date`,`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='费用业务报表；本仓库演示业务数据，按租户和公司隔离';
 
 CREATE TABLE `report_purchase` (
@@ -543,7 +635,9 @@ CREATE TABLE `report_receivable` (
   `dispatched_at` datetime DEFAULT NULL COMMENT '业务派单完成时间；未派单时为空',
   PRIMARY KEY (`id`),
   KEY `idx_company_status` (`company_code`,`dispatch_status`),
-  KEY `idx_tenant_company_status` (`tenant_id`,`company_code`,`dispatch_status`)
+  KEY `idx_tenant_company_status` (`tenant_id`,`company_code`,`dispatch_status`),
+  KEY `idx_query_amount` (`tenant_id`,`company_code`,`amount`,`id`),
+  KEY `idx_query_date` (`tenant_id`,`company_code`,`due_date`,`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='应收业务报表；本仓库演示业务数据，按租户和公司隔离';
 
 CREATE TABLE `report_sales` (
@@ -558,7 +652,9 @@ CREATE TABLE `report_sales` (
   `dispatched_at` datetime DEFAULT NULL COMMENT '业务派单完成时间；未派单时为空',
   PRIMARY KEY (`id`),
   KEY `idx_company_status` (`company_code`,`dispatch_status`),
-  KEY `idx_tenant_company_status` (`tenant_id`,`company_code`,`dispatch_status`)
+  KEY `idx_tenant_company_status` (`tenant_id`,`company_code`,`dispatch_status`),
+  KEY `idx_query_amount` (`tenant_id`,`company_code`,`amount`,`id`),
+  KEY `idx_query_date` (`tenant_id`,`company_code`,`sale_date`,`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='销售业务报表；本仓库演示业务数据，按租户和公司隔离';
 
 CREATE TABLE `resolver_evaluation_run` (

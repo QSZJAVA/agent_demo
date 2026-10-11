@@ -4,6 +4,8 @@
 
 P0 已实现语义诊断与反馈、按公司/报表发布的业务词典、完整查询条件编辑和结构化澄清。操作、版本保护及评估入口见[语义质量与业务词典](docs/语义质量与业务词典.md)；最新[P0 验收](docs/review/P0语义质量与交互验收_2026-10-11.md)记录 Java 实际执行 1,062 项、前端 163 项、评估工具 21 项通过，真实模型回放 54/54 轮、认证 HTTP 7/7、浏览器 12 个检查点通过，并保留一次通过率、修正及历史失败。
 
+P1 增加安全条件下推、完整查询快照、私人常用查询、异步完整导出、指标与期间分析、查询对比、Top N 待确认清单及任务提醒。操作、恢复和预算见[查询工作区与日常分析](docs/查询工作区与日常分析.md)，本轮证据见[P1 验收报告](docs/review/P1查询工作区实现与验收_2026-10-11.md)。
+
 当前基线为 **V1 通用业务助手**，应用包版本 **1.0.0**、派单语义协议版本 **1**，统一定义在 [demo-baseline.json](demo-baseline.json)。派单能力沿用此前重新编号的字段筛选和状态保护协议，普通查询使用独立的严格业务查询协议。运行链路为 `real,mcp`、`agent.semantic.mode=active`、真实模型接口和带认证的 HTTP MCP 业务服务。模型名称仍为 `deepseek-v4.1-flash`，请求原生 JSON Schema，thinking 关闭。
 
 ## 启动与账号
@@ -66,13 +68,13 @@ Windows 也可双击 `tools/start-app.cmd`。启动脚本会先构建两个后�
 
 ## 当前文档与流程图
 
-- [十二页完整流程图：HTML](docs/diagrams/demo-final/index.html) · [SVG/Mermaid 入口](docs/diagrams/README.md) · [可编辑 draw.io](docs/diagrams/demo-final/demo-final.drawio)
+- [十四页完整流程图：HTML](docs/diagrams/demo-final/index.html) · [SVG/Mermaid 入口](docs/diagrams/README.md) · [可编辑 draw.io](docs/diagrams/demo-final/demo-final.drawio)
 - [工作台操作、手工派单与运营治理](docs/工作台操作与运营治理.md)
 - [通用业务查询与工单说明](docs/通用业务助手.md) · [已完成的实施计划](docs/通用业务助手实施计划_2026-10-06.md)
 - [V1 配置字段与状态恢复设计](docs/语义V1配置字段筛选.md)
 - [MCP 业务服务与接口契约](docs/MCP业务服务契约.md) · [外部派单接入契约](docs/MCP派单接入契约.md)
 - [异常调查 Agent 当前实现](docs/异常调查Agent.md) · [上下文与证据工程](docs/上下文工程设计与验收_2026-10-06.md)
-- [数据库字典：38 表、456 字段](docs/db/表结构字典.md) · [Docker 部署说明](docs/Docker部署指南.md)
+- [数据库字典：44 表、512 字段](docs/db/表结构字典.md) · [Docker 部署说明](docs/Docker部署指南.md)
 - [演示范围与生产待办](docs/演示范围与生产待办.md) · [历史资料索引](docs/history/README.md)
 
 流程图由 `node docs/diagrams/build-semantic-flows.cjs` 统一生成 HTML、SVG、Mermaid、draw.io 和数据文件；修改生成器后必须重新生成。

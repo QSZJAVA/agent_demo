@@ -39,6 +39,7 @@
           <span slot="title">费用报表</span>
         </el-menu-item>
         <el-menu-item index="/tasks"><i class="el-icon-tickets"></i><span slot="title">我的任务</span></el-menu-item>
+        <el-menu-item index="/query-workspace"><i class="el-icon-collection"></i><span slot="title">查询工作区</span></el-menu-item>
         <el-menu-item index="/semantic-quality"><i class="el-icon-data-analysis"></i><span slot="title">语义质量</span></el-menu-item>
         <el-menu-item index="/rules">
           <i class="el-icon-setting"></i>
@@ -108,8 +109,9 @@ export default {
       return (this.$route.meta && this.$route.meta.title) || '报表查询'
     },
     routeKey() {
-      // 切换用户或派单完成后强制刷新当前页面数据
-      return `${this.$route.fullPath}-${this.currentUserId}-${this.refreshSeq}`
+      // 自行管理路由查询参数的页面在翻页时保留操作状态；身份切换或业务刷新仍必须销毁旧实例。
+      const location = this.$route.meta?.ownsQueryState ? this.$route.path : this.$route.fullPath
+      return `${location}-${this.currentUserId}-${this.refreshSeq}`
     }
   },
   async created() {

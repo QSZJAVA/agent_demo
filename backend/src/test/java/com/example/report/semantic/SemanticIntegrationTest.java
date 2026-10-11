@@ -77,6 +77,8 @@ class SemanticIntegrationTest {
         }
     }
     @DynamicPropertySource static void database(DynamicPropertyRegistry p) {
+        // 输出准确隔离库名，供授权测试前后核对与清理证据归档。
+        System.out.println("ISOLATED_DATABASE_TARGET="+SCHEMA);
         p.add("spring.datasource.url",()->"jdbc:mysql://"+System.getenv().getOrDefault("TRACE_DB_HOST","127.0.0.1")+":"+System.getenv().getOrDefault("TRACE_DB_PORT","3306")+"/"+SCHEMA+"?createDatabaseIfNotExist=true&characterEncoding=UTF-8&serverTimezone=Asia/Shanghai");
         p.add("spring.datasource.username",()->System.getenv().getOrDefault("TRACE_DB_USER","root"));
         p.add("spring.datasource.password",()->System.getenv().getOrDefault("TRACE_DB_PASSWORD",""));

@@ -6,15 +6,17 @@ const source = fs.readFileSync(path.join(__dirname, '../src/views/MyTasks.vue'),
   .replace(/import[^\n]*from\s+['"][^'"]+['"]/g, '').replace('export default', 'result =')
 
 function harness() {
-  const lists = [], plans = []
+  const lists = [], plans = [], actions = [], confirmations = []
   const sandbox = { result: null, DispatchTrace: {}, formatAmount() {}, statusTone() {}, displayLabel: value => value,
     getCurrentUserId: () => 'user1', getSessionToken: () => 'session1',
     fetchTaskHistory: args => new Promise((resolve, reject) => lists.push({ args, resolve, reject })),
-    fetchTaskPlan: (id, page, operator) => new Promise((resolve, reject) => plans.push({ id, page, operator, resolve, reject })) }
+    fetchTaskPlan: (id, page, operator) => new Promise((resolve, reject) => plans.push({ id, page, operator, resolve, reject })),
+    runDispatchJob: request => new Promise((resolve, reject) => actions.push({ request, resolve, reject })) }
   vm.runInNewContext(source, sandbox)
   const component = sandbox.result, state = component.data()
   for (const [name, method] of Object.entries(component.methods)) state[name] = method.bind(state)
-  return { component, state, sandbox, lists, plans }
+  state.$confirm = () => new Promise((resolve, reject) => confirmations.push({ resolve, reject }))
+  return { component, state, sandbox, lists, plans, actions, confirmations }
 }
 const page = (id, nextCursor = null) => ({ rows: [{ id, plans: [] }], nextCursor })
 
@@ -106,6 +108,32 @@ test('operator job detail uses the delegated read path and resets for ordinary j
   const own = state.openPlan('own-plan', 'CONFIRM')
   assert.equal(plans[1].operator, false)
   plans[1].resolve({ plan: { planId: 'own-plan' }, items: [] }); await own
+})
+
+test('closing, switching, refreshing or losing a session invalidates a pending business confirmation', async () => {
+  for (const action of ['CONFIRM', 'RETRY_FAILED']) for (const change of ['close', 'switch', 'refresh', 'session']) {
+    const { state, plans, actions, confirmations, sandbox } = harness()
+    const opened = state.openPlan('A'); plans[0].resolve({ plan: { planId: 'A', count: 3 }, items: [] }); await opened
+    const confirmation = state.handleException(action)
+    if (change === 'close') state.closePlan()
+    if (change === 'switch') state.openPlan('B')
+    if (change === 'refresh') state.loadPlan(1)
+    if (change === 'session') sandbox.getSessionToken = () => 'new-session'
+    confirmations[0].resolve(); await confirmation
+    assert.equal(actions.length, 0, `${action}/${change} must not submit`)
+  }
+})
+
+test('explicit confirmation submits once and refreshes the matching plan without replaying on read', async () => {
+  const { state, plans, actions, confirmations } = harness()
+  const opened = state.openPlan('A'); plans[0].resolve({ plan: { planId: 'A', count: 3 }, items: [] }); await opened
+  const pending = state.handleException('CONFIRM'); await state.handleException('CONFIRM')
+  assert.equal(confirmations.length, 1); assert.equal(actions.length, 0)
+  confirmations[0].resolve(); await new Promise(resolve => setImmediate(resolve))
+  assert.equal(actions.length, 1); assert.equal(actions[0].request.planId, 'A')
+  actions[0].resolve({}); await new Promise(resolve => setImmediate(resolve))
+  plans[1].resolve({ plan: { planId: 'A', status: 'EXECUTED', count: 3 }, items: [] }); await pending
+  assert.equal(state.detail.plan.status, 'EXECUTED'); assert.equal(actions.length, 1); assert.equal(state.actionLoading, false)
 })
 
 test('history and plan clients only make GET calls and encode plan identity', async () => {

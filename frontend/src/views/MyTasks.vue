@@ -4,6 +4,7 @@
       <div><h1>我的任务</h1><p>找回已提交的派单、重试与核对任务，查看当前进度和清单结果</p></div>
       <el-button size="small" icon="el-icon-refresh" :loading="loading" @click="refresh">刷新任务</el-button>
     </div>
+    <task-inbox @plan="openPlan($event)" @refresh-dispatch="refresh" />
     <div class="tasks-toolbar">
       <el-select v-model="status" size="small" aria-label="任务状态" @change="changeStatus">
         <el-option label="全部状态" value="" />
@@ -44,6 +45,12 @@
         <template v-if="detail">
           <div class="plan-summary"><span>清单：{{ detail.plan.planId }}</span><business-label :value="detail.plan.status" tag /><span>共 {{ detail.plan.count }} 条</span><el-button size="small" @click="loadPlan(detailPage)">刷新清单</el-button><el-button v-if="!operatorPlan" type="text" @click="traceId = detail.plan.planId">查看完整追溯</el-button><el-button v-else type="text" @click="$router.push('/operations')">进入运营治理</el-button></div>
           <el-alert v-if="detail.plan.status === 'EXECUTING' || detail.plan.status === 'REVIEW_REQUIRED'" :title="detail.plan.status === 'EXECUTING' ? '清单仍在执行，可稍后刷新当前结果。' : (operatorPlan ? '仍有结果需要核对，请进入运营治理继续处理。' : '仍有结果需要核对，请从业务助手或报表派单记录继续处理。')" type="warning" :closable="false" />
+          <div v-if="!operatorPlan" class="plan-summary">
+            <el-button v-if="detail.plan.status === 'PENDING'" size="small" type="danger" :loading="actionLoading" @click="handleException('CONFIRM')">核对并确认派单</el-button>
+            <el-button v-if="detail.plan.status === 'REVIEW_REQUIRED'" size="small" :loading="actionLoading" @click="handleException('RECONCILE')">核对已有结果</el-button>
+            <el-button v-if="detail.plan.status === 'EXECUTED' && detail.items.some(item => item.status === 'FAILED')" size="small" type="warning" :loading="actionLoading" @click="handleException('RETRY_FAILED')">复核并重试失败项</el-button>
+            <el-button v-if="['EXECUTED','REVIEW_REQUIRED'].includes(detail.plan.status)" size="small" @click="investigationPlan = detail.plan.planId">调查异常原因</el-button>
+          </div>
           <el-table :data="detail.items" size="small" border empty-text="当前页没有可展示的清单条目">
             <el-table-column prop="reportName" label="报表" min-width="100" />
             <el-table-column prop="docNo" label="单据号" min-width="130" />
@@ -58,15 +65,17 @@
       </div>
     </el-dialog>
     <dispatch-trace v-if="traceId" :key="traceId" :plan-id="traceId" @close="traceId = null" />
+    <investigation-panel v-if="investigationPlan" :key="investigationPlan" :plan-id="investigationPlan" @close="investigationPlan = null" />
   </el-card>
 </template>
 
 <script>
 /**
- * 当前用户任务入口；读取持久化历史并沿关联标识查看最新清单和追溯，不产生新的派单命令。
+ * 当前用户任务入口；读取持久化历史并沿关联标识查看最新清单和追溯。用户可显式核对或复核确认后重试失败项。
  * 列表、详情各自绑定请求代次和登录上下文；切换筛选、关闭窗口或离开页面后，迟到数据不得回写。
  */
 import { fetchTaskHistory, fetchTaskPlan } from '../api/taskHistory'
+import { runDispatchJob } from '../api/dispatchJob'
 import { getCurrentUserId, getSessionToken } from '../auth'
 import { displayLabel, statusTone } from '../utils/presentation'
 import { formatAmount } from '../utils/amount'
@@ -76,12 +85,12 @@ const ACTIONS = { DIRECT: '手工派单', CONFIRM: '确认派单', RETRY_FAILED:
 
 export default {
   name: 'MyTasks',
-  components: { DispatchTrace },
+  components: { DispatchTrace, TaskInbox: () => import('../components/TaskInbox.vue'), InvestigationPanel: () => import('../components/agent/InvestigationPanel.vue') },
   data() {
     return { owner: getCurrentUserId(), sessionToken: getSessionToken(), disposed: false, sequence: 0,
       rows: [], status: '', loading: false, error: '', cursor: null, nextCursor: null, previous: [], retryRequest: null,
       detailVisible: false, detailLoading: false, detailError: '', detail: null, selectedPlan: null,
-      detailPage: 1, detailTargetPage: 1, detailSequence: 0, operatorPlan: false, traceId: null }
+      detailPage: 1, detailTargetPage: 1, detailSequence: 0, operatorPlan: false, traceId: null, investigationPlan: null, actionLoading: false }
   },
   computed: {
     emptyText() {
@@ -125,7 +134,21 @@ export default {
       }
     },
     openPlan(planId, action = '') { if (!this.current()) return; this.closePlan(); this.selectedPlan = planId; this.operatorPlan = ['OP_RETRY_FAILED', 'OP_RECONCILE'].includes(action); this.detailVisible = true; return this.loadPlan(1) },
-    closePlan() { this.detailSequence++; this.detailVisible = false; this.detail = null; this.detailError = ''; this.detailLoading = false; this.selectedPlan = null; this.operatorPlan = false; this.traceId = null },
+    closePlan() { this.detailSequence++; this.detailVisible = false; this.detail = null; this.detailError = ''; this.detailLoading = false; this.selectedPlan = null; this.operatorPlan = false; this.traceId = null; this.investigationPlan = null; this.actionLoading = false },
+    /** 核对不重发；失败项重试必须由用户在当前清单确认，关闭或切换清单后不再提交旧动作。 */
+    async handleException(action) {
+      if (!this.current() || !this.detail || this.operatorPlan || this.actionLoading) return
+      const id = this.selectedPlan, sequence = this.detailSequence
+      this.actionLoading = true
+      try {
+        if (action === 'RETRY_FAILED') await this.$confirm('将按当前权限、业务记录和规则复核，仅重试明确失败的条目。是否继续？', '确认失败项重试', { type: 'warning' })
+        if (action === 'CONFIRM') await this.$confirm(`请核对当前清单的 ${this.detail.plan.count} 条记录。确认后将执行派单，是否继续？`, '确认既有派单清单', { type: 'warning' })
+        if (!this.current() || !this.detailVisible || id !== this.selectedPlan || sequence !== this.detailSequence) return
+        await runDispatchJob({ action, planId: id, reportId: null, recordIds: null, reason: null })
+        if (this.current() && id === this.selectedPlan && sequence === this.detailSequence) await this.loadPlan(this.detailPage)
+      } catch (e) { if (e?.message && this.current() && sequence === this.detailSequence) this.detailError = e.message }
+      finally { if (this.current() && id === this.selectedPlan) this.actionLoading = false }
+    },
     /** 每次详情读取同时绑定清单与页码，清空上一份事实；失败、权限变化或关窗不保留可误用的旧结果。 */
     async loadPlan(page = 1) {
       if (!this.current() || !this.detailVisible || !this.selectedPlan) return

@@ -13,6 +13,11 @@ import java.util.function.Predicate;
 /** 有界完整事实集上的确定性筛选、排序、分页及总结；数据提供者先完成权限过滤，模型不参与统计。 */
 public final class BusinessQueryEngine {
     private BusinessQueryEngine() { }
+    /** 来源读取前验证所有字段与值，空结果或下推不会绕过同一字段契约。 */
+    public static void validate(BusinessQuery query,List<FieldInfo> columns) {
+        var fields=new LinkedHashMap<String,FieldInfo>();for(var field:columns)if(fields.put(field.name(),field)!=null)throw new ApiException(502,"查询字段定义重复");
+        compile(query,fields);if(query.sortField()!=null)require(fields,query.sortField());if(query.groupBy()!=null)require(fields,query.groupBy());
+    }
     /**
      * 全部条件先按字段白名单校验，再计算完整匹配集；无结果不意味着字段合法，验证不能依赖是否存在记录。
      * @param query 经协议校验的查询
@@ -22,6 +27,16 @@ public final class BusinessQueryEngine {
      * @return 该批事实的精确总数、统计和当前页，无法处理时明确拒绝
      */
     public static BusinessResult execute(BusinessQuery query,List<FieldInfo> columns,List<Map<String,Object>> input,String source) {
+        return materialize(query,columns,input,source).result();
+    }
+    /**
+     * 同次计算的分页投影及完整有序匹配集，供业务服务保存不可变查询快照。
+     * @param result 当前页与全集统计
+     * @param rows 完整有序匹配事实，不能由当前页反推
+     */
+    public record Materialized(BusinessResult result,List<Map<String,Object>> rows) { }
+    /** 校验并一次性计算完整集合；调用方负责来源事务、权限、行数和字节预算。 */
+    public static Materialized materialize(BusinessQuery query,List<FieldInfo> columns,List<Map<String,Object>> input,String source) {
         var fields=new LinkedHashMap<String,FieldInfo>();
         for(var field:columns) if(fields.put(field.name(),field)!=null) throw new ApiException(502,"查询字段定义重复");
         var predicate=compile(query,fields);
@@ -60,8 +75,8 @@ public final class BusinessQueryEngine {
             throw new ApiException(422,matched.isEmpty()?"未找到匹配记录或无权查看，请核对编号":"匹配到多条记录，请指定准确编号后查看详情");
         int start=Math.min(matched.size(),Math.multiplyExact(query.page()-1,query.size()));
         var page=List.copyOf(matched.subList(start,Math.min(matched.size(),start+query.size())));
-        return new BusinessResult(query,OffsetDateTime.now(ZoneId.of("Asia/Shanghai")).toString(),source,List.copyOf(columns),page,matched.size(),
-                new BusinessResult.Summary(matched.size(),exactAmounts,statuses,groups,approvers,unclassified));
+        return new Materialized(new BusinessResult(query,OffsetDateTime.now(ZoneId.of("Asia/Shanghai")).toString(),source,List.copyOf(columns),page,matched.size(),
+                new BusinessResult.Summary(matched.size(),exactAmounts,statuses,groups,approvers,unclassified)),List.copyOf(matched));
     }
     /** 将字段条件编译为纯读取谓词；NULL 不满足普通比较，空值判断须明确声明。 */
     private static Predicate<Map<String,Object>> compile(BusinessQuery query,Map<String,FieldInfo> fields) {

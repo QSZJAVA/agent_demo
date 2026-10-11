@@ -34,7 +34,7 @@ public record BusinessQuery(Domain domain,View view,List<String> reportIds,Strin
     public record Filter(String field,String operator,List<String> values) { }
     /** 校验协议大小及集合边界；字段类型、权限和排序能力由业务域进一步检查。 */
     public BusinessQuery {
-        if(domain==null || view==null || reportIds==null || conditions==null || page<1 || page>2000 || size<1 || size>50
+        if(domain==null || view==null || reportIds==null || conditions==null || page<1 || page>100000 || size<1 || size>50
                 || reportIds.size()>100 || conditions.size()>8) throw new ApiException(422,"查询参数超出支持范围");
         reportIds=List.copyOf(reportIds); conditions=List.copyOf(conditions);
         if(reportIds.stream().anyMatch(id -> id==null || id.isBlank() || id.length()>128)

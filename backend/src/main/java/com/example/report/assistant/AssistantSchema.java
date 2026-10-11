@@ -17,7 +17,7 @@ public final class AssistantSchema {
         view.put("description","ELIGIBILITY仅用于询问单条报表记录当前是否符合派单条件，以一张报表和准确recordId/docNo定位；不会生成候选或清单。");
         return object(props("domain",enumeration("REPORT","DISPATCH","WORK_ORDER"),"view",view,
                 "reportIds",array(string(false),100),"companyCode",string(true),"conditions",conditions,
-                "sortField",string(true),"descending",Map.of("type","boolean"),"page",Map.of("type","integer","minimum",1,"maximum",2000),
+                "sortField",string(true),"descending",Map.of("type","boolean"),"page",Map.of("type","integer","minimum",1,"maximum",100000),
                 "size",Map.of("type","integer","minimum",1,"maximum",50),"groupBy",string(true)));
     }
     /** 查询和条件证据共享同一原子结构，避免额外的数组下标或并行定义导致证据错位。 */

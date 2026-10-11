@@ -1,0 +1,2773 @@
+[ {
+  "input" : {
+    "taskStage" : "TASK_PURPOSE",
+    "lastRoute" : null,
+    "lastAttemptRoute" : null,
+    "queryUnresolved" : false,
+    "dispatchPreviewPresent" : false,
+    "dispatchPlanPresent" : false,
+    "recentConversation" : [ ],
+    "businessDictionary" : {
+      "fingerprint" : "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "entries" : [ ],
+      "referenceTime" : "2026-10-11T11:54:35.715621Z",
+      "defaultCalendar" : {
+        "nextMonthStart" : "2026-11-01",
+        "previousMonthEndExclusive" : "2026-10-01",
+        "monthStart" : "2026-10-01",
+        "configuredHolidays" : [ ],
+        "nextFiscalYearStart" : "2027-01-01",
+        "today" : "2026-10-11",
+        "holidayCalendarComplete" : false,
+        "fiscalYearStart" : "2026-01-01",
+        "previousMonthStart" : "2026-09-01",
+        "timeZone" : "Asia/Shanghai"
+      }
+    },
+    "resolvedClarification" : { },
+    "requestedQuery" : null,
+    "today" : "2026-10-11",
+    "activeQuery" : null,
+    "visibleQueryRows" : [ ],
+    "visibleQueryResult" : null,
+    "reportCatalog" : [ {
+      "name" : "销售报表",
+      "fields" : [ {
+        "name" : "reportId",
+        "type" : "string",
+        "description" : "报表稳定标识"
+      }, {
+        "name" : "reportName",
+        "type" : "string",
+        "description" : "报表名称"
+      }, {
+        "name" : "companyCode",
+        "type" : "string",
+        "description" : "所属公司代码"
+      }, {
+        "name" : "docNo",
+        "type" : "string",
+        "description" : "来源单据号"
+      }, {
+        "name" : "amount",
+        "type" : "decimal",
+        "description" : "来源金额，币种见 currency；空值表示未提供"
+      }, {
+        "name" : "currency",
+        "type" : "string",
+        "description" : "来源声明币种；空值表示未声明，不能跨币种合计"
+      }, {
+        "name" : "date",
+        "type" : "date",
+        "description" : "业务日期；空值表示未配置"
+      }, {
+        "name" : "status",
+        "type" : "string",
+        "description" : "报表派单状态：未派单/已派单"
+      }, {
+        "name" : "orderNo",
+        "type" : "string",
+        "description" : "订单号"
+      }, {
+        "name" : "productName",
+        "type" : "string",
+        "description" : "产品名称"
+      }, {
+        "name" : "saleDate",
+        "type" : "date",
+        "description" : "销售日期，字符串 yyyy-MM-dd"
+      }, {
+        "name" : "daysSinceSale",
+        "type" : "long",
+        "description" : "距销售日期的天数（派生）"
+      }, {
+        "name" : "dispatched",
+        "type" : "boolean",
+        "description" : "来源记录是否已派单；true为已派单，false为未派单，不代表满足派单规则"
+      }, {
+        "name" : "recordId",
+        "type" : "string",
+        "description" : "报表内稳定记录标识"
+      } ],
+      "aliases" : [ "销售", "销售台账", "订单销售表", "销售明细", "销售订单", "sales report", "客户对账" ],
+      "reportId" : "rpt-sales-order",
+      "description" : "销售订单台账：按订单统计金额与派单状态"
+    } ],
+    "currentReportMentions" : [ {
+      "reportId" : "rpt-sales-order",
+      "mentions" : [ "销售报表", "销售" ]
+    } ],
+    "companies" : [ "A" ],
+    "message" : "查询A公司销售报表，金额大于100元的记录，按金额从大到小排列，每页5条。"
+  },
+  "callIndex" : 0,
+  "output" : "{\"requestedResult\":\"查询A公司销售报表中金额大于100元的普通业务记录，按金额从大到小排列，每页5条。\",\"purpose\":\"BUSINESS_QUERY\",\"queryDomain\":\"REPORT\",\"queryView\":\"LIST\",\"queryContext\":\"INDEPENDENT\",\"evidence\":\"查询A公司销售报表，金额大于100元的记录，按金额从大到小排列，每页5条。\",\"targetCount\":null}",
+  "completedAt" : "2026-10-11T19:54:38.493753600+08:00"
+}, {
+  "input" : {
+    "messageIndex" : -1,
+    "businessDictionary" : {
+      "fingerprint" : "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "entries" : [ ],
+      "referenceTime" : "2026-10-11T11:54:35.715621Z",
+      "defaultCalendar" : {
+        "nextMonthStart" : "2026-11-01",
+        "previousMonthEndExclusive" : "2026-10-01",
+        "monthStart" : "2026-10-01",
+        "configuredHolidays" : [ ],
+        "nextFiscalYearStart" : "2027-01-01",
+        "today" : "2026-10-11",
+        "holidayCalendarComplete" : false,
+        "fiscalYearStart" : "2026-01-01",
+        "previousMonthStart" : "2026-09-01",
+        "timeZone" : "Asia/Shanghai"
+      }
+    },
+    "resolvedClarification" : { },
+    "requestedQuery" : null,
+    "today" : "2026-10-11",
+    "companies" : [ "A" ],
+    "reports" : [ {
+      "fields" : [ {
+        "name" : "reportId",
+        "type" : "string",
+        "description" : "报表稳定标识"
+      }, {
+        "name" : "reportName",
+        "type" : "string",
+        "description" : "报表名称"
+      }, {
+        "name" : "companyCode",
+        "type" : "string",
+        "description" : "所属公司代码"
+      }, {
+        "name" : "docNo",
+        "type" : "string",
+        "description" : "来源单据号"
+      }, {
+        "name" : "amount",
+        "type" : "decimal",
+        "description" : "来源金额，币种见 currency；空值表示未提供"
+      }, {
+        "name" : "currency",
+        "type" : "string",
+        "description" : "来源声明币种；空值表示未声明，不能跨币种合计"
+      }, {
+        "name" : "date",
+        "type" : "date",
+        "description" : "业务日期；空值表示未配置"
+      }, {
+        "name" : "status",
+        "type" : "string",
+        "description" : "报表派单状态：未派单/已派单"
+      }, {
+        "name" : "orderNo",
+        "type" : "string",
+        "description" : "订单号"
+      }, {
+        "name" : "productName",
+        "type" : "string",
+        "description" : "产品名称"
+      }, {
+        "name" : "saleDate",
+        "type" : "date",
+        "description" : "销售日期，字符串 yyyy-MM-dd"
+      }, {
+        "name" : "daysSinceSale",
+        "type" : "long",
+        "description" : "距销售日期的天数（派生）"
+      }, {
+        "name" : "dispatched",
+        "type" : "boolean",
+        "description" : "来源记录是否已派单；true为已派单，false为未派单，不代表满足派单规则"
+      }, {
+        "name" : "recordId",
+        "type" : "string",
+        "description" : "报表内稳定记录标识"
+      } ],
+      "aliases" : [ "销售", "销售台账", "订单销售表", "销售明细", "销售订单", "sales report", "客户对账" ],
+      "dispatchEnabled" : true,
+      "name" : "销售报表",
+      "description" : "销售订单台账：按订单统计金额与派单状态",
+      "reportId" : "rpt-sales-order"
+    } ],
+    "currentReportMentions" : [ {
+      "reportId" : "rpt-sales-order",
+      "mentions" : [ "销售报表", "销售" ]
+    } ],
+    "dispatchFields" : [ {
+      "name" : "reportId",
+      "type" : "string",
+      "description" : "报表稳定标识"
+    }, {
+      "name" : "reportName",
+      "type" : "string",
+      "description" : "报表名称"
+    }, {
+      "name" : "companyCode",
+      "type" : "string",
+      "description" : "所属公司代码"
+    }, {
+      "name" : "docNo",
+      "type" : "string",
+      "description" : "来源单据号"
+    }, {
+      "name" : "amount",
+      "type" : "decimal",
+      "description" : "来源金额，币种见 currency；空值表示未提供"
+    }, {
+      "name" : "currency",
+      "type" : "string",
+      "description" : "来源声明币种；空值表示未声明，不能跨币种合计"
+    }, {
+      "name" : "date",
+      "type" : "date",
+      "description" : "业务日期；空值表示未配置"
+    }, {
+      "name" : "status",
+      "type" : "string",
+      "description" : "派单条目执行状态：待执行/成功/失败/结果未知/已跳过"
+    }, {
+      "name" : "planId",
+      "type" : "string",
+      "description" : "清单标识"
+    }, {
+      "name" : "requestId",
+      "type" : "string",
+      "description" : "稳定派单请求号，未发送时为空"
+    }, {
+      "name" : "operatorName",
+      "type" : "string",
+      "description" : "清单创建人展示名"
+    }, {
+      "name" : "createdByMe",
+      "type" : "boolean",
+      "description" : "是否当前登录人创建，由服务端身份计算；我的/本人发起使用true，不能把人称代词当创建人姓名"
+    }, {
+      "name" : "planStatus",
+      "type" : "string",
+      "description" : "清单当前状态"
+    }, {
+      "name" : "message",
+      "type" : "string",
+      "description" : "最近派单结果说明，空值表示未提供"
+    }, {
+      "name" : "createdDate",
+      "type" : "date",
+      "description" : "清单创建日期，Asia/Shanghai"
+    } ],
+    "workOrderFields" : [ {
+      "name" : "reportId",
+      "type" : "string",
+      "description" : "报表稳定标识"
+    }, {
+      "name" : "reportName",
+      "type" : "string",
+      "description" : "报表名称"
+    }, {
+      "name" : "companyCode",
+      "type" : "string",
+      "description" : "所属公司代码"
+    }, {
+      "name" : "docNo",
+      "type" : "string",
+      "description" : "来源单据号"
+    }, {
+      "name" : "amount",
+      "type" : "decimal",
+      "description" : "来源金额，币种见 currency；空值表示未提供"
+    }, {
+      "name" : "currency",
+      "type" : "string",
+      "description" : "来源声明币种；空值表示未声明，不能跨币种合计"
+    }, {
+      "name" : "date",
+      "type" : "date",
+      "description" : "业务日期；空值表示未配置"
+    }, {
+      "name" : "status",
+      "type" : "string",
+      "description" : "工单办理状态：待审批/处理中/已完成/已驳回"
+    }, {
+      "name" : "orderId",
+      "type" : "string",
+      "description" : "工单编号，须准确匹配"
+    }, {
+      "name" : "title",
+      "type" : "string",
+      "description" : "工单主题"
+    }, {
+      "name" : "stage",
+      "type" : "string",
+      "description" : "当前环节，已结束时为归档或退回"
+    }, {
+      "name" : "assignee",
+      "type" : "string",
+      "description" : "当前处理人，已结束时为空"
+    }, {
+      "name" : "requestId",
+      "type" : "string",
+      "description" : "关联派单请求号，固定演示示例为空"
+    }, {
+      "name" : "source",
+      "type" : "string",
+      "description" : "固定演示示例或实际演示派单关联"
+    }, {
+      "name" : "createdDate",
+      "type" : "date",
+      "description" : "工单创建日期，Asia/Shanghai"
+    }, {
+      "name" : "updatedDate",
+      "type" : "date",
+      "description" : "最近流程变化日期；固定演示不会随查询推进"
+    } ],
+    "previousQuery" : null,
+    "previousRows" : [ ],
+    "lastRoute" : null,
+    "lastAttemptRoute" : null,
+    "previousResult" : {
+      "totalCount" : null,
+      "displayedCount" : 0,
+      "allMatchesDisplayed" : false
+    },
+    "queryObjects" : {
+      "available" : false,
+      "sourceRef" : null,
+      "unavailableReason" : "NO_QUERY",
+      "recoveryHint" : "尚无成功展示的业务记录，请先明确并查询要处理的报表对象",
+      "preparation" : {
+        "executionRequiresConfirmation" : true,
+        "sources" : [ "QUERY_ROWS", "QUERY_ALL" ],
+        "requiresSeparatePreview" : false,
+        "requiresCurrentPermissionAndQualificationCheck" : true
+      },
+      "allMatchesDisplayed" : false,
+      "totalCount" : null,
+      "rows" : [ ]
+    },
+    "recentConversation" : [ ],
+    "dispatchSelection" : { },
+    "queryUnresolved" : false,
+    "dispatchPreviewPresent" : false,
+    "dispatchPlanPresent" : false,
+    "dispatchUnresolved" : false,
+    "dispatchCapabilities" : {
+      "recordOperations" : [ "EXCLUDE", "RESTORE", "REPLACE_EXCLUSIONS", "RESTORE_ALL", "KEEP_ONLY" ],
+      "scopeFilters" : [ "ONE_COMPANY_OR_ALL_AUTHORIZED", "REPORT_SET" ],
+      "selectionBoundary" : "CURRENT_PREVIEW_OR_FINAL_SCOPE_SNAPSHOT",
+      "quantifiers" : [ "ONE", "ALL", "UNSPECIFIED" ],
+      "keepOnlySelectors" : [ "DOCUMENT", "DESCRIPTION", "COUNTERPARTY", "FIELDS", "REFERENCE" ],
+      "unsupported" : [ "SORT", "LIMIT", "MULTI_QUERY_PROGRAM", "UNCONFIGURED_FIELD" ],
+      "selectorsByReport" : {
+        "rpt-sales-order" : [ "DOCUMENT", "DESCRIPTION", "FIELDS", "ALL", "REFERENCE" ]
+      },
+      "recordSelectors" : [ "DOCUMENT", "DESCRIPTION", "COUNTERPARTY", "FIELDS", "ALL", "REFERENCE" ]
+    },
+    "dispatchFieldsByReport" : {
+      "rpt-sales-order" : [ {
+        "name" : "companyCode",
+        "type" : "string",
+        "description" : "公司代码"
+      }, {
+        "name" : "orderNo",
+        "type" : "string",
+        "description" : "订单号"
+      }, {
+        "name" : "productName",
+        "type" : "string",
+        "description" : "产品名称"
+      }, {
+        "name" : "amount",
+        "type" : "decimal",
+        "description" : "订单金额（元）"
+      }, {
+        "name" : "saleDate",
+        "type" : "date",
+        "description" : "销售日期，字符串 yyyy-MM-dd"
+      }, {
+        "name" : "daysSinceSale",
+        "type" : "long",
+        "description" : "距销售日期的天数（派生）"
+      }, {
+        "name" : "dispatched",
+        "type" : "boolean",
+        "description" : "是否已派单（派生，粗筛后恒为 false）"
+      } ]
+    },
+    "dispatchContext" : {
+      "desired" : {
+        "companyCode" : null,
+        "allReports" : true,
+        "reportIds" : [ ]
+      },
+      "effective" : null,
+      "phase" : "READY",
+      "unresolvedCompany" : false,
+      "unresolvedReports" : false,
+      "unresolvedRecords" : false,
+      "previewRef" : null,
+      "planRef" : null,
+      "previewPreparation" : {
+        "requiresRedisplay" : false,
+        "source" : "PREVIEW"
+      },
+      "lastSelectionReferences" : [ ],
+      "lastSelectionReferencesComplete" : true,
+      "lastFailure" : null
+    },
+    "attemptHistory" : [ ],
+    "taskPurpose" : {
+      "requestedResult" : "查询A公司销售报表中金额大于100元的普通业务记录，按金额从大到小排列，每页5条。",
+      "purpose" : "BUSINESS_QUERY",
+      "queryContext" : "INDEPENDENT",
+      "evidence" : "查询A公司销售报表，金额大于100元的记录，按金额从大到小排列，每页5条。",
+      "targetCount" : null,
+      "queryDomain" : "REPORT",
+      "queryView" : "LIST"
+    },
+    "message" : "查询A公司销售报表，金额大于100元的记录，按金额从大到小排列，每页5条。"
+  },
+  "callIndex" : 1,
+  "output" : "{\"route\":\"BUSINESS_QUERY\",\"query\":{\"domain\":\"REPORT\",\"view\":\"LIST\",\"reportIds\":[\"rpt-sales-order\"],\"companyCode\":\"A\",\"conditions\":[{\"allOf\":[{\"field\":\"amount\",\"operator\":\"GT\",\"values\":[\"100\"]}]}],\"sortField\":\"amount\",\"descending\":true,\"page\":1,\"size\":5,\"groupBy\":null},\"followUp\":false,\"clarification\":null,\"removedFilters\":[],\"dispatch\":null,\"clarificationOptions\":null}",
+  "completedAt" : "2026-10-11T19:54:42.002048100+08:00"
+}, {
+  "input" : {
+    "messageIndex" : -1,
+    "businessDictionary" : {
+      "fingerprint" : "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "entries" : [ ],
+      "referenceTime" : "2026-10-11T11:54:35.715621Z",
+      "defaultCalendar" : {
+        "nextMonthStart" : "2026-11-01",
+        "previousMonthEndExclusive" : "2026-10-01",
+        "monthStart" : "2026-10-01",
+        "configuredHolidays" : [ ],
+        "nextFiscalYearStart" : "2027-01-01",
+        "today" : "2026-10-11",
+        "holidayCalendarComplete" : false,
+        "fiscalYearStart" : "2026-01-01",
+        "previousMonthStart" : "2026-09-01",
+        "timeZone" : "Asia/Shanghai"
+      }
+    },
+    "resolvedClarification" : { },
+    "requestedQuery" : null,
+    "today" : "2026-10-11",
+    "companies" : [ "A" ],
+    "reports" : [ {
+      "fields" : [ {
+        "name" : "reportId",
+        "type" : "string",
+        "description" : "报表稳定标识"
+      }, {
+        "name" : "reportName",
+        "type" : "string",
+        "description" : "报表名称"
+      }, {
+        "name" : "companyCode",
+        "type" : "string",
+        "description" : "所属公司代码"
+      }, {
+        "name" : "docNo",
+        "type" : "string",
+        "description" : "来源单据号"
+      }, {
+        "name" : "amount",
+        "type" : "decimal",
+        "description" : "来源金额，币种见 currency；空值表示未提供"
+      }, {
+        "name" : "currency",
+        "type" : "string",
+        "description" : "来源声明币种；空值表示未声明，不能跨币种合计"
+      }, {
+        "name" : "date",
+        "type" : "date",
+        "description" : "业务日期；空值表示未配置"
+      }, {
+        "name" : "status",
+        "type" : "string",
+        "description" : "报表派单状态：未派单/已派单"
+      }, {
+        "name" : "orderNo",
+        "type" : "string",
+        "description" : "订单号"
+      }, {
+        "name" : "productName",
+        "type" : "string",
+        "description" : "产品名称"
+      }, {
+        "name" : "saleDate",
+        "type" : "date",
+        "description" : "销售日期，字符串 yyyy-MM-dd"
+      }, {
+        "name" : "daysSinceSale",
+        "type" : "long",
+        "description" : "距销售日期的天数（派生）"
+      }, {
+        "name" : "dispatched",
+        "type" : "boolean",
+        "description" : "来源记录是否已派单；true为已派单，false为未派单，不代表满足派单规则"
+      }, {
+        "name" : "recordId",
+        "type" : "string",
+        "description" : "报表内稳定记录标识"
+      } ],
+      "aliases" : [ "销售", "销售台账", "订单销售表", "销售明细", "销售订单", "sales report", "客户对账" ],
+      "dispatchEnabled" : true,
+      "name" : "销售报表",
+      "description" : "销售订单台账：按订单统计金额与派单状态",
+      "reportId" : "rpt-sales-order"
+    } ],
+    "currentReportMentions" : [ {
+      "reportId" : "rpt-sales-order",
+      "mentions" : [ "销售报表", "销售" ]
+    } ],
+    "dispatchFields" : [ {
+      "name" : "reportId",
+      "type" : "string",
+      "description" : "报表稳定标识"
+    }, {
+      "name" : "reportName",
+      "type" : "string",
+      "description" : "报表名称"
+    }, {
+      "name" : "companyCode",
+      "type" : "string",
+      "description" : "所属公司代码"
+    }, {
+      "name" : "docNo",
+      "type" : "string",
+      "description" : "来源单据号"
+    }, {
+      "name" : "amount",
+      "type" : "decimal",
+      "description" : "来源金额，币种见 currency；空值表示未提供"
+    }, {
+      "name" : "currency",
+      "type" : "string",
+      "description" : "来源声明币种；空值表示未声明，不能跨币种合计"
+    }, {
+      "name" : "date",
+      "type" : "date",
+      "description" : "业务日期；空值表示未配置"
+    }, {
+      "name" : "status",
+      "type" : "string",
+      "description" : "派单条目执行状态：待执行/成功/失败/结果未知/已跳过"
+    }, {
+      "name" : "planId",
+      "type" : "string",
+      "description" : "清单标识"
+    }, {
+      "name" : "requestId",
+      "type" : "string",
+      "description" : "稳定派单请求号，未发送时为空"
+    }, {
+      "name" : "operatorName",
+      "type" : "string",
+      "description" : "清单创建人展示名"
+    }, {
+      "name" : "createdByMe",
+      "type" : "boolean",
+      "description" : "是否当前登录人创建，由服务端身份计算；我的/本人发起使用true，不能把人称代词当创建人姓名"
+    }, {
+      "name" : "planStatus",
+      "type" : "string",
+      "description" : "清单当前状态"
+    }, {
+      "name" : "message",
+      "type" : "string",
+      "description" : "最近派单结果说明，空值表示未提供"
+    }, {
+      "name" : "createdDate",
+      "type" : "date",
+      "description" : "清单创建日期，Asia/Shanghai"
+    } ],
+    "workOrderFields" : [ {
+      "name" : "reportId",
+      "type" : "string",
+      "description" : "报表稳定标识"
+    }, {
+      "name" : "reportName",
+      "type" : "string",
+      "description" : "报表名称"
+    }, {
+      "name" : "companyCode",
+      "type" : "string",
+      "description" : "所属公司代码"
+    }, {
+      "name" : "docNo",
+      "type" : "string",
+      "description" : "来源单据号"
+    }, {
+      "name" : "amount",
+      "type" : "decimal",
+      "description" : "来源金额，币种见 currency；空值表示未提供"
+    }, {
+      "name" : "currency",
+      "type" : "string",
+      "description" : "来源声明币种；空值表示未声明，不能跨币种合计"
+    }, {
+      "name" : "date",
+      "type" : "date",
+      "description" : "业务日期；空值表示未配置"
+    }, {
+      "name" : "status",
+      "type" : "string",
+      "description" : "工单办理状态：待审批/处理中/已完成/已驳回"
+    }, {
+      "name" : "orderId",
+      "type" : "string",
+      "description" : "工单编号，须准确匹配"
+    }, {
+      "name" : "title",
+      "type" : "string",
+      "description" : "工单主题"
+    }, {
+      "name" : "stage",
+      "type" : "string",
+      "description" : "当前环节，已结束时为归档或退回"
+    }, {
+      "name" : "assignee",
+      "type" : "string",
+      "description" : "当前处理人，已结束时为空"
+    }, {
+      "name" : "requestId",
+      "type" : "string",
+      "description" : "关联派单请求号，固定演示示例为空"
+    }, {
+      "name" : "source",
+      "type" : "string",
+      "description" : "固定演示示例或实际演示派单关联"
+    }, {
+      "name" : "createdDate",
+      "type" : "date",
+      "description" : "工单创建日期，Asia/Shanghai"
+    }, {
+      "name" : "updatedDate",
+      "type" : "date",
+      "description" : "最近流程变化日期；固定演示不会随查询推进"
+    } ],
+    "previousQuery" : null,
+    "previousRows" : [ ],
+    "lastRoute" : null,
+    "lastAttemptRoute" : null,
+    "previousResult" : {
+      "totalCount" : null,
+      "displayedCount" : 0,
+      "allMatchesDisplayed" : false
+    },
+    "queryObjects" : {
+      "available" : false,
+      "sourceRef" : null,
+      "unavailableReason" : "NO_QUERY",
+      "recoveryHint" : "尚无成功展示的业务记录，请先明确并查询要处理的报表对象",
+      "preparation" : {
+        "executionRequiresConfirmation" : true,
+        "sources" : [ "QUERY_ROWS", "QUERY_ALL" ],
+        "requiresSeparatePreview" : false,
+        "requiresCurrentPermissionAndQualificationCheck" : true
+      },
+      "allMatchesDisplayed" : false,
+      "totalCount" : null,
+      "rows" : [ ]
+    },
+    "recentConversation" : [ ],
+    "dispatchSelection" : { },
+    "queryUnresolved" : false,
+    "dispatchPreviewPresent" : false,
+    "dispatchPlanPresent" : false,
+    "dispatchUnresolved" : false,
+    "dispatchCapabilities" : {
+      "recordOperations" : [ "EXCLUDE", "RESTORE", "REPLACE_EXCLUSIONS", "RESTORE_ALL", "KEEP_ONLY" ],
+      "scopeFilters" : [ "ONE_COMPANY_OR_ALL_AUTHORIZED", "REPORT_SET" ],
+      "selectionBoundary" : "CURRENT_PREVIEW_OR_FINAL_SCOPE_SNAPSHOT",
+      "quantifiers" : [ "ONE", "ALL", "UNSPECIFIED" ],
+      "keepOnlySelectors" : [ "DOCUMENT", "DESCRIPTION", "COUNTERPARTY", "FIELDS", "REFERENCE" ],
+      "unsupported" : [ "SORT", "LIMIT", "MULTI_QUERY_PROGRAM", "UNCONFIGURED_FIELD" ],
+      "selectorsByReport" : {
+        "rpt-sales-order" : [ "DOCUMENT", "DESCRIPTION", "FIELDS", "ALL", "REFERENCE" ]
+      },
+      "recordSelectors" : [ "DOCUMENT", "DESCRIPTION", "COUNTERPARTY", "FIELDS", "ALL", "REFERENCE" ]
+    },
+    "dispatchFieldsByReport" : {
+      "rpt-sales-order" : [ {
+        "name" : "companyCode",
+        "type" : "string",
+        "description" : "公司代码"
+      }, {
+        "name" : "orderNo",
+        "type" : "string",
+        "description" : "订单号"
+      }, {
+        "name" : "productName",
+        "type" : "string",
+        "description" : "产品名称"
+      }, {
+        "name" : "amount",
+        "type" : "decimal",
+        "description" : "订单金额（元）"
+      }, {
+        "name" : "saleDate",
+        "type" : "date",
+        "description" : "销售日期，字符串 yyyy-MM-dd"
+      }, {
+        "name" : "daysSinceSale",
+        "type" : "long",
+        "description" : "距销售日期的天数（派生）"
+      }, {
+        "name" : "dispatched",
+        "type" : "boolean",
+        "description" : "是否已派单（派生，粗筛后恒为 false）"
+      } ]
+    },
+    "dispatchContext" : {
+      "desired" : {
+        "companyCode" : null,
+        "allReports" : true,
+        "reportIds" : [ ]
+      },
+      "effective" : null,
+      "phase" : "READY",
+      "unresolvedCompany" : false,
+      "unresolvedReports" : false,
+      "unresolvedRecords" : false,
+      "previewRef" : null,
+      "planRef" : null,
+      "previewPreparation" : {
+        "requiresRedisplay" : false,
+        "source" : "PREVIEW"
+      },
+      "lastSelectionReferences" : [ ],
+      "lastSelectionReferencesComplete" : true,
+      "lastFailure" : null
+    },
+    "taskPurpose" : {
+      "requestedResult" : "查询A公司销售报表中金额大于100元的普通业务记录，按金额从大到小排列，每页5条。",
+      "purpose" : "BUSINESS_QUERY",
+      "queryContext" : "INDEPENDENT",
+      "evidence" : "查询A公司销售报表，金额大于100元的记录，按金额从大到小排列，每页5条。",
+      "targetCount" : null,
+      "queryDomain" : "REPORT",
+      "queryView" : "LIST"
+    },
+    "observedTerms" : {
+      "matches" : [ ],
+      "truncated" : false
+    },
+    "taskStage" : "INDEPENDENT_EXPECTATION",
+    "reviewRepairHistory" : [ ],
+    "message" : "查询A公司销售报表，金额大于100元的记录，按金额从大到小排列，每页5条。"
+  },
+  "callIndex" : 2,
+  "output" : "{\n  \"requirements\": [\n    {\n      \"aspect\": \"ACTION\",\n      \"messageIndex\": -1,\n      \"evidence\": \"查询A公司销售报表，金额大于100元的记录，按金额从大到小排列，每页5条。\",\n      \"meaning\": \"本轮目标是普通业务数据查询，读取销售报表记录。\"\n    },\n    {\n      \"aspect\": \"SCOPE\",\n      \"messageIndex\": -1,\n      \"evidence\": \"A公司销售报表\",\n      \"meaning\": \"公司范围限定为A公司，报表范围限定为销售报表。\"\n    },\n    {\n      \"aspect\": \"CONDITIONS\",\n      \"messageIndex\": -1,\n      \"evidence\": \"金额大于100元\",\n      \"meaning\": \"金额严格大于100元，即amount > 100，等于100元不满足。\"\n    },\n    {\n      \"aspect\": \"PRESENTATION\",\n      \"messageIndex\": -1,\n      \"evidence\": \"按金额从大到小排列，每页5条\",\n      \"meaning\": \"按金额降序排序，每页5条，页码默认第1页。\"\n    }\n  ],\n  \"expectedPlan\": {\n    \"route\": \"BUSINESS_QUERY\",\n    \"query\": {\n      \"domain\": \"REPORT\",\n      \"view\": \"LIST\",\n      \"reportIds\": [\n        \"rpt-sales-order\"\n      ],\n      \"companyCode\": \"A\",\n      \"conditions\": [\n        {\n          \"allOf\": [\n            {\n              \"field\": \"amount\",\n              \"operator\": \"GT\",\n              \"values\": [\n                \"100\"\n              ]\n            }\n          ]\n        }\n      ],\n      \"sortField\": \"amount\",\n      \"descending\": true,\n      \"page\": 1,\n      \"size\": 5,\n      \"groupBy\": null\n    },\n    \"followUp\": false,\n    \"clarification\": null,\n    \"removedFilters\": [],\n    \"dispatch\": null,\n    \"clarificationOptions\": null\n  },\n  \"conditionChecks\": [\n    {\n      \"condition\": {\n        \"field\": \"amount\",\n        \"operator\": \"GT\",\n        \"values\": [\n          \"100\"\n        ]\n      },\n      \"origin\": \"CURRENT_REQUEST\",\n      \"evidence\": \"金额大于100元\",\n      \"negationEvidence\": \"\"\n    }\n  ],\n  \"priorConditionChanges\": [],\n  \"targetCount\": null\n}",
+  "completedAt" : "2026-10-11T19:54:45.821833600+08:00"
+}, {
+  "input" : {
+    "taskStage" : "TASK_PURPOSE",
+    "lastRoute" : "BUSINESS_QUERY",
+    "lastAttemptRoute" : "BUSINESS_QUERY",
+    "queryUnresolved" : false,
+    "dispatchPreviewPresent" : false,
+    "dispatchPlanPresent" : false,
+    "recentConversation" : [ {
+      "role" : "user",
+      "content" : "查询A公司销售报表，金额大于100元的记录，按金额从大到小排列，每页5条。",
+      "messageIndex" : 0
+    }, {
+      "role" : "assistant",
+      "content" : "本次查询匹配 20 条报表记录，当前第 1 页展示 5 条。",
+      "messageIndex" : 1
+    } ],
+    "businessDictionary" : {
+      "fingerprint" : "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "entries" : [ ],
+      "referenceTime" : "2026-10-11T11:54:45.981087400Z",
+      "defaultCalendar" : {
+        "nextMonthStart" : "2026-11-01",
+        "previousMonthEndExclusive" : "2026-10-01",
+        "monthStart" : "2026-10-01",
+        "configuredHolidays" : [ ],
+        "nextFiscalYearStart" : "2027-01-01",
+        "today" : "2026-10-11",
+        "holidayCalendarComplete" : false,
+        "fiscalYearStart" : "2026-01-01",
+        "previousMonthStart" : "2026-09-01",
+        "timeZone" : "Asia/Shanghai"
+      }
+    },
+    "resolvedClarification" : { },
+    "requestedQuery" : null,
+    "today" : "2026-10-11",
+    "activeQuery" : {
+      "domain" : "REPORT",
+      "view" : "LIST",
+      "reportIds" : [ "rpt-sales-order" ],
+      "companyCode" : "A",
+      "conditions" : [ {
+        "allOf" : [ {
+          "field" : "amount",
+          "operator" : "GT",
+          "values" : [ "100" ]
+        } ]
+      } ],
+      "sortField" : "amount",
+      "descending" : true,
+      "page" : 1,
+      "size" : 5,
+      "groupBy" : null
+    },
+    "visibleQueryRows" : [ {
+      "date" : "2026-09-08",
+      "docNo" : "P1-119",
+      "amount" : "119.01",
+      "status" : "未派单",
+      "orderNo" : "P1-119",
+      "currency" : "CNY",
+      "recordId" : "1119",
+      "reportId" : "rpt-sales-order",
+      "saleDate" : "2026-09-08",
+      "dispatched" : "false",
+      "reportName" : "销售报表",
+      "companyCode" : "A",
+      "productName" : "alpha ",
+      "displayIndex" : "1",
+      "daysSinceSale" : "33"
+    }, {
+      "date" : "2026-09-07",
+      "docNo" : "P1-118",
+      "amount" : "118.01",
+      "status" : "未派单",
+      "orderNo" : "P1-118",
+      "currency" : "CNY",
+      "recordId" : "1118",
+      "reportId" : "rpt-sales-order",
+      "saleDate" : "2026-09-07",
+      "dispatched" : "false",
+      "reportName" : "销售报表",
+      "companyCode" : "A",
+      "productName" : "Alpha",
+      "displayIndex" : "2",
+      "daysSinceSale" : "34"
+    }, {
+      "date" : "2026-09-06",
+      "docNo" : "P1-117",
+      "amount" : "117.01",
+      "status" : "未派单",
+      "orderNo" : "P1-117",
+      "currency" : "CNY",
+      "recordId" : "1117",
+      "reportId" : "rpt-sales-order",
+      "saleDate" : "2026-09-06",
+      "dispatched" : "false",
+      "reportName" : "销售报表",
+      "companyCode" : "A",
+      "productName" : "alpha ",
+      "displayIndex" : "3",
+      "daysSinceSale" : "35"
+    }, {
+      "date" : "2026-09-05",
+      "docNo" : "P1-116",
+      "amount" : "116.01",
+      "status" : "未派单",
+      "orderNo" : "P1-116",
+      "currency" : "CNY",
+      "recordId" : "1116",
+      "reportId" : "rpt-sales-order",
+      "saleDate" : "2026-09-05",
+      "dispatched" : "false",
+      "reportName" : "销售报表",
+      "companyCode" : "A",
+      "productName" : "Alpha",
+      "displayIndex" : "4",
+      "daysSinceSale" : "36"
+    }, {
+      "date" : "2026-09-04",
+      "docNo" : "P1-115",
+      "amount" : "115.01",
+      "status" : "未派单",
+      "orderNo" : "P1-115",
+      "currency" : "CNY",
+      "recordId" : "1115",
+      "reportId" : "rpt-sales-order",
+      "saleDate" : "2026-09-04",
+      "dispatched" : "false",
+      "reportName" : "销售报表",
+      "companyCode" : "A",
+      "productName" : "alpha ",
+      "displayIndex" : "5",
+      "daysSinceSale" : "37"
+    } ],
+    "visibleQueryResult" : {
+      "totalCount" : 20,
+      "displayedCount" : 5,
+      "allMatchesDisplayed" : false
+    },
+    "reportCatalog" : [ {
+      "name" : "销售报表",
+      "fields" : [ {
+        "name" : "reportId",
+        "type" : "string",
+        "description" : "报表稳定标识"
+      }, {
+        "name" : "reportName",
+        "type" : "string",
+        "description" : "报表名称"
+      }, {
+        "name" : "companyCode",
+        "type" : "string",
+        "description" : "所属公司代码"
+      }, {
+        "name" : "docNo",
+        "type" : "string",
+        "description" : "来源单据号"
+      }, {
+        "name" : "amount",
+        "type" : "decimal",
+        "description" : "来源金额，币种见 currency；空值表示未提供"
+      }, {
+        "name" : "currency",
+        "type" : "string",
+        "description" : "来源声明币种；空值表示未声明，不能跨币种合计"
+      }, {
+        "name" : "date",
+        "type" : "date",
+        "description" : "业务日期；空值表示未配置"
+      }, {
+        "name" : "status",
+        "type" : "string",
+        "description" : "报表派单状态：未派单/已派单"
+      }, {
+        "name" : "orderNo",
+        "type" : "string",
+        "description" : "订单号"
+      }, {
+        "name" : "productName",
+        "type" : "string",
+        "description" : "产品名称"
+      }, {
+        "name" : "saleDate",
+        "type" : "date",
+        "description" : "销售日期，字符串 yyyy-MM-dd"
+      }, {
+        "name" : "daysSinceSale",
+        "type" : "long",
+        "description" : "距销售日期的天数（派生）"
+      }, {
+        "name" : "dispatched",
+        "type" : "boolean",
+        "description" : "来源记录是否已派单；true为已派单，false为未派单，不代表满足派单规则"
+      }, {
+        "name" : "recordId",
+        "type" : "string",
+        "description" : "报表内稳定记录标识"
+      } ],
+      "aliases" : [ "销售", "销售台账", "订单销售表", "销售明细", "销售订单", "sales report", "客户对账" ],
+      "reportId" : "rpt-sales-order",
+      "description" : "销售订单台账：按订单统计金额与派单状态"
+    } ],
+    "currentReportMentions" : [ ],
+    "companies" : [ "A" ],
+    "message" : "金额下限改成110元以上，其他条件不变。"
+  },
+  "callIndex" : 3,
+  "output" : "{\n  \"requestedResult\": \"用户希望在A公司销售报表中将金额筛选下限从100元改为110元以上，保持按金额从大到小排列、每页5条的原有条件，查看筛选后的报表记录。\",\n  \"purpose\": \"BUSINESS_QUERY\",\n  \"queryDomain\": \"REPORT\",\n  \"queryView\": \"LIST\",\n  \"queryContext\": \"FOLLOW_UP\",\n  \"evidence\": \"金额下限改成110元以上，其他条件不变。\",\n  \"targetCount\": null\n}",
+  "completedAt" : "2026-10-11T19:54:47.937636300+08:00"
+}, {
+  "input" : {
+    "messageIndex" : -1,
+    "businessDictionary" : {
+      "fingerprint" : "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "entries" : [ ],
+      "referenceTime" : "2026-10-11T11:54:45.981087400Z",
+      "defaultCalendar" : {
+        "nextMonthStart" : "2026-11-01",
+        "previousMonthEndExclusive" : "2026-10-01",
+        "monthStart" : "2026-10-01",
+        "configuredHolidays" : [ ],
+        "nextFiscalYearStart" : "2027-01-01",
+        "today" : "2026-10-11",
+        "holidayCalendarComplete" : false,
+        "fiscalYearStart" : "2026-01-01",
+        "previousMonthStart" : "2026-09-01",
+        "timeZone" : "Asia/Shanghai"
+      }
+    },
+    "resolvedClarification" : { },
+    "requestedQuery" : null,
+    "today" : "2026-10-11",
+    "companies" : [ "A" ],
+    "reports" : [ {
+      "fields" : [ {
+        "name" : "reportId",
+        "type" : "string",
+        "description" : "报表稳定标识"
+      }, {
+        "name" : "reportName",
+        "type" : "string",
+        "description" : "报表名称"
+      }, {
+        "name" : "companyCode",
+        "type" : "string",
+        "description" : "所属公司代码"
+      }, {
+        "name" : "docNo",
+        "type" : "string",
+        "description" : "来源单据号"
+      }, {
+        "name" : "amount",
+        "type" : "decimal",
+        "description" : "来源金额，币种见 currency；空值表示未提供"
+      }, {
+        "name" : "currency",
+        "type" : "string",
+        "description" : "来源声明币种；空值表示未声明，不能跨币种合计"
+      }, {
+        "name" : "date",
+        "type" : "date",
+        "description" : "业务日期；空值表示未配置"
+      }, {
+        "name" : "status",
+        "type" : "string",
+        "description" : "报表派单状态：未派单/已派单"
+      }, {
+        "name" : "orderNo",
+        "type" : "string",
+        "description" : "订单号"
+      }, {
+        "name" : "productName",
+        "type" : "string",
+        "description" : "产品名称"
+      }, {
+        "name" : "saleDate",
+        "type" : "date",
+        "description" : "销售日期，字符串 yyyy-MM-dd"
+      }, {
+        "name" : "daysSinceSale",
+        "type" : "long",
+        "description" : "距销售日期的天数（派生）"
+      }, {
+        "name" : "dispatched",
+        "type" : "boolean",
+        "description" : "来源记录是否已派单；true为已派单，false为未派单，不代表满足派单规则"
+      }, {
+        "name" : "recordId",
+        "type" : "string",
+        "description" : "报表内稳定记录标识"
+      } ],
+      "aliases" : [ "销售", "销售台账", "订单销售表", "销售明细", "销售订单", "sales report", "客户对账" ],
+      "dispatchEnabled" : true,
+      "name" : "销售报表",
+      "description" : "销售订单台账：按订单统计金额与派单状态",
+      "reportId" : "rpt-sales-order"
+    } ],
+    "currentReportMentions" : [ ],
+    "dispatchFields" : [ {
+      "name" : "reportId",
+      "type" : "string",
+      "description" : "报表稳定标识"
+    }, {
+      "name" : "reportName",
+      "type" : "string",
+      "description" : "报表名称"
+    }, {
+      "name" : "companyCode",
+      "type" : "string",
+      "description" : "所属公司代码"
+    }, {
+      "name" : "docNo",
+      "type" : "string",
+      "description" : "来源单据号"
+    }, {
+      "name" : "amount",
+      "type" : "decimal",
+      "description" : "来源金额，币种见 currency；空值表示未提供"
+    }, {
+      "name" : "currency",
+      "type" : "string",
+      "description" : "来源声明币种；空值表示未声明，不能跨币种合计"
+    }, {
+      "name" : "date",
+      "type" : "date",
+      "description" : "业务日期；空值表示未配置"
+    }, {
+      "name" : "status",
+      "type" : "string",
+      "description" : "派单条目执行状态：待执行/成功/失败/结果未知/已跳过"
+    }, {
+      "name" : "planId",
+      "type" : "string",
+      "description" : "清单标识"
+    }, {
+      "name" : "requestId",
+      "type" : "string",
+      "description" : "稳定派单请求号，未发送时为空"
+    }, {
+      "name" : "operatorName",
+      "type" : "string",
+      "description" : "清单创建人展示名"
+    }, {
+      "name" : "createdByMe",
+      "type" : "boolean",
+      "description" : "是否当前登录人创建，由服务端身份计算；我的/本人发起使用true，不能把人称代词当创建人姓名"
+    }, {
+      "name" : "planStatus",
+      "type" : "string",
+      "description" : "清单当前状态"
+    }, {
+      "name" : "message",
+      "type" : "string",
+      "description" : "最近派单结果说明，空值表示未提供"
+    }, {
+      "name" : "createdDate",
+      "type" : "date",
+      "description" : "清单创建日期，Asia/Shanghai"
+    } ],
+    "workOrderFields" : [ {
+      "name" : "reportId",
+      "type" : "string",
+      "description" : "报表稳定标识"
+    }, {
+      "name" : "reportName",
+      "type" : "string",
+      "description" : "报表名称"
+    }, {
+      "name" : "companyCode",
+      "type" : "string",
+      "description" : "所属公司代码"
+    }, {
+      "name" : "docNo",
+      "type" : "string",
+      "description" : "来源单据号"
+    }, {
+      "name" : "amount",
+      "type" : "decimal",
+      "description" : "来源金额，币种见 currency；空值表示未提供"
+    }, {
+      "name" : "currency",
+      "type" : "string",
+      "description" : "来源声明币种；空值表示未声明，不能跨币种合计"
+    }, {
+      "name" : "date",
+      "type" : "date",
+      "description" : "业务日期；空值表示未配置"
+    }, {
+      "name" : "status",
+      "type" : "string",
+      "description" : "工单办理状态：待审批/处理中/已完成/已驳回"
+    }, {
+      "name" : "orderId",
+      "type" : "string",
+      "description" : "工单编号，须准确匹配"
+    }, {
+      "name" : "title",
+      "type" : "string",
+      "description" : "工单主题"
+    }, {
+      "name" : "stage",
+      "type" : "string",
+      "description" : "当前环节，已结束时为归档或退回"
+    }, {
+      "name" : "assignee",
+      "type" : "string",
+      "description" : "当前处理人，已结束时为空"
+    }, {
+      "name" : "requestId",
+      "type" : "string",
+      "description" : "关联派单请求号，固定演示示例为空"
+    }, {
+      "name" : "source",
+      "type" : "string",
+      "description" : "固定演示示例或实际演示派单关联"
+    }, {
+      "name" : "createdDate",
+      "type" : "date",
+      "description" : "工单创建日期，Asia/Shanghai"
+    }, {
+      "name" : "updatedDate",
+      "type" : "date",
+      "description" : "最近流程变化日期；固定演示不会随查询推进"
+    } ],
+    "previousQuery" : {
+      "domain" : "REPORT",
+      "view" : "LIST",
+      "reportIds" : [ "rpt-sales-order" ],
+      "companyCode" : "A",
+      "conditions" : [ {
+        "allOf" : [ {
+          "field" : "amount",
+          "operator" : "GT",
+          "values" : [ "100" ]
+        } ]
+      } ],
+      "sortField" : "amount",
+      "descending" : true,
+      "page" : 1,
+      "size" : 5,
+      "groupBy" : null
+    },
+    "previousRows" : [ {
+      "date" : "2026-09-08",
+      "docNo" : "P1-119",
+      "amount" : "119.01",
+      "status" : "未派单",
+      "orderNo" : "P1-119",
+      "currency" : "CNY",
+      "recordId" : "1119",
+      "reportId" : "rpt-sales-order",
+      "saleDate" : "2026-09-08",
+      "dispatched" : "false",
+      "reportName" : "销售报表",
+      "companyCode" : "A",
+      "productName" : "alpha ",
+      "displayIndex" : "1",
+      "daysSinceSale" : "33"
+    }, {
+      "date" : "2026-09-07",
+      "docNo" : "P1-118",
+      "amount" : "118.01",
+      "status" : "未派单",
+      "orderNo" : "P1-118",
+      "currency" : "CNY",
+      "recordId" : "1118",
+      "reportId" : "rpt-sales-order",
+      "saleDate" : "2026-09-07",
+      "dispatched" : "false",
+      "reportName" : "销售报表",
+      "companyCode" : "A",
+      "productName" : "Alpha",
+      "displayIndex" : "2",
+      "daysSinceSale" : "34"
+    }, {
+      "date" : "2026-09-06",
+      "docNo" : "P1-117",
+      "amount" : "117.01",
+      "status" : "未派单",
+      "orderNo" : "P1-117",
+      "currency" : "CNY",
+      "recordId" : "1117",
+      "reportId" : "rpt-sales-order",
+      "saleDate" : "2026-09-06",
+      "dispatched" : "false",
+      "reportName" : "销售报表",
+      "companyCode" : "A",
+      "productName" : "alpha ",
+      "displayIndex" : "3",
+      "daysSinceSale" : "35"
+    }, {
+      "date" : "2026-09-05",
+      "docNo" : "P1-116",
+      "amount" : "116.01",
+      "status" : "未派单",
+      "orderNo" : "P1-116",
+      "currency" : "CNY",
+      "recordId" : "1116",
+      "reportId" : "rpt-sales-order",
+      "saleDate" : "2026-09-05",
+      "dispatched" : "false",
+      "reportName" : "销售报表",
+      "companyCode" : "A",
+      "productName" : "Alpha",
+      "displayIndex" : "4",
+      "daysSinceSale" : "36"
+    }, {
+      "date" : "2026-09-04",
+      "docNo" : "P1-115",
+      "amount" : "115.01",
+      "status" : "未派单",
+      "orderNo" : "P1-115",
+      "currency" : "CNY",
+      "recordId" : "1115",
+      "reportId" : "rpt-sales-order",
+      "saleDate" : "2026-09-04",
+      "dispatched" : "false",
+      "reportName" : "销售报表",
+      "companyCode" : "A",
+      "productName" : "alpha ",
+      "displayIndex" : "5",
+      "daysSinceSale" : "37"
+    } ],
+    "lastRoute" : "BUSINESS_QUERY",
+    "lastAttemptRoute" : "BUSINESS_QUERY",
+    "previousResult" : {
+      "totalCount" : 20,
+      "displayedCount" : 5,
+      "allMatchesDisplayed" : false
+    },
+    "queryObjects" : {
+      "available" : true,
+      "sourceRef" : "query-5f99b2cee22df093",
+      "unavailableReason" : null,
+      "recoveryHint" : null,
+      "preparation" : {
+        "executionRequiresConfirmation" : true,
+        "sources" : [ "QUERY_ROWS", "QUERY_ALL" ],
+        "requiresSeparatePreview" : false,
+        "requiresCurrentPermissionAndQualificationCheck" : true
+      },
+      "allMatchesDisplayed" : false,
+      "totalCount" : 20,
+      "rows" : [ {
+        "date" : "2026-09-08",
+        "docNo" : "P1-119",
+        "amount" : "119.01",
+        "status" : "未派单",
+        "orderNo" : "P1-119",
+        "currency" : "CNY",
+        "recordId" : "1119",
+        "reportId" : "rpt-sales-order",
+        "saleDate" : "2026-09-08",
+        "dispatched" : "false",
+        "reportName" : "销售报表",
+        "companyCode" : "A",
+        "productName" : "alpha ",
+        "displayIndex" : "1",
+        "daysSinceSale" : "33",
+        "referenceKey" : "row-1"
+      }, {
+        "date" : "2026-09-07",
+        "docNo" : "P1-118",
+        "amount" : "118.01",
+        "status" : "未派单",
+        "orderNo" : "P1-118",
+        "currency" : "CNY",
+        "recordId" : "1118",
+        "reportId" : "rpt-sales-order",
+        "saleDate" : "2026-09-07",
+        "dispatched" : "false",
+        "reportName" : "销售报表",
+        "companyCode" : "A",
+        "productName" : "Alpha",
+        "displayIndex" : "2",
+        "daysSinceSale" : "34",
+        "referenceKey" : "row-2"
+      }, {
+        "date" : "2026-09-06",
+        "docNo" : "P1-117",
+        "amount" : "117.01",
+        "status" : "未派单",
+        "orderNo" : "P1-117",
+        "currency" : "CNY",
+        "recordId" : "1117",
+        "reportId" : "rpt-sales-order",
+        "saleDate" : "2026-09-06",
+        "dispatched" : "false",
+        "reportName" : "销售报表",
+        "companyCode" : "A",
+        "productName" : "alpha ",
+        "displayIndex" : "3",
+        "daysSinceSale" : "35",
+        "referenceKey" : "row-3"
+      }, {
+        "date" : "2026-09-05",
+        "docNo" : "P1-116",
+        "amount" : "116.01",
+        "status" : "未派单",
+        "orderNo" : "P1-116",
+        "currency" : "CNY",
+        "recordId" : "1116",
+        "reportId" : "rpt-sales-order",
+        "saleDate" : "2026-09-05",
+        "dispatched" : "false",
+        "reportName" : "销售报表",
+        "companyCode" : "A",
+        "productName" : "Alpha",
+        "displayIndex" : "4",
+        "daysSinceSale" : "36",
+        "referenceKey" : "row-4"
+      }, {
+        "date" : "2026-09-04",
+        "docNo" : "P1-115",
+        "amount" : "115.01",
+        "status" : "未派单",
+        "orderNo" : "P1-115",
+        "currency" : "CNY",
+        "recordId" : "1115",
+        "reportId" : "rpt-sales-order",
+        "saleDate" : "2026-09-04",
+        "dispatched" : "false",
+        "reportName" : "销售报表",
+        "companyCode" : "A",
+        "productName" : "alpha ",
+        "displayIndex" : "5",
+        "daysSinceSale" : "37",
+        "referenceKey" : "row-5"
+      } ]
+    },
+    "recentConversation" : [ {
+      "role" : "user",
+      "content" : "查询A公司销售报表，金额大于100元的记录，按金额从大到小排列，每页5条。",
+      "messageIndex" : 0
+    }, {
+      "role" : "assistant",
+      "content" : "本次查询匹配 20 条报表记录，当前第 1 页展示 5 条。",
+      "messageIndex" : 1
+    } ],
+    "dispatchSelection" : { },
+    "queryUnresolved" : false,
+    "dispatchPreviewPresent" : false,
+    "dispatchPlanPresent" : false,
+    "dispatchUnresolved" : false,
+    "dispatchCapabilities" : {
+      "recordOperations" : [ "EXCLUDE", "RESTORE", "REPLACE_EXCLUSIONS", "RESTORE_ALL", "KEEP_ONLY" ],
+      "scopeFilters" : [ "ONE_COMPANY_OR_ALL_AUTHORIZED", "REPORT_SET" ],
+      "selectionBoundary" : "CURRENT_PREVIEW_OR_FINAL_SCOPE_SNAPSHOT",
+      "quantifiers" : [ "ONE", "ALL", "UNSPECIFIED" ],
+      "keepOnlySelectors" : [ "DOCUMENT", "DESCRIPTION", "COUNTERPARTY", "FIELDS", "REFERENCE" ],
+      "unsupported" : [ "SORT", "LIMIT", "MULTI_QUERY_PROGRAM", "UNCONFIGURED_FIELD" ],
+      "selectorsByReport" : {
+        "rpt-sales-order" : [ "DOCUMENT", "DESCRIPTION", "FIELDS", "ALL", "REFERENCE" ]
+      },
+      "recordSelectors" : [ "DOCUMENT", "DESCRIPTION", "COUNTERPARTY", "FIELDS", "ALL", "REFERENCE" ]
+    },
+    "dispatchFieldsByReport" : {
+      "rpt-sales-order" : [ {
+        "name" : "companyCode",
+        "type" : "string",
+        "description" : "公司代码"
+      }, {
+        "name" : "orderNo",
+        "type" : "string",
+        "description" : "订单号"
+      }, {
+        "name" : "productName",
+        "type" : "string",
+        "description" : "产品名称"
+      }, {
+        "name" : "amount",
+        "type" : "decimal",
+        "description" : "订单金额（元）"
+      }, {
+        "name" : "saleDate",
+        "type" : "date",
+        "description" : "销售日期，字符串 yyyy-MM-dd"
+      }, {
+        "name" : "daysSinceSale",
+        "type" : "long",
+        "description" : "距销售日期的天数（派生）"
+      }, {
+        "name" : "dispatched",
+        "type" : "boolean",
+        "description" : "是否已派单（派生，粗筛后恒为 false）"
+      } ]
+    },
+    "dispatchContext" : {
+      "desired" : {
+        "companyCode" : null,
+        "allReports" : true,
+        "reportIds" : [ ]
+      },
+      "effective" : null,
+      "phase" : "READY",
+      "unresolvedCompany" : false,
+      "unresolvedReports" : false,
+      "unresolvedRecords" : false,
+      "previewRef" : null,
+      "planRef" : null,
+      "previewPreparation" : {
+        "requiresRedisplay" : true,
+        "source" : "PREVIEW"
+      },
+      "lastSelectionReferences" : [ ],
+      "lastSelectionReferencesComplete" : true,
+      "lastFailure" : null
+    },
+    "attemptHistory" : [ ],
+    "taskPurpose" : {
+      "requestedResult" : "用户希望在A公司销售报表中将金额筛选下限从100元改为110元以上，保持按金额从大到小排列、每页5条的原有条件，查看筛选后的报表记录。",
+      "purpose" : "BUSINESS_QUERY",
+      "queryContext" : "FOLLOW_UP",
+      "evidence" : "金额下限改成110元以上，其他条件不变。",
+      "targetCount" : null,
+      "queryDomain" : "REPORT",
+      "queryView" : "LIST"
+    },
+    "message" : "金额下限改成110元以上，其他条件不变。"
+  },
+  "callIndex" : 4,
+  "output" : "{\"route\":\"BUSINESS_QUERY\",\"query\":{\"domain\":\"REPORT\",\"view\":\"LIST\",\"reportIds\":[\"rpt-sales-order\"],\"companyCode\":\"A\",\"conditions\":[{\"allOf\":[{\"field\":\"amount\",\"operator\":\"GTE\",\"values\":[\"110\"]}]}],\"sortField\":\"amount\",\"descending\":true,\"page\":1,\"size\":5,\"groupBy\":null},\"followUp\":true,\"clarification\":null,\"removedFilters\":[],\"dispatch\":null,\"clarificationOptions\":null}",
+  "completedAt" : "2026-10-11T19:54:50.079485500+08:00"
+}, {
+  "input" : {
+    "messageIndex" : -1,
+    "businessDictionary" : {
+      "fingerprint" : "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "entries" : [ ],
+      "referenceTime" : "2026-10-11T11:54:45.981087400Z",
+      "defaultCalendar" : {
+        "nextMonthStart" : "2026-11-01",
+        "previousMonthEndExclusive" : "2026-10-01",
+        "monthStart" : "2026-10-01",
+        "configuredHolidays" : [ ],
+        "nextFiscalYearStart" : "2027-01-01",
+        "today" : "2026-10-11",
+        "holidayCalendarComplete" : false,
+        "fiscalYearStart" : "2026-01-01",
+        "previousMonthStart" : "2026-09-01",
+        "timeZone" : "Asia/Shanghai"
+      }
+    },
+    "resolvedClarification" : { },
+    "requestedQuery" : null,
+    "today" : "2026-10-11",
+    "companies" : [ "A" ],
+    "reports" : [ {
+      "fields" : [ {
+        "name" : "reportId",
+        "type" : "string",
+        "description" : "报表稳定标识"
+      }, {
+        "name" : "reportName",
+        "type" : "string",
+        "description" : "报表名称"
+      }, {
+        "name" : "companyCode",
+        "type" : "string",
+        "description" : "所属公司代码"
+      }, {
+        "name" : "docNo",
+        "type" : "string",
+        "description" : "来源单据号"
+      }, {
+        "name" : "amount",
+        "type" : "decimal",
+        "description" : "来源金额，币种见 currency；空值表示未提供"
+      }, {
+        "name" : "currency",
+        "type" : "string",
+        "description" : "来源声明币种；空值表示未声明，不能跨币种合计"
+      }, {
+        "name" : "date",
+        "type" : "date",
+        "description" : "业务日期；空值表示未配置"
+      }, {
+        "name" : "status",
+        "type" : "string",
+        "description" : "报表派单状态：未派单/已派单"
+      }, {
+        "name" : "orderNo",
+        "type" : "string",
+        "description" : "订单号"
+      }, {
+        "name" : "productName",
+        "type" : "string",
+        "description" : "产品名称"
+      }, {
+        "name" : "saleDate",
+        "type" : "date",
+        "description" : "销售日期，字符串 yyyy-MM-dd"
+      }, {
+        "name" : "daysSinceSale",
+        "type" : "long",
+        "description" : "距销售日期的天数（派生）"
+      }, {
+        "name" : "dispatched",
+        "type" : "boolean",
+        "description" : "来源记录是否已派单；true为已派单，false为未派单，不代表满足派单规则"
+      }, {
+        "name" : "recordId",
+        "type" : "string",
+        "description" : "报表内稳定记录标识"
+      } ],
+      "aliases" : [ "销售", "销售台账", "订单销售表", "销售明细", "销售订单", "sales report", "客户对账" ],
+      "dispatchEnabled" : true,
+      "name" : "销售报表",
+      "description" : "销售订单台账：按订单统计金额与派单状态",
+      "reportId" : "rpt-sales-order"
+    } ],
+    "currentReportMentions" : [ ],
+    "dispatchFields" : [ {
+      "name" : "reportId",
+      "type" : "string",
+      "description" : "报表稳定标识"
+    }, {
+      "name" : "reportName",
+      "type" : "string",
+      "description" : "报表名称"
+    }, {
+      "name" : "companyCode",
+      "type" : "string",
+      "description" : "所属公司代码"
+    }, {
+      "name" : "docNo",
+      "type" : "string",
+      "description" : "来源单据号"
+    }, {
+      "name" : "amount",
+      "type" : "decimal",
+      "description" : "来源金额，币种见 currency；空值表示未提供"
+    }, {
+      "name" : "currency",
+      "type" : "string",
+      "description" : "来源声明币种；空值表示未声明，不能跨币种合计"
+    }, {
+      "name" : "date",
+      "type" : "date",
+      "description" : "业务日期；空值表示未配置"
+    }, {
+      "name" : "status",
+      "type" : "string",
+      "description" : "派单条目执行状态：待执行/成功/失败/结果未知/已跳过"
+    }, {
+      "name" : "planId",
+      "type" : "string",
+      "description" : "清单标识"
+    }, {
+      "name" : "requestId",
+      "type" : "string",
+      "description" : "稳定派单请求号，未发送时为空"
+    }, {
+      "name" : "operatorName",
+      "type" : "string",
+      "description" : "清单创建人展示名"
+    }, {
+      "name" : "createdByMe",
+      "type" : "boolean",
+      "description" : "是否当前登录人创建，由服务端身份计算；我的/本人发起使用true，不能把人称代词当创建人姓名"
+    }, {
+      "name" : "planStatus",
+      "type" : "string",
+      "description" : "清单当前状态"
+    }, {
+      "name" : "message",
+      "type" : "string",
+      "description" : "最近派单结果说明，空值表示未提供"
+    }, {
+      "name" : "createdDate",
+      "type" : "date",
+      "description" : "清单创建日期，Asia/Shanghai"
+    } ],
+    "workOrderFields" : [ {
+      "name" : "reportId",
+      "type" : "string",
+      "description" : "报表稳定标识"
+    }, {
+      "name" : "reportName",
+      "type" : "string",
+      "description" : "报表名称"
+    }, {
+      "name" : "companyCode",
+      "type" : "string",
+      "description" : "所属公司代码"
+    }, {
+      "name" : "docNo",
+      "type" : "string",
+      "description" : "来源单据号"
+    }, {
+      "name" : "amount",
+      "type" : "decimal",
+      "description" : "来源金额，币种见 currency；空值表示未提供"
+    }, {
+      "name" : "currency",
+      "type" : "string",
+      "description" : "来源声明币种；空值表示未声明，不能跨币种合计"
+    }, {
+      "name" : "date",
+      "type" : "date",
+      "description" : "业务日期；空值表示未配置"
+    }, {
+      "name" : "status",
+      "type" : "string",
+      "description" : "工单办理状态：待审批/处理中/已完成/已驳回"
+    }, {
+      "name" : "orderId",
+      "type" : "string",
+      "description" : "工单编号，须准确匹配"
+    }, {
+      "name" : "title",
+      "type" : "string",
+      "description" : "工单主题"
+    }, {
+      "name" : "stage",
+      "type" : "string",
+      "description" : "当前环节，已结束时为归档或退回"
+    }, {
+      "name" : "assignee",
+      "type" : "string",
+      "description" : "当前处理人，已结束时为空"
+    }, {
+      "name" : "requestId",
+      "type" : "string",
+      "description" : "关联派单请求号，固定演示示例为空"
+    }, {
+      "name" : "source",
+      "type" : "string",
+      "description" : "固定演示示例或实际演示派单关联"
+    }, {
+      "name" : "createdDate",
+      "type" : "date",
+      "description" : "工单创建日期，Asia/Shanghai"
+    }, {
+      "name" : "updatedDate",
+      "type" : "date",
+      "description" : "最近流程变化日期；固定演示不会随查询推进"
+    } ],
+    "previousQuery" : {
+      "domain" : "REPORT",
+      "view" : "LIST",
+      "reportIds" : [ "rpt-sales-order" ],
+      "companyCode" : "A",
+      "conditions" : [ {
+        "allOf" : [ {
+          "field" : "amount",
+          "operator" : "GT",
+          "values" : [ "100" ]
+        } ]
+      } ],
+      "sortField" : "amount",
+      "descending" : true,
+      "page" : 1,
+      "size" : 5,
+      "groupBy" : null
+    },
+    "previousRows" : [ {
+      "date" : "2026-09-08",
+      "docNo" : "P1-119",
+      "amount" : "119.01",
+      "status" : "未派单",
+      "orderNo" : "P1-119",
+      "currency" : "CNY",
+      "recordId" : "1119",
+      "reportId" : "rpt-sales-order",
+      "saleDate" : "2026-09-08",
+      "dispatched" : "false",
+      "reportName" : "销售报表",
+      "companyCode" : "A",
+      "productName" : "alpha ",
+      "displayIndex" : "1",
+      "daysSinceSale" : "33"
+    }, {
+      "date" : "2026-09-07",
+      "docNo" : "P1-118",
+      "amount" : "118.01",
+      "status" : "未派单",
+      "orderNo" : "P1-118",
+      "currency" : "CNY",
+      "recordId" : "1118",
+      "reportId" : "rpt-sales-order",
+      "saleDate" : "2026-09-07",
+      "dispatched" : "false",
+      "reportName" : "销售报表",
+      "companyCode" : "A",
+      "productName" : "Alpha",
+      "displayIndex" : "2",
+      "daysSinceSale" : "34"
+    }, {
+      "date" : "2026-09-06",
+      "docNo" : "P1-117",
+      "amount" : "117.01",
+      "status" : "未派单",
+      "orderNo" : "P1-117",
+      "currency" : "CNY",
+      "recordId" : "1117",
+      "reportId" : "rpt-sales-order",
+      "saleDate" : "2026-09-06",
+      "dispatched" : "false",
+      "reportName" : "销售报表",
+      "companyCode" : "A",
+      "productName" : "alpha ",
+      "displayIndex" : "3",
+      "daysSinceSale" : "35"
+    }, {
+      "date" : "2026-09-05",
+      "docNo" : "P1-116",
+      "amount" : "116.01",
+      "status" : "未派单",
+      "orderNo" : "P1-116",
+      "currency" : "CNY",
+      "recordId" : "1116",
+      "reportId" : "rpt-sales-order",
+      "saleDate" : "2026-09-05",
+      "dispatched" : "false",
+      "reportName" : "销售报表",
+      "companyCode" : "A",
+      "productName" : "Alpha",
+      "displayIndex" : "4",
+      "daysSinceSale" : "36"
+    }, {
+      "date" : "2026-09-04",
+      "docNo" : "P1-115",
+      "amount" : "115.01",
+      "status" : "未派单",
+      "orderNo" : "P1-115",
+      "currency" : "CNY",
+      "recordId" : "1115",
+      "reportId" : "rpt-sales-order",
+      "saleDate" : "2026-09-04",
+      "dispatched" : "false",
+      "reportName" : "销售报表",
+      "companyCode" : "A",
+      "productName" : "alpha ",
+      "displayIndex" : "5",
+      "daysSinceSale" : "37"
+    } ],
+    "lastRoute" : "BUSINESS_QUERY",
+    "lastAttemptRoute" : "BUSINESS_QUERY",
+    "previousResult" : {
+      "totalCount" : 20,
+      "displayedCount" : 5,
+      "allMatchesDisplayed" : false
+    },
+    "queryObjects" : {
+      "available" : true,
+      "sourceRef" : "query-5f99b2cee22df093",
+      "unavailableReason" : null,
+      "recoveryHint" : null,
+      "preparation" : {
+        "executionRequiresConfirmation" : true,
+        "sources" : [ "QUERY_ROWS", "QUERY_ALL" ],
+        "requiresSeparatePreview" : false,
+        "requiresCurrentPermissionAndQualificationCheck" : true
+      },
+      "allMatchesDisplayed" : false,
+      "totalCount" : 20,
+      "rows" : [ {
+        "date" : "2026-09-08",
+        "docNo" : "P1-119",
+        "amount" : "119.01",
+        "status" : "未派单",
+        "orderNo" : "P1-119",
+        "currency" : "CNY",
+        "recordId" : "1119",
+        "reportId" : "rpt-sales-order",
+        "saleDate" : "2026-09-08",
+        "dispatched" : "false",
+        "reportName" : "销售报表",
+        "companyCode" : "A",
+        "productName" : "alpha ",
+        "displayIndex" : "1",
+        "daysSinceSale" : "33",
+        "referenceKey" : "row-1"
+      }, {
+        "date" : "2026-09-07",
+        "docNo" : "P1-118",
+        "amount" : "118.01",
+        "status" : "未派单",
+        "orderNo" : "P1-118",
+        "currency" : "CNY",
+        "recordId" : "1118",
+        "reportId" : "rpt-sales-order",
+        "saleDate" : "2026-09-07",
+        "dispatched" : "false",
+        "reportName" : "销售报表",
+        "companyCode" : "A",
+        "productName" : "Alpha",
+        "displayIndex" : "2",
+        "daysSinceSale" : "34",
+        "referenceKey" : "row-2"
+      }, {
+        "date" : "2026-09-06",
+        "docNo" : "P1-117",
+        "amount" : "117.01",
+        "status" : "未派单",
+        "orderNo" : "P1-117",
+        "currency" : "CNY",
+        "recordId" : "1117",
+        "reportId" : "rpt-sales-order",
+        "saleDate" : "2026-09-06",
+        "dispatched" : "false",
+        "reportName" : "销售报表",
+        "companyCode" : "A",
+        "productName" : "alpha ",
+        "displayIndex" : "3",
+        "daysSinceSale" : "35",
+        "referenceKey" : "row-3"
+      }, {
+        "date" : "2026-09-05",
+        "docNo" : "P1-116",
+        "amount" : "116.01",
+        "status" : "未派单",
+        "orderNo" : "P1-116",
+        "currency" : "CNY",
+        "recordId" : "1116",
+        "reportId" : "rpt-sales-order",
+        "saleDate" : "2026-09-05",
+        "dispatched" : "false",
+        "reportName" : "销售报表",
+        "companyCode" : "A",
+        "productName" : "Alpha",
+        "displayIndex" : "4",
+        "daysSinceSale" : "36",
+        "referenceKey" : "row-4"
+      }, {
+        "date" : "2026-09-04",
+        "docNo" : "P1-115",
+        "amount" : "115.01",
+        "status" : "未派单",
+        "orderNo" : "P1-115",
+        "currency" : "CNY",
+        "recordId" : "1115",
+        "reportId" : "rpt-sales-order",
+        "saleDate" : "2026-09-04",
+        "dispatched" : "false",
+        "reportName" : "销售报表",
+        "companyCode" : "A",
+        "productName" : "alpha ",
+        "displayIndex" : "5",
+        "daysSinceSale" : "37",
+        "referenceKey" : "row-5"
+      } ]
+    },
+    "recentConversation" : [ {
+      "role" : "user",
+      "content" : "查询A公司销售报表，金额大于100元的记录，按金额从大到小排列，每页5条。",
+      "messageIndex" : 0
+    }, {
+      "role" : "assistant",
+      "content" : "本次查询匹配 20 条报表记录，当前第 1 页展示 5 条。",
+      "messageIndex" : 1
+    } ],
+    "dispatchSelection" : { },
+    "queryUnresolved" : false,
+    "dispatchPreviewPresent" : false,
+    "dispatchPlanPresent" : false,
+    "dispatchUnresolved" : false,
+    "dispatchCapabilities" : {
+      "recordOperations" : [ "EXCLUDE", "RESTORE", "REPLACE_EXCLUSIONS", "RESTORE_ALL", "KEEP_ONLY" ],
+      "scopeFilters" : [ "ONE_COMPANY_OR_ALL_AUTHORIZED", "REPORT_SET" ],
+      "selectionBoundary" : "CURRENT_PREVIEW_OR_FINAL_SCOPE_SNAPSHOT",
+      "quantifiers" : [ "ONE", "ALL", "UNSPECIFIED" ],
+      "keepOnlySelectors" : [ "DOCUMENT", "DESCRIPTION", "COUNTERPARTY", "FIELDS", "REFERENCE" ],
+      "unsupported" : [ "SORT", "LIMIT", "MULTI_QUERY_PROGRAM", "UNCONFIGURED_FIELD" ],
+      "selectorsByReport" : {
+        "rpt-sales-order" : [ "DOCUMENT", "DESCRIPTION", "FIELDS", "ALL", "REFERENCE" ]
+      },
+      "recordSelectors" : [ "DOCUMENT", "DESCRIPTION", "COUNTERPARTY", "FIELDS", "ALL", "REFERENCE" ]
+    },
+    "dispatchFieldsByReport" : {
+      "rpt-sales-order" : [ {
+        "name" : "companyCode",
+        "type" : "string",
+        "description" : "公司代码"
+      }, {
+        "name" : "orderNo",
+        "type" : "string",
+        "description" : "订单号"
+      }, {
+        "name" : "productName",
+        "type" : "string",
+        "description" : "产品名称"
+      }, {
+        "name" : "amount",
+        "type" : "decimal",
+        "description" : "订单金额（元）"
+      }, {
+        "name" : "saleDate",
+        "type" : "date",
+        "description" : "销售日期，字符串 yyyy-MM-dd"
+      }, {
+        "name" : "daysSinceSale",
+        "type" : "long",
+        "description" : "距销售日期的天数（派生）"
+      }, {
+        "name" : "dispatched",
+        "type" : "boolean",
+        "description" : "是否已派单（派生，粗筛后恒为 false）"
+      } ]
+    },
+    "dispatchContext" : {
+      "desired" : {
+        "companyCode" : null,
+        "allReports" : true,
+        "reportIds" : [ ]
+      },
+      "effective" : null,
+      "phase" : "READY",
+      "unresolvedCompany" : false,
+      "unresolvedReports" : false,
+      "unresolvedRecords" : false,
+      "previewRef" : null,
+      "planRef" : null,
+      "previewPreparation" : {
+        "requiresRedisplay" : true,
+        "source" : "PREVIEW"
+      },
+      "lastSelectionReferences" : [ ],
+      "lastSelectionReferencesComplete" : true,
+      "lastFailure" : null
+    },
+    "taskPurpose" : {
+      "requestedResult" : "用户希望在A公司销售报表中将金额筛选下限从100元改为110元以上，保持按金额从大到小排列、每页5条的原有条件，查看筛选后的报表记录。",
+      "purpose" : "BUSINESS_QUERY",
+      "queryContext" : "FOLLOW_UP",
+      "evidence" : "金额下限改成110元以上，其他条件不变。",
+      "targetCount" : null,
+      "queryDomain" : "REPORT",
+      "queryView" : "LIST"
+    },
+    "observedTerms" : {
+      "matches" : [ ],
+      "truncated" : false
+    },
+    "taskStage" : "INDEPENDENT_EXPECTATION",
+    "reviewRepairHistory" : [ ],
+    "message" : "金额下限改成110元以上，其他条件不变。"
+  },
+  "callIndex" : 5,
+  "output" : "{\n  \"requirements\": [\n    {\n      \"aspect\": \"ACTION\",\n      \"messageIndex\": -1,\n      \"evidence\": \"金额下限改成110元以上，其他条件不变。\",\n      \"meaning\": \"本轮仍为只读报表查询（BUSINESS_QUERY），不是派单候选生成、准备清单或执行操作。\"\n    },\n    {\n      \"aspect\": \"SCOPE\",\n      \"messageIndex\": -1,\n      \"evidence\": \"其他条件不变。\",\n      \"meaning\": \"沿用上一成功查询的范围：A公司、销售报表。\"\n    },\n    {\n      \"aspect\": \"CONDITIONS\",\n      \"messageIndex\": -1,\n      \"evidence\": \"金额下限改成110元以上\",\n      \"meaning\": \"将原金额下限由大于100（amount > 100）改为amount >= 110。GTE表示包含恰好等于110，即金额为110时满足。\"\n    },\n    {\n      \"aspect\": \"CONDITIONS\",\n      \"messageIndex\": -1,\n      \"evidence\": \"其他条件不变。\",\n      \"meaning\": \"除金额下限条件外，A公司、销售报表等旧条件继续保留；旧金额下限由新下限替换，其他条件继承。\"\n    },\n    {\n      \"aspect\": \"PRESENTATION\",\n      \"messageIndex\": -1,\n      \"evidence\": \"其他条件不变。\",\n      \"meaning\": \"保持原有排序（按金额从大到小）和分页（每页5条）；筛选变化后页码回到第1页。\"\n    },\n    {\n      \"aspect\": \"CONTINUITY\",\n      \"messageIndex\": -1,\n      \"evidence\": \"金额下限改成110元以上，其他条件不变。\",\n      \"meaning\": \"承接上一成功查询，followUp=true；金额下界谓词发生变化，其他条件保持。\"\n    }\n  ],\n  \"expectedPlan\": {\n    \"route\": \"BUSINESS_QUERY\",\n    \"query\": {\n      \"domain\": \"REPORT\",\n      \"view\": \"LIST\",\n      \"reportIds\": [\n        \"rpt-sales-order\"\n      ],\n      \"companyCode\": \"A\",\n      \"conditions\": [\n        {\n          \"allOf\": [\n            {\n              \"field\": \"amount\",\n              \"operator\": \"GTE\",\n              \"values\": [\n                \"110\"\n              ]\n            }\n          ]\n        }\n      ],\n      \"sortField\": \"amount\",\n      \"descending\": true,\n      \"page\": 1,\n      \"size\": 5,\n      \"groupBy\": null\n    },\n    \"followUp\": true,\n    \"clarification\": null,\n    \"removedFilters\": [],\n    \"dispatch\": null,\n    \"clarificationOptions\": null\n  },\n  \"conditionChecks\": [\n    {\n      \"condition\": {\n        \"field\": \"amount\",\n        \"operator\": \"GTE\",\n        \"values\": [\n          \"110\"\n        ]\n      },\n      \"origin\": \"CURRENT_REQUEST\",\n      \"evidence\": \"金额下限改成110元以上\",\n      \"negationEvidence\": \"\"\n    }\n  ],\n  \"priorConditionChanges\": [\n    {\n      \"condition\": {\n        \"field\": \"amount\",\n        \"operator\": \"GT\",\n        \"values\": [\n          \"100\"\n        ]\n      },\n      \"evidence\": \"金额下限改成110元以上\"\n    }\n  ],\n  \"targetCount\": null\n}",
+  "completedAt" : "2026-10-11T19:54:54.241398900+08:00"
+}, {
+  "input" : {
+    "taskStage" : "TASK_PURPOSE",
+    "lastRoute" : null,
+    "lastAttemptRoute" : null,
+    "queryUnresolved" : false,
+    "dispatchPreviewPresent" : false,
+    "dispatchPlanPresent" : false,
+    "recentConversation" : [ ],
+    "businessDictionary" : {
+      "fingerprint" : "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "entries" : [ ],
+      "referenceTime" : "2026-10-11T11:59:07.837083900Z",
+      "defaultCalendar" : {
+        "nextMonthStart" : "2026-11-01",
+        "previousMonthEndExclusive" : "2026-10-01",
+        "monthStart" : "2026-10-01",
+        "configuredHolidays" : [ ],
+        "nextFiscalYearStart" : "2027-01-01",
+        "today" : "2026-10-11",
+        "holidayCalendarComplete" : false,
+        "fiscalYearStart" : "2026-01-01",
+        "previousMonthStart" : "2026-09-01",
+        "timeZone" : "Asia/Shanghai"
+      }
+    },
+    "resolvedClarification" : { },
+    "requestedQuery" : null,
+    "today" : "2026-10-11",
+    "activeQuery" : null,
+    "visibleQueryRows" : [ ],
+    "visibleQueryResult" : null,
+    "reportCatalog" : [ {
+      "name" : "销售报表",
+      "fields" : [ {
+        "name" : "reportId",
+        "type" : "string",
+        "description" : "报表稳定标识"
+      }, {
+        "name" : "reportName",
+        "type" : "string",
+        "description" : "报表名称"
+      }, {
+        "name" : "companyCode",
+        "type" : "string",
+        "description" : "所属公司代码"
+      }, {
+        "name" : "docNo",
+        "type" : "string",
+        "description" : "来源单据号"
+      }, {
+        "name" : "amount",
+        "type" : "decimal",
+        "description" : "来源金额，币种见 currency；空值表示未提供"
+      }, {
+        "name" : "currency",
+        "type" : "string",
+        "description" : "来源声明币种；空值表示未声明，不能跨币种合计"
+      }, {
+        "name" : "date",
+        "type" : "date",
+        "description" : "业务日期；空值表示未配置"
+      }, {
+        "name" : "status",
+        "type" : "string",
+        "description" : "报表派单状态：未派单/已派单"
+      }, {
+        "name" : "orderNo",
+        "type" : "string",
+        "description" : "订单号"
+      }, {
+        "name" : "productName",
+        "type" : "string",
+        "description" : "产品名称"
+      }, {
+        "name" : "saleDate",
+        "type" : "date",
+        "description" : "销售日期，字符串 yyyy-MM-dd"
+      }, {
+        "name" : "daysSinceSale",
+        "type" : "long",
+        "description" : "距销售日期的天数（派生）"
+      }, {
+        "name" : "dispatched",
+        "type" : "boolean",
+        "description" : "来源记录是否已派单；true为已派单，false为未派单，不代表满足派单规则"
+      }, {
+        "name" : "recordId",
+        "type" : "string",
+        "description" : "报表内稳定记录标识"
+      } ],
+      "aliases" : [ "销售", "销售台账", "订单销售表", "销售明细", "销售订单", "sales report", "客户对账" ],
+      "reportId" : "rpt-sales-order",
+      "description" : "销售订单台账：按订单统计金额与派单状态"
+    } ],
+    "currentReportMentions" : [ {
+      "reportId" : "rpt-sales-order",
+      "mentions" : [ "销售报表", "销售" ]
+    } ],
+    "companies" : [ "A" ],
+    "message" : "查询 A 公司销售报表全部记录，按金额从大到小排列，每页显示5条。"
+  },
+  "callIndex" : 6,
+  "output" : "{\"requestedResult\":\"查询A公司销售报表的全部记录，按金额从大到小排列，每页显示5条。\",\"purpose\":\"BUSINESS_QUERY\",\"queryDomain\":\"REPORT\",\"queryView\":\"LIST\",\"queryContext\":\"INDEPENDENT\",\"evidence\":\"查询 A 公司销售报表全部记录，按金额从大到小排列，每页显示5条。\",\"targetCount\":null}",
+  "completedAt" : "2026-10-11T19:59:11.206498100+08:00"
+}, {
+  "input" : {
+    "messageIndex" : -1,
+    "businessDictionary" : {
+      "fingerprint" : "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "entries" : [ ],
+      "referenceTime" : "2026-10-11T11:59:07.837083900Z",
+      "defaultCalendar" : {
+        "nextMonthStart" : "2026-11-01",
+        "previousMonthEndExclusive" : "2026-10-01",
+        "monthStart" : "2026-10-01",
+        "configuredHolidays" : [ ],
+        "nextFiscalYearStart" : "2027-01-01",
+        "today" : "2026-10-11",
+        "holidayCalendarComplete" : false,
+        "fiscalYearStart" : "2026-01-01",
+        "previousMonthStart" : "2026-09-01",
+        "timeZone" : "Asia/Shanghai"
+      }
+    },
+    "resolvedClarification" : { },
+    "requestedQuery" : null,
+    "today" : "2026-10-11",
+    "companies" : [ "A" ],
+    "reports" : [ {
+      "fields" : [ {
+        "name" : "reportId",
+        "type" : "string",
+        "description" : "报表稳定标识"
+      }, {
+        "name" : "reportName",
+        "type" : "string",
+        "description" : "报表名称"
+      }, {
+        "name" : "companyCode",
+        "type" : "string",
+        "description" : "所属公司代码"
+      }, {
+        "name" : "docNo",
+        "type" : "string",
+        "description" : "来源单据号"
+      }, {
+        "name" : "amount",
+        "type" : "decimal",
+        "description" : "来源金额，币种见 currency；空值表示未提供"
+      }, {
+        "name" : "currency",
+        "type" : "string",
+        "description" : "来源声明币种；空值表示未声明，不能跨币种合计"
+      }, {
+        "name" : "date",
+        "type" : "date",
+        "description" : "业务日期；空值表示未配置"
+      }, {
+        "name" : "status",
+        "type" : "string",
+        "description" : "报表派单状态：未派单/已派单"
+      }, {
+        "name" : "orderNo",
+        "type" : "string",
+        "description" : "订单号"
+      }, {
+        "name" : "productName",
+        "type" : "string",
+        "description" : "产品名称"
+      }, {
+        "name" : "saleDate",
+        "type" : "date",
+        "description" : "销售日期，字符串 yyyy-MM-dd"
+      }, {
+        "name" : "daysSinceSale",
+        "type" : "long",
+        "description" : "距销售日期的天数（派生）"
+      }, {
+        "name" : "dispatched",
+        "type" : "boolean",
+        "description" : "来源记录是否已派单；true为已派单，false为未派单，不代表满足派单规则"
+      }, {
+        "name" : "recordId",
+        "type" : "string",
+        "description" : "报表内稳定记录标识"
+      } ],
+      "aliases" : [ "销售", "销售台账", "订单销售表", "销售明细", "销售订单", "sales report", "客户对账" ],
+      "dispatchEnabled" : true,
+      "name" : "销售报表",
+      "description" : "销售订单台账：按订单统计金额与派单状态",
+      "reportId" : "rpt-sales-order"
+    } ],
+    "currentReportMentions" : [ {
+      "reportId" : "rpt-sales-order",
+      "mentions" : [ "销售报表", "销售" ]
+    } ],
+    "dispatchFields" : [ {
+      "name" : "reportId",
+      "type" : "string",
+      "description" : "报表稳定标识"
+    }, {
+      "name" : "reportName",
+      "type" : "string",
+      "description" : "报表名称"
+    }, {
+      "name" : "companyCode",
+      "type" : "string",
+      "description" : "所属公司代码"
+    }, {
+      "name" : "docNo",
+      "type" : "string",
+      "description" : "来源单据号"
+    }, {
+      "name" : "amount",
+      "type" : "decimal",
+      "description" : "来源金额，币种见 currency；空值表示未提供"
+    }, {
+      "name" : "currency",
+      "type" : "string",
+      "description" : "来源声明币种；空值表示未声明，不能跨币种合计"
+    }, {
+      "name" : "date",
+      "type" : "date",
+      "description" : "业务日期；空值表示未配置"
+    }, {
+      "name" : "status",
+      "type" : "string",
+      "description" : "派单条目执行状态：待执行/成功/失败/结果未知/已跳过"
+    }, {
+      "name" : "planId",
+      "type" : "string",
+      "description" : "清单标识"
+    }, {
+      "name" : "requestId",
+      "type" : "string",
+      "description" : "稳定派单请求号，未发送时为空"
+    }, {
+      "name" : "operatorName",
+      "type" : "string",
+      "description" : "清单创建人展示名"
+    }, {
+      "name" : "createdByMe",
+      "type" : "boolean",
+      "description" : "是否当前登录人创建，由服务端身份计算；我的/本人发起使用true，不能把人称代词当创建人姓名"
+    }, {
+      "name" : "planStatus",
+      "type" : "string",
+      "description" : "清单当前状态"
+    }, {
+      "name" : "message",
+      "type" : "string",
+      "description" : "最近派单结果说明，空值表示未提供"
+    }, {
+      "name" : "createdDate",
+      "type" : "date",
+      "description" : "清单创建日期，Asia/Shanghai"
+    } ],
+    "workOrderFields" : [ {
+      "name" : "reportId",
+      "type" : "string",
+      "description" : "报表稳定标识"
+    }, {
+      "name" : "reportName",
+      "type" : "string",
+      "description" : "报表名称"
+    }, {
+      "name" : "companyCode",
+      "type" : "string",
+      "description" : "所属公司代码"
+    }, {
+      "name" : "docNo",
+      "type" : "string",
+      "description" : "来源单据号"
+    }, {
+      "name" : "amount",
+      "type" : "decimal",
+      "description" : "来源金额，币种见 currency；空值表示未提供"
+    }, {
+      "name" : "currency",
+      "type" : "string",
+      "description" : "来源声明币种；空值表示未声明，不能跨币种合计"
+    }, {
+      "name" : "date",
+      "type" : "date",
+      "description" : "业务日期；空值表示未配置"
+    }, {
+      "name" : "status",
+      "type" : "string",
+      "description" : "工单办理状态：待审批/处理中/已完成/已驳回"
+    }, {
+      "name" : "orderId",
+      "type" : "string",
+      "description" : "工单编号，须准确匹配"
+    }, {
+      "name" : "title",
+      "type" : "string",
+      "description" : "工单主题"
+    }, {
+      "name" : "stage",
+      "type" : "string",
+      "description" : "当前环节，已结束时为归档或退回"
+    }, {
+      "name" : "assignee",
+      "type" : "string",
+      "description" : "当前处理人，已结束时为空"
+    }, {
+      "name" : "requestId",
+      "type" : "string",
+      "description" : "关联派单请求号，固定演示示例为空"
+    }, {
+      "name" : "source",
+      "type" : "string",
+      "description" : "固定演示示例或实际演示派单关联"
+    }, {
+      "name" : "createdDate",
+      "type" : "date",
+      "description" : "工单创建日期，Asia/Shanghai"
+    }, {
+      "name" : "updatedDate",
+      "type" : "date",
+      "description" : "最近流程变化日期；固定演示不会随查询推进"
+    } ],
+    "previousQuery" : null,
+    "previousRows" : [ ],
+    "lastRoute" : null,
+    "lastAttemptRoute" : null,
+    "previousResult" : {
+      "totalCount" : null,
+      "displayedCount" : 0,
+      "allMatchesDisplayed" : false
+    },
+    "queryObjects" : {
+      "available" : false,
+      "sourceRef" : null,
+      "unavailableReason" : "NO_QUERY",
+      "recoveryHint" : "尚无成功展示的业务记录，请先明确并查询要处理的报表对象",
+      "preparation" : {
+        "executionRequiresConfirmation" : true,
+        "sources" : [ "QUERY_ROWS", "QUERY_ALL" ],
+        "requiresSeparatePreview" : false,
+        "requiresCurrentPermissionAndQualificationCheck" : true
+      },
+      "allMatchesDisplayed" : false,
+      "totalCount" : null,
+      "rows" : [ ]
+    },
+    "recentConversation" : [ ],
+    "dispatchSelection" : { },
+    "queryUnresolved" : false,
+    "dispatchPreviewPresent" : false,
+    "dispatchPlanPresent" : false,
+    "dispatchUnresolved" : false,
+    "dispatchCapabilities" : {
+      "recordOperations" : [ "EXCLUDE", "RESTORE", "REPLACE_EXCLUSIONS", "RESTORE_ALL", "KEEP_ONLY" ],
+      "scopeFilters" : [ "ONE_COMPANY_OR_ALL_AUTHORIZED", "REPORT_SET" ],
+      "selectionBoundary" : "CURRENT_PREVIEW_OR_FINAL_SCOPE_SNAPSHOT",
+      "quantifiers" : [ "ONE", "ALL", "UNSPECIFIED" ],
+      "keepOnlySelectors" : [ "DOCUMENT", "DESCRIPTION", "COUNTERPARTY", "FIELDS", "REFERENCE" ],
+      "unsupported" : [ "SORT", "LIMIT", "MULTI_QUERY_PROGRAM", "UNCONFIGURED_FIELD" ],
+      "selectorsByReport" : {
+        "rpt-sales-order" : [ "DOCUMENT", "DESCRIPTION", "FIELDS", "ALL", "REFERENCE" ]
+      },
+      "recordSelectors" : [ "DOCUMENT", "DESCRIPTION", "COUNTERPARTY", "FIELDS", "ALL", "REFERENCE" ]
+    },
+    "dispatchFieldsByReport" : {
+      "rpt-sales-order" : [ {
+        "name" : "companyCode",
+        "type" : "string",
+        "description" : "公司代码"
+      }, {
+        "name" : "orderNo",
+        "type" : "string",
+        "description" : "订单号"
+      }, {
+        "name" : "productName",
+        "type" : "string",
+        "description" : "产品名称"
+      }, {
+        "name" : "amount",
+        "type" : "decimal",
+        "description" : "订单金额（元）"
+      }, {
+        "name" : "saleDate",
+        "type" : "date",
+        "description" : "销售日期，字符串 yyyy-MM-dd"
+      }, {
+        "name" : "daysSinceSale",
+        "type" : "long",
+        "description" : "距销售日期的天数（派生）"
+      }, {
+        "name" : "dispatched",
+        "type" : "boolean",
+        "description" : "是否已派单（派生，粗筛后恒为 false）"
+      } ]
+    },
+    "dispatchContext" : {
+      "desired" : {
+        "companyCode" : null,
+        "allReports" : true,
+        "reportIds" : [ ]
+      },
+      "effective" : null,
+      "phase" : "READY",
+      "unresolvedCompany" : false,
+      "unresolvedReports" : false,
+      "unresolvedRecords" : false,
+      "previewRef" : null,
+      "planRef" : null,
+      "previewPreparation" : {
+        "requiresRedisplay" : false,
+        "source" : "PREVIEW"
+      },
+      "lastSelectionReferences" : [ ],
+      "lastSelectionReferencesComplete" : true,
+      "lastFailure" : null
+    },
+    "attemptHistory" : [ ],
+    "taskPurpose" : {
+      "requestedResult" : "查询A公司销售报表的全部记录，按金额从大到小排列，每页显示5条。",
+      "purpose" : "BUSINESS_QUERY",
+      "queryContext" : "INDEPENDENT",
+      "evidence" : "查询 A 公司销售报表全部记录，按金额从大到小排列，每页显示5条。",
+      "targetCount" : null,
+      "queryDomain" : "REPORT",
+      "queryView" : "LIST"
+    },
+    "message" : "查询 A 公司销售报表全部记录，按金额从大到小排列，每页显示5条。"
+  },
+  "callIndex" : 7,
+  "output" : "{\"route\":\"BUSINESS_QUERY\",\"query\":{\"domain\":\"REPORT\",\"view\":\"LIST\",\"reportIds\":[\"rpt-sales-order\"],\"companyCode\":\"A\",\"conditions\":[],\"sortField\":\"amount\",\"descending\":true,\"page\":1,\"size\":5,\"groupBy\":null},\"followUp\":false,\"clarification\":null,\"removedFilters\":[],\"dispatch\":null,\"clarificationOptions\":null}",
+  "completedAt" : "2026-10-11T19:59:13.510396900+08:00"
+}, {
+  "input" : {
+    "messageIndex" : -1,
+    "businessDictionary" : {
+      "fingerprint" : "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "entries" : [ ],
+      "referenceTime" : "2026-10-11T11:59:07.837083900Z",
+      "defaultCalendar" : {
+        "nextMonthStart" : "2026-11-01",
+        "previousMonthEndExclusive" : "2026-10-01",
+        "monthStart" : "2026-10-01",
+        "configuredHolidays" : [ ],
+        "nextFiscalYearStart" : "2027-01-01",
+        "today" : "2026-10-11",
+        "holidayCalendarComplete" : false,
+        "fiscalYearStart" : "2026-01-01",
+        "previousMonthStart" : "2026-09-01",
+        "timeZone" : "Asia/Shanghai"
+      }
+    },
+    "resolvedClarification" : { },
+    "requestedQuery" : null,
+    "today" : "2026-10-11",
+    "companies" : [ "A" ],
+    "reports" : [ {
+      "fields" : [ {
+        "name" : "reportId",
+        "type" : "string",
+        "description" : "报表稳定标识"
+      }, {
+        "name" : "reportName",
+        "type" : "string",
+        "description" : "报表名称"
+      }, {
+        "name" : "companyCode",
+        "type" : "string",
+        "description" : "所属公司代码"
+      }, {
+        "name" : "docNo",
+        "type" : "string",
+        "description" : "来源单据号"
+      }, {
+        "name" : "amount",
+        "type" : "decimal",
+        "description" : "来源金额，币种见 currency；空值表示未提供"
+      }, {
+        "name" : "currency",
+        "type" : "string",
+        "description" : "来源声明币种；空值表示未声明，不能跨币种合计"
+      }, {
+        "name" : "date",
+        "type" : "date",
+        "description" : "业务日期；空值表示未配置"
+      }, {
+        "name" : "status",
+        "type" : "string",
+        "description" : "报表派单状态：未派单/已派单"
+      }, {
+        "name" : "orderNo",
+        "type" : "string",
+        "description" : "订单号"
+      }, {
+        "name" : "productName",
+        "type" : "string",
+        "description" : "产品名称"
+      }, {
+        "name" : "saleDate",
+        "type" : "date",
+        "description" : "销售日期，字符串 yyyy-MM-dd"
+      }, {
+        "name" : "daysSinceSale",
+        "type" : "long",
+        "description" : "距销售日期的天数（派生）"
+      }, {
+        "name" : "dispatched",
+        "type" : "boolean",
+        "description" : "来源记录是否已派单；true为已派单，false为未派单，不代表满足派单规则"
+      }, {
+        "name" : "recordId",
+        "type" : "string",
+        "description" : "报表内稳定记录标识"
+      } ],
+      "aliases" : [ "销售", "销售台账", "订单销售表", "销售明细", "销售订单", "sales report", "客户对账" ],
+      "dispatchEnabled" : true,
+      "name" : "销售报表",
+      "description" : "销售订单台账：按订单统计金额与派单状态",
+      "reportId" : "rpt-sales-order"
+    } ],
+    "currentReportMentions" : [ {
+      "reportId" : "rpt-sales-order",
+      "mentions" : [ "销售报表", "销售" ]
+    } ],
+    "dispatchFields" : [ {
+      "name" : "reportId",
+      "type" : "string",
+      "description" : "报表稳定标识"
+    }, {
+      "name" : "reportName",
+      "type" : "string",
+      "description" : "报表名称"
+    }, {
+      "name" : "companyCode",
+      "type" : "string",
+      "description" : "所属公司代码"
+    }, {
+      "name" : "docNo",
+      "type" : "string",
+      "description" : "来源单据号"
+    }, {
+      "name" : "amount",
+      "type" : "decimal",
+      "description" : "来源金额，币种见 currency；空值表示未提供"
+    }, {
+      "name" : "currency",
+      "type" : "string",
+      "description" : "来源声明币种；空值表示未声明，不能跨币种合计"
+    }, {
+      "name" : "date",
+      "type" : "date",
+      "description" : "业务日期；空值表示未配置"
+    }, {
+      "name" : "status",
+      "type" : "string",
+      "description" : "派单条目执行状态：待执行/成功/失败/结果未知/已跳过"
+    }, {
+      "name" : "planId",
+      "type" : "string",
+      "description" : "清单标识"
+    }, {
+      "name" : "requestId",
+      "type" : "string",
+      "description" : "稳定派单请求号，未发送时为空"
+    }, {
+      "name" : "operatorName",
+      "type" : "string",
+      "description" : "清单创建人展示名"
+    }, {
+      "name" : "createdByMe",
+      "type" : "boolean",
+      "description" : "是否当前登录人创建，由服务端身份计算；我的/本人发起使用true，不能把人称代词当创建人姓名"
+    }, {
+      "name" : "planStatus",
+      "type" : "string",
+      "description" : "清单当前状态"
+    }, {
+      "name" : "message",
+      "type" : "string",
+      "description" : "最近派单结果说明，空值表示未提供"
+    }, {
+      "name" : "createdDate",
+      "type" : "date",
+      "description" : "清单创建日期，Asia/Shanghai"
+    } ],
+    "workOrderFields" : [ {
+      "name" : "reportId",
+      "type" : "string",
+      "description" : "报表稳定标识"
+    }, {
+      "name" : "reportName",
+      "type" : "string",
+      "description" : "报表名称"
+    }, {
+      "name" : "companyCode",
+      "type" : "string",
+      "description" : "所属公司代码"
+    }, {
+      "name" : "docNo",
+      "type" : "string",
+      "description" : "来源单据号"
+    }, {
+      "name" : "amount",
+      "type" : "decimal",
+      "description" : "来源金额，币种见 currency；空值表示未提供"
+    }, {
+      "name" : "currency",
+      "type" : "string",
+      "description" : "来源声明币种；空值表示未声明，不能跨币种合计"
+    }, {
+      "name" : "date",
+      "type" : "date",
+      "description" : "业务日期；空值表示未配置"
+    }, {
+      "name" : "status",
+      "type" : "string",
+      "description" : "工单办理状态：待审批/处理中/已完成/已驳回"
+    }, {
+      "name" : "orderId",
+      "type" : "string",
+      "description" : "工单编号，须准确匹配"
+    }, {
+      "name" : "title",
+      "type" : "string",
+      "description" : "工单主题"
+    }, {
+      "name" : "stage",
+      "type" : "string",
+      "description" : "当前环节，已结束时为归档或退回"
+    }, {
+      "name" : "assignee",
+      "type" : "string",
+      "description" : "当前处理人，已结束时为空"
+    }, {
+      "name" : "requestId",
+      "type" : "string",
+      "description" : "关联派单请求号，固定演示示例为空"
+    }, {
+      "name" : "source",
+      "type" : "string",
+      "description" : "固定演示示例或实际演示派单关联"
+    }, {
+      "name" : "createdDate",
+      "type" : "date",
+      "description" : "工单创建日期，Asia/Shanghai"
+    }, {
+      "name" : "updatedDate",
+      "type" : "date",
+      "description" : "最近流程变化日期；固定演示不会随查询推进"
+    } ],
+    "previousQuery" : null,
+    "previousRows" : [ ],
+    "lastRoute" : null,
+    "lastAttemptRoute" : null,
+    "previousResult" : {
+      "totalCount" : null,
+      "displayedCount" : 0,
+      "allMatchesDisplayed" : false
+    },
+    "queryObjects" : {
+      "available" : false,
+      "sourceRef" : null,
+      "unavailableReason" : "NO_QUERY",
+      "recoveryHint" : "尚无成功展示的业务记录，请先明确并查询要处理的报表对象",
+      "preparation" : {
+        "executionRequiresConfirmation" : true,
+        "sources" : [ "QUERY_ROWS", "QUERY_ALL" ],
+        "requiresSeparatePreview" : false,
+        "requiresCurrentPermissionAndQualificationCheck" : true
+      },
+      "allMatchesDisplayed" : false,
+      "totalCount" : null,
+      "rows" : [ ]
+    },
+    "recentConversation" : [ ],
+    "dispatchSelection" : { },
+    "queryUnresolved" : false,
+    "dispatchPreviewPresent" : false,
+    "dispatchPlanPresent" : false,
+    "dispatchUnresolved" : false,
+    "dispatchCapabilities" : {
+      "recordOperations" : [ "EXCLUDE", "RESTORE", "REPLACE_EXCLUSIONS", "RESTORE_ALL", "KEEP_ONLY" ],
+      "scopeFilters" : [ "ONE_COMPANY_OR_ALL_AUTHORIZED", "REPORT_SET" ],
+      "selectionBoundary" : "CURRENT_PREVIEW_OR_FINAL_SCOPE_SNAPSHOT",
+      "quantifiers" : [ "ONE", "ALL", "UNSPECIFIED" ],
+      "keepOnlySelectors" : [ "DOCUMENT", "DESCRIPTION", "COUNTERPARTY", "FIELDS", "REFERENCE" ],
+      "unsupported" : [ "SORT", "LIMIT", "MULTI_QUERY_PROGRAM", "UNCONFIGURED_FIELD" ],
+      "selectorsByReport" : {
+        "rpt-sales-order" : [ "DOCUMENT", "DESCRIPTION", "FIELDS", "ALL", "REFERENCE" ]
+      },
+      "recordSelectors" : [ "DOCUMENT", "DESCRIPTION", "COUNTERPARTY", "FIELDS", "ALL", "REFERENCE" ]
+    },
+    "dispatchFieldsByReport" : {
+      "rpt-sales-order" : [ {
+        "name" : "companyCode",
+        "type" : "string",
+        "description" : "公司代码"
+      }, {
+        "name" : "orderNo",
+        "type" : "string",
+        "description" : "订单号"
+      }, {
+        "name" : "productName",
+        "type" : "string",
+        "description" : "产品名称"
+      }, {
+        "name" : "amount",
+        "type" : "decimal",
+        "description" : "订单金额（元）"
+      }, {
+        "name" : "saleDate",
+        "type" : "date",
+        "description" : "销售日期，字符串 yyyy-MM-dd"
+      }, {
+        "name" : "daysSinceSale",
+        "type" : "long",
+        "description" : "距销售日期的天数（派生）"
+      }, {
+        "name" : "dispatched",
+        "type" : "boolean",
+        "description" : "是否已派单（派生，粗筛后恒为 false）"
+      } ]
+    },
+    "dispatchContext" : {
+      "desired" : {
+        "companyCode" : null,
+        "allReports" : true,
+        "reportIds" : [ ]
+      },
+      "effective" : null,
+      "phase" : "READY",
+      "unresolvedCompany" : false,
+      "unresolvedReports" : false,
+      "unresolvedRecords" : false,
+      "previewRef" : null,
+      "planRef" : null,
+      "previewPreparation" : {
+        "requiresRedisplay" : false,
+        "source" : "PREVIEW"
+      },
+      "lastSelectionReferences" : [ ],
+      "lastSelectionReferencesComplete" : true,
+      "lastFailure" : null
+    },
+    "taskPurpose" : {
+      "requestedResult" : "查询A公司销售报表的全部记录，按金额从大到小排列，每页显示5条。",
+      "purpose" : "BUSINESS_QUERY",
+      "queryContext" : "INDEPENDENT",
+      "evidence" : "查询 A 公司销售报表全部记录，按金额从大到小排列，每页显示5条。",
+      "targetCount" : null,
+      "queryDomain" : "REPORT",
+      "queryView" : "LIST"
+    },
+    "observedTerms" : {
+      "matches" : [ ],
+      "truncated" : false
+    },
+    "taskStage" : "INDEPENDENT_EXPECTATION",
+    "reviewRepairHistory" : [ ],
+    "message" : "查询 A 公司销售报表全部记录，按金额从大到小排列，每页显示5条。"
+  },
+  "callIndex" : 8,
+  "output" : "{\n  \"requirements\": [\n    {\n      \"aspect\": \"ACTION\",\n      \"messageIndex\": -1,\n      \"evidence\": \"查询 A 公司销售报表全部记录，按金额从大到小排列，每页显示5条。\",\n      \"meaning\": \"用户要求进行一次只读业务查询，读取销售报表记录，不涉及派单候选生成、准备清单或执行派单。\"\n    },\n    {\n      \"aspect\": \"SCOPE\",\n      \"messageIndex\": -1,\n      \"evidence\": \"A 公司销售报表\",\n      \"meaning\": \"公司范围限定为A公司，报表范围限定为销售报表（rpt-sales-order）。\"\n    },\n    {\n      \"aspect\": \"PRESENTATION\",\n      \"messageIndex\": -1,\n      \"evidence\": \"按金额从大到小排列，每页显示5条。\",\n      \"meaning\": \"按金额降序排序，每页显示5条，页码为第1页。\"\n    }\n  ],\n  \"expectedPlan\": {\n    \"route\": \"BUSINESS_QUERY\",\n    \"query\": {\n      \"domain\": \"REPORT\",\n      \"view\": \"LIST\",\n      \"reportIds\": [\n        \"rpt-sales-order\"\n      ],\n      \"companyCode\": \"A\",\n      \"conditions\": [],\n      \"sortField\": \"amount\",\n      \"descending\": true,\n      \"page\": 1,\n      \"size\": 5,\n      \"groupBy\": null\n    },\n    \"followUp\": false,\n    \"clarification\": null,\n    \"removedFilters\": [],\n    \"dispatch\": null,\n    \"clarificationOptions\": null\n  },\n  \"conditionChecks\": [],\n  \"priorConditionChanges\": [],\n  \"targetCount\": null\n}",
+  "completedAt" : "2026-10-11T19:59:16.717032+08:00"
+} ]

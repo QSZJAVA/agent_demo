@@ -15,6 +15,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -71,12 +72,21 @@ public class StandardReportAdapter implements ReportQueryAdapter, DispatchStatus
     /** 不执行派单资格规则，按来源主键扫描全部状态；SQL 标识符只取受信配置，参数全部绑定。 */
     @Override
     public List<ReportDataRow> dataRowsAfter(String tenantId,Set<String> companies,String afterId,int size) {
+        return dataRowsAfter(tenantId,companies,afterId,size,null);
+    }
+
+    /** 只下推元数据证明等价的条件，来源主键仍负责稳定遍历；不使用用户输入拼接列名。 */
+    @Override
+    public List<ReportDataRow> dataRowsAfter(String tenantId,Set<String> companies,String afterId,int size,
+            com.example.report.assistant.BusinessQuery query) {
         if(size<1 || size>500) throw new ApiException("查询页大小超出范围");
         if(companies==null || companies.isEmpty() || !tenantUsable(tenantId)) return List.of();
         requireUniqueIdentity();
         var params=new MapSqlParameterSource().addValue("companies",companies).addValue("size",size);
         var sql=new StringBuilder(selectFrom).append(" WHERE ").append(quote(config.companyColumn())).append(" IN (:companies)");
         appendTenant(sql,params,tenantId);
+        var predicate=BusinessSqlPredicate.compile(query,businessColumns());
+        if(!predicate.sql().isEmpty()) {sql.append(" AND (").append(predicate.sql()).append(')');predicate.parameters().forEach(params::addValue);}
         if(afterId!=null) {sql.append(" AND ").append(quote(config.idColumn())).append(" > :afterId");params.addValue("afterId",afterId);}
         sql.append(" ORDER BY ").append(quote(config.idColumn())).append(" LIMIT :size");
         var today=LocalDate.now();
@@ -85,6 +95,24 @@ public class StandardReportAdapter implements ReportQueryAdapter, DispatchStatus
             String display=java.util.Objects.equals(status,String.valueOf(config.pendingValue()))?"未派单"
                     :java.util.Objects.equals(status,String.valueOf(config.dispatchedValue()))?"已派单":"来源状态："+java.util.Objects.toString(status,"未提供");
             return new ReportDataRow(mapRow(rs,today),display);
+        });
+    }
+
+    /** 每次读取真实列类型；表结构变化后不得复用过期的下推证明。派生字段由 Java 统一计算。 */
+    private Map<String,BusinessSqlPredicate.Column> businessColumns() {
+        var mapping=new LinkedHashMap<String,String[]>();
+        for(var field:config.fields())mapping.put(field.name(),new String[]{field.column(),field.type()});
+        mapping.put("companyCode",new String[]{config.companyColumn(),"string"});
+        mapping.put("docNo",new String[]{config.docNoColumn(),"string"});
+        if(StandardQueryConfig.present(config.amountColumn()))mapping.put("amount",new String[]{config.amountColumn(),"decimal"});
+        if(StandardQueryConfig.present(config.dateColumn()))mapping.put("date",new String[]{config.dateColumn(),"date"});
+        return jdbc.query(selectFrom+" WHERE 1=0",new MapSqlParameterSource(),(org.springframework.jdbc.core.ResultSetExtractor<Map<String,BusinessSqlPredicate.Column>>)rs->{
+            var result=new LinkedHashMap<String,BusinessSqlPredicate.Column>();var metadata=rs.getMetaData();
+            for(var field:mapping.entrySet())for(int i=1;i<=metadata.getColumnCount();i++) {
+                if(field.getValue()[0].equalsIgnoreCase(metadata.getColumnLabel(i)))result.put(field.getKey(),
+                        new BusinessSqlPredicate.Column(field.getValue()[0],field.getValue()[1],metadata.getColumnType(i),metadata.isSigned(i)));
+            }
+            return result;
         });
     }
 

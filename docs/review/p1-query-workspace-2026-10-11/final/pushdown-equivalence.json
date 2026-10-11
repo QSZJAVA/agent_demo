@@ -1,0 +1,149 @@
+{
+  "totalSourceRows" : 120,
+  "independentSqlCounts" : {
+    "amountOver100" : 20,
+    "caseSensitiveAlpha" : 60
+  },
+  "cases" : [ {
+    "conditions" : [ {
+      "allOf" : [ {
+        "field" : "amount",
+        "operator" : "GT",
+        "values" : [ "100" ]
+      } ]
+    } ],
+    "total" : 20,
+    "scanned" : 20
+  }, {
+    "conditions" : [ {
+      "allOf" : [ {
+        "field" : "amount",
+        "operator" : "GTE",
+        "values" : [ "100.01" ]
+      }, {
+        "field" : "amount",
+        "operator" : "LTE",
+        "values" : [ "110.01" ]
+      } ]
+    } ],
+    "total" : 11,
+    "scanned" : 11
+  }, {
+    "conditions" : [ {
+      "allOf" : [ {
+        "field" : "productName",
+        "operator" : "EQ",
+        "values" : [ "Alpha" ]
+      } ]
+    } ],
+    "total" : 60,
+    "scanned" : 60
+  }, {
+    "conditions" : [ {
+      "allOf" : [ {
+        "field" : "productName",
+        "operator" : "EQ",
+        "values" : [ "alpha " ]
+      } ]
+    } ],
+    "total" : 59,
+    "scanned" : 59
+  }, {
+    "conditions" : [ {
+      "allOf" : [ {
+        "field" : "productName",
+        "operator" : "NE",
+        "values" : [ "Alpha" ]
+      } ]
+    } ],
+    "total" : 60,
+    "scanned" : 60
+  }, {
+    "conditions" : [ {
+      "allOf" : [ {
+        "field" : "productName",
+        "operator" : "CONTAINS",
+        "values" : [ "=1+1" ]
+      } ]
+    } ],
+    "total" : 1,
+    "scanned" : 1
+  }, {
+    "conditions" : [ {
+      "allOf" : [ {
+        "field" : "productName",
+        "operator" : "CONTAINS",
+        "values" : [ "%_" ]
+      } ]
+    } ],
+    "total" : 0,
+    "scanned" : 0
+  }, {
+    "conditions" : [ {
+      "allOf" : [ {
+        "field" : "date",
+        "operator" : "GTE",
+        "values" : [ "2026-09-10" ]
+      }, {
+        "field" : "date",
+        "operator" : "LTE",
+        "values" : [ "2026-09-20" ]
+      } ]
+    } ],
+    "total" : 44,
+    "scanned" : 44
+  }, {
+    "conditions" : [ {
+      "allOf" : [ {
+        "field" : "amount",
+        "operator" : "GT",
+        "values" : [ "110" ]
+      } ]
+    }, {
+      "allOf" : [ {
+        "field" : "productName",
+        "operator" : "EQ",
+        "values" : [ "=1+1" ]
+      } ]
+    } ],
+    "total" : 11,
+    "scanned" : 11
+  }, {
+    "conditions" : [ {
+      "allOf" : [ {
+        "field" : "amount",
+        "operator" : "GT",
+        "values" : [ "110" ]
+      } ]
+    }, {
+      "allOf" : [ {
+        "field" : "dispatched",
+        "operator" : "EQ",
+        "values" : [ "false" ]
+      } ]
+    } ],
+    "total" : 120,
+    "scanned" : 120
+  }, {
+    "conditions" : [ {
+      "allOf" : [ {
+        "field" : "amount",
+        "operator" : "IS_NULL",
+        "values" : [ ]
+      } ]
+    } ],
+    "total" : 0,
+    "scanned" : 0
+  }, {
+    "conditions" : [ {
+      "allOf" : [ {
+        "field" : "amount",
+        "operator" : "NOT_NULL",
+        "values" : [ ]
+      } ]
+    } ],
+    "total" : 120,
+    "scanned" : 120
+  } ],
+  "passed" : true
+}

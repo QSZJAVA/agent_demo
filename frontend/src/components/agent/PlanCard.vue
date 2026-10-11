@@ -2,7 +2,7 @@
   <el-card shadow="never" :class="['agent-card', 'plan-card', state]">
     <div slot="header" class="card-head">
       <span class="card-title">
-        <i class="el-icon-warning-outline"></i> 待确认派单清单
+        <i class="el-icon-warning-outline"></i> {{ state === 'pending' ? '待确认派单清单' : '派单清单' }}
         <el-tag size="mini" type="warning">{{ payload.count }} 条</el-tag>
         <el-tag v-if="state === 'executing'" size="mini">执行中</el-tag>
         <el-tag v-else-if="state === 'review'" size="mini" type="danger">结果待核对</el-tag>
@@ -59,7 +59,7 @@
 
 <script>
 /**
- * 待确认派单清单卡片；展示服务器状态，确认、核对、重试和恢复通过父组件执行。
+ * 派单清单卡片；标题与操作跟随服务器状态，确认、核对和恢复通过父组件执行。
  * EXECUTING或待核对状态不能当作未执行；条目分页用序号阻止旧响应覆盖新状态，异常调查以当前清单显式绑定范围。
  */
 import { fetchPlanItems } from '../../api/agent'

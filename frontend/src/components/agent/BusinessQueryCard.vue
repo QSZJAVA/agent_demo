@@ -2,6 +2,7 @@
   <section class="business-query-card">
     <div class="query-heading"><strong>{{ title }}</strong><el-tag size="mini" type="info">只读查询</el-tag></div>
     <p class="query-source">{{ payload.source }} · 查询时间 {{ observedTime }}</p>
+    <el-button v-if="payload.snapshot && $route.path !== '/query-workspace'" size="mini" @click="$emit('workspace')">打开查询工作区 · 保存 / 分析 / 导出</el-button>
     <p class="query-scope">{{ scopeDescription }}</p>
     <p class="query-scope">筛选：{{ filterDescription }}</p>
     <div v-if="payload.interpretation" class="query-interpretation">
@@ -40,7 +41,7 @@
         <template slot-scope="scope"><business-label v-if="['status','planStatus'].includes(column.name)" :value="scope.row[column.name]" tag /><span v-else>{{ cell(scope.row[column.name]) }}</span></template>
       </el-table-column>
       <el-table-column v-if="payload.query.domain === 'WORK_ORDER'" label="操作" width="96" fixed="right">
-        <template slot-scope="scope"><el-button type="text" size="mini" :disabled="busy" @click="$emit('detail', scope.row.orderId)">查看进度</el-button></template>
+        <template slot-scope="scope"><el-button type="text" size="mini" :disabled="busy" @click="openDetail(scope.row)">{{ snapshotDetails ? '查看快照进度' : '查看进度' }}</el-button></template>
       </el-table-column>
     </el-table>
     <div v-if="payload.query.view !== 'ELIGIBILITY'" class="query-pagination">
@@ -49,11 +50,11 @@
       <el-button size="mini" :disabled="busy || !latest || payload.query.page * payload.query.size >= payload.total" @click="$emit('page', payload.query.page + 1)">下一页</el-button>
       <span v-if="!latest">历史查询快照</span>
     </div>
-    <div v-if="payload.query.domain === 'WORK_ORDER' && payload.query.view === 'DETAIL' && payload.rows.length === 1" class="workflow-detail">
-      <p><strong>{{ payload.rows[0].orderId }}</strong> · {{ payload.rows[0].source }}</p>
-      <p>{{ payload.rows[0].workflowSummary }}</p>
+    <div v-if="workflowRow" class="workflow-detail">
+      <p><strong>{{ workflowRow.orderId }}</strong> · {{ workflowRow.source }}</p>
+      <p>{{ workflowRow.workflowSummary }}</p>
       <ol class="workflow-steps">
-        <li v-for="(step, index) in payload.rows[0].steps" :key="index" :class="{ current: step.status === '处理中' || step.status === '待审批' }">
+        <li v-for="(step, index) in workflowRow.steps" :key="index" :class="{ current: step.status === '处理中' || step.status === '待审批' }">
           <strong>{{ step.name }}</strong><span>{{ step.approver }}</span><el-tag size="mini" :type="step.status === '已驳回' ? 'danger' : step.status === '已完成' ? 'success' : 'info'">{{ step.status }}</el-tag><small>{{ step.date || '尚无完成日期' }}</small>
         </li>
       </ol>
@@ -62,15 +63,17 @@
 </template>
 
 <script>
-/** 只读业务结果快照：数字与标识按服务端字符串展示；派单资格及工单步骤均来自业务服务证据，分页仅作用于最新查询。 */
+/** 只读业务结果快照：数字无损、时间统一上海时区；工作区详情只展开本页快照，聊天详情由父级继续完整查询。 */
 import { displayLabel } from '../../utils/presentation'
 export default {
   name: 'BusinessQueryCard',
-  props: { payload: { type: Object, required: true }, busy: Boolean, latest: Boolean },
+  props: { payload: { type: Object, required: true }, busy: Boolean, latest: Boolean, snapshotDetails: Boolean },
+  data() { return { selectedOrderKey: null } },
   computed: {
     title() { return this.payload.query.view === 'ELIGIBILITY' ? '派单资格核验' : { REPORT: '报表数据', DISPATCH: '派单记录', WORK_ORDER: '工单查询' }[this.payload.query.domain] + (this.payload.query.view === 'SUMMARY' ? ' · 总结' : '') },
     eligibility() { return this.payload.query.view === 'ELIGIBILITY' && this.payload.rows.length === 1 ? this.payload.rows[0].eligibility : null },
-    observedTime() { return String(this.payload.observedAt).replace('T', ' ').slice(0, 19) },
+    workflowRow() { if (this.payload.query.domain !== 'WORK_ORDER') return null; if (this.payload.query.view === 'DETAIL' && this.payload.rows.length === 1) return this.payload.rows[0]; return this.snapshotDetails ? this.payload.rows.find(row => row.rowKey === this.selectedOrderKey) || null : null },
+    observedTime() { const instant = new Date(this.payload.observedAt); return Number.isNaN(instant.getTime()) ? '时间不可用' : new Intl.DateTimeFormat('sv-SE', { timeZone: 'Asia/Shanghai', year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', second: '2-digit', hourCycle: 'h23' }).format(instant) },
     scopeDescription() {
       const query = this.payload.query
       const names = [...new Set(this.payload.rows.map(row => row.reportName).filter(Boolean))]
@@ -92,6 +95,8 @@ export default {
     }
   },
   methods: {
+    /** 工作区按当前页稳定行标识展开已授权步骤；页面换行后找不到原标识就停止展示，不请求或推进外部流程。 */
+    openDetail(row) { if (this.busy) return; if (this.snapshotDetails) this.selectedOrderKey = row.rowKey; else this.$emit('detail', row.orderId) },
     originLabel(origin) { return { CURRENT_REQUEST: '本轮明确要求', ACTIVE_QUERY: '继承当前有效条件', VISIBLE_OBJECT: '依据已展示对象', UNAVAILABLE: '没有可展示的模型来源证据' }[origin] || '来源待核查' },
     cell(value) { return value == null ? '—' : String(value) },
     rowIndex(index) { return (this.payload.query.page - 1) * this.payload.query.size + index + 1 },

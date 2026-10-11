@@ -104,7 +104,8 @@
             <template v-else-if="m.role === 'card' && m.cardType === 'business_query'">
               <business-query-card :payload="m.payload" :busy="busy" :latest="isLatestBusinessQuery(m)"
                 @edit="openQueryEditor(m)"
-                @page="send('把上一次业务查询翻到第' + $event + '页')"
+                @workspace="openQueryWorkspace(m, 1)"
+                @page="openQueryWorkspace(m, $event)"
                 @detail="send('查看工单 ' + $event + ' 的进度和处理总结')" />
             </template>
             <template v-else-if="m.role === 'card' && m.cardType === 'semantic_clarification'">
@@ -261,6 +262,12 @@ export default {
       const queries = this.messages.filter(m => m.role === 'card' && m.cardType === 'business_query')
       // 新一轮即使澄清或失败也取代旧操作入口；后端另核对最新成功查询引用和当前焦点。
       return queries.length > 0 && queries[queries.length - 1] === message && !this.messages.slice(this.messages.indexOf(message) + 1).some(m => m.role === 'user')
+    },
+    /** 明确按钮分页进入固定快照工作区，不产生新的自然语言请求，也不改写原会话中的记录引用。 */
+    openQueryWorkspace(message, page) {
+      if (!this.isCurrentSession() || !message.payload.snapshot) return
+      this.$emit('update:visible', false)
+      this.$router.push({ path: '/query-workspace', query: { run: message.payload.snapshot.id, page: String(page) } })
     },
     isCurrentSession() {
       return !this.disposed && this.sessionUserId === getCurrentUserId()

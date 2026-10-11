@@ -1,0 +1,71 @@
+{
+  "recordedAt": "2026-10-11T13:48:42.462Z",
+  "scope": "final static checks after report and evidence linkage; full Java/frontend runs recorded separately",
+  "checks": [
+    {
+      "name": "comments",
+      "command": "node tools/check-comments.cjs",
+      "chunk_id": "fc460c",
+      "wall_time_seconds": 0.0000119,
+      "exit_code": 0,
+      "original_token_count": 42,
+      "output": "注释检查通过：232 个生产类型、225 个实体字段、44 个请求/表单字段、143 个record、41 个前端模块；44 张表、512 个字段清单。\n"
+    },
+    {
+      "name": "real-model-docs",
+      "command": "node tools/check-docs-real-model.cjs",
+      "chunk_id": "09ac6c",
+      "wall_time_seconds": 0.0000109,
+      "exit_code": 0,
+      "original_token_count": 13,
+      "output": "Real-model documentation check passed (163 files).\n"
+    },
+    {
+      "name": "baseline",
+      "command": "node tools/check-demo-baseline.cjs",
+      "chunk_id": "258570",
+      "wall_time_seconds": 0.0000116,
+      "exit_code": 0,
+      "original_token_count": 23,
+      "output": "V1 business assistant baseline passed; 93 Markdown files and 14 generated flows checked.\n"
+    },
+    {
+      "name": "current-protocol",
+      "command": "node tools/check-no-legacy-compat.cjs",
+      "chunk_id": "bb10af",
+      "wall_time_seconds": 0.0000071,
+      "exit_code": 0,
+      "original_token_count": 26,
+      "output": "Current source compatibility check passed; one V1 baseline, no retired protocols or database adapters.\n"
+    },
+    {
+      "name": "generated-diagrams",
+      "command": "node docs/diagrams/build-semantic-flows.cjs --check",
+      "chunk_id": "3b4aa0",
+      "wall_time_seconds": 0.0000087,
+      "exit_code": 0,
+      "original_token_count": 29,
+      "output": "Generated 14 SVG/Mermaid pages, editable draw.io and standalone HTML in D:\\demo-v1\\demo\\docs\\diagrams\\demo-final\n"
+    },
+    {
+      "name": "tracked-whitespace",
+      "command": "git -c core.safecrlf=false diff --check",
+      "chunk_id": "4787da",
+      "wall_time_seconds": 0.1370529,
+      "exit_code": 0,
+      "original_token_count": 0,
+      "output": ""
+    },
+    {
+      "name": "new-source-whitespace",
+      "command": "@'\nconst cp=require('child_process');const files=cp.execFileSync('git',['ls-files','--others','--exclude-standard','-z'],{encoding:'utf8'}).split('\\0').filter(p=>p&&!p.startsWith('docs/review/p1-query-workspace-2026-10-11/')&&/\\.(?:java|js|cjs|vue|sql|md|json|ps1|mmd)$/.test(p));const failures=[];for(const file of files){const r=cp.spawnSync('git',['-c','core.safecrlf=false','diff','--no-index','--check','--','NUL',file],{encoding:'utf8'});if(![0,1].includes(r.status)||r.stdout.trim()||r.stderr.trim())failures.push({file,exitCode:r.status,output:r.stdout+r.stderr});}console.log(JSON.stringify({checked:files.length,failures,passed:failures.length===0,note:'git diff --no-index returns 1 for nonempty files differing from NUL; only empty diagnostics with exit 0/1 are accepted'}));if(failures.length)process.exit(1);\n'@ | node",
+      "chunk_id": "10b28f",
+      "wall_time_seconds": 0.5679906,
+      "exit_code": 0,
+      "original_token_count": 43,
+      "output": "{\"checked\":22,\"failures\":[],\"passed\":true,\"note\":\"git diff --no-index returns 1 for nonempty files differing from NUL; only empty diagnostics with exit 0/1 are accepted\"}\n"
+    }
+  ],
+  "passed": true,
+  "checkerCorrection": "Original untracked-file wrapper misclassified git diff --no-index exit 1 with empty diagnostics as failure. No product source or expected whitespace rule was changed; explicit error/diagnostic checks now pass."
+}

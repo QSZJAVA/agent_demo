@@ -13,9 +13,24 @@ import java.util.Map;
  * @param rows 当前页事实；工单详情可含steps数组，单条资格核验含eligibility证据对象，非当前页不冒充全部数据
  * @param total 完整筛选范围记录总数，超过扫描预算时不返回部分总数
  * @param summary 完整筛选范围的确定性统计
+ * @param snapshot 持久查询运行及完整性凭据；纯计算阶段尚未保存时为空
  */
 public record BusinessResult(BusinessQuery query,String observedAt,String source,List<FieldInfo> columns,
-        List<Map<String,Object>> rows,int total,Summary summary) {
+        List<Map<String,Object>> rows,int total,Summary summary,Snapshot snapshot) {
+    /** 纯计算结果尚未持久化；业务服务发布前补齐快照，测试可独立验证确定性计算。 */
+    public BusinessResult(BusinessQuery query,String observedAt,String source,List<FieldInfo> columns,List<Map<String,Object>> rows,int total,Summary summary) {
+        this(query,observedAt,source,columns,rows,total,summary,null);
+    }
+    /**
+     * 完整查询运行凭据；快照不赋予执行权，也不表示外部多源拥有全局事务。
+     * @param id 不可变运行标识，分页、导出、分析与对比共同引用
+     * @param expiresAt UTC 有效期，到期必须重新查询
+     * @param completeness COMPLETE，只有完整计算成功才发布
+     * @param consistency 本地读取事务或外部来源观测边界
+     * @param contentHash 查询、列及完整有序事实的 SHA-256
+     * @param scannedRows 本轮实际传入共同谓词的来源行数
+     */
+    public record Snapshot(String id,String expiresAt,String completeness,String consistency,String contentHash,int scannedRows) { }
     /**
      * 同一读取批次的统计；金额按来源币种分组，禁止将不同币种相加。
      * @param count 完整匹配数

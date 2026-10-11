@@ -36,6 +36,8 @@ class BusinessMcpIntegrationTest {
     static String[] args;
     static String setting(String name,String fallback){return System.getenv().getOrDefault(name,fallback);}
     @BeforeAll static void start() {
+        // 输出准确隔离库名，供授权测试前后核对与清理证据归档。
+        System.out.println("ISOLATED_DATABASE_TARGET="+schema);
         args=new String[]{"--server.port=0","--spring.datasource.url=jdbc:mysql://"+setting("DB_HOST","127.0.0.1")+":"+setting("DB_PORT","3306")+"/"+schema+"?createDatabaseIfNotExist=true&serverTimezone=Asia/Shanghai",
                 "--spring.datasource.username="+setting("DB_USERNAME","root"),"--spring.datasource.password="+setting("DB_PASSWORD",""),
                 "--spring.data.redis.host="+setting("REDIS_HOST","127.0.0.1"),"--spring.data.redis.port="+setting("REDIS_PORT","6379"),"--spring.data.redis.password="+setting("REDIS_PASSWORD",""),
@@ -147,7 +149,7 @@ class BusinessMcpIntegrationTest {
         assertEquals(1,businessQuery(admin,readQuery(com.example.report.assistant.BusinessQuery.Domain.DISPATCH,"A",List.of(other))).total());
     }
     @Test void boundedQueryFailsRatherThanReturningPartialAggregate() {
-        var service=new BusinessReadService(context.getBean(BusinessQueries.class),new org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate(jdbc),context.getBean(WorkOrderProvider.class),1,120,context.getBean(BusinessQueryProperties.class),context.getBean(DispatchEligibilityService.class));
+        var service=new BusinessReadService(context.getBean(BusinessQueries.class),new org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate(jdbc),context.getBean(WorkOrderProvider.class),1,120,context.getBean(BusinessQueryProperties.class),context.getBean(DispatchEligibilityService.class),context.getBean(com.example.report.workspace.QuerySnapshotStore.class));
         assertThrows(ApiException.class,()->service.query(reader,readQuery(com.example.report.assistant.BusinessQuery.Domain.REPORT,"A",List.of())));
     }
     @Test void readOnlyDispatchQueryShowsExpiredPendingPlanWithoutMutatingIt() {

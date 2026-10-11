@@ -62,6 +62,8 @@ class TracePersistenceIntegrationTest {
 
     @BeforeAll static void database() throws Exception {
         schema = "trace_it_" + UUID.randomUUID().toString().replace("-", "");
+        // 输出准确隔离库名，供授权测试前后核对与清理证据归档。
+        System.out.println("ISOLATED_DATABASE_TARGET="+schema);
         String host = System.getenv().getOrDefault("TRACE_DB_HOST", "127.0.0.1");
         String port = System.getenv().getOrDefault("TRACE_DB_PORT", "3306");
         String url = "jdbc:mysql://" + host + ":" + port + "/" + schema

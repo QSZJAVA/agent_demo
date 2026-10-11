@@ -4,6 +4,7 @@
 import Vue from 'vue'
 import Alert from 'element-ui/lib/alert'
 import Aside from 'element-ui/lib/aside'
+import Badge from 'element-ui/lib/badge'
 import Button from 'element-ui/lib/button'
 import Card from 'element-ui/lib/card'
 import Checkbox from 'element-ui/lib/checkbox'
@@ -11,6 +12,7 @@ import CheckboxGroup from 'element-ui/lib/checkbox-group'
 import Collapse from 'element-ui/lib/collapse'
 import CollapseItem from 'element-ui/lib/collapse-item'
 import Container from 'element-ui/lib/container'
+import DatePicker from 'element-ui/lib/date-picker'
 import Dialog from 'element-ui/lib/dialog'
 import Drawer from 'element-ui/lib/drawer'
 import Form from 'element-ui/lib/form'
@@ -41,8 +43,8 @@ import './styles/global.css'
 import BusinessLabel from './components/BusinessLabel.vue'
 
 const components = [
-  Alert, Aside, Button, Card, Checkbox, CheckboxGroup, Collapse, CollapseItem,
-  Container, Dialog, Drawer, Form, FormItem, Header, Input, InputNumber, Main,
+  Alert, Aside, Badge, Button, Card, Checkbox, CheckboxGroup, Collapse, CollapseItem,
+  Container, DatePicker, Dialog, Drawer, Form, FormItem, Header, Input, InputNumber, Main,
   Menu, MenuItem, Option, Pagination, Select, Switch, TabPane, Table, TableColumn,
   Tabs, Tag
 ]
