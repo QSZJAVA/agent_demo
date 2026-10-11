@@ -1,7 +1,8 @@
 /** 回放预期与实际查询的独立条件核验；只归一明确的字段/运算等价，不用当前数据碰巧相同代替语义一致。 */
 function canonicalField(field,domain){return domain==='REPORT'&&field==='counterpartyName'?'customerName':field;}
 const numericTypes=new Set(['decimal','integer','long']);
-function filterField(field,domain){return ['saleDate','expenseDate','dueDate'].includes(field)?'date':canonicalField(field,domain);}
+/** 本仓库报表来源将这些日期字段投影为公共业务日期；其他业务域不能据同名字段推断等价。 */
+function filterField(field,domain){return domain==='REPORT'&&['saleDate','expenseDate','dueDate'].includes(field)?'date':canonicalField(field,domain);}
 /** 以十进制整数和小数位数精确比较，避免大金额或细小小数被Number舍入成同一端点。 */
 function compareDecimal(left,right) {
   const parse=value=>{const m=value.match(/^(-?)(\d+)(?:\.(\d+))?$/);return m?{coefficient:BigInt(m[1]+m[2]+(m[3]||'')),scale:(m[3]||'').length}:null;};
@@ -92,4 +93,4 @@ function reportScopeMatches(expected,query,expectedReports,expectedRows) {
     && expectedRows.length===1 && actual.length>0 && actual.every(id=>allowed.includes(id))
     && actual.includes(expectedRows[0].reportId);
 }
-module.exports={compareQueryFilters,canonicalField,reportScopeMatches};
+module.exports={compareQueryFilters,canonicalField,filterField,reportScopeMatches,compareDecimal};

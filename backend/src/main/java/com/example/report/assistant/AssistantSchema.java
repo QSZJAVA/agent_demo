@@ -28,7 +28,7 @@ public final class AssistantSchema {
         return object(props("field",string(false),"operator",operator,
                 "values",array(string(false),30)));
     }
-    /** 模型一次选择业务查询或已有派单规划；澄清只输出说明，不携带可执行查询。 */
+    /** 模型一次选择业务查询或已有派单规划；澄清提供说明及可核验候选，不携带可执行查询。 */
     public static String planSchema() {
         var nullableQuery=new LinkedHashMap<>(querySchema());nullableQuery.put("type",List.of("object","null"));
         var removals=array(object(props("field",string(false),"evidence",string(false))),16);
@@ -42,8 +42,11 @@ public final class AssistantSchema {
         var dispatch=object(props("intent",intent,"source",enumeration("EXPLICIT_SCOPE","PREVIEW","PLAN","QUERY_ROWS","QUERY_ALL"),
                 "sourceRef",string(true),"referenceKeys",references,"evidence",string(false)));
         dispatch.put("type",List.of("object","null"));
+        var clarificationOptions=object(props("kind",enumeration("COMPANY","REPORT","FIELD","VALUE"),"domain",props("type",List.of("string","null"),"enum",Arrays.asList("REPORT","DISPATCH","WORK_ORDER",null)),"companyCode",string(true),"reportId",string(true),"field",string(true),"values",array(string(false),8)));
+        clarificationOptions.put("type",List.of("object","null"));
+        clarificationOptions.put("description","仅CLARIFY且存在2至8个可核实候选时提供。COMPANY使用授权公司代码；REPORT使用授权报表ID，两者domain/companyCode/reportId/field均为空。FIELD给domain、companyCode、reportId及真实字段名values，field为空。VALUE给domain、companyCode、reportId、field和businessDictionary中同一范围已声明的枚举原值。不能跨公司或数据域拼凑候选，不提供未授权、未知或虚构选项。其他情况显式为null。");
         return JsonUtil.toJson(object(props("route",enumeration("BUSINESS_QUERY","DISPATCH","HELP","CLARIFY"),"query",nullableQuery,
-                "followUp",Map.of("type","boolean"),"clarification",string(true),"removedFilters",removals,"dispatch",dispatch)));
+                "followUp",Map.of("type","boolean"),"clarification",string(true),"removedFilters",removals,"dispatch",dispatch,"clarificationOptions",clarificationOptions)));
     }
     /** 复核先声明原文语义，再给完整期望；通过与差异由程序计算，不接受自由文本自报结论。 */
     public static String reviewSchema() {

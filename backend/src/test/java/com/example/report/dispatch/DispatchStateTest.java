@@ -199,7 +199,8 @@ class DispatchStateTest {
         assertNotNull(states.previews().get(old).message());
         assertEquals(DispatchPreview.ACTIVE, states.previews().get(fresh).status());
         assertEquals(DispatchPlan.EXPIRED, states.plans().get(plan).status());
-        assertTrue(cards.conversationStates(TestCatalog.USER2, "c1").previews().isEmpty());
+        assertTrue(cards.previewStates(TestCatalog.USER2, List.of(old, fresh)).isEmpty());
+        assertTrue(cards.planStates(TestCatalog.USER2, List.of(plan)).isEmpty());
         // 规则变化后，还没被使用的有效预览在读取状态时就显示为失效
         h.ruleVersion.set("rules-v2");
         assertEquals(StateReason.RULE_CHANGED, cards.previewStates(USER1, List.of(fresh)).get(fresh).reason());

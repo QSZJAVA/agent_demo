@@ -217,6 +217,18 @@ public class ConversationService {
         submit(m, false);
     }
 
+    /**
+     * 保存语义质量元数据；稳定事件键使同一轮诊断或同一反馈请求只追加一次，原始模型输入和响应不得传入。
+     * @param key 调用方已验证的轮次或反馈幂等键，不作为读取授权
+     * @return 可靠事件标识；展示投影即使延迟也可以读取原事件
+     */
+    public long logSemanticEvidence(String conversationId,String userId,String kind,String key,Object payload) {
+        if(!List.of("assistant_diagnostic","assistant_feedback").contains(kind))throw new ApiException(422,"语义证据类型无效");
+        AgentMessage message=base(conversationId,userId,AgentMessage.ROLE_TOOL_RESULT);message.setToolName(kind);
+        message.setContent(com.example.report.operations.SensitiveData.text(JsonUtil.toJson(payload)));
+        long event=journal.message(message,false,"semantic:"+kind+":"+conversationId+":"+key);projector.afterCommit(event);return event;
+    }
+
     /** 结构化卡片只保存摘要与首屏；全部条目留在分页快照表中。*/
     public void logCard(String conversationId, String userId, String cardType, Object payload, String previewId, String planId) {
         AgentMessage m = base(conversationId, userId, AgentMessage.ROLE_CARD);

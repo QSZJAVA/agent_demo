@@ -10,7 +10,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 /**
- * 销售报表（来源表：report_sales）
+ * 销售报表（来源表：report_sales）；金额通过十进制字符串传输，服务端仍保留 BigDecimal 精度。
  */
 @Data
 @TableName("report_sales")
@@ -30,6 +30,7 @@ public class SalesReport {
     /** 销售产品名称；允许为空，表示尚无该项数据。 */
     private String productName;
     /** 业务金额；小数精度2位，币种沿用来源业务账本。*/
+    @com.fasterxml.jackson.databind.annotation.JsonSerialize(using = com.example.report.common.DecimalStringSerializer.class)
     private BigDecimal amount;
     /** 销售发生日期；允许为空，表示尚无该项数据。 */
     private LocalDate saleDate;

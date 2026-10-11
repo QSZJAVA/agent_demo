@@ -11,13 +11,16 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.support.TransactionOperations;
 import org.slf4j.MDC;
 import lombok.extern.slf4j.Slf4j;
+import java.nio.charset.StandardCharsets;
+import java.sql.Timestamp;
+import java.time.LocalDateTime;
 import java.util.*;
 import java.util.concurrent.*;
 
 /**
  * 持久化派单命令的入队、认领、执行及恢复服务。
  * 提交先落库，再由工作线程执行；只认领 QUEUED 任务，RUNNING 中断后置 FAILED 并要求核对，绝不自动重新派单。
- * 租户锁串行化容量检查，认领令牌和清单执行版本阻止过期工作线程回写；读取结果时再次验证当前业务授权。
+ * 租户锁串行化容量检查，认领令牌和清单执行版本阻止过期工作线程回写；按当前业务授权读取任务和有界历史，不从任务负载恢复执行授权。
  */
 @Slf4j
 @Service
@@ -42,7 +45,40 @@ public class DispatchJobService {
      * @param idempotencyKey 首次提交前固定的操作幂等键，相同键不得对应不同负载
      */
     public record Job(String id,String planId,String action,String status,String message,Object result,String idempotencyKey) {}
+    /**
+     * 历史任务中可继续查看的清单链接；只提供当前有权读取的既有对象，不携带执行授权。
+     * @param planId 已持久化清单标识，详情和追溯入口仍须独立校验权限
+     * @param conversationId 本人仍处于活动状态的来源会话；手工清单、他人会话或已删除会话为空
+     * @param reportId DIRECT 请求已验证的稳定报表标识；普通或跨报表清单为空
+     * @param status 清单当前状态，不用历史任务状态推断业务成功
+     */
+    public record HistoryPlan(String planId,String conversationId,String reportId,String status) {}
+    /**
+     * 我的任务列表的最小展示信息；与单任务恢复协议分离，禁止带出幂等键、原始负载或链路凭据。
+     * @param id 任务标识，仅可用于读取既有任务
+     * @param action 任务动作，取值与 Request.action 一致
+     * @param status QUEUED、RUNNING、SUCCEEDED 或 FAILED；SUCCEEDED 不等同于全部条目派单成功
+     * @param message 脱敏任务说明；DIRECT 无可验证结果时只给通用进度或不可用说明
+     * @param createdAt 持久化创建时间，按此时间与 id 倒序稳定分页
+     * @param updatedAt 任务最后更新时间，不参与分页，避免状态变化导致跨页重复
+     * @param resultAvailable 是否仍保留业务结果；false 时不得从请求负载重建结果
+     * @param plans 当前有权访问的清单链接；DIRECT 结果过期后为空
+     */
+    public record HistoryEntry(String id,String action,String status,String message,LocalDateTime createdAt,
+                               LocalDateTime updatedAt,boolean resultAvailable,List<HistoryPlan> plans) {}
+    /**
+     * 经当前数据授权过滤的任务历史页；扫描预算与返回条数分开限制。
+     * @param rows 本页可读任务，最多请求的 size 条；权限过滤后允许为空
+     * @param nextCursor 最后扫描位置及筛选绑定；为空表示已扫描到末尾，换筛选须从首页开始
+     */
+    public record HistoryPage(List<HistoryEntry> rows,String nextCursor) {}
+    /** 服务端分页位置只影响扫描起点，不能替代 SQL 中的租户和用户边界。 */
+    private record HistoryCursor(LocalDateTime createdAt,String id,String status,String owner) {}
+    /** 本次读取已验证的请求和业务结果，原始任务负载只用于权限检查。 */
+    private record ReadableJob(Request request,Map<String,Object> result,List<String> planIds) {}
     private static final Set<String> ACTIONS=Set.of("CONFIRM","RETRY_FAILED","RECONCILE","DIRECT","OP_RETRY_FAILED","OP_RECONCILE");
+    private static final Set<String> STATUSES=Set.of("QUEUED","RUNNING","SUCCEEDED","FAILED");
+    private static final int HISTORY_SCAN_LIMIT=200;
     private final JdbcTemplate jdbc;
     private final TransactionOperations tx;
     private final PermissionService permissions;
@@ -143,23 +179,143 @@ public class DispatchJobService {
         var rows=jdbc.queryForList("SELECT * FROM dispatch_job WHERE id=? AND tenant_id=? AND user_id=?",id,user.tenantId(),user.userId());
         if(rows.isEmpty()) throw ApiException.notFound("派单任务不存在");
         var row=rows.get(0);
+        ReadableJob readable=readable(user,row);
+        return new Job(id,(String)row.get("plan_id"),(String)row.get("action"),(String)row.get("status"),
+                readMessage(row,readable),readable.result(),(String)row.get("idempotency_key"));
+    }
+
+    /**
+     * 统一单任务和历史列表的读取权限；保留的 DIRECT 结果必须逐清单复核，不能只检查报表权限。
+     * 无结果时不读取原始记录范围来猜测历史业务事实，消息由 readMessage 降为不含业务数据的任务说明。
+     */
+    private ReadableJob readable(CurrentUser user,Map<String,Object> row) {
+        if(!Objects.equals(user.tenantId(),row.get("tenant_id")) || !Objects.equals(user.userId(),row.get("user_id")))
+            throw ApiException.notFound("派单任务不存在");
         Request request=decode(row);
+        Map<String,Object> result=row.get("result_json")==null?null:JsonUtil.toMap(row.get("result_json").toString());
+        List<String> linked;
         if(request.planId()!=null) {
             if(request.action().startsWith("OP_")) workbench.validateAction(user,request.planId(),"reconcile","读取任务状态");
             else plans.pageOwned(user,request.planId(),1,1);
+            linked=List.of(request.planId());
         } else {
+            catalog.refreshForValidation();
             var report=catalog.find(request.reportId()).orElseThrow(()->ApiException.notFound("报表不存在"));
             if(!user.tenantId().equals(report.tenantId()) || !user.hasPermission(report.permissionCode())) throw ApiException.notFound("派单任务不存在");
-            // Direct results contain one or more plans: apply their current data grants before returning facts.
-            if(row.get("result_json")!=null) {
-                var result=JsonUtil.toMap(row.get("result_json").toString());
-                Object items=result.get("plans");
-                if(items instanceof List<?> list) for(Object item:list) if(item instanceof Map<?,?> p && p.get("planId")!=null)
-                    plans.pageOwned(user,p.get("planId").toString(),1,1);
+            linked=directPlanIds(result);
+            for(String planId:linked) plans.pageOwned(user,planId,1,1);
+        }
+        return new ReadableJob(request,result,linked);
+    }
+
+    /** DIRECT 只从已保存结果提取清单关联；缺失或异常结构不得被当作已经完成权限核对。 */
+    private static List<String> directPlanIds(Map<String,Object> result) {
+        if(result==null)return List.of();
+        if(!(result.get("plans") instanceof List<?> items) || items.size()>50)
+            throw new ApiException(502,"任务结果缺少可核对的清单信息");
+        var ids=new ArrayList<String>();
+        for(Object item:items) {
+            if(!(item instanceof Map<?,?> plan) || !(plan.get("planId") instanceof String id)
+                    || id.isBlank() || id.length()>64 || ids.contains(id))
+                throw new ApiException(502,"任务结果缺少可核对的清单信息");
+            ids.add(id);
+        }
+        return List.copyOf(ids);
+    }
+
+    /**
+     * DIRECT 无结果时没有完整的历史公司范围可供复核，不能返回可能含单据或公司信息的旧错误消息。
+     * 保留任务本身的进度；结果过期和失败不伪装成可重新执行的命令。
+     */
+    private static String readMessage(Map<String,Object> row,ReadableJob readable) {
+        if("DIRECT".equals(readable.request().action()) && readable.result()==null) {
+            return switch(Objects.toString(row.get("status"),"")) {
+                case "QUEUED" -> "任务已接收，等待执行";
+                case "RUNNING" -> "任务正在执行，请稍后刷新";
+                case "SUCCEEDED" -> "任务结果保留期已到期，关联清单信息不可用";
+                default -> "任务未完成或结果已不可用；请刷新报表并核对既有清单，不会自动重发";
+            };
+        }
+        return SensitiveData.text((String)row.get("message"));
+    }
+
+    /**
+     * 按创建时间和 id 倒序读取本人任务；只扫描有限候选，过滤撤销权限的记录后仍返回扫描游标。
+     * 本方法只查询，不触发模型、确认、认领或重试；列表不返回任务负载、幂等键和原始业务结果。
+     * @param user 当前身份，SQL 始终按租户和用户限定
+     * @param before 上一页返回的游标；首次查询为空，换筛选须清空
+     * @param status 精确任务状态过滤；为空表示全部，不接受其他值或空字符串
+     * @param size 每页可见任务数，范围 1 至 50
+     * @return 当前可见任务和最后扫描位置，空 rows 与非空游标表示还可继续扫描
+     */
+    public HistoryPage history(CurrentUser user,String before,String status,int size) {
+        if(size<1 || size>50 || (status!=null && !STATUSES.contains(status)))
+            throw new ApiException("任务历史筛选或每页条数无效");
+        HistoryCursor cursor=parseHistoryCursor(user,before,status);
+        var args=new ArrayList<Object>();args.add(user.tenantId());args.add(user.userId());
+        // 普通清单任务只需要已有 plan_id，不为列表载入整批业务结果；DIRECT 关联最多 50 份清单且仅存在于结果中。
+        var sql=new StringBuilder("SELECT id,tenant_id,user_id,plan_id,action,status,message,payload_json,CASE WHEN action='DIRECT' THEN result_json END AS result_json,(result_json IS NOT NULL) AS result_available,created_at,updated_at FROM dispatch_job WHERE tenant_id=? AND user_id=?");
+        if(status!=null){sql.append(" AND status=?");args.add(status);}
+        if(cursor!=null) {
+            sql.append(" AND (created_at<? OR (created_at=? AND id<?))");
+            args.add(cursor.createdAt());args.add(cursor.createdAt());args.add(cursor.id());
+        }
+        sql.append(" ORDER BY created_at DESC,id DESC LIMIT ").append(HISTORY_SCAN_LIMIT+1);
+        var candidates=jdbc.queryForList(sql.toString(),args.toArray());
+        var visible=new ArrayList<HistoryEntry>();int scanned=0;
+        while(scanned<Math.min(HISTORY_SCAN_LIMIT,candidates.size()) && visible.size()<size) {
+            var row=candidates.get(scanned++);
+            try {
+                ReadableJob readable=readable(user,row);
+                var links=new ArrayList<HistoryPlan>();
+                for(String planId:readable.planIds()) {
+                    var plan=repository.find(planId).orElseThrow(()->ApiException.notFound("清单不存在"));
+                    String conversation=plan.getConversationId();
+                    if(conversation!=null && (!PermissionService.owns(user,plan.getTenantId(),plan.getUserId())
+                            || !Boolean.TRUE.equals(jdbc.queryForObject("SELECT EXISTS(SELECT 1 FROM agent_conversation WHERE id=? AND tenant_id=? AND user_id=? AND status='active')",Boolean.class,conversation,user.tenantId(),user.userId()))))
+                        conversation=null;
+                    links.add(new HistoryPlan(planId,conversation,"DIRECT".equals(readable.request().action())?readable.request().reportId():null,plan.getStatus()));
+                }
+                visible.add(new HistoryEntry(row.get("id").toString(),row.get("action").toString(),row.get("status").toString(),
+                        readMessage(row,readable),historyTime(row,"created_at"),historyTime(row,"updated_at"),
+                        Boolean.TRUE.equals(row.get("result_available")) || (row.get("result_available") instanceof Number count && count.intValue()==1),List.copyOf(links)));
+            } catch(ApiException denied) {
+                // 无权或对象已不可读的记录整条隐藏，不能返回部分 DIRECT 清单或旧错误消息；其他故障必须如实失败。
+                if(denied.getCode()!=403 && denied.getCode()!=404)throw denied;
             }
         }
-        Object result=row.get("result_json")==null?null:JsonUtil.toMap(row.get("result_json").toString());
-        return new Job(id,(String)row.get("plan_id"),(String)row.get("action"),(String)row.get("status"),(String)row.get("message"),result,(String)row.get("idempotency_key"));
+        String next=null;
+        if(scanned<candidates.size() && scanned>0) {
+            var last=candidates.get(scanned-1);
+            next=Base64.getUrlEncoder().withoutPadding().encodeToString(JsonUtil.toJson(new HistoryCursor(
+                    historyTime(last,"created_at"),last.get("id").toString(),status,historyOwner(user))).getBytes(StandardCharsets.UTF_8));
+        }
+        return new HistoryPage(List.copyOf(visible),next);
+    }
+
+    /** 游标绑定原筛选和当前用户；严格拒绝畸形结构，权限仍由每次 SQL 和业务范围检查决定。 */
+    private static HistoryCursor parseHistoryCursor(CurrentUser user,String before,String status) {
+        if(before==null)return null;
+        try {
+            if(before.length()>1024 || !before.matches("[A-Za-z0-9_-]+"))throw new IllegalArgumentException();
+            var cursor=JsonUtil.MAPPER.readerFor(HistoryCursor.class)
+                    .with(com.fasterxml.jackson.databind.DeserializationFeature.FAIL_ON_TRAILING_TOKENS)
+                    .<HistoryCursor>readValue(Base64.getUrlDecoder().decode(before));
+            if(cursor.createdAt()==null || cursor.createdAt().getYear()<1000 || cursor.createdAt().getYear()>9999
+                    || cursor.id()==null || !cursor.id().matches("[a-f0-9]{32}")
+                    || !Objects.equals(cursor.status(),status) || !historyOwner(user).equals(cursor.owner()))throw new IllegalArgumentException();
+            return cursor;
+        } catch(Exception invalid) {throw new ApiException("任务历史游标无效或筛选已变化，请从第一页重新查询");}
+    }
+
+    private static String historyOwner(CurrentUser user) {return Digests.sha256(JsonUtil.toJson(List.of(user.tenantId(),user.userId())));}
+
+    /** JDBC 驱动可能返回 Timestamp 或 LocalDateTime；两者均保留数据库毫秒精度，不使用系统时区转换分页位置。 */
+    private static LocalDateTime historyTime(Map<String,Object> row,String field) {
+        Object value=row.get(field);
+        if(value instanceof Timestamp timestamp)return timestamp.toLocalDateTime();
+        if(value instanceof LocalDateTime local)return local;
+        throw new IllegalStateException("任务时间字段无法读取");
     }
 
     /**

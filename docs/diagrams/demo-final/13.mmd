@@ -1,0 +1,29 @@
+flowchart TD
+  dictionary["管理员维护业务词典<br/>名称、字段、单位、枚举及日历"]:::ui
+  dictionaryGuard{"当前授权与类型校验<br/>范围、冲突及读取时版本"}:::guard
+  version["发布定义与版本历史<br/>递增目录版本，旧执行对象失效"]:::store
+  request["用户本轮明确请求<br/>自然语言、完整条件编辑或候选选择"]:::ui
+  reference{"会话租约与当前引用<br/>拒绝过期卡片、权限或词典变化"}:::guard
+  model["目标、规划与独立复核 → MODEL<br/>同一授权词典及参考时刻"]:::model
+  review{"完整语义与业务预检<br/>保留AND/OR及用户选择<br/>发布前再次核对权限和词典"}:::guard
+  card["条件解释与澄清卡片<br/>最新引用可操作，刷新恢复快照<br/>仍须另行确认派单"]:::ui
+  diagnostic["可靠会话阶段诊断<br/>耗时、修正及有效原生用量<br/>不保存原始模型输入输出"]:::store
+  feedback["本人诊断与幂等反馈<br/>当前权限过滤，反馈待审核"]:::ui
+  evaluate["版本化语料与独立事实评分<br/>保存每次失败和版本差异<br/>预留工程语料不冒称业务盲测"]:::agent
+  dictionary --> dictionaryGuard
+  dictionaryGuard --> version
+  version --> model
+  request --> reference
+  reference --> model
+  model --> review
+  review --> card
+  model --> diagnostic
+  diagnostic --> feedback
+  feedback --> evaluate
+  classDef ui fill:#eaf2ff,stroke:#386bc1,color:#1e354c
+  classDef agent fill:#edf5ff,stroke:#3778a8,color:#1e354c
+  classDef model fill:#f3edff,stroke:#8751bf,color:#1e354c
+  classDef business fill:#e8f7ef,stroke:#268255,color:#1e354c
+  classDef guard fill:#fff4dc,stroke:#b58022,color:#1e354c
+  classDef error fill:#fff0ef,stroke:#ba534e,color:#1e354c
+  classDef store fill:#edf1f5,stroke:#60768b,color:#1e354c

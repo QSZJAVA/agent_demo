@@ -94,7 +94,7 @@ class ModelIntentTransportTest {
         var request=new com.example.report.web.AgentController.ChatRequest();
         request.setMessage("排除单据900000000000000001");
         controller.chat("user1",request);
-        org.mockito.Mockito.verify(chat).chat(permissions.resolve("user1"), null, request.getMessage(), null, null);
+        org.mockito.Mockito.verify(chat).chat(permissions.resolve("user1"), null, request.getMessage(), null, null, null, null);
     }
 
     @Test void nativeSchemaIsActuallySentAndToolsAreAbsent() throws Exception {

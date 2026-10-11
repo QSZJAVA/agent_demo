@@ -10,7 +10,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 /**
- * 费用报表（来源表：report_expense）
+ * 费用报表（来源表：report_expense）；金额通过十进制字符串传输，服务端仍保留 BigDecimal 精度。
  */
 @Data
 @TableName("report_expense")
@@ -30,6 +30,7 @@ public class ExpenseReport {
     /** 费用类型；允许为空，表示尚无该项数据。 */
     private String expenseType;
     /** 业务金额；小数精度2位，币种沿用来源业务账本。*/
+    @com.fasterxml.jackson.databind.annotation.JsonSerialize(using = com.example.report.common.DecimalStringSerializer.class)
     private BigDecimal amount;
     /** 费用发生日期；允许为空，表示尚无该项数据。 */
     private LocalDate expenseDate;

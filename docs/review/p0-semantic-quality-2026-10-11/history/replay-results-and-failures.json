@@ -1,0 +1,3036 @@
+[
+  {
+    "original": "browser-first/regression-first.json",
+    "sha256": "648aeec5edf30b089410ac181beac29a016d0d05cb69af4cd530246fa83d4276",
+    "recordedAt": "2026-10-11T07:28:35.648Z",
+    "completedAt": "2026-10-11T07:31:38.241Z",
+    "corpus": "tools/fixtures/semantic-quality-regression-v1.json",
+    "corpusSha256": "efae27ba6fda3b364f51c243192b377ce6e2a2c12c1971feaae30b763e9eeae8",
+    "scorerSha256": "94e846e77dd8b6e6f0334caaf11aef59cfd1dcd23203ef70e71281e898861efb",
+    "sourceSha256": "62b2d6c1374eb42a05841a73501953724514c8e4aabf09fd833d51d7d668cfa1",
+    "summary": {
+      "attempted": 16,
+      "passed": 13,
+      "failed": 3,
+      "counts": {
+        "CORRECT_QUERY": 9,
+        "EXPECTED_INPUT_REJECTION": 2,
+        "INCOMPLETE_RESULT": 1,
+        "UNNECESSARY_CLARIFICATION": 2,
+        "EXPECTED_CLARIFICATION": 2
+      },
+      "explicitQuery": {
+        "total": 11,
+        "passed": 9,
+        "firstPass": 6,
+        "firstPassRate": 0.5454545454545454,
+        "unnecessaryClarifications": 2
+      },
+      "clarification": {
+        "total": 3,
+        "passed": 2
+      },
+      "latencyMs": {
+        "samples": 16,
+        "p50": 9542,
+        "p95": 19645,
+        "p99": 19645
+      },
+      "stages": {
+        "PURPOSE": {
+          "calls": 14,
+          "failures": 0,
+          "latencyMs": {
+            "samples": 14,
+            "p50": 2235,
+            "p95": 3850,
+            "p99": 3850
+          }
+        },
+        "PLAN": {
+          "calls": 18,
+          "failures": 0,
+          "latencyMs": {
+            "samples": 18,
+            "p50": 2979,
+            "p95": 5942,
+            "p99": 5942
+          }
+        },
+        "REVIEW": {
+          "calls": 16,
+          "failures": 0,
+          "latencyMs": {
+            "samples": 16,
+            "p50": 4874,
+            "p95": 7304,
+            "p99": 7304
+          }
+        }
+      },
+      "modelCalls": 48,
+      "repairCalls": 6,
+      "usage": {
+        "complete": true,
+        "measuredCalls": 48,
+        "totalCalls": 48,
+        "inputTokens": 651776,
+        "outputTokens": 17522,
+        "cost": null,
+        "costComplete": false
+      }
+    },
+    "failures": [
+      {
+        "caseId": "company-clarification/1",
+        "message": "我要查询销售报表，尚未决定选哪家公司。请先列出我当前有权查看的公司供我选择，选好后显示那家公司的全部销售记录。",
+        "interaction": "TEXT",
+        "expected": {
+          "kind": "clarify",
+          "optionKind": "COMPANY",
+          "values": [
+            "A",
+            "B"
+          ]
+        },
+        "conversationId": "c6487d42c7fe44f19c51b7ccfed13f59",
+        "passed": false,
+        "category": "INCOMPLETE_RESULT",
+        "errors": [
+          "CLARIFICATION_OPTIONS"
+        ],
+        "durationMs": 9317,
+        "diagnostic": {
+          "requestId": "b0f19dfcdad84912ae25956e15c9aa74",
+          "outcome": "CLARIFY",
+          "dictionaryHash": "cec06858d9cf4976eed42cc44d4b704f32b4ef6869a5e659baf14d33d30e8063",
+          "schemaHashes": {
+            "REVIEW": "dd4bdb79a48dea29668f3bfd56e3d745c8870ecb55d18ee68bea843146f874a6",
+            "PURPOSE": "61e6776228609e19abe00124b4fd7b558a4cffe6ec5fa81179d37f03b206d1d1",
+            "PLAN": "15e0cd1ac6dc52db8e8f995c5526f2bf528336e2c0c8377701dad555de368962"
+          },
+          "durationMs": 9107,
+          "modelCalls": 3,
+          "repairCalls": 0,
+          "firstPass": false,
+          "usageComplete": true,
+          "inputTokens": 38566,
+          "outputTokens": 743,
+          "cost": null,
+          "costComplete": false,
+          "calls": [
+            {
+              "stage": "PURPOSE",
+              "attempt": 1,
+              "contractHash": "6066d46696c0271315f65ae8cbe743282768bf9d9b761f0cd2541ef9efb9c161",
+              "inputBytes": 8004,
+              "outputBytes": 512,
+              "inputTokens": 4833,
+              "outputTokens": 127,
+              "usageComplete": true,
+              "model": "deepseek-v4.1-flash",
+              "status": "RETURNED",
+              "failure": null,
+              "durationMs": 2362
+            },
+            {
+              "stage": "PLAN",
+              "attempt": 1,
+              "contractHash": "14fbb8f6cf5508d1faea5e3f3a9e9676c2a37a30fc73fe5feb655cbe58a67980",
+              "inputBytes": 14992,
+              "outputBytes": 375,
+              "inputTokens": 14936,
+              "outputTokens": 98,
+              "usageComplete": true,
+              "model": "deepseek-v4.1-flash",
+              "status": "RETURNED",
+              "failure": null,
+              "durationMs": 2966
+            },
+            {
+              "stage": "REVIEW",
+              "attempt": 1,
+              "contractHash": "98be2cddccd26e122a3451bc8a39cb5d6cbb75c09f7a1f374f51cd618fa66c08",
+              "inputBytes": 15084,
+              "outputBytes": 2111,
+              "inputTokens": 18797,
+              "outputTokens": 518,
+              "usageComplete": true,
+              "model": "deepseek-v4.1-flash",
+              "status": "RETURNED",
+              "failure": null,
+              "durationMs": 3764
+            }
+          ],
+          "validations": [
+            {
+              "outcome": "VALIDATED",
+              "stage": "PURPOSE",
+              "detail": ""
+            },
+            {
+              "outcome": "PASSED",
+              "stage": "PRECHECK",
+              "detail": ""
+            },
+            {
+              "outcome": "PASSED",
+              "stage": "PRECHECK",
+              "detail": ""
+            },
+            {
+              "outcome": "VALIDATED",
+              "stage": "REVIEW",
+              "detail": ""
+            },
+            {
+              "outcome": "ACCEPTED",
+              "stage": "PLAN",
+              "detail": ""
+            }
+          ],
+          "route": "CLARIFY",
+          "message": "我要查询销售报表，尚未决定选哪家公司。请先列出我当前有权查看的公司供我选择，选好后显示那家公司的全部销售记录。",
+          "scope": "SEMANTIC_PLANNING",
+          "referenceTime": "2026-10-11T07:30:26.605538Z"
+        },
+        "truth": null,
+        "events": [
+          {
+            "type": "conversation",
+            "data": {
+              "requestId": "b0f19dfcdad84912ae25956e15c9aa74",
+              "title": "",
+              "conversationId": "c6487d42c7fe44f19c51b7ccfed13f59"
+            }
+          },
+          {
+            "type": "semantic_clarification",
+            "data": {
+              "choices": [
+                {
+                  "label": "A",
+                  "value": "A"
+                },
+                {
+                  "label": "B",
+                  "value": "B"
+                },
+                {
+                  "label": "C",
+                  "value": "C"
+                }
+              ],
+              "kind": "COMPANY",
+              "question": "需要先确定要查询哪家公司的销售报表记录，请从当前有权查看的公司中选择一家。",
+              "clarificationRef": "b0f19dfcdad84912ae25956e15c9aa74"
+            }
+          },
+          {
+            "type": "text",
+            "data": {
+              "delta": "需要先确定要查询哪家公司的销售报表记录，请从当前有权查看的公司中选择一家。 本轮未应用任何修改。"
+            }
+          },
+          {
+            "type": "done",
+            "data": {}
+          }
+        ]
+      },
+      {
+        "caseId": "company-clarification/2",
+        "message": "选择A公司。",
+        "interaction": "CHOICE",
+        "expected": {
+          "kind": "query",
+          "domain": "REPORT",
+          "view": "LIST",
+          "companyCode": "A",
+          "reportIds": [
+            "rpt-sales-order"
+          ],
+          "where": []
+        },
+        "conversationId": "c6487d42c7fe44f19c51b7ccfed13f59",
+        "passed": false,
+        "category": "UNNECESSARY_CLARIFICATION",
+        "errors": [
+          "MISSING_QUERY"
+        ],
+        "durationMs": 15594,
+        "diagnostic": {
+          "requestId": "dacd833f1d984f888596b19f5872ab7c",
+          "outcome": "CLARIFY",
+          "dictionaryHash": "cec06858d9cf4976eed42cc44d4b704f32b4ef6869a5e659baf14d33d30e8063",
+          "schemaHashes": {
+            "REVIEW": "dd4bdb79a48dea29668f3bfd56e3d745c8870ecb55d18ee68bea843146f874a6",
+            "PURPOSE": "61e6776228609e19abe00124b4fd7b558a4cffe6ec5fa81179d37f03b206d1d1",
+            "PLAN": "15e0cd1ac6dc52db8e8f995c5526f2bf528336e2c0c8377701dad555de368962"
+          },
+          "durationMs": 15462,
+          "modelCalls": 4,
+          "repairCalls": 1,
+          "firstPass": false,
+          "usageComplete": true,
+          "inputTokens": 55829,
+          "outputTokens": 698,
+          "cost": null,
+          "costComplete": false,
+          "calls": [
+            {
+              "stage": "PURPOSE",
+              "attempt": 1,
+              "contractHash": "6066d46696c0271315f65ae8cbe743282768bf9d9b761f0cd2541ef9efb9c161",
+              "inputBytes": 8276,
+              "outputBytes": 507,
+              "inputTokens": 4894,
+              "outputTokens": 116,
+              "usageComplete": true,
+              "model": "deepseek-v4.1-flash",
+              "status": "RETURNED",
+              "failure": null,
+              "durationMs": 2063
+            },
+            {
+              "stage": "PLAN",
+              "attempt": 1,
+              "contractHash": "14fbb8f6cf5508d1faea5e3f3a9e9676c2a37a30fc73fe5feb655cbe58a67980",
+              "inputBytes": 15398,
+              "outputBytes": 306,
+              "inputTokens": 15028,
+              "outputTokens": 90,
+              "usageComplete": true,
+              "model": "deepseek-v4.1-flash",
+              "status": "RETURNED",
+              "failure": null,
+              "durationMs": 2701
+            },
+            {
+              "stage": "REVIEW",
+              "attempt": 1,
+              "contractHash": "98be2cddccd26e122a3451bc8a39cb5d6cbb75c09f7a1f374f51cd618fa66c08",
+              "inputBytes": 15490,
+              "outputBytes": 1762,
+              "inputTokens": 18889,
+              "outputTokens": 386,
+              "usageComplete": true,
+              "model": "deepseek-v4.1-flash",
+              "status": "RETURNED",
+              "failure": null,
+              "durationMs": 4728
+            },
+            {
+              "stage": "PLAN",
+              "attempt": 2,
+              "contractHash": "14fbb8f6cf5508d1faea5e3f3a9e9676c2a37a30fc73fe5feb655cbe58a67980",
+              "inputBytes": 22761,
+              "outputBytes": 427,
+              "inputTokens": 17018,
+              "outputTokens": 106,
+              "usageComplete": true,
+              "model": "deepseek-v4.1-flash",
+              "status": "RETURNED",
+              "failure": null,
+              "durationMs": 5942
+            }
+          ],
+          "validations": [
+            {
+              "outcome": "VALIDATED",
+              "stage": "PURPOSE",
+              "detail": ""
+            },
+            {
+              "outcome": "PASSED",
+              "stage": "PRECHECK",
+              "detail": ""
+            },
+            {
+              "outcome": "PASSED",
+              "stage": "PRECHECK",
+              "detail": ""
+            },
+            {
+              "outcome": "VALIDATED",
+              "stage": "REVIEW",
+              "detail": ""
+            },
+            {
+              "outcome": "SEMANTIC_MISMATCH",
+              "stage": "PLAN",
+              "detail": "任务计划与本轮要求存在差异，请依据结构化反馈重新完整规划"
+            },
+            {
+              "outcome": "PASSED",
+              "stage": "PRECHECK",
+              "detail": ""
+            },
+            {
+              "outcome": "ACCEPTED",
+              "stage": "PLAN",
+              "detail": ""
+            }
+          ],
+          "route": "CLARIFY",
+          "message": "我要查询销售报表，尚未决定选哪家公司。请先列出我当前有权查看的公司供我选择，选好后显示那家公司的全部销售记录。\n针对以上问题，本轮明确公司代码为 A。",
+          "scope": "SEMANTIC_PLANNING",
+          "referenceTime": "2026-10-11T07:30:35.942807500Z"
+        },
+        "truth": null,
+        "events": [
+          {
+            "type": "conversation",
+            "data": {
+              "requestId": "dacd833f1d984f888596b19f5872ab7c",
+              "title": "我要查询销售报表，尚未决定选哪家公司。请先列出我当前有权查看",
+              "conversationId": "c6487d42c7fe44f19c51b7ccfed13f59"
+            }
+          },
+          {
+            "type": "semantic_clarification",
+            "data": {
+              "choices": [
+                {
+                  "label": "A",
+                  "value": "A"
+                },
+                {
+                  "label": "B",
+                  "value": "B"
+                },
+                {
+                  "label": "C",
+                  "value": "C"
+                }
+              ],
+              "kind": "COMPANY",
+              "question": "您提到先列出有权查看的公司供选择，之后查询所选公司的全部销售记录，本轮又明确公司代码为 A。请确认是否选择公司 A 来查询销售报表的全部记录？确认后我将执行查询。",
+              "clarificationRef": "dacd833f1d984f888596b19f5872ab7c"
+            }
+          },
+          {
+            "type": "text",
+            "data": {
+              "delta": "您提到先列出有权查看的公司供选择，之后查询所选公司的全部销售记录，本轮又明确公司代码为 A。请确认是否选择公司 A 来查询销售报表的全部记录？确认后我将执行查询。 本轮未应用任何修改。"
+            }
+          },
+          {
+            "type": "done",
+            "data": {}
+          }
+        ]
+      },
+      {
+        "caseId": "field-clarification/2",
+        "message": "按金额排序。",
+        "interaction": "CHOICE",
+        "expected": {
+          "kind": "query",
+          "domain": "REPORT",
+          "view": "LIST",
+          "companyCode": "A",
+          "reportIds": [
+            "rpt-sales-order"
+          ],
+          "where": [],
+          "sortField": "amount",
+          "descending": false
+        },
+        "conversationId": "c2cce90eb9a841c3bf173c310996401c",
+        "passed": false,
+        "category": "UNNECESSARY_CLARIFICATION",
+        "errors": [
+          "MISSING_QUERY"
+        ],
+        "durationMs": 8918,
+        "diagnostic": {
+          "requestId": "ebb5d6377633438c9f5b90d98aac5df5",
+          "outcome": "CLARIFY",
+          "dictionaryHash": "cec06858d9cf4976eed42cc44d4b704f32b4ef6869a5e659baf14d33d30e8063",
+          "schemaHashes": {
+            "REVIEW": "dd4bdb79a48dea29668f3bfd56e3d745c8870ecb55d18ee68bea843146f874a6",
+            "PURPOSE": "61e6776228609e19abe00124b4fd7b558a4cffe6ec5fa81179d37f03b206d1d1",
+            "PLAN": "15e0cd1ac6dc52db8e8f995c5526f2bf528336e2c0c8377701dad555de368962"
+          },
+          "durationMs": 8806,
+          "modelCalls": 3,
+          "repairCalls": 0,
+          "firstPass": false,
+          "usageComplete": true,
+          "inputTokens": 38825,
+          "outputTokens": 723,
+          "cost": null,
+          "costComplete": false,
+          "calls": [
+            {
+              "stage": "PURPOSE",
+              "attempt": 1,
+              "contractHash": "6066d46696c0271315f65ae8cbe743282768bf9d9b761f0cd2541ef9efb9c161",
+              "inputBytes": 8315,
+              "outputBytes": 413,
+              "inputTokens": 4908,
+              "outputTokens": 96,
+              "usageComplete": true,
+              "model": "deepseek-v4.1-flash",
+              "status": "RETURNED",
+              "failure": null,
+              "durationMs": 2180
+            },
+            {
+              "stage": "PLAN",
+              "attempt": 1,
+              "contractHash": "14fbb8f6cf5508d1faea5e3f3a9e9676c2a37a30fc73fe5feb655cbe58a67980",
+              "inputBytes": 15368,
+              "outputBytes": 382,
+              "inputTokens": 15028,
+              "outputTokens": 98,
+              "usageComplete": true,
+              "model": "deepseek-v4.1-flash",
+              "status": "RETURNED",
+              "failure": null,
+              "durationMs": 2935
+            },
+            {
+              "stage": "REVIEW",
+              "attempt": 1,
+              "contractHash": "98be2cddccd26e122a3451bc8a39cb5d6cbb75c09f7a1f374f51cd618fa66c08",
+              "inputBytes": 15460,
+              "outputBytes": 2082,
+              "inputTokens": 18889,
+              "outputTokens": 529,
+              "usageComplete": true,
+              "model": "deepseek-v4.1-flash",
+              "status": "RETURNED",
+              "failure": null,
+              "durationMs": 3679
+            }
+          ],
+          "validations": [
+            {
+              "outcome": "VALIDATED",
+              "stage": "PURPOSE",
+              "detail": ""
+            },
+            {
+              "outcome": "PASSED",
+              "stage": "PRECHECK",
+              "detail": ""
+            },
+            {
+              "outcome": "PASSED",
+              "stage": "PRECHECK",
+              "detail": ""
+            },
+            {
+              "outcome": "VALIDATED",
+              "stage": "REVIEW",
+              "detail": ""
+            },
+            {
+              "outcome": "ACCEPTED",
+              "stage": "PLAN",
+              "detail": ""
+            }
+          ],
+          "route": "CLARIFY",
+          "message": "查询A公司销售报表，准备按金额或业务日期升序排列，但我还没决定排序字段，请先提供这两个字段让我选择。\n针对以上问题，本轮明确数据域 REPORT、公司 A、报表 rpt-sales-order 的字段为 amount。",
+          "scope": "SEMANTIC_PLANNING",
+          "referenceTime": "2026-10-11T07:31:11.149848900Z"
+        },
+        "truth": null,
+        "events": [
+          {
+            "type": "conversation",
+            "data": {
+              "requestId": "ebb5d6377633438c9f5b90d98aac5df5",
+              "title": "查询A公司销售报表，准备按金额或业务日期升序排列，但我还没决",
+              "conversationId": "c2cce90eb9a841c3bf173c310996401c"
+            }
+          },
+          {
+            "type": "semantic_clarification",
+            "data": {
+              "choices": [
+                {
+                  "label": "来源金额，币种见 currency；空值表示未提供（amount）",
+                  "value": "amount"
+                },
+                {
+                  "label": "业务日期；空值表示未配置（date）",
+                  "value": "date"
+                }
+              ],
+              "kind": "FIELD",
+              "question": "您还没有选择排序字段。请明确是按金额升序还是按业务日期升序？确认后我将为您查询A公司销售报表。",
+              "clarificationRef": "ebb5d6377633438c9f5b90d98aac5df5"
+            }
+          },
+          {
+            "type": "text",
+            "data": {
+              "delta": "您还没有选择排序字段。请明确是按金额升序还是按业务日期升序？确认后我将为您查询A公司销售报表。 本轮未应用任何修改。"
+            }
+          },
+          {
+            "type": "done",
+            "data": {}
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "original": "browser-second/regression-first.json",
+    "sha256": "8c70fda24eddcfd469c79f8abdac727dbe6ab79ee0d3b9673845e54aa0de4e14",
+    "recordedAt": "2026-10-11T07:45:29.212Z",
+    "completedAt": "2026-10-11T07:47:52.923Z",
+    "corpus": "tools/fixtures/semantic-quality-regression-v2.json",
+    "corpusSha256": "d38581d4bbf7c98adb8f3bc4d1cda62df1b05b786e7d159be66d36f6c4b1da85",
+    "scorerSha256": "56778c35e452815f179e2eb4c25414cd28408a35ba0117c510ae2edb19180ef4",
+    "sourceSha256": "62b2d6c1374eb42a05841a73501953724514c8e4aabf09fd833d51d7d668cfa1",
+    "summary": {
+      "attempted": 16,
+      "passed": 15,
+      "failed": 1,
+      "counts": {
+        "CORRECT_QUERY": 11,
+        "EXPECTED_INPUT_REJECTION": 2,
+        "EXPECTED_CLARIFICATION": 2,
+        "INCOMPLETE_RESULT": 1
+      },
+      "explicitQuery": {
+        "total": 11,
+        "passed": 11,
+        "firstPass": 10,
+        "firstPassRate": 0.9090909090909091,
+        "unnecessaryClarifications": 0
+      },
+      "clarification": {
+        "total": 3,
+        "passed": 2
+      },
+      "latencyMs": {
+        "samples": 16,
+        "p50": 9567,
+        "p95": 13111,
+        "p99": 13111
+      },
+      "stages": {
+        "PURPOSE": {
+          "calls": 14,
+          "failures": 0,
+          "latencyMs": {
+            "samples": 14,
+            "p50": 2308,
+            "p95": 4043,
+            "p99": 4043
+          }
+        },
+        "PLAN": {
+          "calls": 15,
+          "failures": 0,
+          "latencyMs": {
+            "samples": 15,
+            "p50": 2446,
+            "p95": 4073,
+            "p99": 4073
+          }
+        },
+        "REVIEW": {
+          "calls": 14,
+          "failures": 0,
+          "latencyMs": {
+            "samples": 14,
+            "p50": 4370,
+            "p95": 5789,
+            "p99": 5789
+          }
+        }
+      },
+      "modelCalls": 43,
+      "repairCalls": 1,
+      "usage": {
+        "complete": true,
+        "measuredCalls": 43,
+        "totalCalls": 43,
+        "inputTokens": 567932,
+        "outputTokens": 14124,
+        "cost": null,
+        "costComplete": false
+      }
+    },
+    "failures": [
+      {
+        "caseId": "field-clarification/1",
+        "message": "查询A公司销售报表，准备按金额或业务日期升序排列，但我还没决定排序字段，请先提供这两个字段让我选择。",
+        "interaction": "TEXT",
+        "expected": {
+          "kind": "clarify",
+          "optionKind": "FIELD",
+          "values": [
+            "amount",
+            "date"
+          ]
+        },
+        "conversationId": "f64e753035e846cca9e96c93d2f98d1f",
+        "passed": false,
+        "category": "INCOMPLETE_RESULT",
+        "errors": [
+          "CLARIFICATION_OPTIONS"
+        ],
+        "durationMs": 11360,
+        "diagnostic": {
+          "requestId": "79587476f7cc44c2bebbc8e8d9aa4c90",
+          "outcome": "CLARIFY",
+          "dictionaryHash": "cec06858d9cf4976eed42cc44d4b704f32b4ef6869a5e659baf14d33d30e8063",
+          "schemaHashes": {
+            "REVIEW": "39a51b44b99e3f7e680792e115f21676dbfeab4be9b1d6d8f181213fadb82346",
+            "PLAN": "53aaffd1cd4e725e807492fd35d865329c6001306392e657508d6b09dd342e9a",
+            "PURPOSE": "9380e497d8b8782a886945f245e92904199ae427cd5d24c0a8a4f3ab4741da61"
+          },
+          "durationMs": 8251,
+          "modelCalls": 3,
+          "repairCalls": 0,
+          "firstPass": false,
+          "usageComplete": true,
+          "inputTokens": 38899,
+          "outputTokens": 715,
+          "cost": null,
+          "costComplete": false,
+          "calls": [
+            {
+              "stage": "PURPOSE",
+              "attempt": 1,
+              "contractHash": "cbc38ae6d91e8fafd96897610b3aa44fdb8bb25bff9ffc5e453eb5bcd23f26e6",
+              "inputBytes": 8017,
+              "outputBytes": 454,
+              "inputTokens": 4932,
+              "outputTokens": 115,
+              "usageComplete": true,
+              "model": "deepseek-v4.1-flash",
+              "status": "RETURNED",
+              "failure": null,
+              "durationMs": 2034
+            },
+            {
+              "stage": "PLAN",
+              "attempt": 1,
+              "contractHash": "fa75d9530f4132ef73dcac023e831c56f9dba27ea36db8c6754705b63c557bcf",
+              "inputBytes": 14947,
+              "outputBytes": 419,
+              "inputTokens": 15053,
+              "outputTokens": 109,
+              "usageComplete": true,
+              "model": "deepseek-v4.1-flash",
+              "status": "RETURNED",
+              "failure": null,
+              "durationMs": 2295
+            },
+            {
+              "stage": "REVIEW",
+              "attempt": 1,
+              "contractHash": "16fa620faa2d80db55c3f223df0865f1b4f629a60e1b213304cd4c5cdef1c622",
+              "inputBytes": 15039,
+              "outputBytes": 2000,
+              "inputTokens": 18914,
+              "outputTokens": 491,
+              "usageComplete": true,
+              "model": "deepseek-v4.1-flash",
+              "status": "RETURNED",
+              "failure": null,
+              "durationMs": 3908
+            }
+          ],
+          "validations": [
+            {
+              "outcome": "VALIDATED",
+              "detail": "",
+              "stage": "PURPOSE"
+            },
+            {
+              "outcome": "PASSED",
+              "detail": "",
+              "stage": "PRECHECK"
+            },
+            {
+              "outcome": "PASSED",
+              "detail": "",
+              "stage": "PRECHECK"
+            },
+            {
+              "outcome": "VALIDATED",
+              "detail": "",
+              "stage": "REVIEW"
+            },
+            {
+              "outcome": "ACCEPTED",
+              "detail": "",
+              "stage": "PLAN"
+            }
+          ],
+          "route": "CLARIFY",
+          "message": "查询A公司销售报表，准备按金额或业务日期升序排列，但我还没决定排序字段，请先提供这两个字段让我选择。",
+          "scope": "SEMANTIC_PLANNING",
+          "referenceTime": "2026-10-11T07:47:13.865872900Z"
+        },
+        "truth": null,
+        "events": [
+          {
+            "type": "conversation",
+            "data": {
+              "conversationId": "f64e753035e846cca9e96c93d2f98d1f",
+              "title": "",
+              "requestId": "79587476f7cc44c2bebbc8e8d9aa4c90"
+            }
+          },
+          {
+            "type": "semantic_clarification",
+            "data": {
+              "choices": [
+                {
+                  "value": "amount",
+                  "label": "来源金额，币种见 currency；空值表示未提供（amount）"
+                },
+                {
+                  "value": "saleDate",
+                  "label": "销售日期，字符串 yyyy-MM-dd（saleDate）"
+                }
+              ],
+              "clarificationRef": "79587476f7cc44c2bebbc8e8d9aa4c90",
+              "question": "请确认销售报表查询要按哪个字段升序排列：金额，还是业务日期？",
+              "kind": "FIELD"
+            }
+          },
+          {
+            "type": "text",
+            "data": {
+              "delta": "请确认销售报表查询要按哪个字段升序排列：金额，还是业务日期？ 本轮未应用任何修改。"
+            }
+          },
+          {
+            "type": "done",
+            "data": {}
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "original": "browser-second/regression-second.json",
+    "sha256": "61db88bac3400858fc12dd809c32cd2045d5bc3b5d7eed3c95472dbfc21d5526",
+    "recordedAt": "2026-10-11T07:52:00.537Z",
+    "completedAt": "2026-10-11T07:54:42.481Z",
+    "corpus": "tools/fixtures/semantic-quality-regression-v2.json",
+    "corpusSha256": "d38581d4bbf7c98adb8f3bc4d1cda62df1b05b786e7d159be66d36f6c4b1da85",
+    "scorerSha256": "01be12828237849ff4166ca5c79766d2df2c42418d47b7f475cd250a25ad2de8",
+    "sourceSha256": "62b2d6c1374eb42a05841a73501953724514c8e4aabf09fd833d51d7d668cfa1",
+    "summary": {
+      "attempted": 16,
+      "passed": 16,
+      "failed": 0,
+      "counts": {
+        "CORRECT_QUERY": 11,
+        "EXPECTED_INPUT_REJECTION": 2,
+        "EXPECTED_CLARIFICATION": 3
+      },
+      "explicitQuery": {
+        "total": 11,
+        "passed": 11,
+        "firstPass": 8,
+        "firstPassRate": 0.7272727272727273,
+        "unnecessaryClarifications": 0
+      },
+      "clarification": {
+        "total": 3,
+        "passed": 3
+      },
+      "latencyMs": {
+        "samples": 16,
+        "p50": 10608,
+        "p95": 19163,
+        "p99": 19163
+      },
+      "stages": {
+        "PURPOSE": {
+          "calls": 15,
+          "failures": 0,
+          "latencyMs": {
+            "samples": 15,
+            "p50": 2218,
+            "p95": 3303,
+            "p99": 3303
+          }
+        },
+        "PLAN": {
+          "calls": 17,
+          "failures": 0,
+          "latencyMs": {
+            "samples": 17,
+            "p50": 2824,
+            "p95": 3814,
+            "p99": 3814
+          }
+        },
+        "REVIEW": {
+          "calls": 14,
+          "failures": 0,
+          "latencyMs": {
+            "samples": 14,
+            "p50": 4566,
+            "p95": 8259,
+            "p99": 8259
+          }
+        }
+      },
+      "modelCalls": 46,
+      "repairCalls": 4,
+      "usage": {
+        "complete": true,
+        "measuredCalls": 46,
+        "totalCalls": 46,
+        "inputTokens": 606708,
+        "outputTokens": 15065,
+        "cost": null,
+        "costComplete": false
+      }
+    },
+    "failures": []
+  },
+  {
+    "original": "browser-second/regression-third.json",
+    "sha256": "0e7ad986a3f608781258976983c3c99f7d0ae1dd6d2e8dd5601ac9a5451548f0",
+    "recordedAt": "2026-10-11T08:02:13.603Z",
+    "completedAt": "2026-10-11T08:04:59.723Z",
+    "corpus": "tools/fixtures/semantic-quality-regression-v2.json",
+    "corpusSha256": "d38581d4bbf7c98adb8f3bc4d1cda62df1b05b786e7d159be66d36f6c4b1da85",
+    "scorerSha256": "01be12828237849ff4166ca5c79766d2df2c42418d47b7f475cd250a25ad2de8",
+    "sourceSha256": "62b2d6c1374eb42a05841a73501953724514c8e4aabf09fd833d51d7d668cfa1",
+    "summary": {
+      "attempted": 16,
+      "passed": 10,
+      "failed": 6,
+      "counts": {
+        "EXPECTATION_MISMATCH": 2,
+        "MODEL_VALIDATION_FAILURE": 1,
+        "EXPECTED_INPUT_REJECTION": 2,
+        "INCOMPLETE_RESULT": 3,
+        "CORRECT_QUERY": 6,
+        "EXPECTED_CLARIFICATION": 2
+      },
+      "explicitQuery": {
+        "total": 11,
+        "passed": 6,
+        "firstPass": 5,
+        "firstPassRate": 0.45454545454545453,
+        "unnecessaryClarifications": 0
+      },
+      "clarification": {
+        "total": 3,
+        "passed": 2
+      },
+      "latencyMs": {
+        "samples": 16,
+        "p50": 10262,
+        "p95": 24809,
+        "p99": 24809
+      },
+      "stages": {
+        "PURPOSE": {
+          "calls": 13,
+          "failures": 0,
+          "latencyMs": {
+            "samples": 13,
+            "p50": 2339,
+            "p95": 3599,
+            "p99": 3599
+          }
+        },
+        "PLAN": {
+          "calls": 15,
+          "failures": 0,
+          "latencyMs": {
+            "samples": 15,
+            "p50": 2586,
+            "p95": 5445,
+            "p99": 5445
+          }
+        },
+        "REVIEW": {
+          "calls": 15,
+          "failures": 0,
+          "latencyMs": {
+            "samples": 15,
+            "p50": 4703,
+            "p95": 7041,
+            "p99": 7041
+          }
+        }
+      },
+      "modelCalls": 43,
+      "repairCalls": 7,
+      "usage": {
+        "complete": true,
+        "measuredCalls": 43,
+        "totalCalls": 43,
+        "inputTokens": 589749,
+        "outputTokens": 16448,
+        "cost": null,
+        "costComplete": false
+      }
+    },
+    "failures": [
+      {
+        "caseId": "dictionary-interval-edit/1",
+        "message": "列出沪东公司销售报表中2026年9月成交、签约额不少于5万元且不超过20万元的记录。",
+        "interaction": "TEXT",
+        "expected": {
+          "kind": "query",
+          "domain": "REPORT",
+          "view": "LIST",
+          "companyCode": "A",
+          "reportIds": [
+            "rpt-sales-order"
+          ],
+          "where": [
+            [
+              "date",
+              "GTE",
+              "2026-09-01"
+            ],
+            [
+              "date",
+              "LT",
+              "2026-10-01"
+            ],
+            [
+              "amount",
+              "GTE",
+              "50000"
+            ],
+            [
+              "amount",
+              "LTE",
+              "200000"
+            ]
+          ]
+        },
+        "conversationId": "49fa7b389ecd478abcd9e26ef9161a30",
+        "passed": false,
+        "category": "EXPECTATION_MISMATCH",
+        "errors": [
+          "QUERY_CONDITION_SEMANTICS"
+        ],
+        "durationMs": 14768,
+        "diagnostic": {
+          "requestId": "b8710318129a4c10912c513aa606819a",
+          "outcome": "ACCEPTED",
+          "dictionaryHash": "cec06858d9cf4976eed42cc44d4b704f32b4ef6869a5e659baf14d33d30e8063",
+          "schemaHashes": {
+            "REVIEW": "39a51b44b99e3f7e680792e115f21676dbfeab4be9b1d6d8f181213fadb82346",
+            "PLAN": "53aaffd1cd4e725e807492fd35d865329c6001306392e657508d6b09dd342e9a",
+            "PURPOSE": "9380e497d8b8782a886945f245e92904199ae427cd5d24c0a8a4f3ab4741da61"
+          },
+          "durationMs": 14609,
+          "modelCalls": 4,
+          "repairCalls": 1,
+          "firstPass": false,
+          "usageComplete": true,
+          "inputTokens": 55836,
+          "outputTokens": 1553,
+          "cost": null,
+          "costComplete": false,
+          "calls": [
+            {
+              "stage": "PURPOSE",
+              "attempt": 1,
+              "contractHash": "cbc38ae6d91e8fafd96897610b3aa44fdb8bb25bff9ffc5e453eb5bcd23f26e6",
+              "inputBytes": 7979,
+              "outputBytes": 373,
+              "inputTokens": 4927,
+              "outputTokens": 92,
+              "usageComplete": true,
+              "model": "deepseek-v4.1-flash",
+              "status": "RETURNED",
+              "failure": null,
+              "durationMs": 2034
+            },
+            {
+              "stage": "PLAN",
+              "attempt": 1,
+              "contractHash": "fa75d9530f4132ef73dcac023e831c56f9dba27ea36db8c6754705b63c557bcf",
+              "inputBytes": 14857,
+              "outputBytes": 543,
+              "inputTokens": 15044,
+              "outputTokens": 166,
+              "usageComplete": true,
+              "model": "deepseek-v4.1-flash",
+              "status": "RETURNED",
+              "failure": null,
+              "durationMs": 3417
+            },
+            {
+              "stage": "REVIEW",
+              "attempt": 1,
+              "contractHash": "16fa620faa2d80db55c3f223df0865f1b4f629a60e1b213304cd4c5cdef1c622",
+              "inputBytes": 14949,
+              "outputBytes": 4340,
+              "inputTokens": 18905,
+              "outputTokens": 1125,
+              "usageComplete": true,
+              "model": "deepseek-v4.1-flash",
+              "status": "RETURNED",
+              "failure": null,
+              "durationMs": 5161
+            },
+            {
+              "stage": "PLAN",
+              "attempt": 2,
+              "contractHash": "fa75d9530f4132ef73dcac023e831c56f9dba27ea36db8c6754705b63c557bcf",
+              "inputBytes": 21805,
+              "outputBytes": 551,
+              "inputTokens": 16960,
+              "outputTokens": 170,
+              "usageComplete": true,
+              "model": "deepseek-v4.1-flash",
+              "status": "RETURNED",
+              "failure": null,
+              "durationMs": 3964
+            }
+          ],
+          "validations": [
+            {
+              "outcome": "VALIDATED",
+              "detail": "",
+              "stage": "PURPOSE"
+            },
+            {
+              "outcome": "PASSED",
+              "detail": "",
+              "stage": "PRECHECK"
+            },
+            {
+              "outcome": "PASSED",
+              "detail": "",
+              "stage": "PRECHECK"
+            },
+            {
+              "outcome": "VALIDATED",
+              "detail": "",
+              "stage": "REVIEW"
+            },
+            {
+              "outcome": "SEMANTIC_MISMATCH",
+              "detail": "任务计划与本轮要求存在差异，请依据结构化反馈重新完整规划",
+              "stage": "PLAN"
+            },
+            {
+              "outcome": "ACCEPTED",
+              "detail": "",
+              "stage": "PLAN"
+            }
+          ],
+          "route": "BUSINESS_QUERY",
+          "message": "列出沪东公司销售报表中2026年9月成交、签约额不少于5万元且不超过20万元的记录。",
+          "scope": "SEMANTIC_PLANNING",
+          "referenceTime": "2026-10-11T08:02:13.664117500Z"
+        },
+        "truth": {
+          "count": 0,
+          "displayedKeys": []
+        },
+        "events": [
+          {
+            "type": "conversation",
+            "data": {
+              "conversationId": "49fa7b389ecd478abcd9e26ef9161a30",
+              "title": "",
+              "requestId": "b8710318129a4c10912c513aa606819a"
+            }
+          },
+          {
+            "type": "business_query",
+            "data": {
+              "query": {
+                "domain": "REPORT",
+                "view": "LIST",
+                "reportIds": [
+                  "rpt-sales-order"
+                ],
+                "companyCode": "A",
+                "conditions": [
+                  {
+                    "allOf": [
+                      {
+                        "field": "saleDate",
+                        "operator": "GTE",
+                        "values": [
+                          "2026-10-01"
+                        ]
+                      },
+                      {
+                        "field": "saleDate",
+                        "operator": "LT",
+                        "values": [
+                          "2026-11-01"
+                        ]
+                      },
+                      {
+                        "field": "amount",
+                        "operator": "GTE",
+                        "values": [
+                          "50000"
+                        ]
+                      },
+                      {
+                        "field": "amount",
+                        "operator": "LTE",
+                        "values": [
+                          "200000"
+                        ]
+                      }
+                    ]
+                  }
+                ],
+                "sortField": null,
+                "descending": false,
+                "page": 1,
+                "size": 20,
+                "groupBy": null
+              },
+              "observedAt": "2026-10-11T16:02:24.299410800+08:00",
+              "source": "业务系统当前记录",
+              "columns": [
+                {
+                  "name": "reportId",
+                  "type": "string",
+                  "description": "报表稳定标识"
+                },
+                {
+                  "name": "reportName",
+                  "type": "string",
+                  "description": "报表名称"
+                },
+                {
+                  "name": "companyCode",
+                  "type": "string",
+                  "description": "所属公司代码"
+                },
+                {
+                  "name": "docNo",
+                  "type": "string",
+                  "description": "来源单据号"
+                },
+                {
+                  "name": "amount",
+                  "type": "decimal",
+                  "description": "来源金额，币种见 currency；空值表示未提供"
+                },
+                {
+                  "name": "currency",
+                  "type": "string",
+                  "description": "来源声明币种；空值表示未声明，不能跨币种合计"
+                },
+                {
+                  "name": "date",
+                  "type": "date",
+                  "description": "业务日期；空值表示未配置"
+                },
+                {
+                  "name": "status",
+                  "type": "string",
+                  "description": "报表派单状态：未派单/已派单"
+                },
+                {
+                  "name": "orderNo",
+                  "type": "string",
+                  "description": "订单号"
+                },
+                {
+                  "name": "productName",
+                  "type": "string",
+                  "description": "产品名称"
+                },
+                {
+                  "name": "saleDate",
+                  "type": "date",
+                  "description": "销售日期，字符串 yyyy-MM-dd"
+                },
+                {
+                  "name": "daysSinceSale",
+                  "type": "long",
+                  "description": "距销售日期的天数（派生）"
+                },
+                {
+                  "name": "dispatched",
+                  "type": "boolean",
+                  "description": "来源记录是否已派单；true为已派单，false为未派单，不代表满足派单规则"
+                },
+                {
+                  "name": "recordId",
+                  "type": "string",
+                  "description": "报表内稳定记录标识"
+                }
+              ],
+              "rows": [],
+              "total": 0,
+              "summary": {
+                "count": 0,
+                "amountsByCurrency": {},
+                "statusCounts": {},
+                "groups": {},
+                "pendingApprovers": {},
+                "unclassifiedAmountCount": 0
+              },
+              "interpretation": {
+                "added": [
+                  {
+                    "field": "amount",
+                    "operator": "GTE",
+                    "values": [
+                      "50000"
+                    ]
+                  },
+                  {
+                    "field": "amount",
+                    "operator": "LTE",
+                    "values": [
+                      "200000"
+                    ]
+                  },
+                  {
+                    "field": "saleDate",
+                    "operator": "GTE",
+                    "values": [
+                      "2026-10-01"
+                    ]
+                  },
+                  {
+                    "field": "saleDate",
+                    "operator": "LT",
+                    "values": [
+                      "2026-11-01"
+                    ]
+                  }
+                ],
+                "queryRef": "b8710318129a4c10912c513aa606819a",
+                "currentConditions": [
+                  {
+                    "allOf": [
+                      {
+                        "field": "saleDate",
+                        "operator": "GTE",
+                        "values": [
+                          "2026-10-01"
+                        ]
+                      },
+                      {
+                        "field": "saleDate",
+                        "operator": "LT",
+                        "values": [
+                          "2026-11-01"
+                        ]
+                      },
+                      {
+                        "field": "amount",
+                        "operator": "GTE",
+                        "values": [
+                          "50000"
+                        ]
+                      },
+                      {
+                        "field": "amount",
+                        "operator": "LTE",
+                        "values": [
+                          "200000"
+                        ]
+                      }
+                    ]
+                  }
+                ],
+                "groupingChanged": false,
+                "conditions": [
+                  {
+                    "origin": "CURRENT_REQUEST",
+                    "condition": {
+                      "field": "amount",
+                      "operator": "GTE",
+                      "values": [
+                        "50000"
+                      ]
+                    },
+                    "evidence": "签约额不少于5万元"
+                  },
+                  {
+                    "origin": "CURRENT_REQUEST",
+                    "condition": {
+                      "field": "amount",
+                      "operator": "LTE",
+                      "values": [
+                        "200000"
+                      ]
+                    },
+                    "evidence": "不超过20万元"
+                  },
+                  {
+                    "origin": "CURRENT_REQUEST",
+                    "condition": {
+                      "field": "saleDate",
+                      "operator": "GTE",
+                      "values": [
+                        "2026-10-01"
+                      ]
+                    },
+                    "evidence": "2026年9月成交"
+                  },
+                  {
+                    "origin": "CURRENT_REQUEST",
+                    "condition": {
+                      "field": "saleDate",
+                      "operator": "LT",
+                      "values": [
+                        "2026-11-01"
+                      ]
+                    },
+                    "evidence": "2026年9月成交"
+                  }
+                ],
+                "scopeChanged": false,
+                "removed": [],
+                "queryFingerprint": "cb7f709904e469bc352c8b5a811b51471ef2c613dd84836474bc7865a4432f2f",
+                "retained": [],
+                "previousConditions": []
+              }
+            }
+          },
+          {
+            "type": "text",
+            "data": {
+              "delta": "本次查询匹配 0 条报表记录，当前第 1 页展示 0 条。"
+            }
+          },
+          {
+            "type": "done",
+            "data": {}
+          }
+        ]
+      },
+      {
+        "caseId": "dictionary-interval-edit/2",
+        "message": "上限改成12万元，其余条件不变。",
+        "interaction": "TEXT",
+        "expected": {
+          "kind": "query",
+          "domain": "REPORT",
+          "view": "LIST",
+          "companyCode": "A",
+          "reportIds": [
+            "rpt-sales-order"
+          ],
+          "where": [
+            [
+              "date",
+              "GTE",
+              "2026-09-01"
+            ],
+            [
+              "date",
+              "LT",
+              "2026-10-01"
+            ],
+            [
+              "amount",
+              "GTE",
+              "50000"
+            ],
+            [
+              "amount",
+              "LTE",
+              "120000"
+            ]
+          ]
+        },
+        "conversationId": "49fa7b389ecd478abcd9e26ef9161a30",
+        "passed": false,
+        "category": "EXPECTATION_MISMATCH",
+        "errors": [
+          "QUERY_CONDITION_SEMANTICS"
+        ],
+        "durationMs": 9792,
+        "diagnostic": {
+          "requestId": "5b4de25be3f7436e837fbb946c451aa3",
+          "outcome": "ACCEPTED",
+          "dictionaryHash": "cec06858d9cf4976eed42cc44d4b704f32b4ef6869a5e659baf14d33d30e8063",
+          "schemaHashes": {
+            "REVIEW": "39a51b44b99e3f7e680792e115f21676dbfeab4be9b1d6d8f181213fadb82346",
+            "PLAN": "53aaffd1cd4e725e807492fd35d865329c6001306392e657508d6b09dd342e9a",
+            "PURPOSE": "9380e497d8b8782a886945f245e92904199ae427cd5d24c0a8a4f3ab4741da61"
+          },
+          "durationMs": 9614,
+          "modelCalls": 3,
+          "repairCalls": 0,
+          "firstPass": true,
+          "usageComplete": true,
+          "inputTokens": 39391,
+          "outputTokens": 1279,
+          "cost": null,
+          "costComplete": false,
+          "calls": [
+            {
+              "stage": "PURPOSE",
+              "attempt": 1,
+              "contractHash": "cbc38ae6d91e8fafd96897610b3aa44fdb8bb25bff9ffc5e453eb5bcd23f26e6",
+              "inputBytes": 8613,
+              "outputBytes": 339,
+              "inputTokens": 5120,
+              "outputTokens": 83,
+              "usageComplete": true,
+              "model": "deepseek-v4.1-flash",
+              "status": "RETURNED",
+              "failure": null,
+              "durationMs": 1902
+            },
+            {
+              "stage": "PLAN",
+              "attempt": 1,
+              "contractHash": "fa75d9530f4132ef73dcac023e831c56f9dba27ea36db8c6754705b63c557bcf",
+              "inputBytes": 15324,
+              "outputBytes": 550,
+              "inputTokens": 15205,
+              "outputTokens": 170,
+              "usageComplete": true,
+              "model": "deepseek-v4.1-flash",
+              "status": "RETURNED",
+              "failure": null,
+              "durationMs": 2573
+            },
+            {
+              "stage": "REVIEW",
+              "attempt": 1,
+              "contractHash": "16fa620faa2d80db55c3f223df0865f1b4f629a60e1b213304cd4c5cdef1c622",
+              "inputBytes": 15416,
+              "outputBytes": 3975,
+              "inputTokens": 19066,
+              "outputTokens": 1026,
+              "usageComplete": true,
+              "model": "deepseek-v4.1-flash",
+              "status": "RETURNED",
+              "failure": null,
+              "durationMs": 5120
+            }
+          ],
+          "validations": [
+            {
+              "outcome": "VALIDATED",
+              "detail": "",
+              "stage": "PURPOSE"
+            },
+            {
+              "outcome": "PASSED",
+              "detail": "",
+              "stage": "PRECHECK"
+            },
+            {
+              "outcome": "VALIDATED",
+              "detail": "",
+              "stage": "REVIEW"
+            },
+            {
+              "outcome": "ACCEPTED",
+              "detail": "",
+              "stage": "PLAN"
+            }
+          ],
+          "route": "BUSINESS_QUERY",
+          "message": "上限改成12万元，其余条件不变。",
+          "scope": "SEMANTIC_PLANNING",
+          "referenceTime": "2026-10-11T08:02:28.456263800Z"
+        },
+        "truth": {
+          "count": 0,
+          "displayedKeys": []
+        },
+        "events": [
+          {
+            "type": "conversation",
+            "data": {
+              "conversationId": "49fa7b389ecd478abcd9e26ef9161a30",
+              "title": "列出沪东公司销售报表中2026年9月成交、签约额不少于5万元",
+              "requestId": "5b4de25be3f7436e837fbb946c451aa3"
+            }
+          },
+          {
+            "type": "business_query",
+            "data": {
+              "query": {
+                "domain": "REPORT",
+                "view": "LIST",
+                "reportIds": [
+                  "rpt-sales-order"
+                ],
+                "companyCode": "A",
+                "conditions": [
+                  {
+                    "allOf": [
+                      {
+                        "field": "saleDate",
+                        "operator": "GTE",
+                        "values": [
+                          "2026-10-01"
+                        ]
+                      },
+                      {
+                        "field": "saleDate",
+                        "operator": "LT",
+                        "values": [
+                          "2026-11-01"
+                        ]
+                      },
+                      {
+                        "field": "amount",
+                        "operator": "GTE",
+                        "values": [
+                          "50000"
+                        ]
+                      },
+                      {
+                        "field": "amount",
+                        "operator": "LTE",
+                        "values": [
+                          "120000"
+                        ]
+                      }
+                    ]
+                  }
+                ],
+                "sortField": null,
+                "descending": false,
+                "page": 1,
+                "size": 20,
+                "groupBy": null
+              },
+              "observedAt": "2026-10-11T16:02:32.942453800+08:00",
+              "source": "业务系统当前记录",
+              "columns": [
+                {
+                  "name": "reportId",
+                  "type": "string",
+                  "description": "报表稳定标识"
+                },
+                {
+                  "name": "reportName",
+                  "type": "string",
+                  "description": "报表名称"
+                },
+                {
+                  "name": "companyCode",
+                  "type": "string",
+                  "description": "所属公司代码"
+                },
+                {
+                  "name": "docNo",
+                  "type": "string",
+                  "description": "来源单据号"
+                },
+                {
+                  "name": "amount",
+                  "type": "decimal",
+                  "description": "来源金额，币种见 currency；空值表示未提供"
+                },
+                {
+                  "name": "currency",
+                  "type": "string",
+                  "description": "来源声明币种；空值表示未声明，不能跨币种合计"
+                },
+                {
+                  "name": "date",
+                  "type": "date",
+                  "description": "业务日期；空值表示未配置"
+                },
+                {
+                  "name": "status",
+                  "type": "string",
+                  "description": "报表派单状态：未派单/已派单"
+                },
+                {
+                  "name": "orderNo",
+                  "type": "string",
+                  "description": "订单号"
+                },
+                {
+                  "name": "productName",
+                  "type": "string",
+                  "description": "产品名称"
+                },
+                {
+                  "name": "saleDate",
+                  "type": "date",
+                  "description": "销售日期，字符串 yyyy-MM-dd"
+                },
+                {
+                  "name": "daysSinceSale",
+                  "type": "long",
+                  "description": "距销售日期的天数（派生）"
+                },
+                {
+                  "name": "dispatched",
+                  "type": "boolean",
+                  "description": "来源记录是否已派单；true为已派单，false为未派单，不代表满足派单规则"
+                },
+                {
+                  "name": "recordId",
+                  "type": "string",
+                  "description": "报表内稳定记录标识"
+                }
+              ],
+              "rows": [],
+              "total": 0,
+              "summary": {
+                "count": 0,
+                "amountsByCurrency": {},
+                "statusCounts": {},
+                "groups": {},
+                "pendingApprovers": {},
+                "unclassifiedAmountCount": 0
+              },
+              "interpretation": {
+                "added": [
+                  {
+                    "field": "amount",
+                    "operator": "LTE",
+                    "values": [
+                      "120000"
+                    ]
+                  }
+                ],
+                "queryRef": "5b4de25be3f7436e837fbb946c451aa3",
+                "currentConditions": [
+                  {
+                    "allOf": [
+                      {
+                        "field": "saleDate",
+                        "operator": "GTE",
+                        "values": [
+                          "2026-10-01"
+                        ]
+                      },
+                      {
+                        "field": "saleDate",
+                        "operator": "LT",
+                        "values": [
+                          "2026-11-01"
+                        ]
+                      },
+                      {
+                        "field": "amount",
+                        "operator": "GTE",
+                        "values": [
+                          "50000"
+                        ]
+                      },
+                      {
+                        "field": "amount",
+                        "operator": "LTE",
+                        "values": [
+                          "120000"
+                        ]
+                      }
+                    ]
+                  }
+                ],
+                "groupingChanged": false,
+                "conditions": [
+                  {
+                    "origin": "ACTIVE_QUERY",
+                    "condition": {
+                      "field": "amount",
+                      "operator": "GTE",
+                      "values": [
+                        "50000"
+                      ]
+                    },
+                    "evidence": "其余条件不变。"
+                  },
+                  {
+                    "origin": "CURRENT_REQUEST",
+                    "condition": {
+                      "field": "amount",
+                      "operator": "LTE",
+                      "values": [
+                        "120000"
+                      ]
+                    },
+                    "evidence": "上限改成12万元"
+                  },
+                  {
+                    "origin": "ACTIVE_QUERY",
+                    "condition": {
+                      "field": "saleDate",
+                      "operator": "GTE",
+                      "values": [
+                        "2026-10-01"
+                      ]
+                    },
+                    "evidence": "其余条件不变。"
+                  },
+                  {
+                    "origin": "ACTIVE_QUERY",
+                    "condition": {
+                      "field": "saleDate",
+                      "operator": "LT",
+                      "values": [
+                        "2026-11-01"
+                      ]
+                    },
+                    "evidence": "其余条件不变。"
+                  }
+                ],
+                "scopeChanged": false,
+                "removed": [
+                  {
+                    "field": "amount",
+                    "operator": "LTE",
+                    "values": [
+                      "200000"
+                    ]
+                  }
+                ],
+                "queryFingerprint": "935c750b41a28d7107e0b45aa15974c9707096c13e8985ead66608f9e0c0e611",
+                "retained": [
+                  {
+                    "field": "amount",
+                    "operator": "GTE",
+                    "values": [
+                      "50000"
+                    ]
+                  },
+                  {
+                    "field": "saleDate",
+                    "operator": "GTE",
+                    "values": [
+                      "2026-10-01"
+                    ]
+                  },
+                  {
+                    "field": "saleDate",
+                    "operator": "LT",
+                    "values": [
+                      "2026-11-01"
+                    ]
+                  }
+                ],
+                "previousConditions": [
+                  {
+                    "allOf": [
+                      {
+                        "field": "saleDate",
+                        "operator": "GTE",
+                        "values": [
+                          "2026-10-01"
+                        ]
+                      },
+                      {
+                        "field": "saleDate",
+                        "operator": "LT",
+                        "values": [
+                          "2026-11-01"
+                        ]
+                      },
+                      {
+                        "field": "amount",
+                        "operator": "GTE",
+                        "values": [
+                          "50000"
+                        ]
+                      },
+                      {
+                        "field": "amount",
+                        "operator": "LTE",
+                        "values": [
+                          "200000"
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              }
+            }
+          },
+          {
+            "type": "text",
+            "data": {
+              "delta": "本次查询匹配 0 条报表记录，当前第 1 页展示 0 条。"
+            }
+          },
+          {
+            "type": "done",
+            "data": {}
+          }
+        ]
+      },
+      {
+        "caseId": "dictionary-interval-edit/3",
+        "message": "按编辑器中的完整条件重新查询。",
+        "interaction": "EDIT",
+        "expected": {
+          "kind": "query",
+          "domain": "REPORT",
+          "view": "LIST",
+          "companyCode": "A",
+          "reportIds": [
+            "rpt-sales-order"
+          ],
+          "where": [
+            [
+              "date",
+              "GTE",
+              "2026-09-01"
+            ],
+            [
+              "date",
+              "LT",
+              "2026-10-01"
+            ],
+            [
+              "amount",
+              "GTE",
+              "50000"
+            ],
+            [
+              "amount",
+              "LTE",
+              "80000"
+            ]
+          ]
+        },
+        "conversationId": "49fa7b389ecd478abcd9e26ef9161a30",
+        "passed": false,
+        "category": "MODEL_VALIDATION_FAILURE",
+        "errors": [
+          "MISSING_QUERY"
+        ],
+        "durationMs": 24809,
+        "diagnostic": {
+          "requestId": "61ede5b8abe0485f823935d01c9e501e",
+          "outcome": "FAILED",
+          "dictionaryHash": "cec06858d9cf4976eed42cc44d4b704f32b4ef6869a5e659baf14d33d30e8063",
+          "schemaHashes": {
+            "REVIEW": "39a51b44b99e3f7e680792e115f21676dbfeab4be9b1d6d8f181213fadb82346",
+            "PLAN": "53aaffd1cd4e725e807492fd35d865329c6001306392e657508d6b09dd342e9a",
+            "PURPOSE": "9380e497d8b8782a886945f245e92904199ae427cd5d24c0a8a4f3ab4741da61"
+          },
+          "durationMs": 24682,
+          "modelCalls": 5,
+          "repairCalls": 2,
+          "firstPass": false,
+          "usageComplete": true,
+          "inputTokens": 83767,
+          "outputTokens": 5157,
+          "cost": null,
+          "costComplete": false,
+          "calls": [
+            {
+              "stage": "PURPOSE",
+              "attempt": 1,
+              "contractHash": "cbc38ae6d91e8fafd96897610b3aa44fdb8bb25bff9ffc5e453eb5bcd23f26e6",
+              "inputBytes": 9280,
+              "outputBytes": 635,
+              "inputTokens": 5308,
+              "outputTokens": 165,
+              "usageComplete": true,
+              "model": "deepseek-v4.1-flash",
+              "status": "RETURNED",
+              "failure": null,
+              "durationMs": 2173
+            },
+            {
+              "stage": "PLAN",
+              "attempt": 1,
+              "contractHash": "fa75d9530f4132ef73dcac023e831c56f9dba27ea36db8c6754705b63c557bcf",
+              "inputBytes": 16287,
+              "outputBytes": 721,
+              "inputTokens": 15472,
+              "outputTokens": 222,
+              "usageComplete": true,
+              "model": "deepseek-v4.1-flash",
+              "status": "RETURNED",
+              "failure": null,
+              "durationMs": 2711
+            },
+            {
+              "stage": "REVIEW",
+              "attempt": 1,
+              "contractHash": "16fa620faa2d80db55c3f223df0865f1b4f629a60e1b213304cd4c5cdef1c622",
+              "inputBytes": 16379,
+              "outputBytes": 6066,
+              "inputTokens": 19333,
+              "outputTokens": 1654,
+              "usageComplete": true,
+              "model": "deepseek-v4.1-flash",
+              "status": "RETURNED",
+              "failure": null,
+              "durationMs": 7041
+            },
+            {
+              "stage": "REVIEW",
+              "attempt": 2,
+              "contractHash": "16fa620faa2d80db55c3f223df0865f1b4f629a60e1b213304cd4c5cdef1c622",
+              "inputBytes": 25141,
+              "outputBytes": 5798,
+              "inputTokens": 22004,
+              "outputTokens": 1583,
+              "usageComplete": true,
+              "model": "deepseek-v4.1-flash",
+              "status": "RETURNED",
+              "failure": null,
+              "durationMs": 6677
+            },
+            {
+              "stage": "REVIEW",
+              "attempt": 3,
+              "contractHash": "16fa620faa2d80db55c3f223df0865f1b4f629a60e1b213304cd4c5cdef1c622",
+              "inputBytes": 24159,
+              "outputBytes": 5655,
+              "inputTokens": 21650,
+              "outputTokens": 1533,
+              "usageComplete": true,
+              "model": "deepseek-v4.1-flash",
+              "status": "RETURNED",
+              "failure": null,
+              "durationMs": 6047
+            }
+          ],
+          "validations": [
+            {
+              "outcome": "VALIDATED",
+              "detail": "",
+              "stage": "PURPOSE"
+            },
+            {
+              "outcome": "PASSED",
+              "detail": "",
+              "stage": "PRECHECK"
+            },
+            {
+              "outcome": "INVALID_EXPECTATION",
+              "detail": "本轮复核仍有不一致的前提或证据",
+              "stage": "REVIEW"
+            },
+            {
+              "outcome": "BUSINESS_CONTRACT",
+              "detail": "本轮来自条件编辑器，必须完整保留用户指定的查询范围、筛选组合和展示设置，不能改变动作或省略条件",
+              "stage": "PRECHECK"
+            },
+            {
+              "outcome": "INVALID_EXPECTATION",
+              "detail": "本轮复核仍有不一致的前提或证据",
+              "stage": "REVIEW"
+            },
+            {
+              "outcome": "BUSINESS_CONTRACT",
+              "detail": "本轮来自条件编辑器，必须完整保留用户指定的查询范围、筛选组合和展示设置，不能改变动作或省略条件",
+              "stage": "PRECHECK"
+            },
+            {
+              "outcome": "INVALID_EXPECTATION",
+              "detail": "本轮复核仍有不一致的前提或证据",
+              "stage": "REVIEW"
+            },
+            {
+              "outcome": "CONTRACT_OR_PRECHECK",
+              "detail": "本轮语义复核未形成完整且一致的依据，请明确对象或操作后重试",
+              "stage": "PLAN"
+            }
+          ],
+          "route": null,
+          "message": "请修改当前成功查询，保持数据域、公司、报表、展示方式、排序和每页条数不变，回到第1页。本轮完整筛选条件为：（date 大于等于 \"2026-09-01\" 且 date 小于 \"2026-10-01\" 且 amount 大于等于 \"50000\" 且 amount 小于等于 \"80000\"）。明确删除或替换旧条件：amount 小于等于 \"120000\"。明确删除或替换旧条件：saleDate 大于等于 \"2026-10-01\"。明确删除或替换旧条件：saleDate 小于 \"2026-11-01\"。",
+          "scope": "SEMANTIC_PLANNING",
+          "referenceTime": "2026-10-11T08:02:38.231701400Z"
+        },
+        "truth": null,
+        "events": [
+          {
+            "type": "conversation",
+            "data": {
+              "conversationId": "49fa7b389ecd478abcd9e26ef9161a30",
+              "title": "列出沪东公司销售报表中2026年9月成交、签约额不少于5万元",
+              "requestId": "61ede5b8abe0485f823935d01c9e501e"
+            }
+          },
+          {
+            "type": "text",
+            "data": {
+              "delta": "本轮语义复核未形成完整且一致的依据，请明确对象或操作后重试 本轮未应用任何修改。"
+            }
+          },
+          {
+            "type": "done",
+            "data": {}
+          }
+        ]
+      },
+      {
+        "caseId": "dictionary-interval-edit/5",
+        "message": "清除附加条件，保留公司和报表。",
+        "interaction": "EDIT",
+        "expected": {
+          "kind": "query",
+          "domain": "REPORT",
+          "view": "LIST",
+          "companyCode": "A",
+          "reportIds": [
+            "rpt-sales-order"
+          ],
+          "where": []
+        },
+        "conversationId": "49fa7b389ecd478abcd9e26ef9161a30",
+        "passed": false,
+        "category": "INCOMPLETE_RESULT",
+        "errors": [
+          "MISSING_REAL_MODEL_STAGE_EVIDENCE",
+          "MISSING_QUERY"
+        ],
+        "durationMs": 3005,
+        "diagnostic": null,
+        "truth": null,
+        "events": [
+          {
+            "type": "error",
+            "data": {
+              "message": "该查询已变化，请重新打开最新查询后编辑"
+            }
+          },
+          {
+            "type": "done",
+            "data": {}
+          }
+        ]
+      },
+      {
+        "caseId": "field-clarification/1",
+        "message": "查询A公司销售报表，准备按金额或业务日期升序排列，但我还没决定排序字段，请先提供这两个字段让我选择。",
+        "interaction": "TEXT",
+        "expected": {
+          "kind": "clarify",
+          "optionKind": "FIELD",
+          "values": [
+            "amount",
+            "date"
+          ]
+        },
+        "conversationId": "90e05fce5eed453eb8ba8f5e45eccd0e",
+        "passed": false,
+        "category": "INCOMPLETE_RESULT",
+        "errors": [
+          "EXPECTED_CLARIFICATION",
+          "CLARIFICATION_OPTIONS"
+        ],
+        "durationMs": 21922,
+        "diagnostic": {
+          "requestId": "29698dfd3f214924aa4a8de0161da30e",
+          "outcome": "ACCEPTED",
+          "dictionaryHash": "cec06858d9cf4976eed42cc44d4b704f32b4ef6869a5e659baf14d33d30e8063",
+          "schemaHashes": {
+            "REVIEW": "39a51b44b99e3f7e680792e115f21676dbfeab4be9b1d6d8f181213fadb82346",
+            "PLAN": "53aaffd1cd4e725e807492fd35d865329c6001306392e657508d6b09dd342e9a",
+            "PURPOSE": "9380e497d8b8782a886945f245e92904199ae427cd5d24c0a8a4f3ab4741da61"
+          },
+          "durationMs": 18812,
+          "modelCalls": 6,
+          "repairCalls": 3,
+          "firstPass": false,
+          "usageComplete": true,
+          "inputTokens": 80441,
+          "outputTokens": 1150,
+          "cost": null,
+          "costComplete": false,
+          "calls": [
+            {
+              "stage": "PURPOSE",
+              "attempt": 1,
+              "contractHash": "cbc38ae6d91e8fafd96897610b3aa44fdb8bb25bff9ffc5e453eb5bcd23f26e6",
+              "inputBytes": 8017,
+              "outputBytes": 436,
+              "inputTokens": 4932,
+              "outputTokens": 101,
+              "usageComplete": true,
+              "model": "deepseek-v4.1-flash",
+              "status": "RETURNED",
+              "failure": null,
+              "durationMs": 2137
+            },
+            {
+              "stage": "PURPOSE",
+              "attempt": 2,
+              "contractHash": "cbc38ae6d91e8fafd96897610b3aa44fdb8bb25bff9ffc5e453eb5bcd23f26e6",
+              "inputBytes": 8184,
+              "outputBytes": 469,
+              "inputTokens": 4970,
+              "outputTokens": 120,
+              "usageComplete": true,
+              "model": "deepseek-v4.1-flash",
+              "status": "RETURNED",
+              "failure": null,
+              "durationMs": 3599
+            },
+            {
+              "stage": "PLAN",
+              "attempt": 1,
+              "contractHash": "fa75d9530f4132ef73dcac023e831c56f9dba27ea36db8c6754705b63c557bcf",
+              "inputBytes": 14962,
+              "outputBytes": 306,
+              "inputTokens": 15058,
+              "outputTokens": 90,
+              "usageComplete": true,
+              "model": "deepseek-v4.1-flash",
+              "status": "RETURNED",
+              "failure": null,
+              "durationMs": 2097
+            },
+            {
+              "stage": "REVIEW",
+              "attempt": 1,
+              "contractHash": "16fa620faa2d80db55c3f223df0865f1b4f629a60e1b213304cd4c5cdef1c622",
+              "inputBytes": 15054,
+              "outputBytes": 2104,
+              "inputTokens": 18919,
+              "outputTokens": 539,
+              "usageComplete": true,
+              "model": "deepseek-v4.1-flash",
+              "status": "RETURNED",
+              "failure": null,
+              "durationMs": 4098
+            },
+            {
+              "stage": "REVIEW",
+              "attempt": 2,
+              "contractHash": "16fa620faa2d80db55c3f223df0865f1b4f629a60e1b213304cd4c5cdef1c622",
+              "inputBytes": 18398,
+              "outputBytes": 1094,
+              "inputTokens": 19790,
+              "outputTokens": 264,
+              "usageComplete": true,
+              "model": "deepseek-v4.1-flash",
+              "status": "RETURNED",
+              "failure": null,
+              "durationMs": 4015
+            },
+            {
+              "stage": "PLAN",
+              "attempt": 2,
+              "contractHash": "fa75d9530f4132ef73dcac023e831c56f9dba27ea36db8c6754705b63c557bcf",
+              "inputBytes": 21103,
+              "outputBytes": 131,
+              "inputTokens": 16772,
+              "outputTokens": 36,
+              "usageComplete": true,
+              "model": "deepseek-v4.1-flash",
+              "status": "RETURNED",
+              "failure": null,
+              "durationMs": 2841
+            }
+          ],
+          "validations": [
+            {
+              "outcome": "INVALID_TARGET",
+              "detail": "业务查询计划不符合协议：独立任务目标缺少动作类别或本轮依据",
+              "stage": "PURPOSE"
+            },
+            {
+              "outcome": "VALIDATED",
+              "detail": "",
+              "stage": "PURPOSE"
+            },
+            {
+              "outcome": "PASSED",
+              "detail": "",
+              "stage": "PRECHECK"
+            },
+            {
+              "outcome": "INVALID_EXPECTATION",
+              "detail": "本轮复核仍有不一致的前提或证据",
+              "stage": "REVIEW"
+            },
+            {
+              "outcome": "PASSED",
+              "detail": "",
+              "stage": "PRECHECK"
+            },
+            {
+              "outcome": "VALIDATED",
+              "detail": "",
+              "stage": "REVIEW"
+            },
+            {
+              "outcome": "SEMANTIC_MISMATCH",
+              "detail": "任务计划与本轮要求存在差异，请依据结构化反馈重新完整规划",
+              "stage": "PLAN"
+            },
+            {
+              "outcome": "ACCEPTED",
+              "detail": "",
+              "stage": "PLAN"
+            }
+          ],
+          "route": "HELP",
+          "message": "查询A公司销售报表，准备按金额或业务日期升序排列，但我还没决定排序字段，请先提供这两个字段让我选择。",
+          "scope": "SEMANTIC_PLANNING",
+          "referenceTime": "2026-10-11T08:04:14.095477900Z"
+        },
+        "truth": null,
+        "events": [
+          {
+            "type": "conversation",
+            "data": {
+              "conversationId": "90e05fce5eed453eb8ba8f5e45eccd0e",
+              "title": "",
+              "requestId": "29698dfd3f214924aa4a8de0161da30e"
+            }
+          },
+          {
+            "type": "text",
+            "data": {
+              "delta": "我是业务助手，可以查询报表数据、派单记录、工单进度和工单总结，也可以准备派单清单。你可以问“销售报表金额大于五万元的有哪些”“查询失败的派单记录”“WO-DEMO-001 到哪个环节了”“总结 A 公司工单”。工单环节与审批人为明确标注的演示数据，查询是只读的，我不能代为审批或推进工单；派单仍需核对清单并点击确认。"
+            }
+          },
+          {
+            "type": "done",
+            "data": {}
+          }
+        ]
+      },
+      {
+        "caseId": "field-clarification/2",
+        "message": "按金额排序。",
+        "interaction": "CHOICE",
+        "expected": {
+          "kind": "query",
+          "domain": "REPORT",
+          "view": "LIST",
+          "companyCode": "A",
+          "reportIds": [
+            "rpt-sales-order"
+          ],
+          "where": [],
+          "sortField": "amount",
+          "descending": false
+        },
+        "conversationId": "90e05fce5eed453eb8ba8f5e45eccd0e",
+        "passed": false,
+        "category": "INCOMPLETE_RESULT",
+        "errors": [
+          "Error"
+        ],
+        "durationMs": 4,
+        "diagnostic": null,
+        "truth": null,
+        "events": []
+      }
+    ]
+  },
+  {
+    "original": "browser-third/regression-first.json",
+    "sha256": "258a71a83b6b0e25c05d04e69c9ef5c90fa2023a4ce40e19cfc3bd3ebb716d88",
+    "recordedAt": "2026-10-11T08:46:44.715Z",
+    "completedAt": "2026-10-11T08:49:24.147Z",
+    "corpus": "tools/fixtures/semantic-quality-regression-v2.json",
+    "corpusSha256": "d38581d4bbf7c98adb8f3bc4d1cda62df1b05b786e7d159be66d36f6c4b1da85",
+    "scorerSha256": "01be12828237849ff4166ca5c79766d2df2c42418d47b7f475cd250a25ad2de8",
+    "sourceSha256": "62b2d6c1374eb42a05841a73501953724514c8e4aabf09fd833d51d7d668cfa1",
+    "summary": {
+      "attempted": 16,
+      "passed": 16,
+      "failed": 0,
+      "counts": {
+        "CORRECT_QUERY": 11,
+        "EXPECTED_INPUT_REJECTION": 2,
+        "EXPECTED_CLARIFICATION": 3
+      },
+      "explicitQuery": {
+        "total": 11,
+        "passed": 11,
+        "firstPass": 8,
+        "firstPassRate": 0.7272727272727273,
+        "unnecessaryClarifications": 0
+      },
+      "clarification": {
+        "total": 3,
+        "passed": 3
+      },
+      "latencyMs": {
+        "samples": 16,
+        "p50": 9987,
+        "p95": 17182,
+        "p99": 17182
+      },
+      "stages": {
+        "PURPOSE": {
+          "calls": 15,
+          "failures": 0,
+          "latencyMs": {
+            "samples": 15,
+            "p50": 2195,
+            "p95": 3589,
+            "p99": 3589
+          }
+        },
+        "PLAN": {
+          "calls": 16,
+          "failures": 0,
+          "latencyMs": {
+            "samples": 16,
+            "p50": 2791,
+            "p95": 4052,
+            "p99": 4052
+          }
+        },
+        "REVIEW": {
+          "calls": 14,
+          "failures": 0,
+          "latencyMs": {
+            "samples": 14,
+            "p50": 4823,
+            "p95": 7577,
+            "p99": 7577
+          }
+        }
+      },
+      "modelCalls": 45,
+      "repairCalls": 3,
+      "usage": {
+        "complete": true,
+        "measuredCalls": 45,
+        "totalCalls": 45,
+        "inputTokens": 608664,
+        "outputTokens": 15811,
+        "cost": null,
+        "costComplete": false
+      }
+    },
+    "failures": []
+  },
+  {
+    "original": "browser-third/regression-second.json",
+    "sha256": "4f5e66973271a6b7ac7f52e48646aec52f68275a52b58fd11581152cf2b14c27",
+    "recordedAt": "2026-10-11T08:50:52.057Z",
+    "completedAt": "2026-10-11T08:53:39.154Z",
+    "corpus": "tools/fixtures/semantic-quality-regression-v2.json",
+    "corpusSha256": "d38581d4bbf7c98adb8f3bc4d1cda62df1b05b786e7d159be66d36f6c4b1da85",
+    "scorerSha256": "01be12828237849ff4166ca5c79766d2df2c42418d47b7f475cd250a25ad2de8",
+    "sourceSha256": "62b2d6c1374eb42a05841a73501953724514c8e4aabf09fd833d51d7d668cfa1",
+    "summary": {
+      "attempted": 16,
+      "passed": 16,
+      "failed": 0,
+      "counts": {
+        "CORRECT_QUERY": 11,
+        "EXPECTED_INPUT_REJECTION": 2,
+        "EXPECTED_CLARIFICATION": 3
+      },
+      "explicitQuery": {
+        "total": 11,
+        "passed": 11,
+        "firstPass": 7,
+        "firstPassRate": 0.6363636363636364,
+        "unnecessaryClarifications": 0
+      },
+      "clarification": {
+        "total": 3,
+        "passed": 3
+      },
+      "latencyMs": {
+        "samples": 16,
+        "p50": 10320,
+        "p95": 17966,
+        "p99": 17966
+      },
+      "stages": {
+        "PURPOSE": {
+          "calls": 14,
+          "failures": 0,
+          "latencyMs": {
+            "samples": 14,
+            "p50": 2129,
+            "p95": 3887,
+            "p99": 3887
+          }
+        },
+        "PLAN": {
+          "calls": 16,
+          "failures": 0,
+          "latencyMs": {
+            "samples": 16,
+            "p50": 2772,
+            "p95": 3711,
+            "p99": 3711
+          }
+        },
+        "REVIEW": {
+          "calls": 16,
+          "failures": 0,
+          "latencyMs": {
+            "samples": 16,
+            "p50": 4637,
+            "p95": 7131,
+            "p99": 7131
+          }
+        }
+      },
+      "modelCalls": 46,
+      "repairCalls": 4,
+      "usage": {
+        "complete": true,
+        "measuredCalls": 46,
+        "totalCalls": 46,
+        "inputTokens": 644253,
+        "outputTokens": 17488,
+        "cost": null,
+        "costComplete": false
+      }
+    },
+    "failures": []
+  },
+  {
+    "original": "browser-third/temporal-intent-first.json",
+    "sha256": "1962488ada389a8f9d2d8b2b8724ca8a2dfed9eb21f415f22dc844ff79e966d8",
+    "recordedAt": "2026-10-11T08:56:56.927Z",
+    "completedAt": "2026-10-11T08:58:39.047Z",
+    "corpus": "tools/fixtures/semantic-quality-temporal-intent-v1.json",
+    "corpusSha256": "b1cd22869af4296004221dbd9009057910cdd482563b01b895aaf9c8b2f1d21d",
+    "scorerSha256": "01be12828237849ff4166ca5c79766d2df2c42418d47b7f475cd250a25ad2de8",
+    "sourceSha256": "62b2d6c1374eb42a05841a73501953724514c8e4aabf09fd833d51d7d668cfa1",
+    "summary": {
+      "attempted": 8,
+      "passed": 8,
+      "failed": 0,
+      "counts": {
+        "CORRECT_QUERY": 7,
+        "EXPECTED_CLARIFICATION": 1
+      },
+      "explicitQuery": {
+        "total": 7,
+        "passed": 7,
+        "firstPass": 3,
+        "firstPassRate": 0.42857142857142855,
+        "unnecessaryClarifications": 0
+      },
+      "clarification": {
+        "total": 1,
+        "passed": 1
+      },
+      "latencyMs": {
+        "samples": 8,
+        "p50": 11496,
+        "p95": 19123,
+        "p99": 19123
+      },
+      "stages": {
+        "PURPOSE": {
+          "calls": 9,
+          "failures": 0,
+          "latencyMs": {
+            "samples": 9,
+            "p50": 2159,
+            "p95": 2955,
+            "p99": 2955
+          }
+        },
+        "PLAN": {
+          "calls": 10,
+          "failures": 0,
+          "latencyMs": {
+            "samples": 10,
+            "p50": 2823,
+            "p95": 3472,
+            "p99": 3472
+          }
+        },
+        "REVIEW": {
+          "calls": 10,
+          "failures": 0,
+          "latencyMs": {
+            "samples": 10,
+            "p50": 4866,
+            "p95": 6938,
+            "p99": 6938
+          }
+        }
+      },
+      "modelCalls": 29,
+      "repairCalls": 5,
+      "usage": {
+        "complete": true,
+        "measuredCalls": 29,
+        "totalCalls": 29,
+        "inputTokens": 409228,
+        "outputTokens": 11844,
+        "cost": null,
+        "costComplete": false
+      }
+    },
+    "failures": []
+  },
+  {
+    "original": "browser-third/reserve-first.json",
+    "sha256": "207b3c1d03404cf3e0135a45023516b5a3c9d9b3a375abf58baa9809045ada44",
+    "recordedAt": "2026-10-11T09:03:34.315Z",
+    "completedAt": "2026-10-11T09:04:51.888Z",
+    "corpus": "tools/fixtures/semantic-quality-reserve-v1.json",
+    "corpusSha256": "0971d5f6662aedf986d5fb7e5a4d7d6db18c8d5489c197380c0ad7292825f62d",
+    "scorerSha256": "01be12828237849ff4166ca5c79766d2df2c42418d47b7f475cd250a25ad2de8",
+    "sourceSha256": "62b2d6c1374eb42a05841a73501953724514c8e4aabf09fd833d51d7d668cfa1",
+    "summary": {
+      "attempted": 8,
+      "passed": 7,
+      "failed": 1,
+      "counts": {
+        "CORRECT_QUERY": 7,
+        "EXPECTATION_MISMATCH": 1
+      },
+      "explicitQuery": {
+        "total": 8,
+        "passed": 7,
+        "firstPass": 7,
+        "firstPassRate": 0.875,
+        "unnecessaryClarifications": 0
+      },
+      "clarification": {
+        "total": 0,
+        "passed": 0
+      },
+      "latencyMs": {
+        "samples": 8,
+        "p50": 9305,
+        "p95": 13513,
+        "p99": 13513
+      },
+      "stages": {
+        "PURPOSE": {
+          "calls": 9,
+          "failures": 0,
+          "latencyMs": {
+            "samples": 9,
+            "p50": 2026,
+            "p95": 2961,
+            "p99": 2961
+          }
+        },
+        "PLAN": {
+          "calls": 9,
+          "failures": 0,
+          "latencyMs": {
+            "samples": 9,
+            "p50": 2411,
+            "p95": 2922,
+            "p99": 2922
+          }
+        },
+        "REVIEW": {
+          "calls": 8,
+          "failures": 0,
+          "latencyMs": {
+            "samples": 8,
+            "p50": 4183,
+            "p95": 5482,
+            "p99": 5482
+          }
+        }
+      },
+      "modelCalls": 26,
+      "repairCalls": 2,
+      "usage": {
+        "complete": true,
+        "measuredCalls": 26,
+        "totalCalls": 26,
+        "inputTokens": 347968,
+        "outputTokens": 7162,
+        "cost": null,
+        "costComplete": false
+      }
+    },
+    "failures": [
+      {
+        "caseId": "null-date-and-disjunction/1",
+        "message": "列出A公司的销售报表，业务日期为空，或者金额等于0.01元。",
+        "interaction": "TEXT",
+        "expected": {
+          "kind": "query",
+          "domain": "REPORT",
+          "view": "LIST",
+          "companyCode": "A",
+          "reportIds": [
+            "rpt-sales-order"
+          ],
+          "where": [],
+          "anyOf": [
+            [
+              [
+                "date",
+                "IS_NULL",
+                []
+              ]
+            ],
+            [
+              [
+                "amount",
+                "EQ",
+                "0.01"
+              ]
+            ]
+          ]
+        },
+        "conversationId": "84b58c2afbbb432d8a10064870f0d47e",
+        "passed": false,
+        "category": "EXPECTATION_MISMATCH",
+        "errors": [
+          "QUERY_CONDITION_SEMANTICS",
+          "FULL_RESULT_COUNT",
+          "DISPLAYED_SOURCE_IDENTITIES",
+          "EXACT_AMOUNT_TOTAL"
+        ],
+        "durationMs": 13513,
+        "diagnostic": {
+          "requestId": "d021e447ccd3435cadb2d9371a740c10",
+          "outcome": "ACCEPTED",
+          "dictionaryHash": "cec06858d9cf4976eed42cc44d4b704f32b4ef6869a5e659baf14d33d30e8063",
+          "schemaHashes": {
+            "PLAN": "15e0cd1ac6dc52db8e8f995c5526f2bf528336e2c0c8377701dad555de368962",
+            "REVIEW": "dd4bdb79a48dea29668f3bfd56e3d745c8870ecb55d18ee68bea843146f874a6",
+            "PURPOSE": "61e6776228609e19abe00124b4fd7b558a4cffe6ec5fa81179d37f03b206d1d1"
+          },
+          "durationMs": 13355,
+          "modelCalls": 5,
+          "repairCalls": 2,
+          "firstPass": false,
+          "usageComplete": true,
+          "inputTokens": 62157,
+          "outputTokens": 944,
+          "cost": null,
+          "costComplete": false,
+          "calls": [
+            {
+              "stage": "PURPOSE",
+              "attempt": 1,
+              "contractHash": "a96f5b598258244659129a54bad791075f4f87bc45b382e7800e280fdbe1cc44",
+              "inputBytes": 7968,
+              "outputBytes": 351,
+              "inputTokens": 5095,
+              "outputTokens": 102,
+              "usageComplete": true,
+              "model": "deepseek-v4.1-flash",
+              "status": "RETURNED",
+              "failure": null,
+              "durationMs": 1931
+            },
+            {
+              "stage": "PURPOSE",
+              "attempt": 2,
+              "contractHash": "a96f5b598258244659129a54bad791075f4f87bc45b382e7800e280fdbe1cc44",
+              "inputBytes": 8156,
+              "outputBytes": 319,
+              "inputTokens": 5139,
+              "outputTokens": 79,
+              "usageComplete": true,
+              "model": "deepseek-v4.1-flash",
+              "status": "RETURNED",
+              "failure": null,
+              "durationMs": 2129
+            },
+            {
+              "stage": "PLAN",
+              "attempt": 1,
+              "contractHash": "56c13d4756d66e7fa81c2666296b81c5176c7f0ea5df205cd70fa9244f58c318",
+              "inputBytes": 14997,
+              "outputBytes": 432,
+              "inputTokens": 15473,
+              "outputTokens": 130,
+              "usageComplete": true,
+              "model": "deepseek-v4.1-flash",
+              "status": "RETURNED",
+              "failure": null,
+              "durationMs": 2573
+            },
+            {
+              "stage": "REVIEW",
+              "attempt": 1,
+              "contractHash": "4c3d8d7930f46c6ed937d16c1df89ea32cd73287df6d97398f8ca2c40e3a6319",
+              "inputBytes": 15089,
+              "outputBytes": 1963,
+              "inputTokens": 19437,
+              "outputTokens": 508,
+              "usageComplete": true,
+              "model": "deepseek-v4.1-flash",
+              "status": "RETURNED",
+              "failure": null,
+              "durationMs": 3771
+            },
+            {
+              "stage": "PLAN",
+              "attempt": 2,
+              "contractHash": "56c13d4756d66e7fa81c2666296b81c5176c7f0ea5df205cd70fa9244f58c318",
+              "inputBytes": 20628,
+              "outputBytes": 420,
+              "inputTokens": 17013,
+              "outputTokens": 125,
+              "usageComplete": true,
+              "model": "deepseek-v4.1-flash",
+              "status": "RETURNED",
+              "failure": null,
+              "durationMs": 2922
+            }
+          ],
+          "validations": [
+            {
+              "detail": "业务查询计划不符合协议：必须输出一个合法JSON对象，不含Markdown围栏或额外文本",
+              "outcome": "INVALID_TARGET",
+              "stage": "PURPOSE"
+            },
+            {
+              "detail": "",
+              "outcome": "VALIDATED",
+              "stage": "PURPOSE"
+            },
+            {
+              "detail": "",
+              "outcome": "PASSED",
+              "stage": "PRECHECK"
+            },
+            {
+              "detail": "",
+              "outcome": "PASSED",
+              "stage": "PRECHECK"
+            },
+            {
+              "detail": "",
+              "outcome": "VALIDATED",
+              "stage": "REVIEW"
+            },
+            {
+              "detail": "任务计划与本轮要求存在差异，请依据结构化反馈重新完整规划",
+              "outcome": "SEMANTIC_MISMATCH",
+              "stage": "PLAN"
+            },
+            {
+              "detail": "",
+              "outcome": "ACCEPTED",
+              "stage": "PLAN"
+            }
+          ],
+          "route": "BUSINESS_QUERY",
+          "message": "列出A公司的销售报表，业务日期为空，或者金额等于0.01元。",
+          "scope": "SEMANTIC_PLANNING",
+          "referenceTime": "2026-10-11T09:04:28.186750Z"
+        },
+        "truth": {
+          "count": 1,
+          "displayedKeys": [
+            "rpt-sales-order:11"
+          ]
+        },
+        "events": [
+          {
+            "type": "conversation",
+            "data": {
+              "requestId": "d021e447ccd3435cadb2d9371a740c10",
+              "title": "",
+              "conversationId": "84b58c2afbbb432d8a10064870f0d47e"
+            }
+          },
+          {
+            "type": "business_query",
+            "data": {
+              "query": {
+                "domain": "REPORT",
+                "view": "LIST",
+                "reportIds": [
+                  "rpt-sales-order"
+                ],
+                "companyCode": "A",
+                "conditions": [
+                  {
+                    "allOf": [
+                      {
+                        "field": "date",
+                        "operator": "IS_NULL",
+                        "values": []
+                      },
+                      {
+                        "field": "amount",
+                        "operator": "EQ",
+                        "values": [
+                          "0.01"
+                        ]
+                      }
+                    ]
+                  }
+                ],
+                "sortField": null,
+                "descending": false,
+                "page": 1,
+                "size": 20,
+                "groupBy": null
+              },
+              "observedAt": "2026-10-11T17:04:38.611850700+08:00",
+              "source": "业务系统当前记录",
+              "columns": [
+                {
+                  "name": "reportId",
+                  "type": "string",
+                  "description": "报表稳定标识"
+                },
+                {
+                  "name": "reportName",
+                  "type": "string",
+                  "description": "报表名称"
+                },
+                {
+                  "name": "companyCode",
+                  "type": "string",
+                  "description": "所属公司代码"
+                },
+                {
+                  "name": "docNo",
+                  "type": "string",
+                  "description": "来源单据号"
+                },
+                {
+                  "name": "amount",
+                  "type": "decimal",
+                  "description": "来源金额，币种见 currency；空值表示未提供"
+                },
+                {
+                  "name": "currency",
+                  "type": "string",
+                  "description": "来源声明币种；空值表示未声明，不能跨币种合计"
+                },
+                {
+                  "name": "date",
+                  "type": "date",
+                  "description": "业务日期；空值表示未配置"
+                },
+                {
+                  "name": "status",
+                  "type": "string",
+                  "description": "报表派单状态：未派单/已派单"
+                },
+                {
+                  "name": "orderNo",
+                  "type": "string",
+                  "description": "订单号"
+                },
+                {
+                  "name": "productName",
+                  "type": "string",
+                  "description": "产品名称"
+                },
+                {
+                  "name": "saleDate",
+                  "type": "date",
+                  "description": "销售日期，字符串 yyyy-MM-dd"
+                },
+                {
+                  "name": "daysSinceSale",
+                  "type": "long",
+                  "description": "距销售日期的天数（派生）"
+                },
+                {
+                  "name": "dispatched",
+                  "type": "boolean",
+                  "description": "来源记录是否已派单；true为已派单，false为未派单，不代表满足派单规则"
+                },
+                {
+                  "name": "recordId",
+                  "type": "string",
+                  "description": "报表内稳定记录标识"
+                }
+              ],
+              "rows": [],
+              "total": 0,
+              "summary": {
+                "count": 0,
+                "amountsByCurrency": {},
+                "statusCounts": {},
+                "groups": {},
+                "pendingApprovers": {},
+                "unclassifiedAmountCount": 0
+              },
+              "interpretation": {
+                "queryFingerprint": "5ce6ae5d820af10ab79813d613543cd2506fc060e935f622eb0ad6326f477d3c",
+                "removed": [],
+                "scopeChanged": false,
+                "conditions": [
+                  {
+                    "condition": {
+                      "field": "amount",
+                      "operator": "EQ",
+                      "values": [
+                        "0.01"
+                      ]
+                    },
+                    "origin": "CURRENT_REQUEST",
+                    "evidence": "金额等于0.01元"
+                  },
+                  {
+                    "condition": {
+                      "field": "date",
+                      "operator": "IS_NULL",
+                      "values": []
+                    },
+                    "origin": "CURRENT_REQUEST",
+                    "evidence": "业务日期为空"
+                  }
+                ],
+                "groupingChanged": false,
+                "currentConditions": [
+                  {
+                    "allOf": [
+                      {
+                        "field": "date",
+                        "operator": "IS_NULL",
+                        "values": []
+                      },
+                      {
+                        "field": "amount",
+                        "operator": "EQ",
+                        "values": [
+                          "0.01"
+                        ]
+                      }
+                    ]
+                  }
+                ],
+                "queryRef": "d021e447ccd3435cadb2d9371a740c10",
+                "added": [
+                  {
+                    "field": "amount",
+                    "operator": "EQ",
+                    "values": [
+                      "0.01"
+                    ]
+                  },
+                  {
+                    "field": "date",
+                    "operator": "IS_NULL",
+                    "values": []
+                  }
+                ],
+                "previousConditions": [],
+                "retained": []
+              }
+            }
+          },
+          {
+            "type": "text",
+            "data": {
+              "delta": "本次查询匹配 0 条报表记录，当前第 1 页展示 0 条。"
+            }
+          },
+          {
+            "type": "done",
+            "data": {}
+          }
+        ]
+      }
+    ]
+  }
+]

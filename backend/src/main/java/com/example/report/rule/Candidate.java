@@ -15,7 +15,7 @@ import java.time.LocalDate;
  * @param docNo 来源业务单据号，可空时表示来源未提供
  * @param companyCode 公司代码；查询范围为空时表示当前用户全部可见公司
  * @param label 业务记录展示摘要，来源未配置时可为空
- * @param amount 业务金额，保留精确十进制；币种沿用来源账本
+ * @param amount 业务金额，币种沿用来源账本；JSON 输出精确十进制字符串，未提供时为空
  * @param date 来源业务日期，未配置时可为空
  * @param ruleId 命中的规则标识，人工派单不套规则时可为空
  * @param ruleName 命中的规则名称快照
@@ -29,6 +29,7 @@ public record Candidate(
         String docNo,
         String companyCode,
         String label,
+        @com.fasterxml.jackson.databind.annotation.JsonSerialize(using = com.example.report.common.DecimalStringSerializer.class)
         BigDecimal amount,
         LocalDate date,
         Long ruleId,

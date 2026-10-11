@@ -103,8 +103,12 @@
             </template>
             <template v-else-if="m.role === 'card' && m.cardType === 'business_query'">
               <business-query-card :payload="m.payload" :busy="busy" :latest="isLatestBusinessQuery(m)"
+                @edit="openQueryEditor(m)"
                 @page="send('把上一次业务查询翻到第' + $event + '页')"
                 @detail="send('查看工单 ' + $event + ' 的进度和处理总结')" />
+            </template>
+            <template v-else-if="m.role === 'card' && m.cardType === 'semantic_clarification'">
+              <section class="clarification-card"><p>{{ m.payload.question }}</p><el-button v-for="choice in m.payload.choices" :key="choice.value" size="small" :disabled="busy || !isLatestClarification(m)" @click="answerClarification(m, choice)">{{ choice.label }}</el-button><p v-if="!isLatestClarification(m)" class="hint">历史澄清，请按最新问题继续。</p></section>
             </template>
           </div>
         </div>
@@ -136,6 +140,7 @@
         </div>
       </div>
     </div>
+    <query-condition-editor v-if="queryEditTarget" :key="queryEditTarget.payload.interpretation.queryRef" :payload="queryEditTarget.payload" :busy="busy" @close="queryEditTarget = null" @submit="submitQueryEdit" />
   </el-drawer>
 </template>
 
@@ -149,6 +154,7 @@ import PlanCard from './PlanCard.vue'
 import ResultCard from './ResultCard.vue'
 import ReportChoiceCard from './ReportChoiceCard.vue'
 import BusinessQueryCard from './BusinessQueryCard.vue'
+import QueryConditionEditor from './QueryConditionEditor.vue'
 import { renderMarkdown } from '../../utils/markdown'
 import { getCurrentUserId } from '../../auth'
 import { resumePlanAction } from '../../api/dispatchJob'
@@ -178,12 +184,13 @@ let seq = 0
 
 export default {
   name: 'AgentChat',
-  components: { PreviewCard, PlanCard, ResultCard, ReportChoiceCard, BusinessQueryCard },
+  components: { PreviewCard, PlanCard, ResultCard, ReportChoiceCard, BusinessQueryCard, QueryConditionEditor },
   props: {
     visible: { type: Boolean, default: false }
   },
   data() {
     return {
+      queryEditTarget: null,
       sessionUserId: getCurrentUserId(),
       disposed: false,
       abortStream: null,
@@ -222,7 +229,9 @@ export default {
     }
   },
   watch: {
+    activeId() { this.queryEditTarget = null },
     visible(v) {
+      if (!v) this.queryEditTarget = null
       if (v) {
         this.loadConversations()
         if (!this.modelName) {
@@ -242,10 +251,16 @@ export default {
     this.clearSelection()
   },
   methods: {
+    /** 只编辑当前卡片副本；服务器仍检查会话的当前查询引用，阻止其他标签页的过期提交。 */
+    openQueryEditor(message) { if (!this.busy && this.isLatestBusinessQuery(message) && message.payload.interpretation) this.queryEditTarget = message },
+    submitQueryEdit(edit) { this.queryEditTarget = null; return this.send('按已编辑的完整条件重新查询', { queryEdit: edit }) },
+    isLatestClarification(message) { const index = this.messages.indexOf(message); return index >= 0 && !this.messages.slice(index + 1).some(item => item.role === 'user') },
+    answerClarification(message, choice) { if (this.busy || !this.isLatestClarification(message)) return; return this.send('针对刚才的问题，我选择：' + choice.label, { clarificationReply: { clarificationRef: message.payload.clarificationRef, value: choice.value } }) },
     /** 历史卡片保留原查询时间与结果，翻页只允许最新业务查询，避免按钮误操作其他查询范围。 */
     isLatestBusinessQuery(message) {
       const queries = this.messages.filter(m => m.role === 'card' && m.cardType === 'business_query')
-      return queries.length > 0 && queries[queries.length - 1] === message
+      // 新一轮即使澄清或失败也取代旧操作入口；后端另核对最新成功查询引用和当前焦点。
+      return queries.length > 0 && queries[queries.length - 1] === message && !this.messages.slice(this.messages.indexOf(message) + 1).some(m => m.role === 'user')
     },
     isCurrentSession() {
       return !this.disposed && this.sessionUserId === getCurrentUserId()
@@ -581,7 +596,7 @@ export default {
       }
     },
     /** 发送本轮原文与当前预览选择；消费SSE事件，断流后恢复已持久化消息和卡片，不把断流当作授权重发的依据。 */
-    async send(text) {
+    async send(text, interaction = {}) {
       if (!this.isCurrentSession()) return
       const message = (text || this.input || '').trim()
       if (!message || this.busy || this.selectionRestoreFailed) return
@@ -627,6 +642,9 @@ export default {
           case 'business_query':
             cards.push({ role: 'card', cardType: 'business_query', payload: data })
             break
+          case 'semantic_clarification':
+            cards.push({ role: 'card', cardType: 'semantic_clarification', payload: data })
+            break
           case 'choice':
             cards.push({ role: 'card', cardType: 'choice', payload: data, chosen: '' })
             break
@@ -649,7 +667,7 @@ export default {
         }
       }
       try {
-        const { promise, abort } = streamChat({ conversationId: this.activeId, message, excludedRecords, previewId }, onEvent)
+        const { promise, abort } = streamChat({ conversationId: this.activeId, message, excludedRecords, previewId, ...interaction }, onEvent)
         this.abortStream = abort
         await promise
         if (!this.isCurrentSession()) return

@@ -1,0 +1,39 @@
+{
+  "recordedAt": "2026-10-11T05:50:28.891Z",
+  "originalsPreserved": true,
+  "productCodeChangedDuringRecovery": false,
+  "limitations": [
+    {
+      "original": "04-trace-model-and-result",
+      "classification": "采集文本匹配误判",
+      "reason": "DOM快照转义了JSON双引号；原屏幕与行文本中MODEL存在。",
+      "verifiedBy": "05-trace-source-text-verified"
+    },
+    {
+      "original": "12-next-page-read-failure",
+      "classification": "验收预期文案不准确",
+      "reason": "HTTP 503由请求层显示为Request failed with status code 503；列表加载失败和重试入口均存在。",
+      "verifiedBy": "14-next-page-failure-text-verified"
+    },
+    {
+      "original": "22-stale-history-link-denied",
+      "classification": "瞬时提示采集过晚",
+      "reason": "权限拒绝提示已在上一工具结果显示，但独立取证时提示已消失；立即重读后捕获原拒绝。",
+      "verifiedBy": "23-history-denied-captured"
+    },
+    {
+      "original": "pagination-failure.json",
+      "classification": "合成夹具违反当前ID协议",
+      "reason": "初版分页夹具用browser-page-XX作为任务ID，违反32位小写十六进制契约；生产拒绝无效游标符合现有协议。修正夹具的共同生成规则，未放宽产品校验。",
+      "verifiedBy": [
+        "10-page-one-valid-ids",
+        "11-page-two-valid-ids",
+        "15-retry-same-cursor"
+      ],
+      "cleanupEvidence": [
+        "remove-pages.json",
+        "remove-valid-pages.json"
+      ]
+    }
+  ]
+}

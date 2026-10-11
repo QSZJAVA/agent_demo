@@ -32,12 +32,13 @@ public class OperationsController {
         this.retention=retention;this.revisions=revisions;this.catalogAdmin=catalogAdmin;this.catalog=catalog;this.evaluation=evaluation;
     }
     private CurrentUser admin(String id) { var u=permissions.resolve(id);permissions.requireAdmin(u);return u; }
+    /** 读取同一快照下的当前授权派单统计；无法核实采样范围时返回明确可用性及原因，不返回全租户采样。 */
     @GetMapping("/metrics")
     public Result<?> metrics(@RequestHeader(PermissionService.USER_HEADER) String id,@RequestParam(defaultValue="7") int days) {
         var u=admin(id);
         if(days<1||days>90) throw new ApiException("统计窗口为 1～90 天");
         audit.record(u,"METRICS_READ","metrics","SUCCESS",null);
-        return Result.ok(Map.of("samples",metrics.summary(u,days),"dispatch",metrics.dispatch(u,days),"overview",metrics.overview(u,days)));
+        return Result.ok(metrics.read(u,days));
     }
     @GetMapping("/audit")
     public Result<?> audit(@RequestHeader(PermissionService.USER_HEADER) String id,@RequestParam(defaultValue="0") long before) {
@@ -79,6 +80,11 @@ public class OperationsController {
     @GetMapping("/workbench")
     public Result<?> workbench(@RequestHeader(PermissionService.USER_HEADER) String id,@RequestParam(required=false) String after) {
         return Result.ok(workbench.list(admin(id),after));
+    }
+    /** 管理员按当前业务范围代读既有清单；不放宽普通用户清单接口的原操作者归属校验。 */
+    @GetMapping("/workbench/{plan}")
+    public Result<?> readPlan(@RequestHeader(PermissionService.USER_HEADER) String id,@PathVariable String plan) {
+        return Result.ok(workbench.readPlan(admin(id),plan));
     }
     @GetMapping("/workbench/{plan}/items")
     public Result<?> items(@RequestHeader(PermissionService.USER_HEADER) String id,@PathVariable String plan,@RequestParam(defaultValue="1") int page) {

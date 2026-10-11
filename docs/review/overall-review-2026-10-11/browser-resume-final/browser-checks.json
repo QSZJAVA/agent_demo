@@ -1,0 +1,437 @@
+{
+  "checks": [
+    {
+      "name": "01-exact-report-money",
+      "recordedAt": "2026-10-11T00:37:00.163Z",
+      "assertions": [
+        {
+          "description": "高位金额保留 .93",
+          "passed": true
+        },
+        {
+          "description": "十一位合法金额完整显示",
+          "passed": true
+        },
+        {
+          "description": "本页合计保留精确分位",
+          "passed": true
+        },
+        {
+          "description": "仅显示六条授权记录",
+          "passed": true
+        }
+      ],
+      "passed": true,
+      "screenshot": "01-exact-report-money.jpg",
+      "dom": "01-exact-report-money.dom.txt"
+    },
+    {
+      "name": "02-narrow-report-money",
+      "recordedAt": "2026-10-11T00:39:10.091Z",
+      "assertions": [
+        {
+          "description": "横向滚动后大额与分位保留",
+          "passed": true
+        },
+        {
+          "description": "合计数字不拆分且数值正确",
+          "passed": true
+        }
+      ],
+      "passed": true,
+      "screenshot": "02-narrow-report-money.jpg",
+      "dom": "02-narrow-report-money.dom.txt"
+    },
+    {
+      "name": "03-empty-task-history",
+      "recordedAt": "2026-10-11T00:39:48.423Z",
+      "assertions": [
+        {
+          "description": "初始本人任务为空",
+          "passed": true
+        },
+        {
+          "description": "显示稳定分页状态",
+          "passed": true
+        }
+      ],
+      "passed": true,
+      "screenshot": "03-empty-task-history.jpg",
+      "dom": "03-empty-task-history.dom.txt"
+    },
+    {
+      "name": "04-model-readonly-money",
+      "recordedAt": "2026-10-11T00:41:46.896Z",
+      "assertions": [
+        {
+          "description": "真实查询返回目标订单",
+          "passed": true
+        },
+        {
+          "description": "查询结果保留合法金额",
+          "passed": true
+        },
+        {
+          "description": "查询被标为只读",
+          "passed": true
+        }
+      ],
+      "passed": true,
+      "screenshot": "04-model-readonly-money.jpg",
+      "dom": "04-model-readonly-money.dom.txt"
+    },
+    {
+      "name": "05-first-pending-money",
+      "recordedAt": "2026-10-11T00:45:12.289Z",
+      "assertions": [
+        {
+          "description": "清单只包含一条待确认目标",
+          "passed": true
+        },
+        {
+          "description": "待确认金额保持原值",
+          "passed": true
+        },
+        {
+          "description": "必须由用户点击执行",
+          "passed": true
+        }
+      ],
+      "passed": true,
+      "screenshot": "05-first-pending-money.jpg",
+      "dom": "05-first-pending-money.dom.txt"
+    },
+    {
+      "name": "06-cancelled-plan",
+      "recordedAt": "2026-10-11T00:46:59.074Z",
+      "assertions": [
+        {
+          "description": "清单进入取消状态",
+          "passed": true
+        },
+        {
+          "description": "取消后的历史金额仍精确",
+          "passed": true
+        }
+      ],
+      "passed": true,
+      "screenshot": "06-cancelled-plan.jpg",
+      "dom": "06-cancelled-plan.dom.txt"
+    },
+    {
+      "name": "07-second-pending",
+      "recordedAt": "2026-10-11T00:52:48.405Z",
+      "assertions": [
+        {
+          "description": "新清单等待明确确认",
+          "passed": true
+        },
+        {
+          "description": "目标金额保持精确",
+          "passed": true
+        },
+        {
+          "description": "先前取消记录仍保留",
+          "passed": true
+        }
+      ],
+      "passed": true,
+      "screenshot": "07-second-pending.jpg",
+      "dom": "07-second-pending.dom.txt"
+    },
+    {
+      "name": "08-confirmed-execution",
+      "recordedAt": "2026-10-11T00:56:26.256Z",
+      "assertions": [
+        {
+          "description": "目标清单执行成功",
+          "passed": true
+        },
+        {
+          "description": "任务入口出现既有任务",
+          "passed": true
+        },
+        {
+          "description": "执行后金额保持精确",
+          "passed": true
+        }
+      ],
+      "passed": true,
+      "screenshot": "08-confirmed-execution.jpg",
+      "dom": "08-confirmed-execution.dom.txt"
+    },
+    {
+      "name": "09-task-read-refresh",
+      "recordedAt": "2026-10-11T00:58:59.876Z",
+      "assertions": [
+        {
+          "description": "刷新仍定位同一任务",
+          "passed": true
+        },
+        {
+          "description": "明确显示处理完成",
+          "passed": true
+        },
+        {
+          "description": "只返回一条既有任务",
+          "passed": true
+        }
+      ],
+      "passed": true,
+      "screenshot": "09-task-read-refresh.jpg",
+      "dom": "09-task-read-refresh.dom.txt"
+    },
+    {
+      "name": "10-task-filter-empty",
+      "recordedAt": "2026-10-11T01:00:11.821Z",
+      "assertions": [
+        {
+          "description": "失败筛选显示真实空集合",
+          "passed": true
+        },
+        {
+          "description": "筛选后从第一页开始",
+          "passed": true
+        }
+      ],
+      "passed": true,
+      "screenshot": "10-task-filter-empty.jpg",
+      "dom": "10-task-filter-empty.dom.txt"
+    },
+    {
+      "name": "11-task-filter-completed",
+      "recordedAt": "2026-10-11T01:01:25.879Z",
+      "assertions": [
+        {
+          "description": "完成筛选仍返回既有任务",
+          "passed": true
+        },
+        {
+          "description": "筛选无重复项",
+          "passed": true
+        }
+      ],
+      "passed": true,
+      "screenshot": "11-task-filter-completed.jpg",
+      "dom": "11-task-filter-completed.dom.txt"
+    },
+    {
+      "name": "12-task-plan-money",
+      "recordedAt": "2026-10-11T01:03:56.677Z",
+      "assertions": [
+        {
+          "description": "关联清单已执行",
+          "passed": true
+        },
+        {
+          "description": "目标条目可恢复",
+          "passed": true
+        },
+        {
+          "description": "历史金额保持完整分位",
+          "passed": true
+        },
+        {
+          "description": "条目结果为成功",
+          "passed": true
+        }
+      ],
+      "passed": true,
+      "screenshot": "12-task-plan-money.jpg",
+      "dom": "12-task-plan-money.dom.txt"
+    },
+    {
+      "name": "13-task-trace-events",
+      "recordedAt": "2026-10-11T01:04:18.628Z",
+      "assertions": [
+        {
+          "description": "追溯证据完整",
+          "passed": true
+        },
+        {
+          "description": "语义来源为真实模型",
+          "passed": true
+        },
+        {
+          "description": "保留实际派单返回事件",
+          "passed": true
+        }
+      ],
+      "passed": true,
+      "screenshot": "13-task-trace-events.jpg",
+      "dom": "13-task-trace-events.dom.txt"
+    },
+    {
+      "name": "14-task-trace-item",
+      "recordedAt": "2026-10-11T01:06:59.708Z",
+      "assertions": [
+        {
+          "description": "逐条证据保留精确金额",
+          "passed": true
+        },
+        {
+          "description": "条目只尝试一次",
+          "passed": true
+        },
+        {
+          "description": "原请求号保持稳定",
+          "passed": true
+        }
+      ],
+      "passed": true,
+      "screenshot": "14-task-trace-item.jpg",
+      "dom": "14-task-trace-item.dom.txt"
+    },
+    {
+      "name": "15-task-page-reload",
+      "recordedAt": "2026-10-11T01:08:12.219Z",
+      "assertions": [
+        {
+          "description": "页面重载后找回同一任务",
+          "passed": true
+        },
+        {
+          "description": "结果保持完成",
+          "passed": true
+        },
+        {
+          "description": "重载后无重复任务",
+          "passed": true
+        }
+      ],
+      "passed": true,
+      "screenshot": "15-task-page-reload.jpg",
+      "dom": "15-task-page-reload.dom.txt"
+    },
+    {
+      "name": "16-rule-history",
+      "recordedAt": "2026-10-11T01:09:57.010Z",
+      "assertions": [
+        {
+          "description": "历史标题绑定当前范围",
+          "passed": true
+        },
+        {
+          "description": "历史包含实际发布记录",
+          "passed": true
+        },
+        {
+          "description": "当前版本表达式一致",
+          "passed": true
+        }
+      ],
+      "passed": true,
+      "screenshot": "16-rule-history.jpg",
+      "dom": "16-rule-history.dom.txt"
+    },
+    {
+      "name": "17-startup-service-error",
+      "recordedAt": "2026-10-11T01:14:23.801Z",
+      "assertions": [
+        {
+          "description": "服务不可用时说明登录恢复失败",
+          "passed": true
+        }
+      ],
+      "passed": true,
+      "screenshot": "17-startup-service-error.jpg",
+      "dom": "17-startup-service-error.dom.txt"
+    },
+    {
+      "name": "19-production-task-table-restored",
+      "recordedAt": "2026-10-11T01:34:02.082Z",
+      "assertions": [
+        {
+          "description": "任务表头",
+          "passed": true
+        },
+        {
+          "description": "唯一已执行任务",
+          "passed": true
+        },
+        {
+          "description": "任务完成",
+          "passed": true
+        },
+        {
+          "description": "只有一项",
+          "passed": true
+        }
+      ],
+      "passed": true,
+      "screenshot": "19-production-task-table-restored.jpg",
+      "dom": "19-production-task-table-restored.dom.txt"
+    },
+    {
+      "name": "20-production-plan-table-restored",
+      "recordedAt": "2026-10-11T01:34:43.337Z",
+      "assertions": [
+        {
+          "description": "已执行清单",
+          "passed": true
+        },
+        {
+          "description": "表头金额",
+          "passed": true
+        },
+        {
+          "description": "手机号形状金额不脱敏",
+          "passed": true
+        },
+        {
+          "description": "成功条目",
+          "passed": true
+        }
+      ],
+      "passed": true,
+      "screenshot": "20-production-plan-table-restored.jpg",
+      "dom": "20-production-plan-table-restored.dom.txt"
+    },
+    {
+      "name": "21-task-load-failure",
+      "recordedAt": "2026-10-11T01:35:25.012Z",
+      "assertions": [
+        {
+          "description": "明确失败",
+          "passed": true
+        },
+        {
+          "description": "保留重试入口",
+          "passed": true
+        },
+        {
+          "description": "不是成功空页",
+          "passed": true
+        }
+      ],
+      "passed": true,
+      "screenshot": "21-task-load-failure.jpg",
+      "dom": "21-task-load-failure.dom.txt"
+    },
+    {
+      "name": "22-report-load-failure",
+      "recordedAt": "2026-10-11T01:35:39.116Z",
+      "assertions": [
+        {
+          "description": "数据不可用",
+          "passed": true
+        },
+        {
+          "description": "明确失败",
+          "passed": true
+        },
+        {
+          "description": "重试入口",
+          "passed": true
+        },
+        {
+          "description": "派单按钮禁用",
+          "passed": true
+        }
+      ],
+      "passed": true,
+      "screenshot": "22-report-load-failure.jpg",
+      "dom": "22-report-load-failure.dom.txt"
+    }
+  ]
+}

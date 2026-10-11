@@ -25,4 +25,9 @@ public class AgentChatService {
     public Flux<ServerSentEvent<Object>> chat(CurrentUser user,String conversationId,String message,String uiPreviewId,List<RecordKey> excludedRecords) {
         return semantic.chat(user,conversationId,message,uiPreviewId,excludedRecords,modelName());
     }
+    /** 明确的条件编辑和澄清选项仍由权威会话租约、真实模型与独立复核处理。 */
+    public Flux<ServerSentEvent<Object>> chat(CurrentUser user,String conversationId,String message,String uiPreviewId,List<RecordKey> excludedRecords,
+            com.example.report.assistant.AssistantInteraction.QueryEdit edit,com.example.report.assistant.AssistantInteraction.ClarificationReply answer){
+        return semantic.chat(user,conversationId,message,uiPreviewId,excludedRecords,modelName(),edit,answer);
+    }
 }

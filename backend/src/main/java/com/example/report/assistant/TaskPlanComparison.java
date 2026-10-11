@@ -109,7 +109,7 @@ public final class TaskPlanComparison {
     private static SemanticReview.Aspect aspect(String path) {
         if(path.equals("/route") || path.startsWith("/dispatch/intent/action") || path.startsWith("/dispatch/intent/restrictions"))return SemanticReview.Aspect.ACTION;
         if(path.equals("/followUp") || path.startsWith("/removedFilters"))return SemanticReview.Aspect.CONTINUITY;
-        if(path.equals("/clarification") || path.startsWith("/dispatch/intent/clarify") || path.startsWith("/dispatch/intent/unsupportedConditions"))return SemanticReview.Aspect.CAPABILITY;
+        if(path.equals("/clarification") || path.startsWith("/clarificationOptions") || path.startsWith("/dispatch/intent/clarify") || path.startsWith("/dispatch/intent/unsupportedConditions"))return SemanticReview.Aspect.CAPABILITY;
         if(path.startsWith("/query/conditions") || path.startsWith("/dispatch/intent/scopeChanges")
                 || path.startsWith("/dispatch/intent/reportConstraints"))return SemanticReview.Aspect.CONDITIONS;
         if(path.startsWith("/dispatch/source") || path.startsWith("/dispatch/referenceKeys"))return SemanticReview.Aspect.REFERENCE;
@@ -137,7 +137,7 @@ public final class TaskPlanComparison {
         } else if(node.isArray()) {
             var array=(ArrayNode)node;for(var child:array)normalize(child,path+"/*");
             if(path.endsWith("/reportIds") || path.endsWith("/referenceKeys") || path.equals("/removedFilters")
-                    || path.equals("/query/conditions") || path.equals("/query/conditions/*/allOf") || path.equals("/query/conditions/*/allOf/*/values")) {
+                    || path.equals("/query/conditions") || path.equals("/query/conditions/*/allOf") || path.equals("/query/conditions/*/allOf/*/values") || path.equals("/clarificationOptions/values")) {
                 var values=new TreeMap<String,JsonNode>();for(var child:array)values.put(child.toString(),child);
                 array.removeAll();values.values().forEach(array::add);
             }

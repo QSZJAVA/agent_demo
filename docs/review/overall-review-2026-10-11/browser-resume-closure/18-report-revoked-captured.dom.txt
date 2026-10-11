@@ -1,0 +1,98 @@
+- complementary:
+  - generic: 
+  - text: 报表工作台
+  - generic: 业务协同 · 演示系统
+  - generic: 业务空间
+  - menubar:
+    - menuitem " 销售报表":
+      - generic: 
+      - text: 销售报表
+    - menuitem " 我的任务":
+      - generic: 
+      - text: 我的任务
+    - menuitem " 派单规则":
+      - generic: 
+      - text: 派单规则
+- generic: 我的任务
+- generic: 
+- text: Reader A
+- button "退出登录"
+- button " 业务助手":
+  - generic: 
+  - text: 业务助手
+- main:
+  - heading "我的任务" [level=1]
+  - paragraph: 找回已提交的派单、重试与核对任务，查看当前进度和清单结果
+  - button " 刷新任务":
+    - generic: 
+    - text: 刷新任务
+  - generic "任务状态":
+    - textbox "请选择": 全部状态
+    - generic: 
+  - generic: 按创建时间倒序 · 仅显示当前权限可见的本人任务
+  - alert:
+    - generic: 
+    - generic: 任务处理完成后，请查看关联清单的逐条结果。任务失败或结果待核对时，请先核实已有结果。 
+  - table:
+    - rowgroup:
+      - row "任务 状态 当前说明 创建时间 更新时间 关联清单":
+        - columnheader "任务":
+          - generic: 任务
+        - columnheader "状态":
+          - generic: 状态
+        - columnheader "当前说明":
+          - generic: 当前说明
+        - columnheader "创建时间":
+          - generic: 创建时间
+        - columnheader "更新时间":
+          - generic: 更新时间
+        - columnheader "关联清单":
+          - generic: 关联清单
+  - table:
+    - rowgroup:
+      - row "确认派单 1f37e445ccdf4fa89db3198a6788a07f 处理完成 处理完成，请查看清单逐条结果 2026-10-11 11:57:00 2026-10-11 11:57:00 查看清单":
+        - cell "确认派单 1f37e445ccdf4fa89db3198a6788a07f":
+          - strong: 确认派单
+          - generic "1f37e445ccdf4fa89db3198a6788a07f"
+        - cell "处理完成":
+          - generic: 处理完成
+        - cell "处理完成，请查看清单逐条结果":
+          - generic: 处理完成，请查看清单逐条结果
+        - cell "2026-10-11 11:57:00":
+          - generic: 2026-10-11 11:57:00
+        - cell "2026-10-11 11:57:00":
+          - generic: 2026-10-11 11:57:00
+        - cell "查看清单":
+          - button "查看清单":
+            - generic: 查看清单
+  - generic: 第 1 页 · 本页 1 项
+  - button "上一页" [disabled]
+  - button "更早任务" [disabled]
+  - text: 
+- document:
+  - dialog:
+    - generic: 历史会话
+    - button " 新建":
+      - generic: 
+      - text: 新建
+    - button "查询A公司销售报表订单SO2026001的明细 2026-10-11 11:57  " [active]:
+      - generic "查询A公司销售报表订单SO2026001的明细"
+      - generic: 2026-10-11 11:57
+      - generic "改名": 
+      - generic "删除": 
+    - generic: 业务助手
+    - generic: 模型：deepseek-v4.1-flash
+    - button "":
+      - generic: 
+    - paragraph: 你好，我可以查报表、派单记录、工单进度和总结，也可以帮你准备派单：
+    - generic: 查询销售报表数据
+    - generic: 查询派单记录
+    - generic: WO-DEMO-001 到哪个环节了
+    - generic: 总结A公司的工单
+    - generic: 查一下我有哪些可以派单
+    - textbox "例如：查询销售报表 / 查询失败的派单记录 / 总结A公司工单（Enter 发送，Shift+Enter 换行）"
+    - generic: 派单前会先生成待确认清单，点击"确认派单"才会真正执行
+    - button "发送"
+- alert:
+  - generic: 
+  - paragraph: 会话权限已变化，请新建会话重新查询

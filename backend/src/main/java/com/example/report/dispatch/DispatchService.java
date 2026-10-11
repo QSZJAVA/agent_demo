@@ -172,7 +172,8 @@ public class DispatchService {
     }
 
     /**
-     * 仅重发业务接口已明确返回 FAILED 的条目；UNKNOWN 先核对，SUCCESS 与 SKIPPED 不重发。异步调用须绑定提交时的清单版本。
+     * 仅重发业务接口已明确返回 FAILED 的条目；UNKNOWN 先核对，SUCCESS 与 SKIPPED 不重发。
+     * 异步调用先验证提交版本，所有入口认领时均绑定本次读取的失败快照版本，不能采用后来完成的执行轮次。
      */
     public DispatchResultPayload retryFailed(CurrentUser user, String planId, Long expectedVersion) {
         try (ResourceQuotaService.Permit permit = acquirePlanPermit(user, planId)) {
@@ -195,8 +196,9 @@ public class DispatchService {
                 .orElseThrow(() -> ApiException.notFound("原预览不存在"));
         String reason = versions.verifyForRetry(user, preview);
         if (reason != null) throw new ApiException(409, "权限、报表或规则已变化，请重新预览后处理失败记录");
-        var claimedVersion = expectedVersion==null ? plans.claimRetry(planId, LocalDateTime.now())
-                : plans.claimRetry(planId,expectedVersion,LocalDateTime.now());
+        // 同步请求也可能在复核期间迟到：若另一轮已完成，旧失败快照不可借用新执行版本再发送并覆盖尝试计数。
+        // expectedVersion 在读取后已校验；此处统一以实际读取版本做原子条件认领，不扩大任何确认或重试权限。
+        var claimedVersion = plans.claimRetry(planId,plan.getExecutionVersion(),LocalDateTime.now());
         if (claimedVersion.isEmpty()) {
             throw new ApiException(409, "该清单正在处理或已被其他请求重试");
         }

@@ -66,7 +66,7 @@ public class ConversationController {
         }).toList());
     }
 
-    /** 会话里全部预览 / 清单卡片的当前状态：前端每轮对话、每次操作后以此为准刷新卡片*/
+    /** 先检查会话归属，再由状态服务复核当前业务权限；状态和执行计数不能绕过历史消息的权限边界。 */
     @GetMapping("/{id}/card-states")
     public Result<CardStateService.ConversationStates> cardStates(@RequestHeader(PermissionService.USER_HEADER) String userId,
                                                                   @PathVariable String id) {

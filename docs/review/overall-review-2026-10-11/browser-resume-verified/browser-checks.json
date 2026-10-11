@@ -1,0 +1,451 @@
+{
+  "checks": [
+    {
+      "name": "01-model-readonly-money",
+      "recordedAt": "2026-10-11T02:32:18.196Z",
+      "assertions": [
+        {
+          "description": "真实查询结果",
+          "passed": true
+        },
+        {
+          "description": "精确金额",
+          "passed": true
+        },
+        {
+          "description": "单一目标",
+          "passed": true
+        }
+      ],
+      "passed": true,
+      "screenshot": "01-model-readonly-money.jpg",
+      "dom": "01-model-readonly-money.dom.txt"
+    },
+    {
+      "name": "02-pending",
+      "recordedAt": "2026-10-11T02:33:07.820Z",
+      "assertions": [
+        {
+          "description": "待确认",
+          "passed": true
+        },
+        {
+          "description": "精确金额",
+          "passed": true
+        }
+      ],
+      "passed": true,
+      "screenshot": "02-pending.jpg",
+      "dom": "02-pending.dom.txt"
+    },
+    {
+      "name": "03-cancelled",
+      "recordedAt": "2026-10-11T02:33:16.172Z",
+      "assertions": [
+        {
+          "description": "取消终态",
+          "passed": true
+        },
+        {
+          "description": "金额保留",
+          "passed": true
+        }
+      ],
+      "passed": true,
+      "screenshot": "03-cancelled.jpg",
+      "dom": "03-cancelled.dom.txt"
+    },
+    {
+      "name": "04-second-pending",
+      "recordedAt": "2026-10-11T02:33:35.712Z",
+      "assertions": [
+        {
+          "description": "新清单待确认",
+          "passed": true
+        },
+        {
+          "description": "旧清单取消",
+          "passed": true
+        }
+      ],
+      "passed": true,
+      "screenshot": "04-second-pending.jpg",
+      "dom": "04-second-pending.dom.txt"
+    },
+    {
+      "name": "05-confirmed-once",
+      "recordedAt": "2026-10-11T02:33:50.707Z",
+      "assertions": [
+        {
+          "description": "一条成功",
+          "passed": true
+        },
+        {
+          "description": "保留金额",
+          "passed": true
+        },
+        {
+          "description": "取消状态保留",
+          "passed": true
+        }
+      ],
+      "passed": true,
+      "screenshot": "05-confirmed-once.jpg",
+      "dom": "05-confirmed-once.dom.txt"
+    },
+    {
+      "name": "06-post-execute-query",
+      "recordedAt": "2026-10-11T02:34:19.496Z",
+      "assertions": [
+        {
+          "description": "再次只读",
+          "passed": true
+        },
+        {
+          "description": "当前记录已派单",
+          "passed": true
+        },
+        {
+          "description": "精确金额",
+          "passed": true
+        }
+      ],
+      "passed": true,
+      "screenshot": "06-post-execute-query.jpg",
+      "dom": "06-post-execute-query.dom.txt"
+    },
+    {
+      "name": "07-task-found",
+      "recordedAt": "2026-10-11T02:34:33.993Z",
+      "assertions": [
+        {
+          "description": "原执行任务",
+          "passed": true
+        },
+        {
+          "description": "一条任务",
+          "passed": true
+        },
+        {
+          "description": "结果提示",
+          "passed": true
+        }
+      ],
+      "passed": true,
+      "screenshot": "07-task-found.jpg",
+      "dom": "07-task-found.dom.txt"
+    },
+    {
+      "name": "08-plan-exact-money",
+      "recordedAt": "2026-10-11T02:34:38.704Z",
+      "assertions": [
+        {
+          "description": "关联原清单",
+          "passed": true
+        },
+        {
+          "description": "金额完整",
+          "passed": true
+        },
+        {
+          "description": "逐项成功",
+          "passed": true
+        }
+      ],
+      "passed": true,
+      "screenshot": "08-plan-exact-money.jpg",
+      "dom": "08-plan-exact-money.dom.txt"
+    },
+    {
+      "name": "09-trace-events",
+      "recordedAt": "2026-10-11T02:34:43.093Z",
+      "assertions": [
+        {
+          "description": "证据完整",
+          "passed": true
+        },
+        {
+          "description": "模型来源",
+          "passed": true
+        },
+        {
+          "description": "真实派单成功",
+          "passed": true
+        }
+      ],
+      "passed": true,
+      "screenshot": "09-trace-events.jpg",
+      "dom": "09-trace-events.dom.txt"
+    },
+    {
+      "name": "10-trace-single-attempt",
+      "recordedAt": "2026-10-11T02:35:04.757Z",
+      "assertions": [
+        {
+          "description": "一次尝试",
+          "passed": false
+        },
+        {
+          "description": "请求号",
+          "passed": true
+        },
+        {
+          "description": "精确金额",
+          "passed": false
+        }
+      ],
+      "passed": false,
+      "screenshot": "10-trace-single-attempt.jpg",
+      "dom": "10-trace-single-attempt.dom.txt"
+    },
+    {
+      "name": "11-trace-single-attempt-verified",
+      "recordedAt": "2026-10-11T02:35:21.600Z",
+      "assertions": [
+        {
+          "description": "一次尝试",
+          "passed": true
+        },
+        {
+          "description": "稳定请求号",
+          "passed": true
+        },
+        {
+          "description": "金额精确",
+          "passed": true
+        }
+      ],
+      "passed": true,
+      "screenshot": "11-trace-single-attempt-verified.jpg",
+      "dom": "11-trace-single-attempt-verified.dom.txt"
+    },
+    {
+      "name": "12-task-reload",
+      "recordedAt": "2026-10-11T02:35:30.024Z",
+      "assertions": [
+        {
+          "description": "同一任务恢复",
+          "passed": true
+        },
+        {
+          "description": "仍只有一项",
+          "passed": true
+        }
+      ],
+      "passed": true,
+      "screenshot": "12-task-reload.jpg",
+      "dom": "12-task-reload.dom.txt"
+    },
+    {
+      "name": "13-task-load-failure",
+      "recordedAt": "2026-10-11T02:35:41.849Z",
+      "assertions": [
+        {
+          "description": "明确失败",
+          "passed": true
+        },
+        {
+          "description": "可重试",
+          "passed": true
+        },
+        {
+          "description": "不是空页",
+          "passed": true
+        }
+      ],
+      "passed": true,
+      "screenshot": "13-task-load-failure.jpg",
+      "dom": "13-task-load-failure.dom.txt"
+    },
+    {
+      "name": "14-task-failure-before-retry",
+      "recordedAt": "2026-10-11T04:36:49.899Z",
+      "assertions": [
+        {
+          "description": "明确失败",
+          "passed": true
+        },
+        {
+          "description": "重试入口",
+          "passed": true
+        }
+      ],
+      "passed": true,
+      "screenshot": "14-task-failure-before-retry.jpg",
+      "dom": "14-task-failure-before-retry.dom.txt"
+    },
+    {
+      "name": "15-task-retry-restored",
+      "recordedAt": "2026-10-11T04:37:05.198Z",
+      "assertions": [
+        {
+          "description": "同一任务",
+          "passed": true
+        },
+        {
+          "description": "一项完成",
+          "passed": true
+        }
+      ],
+      "passed": true,
+      "screenshot": "15-task-retry-restored.jpg",
+      "dom": "15-task-retry-restored.dom.txt"
+    },
+    {
+      "name": "16-report-failure",
+      "recordedAt": "2026-10-11T04:37:17.350Z",
+      "assertions": [
+        {
+          "description": "明确失败",
+          "passed": true
+        },
+        {
+          "description": "重试入口",
+          "passed": true
+        },
+        {
+          "description": "派单禁用",
+          "passed": true
+        }
+      ],
+      "passed": true,
+      "screenshot": "16-report-failure.jpg",
+      "dom": "16-report-failure.dom.txt"
+    },
+    {
+      "name": "17-report-retry-restored",
+      "recordedAt": "2026-10-11T04:37:32.485Z",
+      "assertions": [
+        {
+          "description": "六条记录恢复",
+          "passed": true
+        },
+        {
+          "description": "金额恢复",
+          "passed": true
+        },
+        {
+          "description": "大额分位",
+          "passed": true
+        },
+        {
+          "description": "合计精确",
+          "passed": true
+        },
+        {
+          "description": "原已派单状态",
+          "passed": true
+        }
+      ],
+      "passed": true,
+      "screenshot": "17-report-retry-restored.jpg",
+      "dom": "17-report-retry-restored.dom.txt"
+    },
+    {
+      "name": "18-history-restored",
+      "recordedAt": "2026-10-11T04:37:45.180Z",
+      "assertions": [
+        {
+          "description": "原取消状态",
+          "passed": true
+        },
+        {
+          "description": "原执行结果",
+          "passed": true
+        },
+        {
+          "description": "历史金额",
+          "passed": true
+        }
+      ],
+      "passed": true,
+      "screenshot": "18-history-restored.jpg",
+      "dom": "18-history-restored.dom.txt"
+    },
+    {
+      "name": "19-company-revoked-response",
+      "recordedAt": "2026-10-11T04:38:59.587Z",
+      "assertions": [
+        {
+          "description": "当前权限拒绝",
+          "passed": false
+        },
+        {
+          "description": "历史入口已过滤",
+          "passed": true
+        }
+      ],
+      "passed": false,
+      "screenshot": "19-company-revoked-response.jpg",
+      "dom": "19-company-revoked-response.dom.txt"
+    },
+    {
+      "name": "20-company-task-filtered",
+      "recordedAt": "2026-10-11T04:39:29.251Z",
+      "assertions": [
+        {
+          "description": "无可见任务",
+          "passed": true
+        },
+        {
+          "description": "零项",
+          "passed": true
+        }
+      ],
+      "passed": true,
+      "screenshot": "20-company-task-filtered.jpg",
+      "dom": "20-company-task-filtered.dom.txt"
+    },
+    {
+      "name": "21-company-task-restored",
+      "recordedAt": "2026-10-11T04:39:42.299Z",
+      "assertions": [
+        {
+          "description": "同一任务",
+          "passed": true
+        },
+        {
+          "description": "一条记录",
+          "passed": true
+        }
+      ],
+      "passed": true,
+      "screenshot": "21-company-task-restored.jpg",
+      "dom": "21-company-task-restored.dom.txt"
+    },
+    {
+      "name": "22-report-permission-denied",
+      "recordedAt": "2026-10-11T04:39:57.611Z",
+      "assertions": [
+        {
+          "description": "明确权限拒绝",
+          "passed": true
+        },
+        {
+          "description": "重试保留",
+          "passed": true
+        }
+      ],
+      "passed": true,
+      "screenshot": "22-report-permission-denied.jpg",
+      "dom": "22-report-permission-denied.dom.txt"
+    },
+    {
+      "name": "23-report-permission-restored",
+      "recordedAt": "2026-10-11T04:40:09.693Z",
+      "assertions": [
+        {
+          "description": "清单恢复",
+          "passed": true
+        },
+        {
+          "description": "成功和金额",
+          "passed": true
+        }
+      ],
+      "passed": true,
+      "screenshot": "23-report-permission-restored.jpg",
+      "dom": "23-report-permission-restored.dom.txt"
+    }
+  ]
+}

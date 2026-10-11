@@ -7,7 +7,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import java.util.*;
 
 /**
- * 统一任务字段条件的证据校验；模型负责理解原文，程序核对新条件来源、旧条件变化及明确比较边界。
+ * 统一任务字段条件的证据校验；模型负责理解原文，程序核对新条件来源、旧条件变化、明确比较边界及逻辑连接。
  * 不生成意图、不执行查询、不自动修改模型计划；无效复核必须在盲式上下文中修正，不能指使正确草稿改错。
  */
 public final class TaskConditionEvidence {
@@ -19,7 +19,7 @@ public final class TaskConditionEvidence {
      * @param state 同一租约内的成功查询和对象引用，失败或过期历史不构成有效条件
      * @param context 本轮已授权候选的有限展示事实，用于核对真实可见字段值
      * @param review 模型独立产生的完整期望及条件依据；按字段、比较符和值匹配，不能缺少或添加不存在的条件
-     * @throws ApiException 证据来源、覆盖或数值边界错误，返回422进入有界复核修正
+     * @throws ApiException 证据来源、覆盖、数值边界或明确逻辑连接错误，返回422进入有界复核修正
      */
     public static void validate(String message,DialogueState state,AssistantPlanningContext context,SemanticReview review) {
         validate(message,state,context,review,Set.of(),Set.of());
@@ -68,6 +68,8 @@ public final class TaskConditionEvidence {
             }
         }
         if(!seen.equals(conditions.keySet()))throw invalid("conditionChecks必须覆盖所有不同的实际字段条件；按field、operator、values绑定，不按数组下标或出现顺序绑定");
+        // 在独立期望冻结前核对组合；逐个条件有证据仍可能把OR误写为AND，不能将该错误传给正确草稿。
+        LogicalConditionEvidence.validate(message,review);
         validatePriorChanges(message,state,review,conditions.keySet(),authorizedReports,authorizedCompanies);
     }
 
@@ -99,7 +101,7 @@ public final class TaskConditionEvidence {
                 +"。逐项保留仍有效条件，或说明本轮授权的变更范围和原文；同一字段的上限与下限是两个条件，只修改上限不得删除下限，反之亦然。不能因字段仍在就忽略旧端点");
     }
 
-    /** 提取稳定条件身份；字段证据文本和数组位置不参与身份，AND/OR分组仍由完整计划比较独立核对。 */
+    /** 提取稳定条件身份；字段证据文本和数组位置不参与身份，AND/OR分组另由连接证据和完整计划比较核对。 */
     static BusinessQuery.Filter filter(JsonNode node) {
         var values=java.util.stream.StreamSupport.stream(node.path("values").spliterator(),false).map(JsonNode::asText).toList();
         if(Set.of("IN","NOT_IN").contains(node.path("operator").asText()))values=List.copyOf(new TreeSet<>(values));

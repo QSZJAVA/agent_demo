@@ -1,0 +1,51 @@
+{
+  "version": "p0-2026-10-11-logic-v1",
+  "partition": "regression",
+  "businessReviewed": false,
+  "provenance": "依据本轮已见的OR被独立复核改成AND问题，补充组合、括号与值内连接词的真实模型回归；工程编写，不是盲测。",
+  "dictionaryScopes": [{"domain":"REPORT","companyCode":"A","reportId":"rpt-sales-order"}],
+  "scenarios": [
+    {
+      "id": "null-or-exact-amount",
+      "turns": [{
+        "message": "列出A公司的销售报表，业务日期为空，或者金额等于0.01元。",
+        "expect": {"kind":"query","domain":"REPORT","view":"LIST","companyCode":"A","reportIds":["rpt-sales-order"],"where":[],"anyOf":[[["date","IS_NULL",[]]],[["amount","EQ","0.01"]]]}
+      }]
+    },
+    {
+      "id": "null-and-exact-amount",
+      "turns": [{
+        "message": "列出A公司的销售报表，业务日期为空，并且金额等于0.01元。",
+        "expect": {"kind":"query","domain":"REPORT","view":"LIST","companyCode":"A","reportIds":["rpt-sales-order"],"where":[["date","IS_NULL",[]],["amount","EQ","0.01"]]}
+      }]
+    },
+    {
+      "id": "parenthesized-or-under-and",
+      "turns": [{
+        "message": "列出A公司销售报表，条件为（业务日期为空或者金额等于0.01元）并且产品名称不等于服务器。",
+        "expect": {"kind":"query","domain":"REPORT","view":"LIST","companyCode":"A","reportIds":["rpt-sales-order"],"where":[["productName","NE","服务器"]],"anyOf":[[["date","IS_NULL",[]]],[["amount","EQ","0.01"]]]}
+      }]
+    },
+    {
+      "id": "parenthesized-and-under-or",
+      "turns": [{
+        "message": "查询A公司的销售报表记录：（金额等于0.01元并且业务日期不为空）或者产品名称等于服务器。",
+        "expect": {"kind":"query","domain":"REPORT","view":"LIST","companyCode":"A","reportIds":["rpt-sales-order"],"where":[],"anyOf":[[["amount","EQ","0.01"],["date","NOT_NULL",[]]],[["productName","EQ","服务器"]]]}
+      }]
+    },
+    {
+      "id": "literal-or-in-product-name",
+      "turns": [{
+        "message": "查询A公司销售报表，产品名称精确等于“甲或乙”，并且金额大于0元。产品名称中的或是名称的一部分。",
+        "expect": {"kind":"query","domain":"REPORT","view":"LIST","companyCode":"A","reportIds":["rpt-sales-order"],"where":[["productName","EQ","甲或乙"],["amount","GT","0"]]}
+      }]
+    },
+    {
+      "id": "english-explicit-or",
+      "turns": [{
+        "message": "List sales report records for company A where the business date is null OR the amount equals 0.01 yuan.",
+        "expect": {"kind":"query","domain":"REPORT","view":"LIST","companyCode":"A","reportIds":["rpt-sales-order"],"where":[],"anyOf":[[["date","IS_NULL",[]]],[["amount","EQ","0.01"]]]}
+      }]
+    }
+  ]
+}

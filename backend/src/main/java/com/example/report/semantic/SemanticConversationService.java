@@ -57,15 +57,27 @@ public class SemanticConversationService {
      */
     public Flux<ServerSentEvent<Object>> chat(CurrentUser user,String conversationId,String message,
             String uiPreviewId,List<RecordKey> excludedRecords,String model) {
+        return chat(user,conversationId,message,uiPreviewId,excludedRecords,model,null,null);
+    }
+    /** 编辑和澄清必须绑定已存在会话，在同一租约内核对引用后才记录用户输入与调用模型。 */
+    public Flux<ServerSentEvent<Object>> chat(CurrentUser user,String conversationId,String message,
+            String uiPreviewId,List<RecordKey> excludedRecords,String model,AssistantInteraction.QueryEdit edit,AssistantInteraction.ClarificationReply answer) {
+        if(edit!=null && answer!=null || (edit!=null || answer!=null) && (conversationId==null || conversationId.isBlank()))throw new ApiException(422,"结构化回复须绑定原会话且一次只使用一种操作");
         var conversation=conversationId==null || conversationId.isBlank() ? conversations.create(user,model) : conversations.getOwned(user,conversationId);
         String id=conversation.getId(), requestId=JsonUtil.newId();
         previews.requireConversationReadable(user,id);
         Flux<AgentEvent> events=Flux.<AgentEvent>create(sink -> {
             try (var permit=quotas.acquire(user,"chat",List.of()); var session=store.acquire(user,id)) {
+                var requestedQuery=AssistantInteraction.editedQuery(user,session.state(),edit);
+                String currentMessage=edit!=null?AssistantInteraction.editMessage(session.state(),requestedQuery):answer!=null?assistant.clarificationMessage(user,session.state(),answer):message;
+                var pending=session.state().getPendingClarification();
+                var selected=answer==null?null:new AssistantInteraction.SelectedClarification(pending,answer.value());
+                // 所有新轮次取代旧澄清；校验失败的旧按钮在此之前返回，不记录为新的业务要求。
+                session.state().setPendingClarification(null);
                 sink.next(new AgentEvent(AgentEvent.CONVERSATION,Map.of("conversationId",id,"requestId",requestId,"title",Objects.toString(conversation.getTitle(),""))));
                 Runnable guard=() -> { session.check(); ResourceQuotaService.check(permit); if (sink.isCancelled()) throw new ApiException(409,"对话连接已关闭"); };
                 Consumer<AgentEvent> emit=event -> { guard.run(); sink.next(event); };
-                turn(user,id,requestId,message,uiPreviewId,excludedRecords,model,session,guard,emit);
+                turn(user,id,requestId,currentMessage,uiPreviewId,excludedRecords,model,session,guard,emit,requestedQuery,selected);
             } catch (Exception failure) {
                 log.warn("语义对话未完成 conversation={} type={}",id,failure.getClass().getSimpleName());
                 sink.next(new AgentEvent(AgentEvent.ERROR,Map.of("message",friendly(failure))));
@@ -81,7 +93,7 @@ public class SemanticConversationService {
      * 本轮流程：恢复权威状态、解析并验证意图、合并期望范围、执行确定性业务、保存结果证据。失败只更新澄清/拒绝/失败阶段，不能把失败范围伪装成成功范围。
      */
     private void turn(CurrentUser user,String id,String requestId,String message,
-            String uiPreviewId,List<RecordKey> uiExcludes,String model,DialogueStore.Session session,Runnable guard,Consumer<AgentEvent> emit) {
+            String uiPreviewId,List<RecordKey> uiExcludes,String model,DialogueStore.Session session,Runnable guard,Consumer<AgentEvent> emit,BusinessQuery requestedQuery,AssistantInteraction.SelectedClarification selected) {
         long started=System.nanoTime();
         var state=session.state(); SemanticIntent intent=null; String reply;
         state.setParserSource(null);
@@ -90,7 +102,7 @@ public class SemanticConversationService {
             hydrate(user,id,state);
             // 统一计划直接交接完整动作和对象；只读分支结束本轮，不占用预览版本或修改候选选择。
             var task=assistant.handle(user,id,requestId,message,model,session,guard,emit,currentSelection(user,state),
-                    directive->validateDispatchDraft(user,state,directive,message,uiPreviewId,uiExcludes));
+                    directive->validateDispatchDraft(user,state,directive,message,uiPreviewId,uiExcludes),requestedQuery,selected);
             if(task.isEmpty())return;
             var directive=task.get();intent=directive.intent();
             codec.validate(intent,message);AssistantReferences.validate(message,state,directive);guard.run();

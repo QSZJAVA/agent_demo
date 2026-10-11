@@ -38,6 +38,8 @@
           <i class="el-icon-wallet"></i>
           <span slot="title">费用报表</span>
         </el-menu-item>
+        <el-menu-item index="/tasks"><i class="el-icon-tickets"></i><span slot="title">我的任务</span></el-menu-item>
+        <el-menu-item index="/semantic-quality"><i class="el-icon-data-analysis"></i><span slot="title">语义质量</span></el-menu-item>
         <el-menu-item index="/rules">
           <i class="el-icon-setting"></i>
           <span slot="title">派单规则</span>

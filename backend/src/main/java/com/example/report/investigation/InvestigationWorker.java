@@ -56,6 +56,7 @@ public class InvestigationWorker {
         var budget=new InvestigationBudget(props);ScheduledFuture<?> renewal=null;
         try {
             // 排队期间重启或跨实例配置变化时，不能用新模型/预算执行却保存旧配置证据。
+            // 共用精确数值规范化：持久化产生的 1.0 与配置中的 1.000 等价，真实数值和类型变化仍须拒绝。
             var actual=JsonUtil.toMap(JsonUtil.toJson(agent.configuration()));
             if(!InvestigationJson.canonical(InvestigationRepository.json(run,"config_json")).equals(InvestigationJson.canonical(actual)))
                 throw new InvestigationFailure("CONFIG_CHANGED","调查执行配置已变化，请重新分析");

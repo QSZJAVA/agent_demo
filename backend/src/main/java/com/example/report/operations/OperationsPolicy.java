@@ -31,6 +31,8 @@ public class OperationsPolicy {
      */
     public record Change(long expectedVersion, Map<String,Object> payload, String reason) { }
     public Policy get(String tenant, String key) {
+        // 专用业务配置有独立公司/报表权限边界，通用策略入口不能按任意键旁路读取。
+        validateKey(key);
         var rows = jdbc.query("SELECT version,payload FROM operations_policy WHERE tenant_id=? AND policy_key=?",
                 (rs,n) -> new Policy(key,rs.getLong(1),JsonUtil.toMap(rs.getString(2))),tenant,key);
         return rows.isEmpty() ? new Policy(key,0,defaults(key)) : rows.get(0);

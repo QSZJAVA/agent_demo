@@ -387,9 +387,20 @@ public final class InMemoryDispatchStore {
 
         @Override
         public Optional<Long> claimRetry(String planId, LocalDateTime now) {
+            return claimRetryInternal(planId, null, now);
+        }
+
+        @Override
+        public Optional<Long> claimRetry(String planId, long expectedVersion, LocalDateTime now) {
+            return claimRetryInternal(planId, expectedVersion, now);
+        }
+
+        /** 与数据库条件更新保持同一契约，在同一锁内判断快照版本并认领下一轮。 */
+        private Optional<Long> claimRetryInternal(String planId, Long expectedVersion, LocalDateTime now) {
             synchronized (InMemoryDispatchStore.this) {
                 DispatchPlan p = plans.get(planId);
-                if (p == null || !DispatchPlan.EXECUTED.equals(p.getStatus()) || p.getFailedCount() == null || p.getFailedCount() <= 0) {
+                if (p == null || !DispatchPlan.EXECUTED.equals(p.getStatus()) || p.getFailedCount() == null || p.getFailedCount() <= 0
+                        || (expectedVersion != null && !java.util.Objects.equals(p.getExecutionVersion(), expectedVersion))) {
                     return Optional.empty();
                 }
                 p.setStatus(DispatchPlan.EXECUTING);

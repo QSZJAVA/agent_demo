@@ -1,0 +1,47 @@
+{
+  "recordedAt": "2026-10-11T05:57:48.700Z",
+  "gates": [
+    {
+      "name": "comments",
+      "command": "node tools/check-comments.cjs",
+      "exitCode": 0,
+      "completed": true,
+      "log": "final-comments.log"
+    },
+    {
+      "name": "docs-real-model",
+      "command": "node tools/check-docs-real-model.cjs",
+      "exitCode": 0,
+      "completed": true,
+      "log": "final-docs-real-model.log"
+    },
+    {
+      "name": "demo-baseline",
+      "command": "node tools/check-demo-baseline.cjs",
+      "exitCode": 1,
+      "completed": false,
+      "log": "final-demo-baseline.log"
+    },
+    {
+      "name": "no-legacy-compat",
+      "command": "node tools/check-no-legacy-compat.cjs",
+      "exitCode": 0,
+      "completed": true,
+      "log": "final-no-legacy-compat.log"
+    },
+    {
+      "name": "schema-dictionary",
+      "command": "node tools/generate-schema-dictionary.cjs --check",
+      "exitCode": 0,
+      "completed": true,
+      "log": "final-schema-dictionary.log"
+    },
+    {
+      "name": "diff-check",
+      "command": "git diff --check",
+      "exitCode": 0,
+      "completed": true,
+      "log": "final-diff-check.log"
+    }
+  ]
+}

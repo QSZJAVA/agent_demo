@@ -22,6 +22,8 @@ MCP 使用 `/mcp` 上的 Streamable HTTP，支持 initialize、tools/list、tool
 
 工具结果使用 `{data: ...}`，错误带 isError 及 code/message。候选记录包含 `counterparty` 客户实体以及 `fields` 标量快照数组，每项为 name/type/value，空值显式为 null。业务服务核对其与确认清单一致，不能由调用方篡改；实际完整 Schema 以 tools/list 为准。
 
+服务端在业务调用前执行嵌套参数的类型、必填、字段白名单、取值、长度和数值范围校验。`executionVersion`、规则及目录版本必须是范围内的整数，不能从字符串或带非零小数的数字强转；越界输入返回参数错误。候选 `amount` 使用十进制字符串或 null，普通报表、预览、清单及历史展示使用同一精度契约，计数及版本仍为整数。
+
 `business_query` 接受 `query`：domain、view、reportIds、companyCode、conditions、sortField、descending、page、size、groupBy。domain 为 REPORT / DISPATCH / WORK_ORDER；view 为 LIST / DETAIL / SUMMARY / ELIGIBILITY。字段和操作依数据域校验，普通查询的空 reportIds 表示当前全部可见报表；租户及操作者仍由服务器注入。返回 query、observedAt、source、columns、rows、total、summary。summary 与完整筛选范围一致，币种未声明的金额单独计数、不参与合计。默认扫描预算为 100000 条 / 120 秒，超限或读取不完整时失败，不返回部分汇总。工单提供者及边界见[通用业务助手](通用业务助手.md)。
 
 `ELIGIBILITY` 只用于 REPORT 的单条派单资格核验：必须指定一张报表，以 recordId 或 docNo 的 EQ 条件唯一定位，page=1，不附加金额、状态、排序或分组条件。完整匹配集不为一条时拒绝，不能截取第一条。唯一结果的 `eligibility` 包含 eligible、reason、ruleId、ruleName、ruleVersion、ruleDescription、checkedFields；在同一只读快照内检查报表启用、来源状态和生效规则，规则计算异常明确失败，不返回伪造的不符合结论。此操作不创建预览或清单，也不授予派单执行权限。
@@ -37,6 +39,8 @@ MCP 使用 `/mcp` 上的 Streamable HTTP，支持 initialize、tools/list、tool
 报表页的手工记录由 `GET /api/dispatch/direct/plans` 按本人和报表读取；页面详情只是本地展开。手工确认采用 `DIRECT` 任务，工作台核对与重试采用对应的管理员任务动作。页面说明见[工作台操作与运营治理](工作台操作与运营治理.md)。
 
 确认、明确失败重试及核对由 `/api/dispatch/jobs` 接收稳定 Idempotency-Key，持久任务绑定用户、清单和执行版本。执行前检查归属、权限、TTL、目录/规则版本、确认状态；业务事务再锁定来源、请求和清单并核对负载。相同请求号及相同负载重放成功结果，不同负载拒绝；未知结果先核对，不能自动更换请求号重发。
+
+`GET /api/dispatch/jobs/history` 提供按当前权限过滤的本人任务历史，刷新只读取既有任务；同步失败重试也绑定读取快照的执行版本。具体任务分页、清单读取和管理员代读边界见[任务恢复与数据展示](任务恢复与数据展示.md)。
 
 来源目前是本仓库维护的 Demo 表；外部 ERP 接入、独立控制库和正式认证仍待完成。实现细节见 [字段快照设计](语义V1配置字段筛选.md)、[派单接入契约](MCP派单接入契约.md) 与 [此前整体业务回归](review/整体回归与多轮对话验收_2026-10-07.md)。
 

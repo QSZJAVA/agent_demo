@@ -60,12 +60,12 @@ class DispatchOwnershipTest {
                 assertEquals(1, current.confirm(USER1, id).failedCount());
                 clearInvocations(gateway);
                 doAnswer(call -> {
-                    Optional<Long> version = h.store.plans().claimRetry(id, call.getArgument(1));
+                    Optional<Long> version = h.store.plans().claimRetry(id, call.getArgument(1), call.getArgument(2));
                     oldVersion.set(version.orElseThrow());
                     claimed.countDown();
                     await(releaseOld);
                     return version;
-                }).when(oldRepository).claimRetry(eq(id), any());
+                }).when(oldRepository).claimRetry(eq(id), anyLong(), any());
             } else {
                 doAnswer(call -> {
                     Optional<Long> version = h.plans.claimForExecution(call.getArgument(0), call.getArgument(1), call.getArgument(2));

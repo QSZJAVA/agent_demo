@@ -24,6 +24,13 @@ public class DispatchJobController {
     @GetMapping("/{id}") public Result<DispatchJobService.Job> get(@RequestHeader(PermissionService.USER_HEADER) String userId,@PathVariable String id) {
         return Result.ok(jobs.get(permissions.resolve(userId),id));
     }
+    /** 本人任务的有界游标列表；状态筛选变化时须从首页读取，不触发任何业务执行。 */
+    @GetMapping("/history") public Result<DispatchJobService.HistoryPage> history(
+            @RequestHeader(PermissionService.USER_HEADER) String userId,
+            @RequestParam(required=false) String before,@RequestParam(required=false) String status,
+            @RequestParam(defaultValue="20") int size) {
+        return Result.ok(jobs.history(permissions.resolve(userId),before,status,size));
+    }
     /** 查询清单最近既有任务供页面恢复；无任务时返回空，不创建任何派单命令。 */
     @GetMapping public Result<DispatchJobService.Job> latest(@RequestHeader(PermissionService.USER_HEADER) String userId,@RequestParam String planId) {
         return Result.ok(jobs.latest(permissions.resolve(userId),planId));

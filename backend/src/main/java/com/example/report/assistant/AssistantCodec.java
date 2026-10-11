@@ -6,10 +6,7 @@ import com.fasterxml.jackson.databind.*;
 
 /** 业务查询严格 JSON 解码器；原生 Schema 仅辅助模型输出，服务端仍拒绝未知字段、隐式类型转换和多余 JSON。 */
 public final class AssistantCodec {
-    private static final ObjectMapper MAPPER=JsonUtil.MAPPER.copy().enable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
-            .enable(DeserializationFeature.FAIL_ON_MISSING_CREATOR_PROPERTIES).enable(DeserializationFeature.FAIL_ON_TRAILING_TOKENS)
-            .enable(DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES)
-            .disable(MapperFeature.ALLOW_COERCION_OF_SCALARS).disable(DeserializationFeature.ACCEPT_FLOAT_AS_INT);
+    private static final ObjectMapper MAPPER=JsonUtil.strictMapper();
     private AssistantCodec() { }
     /** 解码一次模型计划，超长、缺失或损坏输出明确澄清，不将缺失 route 当作派单。 */
     public static AssistantPlan plan(String text){return decode(text,AssistantPlan.class);}

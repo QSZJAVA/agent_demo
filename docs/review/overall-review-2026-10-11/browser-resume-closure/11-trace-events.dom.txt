@@ -1,0 +1,504 @@
+- complementary:
+  - generic: 
+  - text: 报表工作台
+  - generic: 业务协同 · 演示系统
+  - generic: 业务空间
+  - menubar:
+    - menuitem " 销售报表":
+      - generic: 
+      - text: 销售报表
+    - menuitem " 我的任务":
+      - generic: 
+      - text: 我的任务
+    - menuitem " 派单规则":
+      - generic: 
+      - text: 派单规则
+- generic: 我的任务
+- generic: 
+- text: Reader A
+- button "退出登录"
+- button " 业务助手":
+  - generic: 
+  - text: 业务助手
+- main:
+  - heading "我的任务" [level=1]
+  - paragraph: 找回已提交的派单、重试与核对任务，查看当前进度和清单结果
+  - button " 刷新任务":
+    - generic: 
+    - text: 刷新任务
+  - generic "任务状态":
+    - textbox "请选择": 全部状态
+    - generic: 
+  - generic: 按创建时间倒序 · 仅显示当前权限可见的本人任务
+  - alert:
+    - generic: 
+    - generic: 任务处理完成后，请查看关联清单的逐条结果。任务失败或结果待核对时，请先核实已有结果。 
+  - table:
+    - rowgroup:
+      - row "任务 状态 当前说明 创建时间 更新时间 关联清单":
+        - columnheader "任务":
+          - generic: 任务
+        - columnheader "状态":
+          - generic: 状态
+        - columnheader "当前说明":
+          - generic: 当前说明
+        - columnheader "创建时间":
+          - generic: 创建时间
+        - columnheader "更新时间":
+          - generic: 更新时间
+        - columnheader "关联清单":
+          - generic: 关联清单
+  - table:
+    - rowgroup:
+      - row "确认派单 1f37e445ccdf4fa89db3198a6788a07f 处理完成 处理完成，请查看清单逐条结果 2026-10-11 11:57:00 2026-10-11 11:57:00 查看清单":
+        - cell "确认派单 1f37e445ccdf4fa89db3198a6788a07f":
+          - strong: 确认派单
+          - generic "1f37e445ccdf4fa89db3198a6788a07f"
+        - cell "处理完成":
+          - generic: 处理完成
+        - cell "处理完成，请查看清单逐条结果":
+          - generic: 处理完成，请查看清单逐条结果
+        - cell "2026-10-11 11:57:00":
+          - generic: 2026-10-11 11:57:00
+        - cell "2026-10-11 11:57:00":
+          - generic: 2026-10-11 11:57:00
+        - cell "查看清单":
+          - button "查看清单":
+            - generic: 查看清单
+  - generic: 第 1 页 · 本页 1 项
+  - button "上一页" [disabled]
+  - button "更早任务" [disabled]
+  - dialog "清单结果":
+    - text: 清单结果
+    - button "Close":
+      - generic: 
+    - generic: 清单：236e6877b2ac461e99a162ca21cf1dea
+    - generic "EXECUTED": 已执行
+    - generic: 共 1 条
+    - button "刷新清单"
+    - button "查看完整追溯" [active]
+    - table:
+      - rowgroup:
+        - row "报表 单据号 公司 摘要 金额（元） 结果 说明":
+          - columnheader "报表":
+            - generic: 报表
+          - columnheader "单据号":
+            - generic: 单据号
+          - columnheader "公司":
+            - generic: 公司
+          - columnheader "摘要":
+            - generic: 摘要
+          - columnheader "金额（元）":
+            - generic: 金额（元）
+          - columnheader "结果":
+            - generic: 结果
+          - columnheader "说明":
+            - generic: 说明
+    - table:
+      - rowgroup:
+        - row "销售报表 SO2026001 A 服务器 13,800,138,000.00 成功 —":
+          - cell "销售报表":
+            - generic: 销售报表
+          - cell "SO2026001":
+            - generic: SO2026001
+          - cell "A":
+            - generic: A
+          - cell "服务器":
+            - generic: 服务器
+          - cell "13,800,138,000.00":
+            - generic: 13,800,138,000.00
+          - cell "成功":
+            - generic "SUCCESS": 成功
+          - cell "—":
+            - generic: —
+- text:         
+- dialog "派单追溯":
+  - text: 派单追溯
+  - button "Close":
+    - generic: 
+  - generic: 清单：236e6877b2ac461e99a162ca21cf1dea
+  - generic: 操作人：readerA
+  - generic: 记录：1 条
+  - generic: 证据完整
+  - paragraph: 追溯完整性与派单结果分别判断。待核对的派单结果请使用“查询外部结果”；补写记录不会重新派单。
+  - button "刷新记录"
+  - tablist:
+    - tab "查询范围、排除项与当时的规则 ":
+      - button "查询范围、排除项与当时的规则 ":
+        - text: 查询范围、排除项与当时的规则
+        - generic: 
+  - tablist:
+    - tab "可靠事件" [selected]
+    - tab "审计记录"
+    - tab "相关会话"
+    - tab "逐条结果"
+  - tabpanel "可靠事件"
+  - table:
+    - rowgroup:
+      - row "时间 类型 / 阶段 单据 / 操作人 记录内容 展示同步":
+        - columnheader
+        - columnheader "时间":
+          - generic: 时间
+        - columnheader "类型 / 阶段":
+          - generic: 类型 / 阶段
+        - columnheader "单据 / 操作人":
+          - generic: 单据 / 操作人
+        - columnheader "记录内容":
+          - generic: 记录内容
+        - columnheader "展示同步":
+          - generic: 展示同步
+        - columnheader
+  - table:
+    - rowgroup:
+      - row " 2026-10-11 11:53:32.71 用户消息 readerA 查询A公司销售报表订单SO2026001的明细 已同步":
+        - cell "":
+          - generic: 
+        - cell "2026-10-11 11:53:32.71":
+          - generic: 2026-10-11 11:53:32.71
+        - cell "用户消息":
+          - generic: 用户消息
+        - cell "readerA":
+          - generic: readerA
+        - cell "查询A公司销售报表订单SO2026001的明细":
+          - generic: 查询A公司销售报表订单SO2026001的明细
+        - cell "已同步":
+          - generic: 已同步
+      - 'row " 2026-10-11 11:53:41.766 工具调用 readerA {\"plan\":{\"route\":\"BUSINESS_QUERY\",\"query\":{\"domain\":\"REPORT\",\"view\":\"LIST\",\"reportIds\":[\"rpt-sales-order\"],\"companyCode\":\"A\",\"conditions\":[{\"allOf\":[{\"field\":\"orderNo\",\"operator\":\"EQ\",\"values\":[\"SO2026001\"]}]}],\"sortField\":null,\"descending\":false,\"page\":1,\"size\":20,\"groupBy\":null},\"followUp\":false,\"clarification\":null,\"removedFilters\":[],\"dispatch\":null},\"requestId\":\"2c1a208c29ed4d95ab8a216747a63efd\",\"parserSource\":\"MODEL\"} 已同步"':
+        - cell "":
+          - generic: 
+        - cell "2026-10-11 11:53:41.766":
+          - generic: 2026-10-11 11:53:41.766
+        - cell "工具调用":
+          - generic: 工具调用
+        - cell "readerA":
+          - generic: readerA
+        - 'cell "{\"plan\":{\"route\":\"BUSINESS_QUERY\",\"query\":{\"domain\":\"REPORT\",\"view\":\"LIST\",\"reportIds\":[\"rpt-sales-order\"],\"companyCode\":\"A\",\"conditions\":[{\"allOf\":[{\"field\":\"orderNo\",\"operator\":\"EQ\",\"values\":[\"SO2026001\"]}]}],\"sortField\":null,\"descending\":false,\"page\":1,\"size\":20,\"groupBy\":null},\"followUp\":false,\"clarification\":null,\"removedFilters\":[],\"dispatch\":null},\"requestId\":\"2c1a208c29ed4d95ab8a216747a63efd\",\"parserSource\":\"MODEL\"}"':
+          - generic: "{\"plan\":{\"route\":\"BUSINESS_QUERY\",\"query\":{\"domain\":\"REPORT\",\"view\":\"LIST\",\"reportIds\":[\"rpt-sales-order\"],\"companyCode\":\"A\",\"conditions\":[{\"allOf\":[{\"field\":\"orderNo\",\"operator\":\"EQ\",\"values\":[\"SO2026001\"]}]}],\"sortField\":null,\"descending\":false,\"page\":1,\"size\":20,\"groupBy\":null},\"followUp\":false,\"clarification\":null,\"removedFilters\":[],\"dispatch\":null},\"requestId\":\"2c1a208c29ed4d95ab8a216747a63efd\",\"parserSource\":\"MODEL\"}"
+        - cell "已同步":
+          - generic: 已同步
+      - row " 2026-10-11 11:53:41.792 业务卡片 readerA business_query 已同步":
+        - cell "":
+          - generic: 
+        - cell "2026-10-11 11:53:41.792":
+          - generic: 2026-10-11 11:53:41.792
+        - cell "业务卡片":
+          - generic: 业务卡片
+        - cell "readerA":
+          - generic: readerA
+        - cell "business_query":
+          - generic: business_query
+        - cell "已同步":
+          - generic: 已同步
+      - row " 2026-10-11 11:53:41.815 助手回复 readerA 本次查询匹配 1 条报表记录，当前第 1 页展示 1 条。 已同步":
+        - cell "":
+          - generic: 
+        - cell "2026-10-11 11:53:41.815":
+          - generic: 2026-10-11 11:53:41.815
+        - cell "助手回复":
+          - generic: 助手回复
+        - cell "readerA":
+          - generic: readerA
+        - cell "本次查询匹配 1 条报表记录，当前第 1 页展示 1 条。":
+          - generic: 本次查询匹配 1 条报表记录，当前第 1 页展示 1 条。
+        - cell "已同步":
+          - generic: 已同步
+      - row " 2026-10-11 11:54:21.404 用户消息 readerA 为A公司销售报表订单SO2026001生成待确认派单清单 已同步":
+        - cell "":
+          - generic: 
+        - cell "2026-10-11 11:54:21.404":
+          - generic: 2026-10-11 11:54:21.404
+        - cell "用户消息":
+          - generic: 用户消息
+        - cell "readerA":
+          - generic: readerA
+        - cell "为A公司销售报表订单SO2026001生成待确认派单清单":
+          - generic: 为A公司销售报表订单SO2026001生成待确认派单清单
+        - cell "已同步":
+          - generic: 已同步
+      - row:
+        - cell "":
+          - generic: 
+        - cell "2026-10-11 11:54:34.343":
+          - generic: 2026-10-11 11:54:34.343
+        - cell "工具调用":
+          - generic: 工具调用
+        - cell "readerA":
+          - generic: readerA
+        - cell:
+          - generic: "{\"plan\":{\"route\":\"DISPATCH\",\"query\":null,\"followUp\":false,\"clarification\":null,\"removedFilters\":[],\"dispatch\":{\"intent\":{\"version\":1,\"action\":\"PREPARE_DISPATCH\",\"scopeChanges\":[{\"target\":\"COMPANY\",\"operation\":\"REPLACE\",\"mentions\":[\"A公司\"],\"evidence\":\"A公司销售报表\",\"reportMentions\":[],\"selectorKind\":\"NONE\",\"quantifier\":\"UNSPECIFIED\",\"conditions\":[]},{\"target\":\"REPORTS\",\"operation\":\"REPLACE\",\"mentions\":[\"销售报表\"],\"evidence\":\"A公司销售报表\",\"reportMentions\":[],\"selectorKind\":\"NONE\",\"quantifier\":\"UNSPECIFIED\",\"conditions\":[]},{\"target\":\"RECORDS\",\"operation\":\"KEEP_ONLY\",\"mentions\":[\"SO2026001\"],\"evidence\":\"订单SO2026001生成待确认派单清单\",\"reportMentions\":[\"销售报表\"],\"selectorKind\":\"DOCUMENT\",\"quantifier\":\"ONE\",\"conditions\":[]}],\"restrictions\":[],\"reportConstraints\":[],\"unsupportedConditions\":[],\"clarify\":\"NONE\"},\"source\":\"EXPLICIT_SCOPE\",\"sourceRef\":null,\"referenceKeys\":[],\"evidence\":\"为A公司销售报表订单SO2026001生成待确认派单清单\"}},\"requestId\":\"5fa38e6ceefc4d4cb688fd5943bdbed8\",\"parserSource\":\"MODEL\"}"
+        - cell "已同步":
+          - generic: 已同步
+      - row " 2026-10-11 11:54:34.442 业务卡片 readerA 派单预览 已同步":
+        - cell "":
+          - generic: 
+        - cell "2026-10-11 11:54:34.442":
+          - generic: 2026-10-11 11:54:34.442
+        - cell "业务卡片":
+          - generic: 业务卡片
+        - cell "readerA":
+          - generic: readerA
+        - cell "派单预览":
+          - generic: 派单预览
+        - cell "已同步":
+          - generic: 已同步
+      - row " 2026-10-11 11:54:34.558 业务卡片 readerA 派单清单 已同步":
+        - cell "":
+          - generic: 
+        - cell "2026-10-11 11:54:34.558":
+          - generic: 2026-10-11 11:54:34.558
+        - cell "业务卡片":
+          - generic: 业务卡片
+        - cell "readerA":
+          - generic: readerA
+        - cell "派单清单":
+          - generic: 派单清单
+        - cell "已同步":
+          - generic: 已同步
+      - row " 2026-10-11 11:54:34.607 助手回复 readerA 已生成待确认清单，共 1 条。请核对卡片并点击“确认派单”后执行。 已同步":
+        - cell "":
+          - generic: 
+        - cell "2026-10-11 11:54:34.607":
+          - generic: 2026-10-11 11:54:34.607
+        - cell "助手回复":
+          - generic: 助手回复
+        - cell "readerA":
+          - generic: readerA
+        - cell "已生成待确认清单，共 1 条。请核对卡片并点击“确认派单”后执行。":
+          - generic: 已生成待确认清单，共 1 条。请核对卡片并点击“确认派单”后执行。
+        - cell "已同步":
+          - generic: 已同步
+      - row " 2026-10-11 11:55:07.174 用户消息 readerA 重新为A公司销售报表订单SO2026001生成待确认派单清单 已同步":
+        - cell "":
+          - generic: 
+        - cell "2026-10-11 11:55:07.174":
+          - generic: 2026-10-11 11:55:07.174
+        - cell "用户消息":
+          - generic: 用户消息
+        - cell "readerA":
+          - generic: readerA
+        - cell "重新为A公司销售报表订单SO2026001生成待确认派单清单":
+          - generic: 重新为A公司销售报表订单SO2026001生成待确认派单清单
+        - cell "已同步":
+          - generic: 已同步
+      - row " 2026-10-11 11:55:26.066 助手回复 readerA 任务计划与本轮要求存在差异，请依据结构化反馈重新完整规划 本轮未应用任何修改。 已同步":
+        - cell "":
+          - generic: 
+        - cell "2026-10-11 11:55:26.066":
+          - generic: 2026-10-11 11:55:26.066
+        - cell "助手回复":
+          - generic: 助手回复
+        - cell "readerA":
+          - generic: readerA
+        - cell "任务计划与本轮要求存在差异，请依据结构化反馈重新完整规划 本轮未应用任何修改。":
+          - generic: 任务计划与本轮要求存在差异，请依据结构化反馈重新完整规划 本轮未应用任何修改。
+        - cell "已同步":
+          - generic: 已同步
+      - row " 2026-10-11 11:56:11.702 用户消息 readerA 请为A公司销售报表订单SO2026001创建一份新的待确认派单清单，只包含这笔订单，等待我点击确认。 已同步":
+        - cell "":
+          - generic: 
+        - cell "2026-10-11 11:56:11.702":
+          - generic: 2026-10-11 11:56:11.702
+        - cell "用户消息":
+          - generic: 用户消息
+        - cell "readerA":
+          - generic: readerA
+        - cell "请为A公司销售报表订单SO2026001创建一份新的待确认派单清单，只包含这笔订单，等待我点击确认。":
+          - generic: 请为A公司销售报表订单SO2026001创建一份新的待确认派单清单，只包含这笔订单，等待我点击确认。
+        - cell "已同步":
+          - generic: 已同步
+      - 'row " 2026-10-11 11:56:33.708 工具调用 readerA {\"plan\":{\"route\":\"DISPATCH\",\"query\":null,\"followUp\":false,\"clarification\":null,\"removedFilters\":[],\"dispatch\":{\"intent\":{\"version\":1,\"action\":\"PREPARE_DISPATCH\",\"scopeChanges\":[],\"restrictions\":[],\"reportConstraints\":[],\"unsupportedConditions\":[],\"clarify\":\"NONE\"},\"source\":\"QUERY_ROWS\",\"sourceRef\":\"query-bf7c8c135a2f2240\",\"referenceKeys\":[\"row-1\"],\"evidence\":\"请为A公司销售报表订单SO2026001创建一份新的待确认派单清单，只包含这笔订单，等待我点击确认。\"}},\"requestId\":\"4705eefdc44f4c9f929c8ded5368903d\",\"parserSource\":\"MODEL\"} 已同步"':
+        - cell "":
+          - generic: 
+        - cell "2026-10-11 11:56:33.708":
+          - generic: 2026-10-11 11:56:33.708
+        - cell "工具调用":
+          - generic: 工具调用
+        - cell "readerA":
+          - generic: readerA
+        - 'cell "{\"plan\":{\"route\":\"DISPATCH\",\"query\":null,\"followUp\":false,\"clarification\":null,\"removedFilters\":[],\"dispatch\":{\"intent\":{\"version\":1,\"action\":\"PREPARE_DISPATCH\",\"scopeChanges\":[],\"restrictions\":[],\"reportConstraints\":[],\"unsupportedConditions\":[],\"clarify\":\"NONE\"},\"source\":\"QUERY_ROWS\",\"sourceRef\":\"query-bf7c8c135a2f2240\",\"referenceKeys\":[\"row-1\"],\"evidence\":\"请为A公司销售报表订单SO2026001创建一份新的待确认派单清单，只包含这笔订单，等待我点击确认。\"}},\"requestId\":\"4705eefdc44f4c9f929c8ded5368903d\",\"parserSource\":\"MODEL\"}"':
+          - generic: "{\"plan\":{\"route\":\"DISPATCH\",\"query\":null,\"followUp\":false,\"clarification\":null,\"removedFilters\":[],\"dispatch\":{\"intent\":{\"version\":1,\"action\":\"PREPARE_DISPATCH\",\"scopeChanges\":[],\"restrictions\":[],\"reportConstraints\":[],\"unsupportedConditions\":[],\"clarify\":\"NONE\"},\"source\":\"QUERY_ROWS\",\"sourceRef\":\"query-bf7c8c135a2f2240\",\"referenceKeys\":[\"row-1\"],\"evidence\":\"请为A公司销售报表订单SO2026001创建一份新的待确认派单清单，只包含这笔订单，等待我点击确认。\"}},\"requestId\":\"4705eefdc44f4c9f929c8ded5368903d\",\"parserSource\":\"MODEL\"}"
+        - cell "已同步":
+          - generic: 已同步
+      - 'row " 2026-10-11 11:56:33.73 工具调用 readerA {\"targets\":[{\"key\":{\"reportId\":\"rpt-sales-order\",\"recordId\":\"1\"},\"companyCode\":\"A\"}],\"requestId\":\"4705eefdc44f4c9f929c8ded5368903d\",\"sourceRef\":\"query-bf7c8c135a2f2240\"} 已同步"':
+        - cell "":
+          - generic: 
+        - cell "2026-10-11 11:56:33.73":
+          - generic: 2026-10-11 11:56:33.73
+        - cell "工具调用":
+          - generic: 工具调用
+        - cell "readerA":
+          - generic: readerA
+        - 'cell "{\"targets\":[{\"key\":{\"reportId\":\"rpt-sales-order\",\"recordId\":\"1\"},\"companyCode\":\"A\"}],\"requestId\":\"4705eefdc44f4c9f929c8ded5368903d\",\"sourceRef\":\"query-bf7c8c135a2f2240\"}"':
+          - generic: "{\"targets\":[{\"key\":{\"reportId\":\"rpt-sales-order\",\"recordId\":\"1\"},\"companyCode\":\"A\"}],\"requestId\":\"4705eefdc44f4c9f929c8ded5368903d\",\"sourceRef\":\"query-bf7c8c135a2f2240\"}"
+        - cell "已同步":
+          - generic: 已同步
+      - row " 2026-10-11 11:56:33.762 业务卡片 readerA 派单预览 已同步":
+        - cell "":
+          - generic: 
+        - cell "2026-10-11 11:56:33.762":
+          - generic: 2026-10-11 11:56:33.762
+        - cell "业务卡片":
+          - generic: 业务卡片
+        - cell "readerA":
+          - generic: readerA
+        - cell "派单预览":
+          - generic: 派单预览
+        - cell "已同步":
+          - generic: 已同步
+      - row " 2026-10-11 11:56:33.829 清单状态 readerA 创建清单 已同步":
+        - cell "":
+          - generic: 
+        - cell "2026-10-11 11:56:33.829":
+          - generic: 2026-10-11 11:56:33.829
+        - cell "清单状态":
+          - generic: 清单状态
+        - cell "readerA":
+          - generic: readerA
+        - cell "创建清单":
+          - generic: 创建清单
+        - cell "已同步":
+          - generic: 已同步
+      - row " 2026-10-11 11:56:33.826 业务卡片 readerA 派单清单 已同步":
+        - cell "":
+          - generic: 
+        - cell "2026-10-11 11:56:33.826":
+          - generic: 2026-10-11 11:56:33.826
+        - cell "业务卡片":
+          - generic: 业务卡片
+        - cell "readerA":
+          - generic: readerA
+        - cell "派单清单":
+          - generic: 派单清单
+        - cell "已同步":
+          - generic: 已同步
+      - row " 2026-10-11 11:56:33.867 助手回复 readerA 已生成待确认清单，共 1 条。请核对卡片并点击“确认派单”后执行。 已同步":
+        - cell "":
+          - generic: 
+        - cell "2026-10-11 11:56:33.867":
+          - generic: 2026-10-11 11:56:33.867
+        - cell "助手回复":
+          - generic: 助手回复
+        - cell "readerA":
+          - generic: readerA
+        - cell "已生成待确认清单，共 1 条。请核对卡片并点击“确认派单”后执行。":
+          - generic: 已生成待确认清单，共 1 条。请核对卡片并点击“确认派单”后执行。
+        - cell "已同步":
+          - generic: 已同步
+      - row " 2026-10-11 11:57:00.451 清单状态 readerA 领取执行任务 已同步":
+        - cell "":
+          - generic: 
+        - cell "2026-10-11 11:57:00.451":
+          - generic: 2026-10-11 11:57:00.451
+        - cell "清单状态":
+          - generic: 清单状态
+        - cell "readerA":
+          - generic: readerA
+        - cell "领取执行任务":
+          - generic: 领取执行任务
+        - cell "已同步":
+          - generic: 已同步
+      - row " 2026-10-11 11:57:00.468 发送前留证 SO2026001 派单请求结果待核对 已同步":
+        - cell "":
+          - generic: 
+        - cell "2026-10-11 11:57:00.468":
+          - generic: 2026-10-11 11:57:00.468
+        - cell "发送前留证":
+          - generic: 发送前留证
+        - cell "SO2026001":
+          - generic: SO2026001
+        - cell "派单请求结果待核对":
+          - generic: 派单请求结果待核对
+        - cell "已同步":
+          - generic: 已同步
+      - row " 2026-10-11 11:57:00.505 派单返回 SO2026001 派单成功 已同步":
+        - cell "":
+          - generic: 
+        - cell "2026-10-11 11:57:00.505":
+          - generic: 2026-10-11 11:57:00.505
+        - cell "派单返回":
+          - generic: 派单返回
+        - cell "SO2026001":
+          - generic: SO2026001
+        - cell "派单成功":
+          - generic: 派单成功
+        - cell "已同步":
+          - generic: 已同步
+      - row " 2026-10-11 11:57:00.535 清单状态 readerA 执行结束 已同步":
+        - cell "":
+          - generic: 
+        - cell "2026-10-11 11:57:00.535":
+          - generic: 2026-10-11 11:57:00.535
+        - cell "清单状态":
+          - generic: 清单状态
+        - cell "readerA":
+          - generic: readerA
+        - cell "执行结束":
+          - generic: 执行结束
+        - cell "已同步":
+          - generic: 已同步
+      - row " 2026-10-11 11:57:00.535 业务卡片 readerA 派单结果 已同步":
+        - cell "":
+          - generic: 
+        - cell "2026-10-11 11:57:00.535":
+          - generic: 2026-10-11 11:57:00.535
+        - cell "业务卡片":
+          - generic: 业务卡片
+        - cell "readerA":
+          - generic: readerA
+        - cell "派单结果":
+          - generic: 派单结果
+        - cell "已同步":
+          - generic: 已同步
+      - row " 2026-10-11 11:57:21.771 用户消息 readerA 查询A公司销售报表订单SO2026001当前派单状态和金额 已同步":
+        - cell "":
+          - generic: 
+        - cell "2026-10-11 11:57:21.771":
+          - generic: 2026-10-11 11:57:21.771
+        - cell "用户消息":
+          - generic: 用户消息
+        - cell "readerA":
+          - generic: readerA
+        - cell "查询A公司销售报表订单SO2026001当前派单状态和金额":
+          - generic: 查询A公司销售报表订单SO2026001当前派单状态和金额
+        - cell "已同步":
+          - generic: 已同步
+      - 'row " 2026-10-11 11:57:32.63 工具调用 readerA {\"plan\":{\"route\":\"BUSINESS_QUERY\",\"query\":{\"domain\":\"REPORT\",\"view\":\"DETAIL\",\"reportIds\":[\"rpt-sales-order\"],\"companyCode\":\"A\",\"conditions\":[{\"allOf\":[{\"field\":\"orderNo\",\"operator\":\"EQ\",\"values\":[\"SO2026001\"]}]}],\"sortField\":null,\"descending\":false,\"page\":1,\"size\":20,\"groupBy\":null},\"followUp\":false,\"clarification\":null,\"removedFilters\":[],\"dispatch\":null},\"requestId\":\"394dc56cdbbe445db6190e322f9049d2\",\"parserSource\":\"MODEL\"} 已同步"':
+        - cell "":
+          - generic: 
+        - cell "2026-10-11 11:57:32.63":
+          - generic: 2026-10-11 11:57:32.63
+        - cell "工具调用":
+          - generic: 工具调用
+        - cell "readerA":
+          - generic: readerA
+        - 'cell "{\"plan\":{\"route\":\"BUSINESS_QUERY\",\"query\":{\"domain\":\"REPORT\",\"view\":\"DETAIL\",\"reportIds\":[\"rpt-sales-order\"],\"companyCode\":\"A\",\"conditions\":[{\"allOf\":[{\"field\":\"orderNo\",\"operator\":\"EQ\",\"values\":[\"SO2026001\"]}]}],\"sortField\":null,\"descending\":false,\"page\":1,\"size\":20,\"groupBy\":null},\"followUp\":false,\"clarification\":null,\"removedFilters\":[],\"dispatch\":null},\"requestId\":\"394dc56cdbbe445db6190e322f9049d2\",\"parserSource\":\"MODEL\"}"':
+          - generic: "{\"plan\":{\"route\":\"BUSINESS_QUERY\",\"query\":{\"domain\":\"REPORT\",\"view\":\"DETAIL\",\"reportIds\":[\"rpt-sales-order\"],\"companyCode\":\"A\",\"conditions\":[{\"allOf\":[{\"field\":\"orderNo\",\"operator\":\"EQ\",\"values\":[\"SO2026001\"]}]}],\"sortField\":null,\"descending\":false,\"page\":1,\"size\":20,\"groupBy\":null},\"followUp\":false,\"clarification\":null,\"removedFilters\":[],\"dispatch\":null},\"requestId\":\"394dc56cdbbe445db6190e322f9049d2\",\"parserSource\":\"MODEL\"}"
+        - cell "已同步":
+          - generic: 已同步
+      - row " 2026-10-11 11:57:32.648 业务卡片 readerA business_query 已同步":
+        - cell "":
+          - generic: 
+        - cell "2026-10-11 11:57:32.648":
+          - generic: 2026-10-11 11:57:32.648
+        - cell "业务卡片":
+          - generic: 业务卡片
+        - cell "readerA":
+          - generic: readerA
+        - cell "business_query":
+          - generic: business_query
+        - cell "已同步":
+          - generic: 已同步
+      - row " 2026-10-11 11:57:32.665 助手回复 readerA 本次查询匹配 1 条报表记录，当前第 1 页展示 1 条。 已同步":
+        - cell "":
+          - generic: 
+        - cell "2026-10-11 11:57:32.665":
+          - generic: 2026-10-11 11:57:32.665
+        - cell "助手回复":
+          - generic: 助手回复
+        - cell "readerA":
+          - generic: readerA
+        - cell "本次查询匹配 1 条报表记录，当前第 1 页展示 1 条。":
+          - generic: 本次查询匹配 1 条报表记录，当前第 1 页展示 1 条。
+        - cell "已同步":
+          - generic: 已同步
+  - generic: 已加载 27 / 27 条，展开行可查看完整内容。

@@ -6,6 +6,7 @@
     :columns="columns"
     :data="list"
     :loading="loading"
+    :load-error="loadError"
     :page="page"
     :page-size="pageSize"
     :total="total"

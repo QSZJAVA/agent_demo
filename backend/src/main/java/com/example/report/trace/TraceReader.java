@@ -50,6 +50,8 @@ public class TraceReader {
         boolean more = rows.size() > size;
         List<Map<String, Object>> records = rows.stream().limit(size).map(row -> {
             Map<String, Object> result = new LinkedHashMap<>(row);
+            // JDBC 的 Map 不经过实体字段注解；条目和审计金额仍须按同一精确字符串契约输出。
+            if (result.get("amount") instanceof java.math.BigDecimal amount) result.put("amount", amount.toPlainString());
             // 故障细节留服务日志；业务页面只显示补写状态和尝试次数。
             result.remove("last_error");
             for (String field : List.of("payload", "rule_snapshot")) {

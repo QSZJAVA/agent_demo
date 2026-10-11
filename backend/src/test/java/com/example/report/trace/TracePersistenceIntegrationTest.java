@@ -133,6 +133,28 @@ class TracePersistenceIntegrationTest {
 
     private long count(String table) { return jdbc.queryForObject("SELECT COUNT(*) FROM " + table, Long.class); }
 
+    /** 真实数据库条件更新必须只认领一次；另一轮收尾后，旧快照版本也不能重新认领。 */
+    @Test void retryClaimAtomicallyRejectsConcurrentAndCompletedNewerVersions() throws Exception {
+        var plan=plan();
+        when(gateway.dispatch(any())).thenReturn(DispatchGateway.Outcome.fail("TEMPORARY","稍后重试"));
+        assertEquals(1,dispatch.confirm(USER1,plan.getId()).failedCount());
+        long expected=plans.find(plan.getId()).orElseThrow().getExecutionVersion();
+        var start=new CountDownLatch(1);var pool=Executors.newFixedThreadPool(2);
+        try {
+            Callable<java.util.Optional<Long>> claim=()->{assertTrue(start.await(10,TimeUnit.SECONDS));return plans.claimRetry(plan.getId(),expected,java.time.LocalDateTime.now());};
+            var first=pool.submit(claim);var second=pool.submit(claim);start.countDown();
+            var outcomes=List.of(first.get(10,TimeUnit.SECONDS),second.get(10,TimeUnit.SECONDS));
+            assertEquals(1,outcomes.stream().filter(java.util.Optional::isPresent).count());
+            long claimed=outcomes.stream().flatMap(java.util.Optional::stream).findFirst().orElseThrow();
+            assertEquals(expected+1,claimed);
+            assertTrue(plans.finish(plan.getId(),claimed,0,1,java.time.LocalDateTime.now()));
+            assertTrue(plans.claimRetry(plan.getId(),expected,java.time.LocalDateTime.now()).isEmpty());
+            assertEquals(claimed,plans.find(plan.getId()).orElseThrow().getExecutionVersion());
+            assertEquals(1,plans.items(plan.getId()).get(0).getAttemptCount(),"认领本身不能改写发送次数");
+            verify(gateway,times(1)).dispatch(any());
+        } finally {start.countDown();pool.shutdownNow();}
+    }
+
     private void drain() {
         for (int i = 0; i < 20; i++) {
             jdbc.update("UPDATE trace_event SET next_attempt_at=NOW(3) WHERE delivery_status='PENDING'");

@@ -13,6 +13,8 @@ import com.example.report.support.DispatchHarness;
 import com.example.report.support.TestCatalog;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.ArgumentCaptor;
 
 import java.time.LocalDateTime;
@@ -425,6 +427,41 @@ class DispatchServiceTest {
         DispatchResultPayload reconciled = service.reconcile(USER1, planId);
         assertEquals(3, reconciled.successCount());
         verify(gateway, times(2)).dispatch(argThat(r -> r.record().docNo().equals("SO2026002")));
+    }
+
+    /** 两请求先取得相同失败快照，迟到请求不能在另一轮已经收尾后借用新版本再重发或覆盖尝试计数。 */
+    @ParameterizedTest
+    @ValueSource(booleans={false,true})
+    void delayedRetryCannotClaimAfterAnotherRetryHasFinished(boolean suppliedVersion) throws Exception {
+        h.put(SALES,first);
+        when(gateway.dispatch(any())).thenReturn(DispatchGateway.Outcome.fail("TEMPORARY","稍后重试"));
+        String planId=plan(USER1);
+        assertEquals(1,service.confirm(USER1,planId).failedCount());
+        long before=planRow(planId).getExecutionVersion();
+        var checked=new CountDownLatch(1);var release=new CountDownLatch(1);
+        var delayedVersions=spy(h.versions);
+        doAnswer(call->{
+            checked.countDown();
+            assertTrue(release.await(10,TimeUnit.SECONDS),"迟到请求未按预期恢复");
+            return call.callRealMethod();
+        }).when(delayedVersions).verifyForRetry(eq(USER1),any());
+        var delayed=new DispatchService(h.plans,h.previews,h.store.plans(),h.catalogService,h.candidates,delayedVersions,
+                gateway,audit,mock(ConversationService.class),org.springframework.transaction.support.TransactionOperations.withoutTransaction());
+        var pool=Executors.newSingleThreadExecutor();
+        try {
+            var stale=pool.submit(()->assertThrows(ApiException.class,()->delayed.retryFailed(USER1,planId,suppliedVersion?before:null)));
+            assertTrue(checked.await(10,TimeUnit.SECONDS),"旧请求尚未读取待重试快照");
+            assertEquals(1,service.retryFailed(USER1,planId).failedCount());
+            assertEquals(before+1,planRow(planId).getExecutionVersion());
+            assertEquals(2,h.store.plans().items(planId).get(0).getAttemptCount());
+            release.countDown();
+            assertEquals(409,stale.get(10,TimeUnit.SECONDS).getCode());
+            assertEquals(before+1,planRow(planId).getExecutionVersion(),"迟到请求不得创建额外执行轮次");
+            assertEquals(2,h.store.plans().items(planId).get(0).getAttemptCount(),"不能用旧快照覆盖最新尝试次数");
+            verify(gateway,times(2)).dispatch(any());
+        } finally {
+            release.countDown();pool.shutdownNow();delayed.shutdownHeartbeats();
+        }
     }
 
     @Test

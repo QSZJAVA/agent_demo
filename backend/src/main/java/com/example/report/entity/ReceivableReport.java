@@ -10,7 +10,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 /**
- * 应收报表（来源表：report_receivable）
+ * 应收报表（来源表：report_receivable）；金额通过十进制字符串传输，服务端仍保留 BigDecimal 精度。
  */
 @Data
 @TableName("report_receivable")
@@ -34,6 +34,7 @@ public class ReceivableReport {
     /** 来源维护的客户别名JSON字符串数组；空表示没有别名，不按相似名称自动推断。 */
     private String customerAliases;
     /** 业务金额；小数精度2位，币种沿用来源业务账本。*/
+    @com.fasterxml.jackson.databind.annotation.JsonSerialize(using = com.example.report.common.DecimalStringSerializer.class)
     private BigDecimal amount;
     /** 应收到期日期；允许为空，表示尚无该项数据。 */
     private LocalDate dueDate;

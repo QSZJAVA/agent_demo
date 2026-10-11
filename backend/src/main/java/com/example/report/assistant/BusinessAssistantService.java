@@ -18,6 +18,8 @@ import java.util.function.Function;
 @Service
 @lombok.extern.slf4j.Slf4j
 public class BusinessAssistantService {
+    @org.springframework.beans.factory.annotation.Autowired
+    private SemanticDictionaryService dictionaries;
     private final AssistantPlanner planner;
     private final ReportCatalogService catalog;
     private final ObjectProvider<BusinessMcpClient> clients;
@@ -42,19 +44,35 @@ public class BusinessAssistantService {
      */
     public Optional<DispatchDirective> handle(CurrentUser user,String id,String requestId,String message,String model,DialogueStore.Session session,Runnable guard,Consumer<AgentEvent> emit,
             Map<String,Object> dispatchSelection,Function<DispatchDirective,Map<String,Object>> validateDispatch) {
+        return handle(user,id,requestId,message,model,session,guard,emit,dispatchSelection,validateDispatch,null);
+    }
+    /** 结构化编辑沿用同一模型与业务预检，额外核对用户提交的完整查询，不能转成派单动作。 */
+    public Optional<DispatchDirective> handle(CurrentUser user,String id,String requestId,String message,String model,DialogueStore.Session session,Runnable guard,Consumer<AgentEvent> emit,
+            Map<String,Object> dispatchSelection,Function<DispatchDirective,Map<String,Object>> validateDispatch,BusinessQuery requestedQuery) {
+        return handle(user,id,requestId,message,model,session,guard,emit,dispatchSelection,validateDispatch,requestedQuery,null);
+    }
+    /** 条件编辑与候选选择都由同一预检核对，约束同时适用于模型草稿和独立复核的完整期望。 */
+    public Optional<DispatchDirective> handle(CurrentUser user,String id,String requestId,String message,String model,DialogueStore.Session session,Runnable guard,Consumer<AgentEvent> emit,
+            Map<String,Object> dispatchSelection,Function<DispatchDirective,Map<String,Object>> validateDispatch,BusinessQuery requestedQuery,AssistantInteraction.SelectedClarification selected) {
         long started=System.nanoTime();var state=session.state();
         AssistantPlan plan;
+        var diagnostics=new PlanningDiagnostics();SemanticDictionaryService.Snapshot dictionary=null;
         var validated=new HashMap<BusinessQuery,BusinessResult>();var attemptedRead=new boolean[]{false};
         try {
             catalog.refreshForValidation();
+            var visibleReports=catalog.visibleReports(user);
+            dictionary=dictionaries==null?new SemanticDictionaryService.Snapshot(List.of(),java.time.Instant.now(),Digests.sha256("[]")):dictionaries.snapshot(user,visibleReports);
+            if(selected!=null && !Objects.equals(selected.dictionaryHash(),dictionary.fingerprint()))throw new ApiException(409,"澄清词典已更新，请重新发送完整问题");
             var recent=conversations.messages(user,id,null,16);
             // 本轮用户消息已先持久化，单独作为message传入；在截断之前移除重复来源，避免它既是历史又是当前授权。
             if(!recent.isEmpty() && "user".equals(recent.get(recent.size()-1).role())
                     && message.equals(recent.get(recent.size()-1).content()))recent=recent.subList(0,recent.size()-1);
             var history=recent.stream().filter(m->Set.of("user","assistant").contains(m.role()) && m.content()!=null)
                     .map(m->Map.of("role",m.role(),"content",m.content().length()>2000?m.content().substring(0,2000)+"[文本已截断]":m.content())).toList();
-            plan=planner.plan(message,state,catalog.visibleReports(user),user.companies(),new AssistantPlanningContext(history,dispatchSelection,draft->{
+            plan=planner.plan(message,state,visibleReports,user.companies(),new AssistantPlanningContext(history,dispatchSelection,draft->{
                 guard.run();
+                AssistantInteraction.requireRequestedQuery(draft,requestedQuery,state.getBusinessColumns());
+                if(draft.route()!=AssistantPlan.Route.DISPATCH)AssistantInteraction.requireSelected(draft,selected,Map.of());
                 if(draft.route()==AssistantPlan.Route.BUSINESS_QUERY) {
                     attemptedRead[0]=true;
                     // 实际只读校验参与有界模型修正；详情匹配多条等错误不能在解析预算结束后才暴露。
@@ -62,9 +80,12 @@ public class BusinessAssistantService {
                     var result=validated.computeIfAbsent(draft.query(),query->read(user,query));
                     return queryEvidence(result);
                 }
-                return draft.dispatch()==null?Map.of():validateDispatch.apply(draft.dispatch());
-            }));guard.run();
+                var facts=draft.dispatch()==null?Map.<String,Object>of():validateDispatch.apply(draft.dispatch());
+                AssistantInteraction.requireSelected(draft,selected,facts);return facts;
+            },dictionary.context(),diagnostics).withResolvedClarification(selected==null?Map.of():selected.context()).withRequestedQuery(requestedQuery));guard.run();
+            if(dictionaries!=null)dictionaries.requireUnchanged(user,dictionary);
         } catch(Exception failure) {
+            recordDiagnostic(user,id,requestId,message,"FAILED",null,diagnostics,dictionary,session,guard);
             // 保留失败分类以区分模型契约、业务校验和传输故障；不记录模型原文、请求凭据或外部错误响应。
             log.warn("助手规划失败 conversation={} type={} reason={}",id,failure.getClass().getSimpleName(),
                     failure instanceof ApiException api?com.example.report.operations.SensitiveData.text(api.getMessage()):"非业务异常");
@@ -80,6 +101,7 @@ public class BusinessAssistantService {
             finish(user,id,requestId,message,reason+" 本轮未应用任何修改。",model,session,guard,emit,started);return Optional.empty();
         }
         state.setParserSource(planner.source());
+        recordDiagnostic(user,id,requestId,message,plan.route()==AssistantPlan.Route.CLARIFY?"CLARIFY":"ACCEPTED",plan.route().name(),diagnostics,dictionary,session,guard);
         var accepted=plan;
         session.fenced(()->{guard.run();conversations.logToolCall(id,user.userId(),"assistant_task",Map.of("requestId",requestId,"parserSource",planner.source(),"plan",accepted));return null;});
         if(plan.route()==AssistantPlan.Route.DISPATCH) {state.setAssistantRoute("DISPATCH");state.setAssistantFocus("DISPATCH");return Optional.of(plan.dispatch());}
@@ -96,6 +118,12 @@ public class BusinessAssistantService {
                     if(!previousDispatch)state.setBusinessUnresolved(true);
                     state.setPhase(DialogueState.Phase.CLARIFY);
                     state.setLastReason(com.example.report.operations.SensitiveData.text(plan.clarification()));
+                    if(plan.clarificationOptions()!=null){
+                        var pending=new AssistantInteraction.PendingClarification(requestId,selected==null?message:selected.pending().message(),plan.clarificationOptions(),user.permissionVersion(),dictionary.fingerprint(),selected==null?List.of():selected.choices());
+                        state.setPendingClarification(pending);var payload=clarificationPayload(user,pending,plan.clarification());
+                        session.fenced(()->{guard.run();session.save();conversations.logCard(id,user.userId(),"semantic_clarification",payload,null,null);return null;});
+                        emit.accept(new AgentEvent("semantic_clarification",payload));
+                    }
                     yield plan.clarification()+" 本轮未应用任何修改。";
                 }
                 case BUSINESS_QUERY -> {
@@ -105,15 +133,17 @@ public class BusinessAssistantService {
                     var result=validated.get(plan.query());if(result==null)result=read(user,plan.query());guard.run();
                     // 复核模型可能耗时；即使复用本轮已读取的事实，发布卡片前也必须重新验证当前授权。
                     requireCurrentQueryAccess(user,result.query().reportIds());
+                    var interpretation=QueryInterpretation.describe(state.getBusinessQuery(),result.query(),result.columns(),diagnostics.review(),requestId);
                     state.setBusinessPermissionVersion(user.permissionVersion());state.setBusinessQuery(result.query());state.setBusinessUnresolved(false);
+                    state.setBusinessQueryRef(requestId);state.setBusinessColumns(result.columns());
                     state.setUnresolvedRequest(false);state.setPhase(DialogueState.Phase.READY);
                     state.setAssistantFocus("BUSINESS_QUERY");
                     var historyReports=new TreeSet<>(state.getBusinessReportIds());historyReports.addAll(result.query().reportIds());state.setBusinessReportIds(List.copyOf(historyReports));
                     var historyCompanies=new TreeSet<>(state.getBusinessCompanyCodes());historyCompanies.addAll(result.query().companyCode()==null?user.companies():Set.of(result.query().companyCode()));state.setBusinessCompanyCodes(List.copyOf(historyCompanies));
                     state.setBusinessReferences(references(result));state.setBusinessTotalCount((long)result.total());
-                    var observed=result;
+                    var observed=new LinkedHashMap<>(JsonUtil.toMap(JsonUtil.toJson(result)));observed.put("interpretation",interpretation);
                     session.fenced(()->{guard.run();session.save();conversations.logCard(id,user.userId(),"business_query",observed,null,null);return null;});
-                    emit.accept(new AgentEvent("business_query",result));
+                    emit.accept(new AgentEvent("business_query",observed));
                     yield summary(result);
                 }
                 default -> throw new IllegalStateException();
@@ -125,6 +155,29 @@ public class BusinessAssistantService {
             state.setLastReason(com.example.report.operations.SensitiveData.text(reply));
         }
         finish(user,id,requestId,message,reply,model,session,guard,emit,started);return Optional.empty();
+    }
+
+    /** 澄清回复在对话租约内检查词典指纹，随后仍按当前身份重新执行完整规划。 */
+    public String clarificationMessage(CurrentUser user,DialogueState state,AssistantInteraction.ClarificationReply reply){
+        catalog.refreshForValidation();String fingerprint=dictionaries==null?Digests.sha256("[]"):dictionaries.snapshot(user,catalog.visibleReports(user)).fingerprint();
+        return AssistantInteraction.clarificationMessage(user,state,reply,fingerprint);
+    }
+    /** 质量证据写入失败不改变已经通过的业务判定；日志仅保留异常类型，不能回显供应商响应。 */
+    private void recordDiagnostic(CurrentUser user,String id,String requestId,String message,String outcome,String route,PlanningDiagnostics diagnostics,SemanticDictionaryService.Snapshot dictionary,DialogueStore.Session session,Runnable guard){
+        var payload=new LinkedHashMap<>(diagnostics.snapshot(requestId,outcome,dictionary==null?null:dictionary.fingerprint()));
+        payload.put("route",route);payload.put("message",com.example.report.operations.SensitiveData.text(message));payload.put("scope","SEMANTIC_PLANNING");
+        payload.put("referenceTime",dictionary==null?null:dictionary.referenceTime().toString());
+        try {session.fenced(()->{guard.run();conversations.logSemanticEvidence(id,user.userId(),"assistant_diagnostic",requestId,payload);return null;});}
+        catch(RuntimeException failure){log.warn("语义诊断写入未完成 conversation={} type={}",id,failure.getClass().getSimpleName());}
+    }
+    /** 澄清标签只来自可信目录或稳定值，模型候选中不允许携带任意HTML或自定义名称。 */
+    private Map<String,Object> clarificationPayload(CurrentUser user,AssistantInteraction.PendingClarification pending,String question){
+        var options=pending.options();var choices=options.values().stream().map(value->{
+            String label=value;
+            if(options.kind()==ClarificationOptions.Kind.REPORT)label=catalog.requireVisible(user,value).reportName();
+            if(options.kind()==ClarificationOptions.Kind.FIELD)label=BusinessFields.forDomain(options.domain(),catalog.requireVisible(user,options.reportId()).fields()).stream().filter(f->f.name().equals(value)).map(f->f.description()+"（"+f.name()+"）").findFirst().orElse(value);
+            return Map.of("value",value,"label",label);
+        }).toList();return Map.of("clarificationRef",pending.requestId(),"question",question,"kind",options.kind(),"choices",choices);
     }
 
     /** 复核只使用有界事实；截断明确标注，不改变业务结果或把样本数量当作完整匹配总数。 */

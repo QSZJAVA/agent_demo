@@ -1,0 +1,77 @@
+{
+  "scope": "最新基线真实浏览器操作与核验",
+  "checks": [
+    {
+      "name": "null-or-original-fixed",
+      "at": "2026-10-11T09:39:06.257Z",
+      "observed": "原失败原文显示两组OR：业务日期为空 或 金额等于0.01；匹配 MONEY-EXACT-02 一条，合计0.01。",
+      "passed": true
+    },
+    {
+      "name": "null-and-variant",
+      "at": "2026-10-11T09:41:08.394Z",
+      "observed": "独立AND查询保留同一allOf，匹配0条；没有把零结果当成失败或改成OR。",
+      "passed": true
+    },
+    {
+      "name": "parenthesized-logic",
+      "at": "2026-10-11T09:43:20.667Z",
+      "observed": "（日期为空或金额0.01）并且产品不是服务器，正确展开为两支OR且每支保留产品条件；匹配0.01的一条。",
+      "passed": true
+    },
+    {
+      "name": "complete-or-editor",
+      "at": "2026-10-11T09:44:48.346Z",
+      "observed": "通过编辑器把OR第二分支金额从0.01改为32000；两支中的产品排除都保留，命中SO2026002，32000.00。",
+      "passed": true
+    },
+    {
+      "name": "refresh-complete-or",
+      "at": "2026-10-11T09:46:41.643Z",
+      "observed": "刷新并重新打开服务端历史后，OR分组、两支产品条件和金额32000均保留；旧卡片只读，最新卡片可编辑。",
+      "passed": true
+    },
+    {
+      "name": "field-choice-recovered",
+      "at": "2026-10-11T09:52:12.940Z",
+      "observed": "点击amount后直接继续原具体查询：A公司销售报表金额降序，无旧附加条件，6条；已完成的字段选择不再追问。",
+      "passed": true
+    },
+    {
+      "name": "diagnostic-feedback-final",
+      "at": "2026-10-11T09:54:25.085Z",
+      "observed": "界面显示三阶段实际模型和用量、费用未知；正常调整查询反馈重复保存后仍为同一条待审核记录。",
+      "passed": true
+    },
+    {
+      "name": "cancel-plan-final",
+      "at": "2026-10-11T09:57:46.445Z",
+      "observed": "单条SO2026001清单点击取消后显示已取消，未执行。",
+      "passed": true
+    },
+    {
+      "name": "dictionary-invalidated-final",
+      "at": "2026-10-11T10:00:10.413Z",
+      "observed": "词典发布后，未到有效期的旧预览和清单立即以报表目录变化为由失效；未执行。",
+      "passed": true
+    },
+    {
+      "name": "fresh-query-source-recovered-final",
+      "at": "2026-10-11T10:03:20.256Z",
+      "observed": "旧清单失效后重新查询，再发送原失败原文，正常生成SO2026001一条待确认清单；旧PREVIEW保护未阻止新QUERY_ROWS。",
+      "passed": true
+    },
+    {
+      "name": "dictionary-history-final",
+      "at": "2026-10-11T10:03:20.308Z",
+      "observed": "本轮发布版本2，历史准确显示2/1/0，时区Asia/Shanghai、财年4月、3个字段定义。",
+      "passed": true
+    },
+    {
+      "name": "dispatch-executed-final",
+      "at": "2026-10-11T10:07:23.926Z",
+      "observed": "最终通过真实浏览器确认一次，SO2026001清单显示已执行：成功1条、失败0条，金额13,800,138,000.00。",
+      "passed": true
+    }
+  ]
+}

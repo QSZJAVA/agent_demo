@@ -1,0 +1,109 @@
+{
+  "recordedAt": "2026-10-11T05:50:28.891Z",
+  "kind": "same-database-recovery-acceptance",
+  "sourceRound": "browser-resume-verified",
+  "schema": "mcp_it_ac141bf089ad4732a0df7ca98654357f",
+  "configuration": {
+    "profiles": [
+      "real",
+      "mcp"
+    ],
+    "semanticMode": "active",
+    "model": "deepseek-v4.1-flash",
+    "nativeSchema": true,
+    "thinkingEnabled": false,
+    "frontend": "production-preview"
+  },
+  "databaseInvariants": [
+    {
+      "part": "source",
+      "unchanged": true
+    },
+    {
+      "part": "plans",
+      "unchanged": true
+    },
+    {
+      "part": "items",
+      "unchanged": true
+    },
+    {
+      "part": "jobs",
+      "unchanged": true
+    },
+    {
+      "part": "requests",
+      "unchanged": true
+    },
+    {
+      "part": "authorizations",
+      "unchanged": true
+    }
+  ],
+  "jobs": 1,
+  "businessRequests": 1,
+  "successfulExecutionAttempts": 1,
+  "semanticTurnsBefore": 4,
+  "semanticTurnsAfter": 5,
+  "additionalReadOnlyTurn": {
+    "conversation_id": "193df2b8c4274f06b449c77e93a206ba",
+    "utterance": "只读查询A公司销售报表订单SO2026001的当前金额和派单状态",
+    "outcome": "ASSISTANT_BUSINESS_QUERY",
+    "reason": null,
+    "model": "deepseek-v4.1-flash",
+    "latency_ms": 10305
+  },
+  "executionWritesThroughBrowser": 0,
+  "injectedReadFailures": 2,
+  "rawCheckpoints": {
+    "registered": 34,
+    "passed": 31,
+    "failed": 3,
+    "assertions": 102,
+    "passedAssertions": 99,
+    "failedAssertions": 3
+  },
+  "acceptedFinalCoverage": {
+    "checkpoints": 29,
+    "assertions": 87,
+    "allPassed": true,
+    "required": [
+      "01-restored-report",
+      "02-task-restored",
+      "03-plan-restored",
+      "05-trace-source-text-verified",
+      "06-single-attempt",
+      "07-reload-same-task",
+      "10-page-one-valid-ids",
+      "11-page-two-valid-ids",
+      "14-next-page-failure-text-verified",
+      "15-retry-same-cursor",
+      "16-filter-resets-page",
+      "17-clear-filter-restores-first-page",
+      "18-leave-and-return",
+      "19-company-denied",
+      "20-company-filters-tasks",
+      "21-company-restored",
+      "23-history-denied-captured",
+      "24-history-restored",
+      "25-live-model-query-after-recovery",
+      "26-report-read-failure",
+      "27-report-retry-restored",
+      "28-limited-admin-metrics",
+      "29-admin-history-is-own-only",
+      "30-catalog-sales-history",
+      "31-catalog-target-switch",
+      "32-rule-receivable-history",
+      "33-rule-history-target-switch",
+      "34-final-own-task",
+      "35-final-plan-result"
+    ]
+  },
+  "failureClassification": "evidence-classification.json",
+  "scopeLimits": [
+    "原JUnit浏览器夹具没有正常退出证据，保持中断事实；本文件只证明同版数据恢复验收。",
+    "目录历史当前没有修订；浏览器验证读取、空状态与目标切换，回滚竞态由既有确定性测试覆盖。",
+    "本次新增1个真实模型语义轮次，没有重新采集其内部模型HTTP调用总数。",
+    "外部身份系统、ERP、生产容量和灾备不在已验收范围。"
+  ]
+}

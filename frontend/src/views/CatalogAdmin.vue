@@ -30,24 +30,41 @@
       <el-form inline size="small"><el-form-item><el-input v-model="alias.alias" placeholder="简称、历史名称或常见错字" /></el-form-item><el-form-item><el-select v-model="alias.aliasType"><el-option v-for="t in aliasTypes" :key="t.value" :label="t.label" :value="t.value" /></el-select></el-form-item><el-button type="primary" :loading="saving" @click="saveAlias">添加</el-button></el-form>
       <el-table :data="selected ? selected.aliases : []" size="small"><el-table-column prop="alias" label="别名" /><el-table-column label="状态"><template slot-scope="s"><business-label :value="s.row.status" tag /></template></el-table-column><el-table-column label="操作"><template slot-scope="s"><el-button v-if="s.row.status === 'ACTIVE'" type="text" :disabled="saving" @click="removeAlias(s.row)">停用</el-button></template></el-table-column></el-table>
     </el-dialog>
-    <el-dialog title="目录历史版本" :visible.sync="historyVisible" width="620px"><el-table :data="revisions"><el-table-column prop="catalog_version" label="版本" /><el-table-column prop="created_by" label="操作者" /><el-table-column label="时间" min-width="175"><template slot-scope="s"><business-label :value="s.row.created_at" domain="time" /></template></el-table-column><el-table-column label="操作"><template slot-scope="s"><el-button type="text" :disabled="saving || (selected && s.row.catalog_version === selected.catalogVersion)" @click="rollback(s.row)">回滚</el-button></template></el-table-column></el-table></el-dialog>
+    <el-dialog :title="historyTitle" :visible.sync="historyVisible" width="620px">
+      <el-alert v-if="historyError" :title="historyError" type="error" :closable="false" show-icon />
+      <el-button v-if="historyError" size="small" @click="history(historyTarget)">重新读取历史</el-button>
+      <el-table v-loading="historyLoading" :data="revisions" :empty-text="historyError ? '历史暂不可用' : '暂无历史版本'">
+        <el-table-column prop="catalog_version" label="版本" />
+        <el-table-column prop="created_by" label="操作者" />
+        <el-table-column label="时间" min-width="175"><template slot-scope="s"><business-label :value="s.row.created_at" domain="time" /></template></el-table-column>
+        <el-table-column label="操作"><template slot-scope="s">
+          <el-button type="text" :disabled="saving || rollbackBusy || historyLoading || !!historyError || !historyTarget || s.row.catalog_version === historyTarget.catalogVersion" @click="rollback(s.row)">回滚</el-button>
+        </template></el-table-column>
+      </el-table>
+    </el-dialog>
   </el-card>
 </template>
 <script>
 /**
  * 报表目录及别名维护页；保留稳定标识并提交当前版本，配置合法性及数据权限由服务端校验。
+ * 历史弹窗使用独立报表快照和请求代次，回滚只能针对用户实际看过的该报表历史，不能跟随其他弹窗目标变化。
  */
 import http from '../api/http'
 import * as api from '../api/catalog'
 import * as ops from '../api/operations'
 export default {
-  data: () => ({ disposed: false, admin: false, loading: false, saving: false, rows: [], search: '', page: 1, editing: null, form: {}, config: '{}', editorVisible: false, aliasVisible: false, historyVisible: false, selected: null, revisions: [], alias: { alias: '', aliasType: 'COLLOQUIAL' },
+  data: () => ({ disposed: false, admin: false, loading: false, saving: false, rows: [], search: '', page: 1, editing: null, form: {}, config: '{}', editorVisible: false, aliasVisible: false, historyVisible: false, selected: null,
+    // 历史与别名各自绑定目标；历史中的目录版本为用户打开时的期望版本，不能在确认期间自动提升。
+    historyTarget: null, historyRequest: 0, historyLoading: false, historyError: '', rollbackBusy: false, revisions: [], alias: { alias: '', aliasType: 'COLLOQUIAL' },
     fields: [{ key: 'reportCode', label: '报表编码' }, { key: 'reportName', label: '名称' }, { key: 'domainCode', label: '业务域' }, { key: 'ownerUserId', label: '负责人' }, { key: 'permissionCode', label: '权限码' }, { key: 'description', label: '说明' }],
     aliasTypes: [{ value: 'SHORT', label: '简称' }, { value: 'COLLOQUIAL', label: '口语' }, { value: 'ENGLISH', label: '英文名' }, { value: 'HISTORICAL', label: '历史名称' }, { value: 'DEPARTMENT', label: '部门俗称' }, { value: 'TYPO', label: '常见错字' }] }),
-  computed: { filtered() { return this.rows.filter(r => [r.reportName,r.reportCode,r.ownerUserId].join(' ').toLowerCase().includes(this.search.toLowerCase())) } },
-  watch: { search() { this.page=1 } },
+  computed: {
+    filtered() { return this.rows.filter(r => [r.reportName,r.reportCode,r.ownerUserId].join(' ').toLowerCase().includes(this.search.toLowerCase())) },
+    historyTitle() { return this.historyTarget ? `${this.historyTarget.reportName} · 目录历史版本` : '目录历史版本' }
+  },
+  watch: { search() { this.page=1 }, historyVisible(visible) { if (!visible) this.clearHistory() } },
   created() { this.load() },
-  beforeDestroy() { this.disposed=true },
+  beforeDestroy() { this.disposed=true; this.clearHistory() },
   methods: {
     async load() { this.loading=true; try { this.admin=(await http.get('/auth/me')).admin; this.rows=this.admin ? await api.fetchCatalog(true) : []; if(this.selected) this.selected=this.rows.find(r=>r.reportId===this.selected.reportId)||null } finally { this.loading=false } },
     edit(row) { this.editing=row ? row.reportId : null; this.form=row ? JSON.parse(JSON.stringify(row)) : { reportId:'',reportCode:'',reportName:'',domainCode:'',ownerUserId:'',permissionCode:'',description:'',queryMode:'STANDARD',dispatchEnabled:false }; this.config=JSON.stringify(row ? row.queryConfig : {},null,2); this.editorVisible=true },
@@ -56,8 +73,56 @@ export default {
     aliases(row) { this.selected=row; this.alias={alias:'',aliasType:'COLLOQUIAL'}; this.aliasVisible=true },
     async saveAlias() { if(!this.selected) return; this.saving=true; try { await api.addAlias(this.selected.reportId,this.alias); this.alias.alias=''; await this.load() } finally { this.saving=false } },
     async removeAlias(row) { this.saving=true; try { await api.disableAlias(this.selected.reportId,row.id); await this.load() } finally { this.saving=false } },
-    async history(row) { this.selected=row; this.revisions=await ops.catalogHistory(row.reportId); this.historyVisible=true },
-    async rollback(row) { let answer; try { answer=await this.$prompt('填写回滚原因。回滚会生成新版本，并使旧预览失效。','回滚目录',{inputValidator:v=>!!(v&&v.trim())||'请填写原因'}) } catch(e) { return } if(this.disposed)return; this.saving=true; try { await ops.rollbackCatalog(this.selected.reportId,{targetVersion:row.catalog_version,expectedVersion:this.selected.catalogVersion,reason:answer.value}); this.historyVisible=false; await this.load() } finally { this.saving=false } }
+    /** 关窗或销毁立即使旧历史失效；不得保留另一张报表可操作的历史条目。 */
+    clearHistory() {
+      this.historyRequest++
+      this.historyTarget=null
+      this.revisions=[]
+      this.historyLoading=false
+      this.historyError=''
+    },
+    currentHistory(request, target) {
+      return !this.disposed && this.historyVisible && request===this.historyRequest && target===this.historyTarget
+    },
+    /** 打开即冻结报表及期望版本；成功、失败和 loading 都只由最新请求更新。 */
+    async history(row) {
+      if (this.disposed || !row) return
+      const target={reportId:row.reportId,reportName:row.reportName,catalogVersion:row.catalogVersion}
+      const request=++this.historyRequest
+      this.historyTarget=target
+      this.revisions=[]
+      this.historyError=''
+      this.historyVisible=true
+      this.historyLoading=true
+      try {
+        const revisions=await ops.catalogHistory(target.reportId)
+        if (this.currentHistory(request,target)) this.revisions=revisions
+      } catch (e) {
+        if (this.currentHistory(request,target)) this.historyError='目录历史读取失败，请重新读取后再选择版本。'
+      } finally {
+        if (this.currentHistory(request,target)) this.historyLoading=false
+      }
+    },
+    /** 回滚提交使用展示历史时的目标和版本；提示框期间切换、关窗或销毁后不得发起变更。 */
+    async rollback(row) {
+      const target=this.historyTarget, request=this.historyRequest
+      if (!this.currentHistory(request,target) || !target || this.saving || this.rollbackBusy || this.historyLoading || this.historyError
+          || !this.revisions.includes(row) || row.catalog_version===target.catalogVersion) return
+      const targetVersion=row.catalog_version
+      this.rollbackBusy=true
+      try {
+        let answer
+        try {
+          answer=await this.$prompt(`将「${target.reportName}」回滚到版本 ${targetVersion}。请填写原因；回滚会生成新版本，并使旧预览失效。`, '回滚目录', {
+            inputValidator:v=>!!(v&&v.trim())||'请填写原因'
+          })
+        } catch (e) { return }
+        if (!this.currentHistory(request,target) || !this.revisions.includes(row)) return
+        await ops.rollbackCatalog(target.reportId,{targetVersion,expectedVersion:target.catalogVersion,reason:answer.value})
+        if (this.currentHistory(request,target)) this.historyVisible=false
+        if (!this.disposed) await this.load()
+      } finally { this.rollbackBusy=false }
+    }
   }
 }
 </script>

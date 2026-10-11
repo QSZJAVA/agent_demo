@@ -2,7 +2,7 @@
   <el-card shadow="never" class="report-card">
     <div slot="header" class="card-header">
       <div class="left">
-        <div class="report-heading"><span class="title">{{ title }}</span><span class="count">共 {{ total }} 条</span></div>
+        <div class="report-heading"><span class="title">{{ title }}</span><span class="count">{{ loadError ? '数据暂不可用' : loading ? '正在加载…' : `共 ${total} 条` }}</span></div>
         <p class="report-description">查看业务明细，勾选未派单记录后发起派单</p>
       </div>
       <div class="right">
@@ -10,7 +10,7 @@
           type="primary"
           size="small"
           icon="el-icon-s-promotion"
-          :disabled="selectedRows.length === 0 || dispatching || loading"
+          :disabled="selectedRows.length === 0 || dispatching || loading || !!loadError"
           :loading="dispatching"
           @click="handleDispatch"
         >
@@ -23,8 +23,12 @@
       </div>
     </div>
 
+    <div v-if="loadError" class="report-load-error" role="alert">
+      <el-alert :title="loadError" type="error" :closable="false" show-icon />
+      <el-button size="small" :disabled="loading || dispatching" @click="$emit('refresh')">重新加载报表</el-button>
+    </div>
     <div class="report-table-caption">
-      <span><i class="el-icon-document"></i> 本页 {{ data.length }} 条记录</span>
+      <span><i class="el-icon-document"></i> {{ loadError ? '重新加载后可查看记录' : loading ? '正在读取记录…' : `本页 ${data.length} 条记录` }}</span>
       <span v-if="selectedRows.length" class="selection-count">已选择 {{ selectedRows.length }} 条</span>
       <span v-else>每次最多派单 50 条</span>
     </div>
@@ -65,21 +69,23 @@
       :data="data"
       border
       stripe
-      show-summary
+      :show-summary="!loadError && !loading"
       :summary-method="summaryMethod"
+      :empty-text="loadError ? '报表加载失败，请重新加载' : loading ? '正在加载报表…' : '当前授权范围内暂无记录'"
       style="width: 100%"
       @selection-change="handleSelectionChange"
     >
-      <el-table-column type="selection" width="55" align="center" :selectable="(row) => !loading && !dispatching && row.dispatchStatus !== 1" />
+      <el-table-column type="selection" width="55" align="center" :selectable="(row) => !loading && !loadError && !dispatching && row.dispatchStatus !== 1" />
       <el-table-column type="index" label="序号" width="85" align="center" />
       <el-table-column
         v-for="col in columns"
         :key="col.prop"
         :prop="col.prop"
         :label="col.label"
-        :width="col.width"
-        :min-width="col.minWidth"
+        :width="col.isAmount ? undefined : col.width"
+        :min-width="col.isAmount ? Math.max(260, col.minWidth || col.width || 0) : col.minWidth"
         :align="col.isAmount ? 'right' : 'left'"
+        :class-name="col.isAmount ? 'amount-column' : ''"
         show-overflow-tooltip
       >
         <template slot-scope="scope">
@@ -94,7 +100,7 @@
         </template>
       </el-table-column>
     </el-table>
-    <el-pagination
+    <el-pagination v-if="!loadError"
       :current-page="page" :page-size="pageSize" :total="total" :page-sizes="[20, 50, 100, 200]"
       :disabled="loading || dispatching" layout="total, sizes, prev, pager, next"
       @current-change="$emit('page-change', $event)" @size-change="$emit('size-change', $event)"
@@ -106,12 +112,14 @@
 /**
  * 业务报表表格与人工派单清单入口；选择只针对当前页事实，执行后以服务器持久化结果刷新。
  * 记录ID与报表共同确定范围；在途任务通过读取恢复，不能因弹窗或页面刷新再次发起派单。
+ * 金额列统一保留高位金额及分页合计所需宽度，空间不足时由表格横向滚动，不拆开整数与分位。
  */
 import { dispatchDirect, fetchManualPlans } from '../api/report'
 import { confirmPlan, reconcilePlan, retryFailedPlan } from '../api/agent'
 import { resumePlanAction } from '../api/dispatchJob'
 import { getCurrentUserId } from '../auth'
 import DispatchTrace from './agent/DispatchTrace.vue'
+import { formatAmount, sumAmounts } from '../utils/amount'
 
 export default {
   name: 'ReportTable',
@@ -123,6 +131,8 @@ export default {
     columns: { type: Array, default: () => [] },
     data: { type: Array, default: () => [] },
     loading: { type: Boolean, default: false },
+    // 最近一次有效分页请求的失败原因；与真实零条记录分开显示，恢复成功后清除。
+    loadError: { type: String, default: '' },
     page: { type: Number, default: 1 },
     pageSize: { type: Number, default: 50 },
     total: { type: Number, default: 0 },
@@ -216,21 +226,14 @@ export default {
       }
     },
     formatAmount(value) {
-      const num = Number(value)
-      if (Number.isNaN(num)) {
-        return value === null || value === undefined ? '' : value
-      }
-      return num.toLocaleString('zh-CN', {
-        minimumFractionDigits: 2,
-        maximumFractionDigits: 2
-      })
+      return formatAmount(value)
     },
     handleSelectionChange(rows) {
       this.selectedRows = rows
     },
     /** 以当前页人工选择创建任务；处理结束清除选择并刷新报表，最多50条，服务端再次验证公司权限与派单状态。 */
     async handleDispatch() {
-      if (!this.isCurrentSession() || this.dispatching || this.loading) return
+      if (!this.isCurrentSession() || this.dispatching || this.loading || this.loadError) return
       if (!this.selectedRows.length) {
         this.$message.warning('请先勾选需要派单的记录')
         return
@@ -276,8 +279,11 @@ export default {
         }
         const target = this.columns[index - 2]
         if (target && target.isAmount) {
-          const total = this.data.reduce((acc, row) => acc + Number(row[target.prop] || 0), 0)
-          return this.formatAmount(total)
+          // 空值不是零；不完整金额不能显示成用户可能用于对账的完整合计。
+          const total = sumAmounts(this.data.map(row => row[target.prop]))
+          if (total.invalidCount) return '金额格式异常'
+          if (total.missingCount) return `金额不完整（${total.missingCount} 条未提供）`
+          return this.formatAmount(total.amount)
         }
         return ''
       })
@@ -288,6 +294,8 @@ export default {
 
 <style scoped>
 .report-card { min-height: 320px; }
+.report-load-error { display: flex; align-items: center; flex-wrap: wrap; gap: 12px; margin-bottom: 16px; }
+.report-load-error .el-alert { flex: 1; min-width: 220px; }
 .card-header, .report-heading, .card-header .right, .report-table-caption, .manual-toolbar, .manual-pagination { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
 .card-header { flex-wrap: wrap; }
 .report-heading { justify-content: flex-start; }

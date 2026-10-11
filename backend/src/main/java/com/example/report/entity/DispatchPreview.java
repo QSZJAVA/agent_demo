@@ -9,7 +9,8 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 /**
- * 派单预览快照（服务端状态的唯一事实来源）：ACTIVE → SUPERSEDED / EXPIRED / CONSUMED
+ * 派单预览快照（服务端状态的唯一事实来源）：ACTIVE → SUPERSEDED / EXPIRED / CONSUMED。
+ * 金额汇总通过十进制字符串传输，避免展示时损失分位。
  */
 @Data
 @TableName("dispatch_preview")
@@ -53,6 +54,7 @@ public class DispatchPreview {
     /** 统计记录总数。 */
     private Integer totalCount;
     /** 候选记录金额合计；小数精度2位，币种沿用来源账本。*/
+    @com.fasterxml.jackson.databind.annotation.JsonSerialize(using = com.example.report.common.DecimalStringSerializer.class)
     private BigDecimal totalAmount;
     /** 有效期截止时间；到期后不得继续认领或使用。 */
     private LocalDateTime expiresAt;

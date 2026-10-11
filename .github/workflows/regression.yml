@@ -44,6 +44,7 @@ jobs:
       - run: node tools/check-no-legacy-compat.cjs
       - run: node tools/generate-schema-dictionary.cjs --check
       - run: node tools/check-comments.cjs
+      - run: node --test tools/query-filter-semantics.test.cjs tools/compare-investigation-evaluations.test.cjs tools/semantic-quality-evaluation.test.cjs
       - run: docker compose --env-file .env.example config --quiet
         env:
           LLM_API_KEY: ci-configuration-placeholder

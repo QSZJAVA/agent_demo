@@ -12,6 +12,7 @@ import java.time.LocalDateTime;
 /**
  * 待确认清单条目与逐条执行结果：发送前保存 UNKNOWN，再更新为 SUCCESS / FAILED。
  * 复核不通过则 SKIPPED；UNKNOWN 表示结果不明，必须先核对，不能直接重发。
+ * 金额通过十进制字符串传输，分页结果与待确认卡片保持同一精度。
  */
 @Data
 @TableName("dispatch_plan_item")
@@ -52,6 +53,7 @@ public class DispatchPlanItem {
     /** 已配置标量字段快照JSON数组，元素为name、type、value；value为空表示来源空值；随预览或清单保留，不重新读取来源。 */
     private String fieldsJson = "[]";
     /** 业务金额；小数精度2位，币种沿用来源业务账本；允许为空，表示尚无该项数据。 */
+    @com.fasterxml.jackson.databind.annotation.JsonSerialize(using = com.example.report.common.DecimalStringSerializer.class)
     private BigDecimal amount;
     /** 业务发生日期；按来源报表日期字段取值；允许为空，表示尚无该项数据。*/
     private LocalDate bizDate;

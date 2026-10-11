@@ -1,0 +1,259 @@
+{
+  "version": "p0-2026-10-11-temporal-intent-v1",
+  "partition": "regression",
+  "businessReviewed": false,
+  "provenance": "针对本轮真实回放中绝对月份漂移、参数待选择和完整编辑输入的同类边界补充回归；工程编写，非业务方盲测。",
+  "dictionaryScopes": [
+    {
+      "domain": "REPORT",
+      "companyCode": "A",
+      "reportId": "rpt-sales-order"
+    }
+  ],
+  "scenarios": [
+    {
+      "id": "absolute-month-boundaries",
+      "turns": [
+        {
+          "message": "独立查询沪东公司2024年2月整月的销售报表记录。",
+          "expect": {
+            "kind": "query",
+            "domain": "REPORT",
+            "view": "LIST",
+            "companyCode": "A",
+            "reportIds": [
+              "rpt-sales-order"
+            ],
+            "where": [
+              [
+                "date",
+                "GTE",
+                "2024-02-01"
+              ],
+              [
+                "date",
+                "LT",
+                "2024-03-01"
+              ]
+            ]
+          }
+        },
+        {
+          "message": "把查询月份改成2025年12月，保持公司和报表不变。",
+          "expect": {
+            "kind": "query",
+            "domain": "REPORT",
+            "view": "LIST",
+            "companyCode": "A",
+            "reportIds": [
+              "rpt-sales-order"
+            ],
+            "where": [
+              [
+                "date",
+                "GTE",
+                "2025-12-01"
+              ],
+              [
+                "date",
+                "LT",
+                "2026-01-01"
+              ]
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "absolute-year-and-days",
+      "turns": [
+        {
+          "message": "查询沪东公司2026公历年度全年的销售报表记录，不采用财年口径。",
+          "expect": {
+            "kind": "query",
+            "domain": "REPORT",
+            "view": "LIST",
+            "companyCode": "A",
+            "reportIds": [
+              "rpt-sales-order"
+            ],
+            "where": [
+              [
+                "date",
+                "GTE",
+                "2026-01-01"
+              ],
+              [
+                "date",
+                "LT",
+                "2027-01-01"
+              ]
+            ]
+          }
+        },
+        {
+          "message": "重新独立查询沪东公司从2026年9月5日到2026年9月18日的销售报表记录，包含这两天。",
+          "expect": {
+            "kind": "query",
+            "domain": "REPORT",
+            "view": "LIST",
+            "companyCode": "A",
+            "reportIds": [
+              "rpt-sales-order"
+            ],
+            "where": [
+              [
+                "date",
+                "GTE",
+                "2026-09-05"
+              ],
+              [
+                "date",
+                "LTE",
+                "2026-09-18"
+              ]
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "parameter-choice-descending",
+      "turns": [
+        {
+          "message": "需要列出A公司销售报表，按金额或业务日期降序，先让我选择用哪个字段排序。",
+          "expect": {
+            "kind": "clarify",
+            "optionKind": "FIELD",
+            "values": [
+              "amount",
+              "date"
+            ]
+          }
+        },
+        {
+          "message": "选择金额。",
+          "choose": {
+            "value": "amount"
+          },
+          "expect": {
+            "kind": "query",
+            "domain": "REPORT",
+            "view": "LIST",
+            "companyCode": "A",
+            "reportIds": [
+              "rpt-sales-order"
+            ],
+            "where": [],
+            "sortField": "amount",
+            "descending": true
+          }
+        }
+      ]
+    },
+    {
+      "id": "structured-full-replacement",
+      "turns": [
+        {
+          "message": "查询沪东公司2026年8月签约额不低于2万元的销售报表记录。",
+          "expect": {
+            "kind": "query",
+            "domain": "REPORT",
+            "view": "LIST",
+            "companyCode": "A",
+            "reportIds": [
+              "rpt-sales-order"
+            ],
+            "where": [
+              [
+                "date",
+                "GTE",
+                "2026-08-01"
+              ],
+              [
+                "date",
+                "LT",
+                "2026-09-01"
+              ],
+              [
+                "amount",
+                "GTE",
+                "20000"
+              ]
+            ]
+          }
+        },
+        {
+          "message": "按编辑器中的完整条件重新查询。",
+          "edit": {
+            "conditions": [
+              {
+                "allOf": [
+                  {
+                    "field": "date",
+                    "operator": "GTE",
+                    "values": [
+                      "2026-09-01"
+                    ]
+                  },
+                  {
+                    "field": "date",
+                    "operator": "LTE",
+                    "values": [
+                      "2026-09-30"
+                    ]
+                  },
+                  {
+                    "field": "amount",
+                    "operator": "GTE",
+                    "values": [
+                      "30000"
+                    ]
+                  },
+                  {
+                    "field": "amount",
+                    "operator": "LTE",
+                    "values": [
+                      "50000"
+                    ]
+                  }
+                ]
+              }
+            ]
+          },
+          "expect": {
+            "kind": "query",
+            "domain": "REPORT",
+            "view": "LIST",
+            "companyCode": "A",
+            "reportIds": [
+              "rpt-sales-order"
+            ],
+            "where": [
+              [
+                "date",
+                "GTE",
+                "2026-09-01"
+              ],
+              [
+                "date",
+                "LTE",
+                "2026-09-30"
+              ],
+              [
+                "amount",
+                "GTE",
+                "30000"
+              ],
+              [
+                "amount",
+                "LTE",
+                "50000"
+              ]
+            ]
+          }
+        }
+      ]
+    }
+  ]
+}

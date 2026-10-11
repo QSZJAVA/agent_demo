@@ -8,12 +8,28 @@ import java.util.function.Function;
  * @param history 最近真实用户和助手文本，按时间排列；作为不可信上下文，不替代本轮指令
  * @param dispatchSelection 当前候选的有界展示事实、完整性和状态；没有候选时为空
  * @param validateDraft 校验草稿并返回只读事实证据；不得创建预览、清单或执行业务
+ * @param dictionary 已按当前权限限定的业务词典与共同时间事实，不是系统指令
+ * @param diagnostics 当前轮阶段计量，不进入模型输入或跨轮共享
+ * @param catalog 当前调用的授权目录，仅用于候选身份校验，不整体序列化适配器
+ * @param resolvedClarification 本轮经服务端核验的已完成选择；原问题的未决措辞不能覆盖这些事实
+ * @param requestedQuery 用户通过条件编辑器明确提交的完整查询，已核对当前引用和字段类型；普通文本请求为空
  */
 public record AssistantPlanningContext(List<Map<String,String>> history,Map<String,Object> dispatchSelection,
-                                      Function<AssistantPlan,Map<String,Object>> validateDraft) {
+                                      Function<AssistantPlan,Map<String,Object>> validateDraft,Map<String,Object> dictionary,PlanningDiagnostics diagnostics,java.util.List<com.example.report.catalog.CatalogEntry> catalog,Map<String,Object> resolvedClarification,BusinessQuery requestedQuery) {
     public AssistantPlanningContext {
         history=List.copyOf(history);dispatchSelection=Map.copyOf(dispatchSelection);Objects.requireNonNull(validateDraft);
+        dictionary=Map.copyOf(dictionary);Objects.requireNonNull(diagnostics);
+        catalog=List.copyOf(catalog);resolvedClarification=Map.copyOf(resolvedClarification);
     }
+    /** 无额外业务词典的程序调用仍使用独立轮次计量；不更改模型JSON契约。 */
+    public AssistantPlanningContext(List<Map<String,String>> history,Map<String,Object> dispatchSelection,Function<AssistantPlan,Map<String,Object>> validateDraft){this(history,dispatchSelection,validateDraft,Map.of(),new PlanningDiagnostics());}
+    /** 服务端建立本轮上下文后，规划器绑定同一批已授权目录。 */
+    public AssistantPlanningContext(List<Map<String,String>> history,Map<String,Object> dispatchSelection,Function<AssistantPlan,Map<String,Object>> validateDraft,Map<String,Object> dictionary,PlanningDiagnostics diagnostics){this(history,dispatchSelection,validateDraft,dictionary,diagnostics,List.of());}
+    public AssistantPlanningContext(List<Map<String,String>> history,Map<String,Object> dispatchSelection,Function<AssistantPlan,Map<String,Object>> validateDraft,Map<String,Object> dictionary,PlanningDiagnostics diagnostics,List<com.example.report.catalog.CatalogEntry> catalog){this(history,dispatchSelection,validateDraft,dictionary,diagnostics,catalog,Map.of(),null);}
+    public AssistantPlanningContext withCatalog(List<com.example.report.catalog.CatalogEntry> entries){return new AssistantPlanningContext(history,dispatchSelection,validateDraft,dictionary,diagnostics,entries,resolvedClarification,requestedQuery);}
+    public AssistantPlanningContext withResolvedClarification(Map<String,Object> resolved){return new AssistantPlanningContext(history,dispatchSelection,validateDraft,dictionary,diagnostics,catalog,resolved,requestedQuery);}
+    /** 结构化输入属于用户本轮明确要求，三个模型阶段共享；它不是另一阶段的草稿，也不能跳过独立复核。 */
+    public AssistantPlanningContext withRequestedQuery(BusinessQuery requested){return new AssistantPlanningContext(history,dispatchSelection,validateDraft,dictionary,diagnostics,catalog,resolvedClarification,requested);}
     /** 独立规划或协议测试使用相同边界，空证据不表示任何业务已经执行。 */
     public static AssistantPlanningContext empty(java.util.function.Consumer<AssistantPlan> validator) {
         return new AssistantPlanningContext(List.of(),Map.of(),plan->{validator.accept(plan);return Map.of();});
@@ -27,6 +43,6 @@ public record AssistantPlanningContext(List<Map<String,String>> history,Map<Stri
         if(history.isEmpty())return this;
         var last=history.get(history.size()-1);
         return "user".equals(last.get("role")) && Objects.equals(message,last.get("content"))
-                ?new AssistantPlanningContext(history.subList(0,history.size()-1),dispatchSelection,validateDraft):this;
+                ?new AssistantPlanningContext(history.subList(0,history.size()-1),dispatchSelection,validateDraft,dictionary,diagnostics,catalog,resolvedClarification,requestedQuery):this;
     }
 }

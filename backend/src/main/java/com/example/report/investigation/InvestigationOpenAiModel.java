@@ -50,20 +50,10 @@ public class InvestigationOpenAiModel implements InvestigationModel {
             var response=model.call(new Prompt(com.example.report.operations.ModelEgressPolicy.messages(messages),options.build()));
             if(response==null || response.getResult()==null) throw new InvestigationFailure("MODEL_UNAVAILABLE","真实模型未返回有效响应");
             var usage=new LinkedHashMap<String,Object>();
-            var met=response.getMetadata().getUsage();
-            // API没有返回usage时默认对象可能为零，必须结合原生计量判断是否真的有计量证据。
-            boolean present=met!=null && met.getNativeUsage()!=null;
-            usage.put("inputTokens",present?met.getPromptTokens():null);usage.put("outputTokens",present?met.getCompletionTokens():null);
-            usage.put("usageComplete",present && met.getPromptTokens()!=null && met.getCompletionTokens()!=null);
-            Integer cached=null;
-            if(present) {
-                var nativeUsage=com.example.report.common.JsonUtil.MAPPER.valueToTree(met.getNativeUsage());
-                for(String field:List.of("prompt_cache_hit_tokens","promptCacheHitTokens")) if(nativeUsage.path(field).isIntegralNumber()) cached=nativeUsage.path(field).intValue();
-                for(String field:List.of("prompt_tokens_details","promptTokensDetails")) {
-                    var details=nativeUsage.path(field);for(String key:List.of("cached_tokens","cachedTokens")) if(details.path(key).isIntegralNumber()) cached=details.path(key).intValue();
-                }
-            }
-            usage.put("cachedInputTokens",cached);usage.put("currency",props.getCurrency());usage.put("cost",cost(usage));
+            // 与普通助手共用原生计量契约，缺失字段不能由SDK默认零变成已知用量。
+            var measured=com.example.report.common.ModelUsage.read(response.getMetadata()==null?null:response.getMetadata().getUsage());
+            usage.put("inputTokens",measured.inputTokens());usage.put("outputTokens",measured.outputTokens());usage.put("usageComplete",measured.complete());
+            usage.put("cachedInputTokens",measured.cachedInputTokens());usage.put("currency",props.getCurrency());usage.put("cost",cost(usage));
             return new Reply(response.getResult().getOutput(),response.getResult().getMetadata().getFinishReason(),usage);
         } catch(InvestigationFailure e) {throw e;}
         catch(Exception e) {

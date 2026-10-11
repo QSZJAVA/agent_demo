@@ -60,7 +60,8 @@ public class McpConfiguration {
         builder.tools(tool("dispatch_submit","提交已明确确认的清单条目；校验持久化确认、执行版本、权限、规则及幂等请求号",false,
                 props("requestId",str(),"reportId",str(),"record",candidateSchema(),"enforceRules",Map.of("type","boolean"),"executionVersion",integer(1,Long.MAX_VALUE)),
                 List.of("requestId","reportId","record","enforceRules","executionVersion"),a->dispatch.submit(user(a),string(a,"requestId"),string(a,"reportId"),
-                        json.convertValue(a.get("record"),Candidate.class),(Boolean)a.get("enforceRules"),((Number)a.get("executionVersion")).longValue())));
+                        json.convertValue(a.get("record"),Candidate.class),(Boolean)a.get("enforceRules"),
+                        McpArgumentContract.integer(a.get("executionVersion"),"executionVersion",1,Long.MAX_VALUE))));
         builder.tools(tool("dispatch_lookup","按稳定请求号查询派单结果；超时先核对，不得盲目重发",true,
                 props("requestId",str(),"requestOperatorId",str()),List.of("requestId"),a->a.containsKey("requestOperatorId")
                         ?dispatch.lookupForOperator(user(a),string(a,"requestOperatorId"),string(a,"requestId"))
@@ -73,7 +74,7 @@ public class McpConfiguration {
     }
     private CurrentUser user(Map<String,Object> a) {return identities.resolve(string(a,"tenantId"),string(a,"operatorId"));}
     /**
-     * 为工具统一添加服务端身份字段并验证参数白名单，业务异常转换为可识别的 MCP 错误；底层错误仅记录类型，不回传内部详情。
+     * 为工具统一添加服务端身份字段并执行嵌套参数契约，业务异常转换为可识别的 MCP 错误；底层错误仅记录类型，不回传内部详情。
      */
     private McpStatelessServerFeatures.SyncToolSpecification tool(String name,String description,boolean readOnly,
             Map<String,Object> properties,List<String> required,Function<Map<String,Object>,Object> action) {
@@ -85,7 +86,8 @@ public class McpConfiguration {
         return new McpStatelessServerFeatures.SyncToolSpecification(tool,(context,request)->{
             try {
                 var args=request.arguments();
-                if(args==null || !all.keySet().containsAll(args.keySet()) || !args.keySet().containsAll(req)) throw new ApiException("工具参数不符合契约");
+                // Schema 是服务端执行边界；不能仅验证顶层键后让类型强转或整数截断改变确认对象。
+                McpArgumentContract.validate(all,req,args);
                 return result(Map.of("data",action.apply(args)),false);
             } catch(ApiException e) {return result(Map.of("code",e.getCode(),"message",e.getMessage()),true);}
             catch(IllegalArgumentException|ClassCastException e) {return result(Map.of("code",400,"message","工具参数类型不合法"),true);}
@@ -100,16 +102,22 @@ public class McpConfiguration {
         catch(Exception e){throw new IllegalStateException(e);}
     }
     private static String string(Map<String,Object> a,String key) {if(!(a.get(key) instanceof String s) || s.isBlank() || s.length()>65536) throw new ApiException("缺少参数："+key);return s;}
-    private static int integer(Map<String,Object> a,String key) {if(!(a.get(key) instanceof Number n) || n.doubleValue()!=n.intValue()) throw new ApiException("参数需为整数："+key);return n.intValue();}
+    private static int integer(Map<String,Object> a,String key) {return (int)McpArgumentContract.integer(a.get(key),key,Integer.MIN_VALUE,Integer.MAX_VALUE);}
     private List<String> strings(Map<String,Object> a,String key) {return json.convertValue(a.get(key),new TypeReference<>() {});}
     private static Map<String,Object> props(Object... pairs) {Map<String,Object> m=new LinkedHashMap<>();for(int i=0;i<pairs.length;i+=2)m.put((String)pairs[i],pairs[i+1]);return m;}
     private static Map<String,Object> str(){return Map.of("type","string","minLength",1,"maxLength",160);}
     private static Map<String,Object> integer(long min,long max){return Map.of("type","integer","minimum",min,"maximum",max);}
     private static Map<String,Object> array(int max){return Map.of("type","array","items",str(),"maxItems",max);}
-    private static Map<String,Object> candidateSchema(){
+    static Map<String,Object> candidateSchema(){
         Map<String,Object> p=new LinkedHashMap<>();
-        for(String k:List.of("reportId","reportName","recordId","docNo","companyCode","label","date","ruleName","ruleDescription")) p.put(k,Map.of("type",List.of("string","null"),"maxLength",2000));
-        for(String k:List.of("amount","ruleId","ruleVersion","catalogVersion")) p.put(k,Map.of("type",List.of("number","null")));
+        for(String k:List.of("reportName","docNo","label","date","ruleName","ruleDescription")) p.put(k,Map.of("type",List.of("string","null"),"maxLength",2000));
+        // 必填身份不可为空；否则类型转换后才触发数据库异常，会把错误参数误报为服务不可用。
+        for(String k:List.of("reportId","recordId","companyCode")) p.put(k,Map.of("type","string","minLength",1,"maxLength",128,"pattern","\\S"));
+        // 金额采用无损十进制字符串；标识和版本仍是有界整数，拒绝借数值强转匹配另一个执行版本。
+        p.put("amount",Map.of("type",List.of("string","null"),"pattern","^-?[0-9]+(?:\\.[0-9]+)?$","maxLength",128));
+        p.put("ruleId",Map.of("type",List.of("integer","null"),"minimum",1,"maximum",Long.MAX_VALUE));
+        p.put("ruleVersion",Map.of("type",List.of("integer","null"),"minimum",1,"maximum",Integer.MAX_VALUE));
+        p.put("catalogVersion",integer(1,Long.MAX_VALUE));
         // 客户实体来自已确认快照，提交时再次核对；别名不是模型生成的执行标识。
         p.put("counterparty",Map.of("type",List.of("object","null"),"properties",props("id",str(),"name",str(),"aliases",array(32)),
                 "additionalProperties",false,"required",List.of("id","name","aliases")));

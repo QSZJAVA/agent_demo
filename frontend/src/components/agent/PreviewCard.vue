@@ -31,7 +31,7 @@
       <el-table-column prop="docNo" label="单据号" width="130" />
       <el-table-column prop="label" label="摘要" min-width="140" show-overflow-tooltip />
       <el-table-column prop="companyCode" label="公司" width="60" align="center" />
-      <el-table-column label="金额(元)" width="120" align="right">
+      <el-table-column label="金额(元)" min-width="260" align="right" class-name="amount-column" show-overflow-tooltip>
         <template slot-scope="scope">{{ formatAmount(scope.row.amount) }}</template>
       </el-table-column>
       <el-table-column prop="date" label="日期" width="105" />
@@ -62,6 +62,7 @@
  * 预览事实与记录选择卡片；取消选择以报表和记录复合标识保存，只有对应快照有效时才允许生成清单。
  */
 import { fetchPreviewItems } from '../../api/agent'
+import { formatAmount } from '../../utils/amount'
 // 预览状态只由服务端给出：ACTIVE 有效 / SUPERSEDED 已作废 / EXPIRED 已失效 / CONSUMED 已据此派单
 const STATUS_TAGS = {
   SUPERSEDED: { label: '已作废', type: 'info' },
@@ -180,9 +181,7 @@ export default {
       }
     },
     formatAmount(value) {
-      const num = Number(value)
-      if (Number.isNaN(num)) return value
-      return num.toLocaleString('zh-CN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
+      return formatAmount(value)
     },
     formatTime(t) {
       return t ? String(t).replace('T', ' ').slice(11, 16) : ''

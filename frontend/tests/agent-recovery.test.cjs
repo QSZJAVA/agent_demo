@@ -1,5 +1,16 @@
 const { test } = require('node:test')
 
+test('query editors and clarification buttons expire when a later user turn starts', () => {
+  const { state, component } = harness()
+  const query = { role: 'card', cardType: 'business_query', payload: { interpretation: { queryRef: 'a'.repeat(32) } } }
+  const clarification = { role: 'card', cardType: 'semantic_clarification', payload: {} }
+  state.messages = [query]; state.openQueryEditor(query); assert.equal(state.queryEditTarget, query)
+  component.watch.visible.call(state, false); assert.equal(state.queryEditTarget, null)
+  state.messages.push({ role: 'user', content: '修改请求' }, clarification)
+  assert.equal(state.isLatestBusinessQuery(query), false); assert.equal(state.isLatestClarification(clarification), true)
+  state.messages.push({ role: 'user', content: '已作选择' }); assert.equal(state.isLatestClarification(clarification), false)
+})
+
 test('semantic selection event applies to the exact preview and survives history reload', async () => {
   const excluded = [{ reportId: 'sales', recordId: '2' }]
   const { state } = harness({
@@ -76,7 +87,7 @@ function harness(overrides = {}, storage = new Map()) {
   const calls = { discovery: [], polls: [] }
   const job = { id: 'job1', status: 'SUCCEEDED', previewId: 'preview1' }
   const sandbox = {
-    result: null, PreviewCard: {}, PlanCard: {}, ResultCard: {}, ReportChoiceCard: {}, BusinessQueryCard: {},
+    result: null, PreviewCard: {}, PlanCard: {}, ResultCard: {}, ReportChoiceCard: {}, BusinessQueryCard: {}, QueryConditionEditor: {},
     getCurrentUserId: () => 'user1',
     sessionStorage: {
       getItem: key => storage.get(key), setItem: (key, value) => storage.set(key, value),

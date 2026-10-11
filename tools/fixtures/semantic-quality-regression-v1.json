@@ -1,0 +1,472 @@
+{
+  "version": "p0-2026-10-11-v1",
+  "partition": "regression",
+  "businessReviewed": false,
+  "provenance": "工程编写的可重复回归；标签来自接口契约和业务词典定义，尚未经业务方独立审核。",
+  "dictionaryScopes": [
+    {
+      "domain": "REPORT",
+      "companyCode": "A",
+      "reportId": "rpt-sales-order"
+    },
+    {
+      "domain": "REPORT",
+      "companyCode": "B",
+      "reportId": "rpt-sales-order"
+    }
+  ],
+  "scenarios": [
+    {
+      "id": "dictionary-interval-edit",
+      "turns": [
+        {
+          "message": "列出沪东公司销售报表中2026年9月成交、签约额不少于5万元且不超过20万元的记录。",
+          "expect": {
+            "kind": "query",
+            "domain": "REPORT",
+            "view": "LIST",
+            "companyCode": "A",
+            "reportIds": [
+              "rpt-sales-order"
+            ],
+            "where": [
+              [
+                "date",
+                "GTE",
+                "2026-09-01"
+              ],
+              [
+                "date",
+                "LT",
+                "2026-10-01"
+              ],
+              [
+                "amount",
+                "GTE",
+                "50000"
+              ],
+              [
+                "amount",
+                "LTE",
+                "200000"
+              ]
+            ]
+          }
+        },
+        {
+          "message": "上限改成12万元，其余条件不变。",
+          "expect": {
+            "kind": "query",
+            "domain": "REPORT",
+            "view": "LIST",
+            "companyCode": "A",
+            "reportIds": [
+              "rpt-sales-order"
+            ],
+            "where": [
+              [
+                "date",
+                "GTE",
+                "2026-09-01"
+              ],
+              [
+                "date",
+                "LT",
+                "2026-10-01"
+              ],
+              [
+                "amount",
+                "GTE",
+                "50000"
+              ],
+              [
+                "amount",
+                "LTE",
+                "120000"
+              ]
+            ]
+          }
+        },
+        {
+          "message": "按编辑器中的完整条件重新查询。",
+          "edit": {
+            "conditions": [
+              {
+                "allOf": [
+                  {
+                    "field": "date",
+                    "operator": "GTE",
+                    "values": [
+                      "2026-09-01"
+                    ]
+                  },
+                  {
+                    "field": "date",
+                    "operator": "LT",
+                    "values": [
+                      "2026-10-01"
+                    ]
+                  },
+                  {
+                    "field": "amount",
+                    "operator": "GTE",
+                    "values": [
+                      "50000"
+                    ]
+                  },
+                  {
+                    "field": "amount",
+                    "operator": "LTE",
+                    "values": [
+                      "80000"
+                    ]
+                  }
+                ]
+              }
+            ]
+          },
+          "expect": {
+            "kind": "query",
+            "domain": "REPORT",
+            "view": "LIST",
+            "companyCode": "A",
+            "reportIds": [
+              "rpt-sales-order"
+            ],
+            "where": [
+              [
+                "date",
+                "GTE",
+                "2026-09-01"
+              ],
+              [
+                "date",
+                "LT",
+                "2026-10-01"
+              ],
+              [
+                "amount",
+                "GTE",
+                "50000"
+              ],
+              [
+                "amount",
+                "LTE",
+                "80000"
+              ]
+            ]
+          }
+        },
+        {
+          "message": "提交旧查询卡片的编辑。",
+          "edit": {
+            "from": 0,
+            "conditions": []
+          },
+          "expect": {
+            "kind": "reject"
+          }
+        },
+        {
+          "message": "清除附加条件，保留公司和报表。",
+          "edit": {
+            "conditions": []
+          },
+          "expect": {
+            "kind": "query",
+            "domain": "REPORT",
+            "view": "LIST",
+            "companyCode": "A",
+            "reportIds": [
+              "rpt-sales-order"
+            ],
+            "where": []
+          }
+        }
+      ]
+    },
+    {
+      "id": "complete-or-edit",
+      "turns": [
+        {
+          "message": "列出A公司销售报表：金额在1000元至3000元之间（含两端），或者产品名称等于“企业路由器”。",
+          "expect": {
+            "kind": "query",
+            "domain": "REPORT",
+            "view": "LIST",
+            "companyCode": "A",
+            "reportIds": [
+              "rpt-sales-order"
+            ],
+            "where": [],
+            "anyOf": [
+              [
+                [
+                  "amount",
+                  "GTE",
+                  "1000"
+                ],
+                [
+                  "amount",
+                  "LTE",
+                  "3000"
+                ]
+              ],
+              [
+                [
+                  "productName",
+                  "EQ",
+                  "企业路由器"
+                ]
+              ]
+            ]
+          }
+        },
+        {
+          "message": "采用编辑器里新的完整条件组合。",
+          "edit": {
+            "conditions": [
+              {
+                "allOf": [
+                  {
+                    "field": "amount",
+                    "operator": "GTE",
+                    "values": [
+                      "1000"
+                    ]
+                  },
+                  {
+                    "field": "amount",
+                    "operator": "LTE",
+                    "values": [
+                      "2000"
+                    ]
+                  }
+                ]
+              },
+              {
+                "allOf": [
+                  {
+                    "field": "productName",
+                    "operator": "EQ",
+                    "values": [
+                      "企业路由器"
+                    ]
+                  },
+                  {
+                    "field": "amount",
+                    "operator": "NOT_NULL",
+                    "values": []
+                  }
+                ]
+              }
+            ]
+          },
+          "expect": {
+            "kind": "query",
+            "domain": "REPORT",
+            "view": "LIST",
+            "companyCode": "A",
+            "reportIds": [
+              "rpt-sales-order"
+            ],
+            "where": [],
+            "anyOf": [
+              [
+                [
+                  "amount",
+                  "GTE",
+                  "1000"
+                ],
+                [
+                  "amount",
+                  "LTE",
+                  "2000"
+                ]
+              ],
+              [
+                [
+                  "productName",
+                  "EQ",
+                  "企业路由器"
+                ],
+                [
+                  "amount",
+                  "NOT_NULL",
+                  []
+                ]
+              ]
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "dictionary-calendar",
+      "turns": [
+        {
+          "message": "列出沪东公司上个月的销售报表记录。",
+          "expect": {
+            "kind": "query",
+            "domain": "REPORT",
+            "view": "LIST",
+            "companyCode": "A",
+            "reportIds": [
+              "rpt-sales-order"
+            ],
+            "where": [
+              [
+                "date",
+                "GTE",
+                "@previousMonthStart"
+              ],
+              [
+                "date",
+                "LT",
+                "@monthStart"
+              ]
+            ]
+          }
+        },
+        {
+          "message": "重新独立查询沪东公司本财年截至今天的销售记录。",
+          "expect": {
+            "kind": "query",
+            "domain": "REPORT",
+            "view": "LIST",
+            "companyCode": "A",
+            "reportIds": [
+              "rpt-sales-order"
+            ],
+            "where": [
+              [
+                "date",
+                "GTE",
+                "@fiscalYearStart"
+              ],
+              [
+                "date",
+                "LTE",
+                "@today"
+              ]
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "company-clarification",
+      "turns": [
+        {
+          "message": "我要查询销售报表，尚未决定选哪家公司。请先列出我当前有权查看的公司供我选择，选好后显示那家公司的全部销售记录。",
+          "expect": {
+            "kind": "clarify",
+            "optionKind": "COMPANY",
+            "values": [
+              "A",
+              "B"
+            ]
+          }
+        },
+        {
+          "message": "选择A公司。",
+          "choose": {
+            "value": "A"
+          },
+          "expect": {
+            "kind": "query",
+            "domain": "REPORT",
+            "view": "LIST",
+            "companyCode": "A",
+            "reportIds": [
+              "rpt-sales-order"
+            ],
+            "where": []
+          }
+        },
+        {
+          "message": "重复点击已处理的公司选项。",
+          "choose": {
+            "from": 0,
+            "value": "B"
+          },
+          "expect": {
+            "kind": "reject"
+          }
+        }
+      ]
+    },
+    {
+      "id": "field-clarification",
+      "turns": [
+        {
+          "message": "查询A公司销售报表，准备按金额或业务日期升序排列，但我还没决定排序字段，请先提供这两个字段让我选择。",
+          "expect": {
+            "kind": "clarify",
+            "optionKind": "FIELD",
+            "values": [
+              "amount",
+              "date"
+            ]
+          }
+        },
+        {
+          "message": "按金额排序。",
+          "choose": {
+            "value": "amount"
+          },
+          "expect": {
+            "kind": "query",
+            "domain": "REPORT",
+            "view": "LIST",
+            "companyCode": "A",
+            "reportIds": [
+              "rpt-sales-order"
+            ],
+            "where": [],
+            "sortField": "amount",
+            "descending": false
+          }
+        }
+      ]
+    },
+    {
+      "id": "value-clarification",
+      "turns": [
+        {
+          "message": "查询A公司销售报表，按派单状态筛选；我还没决定选“未派单”还是“已派单”，请先让我选一种。",
+          "expect": {
+            "kind": "clarify",
+            "optionKind": "VALUE",
+            "values": [
+              "未派单",
+              "已派单"
+            ]
+          }
+        },
+        {
+          "message": "选择未派单。",
+          "choose": {
+            "value": "未派单"
+          },
+          "expect": {
+            "kind": "query",
+            "domain": "REPORT",
+            "view": "LIST",
+            "companyCode": "A",
+            "reportIds": [
+              "rpt-sales-order"
+            ],
+            "where": [
+              [
+                "status",
+                "EQ",
+                "未派单"
+              ]
+            ]
+          }
+        }
+      ]
+    }
+  ]
+}

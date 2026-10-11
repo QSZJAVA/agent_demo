@@ -54,6 +54,12 @@ public class DialogueState {
     private List<String> recentUserMessages = List.of();
     /** 最近成功的只读业务查询，独立于派单范围；首次查询前为空。 */
     private com.example.report.assistant.BusinessQuery businessQuery;
+    /** 最近成功查询轮次，结构化编辑必须精确匹配；首次查询前为空。 */
+    private String businessQueryRef;
+    /** 最近成功查询的来源字段元数据，仅用于当前编辑类型校验，不授予新的字段权限。 */
+    private List<com.example.report.catalog.query.FieldInfo> businessColumns = List.of();
+    /** 最新仍有效的澄清问题和已复核候选；新轮次取代后清空，不能借旧按钮恢复历史动作。 */
+    private com.example.report.assistant.AssistantInteraction.PendingClarification pendingClarification;
     /** 最近成功查询当前页的有序业务标识及已展示标量字段，供明确指代使用，不包含未展示记录或新增权限。 */
     private List<java.util.Map<String,String>> businessReferences = List.of();
     /** 最近成功只读查询的完整匹配条数；首次查询前为null，不以当前页长度猜测全集大小。 */

@@ -1,0 +1,77 @@
+- complementary:
+  - generic: 
+  - text: 报表工作台
+  - generic: 业务协同 · 演示系统
+  - generic: 业务空间
+  - menubar:
+    - menuitem " 销售报表":
+      - generic: 
+      - text: 销售报表
+    - menuitem " 我的任务":
+      - generic: 
+      - text: 我的任务
+    - menuitem " 派单规则":
+      - generic: 
+      - text: 派单规则
+- generic: 我的任务
+- generic: 
+- text: Reader A
+- button "退出登录"
+- button " 业务助手":
+  - generic: 
+  - text: 业务助手
+- main:
+  - heading "我的任务" [level=1]
+  - paragraph: 找回已提交的派单、重试与核对任务，查看当前进度和清单结果
+  - button " 刷新任务":
+    - generic: 
+    - text: 刷新任务
+  - generic "任务状态":
+    - textbox "请选择": 全部状态
+    - generic: 
+  - generic: 按创建时间倒序 · 仅显示当前权限可见的本人任务
+  - alert:
+    - generic: 
+    - generic: 任务处理完成后，请查看关联清单的逐条结果。任务失败或结果待核对时，请先核实已有结果。 
+  - table:
+    - rowgroup:
+      - row "任务 状态 当前说明 创建时间 更新时间 关联清单":
+        - columnheader "任务":
+          - generic: 任务
+        - columnheader "状态":
+          - generic: 状态
+        - columnheader "当前说明":
+          - generic: 当前说明
+        - columnheader "创建时间":
+          - generic: 创建时间
+        - columnheader "更新时间":
+          - generic: 更新时间
+        - columnheader "关联清单":
+          - generic: 关联清单
+  - table:
+    - rowgroup:
+      - row "确认派单 1f37e445ccdf4fa89db3198a6788a07f 处理完成 处理完成，请查看清单逐条结果 2026-10-11 11:57:00 2026-10-11 11:57:00 查看清单":
+        - cell "确认派单 1f37e445ccdf4fa89db3198a6788a07f":
+          - strong: 确认派单
+          - generic "1f37e445ccdf4fa89db3198a6788a07f"
+        - cell "处理完成":
+          - generic: 处理完成
+        - cell "处理完成，请查看清单逐条结果":
+          - generic: 处理完成，请查看清单逐条结果
+        - cell "2026-10-11 11:57:00":
+          - generic: 2026-10-11 11:57:00
+        - cell "2026-10-11 11:57:00":
+          - generic: 2026-10-11 11:57:00
+        - cell "查看清单":
+          - button "查看清单":
+            - generic: 查看清单
+  - generic: 第 1 页 · 本页 1 项
+  - button "上一页" [disabled]
+  - button "更早任务" [disabled]
+  - dialog "清单结果":
+    - text: 清单结果
+    - button "Close":
+      - generic: 
+    - alert:
+      - generic: 当前账号无权查看该预览的历史记录
+      - button "重试加载清单"

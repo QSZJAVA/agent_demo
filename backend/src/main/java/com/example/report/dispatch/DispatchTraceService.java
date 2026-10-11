@@ -123,7 +123,8 @@ public class DispatchTraceService {
         m.put("ruleVersion", p.getRuleVersion());
         m.put("permissionVersion", p.getPermissionVersion());
         m.put("totalCount", p.getTotalCount());
-        m.put("totalAmount", p.getTotalAmount());
+        // 此处显式组装 Map，不经过实体字段注解；追溯金额仍须遵守同一字符串契约。
+        m.put("totalAmount", p.getTotalAmount() == null ? null : p.getTotalAmount().toPlainString());
         m.put("createdAt", p.getCreatedAt());
         m.put("expiresAt", p.getExpiresAt());
         return m;

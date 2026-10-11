@@ -2,6 +2,7 @@ package com.example.report.dispatch;
 
 import com.example.report.catalog.*;
 import com.example.report.common.ApiException;
+import com.example.report.common.JsonUtil;
 import com.example.report.dispatch.store.PlanRepository;
 import com.example.report.operations.OperationsWorkbench;
 import com.example.report.permission.*;
@@ -13,11 +14,12 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.datasource.*;
 import org.springframework.transaction.support.TransactionTemplate;
 import java.util.*;
+import java.time.LocalDateTime;
 import java.util.concurrent.*;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
-/** Real queue/CAS/lease SQL, synthetic service results, and a UUID database. */
+/** 隔离数据库验证任务队列、条件更新、租约及历史分页 SQL；业务结果使用合成事实，不作为真实模型或外部业务验收。 */
 @EnabledIfEnvironmentVariable(named="TRACE_IT",matches="true")
 class DispatchJobDatabaseTest {
     static String schema;
@@ -52,7 +54,7 @@ class DispatchJobDatabaseTest {
         when(dispatch.dispatchDirect(eq(user),anyString(),anyList())).thenReturn(new DispatchService.ManualResult(1,1,0,0,List.of()));
     }
     @AfterEach void close() { first.close();second.close(); }
-    DispatchJobService.Request direct(String id) { return new DispatchJobService.Request(null,"DIRECT","sales",List.of(id),null); }
+    DispatchJobService.Request direct(String id) { return new DispatchJobService.Request(null,"DIRECT",TestCatalog.SALES,List.of(id),null); }
     String key() { return UUID.randomUUID().toString().replace("-",""); }
     DispatchJobService.Job finished(String id) throws Exception {
         long deadline=System.nanoTime()+TimeUnit.SECONDS.toNanos(10);
@@ -145,5 +147,133 @@ class DispatchJobDatabaseTest {
         when(repository.find(planId)).thenReturn(Optional.of(changed));
         second.poll();assertEquals("FAILED",finished(original.id()).status());
         assertTrue(first.get(user,original.id()).message().contains("版本已变化"));verifyNoInteractions(dispatch);
+    }
+
+    /** 仅向本测试隔离库写入任务事实，不认领、不调用业务派单。 */
+    void historyJob(String id,String tenant,String owner,LocalDateTime created,String status,
+                    DispatchJobService.Request request,Object result,String message) {
+        jdbc.update("INSERT INTO dispatch_job(id,tenant_id,user_id,plan_id,action,idempotency_key,payload_json,trace_id,status,result_json,message,created_at,updated_at,expires_at) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
+                id,tenant,owner,request.planId(),request.action(),"private-key-"+id,JsonUtil.toJson(request),"private-trace-"+id,
+                status,result==null?null:JsonUtil.toJson(result),message,created,created,created.plusMinutes(10));
+    }
+
+    @Test void historyUsesCreationTimeAndIdCursorWithoutLeakingExecutionCredentials() {
+        var time=LocalDateTime.of(2026,10,11,10,0);
+        for(String id:List.of("f".repeat(32),"e".repeat(32),"d".repeat(32)))
+            historyJob(id,user.tenantId(),user.userId(),time,"FAILED",direct("1"),null,"单据 PRIVATE-DOC 属于 B 公司");
+        var page=first.history(user,null,null,1);
+        assertEquals(List.of("f".repeat(32)),page.rows().stream().map(DispatchJobService.HistoryEntry::id).toList());
+        assertNotNull(page.nextCursor());
+        String serialized=JsonUtil.toJson(page);
+        for(String hidden:List.of("private-key","private-trace","PRIVATE-DOC","payload_json","idempotencyKey","recordIds"))
+            assertFalse(serialized.contains(hidden));
+        jdbc.update("UPDATE dispatch_job SET updated_at=TIMESTAMPADD(DAY,1,updated_at) WHERE id=?","d".repeat(32));
+        historyJob("a".repeat(32),user.tenantId(),user.userId(),time.plusSeconds(1),"FAILED",direct("2"),null,null);
+        var next=second.history(user,page.nextCursor(),null,1);
+        assertEquals("e".repeat(32),next.rows().get(0).id());
+        var last=second.history(user,next.nextCursor(),null,1);
+        assertEquals("d".repeat(32),last.rows().get(0).id());assertNull(last.nextCursor());
+        assertEquals("private-key-"+"f".repeat(32),first.get(user,"f".repeat(32)).idempotencyKey(),"原单任务恢复契约保持稳定");
+        verifyNoInteractions(dispatch);
+    }
+
+    @Test void historyRejectsMalformedCursorsAndRequiresResetWhenFilterChanges() {
+        var time=LocalDateTime.of(2026,10,11,10,0);
+        historyJob("f".repeat(32),user.tenantId(),user.userId(),time,"FAILED",direct("1"),null,null);
+        historyJob("e".repeat(32),user.tenantId(),user.userId(),time,"QUEUED",direct("2"),null,null);
+        var page=first.history(user,null,null,1);
+        assertEquals(400,assertThrows(ApiException.class,()->first.history(user,page.nextCursor(),"FAILED",10)).getCode());
+        assertThrows(ApiException.class,()->first.history(TestCatalog.USER3,page.nextCursor(),null,10));
+        for(String cursor:List.of("", "!", "A", "e30", "a".repeat(1025)))
+            assertThrows(ApiException.class,()->first.history(user,cursor,null,10));
+        for(String status:List.of("", "failed", "UNKNOWN", "FAILED' OR 1=1"))
+            assertThrows(ApiException.class,()->first.history(user,null,status,10));
+        assertThrows(ApiException.class,()->first.history(user,null,null,0));
+        assertThrows(ApiException.class,()->first.history(user,null,null,51));
+        var filtered=first.history(user,null,"QUEUED",10);
+        assertEquals(1,filtered.rows().size());assertEquals("QUEUED",filtered.rows().get(0).status());assertNull(filtered.nextCursor());
+    }
+
+    @Test void historyIsTenantAndOwnerScopedAndSkipsCurrentlyUnreadablePlans() {
+        var time=LocalDateTime.of(2026,10,11,10,0);
+        String deniedPlan=key(),visiblePlan=key();
+        var denied=new DispatchJobService.Request(deniedPlan,"CONFIRM",null,null,null);
+        var visible=new DispatchJobService.Request(visiblePlan,"CONFIRM",null,null,null);
+        historyJob("f".repeat(32),"T002",user.userId(),time.plusSeconds(2),"SUCCEEDED",visible,Map.of(),null);
+        historyJob("e".repeat(32),user.tenantId(),"other",time.plusSeconds(1),"SUCCEEDED",visible,Map.of(),null);
+        historyJob("d".repeat(32),user.tenantId(),user.userId(),time,"SUCCEEDED",denied,Map.of(),"旧范围结果");
+        historyJob("c".repeat(32),user.tenantId(),user.userId(),time,"SUCCEEDED",visible,Map.of(),null);
+        doThrow(ApiException.forbidden("公司授权已撤销")).when(plans).pageOwned(user,deniedPlan,1,1);
+        var plan=new com.example.report.entity.DispatchPlan();plan.setId(visiblePlan);plan.setTenantId(user.tenantId());plan.setUserId(user.userId());plan.setStatus("EXECUTED");
+        when(repository.find(visiblePlan)).thenReturn(Optional.of(plan));
+        var page=first.history(user,null,null,10);
+        assertEquals(List.of("c".repeat(32)),page.rows().stream().map(DispatchJobService.HistoryEntry::id).toList());
+        assertEquals(visiblePlan,page.rows().get(0).plans().get(0).planId());assertNull(page.nextCursor());
+        assertEquals(403,assertThrows(ApiException.class,()->first.get(user,"d".repeat(32))).getCode());
+        verify(repository,never()).find(deniedPlan);
+    }
+
+    @Test void boundedHistoryScanCanContinueAfterACompletelyHiddenPage() {
+        var time=LocalDateTime.of(2026,10,11,10,0);
+        String deniedPlan=key();var denied=new DispatchJobService.Request(deniedPlan,"CONFIRM",null,null,null);
+        doThrow(ApiException.forbidden("报表授权已撤销")).when(plans).pageOwned(user,deniedPlan,1,1);
+        for(int index=201;index>1;index--)
+            historyJob(String.format("%032x",index),user.tenantId(),user.userId(),time,"FAILED",denied,null,null);
+        historyJob(String.format("%032x",1),user.tenantId(),user.userId(),time,"FAILED",direct("1"),null,null);
+        var hidden=first.history(user,null,null,20);
+        assertTrue(hidden.rows().isEmpty());assertNotNull(hidden.nextCursor());
+        var visible=second.history(user,hidden.nextCursor(),null,20);
+        assertEquals(1,visible.rows().size());assertEquals(String.format("%032x",1),visible.rows().get(0).id());assertNull(visible.nextCursor());
+    }
+
+    @Test void directHistoryLinksEveryRetainedPlanAndNeverReturnsAPartiallyAuthorizedResult() {
+        var time=LocalDateTime.of(2026,10,11,10,0);String id=key(),one=key(),two=key();
+        var result=new DispatchService.ManualResult(2,1,1,0,List.of(
+                new DispatchService.ManualPlan(one,"SO1","EXECUTED",0,"SUCCESS",null),
+                new DispatchService.ManualPlan(two,"SO2","EXECUTED",1,"FAILED","临时失败")));
+        historyJob(id,user.tenantId(),user.userId(),time,"SUCCEEDED",direct("1"),result,null);
+        for(String planId:List.of(one,two)) {
+            var plan=new com.example.report.entity.DispatchPlan();plan.setId(planId);plan.setTenantId(user.tenantId());plan.setUserId(user.userId());plan.setStatus("EXECUTED");
+            when(repository.find(planId)).thenReturn(Optional.of(plan));
+        }
+        var item=first.history(user,null,null,20).rows().get(0);
+        assertTrue(item.resultAvailable());assertEquals(List.of(one,two),item.plans().stream().map(DispatchJobService.HistoryPlan::planId).toList());
+        assertTrue(item.plans().stream().allMatch(plan->TestCatalog.SALES.equals(plan.reportId()) && plan.conversationId()==null));
+        doThrow(ApiException.forbidden("第二份清单公司权限已撤销")).when(plans).pageOwned(user,two,1,1);
+        assertTrue(first.history(user,null,null,20).rows().isEmpty());
+        assertEquals(403,assertThrows(ApiException.class,()->first.get(user,id)).getCode());
+    }
+
+    @Test void expiredDirectResultsExposeOnlyGenericTaskMetadata() {
+        var time=LocalDateTime.of(2026,10,11,10,0);String id=key();
+        historyJob(id,user.tenantId(),user.userId(),time,"SUCCEEDED",direct("PRIVATE-RECORD"),null,"B 公司 PRIVATE-DOC 共 123 条");
+        var item=first.history(user,null,null,20).rows().get(0);
+        assertFalse(item.resultAvailable());assertTrue(item.plans().isEmpty());assertTrue(item.message().contains("保留期"));
+        var recovered=first.get(user,id);assertNull(recovered.result());assertFalse(recovered.message().contains("PRIVATE-DOC"));
+        assertFalse(JsonUtil.toJson(item).contains("PRIVATE-RECORD"));
+        verifyNoInteractions(plans,repository,dispatch);
+        var revoked=new CurrentUser(user.tenantId(),user.userId(),"reader",Set.of("A"),Set.of("report:expense"),false);
+        assertTrue(first.history(revoked,null,null,20).rows().isEmpty());
+        assertEquals(404,assertThrows(ApiException.class,()->first.get(revoked,id)).getCode());
+    }
+
+    @Test void planHistoryKeepsResultAvailabilityWithoutLoadingTheRawResultAndOmitsDeletedConversationLinks() {
+        var time=LocalDateTime.of(2026,10,11,10,0);String id=key(),planId=key(),conversation=key();
+        jdbc.update("INSERT INTO agent_conversation(id,tenant_id,user_id,created_at,updated_at) VALUES (?,?,?,?,?)",conversation,user.tenantId(),user.userId(),time,time);
+        var plan=new com.example.report.entity.DispatchPlan();plan.setId(planId);plan.setTenantId(user.tenantId());plan.setUserId(user.userId());plan.setConversationId(conversation);plan.setStatus("EXECUTED");
+        when(repository.find(planId)).thenReturn(Optional.of(plan));
+        historyJob(id,user.tenantId(),user.userId(),time,"SUCCEEDED",new DispatchJobService.Request(planId,"CONFIRM",null,null,null),Map.of("privateBusinessDetails","保留结果"),null);
+        var entry=first.history(user,null,null,20).rows().get(0);
+        assertTrue(entry.resultAvailable());assertEquals(conversation,entry.plans().get(0).conversationId());
+        assertFalse(JsonUtil.toJson(entry).contains("privateBusinessDetails"));
+        jdbc.update("UPDATE agent_conversation SET status='deleted' WHERE id=?",conversation);
+        assertNull(first.history(user,null,null,20).rows().get(0).plans().get(0).conversationId());
+    }
+
+    @Test void malformedDirectPlanLinksFailClosedInsteadOfPublishingUnverifiedBusinessResults() {
+        var time=LocalDateTime.of(2026,10,11,10,0);String id=key();
+        historyJob(id,user.tenantId(),user.userId(),time,"SUCCEEDED",direct("1"),Map.of("plans",List.of(Map.of("docNo","PRIVATE-DOC"))),null);
+        assertEquals(502,assertThrows(ApiException.class,()->first.history(user,null,null,20)).getCode());
+        assertEquals(502,assertThrows(ApiException.class,()->first.get(user,id)).getCode());
     }
 }

@@ -1,0 +1,113 @@
+{
+  "scope": "真实浏览器操作与页面核验；保留首次失败",
+  "checks": [
+    {
+      "name": "cancel-edit",
+      "at": "2026-10-11T07:50:30.229Z",
+      "observed": "金额上界改为50000后取消，重新打开仍为100000；下界30000和原2条结果未改变。",
+      "passed": true
+    },
+    {
+      "name": "edit-transport-first-failure",
+      "at": "2026-10-11T07:54:12.636Z",
+      "passed": false,
+      "observed": "提交上界50000后仍显示100000、两条记录。源码定位 streamChat 解构和 JSON 请求体遗漏 queryEdit / clarificationReply。"
+    },
+    {
+      "name": "upper-bound-fixed",
+      "at": "2026-10-11T08:04:25.248Z",
+      "observed": "上界50000、下界30000、金额降序；仅SO2026002，金额32000.00；变化说明新增1、替换1、保留1，分别展示继承与本轮依据。",
+      "passed": true
+    },
+    {
+      "name": "and-or-fixed",
+      "at": "2026-10-11T08:09:46.615Z",
+      "observed": "区间30000至50000或金额等于0.01；两条记录合计32000.01，保持公司A、销售报表、金额降序。",
+      "passed": true
+    },
+    {
+      "name": "clear-conditions",
+      "at": "2026-10-11T08:11:40.015Z",
+      "observed": "清除所有附加筛选后仍为A公司销售报表、金额降序；返回6条，精确金额和合计完整。",
+      "passed": true
+    },
+    {
+      "name": "stale-edit-rejected",
+      "at": "2026-10-11T08:13:57.377Z",
+      "observed": "第二标签页已将查询更新为金额大于100000；第一标签页旧编辑提交被明确拒绝：该查询已变化，请重新打开最新查询后编辑。",
+      "passed": true
+    },
+    {
+      "name": "stale-recovery",
+      "at": "2026-10-11T08:14:15.434Z",
+      "observed": "重新打开服务端会话后，最新查询恢复为金额大于100000；仅最新卡片可编辑，历史卡片禁用。",
+      "passed": true
+    },
+    {
+      "name": "field-choice-completed",
+      "at": "2026-10-11T08:17:47.980Z",
+      "observed": "字段卡片选择amount后查询A公司销售报表，金额升序、无附加条件；旧amount/saleDate选择禁用。",
+      "passed": true
+    },
+    {
+      "name": "diagnostic-feedback",
+      "at": "2026-10-11T08:17:48.060Z",
+      "observed": "显示PURPOSE、PLAN、REVIEW各一次及实际模型、耗时、36645输入/928输出token；重复保存正常调整反馈仍只有一条待审核记录。",
+      "passed": true
+    },
+    {
+      "name": "reader-dictionary-permissions",
+      "at": "2026-10-11T08:19:14.740Z",
+      "observed": "Reader A只可选A公司销售报表；词典版本1可读，定义、检查和发布控件禁用。",
+      "passed": true
+    },
+    {
+      "name": "pending-plan-before-confirm",
+      "at": "2026-10-11T08:21:48.962Z",
+      "observed": "真实浏览器准备SO2026001单条清单，金额13800138000.00；仍展示取消和确认按钮，尚无执行授权。",
+      "passed": true
+    },
+    {
+      "name": "dictionary-validation",
+      "at": "2026-10-11T08:23:02.561Z",
+      "observed": "发布原因为空时拒绝检查；非法时区Invalid/Zone显示请选择有效IANA时区，版本仍为1。",
+      "passed": true
+    },
+    {
+      "name": "dictionary-invalidates-plan",
+      "at": "2026-10-11T08:26:37.496Z",
+      "observed": "发布词典版本2后，旧预览与待确认清单均显示已失效；旧确认被拒绝，提示报表目录已变更，请重新查询。",
+      "passed": true
+    },
+    {
+      "name": "dictionary-cas-conflict",
+      "at": "2026-10-11T08:28:31.122Z",
+      "observed": "另一个管理员会话仍持有版本1，尝试发布UTC时返回词典已变化；没有覆盖版本2。",
+      "passed": true
+    },
+    {
+      "name": "dictionary-publish-history",
+      "at": "2026-10-11T08:28:31.189Z",
+      "observed": "A公司销售报表已发布版本2，历史包含2/1/0，时区Asia/Shanghai、财年4月、3个字段定义。",
+      "passed": true
+    },
+    {
+      "name": "fresh-query-prepare-first-failure",
+      "at": "2026-10-11T08:36:58.224Z",
+      "passed": false,
+      "observed": "词典发布后已成功重新查询单条订单，但独立复核将旧PREVIEW来源的重新展示要求误用于新的QUERY_ROWS来源，返回多余澄清。真实模型原始脱敏证据callIndex172/175/177/178已保留。"
+    },
+    {
+      "name": "company-choice-completed",
+      "at": "2026-10-11T08:36:58.335Z",
+      "observed": "管理员看到A/B/C授权公司候选，点击B后返回B公司销售记录、无附加条件。",
+      "passed": true
+    },
+    {
+      "name": "preview-recovery-first-failure",
+      "at": "2026-10-11T08:40:38.080Z",
+      "passed": false,
+      "observed": "按数量限定重新预览时，旧候选没有有效数量事实，独立复核仍要求澄清；本轮保持未执行。此夹具保留失败，后续新基线复验原查询来源恢复。"
+    }
+  ]
+}

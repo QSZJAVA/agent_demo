@@ -10,8 +10,9 @@ import com.example.report.common.ApiException;
  * @param clarification 澄清说明，仅用于告诉用户缺少什么，不作为执行条件
  * @param removedFilters 本轮追问明确撤销的旧筛选字段及原文证据；空集合不得静默删除旧字段限制
  * @param dispatch 完整派单动作及对象绑定，仅DISPATCH路由非空；不包含确认执行能力
+ * @param clarificationOptions 有目录依据的澄清候选，仅CLARIFY可提供；无法枚举时为空
  */
-public record AssistantPlan(Route route,BusinessQuery query,boolean followUp,String clarification,java.util.List<FilterRemoval> removedFilters,DispatchDirective dispatch) {
+public record AssistantPlan(Route route,BusinessQuery query,boolean followUp,String clarification,java.util.List<FilterRemoval> removedFilters,DispatchDirective dispatch,ClarificationOptions clarificationOptions) {
     public enum Route { BUSINESS_QUERY, DISPATCH, HELP, CLARIFY }
     public AssistantPlan {
         if(route==null || (route==Route.BUSINESS_QUERY)!=(query!=null) || (clarification!=null && clarification.length()>1000))
@@ -19,6 +20,7 @@ public record AssistantPlan(Route route,BusinessQuery query,boolean followUp,Str
         if((route==Route.DISPATCH)!=(dispatch!=null))throw new ApiException(422,"派单路由必须同时提供完整动作和目标，其余路由dispatch必须为空");
         if(route!=Route.BUSINESS_QUERY && followUp)throw new ApiException(422,"followUp仅用于业务查询，派单对象由source及sourceRef绑定");
         if(route!=Route.CLARIFY && clarification!=null)throw new ApiException(422,"只有CLARIFY路由可以携带澄清说明");
+        if(route!=Route.CLARIFY && clarificationOptions!=null)throw new ApiException(422,"只有CLARIFY路由可以携带澄清候选");
         if(route==Route.CLARIFY && (clarification==null || clarification.isBlank())) throw new ApiException(422,"请明确需要查询的业务对象");
         if(removedFilters==null || removedFilters.size()>16)throw new ApiException(422,"removedFilters必须显式提供数组且最多16项");
         if((!followUp || route!=Route.BUSINESS_QUERY) && !removedFilters.isEmpty())throw new ApiException(422,
@@ -27,6 +29,8 @@ public record AssistantPlan(Route route,BusinessQuery query,boolean followUp,Str
         for(var removal:removedFilters)if(removal.field()==null || !removal.field().matches("[A-Za-z_][A-Za-z0-9_]{0,63}") || removal.evidence()==null || removal.evidence().isBlank() || removal.evidence().length()>1000)
             throw new ApiException(422,"筛选撤销缺少字段或当前原文证据");
     }
+    /** 程序构造没有候选按钮的完整计划；模型仍须显式提供clarificationOptions。 */
+    public AssistantPlan(Route route,BusinessQuery query,boolean followUp,String clarification,java.util.List<FilterRemoval> removals,DispatchDirective dispatch){this(route,query,followUp,clarification,removals,dispatch,null);}
     /** 服务端无需撤销筛选时的完整计划构造器；模型JSON仍须显式提供全部字段。 */
     public AssistantPlan(Route route,BusinessQuery query,boolean followUp,String clarification) {this(route,query,followUp,clarification,java.util.List.of(),null);}
     /** 服务端构造包含筛选撤销的完整只读计划；模型JSON仍显式输出dispatch字段。 */

@@ -166,8 +166,8 @@ const charts=[
         "kind": "agent",
         "title": "构造有界受控上下文",
         "lines": [
-          "授权目录、真实对话与可靠对象",
-          "当前焦点展示行、字段及原词"
+          "授权目录、词典版本与共同时间",
+          "当前焦点、真实对话与可靠对象"
         ]
       },
       {
@@ -760,7 +760,9 @@ const charts=[
         "kind": "ui",
         "title": "持久结果回到页面",
         "lines": [
-          "刷新与断线不导致重新派单"
+          "刷新与断线不导致重新派单",
+          "我的任务读取本人已提交任务",
+          "按当前权限查看关联清单"
         ]
       }
     ],
@@ -1707,7 +1709,7 @@ const charts=[
   },
   {
     "name": "12 运营治理与展示口径",
-    "note": "页面中文化只影响展示；指标、业务授权、策略版本和审计事实以服务端为准。",
+    "note": "派单统计按当前公司和报表授权计算；解析及耗时采样缺少公司归属，明确不可用。策略与恢复事实以服务端为准。",
     "nodes": [
       {
         "id": "entry",
@@ -1724,9 +1726,9 @@ const charts=[
         "col": 1,
         "row": 1,
         "kind": "guard",
-        "title": "当前管理员及租户校验",
+        "title": "当前管理员及数据范围校验",
         "lines": [
-          "任务处理另核对清单业务范围"
+          "租户、公司和报表权限共同约束"
         ]
       },
       {
@@ -1734,10 +1736,10 @@ const charts=[
         "col": 0,
         "row": 2,
         "kind": "agent",
-        "title": "业务指标完整汇总",
+        "title": "授权范围内的派单统计",
         "lines": [
           "最近1 / 7 / 30 / 90天",
-          "解析请求与当前派单条目分母"
+          "完整分母与固定观察时间窗"
         ]
       },
       {
@@ -1756,10 +1758,10 @@ const charts=[
         "col": 0,
         "row": 3,
         "kind": "ui",
-        "title": "中文环节、报表和状态",
+        "title": "派单状态明细",
         "lines": [
-          "明细最多1000组，每页20组",
-          "中文搜索不改变顶部比例"
+          "最多1000分组，截断明确提示",
+          "成功率仍按授权范围全量计算"
         ]
       },
       {
@@ -1778,10 +1780,10 @@ const charts=[
         "col": 0,
         "row": 4,
         "kind": "guard",
-        "title": "已执行不等于全部成功",
+        "title": "指标可用性分别说明",
         "lines": [
-          "无样本显示暂无数据",
-          "95%耗时单位为毫秒"
+          "无授权与无记录分别呈现",
+          "解析与耗时范围不可核实"
         ]
       },
       {
@@ -1791,8 +1793,9 @@ const charts=[
         "kind": "store",
         "title": "访问审计与恢复依据",
         "lines": [
-          "记录操作者、动作和结果",
-          "原始资源标识保留可查"
+          "记录真实操作者、动作和结果",
+          "清理展示副本、保留汇总及防重",
+          "在途、失败与待核对证据保留"
         ]
       },
       {
@@ -1849,6 +1852,20 @@ const charts=[
     ]
   }
 ];
+// P0质量与交互使用同一真实模型链路；反馈保持待审核，评估不能自动发布业务口径或取得执行权限。
+charts.push({name:'13 语义质量与业务词典',note:'按公司、报表和数据域发布；编辑与澄清继续完整复核；缺失计量明确未知。',nodes:[
+  {id:'dictionary',col:0,row:0,kind:'ui',title:'管理员维护业务词典',lines:['名称、字段、单位、枚举及日历']},
+  {id:'dictionaryGuard',col:0,row:1,kind:'guard',title:'当前授权与类型校验',lines:['范围、冲突及读取时版本']},
+  {id:'version',col:0,row:2,kind:'store',title:'发布定义与版本历史',lines:['递增目录版本，旧执行对象失效']},
+  {id:'request',col:1,row:0,kind:'ui',title:'用户本轮明确请求',lines:['自然语言、完整条件编辑或候选选择']},
+  {id:'reference',col:1,row:1,kind:'guard',title:'会话租约与当前引用',lines:['拒绝过期卡片、权限或词典变化']},
+  {id:'model',col:1,row:2,kind:'model',title:'目标、规划与独立复核 → MODEL',lines:['同一授权词典及参考时刻']},
+  {id:'review',col:1,row:3,kind:'guard',title:'完整语义与业务预检',lines:['保留AND/OR及用户选择','发布前再次核对权限和词典']},
+  {id:'card',col:1,row:4,kind:'ui',title:'条件解释与澄清卡片',lines:['最新引用可操作，刷新恢复快照','仍须另行确认派单']},
+  {id:'diagnostic',col:2,row:2,kind:'store',title:'可靠会话阶段诊断',lines:['耗时、修正及有效原生用量','不保存原始模型输入输出']},
+  {id:'feedback',col:2,row:3,kind:'ui',title:'本人诊断与幂等反馈',lines:['当前权限过滤，反馈待审核']},
+  {id:'evaluate',col:2,row:4,kind:'agent',title:'版本化语料与独立事实评分',lines:['保存每次失败和版本差异','预留工程语料不冒称业务盲测']}
+],edges:[['dictionary','dictionaryGuard'],['dictionaryGuard','version'],['version','model'],['request','reference'],['reference','model'],['model','review'],['review','card'],['model','diagnostic'],['diagnostic','feedback'],['feedback','evaluate']]});
 const colors={ui:['#eaf2ff','#386bc1'],agent:['#edf5ff','#3778a8'],model:['#f3edff','#8751bf'],business:['#e8f7ef','#268255'],guard:['#fff4dc','#b58022'],error:['#fff0ef','#ba534e'],store:['#edf1f5','#60768b']};
 const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&apos;'}[c]));
 function wrap(s,max=33){let chunks=[],line='',count=0;for(const ch of s){const weight=ch.charCodeAt(0)>255?1.7:1;if(count+weight>max){chunks.push(line);line='';count=0;}line+=ch;count+=weight;}if(line)chunks.push(line);return chunks;}
@@ -1879,16 +1896,16 @@ function points(a,b){
 function render(chart,index){const W=1340,H=300+Math.max(...chart.nodes.map(x=>x.row))*165;const byId=Object.fromEntries(chart.nodes.map(x=>[x.id,x]));let parts=[`<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" role="img" aria-label="${esc(chart.name)}"><defs><marker id="arrow${index}" markerWidth="10" markerHeight="8" refX="9" refY="4" orient="auto"><path d="M0,0 L10,4 L0,8 Z" fill="#657891"/></marker></defs><rect width="100%" height="100%" fill="#fff"/><g font-family="Microsoft YaHei,PingFang SC,Arial,sans-serif"><text x="60" y="44" font-size="26" font-weight="700" fill="#15334b">${esc(chart.name)}</text><text x="60" y="79" font-size="14" fill="#53697e">${esc(chart.note)}</text>`];
 for(const [from,to,label=''] of chart.edges){if(!byId[from]||!byId[to])throw Error('Unknown edge');const p=points(byId[from],byId[to]);const d=p.map((v,i)=>(i?'L':'M')+v.join(',')).join(' ');parts.push(`<path d="${d}" fill="none" stroke="#657891" stroke-width="1.7" marker-end="url(#arrow${index})"/>`);if(label){const A=p.length>2?p[1]:p[0],B=p.length>2?p[2]:p[1],anchor=chart.edgeLabels?.[`${from}:${to}`],x=anchor?anchor[0]:(A[0]+B[0])/2,y=anchor?anchor[1]:(A[1]+B[1])/2-8;const width=label.length*13+10;parts.push(`<rect x="${x-width/2}" y="${y-14}" width="${width}" height="20" fill="white" rx="3"/><text x="${x}" y="${y}" font-size="12" text-anchor="middle" fill="#53697e">${esc(label)}</text>`);}}
 for(const node of chart.nodes){const g=geom(node),[fill,stroke]=colors[node.kind];if(node.kind==='guard')parts.push(`<polygon points="${g.x+g.w/2},${g.y} ${g.x+g.w},${g.y+g.h/2} ${g.x+g.w/2},${g.y+g.h} ${g.x},${g.y+g.h/2}" fill="${fill}" stroke="${stroke}" stroke-width="1.5"/>`);else parts.push(`<rect x="${g.x}" y="${g.y}" width="${g.w}" height="${g.h}" rx="12" fill="${fill}" stroke="${stroke}" stroke-width="1.5"/>`);const texts=[...wrap(node.title),...node.lines.flatMap(s=>wrap(s))];if(texts.length>5)throw Error('Node text too long: '+node.id);texts.forEach((line,i)=>parts.push(`<text x="${g.x+g.w/2}" y="${g.y+g.h/2-(texts.length-1)*10+i*20+5}" text-anchor="middle" font-size="${i===0?15:13}" font-weight="${i===0?700:400}" fill="#1e354c">${esc(line)}</text>`));}
-parts.push(`<text x="60" y="${H-26}" font-size="12" fill="#64748b">2026-10-10 · 依据当前工作区源码 · 模型解析 / 确定性业务 / 实际派单边界分离</text></g></svg>`);return parts.join('');}
+parts.push(`<text x="60" y="${H-26}" font-size="12" fill="#64748b">2026-10-11 · 依据当前工作区源码 · 模型解析 / 确定性业务 / 实际派单边界分离</text></g></svg>`);return parts.join('');}
 function mermaid(chart){return 'flowchart TD\n'+chart.nodes.map(node=>{const text=[node.title,...node.lines].join('<br/>').replaceAll('"','&quot;');return `  ${node.id}${node.kind==='guard'?'{"'+text+'"}':'["'+text+'"]'}:::${node.kind}`;}).join('\n')+'\n'+chart.edges.map(([a,b,label])=>`  ${a} -->${label?'|"'+label+'"|':''} ${b}`).join('\n')+'\n'+Object.entries(colors).map(([k,[f,s]])=>`  classDef ${k} fill:${f},stroke:${s},color:#1e354c`).join('\n');}
 const svgs=charts.map(render);
 charts.forEach((chart,i)=>{const number=String(i+1).padStart(2,'0');writeOutput(path.join(out,`${number}.svg`),svgs[i]);writeOutput(path.join(out,`${number}.mmd`),mermaid(chart));});
-let xml='<mxfile host="app.diagrams.net" modified="2026-10-10T00:00:00.000Z" agent="Codex" version="26.0.0">';
+let xml='<mxfile host="app.diagrams.net" modified="2026-10-11T00:00:00.000Z" agent="Codex" version="26.0.0">';
 charts.forEach((chart,index)=>{xml+=`<diagram id="semantic-${index+1}" name="${esc(chart.name)}"><mxGraphModel dx="1340" dy="2000" grid="1" gridSize="10" page="0"><root><mxCell id="0"/><mxCell id="1" parent="0"/>`;for(const node of chart.nodes){const g=geom(node),[fill,stroke]=colors[node.kind],value=[`<b>${node.title}</b>`,...node.lines].join('<br>');xml+=`<mxCell id="${node.id}" value="${esc(value)}" style="${node.kind==='guard'?'rhombus;':'rounded=1;'}whiteSpace=wrap;html=1;fillColor=${fill};strokeColor=${stroke};fontColor=#1e354c;fontFamily=Microsoft YaHei;fontSize=14;" vertex="1" parent="1"><mxGeometry x="${g.x}" y="${g.y}" width="${g.w}" height="${g.h}" as="geometry"/></mxCell>`;}chart.edges.forEach(([a,b,label=''],i)=>{xml+=`<mxCell id="e${i}" value="${esc(label)}" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#657891;fontFamily=Microsoft YaHei;fontSize=12;" edge="1" parent="1" source="${a}" target="${b}"><mxGeometry relative="1" as="geometry"/></mxCell>`;});xml+='</root></mxGraphModel></diagram>';});xml+='</mxfile>';writeOutput(path.join(out,'demo-final.drawio'),xml);
 writeOutput(path.join(out,'flows.json'),JSON.stringify(charts,null,2));
-const html=`<!doctype html><html lang="zh-CN"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>通用业务助手与 V1 派单流程</title><style>*{box-sizing:border-box}body{margin:0;font-family:"Microsoft YaHei",sans-serif;color:#1d354a;background:#f1f5f9}header{padding:24px 32px;background:#102a43;color:white}header h1{font-size:25px;margin:0 0 10px}header p{margin:0;color:#c3d4e7;font-size:14px}.bar{position:sticky;top:0;z-index:3;display:flex;gap:8px;flex-wrap:wrap;background:white;padding:12px 20px;border-bottom:1px solid #d7e2ed}button,a{font:inherit}button{cursor:pointer;border:1px solid #c5d5e5;background:#fff;border-radius:7px;padding:8px 11px;color:#214b70}button.active{background:#214b70;color:white}.zoom{padding:10px 24px;display:flex;align-items:center;gap:10px;background:#e8eef5}main{padding:22px;overflow:auto}.chart{background:white;max-width:1800px;margin:auto;box-shadow:0 2px 12px #102a4310}.chart svg{display:block;width:100%;height:auto}.hidden{display:none}small{color:#52687a}a{color:#27649d}.legend{display:flex;gap:14px;flex-wrap:wrap;margin-left:auto;font-size:12px}.legend span{padding:4px 7px;border-radius:4px}.summary{padding:14px 24px;background:#fff;border-bottom:1px solid #d7e2ed;line-height:1.7;font-size:14px}</style></head><body><header><h1>统一业务助手 → 受控查询 / 待确认派单</h1><p>当前基线：real,mcp · active · V1 · 原生 JSON Schema · thinking 关闭 · 2026-10-10</p></header><div class="summary">模型只解析本轮动作和范围变化；原文证据、实体映射、权限、规则、版本和实际派单由服务端负责。<br>${charts.length} 页可切换、缩放；下方节点颜色区分责任边界。金额、日期、文本和布尔筛选来自配置；普通查询支持分页、排序与统计；派单选择仍按独立候选和确认流程处理。<a href="demo-final.drawio" download>下载可编辑 draw.io</a> · <a href="../../语义V1配置字段筛选.md">字段协议说明</a> · <a href="../../工作台操作与运营治理.md">工作台操作</a> · <a href="../../异常调查Agent.md">异常调查</a></div><nav class="bar">${charts.map((c,i)=>`<button data-page="${i}" class="${i===0?'active':''}">${c.name}</button>`).join('')}</nav><div class="zoom"><button id="less">缩小</button><button id="fit">适配宽度</button><button id="more">放大</button><small id="percent">100%</small><div class="legend">${Object.entries({ui:'前端',agent:'Agent 服务',model:'模型',business:'MCP 业务',guard:'校验/判断',store:'持久状态',error:'拒绝/异常'}).map(([k,t])=>`<span style="background:${colors[k][0]};color:${colors[k][1]}">${t}</span>`).join('')}</div></div><main>${svgs.map((s,i)=>`<section class="chart ${i?'hidden':''}" data-chart="${i}">${s}</section>`).join('')}</main><script>let selected=0,zoom=1;const sections=[...document.querySelectorAll('[data-chart]')];function update(){sections.forEach((s,i)=>{s.classList.toggle('hidden',i!==selected);s.style.width=(100*zoom)+'%';s.style.maxWidth=zoom>1?'none':'1800px'});document.querySelectorAll('[data-page]').forEach(b=>b.classList.toggle('active',Number(b.dataset.page)===selected));document.querySelector('#percent').textContent=Math.round(zoom*100)+'%'}document.querySelectorAll('[data-page]').forEach(b=>b.onclick=()=>{selected=Number(b.dataset.page);zoom=1;update();window.scrollTo({top:0})});document.querySelector('#less').onclick=()=>{zoom=Math.max(.35,zoom-.15);update()};document.querySelector('#more').onclick=()=>{zoom=Math.min(2.5,zoom+.15);update()};document.querySelector('#fit').onclick=()=>{zoom=1;update()};</script></body></html>`;
+const html=`<!doctype html><html lang="zh-CN"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>通用业务助手与 V1 派单流程</title><style>*{box-sizing:border-box}body{margin:0;font-family:"Microsoft YaHei",sans-serif;color:#1d354a;background:#f1f5f9}header{padding:24px 32px;background:#102a43;color:white}header h1{font-size:25px;margin:0 0 10px}header p{margin:0;color:#c3d4e7;font-size:14px}.bar{position:sticky;top:0;z-index:3;display:flex;gap:8px;flex-wrap:wrap;background:white;padding:12px 20px;border-bottom:1px solid #d7e2ed}button,a{font:inherit}button{cursor:pointer;border:1px solid #c5d5e5;background:#fff;border-radius:7px;padding:8px 11px;color:#214b70}button.active{background:#214b70;color:white}.zoom{padding:10px 24px;display:flex;align-items:center;gap:10px;background:#e8eef5}main{padding:22px;overflow:auto}.chart{background:white;max-width:1800px;margin:auto;box-shadow:0 2px 12px #102a4310}.chart svg{display:block;width:100%;height:auto}.hidden{display:none}small{color:#52687a}a{color:#27649d}.legend{display:flex;gap:14px;flex-wrap:wrap;margin-left:auto;font-size:12px}.legend span{padding:4px 7px;border-radius:4px}.summary{padding:14px 24px;background:#fff;border-bottom:1px solid #d7e2ed;line-height:1.7;font-size:14px}</style></head><body><header><h1>统一业务助手 → 受控查询 / 待确认派单</h1><p>当前基线：real,mcp · active · V1 · 原生 JSON Schema · thinking 关闭 · 2026-10-11</p></header><div class="summary">模型只解析本轮动作和范围变化；原文证据、实体映射、权限、规则、版本和实际派单由服务端负责。<br>${charts.length} 页可切换、缩放；下方节点颜色区分责任边界。金额、日期、文本和布尔筛选来自配置；普通查询支持分页、排序与统计；派单选择仍按独立候选和确认流程处理。<a href="demo-final.drawio" download>下载可编辑 draw.io</a> · <a href="../../语义V1配置字段筛选.md">字段协议说明</a> · <a href="../../工作台操作与运营治理.md">工作台操作</a> · <a href="../../异常调查Agent.md">异常调查</a></div><nav class="bar">${charts.map((c,i)=>`<button data-page="${i}" class="${i===0?'active':''}">${c.name}</button>`).join('')}</nav><div class="zoom"><button id="less">缩小</button><button id="fit">适配宽度</button><button id="more">放大</button><small id="percent">100%</small><div class="legend">${Object.entries({ui:'前端',agent:'Agent 服务',model:'模型',business:'MCP 业务',guard:'校验/判断',store:'持久状态',error:'拒绝/异常'}).map(([k,t])=>`<span style="background:${colors[k][0]};color:${colors[k][1]}">${t}</span>`).join('')}</div></div><main>${svgs.map((s,i)=>`<section class="chart ${i?'hidden':''}" data-chart="${i}">${s}</section>`).join('')}</main><script>let selected=0,zoom=1;const sections=[...document.querySelectorAll('[data-chart]')];function update(){sections.forEach((s,i)=>{s.classList.toggle('hidden',i!==selected);s.style.width=(100*zoom)+'%';s.style.maxWidth=zoom>1?'none':'1800px'});document.querySelectorAll('[data-page]').forEach(b=>b.classList.toggle('active',Number(b.dataset.page)===selected));document.querySelector('#percent').textContent=Math.round(zoom*100)+'%'}document.querySelectorAll('[data-page]').forEach(b=>b.onclick=()=>{selected=Number(b.dataset.page);zoom=1;update();window.scrollTo({top:0})});document.querySelector('#less').onclick=()=>{zoom=Math.max(.35,zoom-.15);update()};document.querySelector('#more').onclick=()=>{zoom=Math.min(2.5,zoom+.15);update()};document.querySelector('#fit').onclick=()=>{zoom=1;update()};</script></body></html>`;
 writeOutput(path.join(out,'index.html'),html);
 const fence=String.fromCharCode(96).repeat(3);
 const sections=charts.map((chart,i)=>`## ${chart.name}\n\n${chart.note}\n\n${fence}mermaid\n${mermaid(chart)}\n${fence}\n`);
-writeOutput(path.join(out,'流程图.md'),'# 当前业务助手、手工派单与运营治理流程图\n\n2026-10-10，按当前工作区代码绘制。配合 [详细说明](../../语义V1配置字段筛选.md) 阅读。\n\n'+sections.join('\n'));
+writeOutput(path.join(out,'流程图.md'),'# 当前业务助手、手工派单与运营治理流程图\n\n2026-10-11，按当前工作区代码绘制。配合 [详细说明](../../语义V1配置字段筛选.md) 阅读。\n\n'+sections.join('\n'));
 console.log(`Generated ${charts.length} SVG/Mermaid pages, editable draw.io and standalone HTML in ${out}`);

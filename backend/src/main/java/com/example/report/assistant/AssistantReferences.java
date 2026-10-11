@@ -29,6 +29,9 @@ public final class AssistantReferences {
             case "NOT_REPORT_QUERY" -> "当前查询的是派单记录或工单，不能把它们当作报表派单对象；请先查询所需业务报表记录";
             default -> "尚无成功展示的业务记录，请先明确并查询要处理的报表对象";
         });
+        // 查询来源与旧候选生命周期分开说明：可用身份由执行层重新核验后建单，不要求额外人工预览，也不授予确认权限。
+        result.put("preparation",Map.of("sources",List.of("QUERY_ROWS","QUERY_ALL"),"requiresSeparatePreview",false,
+                "requiresCurrentPermissionAndQualificationCheck",true,"executionRequiresConfirmation",true));
         result.put("allMatchesDisplayed",available && complete(state));result.put("totalCount",state.getBusinessTotalCount());result.put("rows",rows);return result;
     }
     /** 引用绑定查询、展示对象及权限版本；同一轮租约内解析和执行都重新计算，不能引用被替换的结果集。 */

@@ -11,6 +11,7 @@ import java.time.LocalDateTime;
 /**
  * 派单审计：每条记录每次派单一行。单独一行就能回答：谁（租户 / 用户）、在哪个会话、对哪张报表、
  * 依据哪个预览 / 清单 / 清单条目、命中哪条规则、预览时的目录 / 规则 / 权限版本、结果与原因、对应哪次请求。
+ * 金额通过十进制字符串传输，审计阅读与执行快照保持同一精度。
  */
 @Data
 @TableName("dispatch_audit")
@@ -59,6 +60,7 @@ public class DispatchAudit {
     /** 业务记录所属公司代码；用于公司权限隔离；允许为空，表示尚无该项数据。*/
     private String companyCode;
     /** 业务金额；小数精度2位，币种沿用来源业务账本；允许为空，表示尚无该项数据。 */
+    @com.fasterxml.jackson.databind.annotation.JsonSerialize(using = com.example.report.common.DecimalStringSerializer.class)
     private BigDecimal amount;
     /** 关联 dispatch_rule.id 的命中规则标识；允许为空，表示尚无该项数据。*/
     private Long ruleId;

@@ -24,7 +24,7 @@
       <el-table-column v-if="state !== 'pending'" label="失败原因" min-width="180" show-overflow-tooltip>
         <template slot-scope="scope">{{ scope.row.errorMessage || scope.row.errorCode || '' }}</template>
       </el-table-column>
-      <el-table-column label="金额(元)" width="120" align="right">
+      <el-table-column label="金额(元)" min-width="260" align="right" class-name="amount-column" show-overflow-tooltip>
         <template slot-scope="scope">{{ formatAmount(scope.row.amount) }}</template>
       </el-table-column>
     </el-table>
@@ -63,6 +63,7 @@
  * EXECUTING或待核对状态不能当作未执行；条目分页用序号阻止旧响应覆盖新状态，异常调查以当前清单显式绑定范围。
  */
 import { fetchPlanItems } from '../../api/agent'
+import { formatAmount } from '../../utils/amount'
 import DispatchTrace from './DispatchTrace.vue'
 // 清单状态只由服务端给出，未知状态不能展示可执行操作。
 const STATES = { PENDING: 'pending', EXECUTING: 'executing', REVIEW_REQUIRED: 'review', EXECUTED: 'executed', CANCELLED: 'cancelled', EXPIRED: 'expired' }
@@ -128,9 +129,7 @@ export default {
       }
     },
     formatAmount(value) {
-      const num = Number(value)
-      if (Number.isNaN(num)) return value
-      return num.toLocaleString('zh-CN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
+      return formatAmount(value)
     }
   }
 }

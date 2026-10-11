@@ -1,0 +1,217 @@
+{
+  "version": "p0-2026-10-11-reserve-v1",
+  "partition": "reserve",
+  "businessReviewed": false,
+  "provenance": "工程自行编写的预留语料，首次用于冻结版本后回放；不是业务方独立盲测。若据此修复，后续重跑属于已见回归。",
+  "dictionaryScopes": [
+    {
+      "domain": "REPORT",
+      "companyCode": "A",
+      "reportId": "rpt-sales-order"
+    },
+    {
+      "domain": "REPORT",
+      "companyCode": "B",
+      "reportId": "rpt-sales-order"
+    }
+  ],
+  "scenarios": [
+    {
+      "id": "thousand-unit-and-negation",
+      "turns": [
+        {
+          "message": "沪东公司的销售台账，只看签约额至少三千元、至多九千元的记录，并剔除产品名称等于“云服务年费”的记录。",
+          "expect": {
+            "kind": "query",
+            "domain": "REPORT",
+            "view": "LIST",
+            "companyCode": "A",
+            "reportIds": [
+              "rpt-sales-order"
+            ],
+            "where": [
+              [
+                "amount",
+                "GTE",
+                "3000"
+              ],
+              [
+                "amount",
+                "LTE",
+                "9000"
+              ],
+              [
+                "productName",
+                "NE",
+                "云服务年费"
+              ]
+            ]
+          }
+        },
+        {
+          "message": "现在取消产品名称限制，金额范围保持原样。",
+          "expect": {
+            "kind": "query",
+            "domain": "REPORT",
+            "view": "LIST",
+            "companyCode": "A",
+            "reportIds": [
+              "rpt-sales-order"
+            ],
+            "where": [
+              [
+                "amount",
+                "GTE",
+                "3000"
+              ],
+              [
+                "amount",
+                "LTE",
+                "9000"
+              ]
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "exact-decimal",
+      "turns": [
+        {
+          "message": "列出A公司销售报表金额精确等于90071992547409.93元的记录。",
+          "expect": {
+            "kind": "query",
+            "domain": "REPORT",
+            "view": "LIST",
+            "companyCode": "A",
+            "reportIds": [
+              "rpt-sales-order"
+            ],
+            "where": [
+              [
+                "amount",
+                "EQ",
+                "90071992547409.93"
+              ]
+            ]
+          }
+        },
+        {
+          "message": "把金额改为精确等于0.01元，其他范围不变。",
+          "expect": {
+            "kind": "query",
+            "domain": "REPORT",
+            "view": "LIST",
+            "companyCode": "A",
+            "reportIds": [
+              "rpt-sales-order"
+            ],
+            "where": [
+              [
+                "amount",
+                "EQ",
+                "0.01"
+              ]
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "status-alias",
+      "turns": [
+        {
+          "message": "查看沪东公司销售报表中状态为“待推送”的全部记录。",
+          "expect": {
+            "kind": "query",
+            "domain": "REPORT",
+            "view": "LIST",
+            "companyCode": "A",
+            "reportIds": [
+              "rpt-sales-order"
+            ],
+            "where": [
+              [
+                "status",
+                "EQ",
+                "未派单"
+              ]
+            ]
+          }
+        },
+        {
+          "message": "只把状态改为“已推送”。",
+          "expect": {
+            "kind": "query",
+            "domain": "REPORT",
+            "view": "LIST",
+            "companyCode": "A",
+            "reportIds": [
+              "rpt-sales-order"
+            ],
+            "where": [
+              [
+                "status",
+                "EQ",
+                "已派单"
+              ]
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "null-date-and-disjunction",
+      "turns": [
+        {
+          "message": "列出A公司的销售报表，业务日期为空，或者金额等于0.01元。",
+          "expect": {
+            "kind": "query",
+            "domain": "REPORT",
+            "view": "LIST",
+            "companyCode": "A",
+            "reportIds": [
+              "rpt-sales-order"
+            ],
+            "where": [],
+            "anyOf": [
+              [
+                [
+                  "date",
+                  "IS_NULL",
+                  []
+                ]
+              ],
+              [
+                [
+                  "amount",
+                  "EQ",
+                  "0.01"
+                ]
+              ]
+            ]
+          }
+        },
+        {
+          "message": "取消日期为空的那一支，只保留金额等于0.01元的记录。",
+          "expect": {
+            "kind": "query",
+            "domain": "REPORT",
+            "view": "LIST",
+            "companyCode": "A",
+            "reportIds": [
+              "rpt-sales-order"
+            ],
+            "where": [
+              [
+                "amount",
+                "EQ",
+                "0.01"
+              ]
+            ]
+          }
+        }
+      ]
+    }
+  ]
+}

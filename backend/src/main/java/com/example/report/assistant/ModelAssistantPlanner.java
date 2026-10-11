@@ -51,11 +51,14 @@ public class ModelAssistantPlanner implements AssistantPlanner {
         return plan(message,state,reports,companies,AssistantPlanningContext.empty(validateDraft));
     }
     @Override public AssistantPlan plan(String message,DialogueState state,List<CatalogEntry> reports,Set<String> companies,AssistantPlanningContext context) {
-        context=context.beforeCurrentMessage(message);
+        context=context.beforeCurrentMessage(message).withCatalog(reports);
         var authorizedReports=reports.stream().map(CatalogEntry::reportId).collect(java.util.stream.Collectors.toSet());
         var protectedInput=SensitiveData.modelText(message);
         var originals=new LinkedHashMap<>(protectedInput.originals());
         var input=new LinkedHashMap<String,Object>();input.put("messageIndex",-1);input.put("message",protectedInput.text());
+        input.put("businessDictionary",protectContext(JsonUtil.MAPPER.valueToTree(context.dictionary()),originals));
+        input.put("resolvedClarification",protectContext(JsonUtil.MAPPER.valueToTree(context.resolvedClarification()),originals));
+        input.put("requestedQuery",protectContext(JsonUtil.MAPPER.valueToTree(context.requestedQuery()),originals));
         input.put("today",java.time.LocalDate.now(java.time.ZoneId.of("Asia/Shanghai")).toString());input.put("companies",companies.stream().sorted().toList());
         input.put("reports",reports.stream().map(r->Map.of("reportId",r.reportId(),"name",r.reportName(),"aliases",r.ref().aliases(),
                 "description",Objects.toString(r.ref().description(),""),"dispatchEnabled",r.dispatchEnabled(),"fields",BusinessFields.forDomain(BusinessQuery.Domain.REPORT,r.fields()))).toList());
@@ -89,7 +92,8 @@ public class ModelAssistantPlanner implements AssistantPlanner {
         var dispatchContext=new LinkedHashMap<String,Object>();dispatchContext.put("desired",state.getDesired());dispatchContext.put("effective",state.getEffective());
         dispatchContext.put("phase",state.getPhase());dispatchContext.put("unresolvedCompany",state.isUnresolvedCompany());dispatchContext.put("unresolvedReports",state.isUnresolvedReports());dispatchContext.put("unresolvedRecords",state.isUnresolvedRecords());
         dispatchContext.put("previewRef",AssistantReferences.previewRef(state));dispatchContext.put("planRef",AssistantReferences.planRef(state));
-        dispatchContext.put("requiresRedisplayBeforePrepare",state.isBusinessQueryAfterPreview());
+        // 重新展示限制只属于旧PREVIEW来源；不能成为新成功查询QUERY_ROWS/QUERY_ALL准备的全局障碍。
+        dispatchContext.put("previewPreparation",Map.of("source","PREVIEW","requiresRedisplay",state.isBusinessQueryAfterPreview()));
         dispatchContext.put("lastSelectionReferences",protectContext(JsonUtil.MAPPER.valueToTree(state.getLastSelectionReferences()),originals));
         dispatchContext.put("lastSelectionReferencesComplete",state.isLastSelectionReferencesComplete());
         dispatchContext.put("lastFailure",state.getLastReason());
@@ -97,7 +101,7 @@ public class ModelAssistantPlanner implements AssistantPlanner {
         var options=options(AssistantSchema.planSchema());
         if(props.getSemantic().getModel()!=null && !props.getSemantic().getModel().isBlank()) options.model(props.getSemantic().getModel());
         var attempts=new ArrayList<Map<String,Object>>();input.put("attemptHistory",attempts);
-        var budget=new ReviewBudget();
+        var budget=new ReviewBudget();budget.diagnostics=context.diagnostics();
         // 独立目标先于任何草稿：结构无效的草稿也不能耗尽次数后才纠正动作，完整复核仍不读取草稿。
         budget.purpose=purpose(message,input,state,new SensitiveData.ModelText(protectedInput.text(),originals),budget);
         input.put("taskPurpose",protectContext(JsonUtil.MAPPER.valueToTree(budget.purpose),originals));
@@ -107,8 +111,8 @@ public class ModelAssistantPlanner implements AssistantPlanner {
             input.remove("message");input.put("message",protectedInput.text());
             String modelInput=JsonUtil.toJson(SensitiveData.forModel(input));
             if(modelInput.getBytes(java.nio.charset.StandardCharsets.UTF_8).length>128000)throw new ApiException(422,"当前目录上下文超过查询规划预算，请联系管理员限定助手可见目录");
-            String reply=client.prompt().system(instructions)
-                    .user(modelInput).options(options.build()).call().content();
+            String reply=budget.diagnostics.model("PLAN",instructions,modelInput,()->client.prompt().system(instructions)
+                    .user(modelInput).options(options.build()).call().chatResponse());
             AssistantPlan plan=null;Map<String,Object> facts=Map.of();ReviewedDraft reviewed=null;ApiException draftFailure=null;
             try {
                 plan=AssistantCodec.plan(reply);
@@ -132,10 +136,12 @@ public class ModelAssistantPlanner implements AssistantPlanner {
                 if(draftFailure!=null)throw draftFailure;
                 if(!reviewed.differences().isEmpty())throw new ApiException(422,"任务计划与本轮要求存在差异，请依据结构化反馈重新完整规划");
                 TaskPlanComparison.validateTargetCount(expectation,facts);
+                budget.diagnostics.accepted(expectation);budget.diagnostics.validation("PLAN","ACCEPTED","");
                 // 仅澄清表达可采用已复核文本；所有有业务含义的操作字段仍原样返回已预检的规划草稿。
                 return plan.route()==AssistantPlan.Route.CLARIFY
-                        ?new AssistantPlan(plan.route(),null,false,reviewed.review().expectedPlan().clarification()):plan;
+                        ?new AssistantPlan(plan.route(),null,false,reviewed.review().expectedPlan().clarification(),List.of(),null,reviewed.review().expectedPlan().clarificationOptions()):plan;
             } catch(ApiException invalid) {
+                budget.diagnostics.validation("PLAN",reviewed!=null && !reviewed.differences().isEmpty()?"SEMANTIC_MISMATCH":"CONTRACT_OR_PRECHECK",invalid.getMessage());
                 // 权限、版本或业务服务故障不能诱导模型换成另一组可成功的目标；只有契约/语义错误可修正。
                 if(attempt==2 || invalid.getCode()!=422 || invalid instanceof ReviewFailure) throw invalid;
                 // 修正历史是有界事实而非指令；保留全部已确认差异，避免后一次反馈抹掉先前的目标限定。
@@ -156,11 +162,15 @@ public class ModelAssistantPlanner implements AssistantPlanner {
     /** 两份计划接受同一只读预检，按完整计划在本轮缓存；没有一份模型期望可直接产生预览或清单。 */
     private Map<String,Object> validateDraft(String message,DialogueState state,AssistantPlan plan,AssistantPlanningContext context,Map<AssistantPlan,Map<String,Object>> validated,Set<String> authorizedReports,Set<String> authorizedCompanies) {
         AssistantRouteGuard.validate(message,state,plan,authorizedReports,authorizedCompanies);
+        if(plan.clarificationOptions()!=null)plan.clarificationOptions().validate(authorizedReports,authorizedCompanies,context);
         if(plan.dispatch()!=null) {
             new com.example.report.semantic.IntentCodec().validate(plan.dispatch().intent(),message);
             AssistantReferences.validate(message,state,plan.dispatch());
         }
-        return validated.computeIfAbsent(plan,context.validateDraft());
+        return validated.computeIfAbsent(plan,draft->{
+            try {var result=context.validateDraft().apply(draft);context.diagnostics().validation("PRECHECK","PASSED","");return result;}
+            catch(ApiException failure){context.diagnostics().validation("PRECHECK",failure.getCode()==422?"BUSINESS_CONTRACT":"BUSINESS_FAILURE",failure.getMessage());throw failure;}
+        });
     }
     /** 独立期望只依据请求前上下文形成；自身结构或预检失败在盲式上下文中修复，不将草稿暴露给复核。 */
     private ReviewedDraft review(String message,Map<String,Object> context,DialogueState state,AssistantPlanningContext planning,AssistantPlan plan,SensitiveData.ModelText originals,ReviewBudget budget,Map<AssistantPlan,Map<String,Object>> validated,Set<String> authorizedReports,Set<String> authorizedCompanies) {
@@ -178,7 +188,7 @@ public class ModelAssistantPlanner implements AssistantPlanner {
             String wire=JsonUtil.toJson(SensitiveData.forModel(input));
             if(wire.getBytes(java.nio.charset.StandardCharsets.UTF_8).length>192000)throw new ReviewFailure("语义复核上下文超过预算，请缩小本轮业务范围");
             budget.reviewCalls++;
-            String reply=client.prompt().system(reviewInstructions).user(wire).options(options.build()).call().content();
+            String reply=budget.diagnostics.model("REVIEW",reviewInstructions,wire,()->client.prompt().system(reviewInstructions).user(wire).options(options.build()).call().chatResponse());
             try {
                 var review=AssistantCodec.review(reply);
                 review=AssistantCodec.review(restore(JsonUtil.MAPPER.valueToTree(review),new SensitiveData.ModelText(originals.text(),replacements)).toString());
@@ -186,8 +196,10 @@ public class ModelAssistantPlanner implements AssistantPlanner {
                 try {validateReview(message,state,planning,review,budget.purpose,validated,authorizedReports,authorizedCompanies);}
                 catch(ApiException invalid) {if(invalid.getCode()!=422)throw invalid;reviewFailure=invalid;}
                 if(reviewFailure!=null)throw reviewFailure;
+                budget.diagnostics.validation("REVIEW","VALIDATED","");
                 return new ReviewedDraft(review,TaskPlanComparison.compare(message,plan,review));
             } catch(ApiException invalid) {
+                budget.diagnostics.validation("REVIEW","INVALID_EXPECTATION",invalid.getMessage());
                 if(invalid.getCode()!=422 || invalid instanceof ReviewFailure)throw invalid;
                 String feedback=repairFeedback(invalid,input);
                 // 同一错误再次出现表明整段旧输出未帮助修正；仍用原预算重新生成，避免继续复制同一无效证据。
@@ -255,7 +267,7 @@ public class ModelAssistantPlanner implements AssistantPlanner {
      */
     private TaskPurpose purpose(String message,Map<String,Object> context,DialogueState state,SensitiveData.ModelText originals,ReviewBudget budget) {
         var input=new LinkedHashMap<String,Object>();input.put("taskStage","TASK_PURPOSE");
-        for(String key:List.of("message","lastRoute","lastAttemptRoute","queryUnresolved","dispatchPreviewPresent","dispatchPlanPresent","recentConversation"))input.put(key,context.get(key));
+        for(String key:List.of("message","lastRoute","lastAttemptRoute","queryUnresolved","dispatchPreviewPresent","dispatchPlanPresent","recentConversation","businessDictionary","resolvedClarification","requestedQuery","today"))input.put(key,context.get(key));
         // 目标只看当前焦点中的查询；保存以供显式返回的背景查询，不能抢占刚展示的候选选择。
         var activeQuery="BUSINESS_QUERY".equals(state.getAssistantFocus())?state.getBusinessQuery():null;
         input.put("activeQuery",activeQuery==null?null:context.get("previousQuery"));
@@ -274,15 +286,17 @@ public class ModelAssistantPlanner implements AssistantPlanner {
             String wire=JsonUtil.toJson(SensitiveData.forModel(input));
             if(wire.getBytes(java.nio.charset.StandardCharsets.UTF_8).length>128000)throw new ReviewFailure("独立目标上下文超过预算，请缩小本轮业务范围");
             budget.purposeCalls++;
-            String reply=client.prompt().system(purposeInstructions).user(wire).options(options.build()).call().content();
+            String reply=budget.diagnostics.model("PURPOSE",purposeInstructions,wire,()->client.prompt().system(purposeInstructions).user(wire).options(options.build()).call().chatResponse());
             try {
                 var purpose=AssistantCodec.purpose(reply);
                 purpose=AssistantCodec.purpose(restore(JsonUtil.MAPPER.valueToTree(purpose),originals).toString());
                 CurrentTextEvidence.require(message,purpose.evidence(),"taskPurpose.evidence");
                 if(purpose.targetCount()!=null)CurrentTextEvidence.require(message,purpose.targetCount().evidence(),"taskPurpose.targetCount.evidence");
                 purpose.validateContext(activeQuery,state.isBusinessUnresolved());
+                budget.diagnostics.validation("PURPOSE","VALIDATED","");
                 return purpose;
             } catch(ApiException invalid) {
+                budget.diagnostics.validation("PURPOSE","INVALID_TARGET",invalid.getMessage());
                 if(invalid.getCode()!=422)throw invalid;
                 input.put("purposeValidationError",invalid instanceof ModelContractViolation violation?violation.feedback():invalid.getMessage());
                 // 目标尚未通过来源与状态校验，整份输出都不是已确认事实；回传旧目标会诱导只换引用、沿用历史动作。
@@ -304,7 +318,7 @@ public class ModelAssistantPlanner implements AssistantPlanner {
                 .extraBody(Map.of("thinking",Map.of("type",thinking?"enabled":"disabled"))).outputSchema(schema);
     }
     /** 各阶段分别有界；正常三次调用，最坏两次目标加三次规划、三次完整复核，仍受原有整轮超时约束。 */
-    private static final class ReviewBudget {private int purposeCalls;private int reviewCalls;private TaskPurpose purpose;}
+    private static final class ReviewBudget {private int purposeCalls;private int reviewCalls;private TaskPurpose purpose;private PlanningDiagnostics diagnostics;}
     /** 无效或耗尽的复核不能转换成对业务草稿的修正命令。 */
     private static final class ReviewFailure extends ApiException {private ReviewFailure(String message){super(422,message);}}
     /**

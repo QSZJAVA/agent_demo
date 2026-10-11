@@ -119,7 +119,7 @@ export function retryTraceDelivery(planId) {
  * onEvent(type, data) 逐个事件回调；返回 abort 函数。
  * excludedRecords 是绑定 previewId 的复合记录键，服务端验证其快照归属。
  */
-export function streamChat({ conversationId, message, excludedRecords, previewId }, onEvent) {
+export function streamChat({ conversationId, message, excludedRecords, previewId, queryEdit, clarificationReply }, onEvent) {
   const controller = new AbortController()
   const run = async () => {
     const sessionToken = getSessionToken()
@@ -130,7 +130,8 @@ export function streamChat({ conversationId, message, excludedRecords, previewId
         Accept: 'text/event-stream',
         ...authHeaders()
       },
-      body: JSON.stringify({ conversationId, message, excludedRecords, previewId }),
+      // 完整编辑与澄清选择必须连同原轮次引用到达服务端；只发送展示文字会丢失用户明确输入并错误沿用旧查询。
+      body: JSON.stringify({ conversationId, message, excludedRecords, previewId, queryEdit, clarificationReply }),
       signal: controller.signal
     })
     if (!response.ok) {

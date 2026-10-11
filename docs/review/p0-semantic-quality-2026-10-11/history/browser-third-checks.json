@@ -1,0 +1,47 @@
+{
+  "scope": "修复后真实浏览器操作与核验",
+  "checks": [
+    {
+      "name": "editor-final",
+      "at": "2026-10-11T08:54:48.451Z",
+      "observed": "完整编辑后上界50000、下界30000、金额降序；仅SO2026002，32000.00。",
+      "passed": true
+    },
+    {
+      "name": "refresh-final",
+      "at": "2026-10-11T08:58:12.405Z",
+      "observed": "刷新页面重新打开服务端历史后，最新卡片仍为30000至50000且可编辑，旧卡片保持只读。",
+      "passed": true
+    },
+    {
+      "name": "cancel-plan-final",
+      "at": "2026-10-11T09:11:40.953Z",
+      "observed": "SO2026001待确认清单通过取消按钮转为已取消，保留精确金额且没有执行。",
+      "passed": true
+    },
+    {
+      "name": "dictionary-publish-third",
+      "at": "2026-10-11T09:21:32.842Z",
+      "observed": "通过浏览器发布词典；旧清单确认将单独记录实际拒绝原因，可能已到 TTL。",
+      "passed": true
+    },
+    {
+      "name": "old-plan-rejected-third",
+      "at": "2026-10-11T09:22:06.681Z",
+      "observed": "词典发布后旧查询与待确认清单显示“报表目录已变更，请重新查询”；没有执行。",
+      "passed": true
+    },
+    {
+      "name": "fresh-query-prepare-recovered-third",
+      "at": "2026-10-11T09:24:58.132Z",
+      "observed": "原失败原文现已从新查询重新核验，只准备 SO2026001 一条待确认清单；金额 13,800,138,000.00。",
+      "passed": true
+    },
+    {
+      "name": "fresh-query-executed-third",
+      "at": "2026-10-11T09:26:10.913Z",
+      "observed": "用户界面确认后显示已执行：成功1条、失败0条，SO2026001，金额 13,800,138,000.00。",
+      "passed": true
+    }
+  ]
+}

@@ -57,9 +57,9 @@
 
     <!-- 编辑器 -->
     <el-dialog :title="editor.id ? '编辑草稿' : '新建规则草稿'" :visible.sync="editor.visible" width="760px" :close-on-click-modal="false">
-      <el-form :model="editor" label-width="90px" size="small">
+      <el-form :model="editor" :disabled="editor.saving" label-width="90px" size="small">
         <el-form-item label="报表">
-          <el-select v-model="editor.reportId" :disabled="!!editor.id" filterable @change="loadFields">
+          <el-select v-model="editor.reportId" :disabled="!!editor.id" filterable>
             <el-option v-for="r in catalog" :key="r.reportId" :label="catalogOptionLabel(r)" :value="r.reportId" />
           </el-select>
         </el-form-item>
@@ -76,6 +76,8 @@
           <el-input v-model="editor.expression" type="textarea" :rows="3" placeholder="例如：amount > 1000 && include(seq.list('差旅费','市场推广费'), expenseType)" />
           <div class="fields">
             <span class="fields-title">可用字段（点击插入）：</span>
+            <span v-if="fieldsState.loading">正在读取字段…</span>
+            <span v-if="fieldsState.error">{{ fieldsState.error }} <el-button type="text" size="mini" @click="loadFields">重新读取</el-button></span>
             <el-tag v-for="f in fields" :key="f.name" size="mini" class="field" :title="f.name" @click="insertField(f.name)">
               {{ f.description || f.name }} <span class="ftype"><business-label :value="f.type" domain="fieldType" /></span>
             </el-tag>
@@ -83,7 +85,7 @@
           <div class="fields-help">语法：Aviator 表达式。比较 &gt; &lt; == !=，逻辑 &amp;&amp; || !，函数 include(seq.list(...), x)、string.startsWith(x, '前缀')、字符串用单引号。</div>
         </el-form-item>
         <el-form-item label="试算">
-          <el-button size="mini" @click="validate">校验语法</el-button>
+          <el-button size="mini" :loading="validation.loading" @click="validate">校验语法</el-button>
           <el-button size="mini" type="warning" :loading="dryRun.loading" @click="runDryRun">试算命中</el-button>
           <span v-if="dryRun.result" class="dry-result">
             范围内 {{ dryRun.result.total }} 条未派单记录，命中 {{ dryRun.result.hitCount }} 条
@@ -91,12 +93,13 @@
           <div v-if="dryRun.result && dryRun.result.errorCount" class="dry-error">
             {{ dryRun.result.errorCount }} 条记录求值出错，已按不命中处理。例如 {{ dryRun.result.errorSample }}
           </div>
+          <el-alert v-if="validation.message" :title="validation.message" :type="validation.error ? 'error' : 'success'" :closable="false" show-icon />
         </el-form-item>
         <el-table v-if="dryRun.result && dryRun.result.samples.length" :data="dryRun.result.samples" size="mini" border max-height="200">
           <el-table-column prop="docNo" label="单据号" width="130" />
           <el-table-column prop="label" label="摘要" min-width="140" />
           <el-table-column prop="companyCode" label="公司" width="60" align="center" />
-          <el-table-column prop="amount" label="金额" width="110" align="right" />
+          <el-table-column prop="amount" label="金额" min-width="260" align="right" class-name="amount-column" show-overflow-tooltip />
           <el-table-column prop="date" label="日期" width="105" />
         </el-table>
       </el-form>
@@ -108,7 +111,12 @@
 
     <!-- 历史 -->
     <el-drawer :visible.sync="history.visible" :title="history.title" size="45%">
-      <el-table :data="history.list" size="mini" border>
+      <div v-if="history.error" class="history-error" role="alert">
+        <el-alert :title="history.error" type="error" :closable="false" show-icon />
+        <el-button size="small" @click="showHistory(history.target)">重新读取历史</el-button>
+      </div>
+      <el-table v-loading="history.loading" :data="history.list" size="mini" border
+        :empty-text="history.error ? '历史暂不可用，请重新读取' : history.loading ? '正在读取规则历史…' : '当前范围暂无规则变更历史'">
         <el-table-column prop="version" label="版本" width="60" align="center" />
         <el-table-column label="动作" width="80">
           <template slot-scope="scope">{{ actionLabel(scope.row.action) }}</template>
@@ -129,6 +137,8 @@
 <script>
 /**
  * 规则维护页：编辑、校验、试算后发布，规则变更与历史记录由服务端事务管理。
+ * 字段、语法校验和试算共用编辑会话版本；修改输入、换规则、关窗或销毁后，旧响应不得成为当前规则的依据。
+ * 历史窗口单独冻结报表、公司与请求代次，标题和记录始终来自同一范围，读取不执行规则变更。
  */
 import {
   deleteDraft,
@@ -157,10 +167,14 @@ export default {
       // 报表目录：报表名称、可选报表都来自目录，新增报表后这里自动出现，不需要改页面
       catalog: [],
       fields: [],
+      fieldsState: { loading: false, request: 0, inputKey: null, error: '' },
+      editorVersion: 0,
       editor: { visible: false, saving: false, id: null, reportId: '', companyCode: '*', name: '', description: '', expression: '' },
       dryRun: { loading: false, result: null, request: 0, inputKey: null },
+      validation: { loading: false, request: 0, inputKey: null, message: '', error: false },
       disposed: false,
-      history: { visible: false, title: '', list: [] }
+      // 历史标题和列表共用范围快照；request 区分相同范围的多次打开，失败保留 target 供原范围重试。
+      history: { visible: false, title: '', list: [], target: null, request: 0, loading: false, error: '' }
     }
   },
   created() {
@@ -175,21 +189,58 @@ export default {
   computed: {
     dryRunInputKey() {
       return JSON.stringify(this.payload())
+    },
+    fieldsInputKey() {
+      return JSON.stringify([this.editorVersion, this.editor.reportId])
     }
   },
   watch: {
     dryRunInputKey(value) {
       if (value !== this.dryRun.inputKey) this.invalidateDryRun()
+      if (value !== this.validation.inputKey) this.invalidateValidation()
+    },
+    fieldsInputKey(value) {
+      if (!this.disposed && this.editor.visible && value !== this.fieldsState.inputKey) this.loadFields()
     },
     'editor.visible'(visible) {
-      if (!visible) this.invalidateDryRun()
+      if (!visible) this.invalidateEditor()
+    },
+    'history.visible'(visible) {
+      if (!visible) this.clearHistory()
     }
   },
   beforeDestroy() {
     this.disposed = true
-    this.invalidateDryRun()
+    this.invalidateEditor()
+    this.clearHistory()
   },
   methods: {
+    /** 编辑器重开或关闭是一段新生命周期；即使报表和表达式相同，旧请求仍不得进入新窗口。 */
+    invalidateEditor() {
+      this.editorVersion++
+      this.invalidateDryRun()
+      this.invalidateValidation()
+      this.fieldsState.request++
+      this.fieldsState.loading=false
+      this.fieldsState.inputKey=null
+      this.fieldsState.error=''
+      this.fields=[]
+    },
+    editorSnapshot() {
+      return { version:this.editorVersion, reportId:this.editor.reportId, inputKey:this.dryRunInputKey }
+    },
+    /** 字段只依赖报表，语法和试算依赖完整业务输入；两者共享相同的编辑生命周期边界。 */
+    currentEditor(snapshot, fieldsOnly=false) {
+      return !this.disposed && this.editor.visible && snapshot.version===this.editorVersion
+        && snapshot.reportId===this.editor.reportId && (fieldsOnly || snapshot.inputKey===this.dryRunInputKey)
+    },
+    invalidateValidation() {
+      this.validation.request++
+      this.validation.loading=false
+      this.validation.inputKey=null
+      this.validation.message=''
+      this.validation.error=false
+    },
     invalidateDryRun() {
       this.dryRun.request++
       this.dryRun.result = null
@@ -232,17 +283,28 @@ export default {
       return t ? String(t).replace('T', ' ').slice(0, 16) : ''
     },
     async loadFields() {
+      if (this.disposed || !this.editor.visible) return
+      const snapshot=this.editorSnapshot(), request=++this.fieldsState.request
+      const current=()=>this.currentEditor(snapshot,true) && request===this.fieldsState.request
+      this.fields=[]
+      this.fieldsState.loading=true
+      this.fieldsState.inputKey=this.fieldsInputKey
+      this.fieldsState.error=''
       try {
-        this.fields = this.editor.reportId ? await fetchRuleFields(this.editor.reportId) : []
+        const fields=snapshot.reportId ? await fetchRuleFields(snapshot.reportId) : []
+        if (current()) this.fields=fields
       } catch (e) {
-        this.fields = []
-      }
+        if (current()) this.fieldsState.error='字段读取失败。'
+      } finally { if (current()) this.fieldsState.loading=false }
     },
     insertField(name) {
+      if (this.disposed || !this.editor.visible || this.editor.saving || this.fieldsState.loading
+          || this.fieldsState.inputKey!==this.fieldsInputKey || !this.fields.some(field=>field.name===name)) return
       this.editor.expression = (this.editor.expression || '') + (this.editor.expression ? ' ' : '') + name
     },
     openEditor(row, asNewVersion) {
-      this.invalidateDryRun()
+      if (this.disposed) return
+      this.invalidateEditor()
       if (row) {
         this.editor = {
           visible: true,
@@ -264,16 +326,31 @@ export default {
       return { reportId: this.editor.reportId, companyCode: this.editor.companyCode, expression: this.editor.expression }
     },
     async validate() {
-      const r = await validateRule(this.payload())
-      this.$message.success(`语法正确，引用字段：${(r.variables || []).join(', ') || '无'}`)
+      if (this.disposed || !this.editor.visible || this.editor.saving) return
+      const snapshot=this.editorSnapshot(), request=++this.validation.request
+      const current=()=>this.currentEditor(snapshot) && request===this.validation.request
+      this.validation.loading=true
+      this.validation.inputKey=snapshot.inputKey
+      this.validation.message=''
+      this.validation.error=false
+      try {
+        const result=await validateRule(this.payload())
+        if (!current()) return
+        this.validation.message=`语法正确，引用字段：${(result.variables || []).join(', ') || '无'}`
+      } catch (e) {
+        if (current()) {
+          this.validation.error=true
+          this.validation.message='语法校验未完成，请检查表达式或服务连接后重试。'
+        }
+      } finally { if (current()) this.validation.loading=false }
     },
     async runDryRun() {
       if (this.disposed || !this.editor.visible) return
       const request = ++this.dryRun.request
+      const snapshot = this.editorSnapshot()
       const payload = this.payload()
       const inputKey = JSON.stringify(payload)
-      const current = () => !this.disposed && this.editor.visible && request === this.dryRun.request
-        && inputKey === this.dryRunInputKey
+      const current = () => this.currentEditor(snapshot) && request === this.dryRun.request
       this.dryRun.inputKey = inputKey
       this.dryRun.result = null
       this.dryRun.loading = true
@@ -281,14 +358,16 @@ export default {
         const result = await dryRunRule(payload)
         if (current()) this.dryRun.result = result
       } catch (e) {
-        // The HTTP interceptor displays the failure; never retain an earlier trial's result.
+        // 请求错误由公共 HTTP 层显示；旧试算结果不能成为当前输入的校验依据。
         if (current()) this.dryRun.result = null
       } finally {
         if (request === this.dryRun.request) this.dryRun.loading = false
       }
     },
     async saveDraftForm() {
-      this.editor.saving = true
+      if (this.disposed || !this.editor.visible || this.editor.saving) return
+      const target=this.editor, version=this.editorVersion
+      target.saving = true
       try {
         await saveDraft({
           id: this.editor.id,
@@ -298,11 +377,13 @@ export default {
           description: this.editor.description,
           expression: this.editor.expression
         })
-        this.$message.success('草稿已保存，发布后生效')
-        this.editor.visible = false
-        this.load()
+        if (!this.disposed && version===this.editorVersion && target===this.editor && target.visible) {
+          this.$message.success('草稿已保存，发布后生效')
+          target.visible = false
+        }
+        if (!this.disposed) this.load()
       } finally {
-        this.editor.saving = false
+        target.saving = false
       }
     },
     async publish(row) {
@@ -343,10 +424,43 @@ export default {
       await deleteDraft(row.id)
       this.load()
     },
+    /** 关闭或离开页面立即作废所有历史请求；迟到结果不得重新打开抽屉或保留旧范围的记录。 */
+    clearHistory() {
+      this.history.request++
+      this.history.visible = false
+      this.history.title = ''
+      this.history.target = null
+      this.history.list = []
+      this.history.loading = false
+      this.history.error = ''
+    },
+    /** 只允许当前窗口最新请求回写；目标快照不跟随原表格行、目录名称或其他编辑窗口变化。 */
+    currentHistory(request, target) {
+      return !this.disposed && this.history.visible && request === this.history.request && target === this.history.target
+    },
+    /**
+     * 读取所选规则范围的变更历史；服务端复核当前报表与公司权限，失败后可对同一快照重试。
+     * @param {Object} row 含 reportId 和 companyCode 的规则行或上次读取的范围快照。
+     * @returns {Promise<void>} 读取完成后仅更新仍有效的窗口，不发布、回滚或修改规则。
+     */
     async showHistory(row) {
-      this.history.title = `${this.reportLabel(row.reportId)} / ${row.companyCode === '*' ? '通配' : row.companyCode} 变更历史`
-      this.history.list = await fetchRuleHistory(row.reportId, row.companyCode)
+      if (this.disposed || !row) return
+      const target = { reportId: row.reportId, companyCode: row.companyCode }
+      const request = ++this.history.request
+      this.history.target = target
+      this.history.title = `${this.reportLabel(target.reportId)} / ${target.companyCode === '*' ? '通配' : target.companyCode} 变更历史`
+      this.history.list = []
+      this.history.error = ''
+      this.history.loading = true
       this.history.visible = true
+      try {
+        const list = await fetchRuleHistory(target.reportId, target.companyCode)
+        if (this.currentHistory(request, target)) this.history.list = list
+      } catch (e) {
+        if (this.currentHistory(request, target)) this.history.error = '规则历史读取失败，请重新读取。'
+      } finally {
+        if (this.currentHistory(request, target)) this.history.loading = false
+      }
     }
   }
 }
@@ -435,5 +549,12 @@ code {
   font-size: 12px;
   line-height: 1.6;
   color: #f56c6c;
+}
+
+.history-error {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 0 16px 16px;
 }
 </style>

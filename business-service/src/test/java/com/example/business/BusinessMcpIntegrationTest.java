@@ -532,6 +532,34 @@ class BusinessMcpIntegrationTest {
         args.put("executionVersion",1);args.put("enforceRules",false);
         assertThrows(ApiException.class,()->call("dispatch_submit",reader,args,new TypeReference<Outcome>(){}));assertEquals(0,status());
     }
+    /** 小数、溢出与字符串版本不能经 HTTP MCP 强转成已确认的整数版本，任何拒绝前都不落业务请求。 */
+    @Test void executionVersionCannotBeTruncatedOrCoercedOverHttp() {
+        String request=evidence(true);
+        for(Object version:List.of(new java.math.BigDecimal("1.9"),new java.math.BigDecimal("1.00000000000000000001"),
+                new java.math.BigInteger("9223372036854775808"),"1",true,0,-1)) {
+            var args=submitArgs(request);args.put("executionVersion",version);
+            var failure=assertThrows(ApiException.class,()->call("dispatch_submit",reader,args,new TypeReference<Outcome>(){}));
+            assertEquals(400,failure.getCode());assertEquals(0,status());
+        }
+        assertEquals(0,jdbc.queryForObject("SELECT COUNT(*) FROM business_dispatch_request",Integer.class));
+        assertTrue(submit(request).success(),"合法版本在一系列安全拒绝后仍能按原确认执行一次");
+        assertEquals(1,jdbc.queryForObject("SELECT COUNT(*) FROM business_dispatch_request",Integer.class));
+    }
+
+    /** 确认快照内的数值字段也受同一契约约束，不能借嵌套转换规避版本校验。 */
+    @Test void nestedRecordVersionsAndMoneyTypesAreValidatedOverHttp() {
+        String request=evidence(true);
+        for(String field:List.of("catalogVersion","ruleVersion","ruleId")) {
+            var args=submitArgs(request);var candidate=record();candidate.put(field,new java.math.BigDecimal("1.2"));args.put("record",candidate);
+            var failure=assertThrows(ApiException.class,()->call("dispatch_submit",reader,args,new TypeReference<Outcome>(){}));
+            assertEquals(400,failure.getCode());
+        }
+        var args=submitArgs(request);var candidate=record();candidate.put("amount",new java.math.BigDecimal("128000.00"));args.put("record",candidate);
+        assertEquals(400,assertThrows(ApiException.class,()->call("dispatch_submit",reader,args,new TypeReference<Outcome>(){})).getCode());
+        candidate.put("amount",record().get("amount"));candidate.put("fields",List.of(Map.of("name","amount","type","decimal","value","128000.00","unexpected",true)));
+        assertEquals(400,assertThrows(ApiException.class,()->call("dispatch_submit",reader,args,new TypeReference<Outcome>(){})).getCode());
+        assertEquals(0,status());assertEquals(0,jdbc.queryForObject("SELECT COUNT(*) FROM business_dispatch_request",Integer.class));
+    }
     @org.junit.jupiter.params.ParameterizedTest
     @org.junit.jupiter.params.provider.ValueSource(strings={"amount", "product_name", "sale_date"})
     void changedConfirmedFactsAreRejectedEvenWhenTheRuleStillMatches(String column) {

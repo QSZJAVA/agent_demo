@@ -25,7 +25,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
  * @param previewId 预览标识，选择和建单必须绑定此快照
  * @param status 当前业务状态，以所属状态机为准
  * @param total 授权范围内统计总数，不能用当前页长度代替
- * @param totalAmount 候选业务金额合计，币种沿用来源账本
+ * @param totalAmount 候选业务金额合计，币种沿用来源账本；JSON 输出精确十进制字符串
  * @param records 当前对象的有界业务记录集合
  * @param createdAt 记录创建时间
  * @param expiresAt 有效期截止时间，到期后须重新校验或创建
@@ -34,6 +34,7 @@ public record PreviewPayload(
         String previewId,
         String status,
         int total,
+        @com.fasterxml.jackson.databind.annotation.JsonSerialize(using = com.example.report.common.DecimalStringSerializer.class)
         BigDecimal totalAmount,
         List<ReportCount> byReport,
         List<Candidate> records,
@@ -48,9 +49,11 @@ public record PreviewPayload(
      * @param reportId 稳定报表标识，关联报表目录
      * @param reportName 报表展示名称
      * @param count 当前业务对象的记录数量
-     * @param amount 业务金额，保留精确十进制；币种沿用来源账本
+     * @param amount 业务金额，币种沿用来源账本；JSON 输出精确十进制字符串
      */
-    public record ReportCount(String reportId, String reportName, int count, BigDecimal amount) {
+    public record ReportCount(String reportId, String reportName, int count,
+            @com.fasterxml.jackson.databind.annotation.JsonSerialize(using = com.example.report.common.DecimalStringSerializer.class)
+            BigDecimal amount) {
     }
 
     /**

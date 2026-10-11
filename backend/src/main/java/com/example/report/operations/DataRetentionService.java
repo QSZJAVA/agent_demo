@@ -10,7 +10,11 @@ import org.springframework.transaction.support.TransactionOperations;
 import lombok.extern.slf4j.Slf4j;
 import java.util.*;
 
-/** 数据留存和会话清理服务：先保存删除墓碑，再有界分批清理；在途、失败或待核对任务保留恢复证据与永久防重标识。 */
+/**
+ * 数据留存和会话清理服务：先保存删除墓碑，再有界分批清理。
+ * 结果到期时移除逐条展示列、结构化快照和排除单据号；在途、失败或待核对任务保留恢复证据。
+ * 终态仍保留汇总金额/条数及业务身份、规则和永久防重标识作为审计元数据，不伪造清零后的汇总。
+ */
 @Slf4j
 @Service
 public class DataRetentionService {
@@ -19,6 +23,15 @@ public class DataRetentionService {
     private final StringRedisTemplate redis;
     private final OperationsPolicy policies;
     private final OperationsAudit audit;
+    /** 条目事实每轮最多清理500条；结束标记必须等所有表示形式都清空后才能写入。 */
+    private static final int RESULT_BATCH_SIZE=500;
+    /** 同一事实可能同时出现在展示列、配置字段和客户快照，三种表示采用同一个清理判定。 */
+    private static final String PLAN_FACTS_PRESENT="""
+            (i.doc_no IS NOT NULL OR i.label IS NOT NULL OR i.amount IS NOT NULL OR i.biz_date IS NOT NULL
+              OR i.error_message IS NOT NULL OR i.counterparty_json IS NOT NULL OR JSON_LENGTH(i.fields_json)>0)
+            """;
+    /** 清单排除摘要也可能包含真实单据号；清理后用空数组明确表示该展示内容已移除。 */
+    private static final String PLAN_EXCLUSIONS_PRESENT="(p.exclude_json IS NULL OR JSON_LENGTH(p.exclude_json)>0)";
     @org.springframework.beans.factory.annotation.Autowired(required=false)
     private org.springframework.beans.factory.ObjectProvider<com.example.report.investigation.InvestigationService> investigations;
     public DataRetentionService(JdbcTemplate jdbc,TransactionOperations tx,StringRedisTemplate redis,OperationsPolicy policies,OperationsAudit audit) {
@@ -124,13 +137,36 @@ public class DataRetentionService {
             jdbc.update("UPDATE dispatch_preview SET status='EXPIRED' WHERE id=?",id);
             jdbc.update("UPDATE dispatch_plan SET status='EXPIRED',status_reason='DATA_PURGED' WHERE preview_id=? AND status='PENDING'",id);
             jdbc.update("DELETE FROM dispatch_preview_item WHERE preview_id=? LIMIT 500",id);
-            // Keep request IDs and terminal item states for permanent deduplication; clear display data.
-            jdbc.update("UPDATE dispatch_plan_item i JOIN dispatch_plan p ON p.id=i.plan_id SET i.doc_no=NULL,i.label=NULL,i.amount=NULL,i.biz_date=NULL,i.error_message=NULL WHERE p.preview_id=?",id);
+            // 清空逐条事实及排除展示摘要，保留请求号、业务身份、规则和执行版本；分批失败可从剩余事实继续。
+            boolean planFactsRemain=purgePlanFacts(tenant,id);
             jdbc.update("DELETE FROM dispatch_audit WHERE preview_id=? LIMIT 500",id);
             jdbc.update("DELETE FROM trace_event WHERE preview_id=? AND delivery_status='DELIVERED' LIMIT 500",id);
             jdbc.update("DELETE FROM agent_message WHERE preview_id=? LIMIT 500",id);
             long left=jdbc.queryForObject("SELECT (SELECT COUNT(*) FROM dispatch_preview_item WHERE preview_id=?)+(SELECT COUNT(*) FROM trace_event WHERE preview_id=?)+(SELECT COUNT(*) FROM agent_message WHERE preview_id=?)+(SELECT COUNT(*) FROM dispatch_audit WHERE preview_id=?)",Long.class,id,id,id,id);
-            if(left==0) jdbc.update("UPDATE dispatch_preview SET status_reason='DATA_PURGED',query_json='{}',summary_json='{}' WHERE id=?",id);
+            // 预览明细为空不代表清单副本已清空；过早标记会让下一轮跳过仍保留客户和字段快照的清单。
+            if(left==0 && !planFactsRemain) jdbc.update("UPDATE dispatch_preview SET status_reason='DATA_PURGED',query_json='{}',summary_json='{}' WHERE id=?",id);
         });
+    }
+
+    /**
+     * 在调用方已持有预览锁且排除未完成任务的事务内，分批清空清单逐条事实和排除单据号。
+     * 保留公司、报表、记录标识、规则证据与汇总审计元数据；重复调用只处理仍未清空的内容。
+     * @param tenant 已验证的预览所属租户
+     * @param preview 当前锁定且已过结果保留期的预览标识
+     * @return 是否仍有业务事实待后续批次清理；为true时不得写DATA_PURGED
+     */
+    private boolean purgePlanFacts(String tenant,String preview) {
+        String from=" FROM dispatch_plan_item i JOIN dispatch_plan p ON p.id=i.plan_id WHERE p.tenant_id=? AND p.preview_id=? AND "+PLAN_FACTS_PRESENT;
+        var ids=jdbc.queryForList("SELECT i.id"+from+" ORDER BY i.id LIMIT "+RESULT_BATCH_SIZE,Long.class,tenant,preview);
+        if(!ids.isEmpty()) {
+            String placeholders=String.join(",",Collections.nCopies(ids.size(),"?"));
+            jdbc.update("UPDATE dispatch_plan_item SET doc_no=NULL,label=NULL,amount=NULL,biz_date=NULL,error_message=NULL,"+
+                    "counterparty_json=NULL,fields_json='[]' WHERE id IN ("+placeholders+")",ids.toArray());
+        }
+        jdbc.update("UPDATE dispatch_plan p SET p.exclude_json='[]' WHERE p.tenant_id=? AND p.preview_id=? AND "+PLAN_EXCLUSIONS_PRESENT+
+                " ORDER BY p.id LIMIT "+RESULT_BATCH_SIZE,tenant,preview);
+        // 多份已结束清单可以引用同一预览；条目或排除摘要仍有任何一个副本时，下轮都必须继续清理。
+        return Boolean.TRUE.equals(jdbc.queryForObject("SELECT EXISTS(SELECT 1"+from+") OR EXISTS(SELECT 1 FROM dispatch_plan p WHERE p.tenant_id=? AND p.preview_id=? AND "+PLAN_EXCLUSIONS_PRESENT+")",
+                Boolean.class,tenant,preview,tenant,preview));
     }
 }

@@ -10,7 +10,7 @@ import java.util.Optional;
 import java.util.function.Supplier;
 
 /**
- * 待确认清单的持久化。状态迁移一律是带原状态条件的更新（CAS），返回是否迁移成功。
+ * 待确认清单的持久化。状态迁移使用原状态及必要的执行版本条件；版本判断与认领必须原子完成，不能先查后无条件更新。
  */
 public interface PlanRepository {
 
@@ -64,11 +64,8 @@ public interface PlanRepository {
     /** 只认领已经收尾的清单，原子返回本次认领的执行版本；失败返回 empty。 */
     Optional<Long> claimRetry(String planId, LocalDateTime now);
 
-    /** An asynchronously accepted retry must remain bound to its original plan version.*/
-    default Optional<Long> claimRetry(String planId, long expectedVersion, LocalDateTime now) {
-        if (find(planId).filter(p -> java.util.Objects.equals(p.getExecutionVersion(), expectedVersion)).isEmpty()) return Optional.empty();
-        return claimRetry(planId, now);
-    }
+    /** 同步和异步重试均须绑定已读取的清单版本；实现必须用原子条件更新，不能用先查后认领的默认实现。 */
+    Optional<Long> claimRetry(String planId, long expectedVersion, LocalDateTime now);
 
     /** Save only while this execution round still owns the plan. */
     void updateItem(DispatchPlanItem item, long executionVersion);

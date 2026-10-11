@@ -1,0 +1,128 @@
+[
+  {
+    "original": "browser-second/model-calls.jsonl",
+    "callIndex": 172,
+    "completedAt": "2026-10-11T16:32:23.915978+08:00",
+    "message": "只给刚才查询到的这一条订单准备新的待确认派单清单。",
+    "taskPurpose": {
+      "requestedResult": "为刚才查询到的唯一一条销售订单记录准备新的待确认派单清单",
+      "purpose": "PREPARE_DISPATCH",
+      "queryContext": "NOT_QUERY",
+      "evidence": "只给刚才查询到的这一条订单准备新的待确认派单清单。",
+      "targetCount": {
+        "count": 1,
+        "evidence": "只给刚才查询到的这一条订单"
+      },
+      "queryDomain": null,
+      "queryView": null
+    },
+    "output": "{\"route\":\"DISPATCH\",\"query\":null,\"followUp\":false,\"clarification\":null,\"removedFilters\":[],\"dispatch\":{\"intent\":{\"version\":1,\"action\":\"PREPARE_DISPATCH\",\"scopeChanges\":[],\"restrictions\":[],\"clarify\":\"NONE\",\"reportConstraints\":[],\"unsupportedConditions\":[]},\"source\":\"QUERY_ROWS\",\"sourceRef\":\"query-bf7c8c135a2f2240\",\"referenceKeys\":[\"row-1\"],\"evidence\":\"只给刚才查询到的这一条订单准备新的待确认派单清单。\"},\"clarificationOptions\":null}"
+  },
+  {
+    "original": "browser-second/model-calls.jsonl",
+    "callIndex": 175,
+    "completedAt": "2026-10-11T16:32:31.540163800+08:00",
+    "message": "只给刚才查询到的这一条订单准备新的待确认派单清单。",
+    "stage": "INDEPENDENT_EXPECTATION",
+    "taskPurpose": {
+      "requestedResult": "为刚才查询到的唯一一条销售订单记录准备新的待确认派单清单",
+      "purpose": "PREPARE_DISPATCH",
+      "queryContext": "NOT_QUERY",
+      "evidence": "只给刚才查询到的这一条订单准备新的待确认派单清单。",
+      "targetCount": {
+        "count": 1,
+        "evidence": "只给刚才查询到的这一条订单"
+      },
+      "queryDomain": null,
+      "queryView": null
+    },
+    "output": "{\n  \"requirements\": [\n    {\n      \"aspect\": \"ACTION\",\n      \"messageIndex\": -1,\n      \"evidence\": \"准备新的待确认派单清单\",\n      \"meaning\": \"用户要求准备待确认派单清单，属于派单子流程的准备动作；不是查询候选，也不是直接执行派单。\"\n    },\n    {\n      \"aspect\": \"SCOPE\",\n      \"messageIndex\": -1,\n      \"evidence\": \"只给刚才查询到的这一条订单准备新的待确认派单清单\",\n      \"meaning\": \"目标对象为刚才查询到的那一条订单记录，属于销售报表 rpt-sales-order、A公司、记录标识 SO2026001 / recordId=1；用户要求“新的”清单，说明不承接旧清单或旧候选。\"\n    },\n    {\n      \"aspect\": \"REFERENCE\",\n      \"messageIndex\": -1,\n      \"evidence\": \"只给刚才查询到的这一条订单\",\n      \"meaning\": \"承接上一轮成功查询展示的唯一记录，使用 queryObjects 中的 row-1 引用定位该条订单，来源为 QUERY_ROWS。\"\n    },\n    {\n      \"aspect\": \"CONDITIONS\",\n      \"messageIndex\": -1,\n      \"evidence\": \"只给刚才查询到的这一条订单\",\n      \"meaning\": \"不新增业务字段筛选；以已展示的唯一订单 SO2026001 作为精确派单对象，最终候选总数限定为 1 条。\"\n    },\n    {\n      \"aspect\": \"CONTINUITY\",\n      \"messageIndex\": -1,\n      \"evidence\": \"准备新的待确认派单清单\",\n      \"meaning\": \"用户明确要求准备“新的”清单，不承接旧候选或旧清单；但由于旧候选已被标记需要重新展示核对，当前无法直接准备，只能先要求用户重新核对候选范围。\"\n    },\n    {\n      \"aspect\": \"CAPABILITY\",\n      \"messageIndex\": -1,\n      \"evidence\": \"准备新的待确认派单清单\",\n      \"meaning\": \"dispatchContext.requiresRedisplayBeforePrepare=true，旧派单候选已被另一话题打断，须先重新展示核对候选后才能准备清单；本轮用户未要求先预览，因此不能自动改为预览，也不能直接准备。\"\n    }\n  ],\n  \"expectedPlan\": {\n    \"route\": \"CLARIFY\",\n    \"query\": null,\n    \"followUp\": false,\n    \"clarification\": \"旧派单候选已失效，需要先重新核对候选范围才能准备新的待确认派单清单。请先在当前页面核对候选，或明确要求重新展示候选。\",\n    \"removedFilters\": [],\n    \"dispatch\": null,\n    \"clarificationOptions\": null\n  },\n  \"conditionChecks\": [],\n  \"priorConditionChanges\": [],\n  \"targetCount\": {\n    \"count\": 1,\n    \"evidence\": \"只给刚才查询到的这一条订单\"\n  }\n}"
+  },
+  {
+    "original": "browser-second/model-calls.jsonl",
+    "callIndex": 177,
+    "completedAt": "2026-10-11T16:32:34.753943800+08:00",
+    "message": "只给刚才查询到的这一条订单准备新的待确认派单清单。",
+    "taskPurpose": {
+      "requestedResult": "为刚才查询到的唯一一条销售订单记录准备新的待确认派单清单",
+      "purpose": "PREPARE_DISPATCH",
+      "queryContext": "NOT_QUERY",
+      "evidence": "只给刚才查询到的这一条订单准备新的待确认派单清单。",
+      "targetCount": {
+        "count": 1,
+        "evidence": "只给刚才查询到的这一条订单"
+      },
+      "queryDomain": null,
+      "queryView": null
+    },
+    "output": "{\"route\":\"DISPATCH\",\"query\":null,\"followUp\":false,\"clarification\":null,\"removedFilters\":[],\"dispatch\":{\"intent\":{\"version\":1,\"action\":\"PREPARE_DISPATCH\",\"scopeChanges\":[],\"restrictions\":[],\"reportConstraints\":[],\"unsupportedConditions\":[],\"clarify\":\"NONE\"},\"source\":\"QUERY_ROWS\",\"sourceRef\":\"query-bf7c8c135a2f2240\",\"referenceKeys\":[\"row-1\"],\"evidence\":\"只给刚才查询到的这一条订单准备新的待确认派单清单。\"},\"clarificationOptions\":null}"
+  },
+  {
+    "original": "browser-second/model-calls.jsonl",
+    "callIndex": 178,
+    "completedAt": "2026-10-11T16:32:37.260592400+08:00",
+    "message": "只给刚才查询到的这一条订单准备新的待确认派单清单。",
+    "taskPurpose": {
+      "requestedResult": "为刚才查询到的唯一一条销售订单记录准备新的待确认派单清单",
+      "purpose": "PREPARE_DISPATCH",
+      "queryContext": "NOT_QUERY",
+      "evidence": "只给刚才查询到的这一条订单准备新的待确认派单清单。",
+      "targetCount": {
+        "count": 1,
+        "evidence": "只给刚才查询到的这一条订单"
+      },
+      "queryDomain": null,
+      "queryView": null
+    },
+    "output": "{\"route\":\"CLARIFY\",\"query\":null,\"followUp\":false,\"clarification\":\"旧派单候选已过期，需要先重新核对候选范围才能准备新的待确认派单清单。请先重新展示并核对候选，或明确要求重新展示候选。\",\"removedFilters\":[],\"dispatch\":null,\"clarificationOptions\":null}"
+  },
+  {
+    "original": "browser-third/model-calls.jsonl",
+    "callIndex": 152,
+    "completedAt": "2026-10-11T17:04:34.824896600+08:00",
+    "message": "列出A公司的销售报表，业务日期为空，或者金额等于0.01元。",
+    "taskPurpose": {
+      "requestedResult": "列出A公司的销售报表记录，限定业务日期为空或金额等于0.01元。",
+      "purpose": "BUSINESS_QUERY",
+      "queryContext": "INDEPENDENT",
+      "evidence": "列出A公司的销售报表，业务日期为空，或者金额等于0.01元。",
+      "targetCount": null,
+      "queryDomain": "REPORT",
+      "queryView": "LIST"
+    },
+    "output": "{\"route\":\"BUSINESS_QUERY\",\"query\":{\"domain\":\"REPORT\",\"view\":\"LIST\",\"reportIds\":[\"rpt-sales-order\"],\"companyCode\":\"A\",\"conditions\":[{\"allOf\":[{\"field\":\"date\",\"operator\":\"IS_NULL\",\"values\":[]}]},{\"allOf\":[{\"field\":\"amount\",\"operator\":\"EQ\",\"values\":[\"0.01\"]}]}],\"sortField\":null,\"descending\":false,\"page\":1,\"size\":20,\"groupBy\":null},\"followUp\":false,\"clarification\":null,\"removedFilters\":[],\"dispatch\":null,\"clarificationOptions\":null}"
+  },
+  {
+    "original": "browser-third/model-calls.jsonl",
+    "callIndex": 153,
+    "completedAt": "2026-10-11T17:04:38.605136+08:00",
+    "message": "列出A公司的销售报表，业务日期为空，或者金额等于0.01元。",
+    "stage": "INDEPENDENT_EXPECTATION",
+    "taskPurpose": {
+      "requestedResult": "列出A公司的销售报表记录，限定业务日期为空或金额等于0.01元。",
+      "purpose": "BUSINESS_QUERY",
+      "queryContext": "INDEPENDENT",
+      "evidence": "列出A公司的销售报表，业务日期为空，或者金额等于0.01元。",
+      "targetCount": null,
+      "queryDomain": "REPORT",
+      "queryView": "LIST"
+    },
+    "output": "{\"requirements\":[{\"aspect\":\"ACTION\",\"messageIndex\":-1,\"evidence\":\"列出A公司的销售报表，业务日期为空，或者金额等于0.01元。\",\"meaning\":\"本轮是普通只读业务查询，读取销售报表记录列表，不进入派单子流程，也不准备候选或清单。\"},{\"aspect\":\"SCOPE\",\"messageIndex\":-1,\"evidence\":\"A公司的销售报表\",\"meaning\":\"归属公司为A公司；数据源为销售报表（rpt-sales-order）。\"},{\"aspect\":\"CONDITIONS\",\"messageIndex\":-1,\"evidence\":\"业务日期为空\",\"meaning\":\"业务日期（date）为空值，即 IS_NULL 条件。\"},{\"aspect\":\"CONDITIONS\",\"messageIndex\":-1,\"evidence\":\"金额等于0.01元\",\"meaning\":\"金额（amount）严格等于0.01元，即 EQ 条件，值为按元保存的 0.01。\"},{\"aspect\":\"PRESENTATION\",\"messageIndex\":-1,\"evidence\":\"列出A公司的销售报表\",\"meaning\":\"以多记录列表形式展示，默认分页与排序，未指定分组。\"},{\"aspect\":\"CONTINUITY\",\"messageIndex\":-1,\"evidence\":\"列出A公司的销售报表，业务日期为空，或者金额等于0.01元。\",\"meaning\":\"本轮为独立新查询，不承接上一次查询条件，无旧字段撤销。\"}],\"expectedPlan\":{\"route\":\"BUSINESS_QUERY\",\"query\":{\"domain\":\"REPORT\",\"view\":\"LIST\",\"reportIds\":[\"rpt-sales-order\"],\"companyCode\":\"A\",\"conditions\":[{\"allOf\":[{\"field\":\"date\",\"operator\":\"IS_NULL\",\"values\":[]},{\"field\":\"amount\",\"operator\":\"EQ\",\"values\":[\"0.01\"]}]}],\"sortField\":null,\"descending\":false,\"page\":1,\"size\":20,\"groupBy\":null},\"followUp\":false,\"clarification\":null,\"removedFilters\":[],\"dispatch\":null,\"clarificationOptions\":null},\"conditionChecks\":[{\"condition\":{\"field\":\"date\",\"operator\":\"IS_NULL\",\"values\":[]},\"origin\":\"CURRENT_REQUEST\",\"evidence\":\"业务日期为空\",\"negationEvidence\":\"\"},{\"condition\":{\"field\":\"amount\",\"operator\":\"EQ\",\"values\":[\"0.01\"]},\"origin\":\"CURRENT_REQUEST\",\"evidence\":\"金额等于0.01元\",\"negationEvidence\":\"\"}],\"priorConditionChanges\":[],\"targetCount\":null}"
+  },
+  {
+    "original": "browser-third/model-calls.jsonl",
+    "callIndex": 154,
+    "completedAt": "2026-10-11T17:04:41.536787300+08:00",
+    "message": "列出A公司的销售报表，业务日期为空，或者金额等于0.01元。",
+    "taskPurpose": {
+      "requestedResult": "列出A公司的销售报表记录，限定业务日期为空或金额等于0.01元。",
+      "purpose": "BUSINESS_QUERY",
+      "queryContext": "INDEPENDENT",
+      "evidence": "列出A公司的销售报表，业务日期为空，或者金额等于0.01元。",
+      "targetCount": null,
+      "queryDomain": "REPORT",
+      "queryView": "LIST"
+    },
+    "output": "{\"route\":\"BUSINESS_QUERY\",\"query\":{\"domain\":\"REPORT\",\"view\":\"LIST\",\"reportIds\":[\"rpt-sales-order\"],\"companyCode\":\"A\",\"conditions\":[{\"allOf\":[{\"field\":\"date\",\"operator\":\"IS_NULL\",\"values\":[]},{\"field\":\"amount\",\"operator\":\"EQ\",\"values\":[\"0.01\"]}]}],\"sortField\":null,\"descending\":false,\"page\":1,\"size\":20,\"groupBy\":null},\"followUp\":false,\"clarification\":null,\"removedFilters\":[],\"dispatch\":null,\"clarificationOptions\":null}"
+  }
+]

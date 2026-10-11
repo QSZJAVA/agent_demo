@@ -45,7 +45,7 @@ public class AgentController {
 
     /**
      * 对话：POST JSON，返回 text/event-stream。
-     * 事件：conversation / text / business_query / preview / choice / plan / result / error / done
+     * 事件：conversation / text / business_query / semantic_clarification / preview / choice / plan / result / error / done
      */
     @PostMapping(value = "/chat", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
     public Flux<ServerSentEvent<Object>> chat(@RequestHeader(PermissionService.USER_HEADER) String userId,
@@ -56,7 +56,7 @@ public class AgentController {
         }
         if (request.getMessage().length() > 2000) throw new ApiException("消息不能超过 2000 字");
         return chatService.chat(user, request.getConversationId(), request.getMessage().trim(),
-                request.getPreviewId(), request.getExcludedRecords());
+                request.getPreviewId(), request.getExcludedRecords(),request.getQueryEdit(),request.getClarificationReply());
     }
 
     /** 预览快照全量记录与当前状态（前端按 previewId 拉取渲染表格） */
@@ -83,5 +83,15 @@ public class AgentController {
         private List<com.example.report.dispatch.RecordKey> excludedRecords;
         /** 取消勾选所在的预览卡片；与本轮派单用的预览不一致时勾选项不生效 */
         private String previewId;
+        /** 当前查询引用及用户完整编辑的条件；为空表示普通自然语言请求。 */
+        private com.example.report.assistant.AssistantInteraction.QueryEdit queryEdit;
+        /** 当前澄清引用及用户选择的稳定值；与queryEdit互斥，旧引用不得用于新轮次。 */
+        private com.example.report.assistant.AssistantInteraction.ClarificationReply clarificationReply;
+        /** 结构化字段独立使用严格契约，禁止框架把数值选项自动转成字符串或忽略多余属性。 */
+        @com.fasterxml.jackson.annotation.JsonSetter("queryEdit")
+        public void setQueryEdit(Object value){queryEdit=com.example.report.assistant.AssistantInteraction.decode(value,com.example.report.assistant.AssistantInteraction.QueryEdit.class);}
+        /** 澄清回复只接受服务端提供的引用和字符串原值；不解析替代身份字段。 */
+        @com.fasterxml.jackson.annotation.JsonSetter("clarificationReply")
+        public void setClarificationReply(Object value){clarificationReply=com.example.report.assistant.AssistantInteraction.decode(value,com.example.report.assistant.AssistantInteraction.ClarificationReply.class);}
     }
 }

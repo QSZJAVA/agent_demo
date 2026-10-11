@@ -1,0 +1,37 @@
+{
+  "date": "2026-10-11",
+  "scope": "Deterministic backend and MockMvc regression; no database, browser or live model acceptance",
+  "failure": {
+    "log": "resume-numeric-redaction-before.log",
+    "xml": "resume-numeric-redaction-before.xml",
+    "testClass": "com.example.report.operations.SensitiveNumericContractTest",
+    "tests": 10,
+    "failures": 5,
+    "errors": 2,
+    "skipped": 0,
+    "cause": "Exact money strings matching contact patterns were redacted at HTTP, SSE, task result and model projection boundaries"
+  },
+  "verification": {
+    "log": "resume-numeric-redaction-after.log",
+    "testClasses": [
+      "com.example.report.common.DecimalSerializationTest",
+      "com.example.report.investigation.InvestigationJsonTest",
+      "com.example.report.investigation.InvestigationWorkerTest",
+      "com.example.report.operations.ModelEgressPolicyTest",
+      "com.example.report.operations.OperationsSafetyTest",
+      "com.example.report.operations.SensitiveNumericContractTest"
+    ],
+    "tests": 169,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "newCrossBoundaryTests": 12,
+    "commentsCheck": "passed",
+    "diffWhitespaceCheck": "passed"
+  },
+  "changes": [
+    "backend/src/main/java/com/example/report/operations/SensitiveData.java",
+    "backend/src/test/java/com/example/report/operations/SensitiveNumericContractTest.java"
+  ],
+  "remainingAcceptance": "Parent agent runs aggregate regression and real browser / real model / authenticated HTTP MCP acceptance"
+}

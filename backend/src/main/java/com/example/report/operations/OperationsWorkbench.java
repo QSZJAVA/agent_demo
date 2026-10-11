@@ -5,6 +5,7 @@ import com.example.report.dispatch.*;
 import com.example.report.entity.*;
 import com.example.report.mapper.DispatchPreviewMapper;
 import com.example.report.permission.*;
+import com.example.report.agent.PlanPayload;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 import java.util.*;
@@ -83,6 +84,33 @@ public class OperationsWorkbench {
         Object result=plans.pageOwned(owner,planId,page,50);
         audit.record(admin,"WORKBENCH_ITEMS",planId,"SUCCESS",null);
         return result;
+    }
+    /**
+     * 读取当前授权范围内的清单摘要和最多50条样本；代读不依赖原操作者账号仍可登录。
+     * 只在返回副本中投影到期状态，写入仅限真实管理员访问审计；不认领清单、不调用模型或派单网关。
+     * @param admin 当前已认证管理员，仍须覆盖清单的租户、公司与报表范围
+     * @param planId 已有清单标识，跨租户或越权时不可读取
+     * @return 最新清单标识、状态、总数及有界记录样本
+     */
+    public PlanPayload readPlan(CurrentUser admin,String planId) {
+        return tx.execute(transaction -> {
+            CurrentUser owner=owner(admin,planId,false);
+            var plan=plans.findOwned(owner,planId).orElseThrow(()->ApiException.notFound("任务不存在"));
+            var projected=JsonUtil.MAPPER.convertValue(plan,DispatchPlan.class);
+            if(DispatchPlan.PENDING.equals(projected.getStatus())) {
+                var preview=previewMapper.selectById(projected.getPreviewId());
+                var now=java.time.LocalDateTime.now();
+                // 代读身份的授权范围可能与原确认人不同，不能拿它的权限指纹把原清单判为版本失效。
+                // 这里只投影已过期或已作废的预览/清单；真正执行仍由原确认及执行版本校验决定。
+                if(!projected.getExpiresAt().isAfter(now) || preview==null || !DispatchPreview.ACTIVE.equals(preview.getStatus())
+                        || !preview.getExpiresAt().isAfter(now)) {
+                    projected.setStatus(DispatchPlan.EXPIRED);
+                }
+            }
+            var result=PlanPayload.of(new PlanSnapshot(projected,plans.pageOwned(owner,planId,1,50)));
+            audit.record(admin,"WORKBENCH_PLAN_READ",planId,"SUCCESS",null);
+            return result;
+        });
     }
     public Object act(CurrentUser admin,String planId,String action,String reason) {
         return act(admin,planId,action,reason,null);

@@ -32,7 +32,46 @@ test('failed or disposed report requests cannot leave actionable stale rows', as
   const load = state.loadData(); assert.equal(state.list.length, 0)
   pending[0].reject(new Error('offline')); await load
   assert.equal(state.loading, false); assert.equal(state.total, 0)
+  assert.match(state.loadError, /报表加载失败/)
   const late = state.loadData(); mixin.beforeDestroy.call(state)
   pending[1].resolve({ records: [{ id: 'old-account' }], total: 1 }); await late
   assert.equal(state.list.length, 0)
+})
+
+test('report failure remains visible through retry and clears only after authoritative success', async () => {
+  const { state, pending } = setup()
+  const load = state.changePage(3)
+  pending[0].reject(new Error('offline')); await load
+  assert.equal(state.page, 3)
+  const retry = state.loadData()
+  assert.match(state.loadError, /报表加载失败/)
+  assert.equal(pending[1].page, 3)
+  pending[1].resolve({ records: [{ id: 101 }], total: 160 }); await retry
+  assert.equal(state.loadError, '')
+  assert.equal(state.list[0].id, 101)
+})
+
+test('empty successful reports differ from failed reads and stale failures cannot overwrite recovery', async () => {
+  const { state, pending } = setup()
+  const old = state.loadData(), newest = state.loadData()
+  pending[1].resolve({ records: [], total: 0 }); await newest
+  pending[0].reject(new Error('late failure')); await old
+  assert.equal(state.loadError, '')
+  assert.equal(state.total, 0)
+  assert.equal(state.loading, false)
+  const failed = state.loadData()
+  pending[2].reject(new Error('failed')); await failed
+  const retry = state.loadData()
+  pending[3].resolve({ records: [], total: 0 }); await retry
+  assert.equal(state.loadError, '')
+})
+
+test('disposal prevents late failures and new requests from changing report recovery state', async () => {
+  const { state, pending, mixin } = setup()
+  const late = state.loadData()
+  mixin.beforeDestroy.call(state)
+  pending[0].reject(new Error('after close')); await late
+  await state.loadData()
+  assert.equal(pending.length, 1)
+  assert.equal(state.loadError, '')
 })

@@ -10,10 +10,14 @@ const ExpenseReport = () => import('../views/ExpenseReport.vue')
 const RuleAdmin = () => import('../views/RuleAdmin.vue')
 const CatalogAdmin = () => import('../views/CatalogAdmin.vue')
 const OperationsAdmin = () => import('../views/OperationsAdmin.vue')
+const MyTasks = () => import('../views/MyTasks.vue')
+const SemanticQuality = () => import('../views/SemanticQuality.vue')
 
 Vue.use(VueRouter)
 
 const routes = [
+  { path: '/semantic-quality', name: 'semantic-quality', component: SemanticQuality, meta: { title: '语义质量' } },
+  { path: '/tasks', name: 'tasks', component: MyTasks, meta: { title: '我的任务' } },
   { path: '/catalog', name: 'catalog', component: CatalogAdmin, meta: { title: '报表目录管理' } },
   { path: '/operations', name: 'operations', component: OperationsAdmin, meta: { title: '运营治理' } },
   { path: '/', redirect: '/sales' },

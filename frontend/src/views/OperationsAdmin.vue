@@ -4,14 +4,16 @@
     <el-alert v-if="!admin" title="仅管理员可访问运营工作台" type="info" :closable="false" />
     <el-tabs v-else v-model="tab" @tab-click="loadTab">
       <el-tab-pane label="业务指标" name="metrics">
-        <div class="section-toolbar"><div><h3>业务概览</h3><span class="muted">所选时间内的解析与派单表现</span></div><el-select v-model="days" size="small" aria-label="统计时间范围" @change="loadTab"><el-option v-for="d in [1,7,30,90]" :key="d" :value="d" :label="`最近 ${d} 天`" /></el-select></div>
+        <div class="section-toolbar"><div><h3>业务概览</h3><span class="muted">{{ scopeSummary }}</span></div><el-select v-model="days" size="small" aria-label="统计时间范围" @change="loadTab"><el-option v-for="d in [1,7,30,90]" :key="d" :value="d" :label="`最近 ${d} 天`" /></el-select></div>
+        <el-alert v-if="samplingUnavailableReason" title="范围不可核实" :description="samplingUnavailableReason" type="info" :closable="false" show-icon />
         <div class="cards">
-          <div class="metric-card"><span><i class="el-icon-aim"></i> 解析唯一命中率</span><strong>{{ ratio(['EXACT','ALIAS','FUZZY']) }}</strong><small>精确、别名与近似匹配</small></div>
-          <div class="metric-card"><span><i class="el-icon-help"></i> 歧义率</span><strong>{{ ratio(['AMBIGUOUS']) }}</strong><small>需要进一步明确报表范围</small></div>
-          <div class="metric-card"><span><i class="el-icon-search"></i> 无匹配率</span><strong>{{ ratio(['NONE']) }}</strong><small>未找到符合表达的报表</small></div>
-          <div class="metric-card"><span><i class="el-icon-circle-check"></i> 派单条目成功率</span><strong>{{ dispatchRate }}</strong><small>包含待处理条目的当前结果</small></div>
+          <div class="metric-card"><span><i class="el-icon-aim"></i> 解析唯一命中率</span><strong :class="{unavailable: !samplingAvailable}">{{ ratio(['EXACT','ALIAS','FUZZY']) }}</strong><small>精确、别名与近似匹配</small></div>
+          <div class="metric-card"><span><i class="el-icon-help"></i> 歧义率</span><strong :class="{unavailable: !samplingAvailable}">{{ ratio(['AMBIGUOUS']) }}</strong><small>需要进一步明确报表范围</small></div>
+          <div class="metric-card"><span><i class="el-icon-search"></i> 无匹配率</span><strong :class="{unavailable: !samplingAvailable}">{{ ratio(['NONE']) }}</strong><small>未找到符合表达的报表</small></div>
+          <div class="metric-card"><span><i class="el-icon-circle-check"></i> 派单条目成功率</span><strong :class="{unavailable: !dispatchAvailable}">{{ dispatchRate }}</strong><small>当前授权范围，包含待处理条目</small></div>
         </div>
-        <el-collapse class="metric-notes"><el-collapse-item title="统计口径说明" name="definition"><p>解析率以全部报表解析请求为分母；“全部报表”结果单列展示。派单成功率以当前持久化条目为分母，包含待处理条目。空数据不代表零故障。比例按全部数据计算，明细最多展示 1000 个分组。耗时的第 95 百分位表示 95% 的样本耗时不超过该值，单位为毫秒。</p></el-collapse-item></el-collapse>
+        <el-collapse class="metric-notes"><el-collapse-item title="统计口径说明" name="definition"><p>派单成功率仅统计当前账号有权查看的公司与报表，以所选期间创建清单的全部当前条目为分母，包含待处理条目。概览不受明细最多 1000 个分组的展示上限影响。无授权与没有记录分别展示，空数据不代表零故障。解析与耗时采样缺少公司归属，当前不展示无法核实范围的数据。</p></el-collapse-item></el-collapse>
+        <template v-if="samplingAvailable">
         <div class="section-toolbar"><h3>环节运行明细 <span class="muted">{{ metricRows.length }} 个分组</span></h3><el-input v-model="metricSearch" prefix-icon="el-icon-search" clearable placeholder="搜索环节、报表或结果" class="metric-search" /></div>
         <el-table :data="metricRows.slice((metricPage-1)*20,metricPage*20)" size="small" stripe max-height="460" empty-text="当前范围暂无运行数据">
           <el-table-column label="业务环节" min-width="150"><template slot-scope="s"><business-label :value="s.row.operation" domain="operation" /></template></el-table-column>
@@ -22,8 +24,11 @@
           <el-table-column prop="p95_ms" label="耗时（95% · 毫秒）" min-width="160" align="right" />
         </el-table>
         <el-pagination :current-page.sync="metricPage" :page-size="20" :total="metricRows.length" layout="total, prev, pager, next" />
+        </template>
         <div class="section-toolbar dispatch-section"><div><h3>派单当前状态</h3><span class="muted">按报表、规则版本和处理状态汇总</span></div></div>
-        <el-table :data="stats.dispatch" size="small" stripe max-height="360" empty-text="当前范围暂无派单记录">
+        <el-alert v-if="dispatchUnavailableReason" title="无法统计派单" :description="dispatchUnavailableReason" type="info" :closable="false" />
+        <el-alert v-if="stats.dispatch && stats.dispatch.truncated" title="明细仅展示前 1000 个分组；上方成功率仍按当前授权范围内的全部条目计算。" type="info" :closable="false" />
+        <el-table v-if="dispatchAvailable" :data="dispatchRows" size="small" stripe max-height="360" empty-text="当前授权范围暂无派单记录">
           <el-table-column label="报表" min-width="140"><template slot-scope="s"><span :title="s.row.report_id">{{ reportName(s.row.report_id) }}</span></template></el-table-column>
           <el-table-column label="规则版本" min-width="180"><template slot-scope="s"><span class="version-text" :title="s.row.rule_version">{{ versionText(s.row.rule_version) }}</span></template></el-table-column>
           <el-table-column label="状态" min-width="130"><template slot-scope="s"><business-label :value="s.row.status" tag /></template></el-table-column>
@@ -48,7 +53,7 @@
         <el-table :data="evaluated ? evaluated.cases : []" size="small"><el-table-column prop="query" label="表达" /><el-table-column label="期望结果"><template slot-scope="s"><business-label :value="s.row.expected" /></template></el-table-column><el-table-column label="实际结果"><template slot-scope="s"><business-label :value="s.row.actual" /></template></el-table-column><el-table-column label="结果"><template slot-scope="s"><el-tag :type="s.row.passed?'success':'danger'">{{ s.row.passed?'通过':'失败' }}</el-tag></template></el-table-column></el-table>
       </el-tab-pane>
       <el-tab-pane label="数据留存" name="retention">
-        <el-alert title="手机号、证件号和邮箱在对话及展示出口脱敏。清理按批次执行；在途、待核对或失败任务保留恢复依据。派单幂等标识和最终状态作为防重记录继续保留。" type="info" :closable="false" />
+        <el-alert title="手机号、证件号和邮箱在对话及展示出口脱敏。到期结果按批次清理逐条展示、字段、客户快照与排除单据号；在途、待核对或失败任务保留恢复依据。汇总金额与条数、请求号、状态、业务身份和版本继续作为审计元数据保留。" type="info" :closable="false" />
         <el-form label-width="140px" class="form"><el-form-item v-for="f in retentionFields" :key="f.key" :label="f.label"><el-input-number v-model="retentionForm[f.key]" :min="1" :max="3650" :precision="0" /></el-form-item><el-form-item label="变更原因"><el-input v-model="reason" maxlength="512" /></el-form-item><el-form-item><el-button type="primary" :loading="saving" @click="saveRetention">保存留存策略</el-button></el-form-item></el-form>
         <el-input v-model="conversationId" placeholder="需要删除内容的会话编号" class="inline-input" /><el-button :disabled="saving || !conversationId.trim()" @click="requestErase">申请删除</el-button>
         <el-table :data="erasureRows" size="small"><el-table-column prop="conversation_id" label="会话编号" /><el-table-column label="清理状态"><template slot-scope="s"><business-label :value="s.row.status" tag /></template></el-table-column><el-table-column label="申请时间" min-width="175"><template slot-scope="s"><business-label :value="s.row.requested_at" domain="time" /></template></el-table-column><el-table-column label="完成时间" min-width="175"><template slot-scope="s"><business-label :value="s.row.completed_at" domain="time" /></template></el-table-column></el-table>
@@ -62,27 +67,36 @@
 /**
  * 租户管理员运维页；策略修改使用期望版本，异常清单操作必须提供原因。
  * 异步操作无论成功或失败均重新读取实际任务状态，避免页面把未知结果误显示为尚未执行。
+ * 指标遵守服务端声明的授权范围；无法核实的采样显示不可用，不能拿空数组或零值冒充统计结果。
  */
 import http from '../api/http'
 import { fetchCatalog } from '../api/catalog'
 import * as api from '../api/operations'
 import { displayLabel, reportLabel, versionLabel } from '../utils/presentation'
 export default {
-  data:()=>({metricSearch:'',metricPage:1,disposed:false,policyReady:false,itemsSequence:0,tasksSequence:0,sampleJson:'[]',sampleVersion:0,sampleReason:'',admin:false,loading:false,saving:false,tab:'metrics',days:7,stats:{samples:[],dispatch:[]},tasks:[],nextCursor:null,catalog:[],policyKey:'resolver',policyForm:{},policyVersion:0,policyRevisions:[],reason:'',evaluated:null,retentionForm:{},retentionVersion:0,erasureRows:[],conversationId:'',audits:[],itemsVisible:false,items:[],itemPage:1,selected:null,retentionFields:[{key:'conversationDays',label:'对话留存天数'},{key:'resultDays',label:'结果留存天数'},{key:'metricDays',label:'指标留存天数'},{key:'auditDays',label:'运营审计天数'}]}),
+  data:()=>({metricSearch:'',metricPage:1,disposed:false,policyReady:false,itemsSequence:0,tasksSequence:0,metricsSequence:0,sampleJson:'[]',sampleVersion:0,sampleReason:'',admin:false,loading:false,saving:false,tab:'metrics',days:7,stats:{samples:null,dispatch:null,overview:null,scope:null},tasks:[],nextCursor:null,catalog:[],policyKey:'resolver',policyForm:{},policyVersion:0,policyRevisions:[],reason:'',evaluated:null,retentionForm:{},retentionVersion:0,erasureRows:[],conversationId:'',audits:[],itemsVisible:false,items:[],itemPage:1,selected:null,retentionFields:[{key:'conversationDays',label:'对话留存天数'},{key:'resultDays',label:'结果留存天数'},{key:'metricDays',label:'指标留存天数'},{key:'auditDays',label:'运营审计天数'}]}),
   watch:{metricSearch(){this.metricPage=1},days(){this.metricPage=1}},
   computed:{
     // 明细筛选和分页只改变展示范围，顶部比例仍使用服务端完整汇总。
-    metricRows(){const query=this.metricSearch.trim().toLowerCase();return (this.stats.samples||[]).filter(row=>[displayLabel(row.operation,'operation'),this.reportName(row.report_id),displayLabel(row.outcome),row.operation,row.report_id,row.outcome].join(' ').toLowerCase().includes(query))},
-    dispatchRate(){const rows=this.stats.overview ? this.stats.overview.dispatch : [];return this.percent(rows.filter(r=>r.status==='SUCCESS').reduce((n,r)=>n+Number(r.items),0),rows.reduce((n,r)=>n+Number(r.items),0))}},
+    metricRows(){if(!this.samplingAvailable)return [];const query=this.metricSearch.trim().toLowerCase();return this.stats.samples.rows.filter(row=>[displayLabel(row.operation,'operation'),this.reportName(row.report_id),displayLabel(row.outcome),row.operation,row.report_id,row.outcome].join(' ').toLowerCase().includes(query))},
+    samplingAvailable(){return !!(this.stats.samples && this.stats.samples.available)},
+    samplingUnavailableReason(){return this.stats.samples && !this.stats.samples.available ? this.stats.samples.unavailableReason : null},
+    dispatchAvailable(){return !!(this.stats.dispatch && this.stats.dispatch.available)},
+    dispatchUnavailableReason(){return this.stats.dispatch && !this.stats.dispatch.available ? this.stats.dispatch.unavailableReason : null},
+    dispatchRows(){return this.dispatchAvailable ? this.stats.dispatch.rows : []},
+    scopeSummary(){const scope=this.stats.scope;return scope ? `当前授权范围：${scope.companyCodes.length ? '公司 '+scope.companyCodes.join('、') : '无授权公司'}；${scope.reportIds.length} 张授权报表` : '正在读取当前授权范围'},
+    dispatchRate(){const series=this.stats.overview && this.stats.overview.dispatch;if(!series)return '尚未加载';if(!series.available)return '无统计权限';const rows=series.rows;return this.percent(rows.filter(r=>r.status==='SUCCESS').reduce((n,r)=>n+Number(r.items),0),rows.reduce((n,r)=>n+Number(r.items),0))}},
   created(){this.load()},
-  beforeDestroy(){this.disposed=true;this.itemsSequence++;this.tasksSequence++},
+  beforeDestroy(){this.disposed=true;this.itemsSequence++;this.tasksSequence++;this.metricsSequence++},
   methods:{
     reportName(value){return reportLabel(value,this.catalog)},
     versionText(value){return versionLabel(value)},
     percent(n,d){return d?`${(100*n/d).toFixed(1)}%`:'暂无数据'},
-    ratio(outcomes){const rows=(this.stats.overview ? this.stats.overview.requests : []).filter(r=>r.operation==='RESOLVE');return this.percent(rows.filter(r=>outcomes.includes(r.outcome)).reduce((n,r)=>n+Number(r.samples),0),rows.reduce((n,r)=>n+Number(r.samples),0))},
+    ratio(outcomes){const series=this.stats.overview && this.stats.overview.requests;if(!series)return '尚未加载';if(!series.available)return '范围不可核实';const rows=series.rows.filter(r=>r.operation==='RESOLVE');return this.percent(rows.filter(r=>outcomes.includes(r.outcome)).reduce((n,r)=>n+Number(r.samples),0),rows.reduce((n,r)=>n+Number(r.samples),0))},
     async load(){this.loading=true;try{this.admin=(await http.get('/auth/me')).admin;if(this.admin){this.catalog=await fetchCatalog(true);await this.loadTab()}}finally{this.loading=false}},
-    async loadTab(){if(!this.admin)return;this.loading=true;try{if(this.tab==='metrics'){this.stats=await api.metrics(this.days);this.metricPage=1;}if(this.tab==='workbench')await this.loadTasks();if(this.tab==='policy')await this.loadPolicy();if(this.tab==='evaluation'){this.evaluated=await api.evaluation();const corpus=await api.policy('evaluation');this.sampleJson=JSON.stringify(corpus.payload.samples,null,2);this.sampleVersion=corpus.version;}if(this.tab==='audit')this.audits=await api.auditLog();if(this.tab==='retention'){const p=await api.policy('retention');this.retentionForm={...p.payload};this.retentionVersion=p.version;this.erasureRows=await api.erasures()}}finally{this.loading=false}},
+    async loadTab(){if(!this.admin)return;this.loading=true;try{if(this.tab==='metrics')await this.loadMetrics();if(this.tab==='workbench')await this.loadTasks();if(this.tab==='policy')await this.loadPolicy();if(this.tab==='evaluation'){this.evaluated=await api.evaluation();const corpus=await api.policy('evaluation');this.sampleJson=JSON.stringify(corpus.payload.samples,null,2);this.sampleVersion=corpus.version;}if(this.tab==='audit')this.audits=await api.auditLog();if(this.tab==='retention'){const p=await api.policy('retention');this.retentionForm={...p.payload};this.retentionVersion=p.version;this.erasureRows=await api.erasures()}}finally{this.loading=false}},
+    /** 时间窗口快速切换或账号退出时，只接受最后一次请求对应的授权范围和指标。 */
+    async loadMetrics(){const seq=++this.metricsSequence;const result=await api.metrics(this.days);if(this.disposed||seq!==this.metricsSequence)return;this.stats=result;this.metricPage=1},
     /** 递增请求序号，只接收最后一次工作台分页结果；管理员权限过滤后的游标由服务端提供。 */
     async loadTasks(after){const seq=++this.tasksSequence;const p=await api.workbench(after);if(this.disposed||seq!==this.tasksSequence)return;this.tasks=p.rows;this.nextCursor=p.nextCursor},
     async showItems(row){this.selected=row;this.itemPage=1;await this.reloadItems();this.itemsVisible=true},async reloadItems(){const seq=++this.itemsSequence;const id=this.selected.id;this.items=[];const rows=await api.workItems(id,this.itemPage);if(this.disposed||seq!==this.itemsSequence||id!==this.selected.id)return;this.items=rows},
@@ -109,6 +123,7 @@ h3 .muted { margin-left: 8px; }
 .metric-card span { display: flex; align-items: center; gap: 8px; color: #526984; font-size: 13px; }
 .metric-card i { color: #5684b9; font-size: 18px; }
 .metric-card strong { display: block; font-size: 30px; font-weight: 600; letter-spacing: -.5px; margin: 13px 0 8px; color: #253e60; font-variant-numeric: tabular-nums; }
+.metric-card strong.unavailable { font-size: 18px; letter-spacing: 0; }
 .metric-card small { font-size: 12px; color: #7b899a; }
 .metric-notes { margin: 0 0 26px; border: 0; }
 .metric-notes >>> .el-collapse-item__header { height: 36px; color: #6b7e94; border: 0; font-size: 12px; }

@@ -4,6 +4,17 @@
     <p class="query-source">{{ payload.source }} · 查询时间 {{ observedTime }}</p>
     <p class="query-scope">{{ scopeDescription }}</p>
     <p class="query-scope">筛选：{{ filterDescription }}</p>
+    <div v-if="payload.interpretation" class="query-interpretation">
+      <el-button v-if="payload.query.view !== 'ELIGIBILITY'" size="mini" :disabled="busy || !latest" @click="$emit('edit')">修改查询条件</el-button>
+      <el-collapse>
+        <el-collapse-item title="查看本轮条件变化与依据" name="interpretation">
+          <p v-if="payload.interpretation.scopeChanged">本轮公司、报表或业务域发生变化，请按当前完整范围核对。</p>
+          <p v-if="payload.interpretation.groupingChanged">条件的组合关系发生变化，以当前完整条件组为准。</p>
+          <p>新增 {{ payload.interpretation.added.length }} 项，删除或替换 {{ payload.interpretation.removed.length }} 项，保留 {{ payload.interpretation.retained.length }} 项。</p>
+          <p v-for="(entry, index) in payload.interpretation.conditions" :key="index">{{ label(payload.columns.find(c => c.name === entry.condition.field) || { name: entry.condition.field }) }}：{{ originLabel(entry.origin) }}<span v-if="entry.evidence">，依据“{{ entry.evidence }}”</span></p>
+        </el-collapse-item>
+      </el-collapse>
+    </div>
     <div v-if="eligibility" class="query-summary eligibility-result">
       <p><el-tag :type="eligibility.eligible ? 'success' : 'warning'" size="small">{{ eligibility.eligible ? '符合当前派单条件' : '当前不符合派单条件' }}</el-tag></p>
       <p>{{ eligibility.reason }}</p>
@@ -23,7 +34,9 @@
     </div>
     <el-table :data="payload.rows" border stripe size="mini" row-key="rowKey" max-height="350" empty-text="当前查询没有匹配记录">
       <el-table-column type="index" label="序号" width="65" :index="rowIndex" />
-      <el-table-column v-for="column in displayColumns" :key="column.name" :label="label(column)" :min-width="column.name === 'title' ? 160 : 120" show-overflow-tooltip>
+      <el-table-column v-for="column in displayColumns" :key="column.name" :label="label(column)"
+        :min-width="column.name === 'amount' ? 260 : column.name === 'title' ? 160 : 120"
+        :align="column.name === 'amount' ? 'right' : 'left'" :class-name="column.name === 'amount' ? 'amount-column' : ''" show-overflow-tooltip>
         <template slot-scope="scope"><business-label v-if="['status','planStatus'].includes(column.name)" :value="scope.row[column.name]" tag /><span v-else>{{ cell(scope.row[column.name]) }}</span></template>
       </el-table-column>
       <el-table-column v-if="payload.query.domain === 'WORK_ORDER'" label="操作" width="96" fixed="right">
@@ -79,6 +92,7 @@ export default {
     }
   },
   methods: {
+    originLabel(origin) { return { CURRENT_REQUEST: '本轮明确要求', ACTIVE_QUERY: '继承当前有效条件', VISIBLE_OBJECT: '依据已展示对象', UNAVAILABLE: '没有可展示的模型来源证据' }[origin] || '来源待核查' },
     cell(value) { return value == null ? '—' : String(value) },
     rowIndex(index) { return (this.payload.query.page - 1) * this.payload.query.size + index + 1 },
     counts(values, domain) { return Object.entries(values).map(([key, count]) => `${domain ? displayLabel(key, domain) : key} ${count} 条`).join('；') || '暂无记录' },
