@@ -73,6 +73,7 @@ class AnalysisKnowledgeIntegrationTest {
         var executor=(ThreadPoolExecutor)org.springframework.test.util.ReflectionTestUtils.getField(worker,"workers");long idle=System.nanoTime()+Duration.ofSeconds(10).toNanos();while(executor.getActiveCount()>0&&System.nanoTime()<idle)Thread.sleep(30);assertEquals(0,executor.getActiveCount(),"前例工作线程须先结束，不能在它运行时复位夹具");
         model.live=false;model.badCitation=false;model.block=false;model.malformedReviewReplies=0;model.entered=new CountDownLatch(1);model.release=new CountDownLatch(1);model.plan=normalPlan();
         assertEquals(SCHEMA,jdbc.queryForObject("SELECT DATABASE()",String.class));
+        jdbc.update("DELETE FROM operations_policy_revision WHERE policy_key LIKE 'semantic-dictionary:%'");jdbc.update("DELETE FROM operations_policy WHERE policy_key LIKE 'semantic-dictionary:%'");
         for(String table:List.of("business_analysis_run","business_knowledge_document","business_query_run","business_dispatch_request","dispatch_plan_item","dispatch_plan","dispatch_preview_item","dispatch_preview"))jdbc.update("DELETE FROM "+table);
         jdbc.update("DELETE FROM report_sales");var seed=new ArrayList<Object[]>();for(int i=0;i<120;i++)seed.add(new Object[]{1000+i,"T001","A","P2-"+i,i==1?"=1+1":i%2==0?"Alpha":"alpha ",new BigDecimal(i+".01"),java.sql.Date.valueOf("2026-09-"+String.format("%02d",1+i%28)),0});
         seed.add(new Object[]{2000,"T001","B","P2-B","越权记录",new BigDecimal("999999"),java.sql.Date.valueOf("2026-09-01"),0});seed.add(new Object[]{3000,"OTHER","A","P2-OTHER","其他租户",new BigDecimal("999999"),java.sql.Date.valueOf("2026-09-01"),0});
@@ -84,6 +85,12 @@ class AnalysisKnowledgeIntegrationTest {
         return new AnalysisContract.Plan("EXECUTE","按产品统计、排名并展开明细",null,List.of(new AnalysisContract.Step("QUERY",null,null,query,null,null,null),new AnalysisContract.Step("GROUP",0,null,null,new QueryAnalysis.Request(List.of("productName"),null,"NONE",null),null,null),new AnalysisContract.Step("RANK",1,null,null,null,new AnalysisContract.Rank("sum",true,2),null),new AnalysisContract.Step("DRILLDOWN",0,2,null,null,null,null)));}
     static Map<String,Object> draft(String title,String body,String from,String to){return knowledge.save(admin,null,new KnowledgeService.Change(new KnowledgeService.Content("A",REPORT,title,body,"本仓库隔离验收合成资料",null,from,to),0,"隔离验收创建"));}
     static Map<String,Object> publish(Map<String,Object> document){return knowledge.transition(admin,document.get("id").toString(),new KnowledgeService.Transition(((Number)document.get("row_version")).longValue(),"隔离验收明确发布"),true);}
+    static SemanticDictionaryService.Entry dictionary(String company,String... aliases) {
+        var service=agent.getBean(SemanticDictionaryService.class);var scope=new SemanticDictionary.Scope(BusinessQuery.Domain.REPORT,company,REPORT);
+        var current=(SemanticDictionaryService.Entry)service.read(admin,scope).get("entry");
+        var definition=new SemanticDictionary.Definition("",List.of(),"Asia/Shanghai",1,List.of(),List.of(new SemanticDictionary.Field("amount",List.of(aliases),"报表金额字段，业务口径须查阅当前发布制度。","元","CNY",List.of(),List.of())));
+        return service.publish(admin,scope,new SemanticDictionaryService.Change(current.version(),definition,"隔离验收发布字段别名"));
+    }
     static String submit(AnalysisContract.Request request){return analysis.submit(user,request,UUID.randomUUID().toString()).get("id").toString();}
     static Map<String,Object> await(String id) throws Exception {worker.poll();long until=System.nanoTime()+Duration.ofSeconds(210).toNanos();while(System.nanoTime()<until){var row=jdbc.queryForMap("SELECT status,message FROM business_analysis_run WHERE id=?",id);if(!Set.of("QUEUED","RUNNING").contains(row.get("status")))return analysis.get(user,id);Thread.sleep(150);}fail("分析未在时限内结束");return Map.of();}
     static void noBusinessWrites(){assertEquals(0,jdbc.queryForObject("SELECT COUNT(*) FROM business_dispatch_request",Integer.class));assertEquals(0,jdbc.queryForObject("SELECT COUNT(*) FROM dispatch_plan",Integer.class));assertEquals(0,jdbc.queryForObject("SELECT COUNT(*) FROM report_sales WHERE dispatch_status<>0",Integer.class));}
@@ -132,6 +139,86 @@ class AnalysisKnowledgeIntegrationTest {
         var run=await(submit(request("比较两个期间集合")));assertEquals("COMPLETED",run.get("status"),run.toString());var comparison=result(run,2);assertEquals(64,((Number)comparison.get("removed")).intValue());assertEquals(56,((Number)comparison.get("added")).intValue());assertEquals("-140.08",((Map<?,?>)comparison.get("amountDeltaByCurrency")).get("CNY"));assertEquals(false,comparison.get("sameDefinition"));assertEquals(true,comparison.get("detailsTruncated"));
         assertFalse(JsonUtil.toJson(comparison).contains("13800000000"));assertTrue(JsonUtil.toJson(comparison).contains("手机号已脱敏"));noBusinessWrites();}
 
+    @Test @Order(20) void knowledgePreviewUsesOnlyPublishedEffectiveScopeWithoutCallingModel() {
+        var active=publish(draft("Tax policy","tax applies under the published rules.","2026-01-01",null));
+        draft("Draft tax","tax draft must remain private.","2026-01-01",null);publish(draft("Expired tax","tax expired.","2020-01-01","2021-01-01"));publish(draft("Future tax","tax future.","2099-01-01",null));
+        var disabled=publish(draft("Disabled tax","tax disabled.","2026-01-01",null));knowledge.transition(admin,disabled.get("id").toString(),new KnowledgeService.Transition(2,"停用测试资料"),false);
+        publish(knowledge.save(admin,null,new KnowledgeService.Change(new KnowledgeService.Content("B",REPORT,"B tax","tax belongs to another company.","隔离合成资料",null,"2026-01-01",null),0,"隔离公司范围测试")));
+        int calls=MODEL.size();var preview=knowledge.preview(admin,new KnowledgeService.SearchRequest("A",REPORT,"tax"));write("search-current-scope.json",preview);
+        assertEquals(1,preview.result().coverage().matchedSources());assertTrue(preview.result().sources().stream().allMatch(s->s.id().contains(active.get("id").toString())));
+        assertEquals(calls,MODEL.size());assertEquals(0,jdbc.queryForObject("SELECT COUNT(*) FROM business_analysis_run",Integer.class));assertEquals(0,jdbc.queryForObject("SELECT COUNT(*) FROM business_query_run",Integer.class));noBusinessWrites();
+    }
+
+    @Test @Order(21) void knowledgePreviewAndAnalysisUseIdenticalAuthorizedRetrieval() throws Exception {
+        dictionary("A","booked value","销单值");var doc=publish(draft("订单金额定义","amount表示销售单订单金额，不等于已收款。","2026-01-01",null));
+        var preview=knowledge.preview(admin,new KnowledgeService.SearchRequest("A",REPORT,"booked value"));
+        assertTrue(preview.result().sources().stream().anyMatch(s->s.id().contains(doc.get("id").toString())));assertFalse(preview.result().expansions().isEmpty());
+        model.plan=new AnalysisContract.Plan("EXECUTE","核对业务术语",null,List.of(new AnalysisContract.Step("KNOWLEDGE",null,null,null,null,null,"booked value")));
+        var run=await(submit(request("booked value")));assertEquals("COMPLETED",run.get("status"),run.toString());var actual=new LinkedHashMap<>(result(run,0));actual.remove("kind");
+        assertEquals(JsonUtil.toMap(JsonUtil.toJson(preview.result())),actual);write("search-analysis-equivalence.json",Map.of("preview",preview,"run",run));
+        assertEquals(0,jdbc.queryForObject("SELECT COUNT(*) FROM business_query_run",Integer.class));noBusinessWrites();
+    }
+
+    @Test @Order(22) void dictionaryVersionChangesAffectSearchAndInvalidatePreviousAnalysis() throws Exception {
+        dictionary("A","booked");var doc=publish(draft("订单定义","amount表示订单金额。","2026-01-01",null));var request=new KnowledgeService.SearchRequest("A",REPORT,"booked");
+        var before=knowledge.preview(admin,request);model.plan=new AnalysisContract.Plan("EXECUTE","词典版本测试",null,List.of(new AnalysisContract.Step("KNOWLEDGE",null,null,null,null,null,"booked")));
+        String id=submit(request("booked"));assertEquals("COMPLETED",await(id).get("status"));dictionary("A","earned");var after=knowledge.preview(admin,request);
+        assertNotEquals(before.fingerprint(),after.fingerprint());assertTrue(after.result().sources().stream().noneMatch(s->s.id().contains(doc.get("id").toString())));assertTrue(after.result().expansions().isEmpty());
+        assertEquals(409,assertThrows(ApiException.class,()->analysis.get(user,id)).getCode());write("search-dictionary-version.json",Map.of("before",before,"after",after));
+    }
+
+    @Test @Order(23) void dictionaryAliasesCannotCrossCompanyOrTenantBoundaries() {
+        dictionary("B","booked");var doc=publish(draft("订单定义","amount表示订单金额。","2026-01-01",null));
+        var preview=knowledge.preview(admin,new KnowledgeService.SearchRequest("A",REPORT,"booked"));assertTrue(preview.result().expansions().isEmpty());assertTrue(preview.result().sources().stream().noneMatch(s->s.id().contains(doc.get("id").toString())));
+        var foreign=new CurrentUser("OTHER",admin.userId(),admin.displayName(),admin.companies(),admin.permissions(),true);
+        assertEquals(403,assertThrows(ApiException.class,()->knowledge.preview(foreign,new KnowledgeService.SearchRequest("A",REPORT,"amount"))).getCode());
+        assertThrows(ApiException.class,()->knowledge.preview(identities.resolve("T001","analysisadminb"),new KnowledgeService.SearchRequest("A",REPORT,"amount")));
+    }
+
+    @Test @Order(24) void longKnowledgeDocumentsKeepOtherSourcesAndExactCitationBudget() {
+        var first=publish(draft("amount税额口径甲","amount包含税额。\n"+"tax policy details remain applicable.\n".repeat(310),"2026-01-01",null));
+        var second=publish(draft("amount税额口径乙","amount包含税额。\n"+"tax policy supporting notes.\n".repeat(400),"2026-01-01",null));
+        var contrary=publish(draft("另一个amount口径","amount不包含税额。","2026-01-01",null));
+        var preview=knowledge.preview(admin,new KnowledgeService.SearchRequest("A",REPORT,"amount税额"));write("search-source-coverage.json",preview);
+        assertTrue(preview.result().truncated());assertEquals(12,preview.result().sources().size());assertTrue(preview.result().sources().stream().allMatch(s->s.text().length()<=2000));
+        for(var doc:List.of(first,second,contrary))assertTrue(preview.result().sources().stream().anyMatch(s->s.originId().contains(doc.get("id").toString())));
+        assertEquals(preview.result().sources().size(),preview.result().hits().size());noBusinessWrites();
+    }
+
+    @Test @Order(25) void searchHttpRejectsNonAdminsUnknownFieldsAndStaleBusinessPermissions() throws Exception {
+        var request=new KnowledgeService.SearchRequest("A",REPORT,"tax");String body=JsonUtil.toJson(request),token=login("admin");
+        assertEquals(401,http(null,"POST","/api/analysis/knowledge/search",body,Map.of()).statusCode());
+        assertEquals(403,JsonUtil.MAPPER.readTree(http(login(user.userId()),"POST","/api/analysis/knowledge/search",body,Map.of()).body()).path("code").asInt());
+        for(String invalid:List.of(body.replaceFirst("\\{","{\"limit\":100,"),body.replaceFirst("\\{","{\"sources\":[],"),body.replaceFirst("\\{","{\"companyCode\":\"B\","),body.replace("\"question\":\"tax\"","\"question\":null"))) {
+            var response=http(token,"POST","/api/analysis/knowledge/search",invalid,Map.of());assertEquals(422,JsonUtil.MAPPER.readTree(response.body()).path("code").asInt(),response.body());
+        }
+        identities.saveUser(admin,new IdentityStore.UserForm("searchadmin","试查权限管理员",PASSWORD,Set.of("A"),Set.of("report:sales"),true,true));String scoped=login("searchadmin");
+        assertEquals(0,JsonUtil.MAPPER.readTree(http(scoped,"POST","/api/analysis/knowledge/search",body,Map.of()).body()).path("code").asInt());
+        identities.saveUser(admin,new IdentityStore.UserForm("searchadmin","试查权限管理员",null,Set.of("A"),Set.of("report:sales"),false,true));
+        assertEquals(401,JsonUtil.MAPPER.readTree(http(scoped,"POST","/api/analysis/knowledge/search",body,Map.of()).body()).path("code").asInt());
+        assertEquals(403,JsonUtil.MAPPER.readTree(http(login("searchadmin"),"POST","/api/analysis/knowledge/search",body,Map.of()).body()).path("code").asInt());
+        identities.saveUser(admin,new IdentityStore.UserForm("searchadmin","试查权限管理员",null,Set.of("A"),Set.of("report:expense"),true,true));
+        assertEquals(404,JsonUtil.MAPPER.readTree(http(login("searchadmin"),"POST","/api/analysis/knowledge/search",body,Map.of()).body()).path("code").asInt());noBusinessWrites();
+    }
+
+    @Test @Order(26) void publicationAndDisableAreVisibleToTheNextPreview() {
+        var request=new KnowledgeService.SearchRequest("A",REPORT,"tax");var doc=publish(draft("Tax policy","tax applies.","2026-01-01",null));String id=doc.get("id").toString();var published=knowledge.preview(admin,request);
+        knowledge.save(admin,id,new KnowledgeService.Change(new KnowledgeService.Content("A",REPORT,"Tax policy","tax does not apply.","合成资料",null,"2026-01-01",null),2,"保留现行版本的草稿修改"));
+        var draft=knowledge.preview(admin,request);assertEquals(published.fingerprint(),draft.fingerprint());assertEquals(published.result(),draft.result());
+        knowledge.transition(admin,id,new KnowledgeService.Transition(3,"明确发布新版"),true);var next=knowledge.preview(admin,request);assertNotEquals(published.fingerprint(),next.fingerprint());assertTrue(next.result().sources().stream().anyMatch(s->s.text().contains("does not apply")));
+        knowledge.transition(admin,id,new KnowledgeService.Transition(4,"明确停用"),false);var disabled=knowledge.preview(admin,request);assertTrue(disabled.result().sources().stream().noneMatch(s->s.originId().contains(id)));
+        write("search-publication-lifecycle.json",Map.of("published",published,"draftKeepsPublished",draft,"republished",next,"disabled",disabled));
+    }
+
+    @Test @Order(27) void truncatedKnowledgeCannotPublishWithoutAnExplicitLimitation() throws Exception {
+        publish(draft("amount税额口径甲","amount包含税额。\n"+"tax policy details remain applicable.\n".repeat(310),"2026-01-01",null));
+        publish(draft("amount税额口径乙","amount包含税额。\n"+"tax policy supporting notes.\n".repeat(400),"2026-01-01",null));
+        model.plan=new AnalysisContract.Plan("EXECUTE","读取有限知识候选",null,List.of(new AnalysisContract.Step("KNOWLEDGE",null,null,null,null,null,"amount税额")));
+        var run=await(submit(request("核对amount税额口径")));write("search-truncated-answer-rejection.json",run);
+        assertEquals("PARTIAL",run.get("status"),run.toString());assertEquals(true,result(run,0).get("truncated"));assertNull(run.get("answer"));
+        assertTrue(run.get("message").toString().contains("覆盖有限"));assertEquals(0,jdbc.queryForObject("SELECT COUNT(*) FROM business_query_run",Integer.class));noBusinessWrites();
+    }
+
     @Test @Order(90) @EnabledIfEnvironmentVariable(named="P2_ANALYSIS_LIVE",matches="true") void realModelBoundedAnalysisUsesActualHttpFactsAndCitations() throws Exception {
         publish(draft("销售口径（隔离验收合成制度）","销售金额以元为单位，币种为CNY；表示销售单的订单金额，不等于已收款。","2026-01-01",null));model.live=true;
         var run=await(submit(request("查询A公司2026年9月的销售报表，按产品汇总销售金额，取金额最高的两个产品，展开它们的全部相关单据，再根据现有业务知识说明销售金额是否等于已收款。")));write("live-analysis.json",run);assertEquals("COMPLETED",run.get("status"),run.toString());
@@ -154,13 +241,46 @@ class AnalysisKnowledgeIntegrationTest {
         var run=await(submit(new AnalysisContract.Request("A",REPORT,"仅分析界面选定的快照，按产品统计金额合计，取金额最高的两个产品并展开单据。",original.snapshot().id())));write("live-selected-snapshot.json",run);assertEquals("COMPLETED",run.get("status"),run.toString());assertEquals(1,jdbc.queryForObject("SELECT COUNT(*) FROM business_query_run",Integer.class));assertEquals(original.snapshot().id(),result(run,0).get("snapshotId"));noBusinessWrites();}
     @Test @Order(96) @EnabledIfEnvironmentVariable(named="P2_ANALYSIS_LIVE",matches="true") void realModelComparesPeriodsAsDifferentSetsWithExactDelta() throws Exception {model.live=true;var run=await(submit(request("分别查询2026年9月1日至14日、15日至30日的销售报表，对比两个查询集合，说明记录数和后半月减前半月的金额差额，不推断增长或原因。")));write("live-comparison.json",run);assertEquals("COMPLETED",run.get("status"),run.toString());
         @SuppressWarnings("unchecked") var steps=(List<Map<String,Object>>)run.get("steps");int compare=((Number)steps.stream().filter(s->"COMPARE".equals(s.get("action"))).findFirst().orElseThrow().get("index")).intValue();assertEquals("-140.08",((Map<?,?>)result(run,compare).get("amountDeltaByCurrency")).get("CNY"));assertEquals(false,result(run,compare).get("sameDefinition"));assertEquals(2,jdbc.queryForObject("SELECT COUNT(*) FROM business_query_run",Integer.class));noBusinessWrites();}
+    @Test @Order(97) @EnabledIfEnvironmentVariable(named="P2_ANALYSIS_LIVE",matches="true") void realModelAnswersAConfiguredAliasWithPublishedEvidence() throws Exception {
+        dictionary("A","booked value","销单值");var doc=publish(draft("订单金额定义（合成制度）","amount表示销售单的订单金额，以元计、币种为CNY；不等于已收款，也不能作为已经收款的凭证。","2026-01-01",null));model.live=true;
+        var run=await(submit(request("销单值的业务口径是什么？请引用当前发布制度原文说明。")));write("live-alias-knowledge.json",run);
+        assertEquals("COMPLETED",run.get("status"),run.toString());assertEquals("ANSWERED",((Map<?,?>)run.get("answer")).get("status"));
+        assertTrue(JsonUtil.toJson(run.get("answer")).contains(doc.get("id").toString()));assertEquals(0,jdbc.queryForObject("SELECT COUNT(*) FROM business_query_run",Integer.class));noBusinessWrites();
+    }
+    @Test @Order(98) @EnabledIfEnvironmentVariable(named="P2_ANALYSIS_LIVE",matches="true") void realModelKeepsConflictingSourcesWhenLongKnowledgeIsTruncated() throws Exception {
+        publish(draft("amount税额口径甲（合成制度）","amount包含税额。\n"+"tax policy details remain applicable.\n".repeat(310),"2026-01-01",null));
+        publish(draft("amount税额口径乙（合成制度）","amount包含税额。\n"+"tax policy supporting notes.\n".repeat(400),"2026-01-01",null));
+        var contrary=publish(draft("另一份amount税额口径（合成制度）","amount不包含税额。","2026-01-01",null));model.live=true;
+        var run=await(submit(request("核对当前资料中amount是否包含税额的规定，说明是否存在冲突并引用依据。")));write("live-diverse-conflict.json",run);
+        assertEquals("COMPLETED",run.get("status"),run.toString());assertEquals("CONFLICTING",((Map<?,?>)run.get("answer")).get("status"));
+        assertTrue(JsonUtil.toJson(run.get("answer")).contains(contrary.get("id").toString()));assertFalse(((List<?>)((Map<?,?>)run.get("answer")).get("limitations")).isEmpty());
+        assertEquals(0,jdbc.queryForObject("SELECT COUNT(*) FROM business_query_run",Integer.class));noBusinessWrites();
+    }
+    @Test @Order(99) @EnabledIfEnvironmentVariable(named="P2_ANALYSIS_LIVE",matches="true") void realModelDoesNotInferKnowledgeTopicFromReportFields() throws Exception {
+        var doc=publish(draft("差旅住宿定义（隔离合成制度）","差旅住宿补助按现行审批制度核定；本资料仅解释定义，没有规定每日上限，也不证明任何报销已被批准。","2026-01-01",null));model.live=true;
+        var run=await(submit(request("请说明当前已发布资料中的差旅住宿补助定义，引用原文，不需要查询报表记录。")));write("live-knowledge-topic-boundary.json",run);
+        assertEquals("COMPLETED",run.get("status"),run.toString());assertEquals("ANSWERED",((Map<?,?>)run.get("answer")).get("status"));
+        assertTrue(JsonUtil.toJson(run.get("answer")).contains(doc.get("id").toString()));assertEquals(0,jdbc.queryForObject("SELECT COUNT(*) FROM business_query_run",Integer.class));noBusinessWrites();
+    }
     @Test @Order(100) @EnabledIfEnvironmentVariable(named="P2_ANALYSIS_BROWSER",matches="true") void browserWaitsForActualAcceptanceAndDoesNotCountAnUnfinishedSession() throws Exception {
         publish(draft("销售口径（隔离验收合成制度）","销售金额以元为单位，币种为CNY；表示销售单的订单金额，不等于已收款。","2026-01-01",null));model.live=true;
+        awaitBrowser();
+    }
+    @Test @Order(101) @EnabledIfEnvironmentVariable(named="P2_SEARCH_BROWSER",matches="true") void browserKnowledgeSearchUsesPublishedScopeAndActualModel() throws Exception {
+        dictionary("A","booked value","销单值");
+        publish(draft("订单金额定义（合成制度）","amount表示销售单的订单金额，以元计、币种为CNY；不等于已收款，也不能作为已经收款的凭证。","2026-01-01",null));
+        publish(draft("Syntax guide（合成）","syntax parser documents the expression grammar.","2026-01-01",null));
+        publish(draft("Tax policy（合成）","tax follows the published policy; it does not prove collection.","2026-01-01",null));
+        publish(knowledge.save(admin,null,new KnowledgeService.Change(new KnowledgeService.Content("B",REPORT,"B公司口径（合成）","booked value属于B公司资料。","隔离合成资料",null,"2026-01-01",null),0,"隔离公司浏览器验收")));
+        model.live=true;awaitBrowser();
+    }
+    /** 两类浏览器场景共用真实服务与收尾协议；只有显式accepted才把验收夹具记为通过。 */
+    static void awaitBrowser() throws Exception {
         Files.writeString(dir.resolve("browser-credentials.json"),JsonUtil.toJson(Map.of("userId",user.userId(),"adminId","admin","password",PASSWORD)));
         write("browser-ready.json",Map.of("agentUrl",agentUrl,"businessUrl",businessUrl,"schema",SCHEMA,"profiles",List.of("real","mcp"),"semanticMode","active","model",System.getenv("LLM_MODEL")));
         Path command=dir.resolve("browser-command.json");long end=System.nanoTime()+Duration.ofMinutes(120).toNanos();boolean done=false,accepted=false;var handled=new HashSet<String>();
         while(System.nanoTime()<end&&!done){worker.poll();if(Files.exists(command)){var request=JsonUtil.MAPPER.readTree(Files.readString(command));String id=request.path("id").asText();if(id.matches("[a-zA-Z0-9_-]{1,64}")&&handled.add(id)){
-            assertEquals(SCHEMA,jdbc.queryForObject("SELECT DATABASE()",String.class));write("browser-check-"+id+".json",Map.of("analyses",jdbc.queryForList("SELECT id,status,stage,request_json,plan_json,steps_json,answer_json,usage_json FROM business_analysis_run"),"documents",jdbc.queryForList("SELECT id,row_version,published_version,status FROM business_knowledge_document"),"businessWrites",jdbc.queryForObject("SELECT COUNT(*) FROM business_dispatch_request",Integer.class),"modelCalls",MODEL.size()));if(Set.of("stop","abort").contains(request.path("type").asText())){done=true;accepted="stop".equals(request.path("type").asText())&&request.path("accepted").asBoolean(false);}
+            assertEquals(SCHEMA,jdbc.queryForObject("SELECT DATABASE()",String.class));write("browser-check-"+id+".json",Map.of("analyses",jdbc.queryForList("SELECT id,status,stage,request_json,plan_json,steps_json,answer_json,usage_json FROM business_analysis_run"),"documents",jdbc.queryForList("SELECT id,row_version,published_version,status FROM business_knowledge_document"),"businessQueries",jdbc.queryForObject("SELECT COUNT(*) FROM business_query_run",Integer.class),"businessWrites",jdbc.queryForObject("SELECT COUNT(*) FROM business_dispatch_request",Integer.class),"modelCalls",MODEL.size()));if(Set.of("stop","abort").contains(request.path("type").asText())){done=true;accepted="stop".equals(request.path("type").asText())&&request.path("accepted").asBoolean(false);}
         }}Thread.sleep(300);}write("browser-model-evidence.json",MODEL);assertTrue(done&&accepted,"真实浏览器未明确完成验收或已中止，不能计为通过");noBusinessWrites();
     }
     @TestConfiguration static class ModelConfiguration { @Bean @Primary FixtureModel fixtureModel(AnalysisOpenAiModel real){return new FixtureModel(real);} }
@@ -180,6 +300,8 @@ class AnalysisKnowledgeIntegrationTest {
             }
             // 同时保存逐字响应，避免通用JSON展示吞掉重复键等严格协议失败的原始事实。
             var entry=new LinkedHashMap<String,Object>();entry.put("source",actual?"MODEL":"TEST_DOUBLE");entry.put("at",Instant.now().toString());entry.put("schemaHash",Digests.sha256(schema));entry.put("inputHash",Digests.sha256(JsonUtil.toJson(input)));entry.put("rawJson",reply.json());
+            // 只归档无正文、无凭据的服务端覆盖计量，使回答与独立复核的实际输入可被逐项核对。
+            if(input instanceof Map<?,?> values&&values.containsKey("knowledgeCoverage"))entry.put("knowledgeCoverage",values.get("knowledgeCoverage"));
             try{entry.put("reply",JsonUtil.fromJson(reply.json(),Object.class));}catch(RuntimeException invalid){entry.put("parseable",false);}
             entry.put("model",reply.model());entry.put("usage",reply.usage());entry.put("elapsedMs",reply.elapsedMs());MODEL.add(entry);return reply;
         }

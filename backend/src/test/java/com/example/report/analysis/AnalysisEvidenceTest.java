@@ -7,7 +7,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 /** 来源召回、精确引用及制度表单边界的纯逻辑回归，不据此声称模型答案已经真实验收。 */
 class AnalysisEvidenceTest {
-    static AnalysisEvidence.Source source(String id,String title,String text){return new AnalysisEvidence.Source(id,"KNOWLEDGE",title,"2","A / rpt-sales-order","2026-09-01生效",text);}
+    static AnalysisEvidence.Source source(String id,String title,String text){return new AnalysisEvidence.Source(id,id,"KNOWLEDGE",title,"2","A / rpt-sales-order","2026-09-01生效",text);}
     static final AnalysisEvidence.Source SOURCE=source("s1","销售口径","销售金额合计为90071992547409.93元；不等于已收款。");
     static AnalysisEvidence.Answer answer(String text,String id,String quote){return new AnalysisEvidence.Answer("ANSWERED",List.of(new AnalysisEvidence.Claim(text,List.of(new AnalysisEvidence.Citation(id,quote)))),List.of());}
     @Test void acceptsExactGroundedDecimal(){assertDoesNotThrow(()->AnalysisEvidence.validate(answer("合计90071992547409.93元。","s1",SOURCE.text()),List.of(SOURCE)));}
@@ -38,9 +38,9 @@ class AnalysisEvidenceTest {
     @Test void rejectsUnsupportedDefinitiveAnswer(){assertThrows(ApiException.class,()->AnalysisEvidence.validate(new AnalysisEvidence.Answer("ANSWERED",List.of(),List.of()),List.of()));}
     @Test void allowsExplicitInsufficiency(){assertDoesNotThrow(()->AnalysisEvidence.validate(new AnalysisEvidence.Answer("INSUFFICIENT",List.of(),List.of("没有出差制度依据")),List.of()));}
     @Test void conflictNeedsAnExplanation(){assertThrows(ApiException.class,()->AnalysisEvidence.validate(new AnalysisEvidence.Answer("CONFLICTING",List.of(),List.of()),List.of(SOURCE)));}
-    @Test void retrievalHasNoUnrelatedDefault(){assertTrue(KnowledgeSearch.search("火星轨道",List.of(SOURCE),12).sources().isEmpty());}
-    @Test void retrievalFindsBusinessDefinition(){assertEquals("s1",KnowledgeSearch.search("销售金额指什么",List.of(SOURCE,source("s2","报销","出差酒店标准")),12).sources().get(0).id());}
-    @Test void retrievalMakesTruncationExplicit(){var sources=new ArrayList<AnalysisEvidence.Source>();for(int i=0;i<15;i++)sources.add(source("s"+i,"销售口径","销售金额定义"));var result=KnowledgeSearch.search("销售金额",sources,12);assertEquals(15,result.matched());assertEquals(12,result.sources().size());assertTrue(result.truncated());}
+    @Test void retrievalHasNoUnrelatedDefault(){assertTrue(KnowledgeSearch.search("火星轨道",List.of(SOURCE),com.example.report.assistant.SemanticDictionary.Definition.empty(),12).sources().isEmpty());}
+    @Test void retrievalFindsBusinessDefinition(){assertEquals("s1",KnowledgeSearch.search("销售金额指什么",List.of(SOURCE,source("s2","报销","出差酒店标准")),com.example.report.assistant.SemanticDictionary.Definition.empty(),12).sources().get(0).id());}
+    @Test void retrievalMakesTruncationExplicit(){var sources=new ArrayList<AnalysisEvidence.Source>();for(int i=0;i<15;i++)sources.add(source("s"+i,"销售口径","销售金额定义"));var result=KnowledgeSearch.search("销售金额",sources,com.example.report.assistant.SemanticDictionary.Definition.empty(),12);assertEquals(15,result.matched());assertEquals(12,result.sources().size());assertTrue(result.truncated());}
     @Test void knowledgeCannotFetchCredentialUrls(){assertThrows(ApiException.class,()->new KnowledgeService.Content("A","rpt-sales-order","口径","正文","手册","https://user:fixture@example.com/manual","2026-09-01",null));}
     @Test void knowledgeRequiresValidExclusiveEndDate(){assertThrows(ApiException.class,()->new KnowledgeService.Content("A","rpt-sales-order","口径","正文","手册",null,"2026-09-01","2026-09-01"));}
     @Test void knowledgeEffectivenessIsBounded(){var content=new KnowledgeService.Content("A","rpt-sales-order","口径","正文","手册",null,"2026-09-01","2026-10-01");assertTrue(content.effective(java.time.LocalDate.parse("2026-09-01")));assertFalse(content.effective(java.time.LocalDate.parse("2026-10-01")));}

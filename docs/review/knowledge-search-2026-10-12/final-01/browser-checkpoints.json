@@ -1,0 +1,367 @@
+[
+  {
+    "index": "01",
+    "name": "管理员试查入口与授权范围",
+    "at": "2026-10-11T17:34:47.981Z",
+    "url": "http://127.0.0.1:5196/#/knowledge",
+    "expected": [
+      "检索试查",
+      "试查不调用模型",
+      "A 公司",
+      "销售报表"
+    ],
+    "absent": [],
+    "missing": [],
+    "unexpected": [],
+    "passed": true
+  },
+  {
+    "index": "02",
+    "name": "tax只召回真实完整词",
+    "at": "2026-10-11T17:35:13.750Z",
+    "url": "http://127.0.0.1:5196/#/knowledge",
+    "expected": [
+      "命中 1 份来源、1 个片段",
+      "直接命中：tax",
+      "tax follows the published policy"
+    ],
+    "absent": [
+      "Syntax guide（合成）（片段"
+    ],
+    "missing": [],
+    "unexpected": [],
+    "passed": true
+  },
+  {
+    "index": "03",
+    "name": "字段别名触发与原文依据",
+    "at": "2026-10-11T17:35:50.380Z",
+    "url": "http://127.0.0.1:5196/#/knowledge",
+    "expected": [
+      "原文命中“booked value”",
+      "补充检索“amount、销单值”",
+      "别名命中：amount",
+      "amount表示销售单的订单金额"
+    ],
+    "absent": [
+      "B公司口径（合成）（片段"
+    ],
+    "missing": [],
+    "unexpected": [],
+    "passed": true
+  },
+  {
+    "index": "04",
+    "name": "切换公司立即清除旧试查",
+    "at": "2026-10-11T17:36:49.280Z",
+    "url": "http://127.0.0.1:5196/#/knowledge",
+    "expected": [
+      "B公司口径（合成）",
+      "B 公司 · 销售报表"
+    ],
+    "absent": [
+      "试查问题：",
+      "订单金额定义（合成制度）（片段"
+    ],
+    "missing": [],
+    "unexpected": [],
+    "passed": true
+  },
+  {
+    "index": "05",
+    "name": "B公司不会继承A公司字段别名",
+    "at": "2026-10-11T17:36:57.858Z",
+    "url": "http://127.0.0.1:5196/#/knowledge",
+    "expected": [
+      "本次未使用字段别名扩展",
+      "B / rpt-sales-order",
+      "booked value属于B公司资料"
+    ],
+    "absent": [
+      "别名命中：amount",
+      "订单金额定义（合成制度）"
+    ],
+    "missing": [],
+    "unexpected": [],
+    "passed": true
+  },
+  {
+    "index": "06",
+    "name": "修改问题清除旧结果",
+    "at": "2026-10-11T17:36:57.933Z",
+    "url": "http://127.0.0.1:5196/#/knowledge",
+    "expected": [
+      "星际航线补贴"
+    ],
+    "absent": [
+      "试查问题：booked value"
+    ],
+    "missing": [],
+    "unexpected": [],
+    "passed": true
+  },
+  {
+    "index": "07",
+    "name": "无命中不等于制度不存在",
+    "at": "2026-10-11T17:38:17.158Z",
+    "url": "http://127.0.0.1:5196/#/knowledge",
+    "expected": [
+      "命中 0 份来源、0 个片段",
+      "这不表示制度一定没有规定"
+    ],
+    "absent": [],
+    "missing": [],
+    "unexpected": [],
+    "passed": true
+  },
+  {
+    "index": "08",
+    "name": "刷新不复用旧试查结果",
+    "at": "2026-10-11T17:38:17.401Z",
+    "url": "http://127.0.0.1:5196/#/knowledge",
+    "expected": [
+      "检索试查",
+      "A 公司"
+    ],
+    "absent": [
+      "试查问题：星际航线补贴"
+    ],
+    "missing": [],
+    "unexpected": [],
+    "passed": true
+  },
+  {
+    "index": "09",
+    "name": "取消停用保留当前检索依据",
+    "at": "2026-10-11T17:39:06.301Z",
+    "url": "http://127.0.0.1:5196/#/knowledge",
+    "expected": [
+      "试查问题：tax",
+      "Tax policy（合成）（片段1） · 版本 2"
+    ],
+    "absent": [
+      "确认停用"
+    ],
+    "missing": [],
+    "unexpected": [
+      "确认停用"
+    ],
+    "passed": false
+  },
+  {
+    "index": "10",
+    "name": "取消停用动画结束后的状态",
+    "at": "2026-10-11T17:39:21.188Z",
+    "url": "http://127.0.0.1:5196/#/knowledge",
+    "expected": [
+      "试查问题：tax",
+      "Tax policy（合成）（片段1） · 版本 2"
+    ],
+    "absent": [
+      "确认停用"
+    ],
+    "missing": [],
+    "unexpected": [],
+    "passed": true
+  },
+  {
+    "index": "11",
+    "name": "停用后清除旧检索结果",
+    "at": "2026-10-11T17:39:55.628Z",
+    "url": "http://127.0.0.1:5196/#/knowledge",
+    "expected": [
+      "已停用"
+    ],
+    "absent": [
+      "试查问题：tax",
+      "Tax policy（合成）（片段1）"
+    ],
+    "missing": [],
+    "unexpected": [],
+    "passed": true
+  },
+  {
+    "index": "12",
+    "name": "停用资料不再进入候选",
+    "at": "2026-10-11T17:39:55.961Z",
+    "url": "http://127.0.0.1:5196/#/knowledge",
+    "expected": [
+      "命中 0 份来源、0 个片段",
+      "本次未找到匹配依据"
+    ],
+    "absent": [
+      "Tax policy（合成）（片段1）"
+    ],
+    "missing": [],
+    "unexpected": [],
+    "passed": true
+  },
+  {
+    "index": "13",
+    "name": "重新发布后须重新试查",
+    "at": "2026-10-11T17:41:39.567Z",
+    "url": "http://127.0.0.1:5196/#/knowledge",
+    "expected": [
+      "已发布"
+    ],
+    "absent": [
+      "试查问题：tax"
+    ],
+    "missing": [],
+    "unexpected": [],
+    "passed": true
+  },
+  {
+    "index": "14",
+    "name": "重新试查使用发布版4",
+    "at": "2026-10-11T17:41:39.968Z",
+    "url": "http://127.0.0.1:5196/#/knowledge",
+    "expected": [
+      "Tax policy（合成）（片段1） · 版本 4",
+      "命中 1 份来源、1 个片段"
+    ],
+    "absent": [],
+    "missing": [],
+    "unexpected": [],
+    "passed": true
+  },
+  {
+    "index": "15",
+    "name": "超限问题明确失败并清除旧依据",
+    "at": "2026-10-11T17:42:27.409Z",
+    "url": "http://127.0.0.1:5196/#/knowledge",
+    "expected": [
+      "知识检索问题过长，请聚焦需要查证的事项"
+    ],
+    "absent": [
+      "Tax policy（合成）（片段1）"
+    ],
+    "missing": [],
+    "unexpected": [],
+    "passed": true
+  },
+  {
+    "index": "16",
+    "name": "修改问题后可显式恢复试查",
+    "at": "2026-10-11T17:42:27.770Z",
+    "url": "http://127.0.0.1:5196/#/knowledge",
+    "expected": [
+      "试查问题：销单值",
+      "订单金额定义（合成制度）（片段1）"
+    ],
+    "absent": [
+      "知识检索问题过长，请聚焦需要查证的事项"
+    ],
+    "missing": [],
+    "unexpected": [
+      "知识检索问题过长，请聚焦需要查证的事项"
+    ],
+    "passed": false
+  },
+  {
+    "index": "17",
+    "name": "错误提示结束后恢复结果可用",
+    "at": "2026-10-11T17:43:56.635Z",
+    "url": "http://127.0.0.1:5196/#/knowledge",
+    "expected": [
+      "试查问题：销单值",
+      "订单金额定义（合成制度）（片段1）"
+    ],
+    "absent": [
+      "知识检索问题过长，请聚焦需要查证的事项"
+    ],
+    "missing": [],
+    "unexpected": [],
+    "passed": true
+  },
+  {
+    "index": "18",
+    "name": "普通用户不能维护或试查知识资料",
+    "at": "2026-10-11T17:44:48.085Z",
+    "url": "http://127.0.0.1:5196/#/knowledge",
+    "expected": [
+      "当前账号没有知识资料维护权限"
+    ],
+    "absent": [
+      "开始试查",
+      "新增资料"
+    ],
+    "missing": [],
+    "unexpected": [],
+    "passed": true
+  },
+  {
+    "index": "19",
+    "name": "普通用户显式提交真实别名问答",
+    "at": "2026-10-11T17:45:46.275Z",
+    "url": "http://127.0.0.1:5196/#/analysis?run=1c1b2262a6024e66830cb0e847b6c2a1",
+    "expected": [
+      "booked value 是否可以作为已收款凭证",
+      "取消任务"
+    ],
+    "absent": [],
+    "missing": [],
+    "unexpected": [],
+    "passed": true
+  },
+  {
+    "index": "20",
+    "name": "真实别名问答完成并引用发布制度",
+    "at": "2026-10-11T17:49:25.797Z",
+    "url": "http://127.0.0.1:5196/#/analysis?run=1c1b2262a6024e66830cb0e847b6c2a1",
+    "expected": [
+      "有依据的回答",
+      "不能作为已经收款的凭证",
+      "运行记录 · 6 次模型调用"
+    ],
+    "absent": [],
+    "missing": [],
+    "unexpected": [],
+    "passed": true
+  },
+  {
+    "index": "21",
+    "name": "问答复用检索解释与实际原文",
+    "at": "2026-10-11T17:49:26.129Z",
+    "url": "http://127.0.0.1:5196/#/analysis?run=1c1b2262a6024e66830cb0e847b6c2a1",
+    "expected": [
+      "查看检索词与别名依据",
+      "amount表示销售单的订单金额",
+      "不等于已收款"
+    ],
+    "absent": [],
+    "missing": [],
+    "unexpected": [],
+    "passed": true
+  },
+  {
+    "index": "22",
+    "name": "刷新恢复同一问答且保留模型用量",
+    "at": "2026-10-11T17:50:54.729Z",
+    "url": "http://127.0.0.1:5196/#/analysis?run=1c1b2262a6024e66830cb0e847b6c2a1",
+    "expected": [
+      "有依据的回答",
+      "运行记录 · 6 次模型调用",
+      "不能作为已经收款的凭证"
+    ],
+    "absent": [],
+    "missing": [],
+    "unexpected": [],
+    "passed": true
+  },
+  {
+    "index": "23",
+    "name": "刷新后仍能展开原任务引用",
+    "at": "2026-10-11T17:52:23.811Z",
+    "url": "http://127.0.0.1:5196/#/analysis?run=1c1b2262a6024e66830cb0e847b6c2a1",
+    "expected": [
+      "amount表示销售单的订单金额，以元计",
+      "A / rpt-sales-order · 版本 2",
+      "运行记录 · 6 次模型调用"
+    ],
+    "absent": [],
+    "missing": [],
+    "unexpected": [],
+    "passed": true
+  }
+]

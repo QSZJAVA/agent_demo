@@ -23,7 +23,7 @@ class AnalysisMathTest {
     @Test void readableEvidenceUsesTypedSummaryWithoutLosingPrecisionOrQuery(){var query=AnalysisContractTest.query("A").query();var facts=new LinkedHashMap<String,Object>();facts.put("kind","ROWS");facts.put("count",120);facts.put("displayedCount",20);facts.put("allRowsDisplayed",false);facts.put("query",query);
         facts.put("summary",new BusinessResult.Summary(120,Map.of("CNY","90071992547409.93"),Map.of(),Map.of(),Map.of(),0));facts.put("selectedGroupCount",2);facts.put("displayStep",4);
         String text=AnalysisEngine.readableFacts("DRILLDOWN",facts);assertTrue(text.contains("90071992547409.93 CNY"));assertTrue(text.contains("完整结果共120条记录"));assertTrue(text.contains("\"companyCode\":\"A\""));assertTrue(text.contains("全部行已展示：false"));assertTrue(text.contains("按已选2个分组"));
-        var source=new AnalysisEvidence.Source("view","DATA","明细结果","v1","A","当前时间",text);
+        var source=new AnalysisEvidence.Source("view","view","DATA","明细结果","v1","A","当前时间",text);
         var supported=new AnalysisEvidence.Draft("ANSWERED",List.of(new AnalysisEvidence.DraftClaim("界面第4步可每页20条查看完整明细。",List.of("view"))),List.of());
         assertDoesNotThrow(()->AnalysisEvidence.resolve(supported,List.of(source)));
         var internalIndex=new AnalysisEvidence.Draft("ANSWERED",List.of(new AnalysisEvidence.DraftClaim("界面第3步可每页20条查看完整明细。",List.of("view"))),List.of());

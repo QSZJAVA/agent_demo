@@ -1,4 +1,4 @@
-param([switch]$AllowIsolatedDatabases,[switch]$Live,[switch]$Browser,[int]$AgentPort=0,
+param([switch]$AllowIsolatedDatabases,[switch]$Live,[switch]$Browser,[switch]$SearchBrowser,[int]$AgentPort=0,
     [ValidatePattern('^[a-zA-Z0-9_-]+$')][string]$EvidenceName='p2-analysis-knowledge-2026-10-11',
     [ValidatePattern('^[a-zA-Z0-9_#,*]+$')][string]$TestSelector='AnalysisKnowledgeIntegrationTest')
 $ErrorActionPreference='Stop'
@@ -23,6 +23,7 @@ $env:P2_ANALYSIS='true'
 $env:P2_ANALYSIS_DIR=$analysisDir
 $env:P2_ANALYSIS_LIVE=([bool]$Live).ToString().ToLowerInvariant()
 $env:P2_ANALYSIS_BROWSER=([bool]$Browser).ToString().ToLowerInvariant()
+$env:P2_SEARCH_BROWSER=([bool]$SearchBrowser).ToString().ToLowerInvariant()
 $env:P2_AGENT_PORT=$AgentPort.ToString()
 $env:TRACE_IT='false';$env:P2_IT='false';$env:MCP_IT='false';$env:DEMO_IT='false'
 $env:P1_WORKSPACE='false';$env:P1_LIVE='false';$env:P1_BROWSER='false'

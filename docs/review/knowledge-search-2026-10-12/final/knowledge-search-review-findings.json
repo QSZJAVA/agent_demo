@@ -1,0 +1,70 @@
+{
+  "reviewDate": "2026-10-12",
+  "scope": "本轮真实响应的人工复核；原始程序断言结果保留，不将其等同全部表述正确。",
+  "findings": [
+    {
+      "id": "KS-REVIEW-1",
+      "evidence": "final-01/live-diverse-conflict.json",
+      "originalStatus": "COMPLETED",
+      "finding": "限制说明把检索与命中的18个片段、返回的6份来源用同一单位混写；实际返回12个片段。",
+      "expected": { "searchedSources": 6, "matchedSources": 6, "returnedSources": 6, "searchedFragments": 18, "matchedFragments": 18, "returnedFragments": 12 },
+      "rootFix": "模型输入显式区分来源/片段单位并传入实际返回片段数；回答和独立复核共享同一结构。"
+    },
+    {
+      "id": "KS-REVIEW-2",
+      "evidence": "final-01/live-selected-snapshot.json",
+      "originalStatus": "COMPLETED",
+      "finding": "仅执行数据快照分析，限制说明却把空知识步骤解释为未找到制度，并显示内部字段名称。",
+      "rootFix": "覆盖契约增加performed，未执行与执行后无命中分开；最终说明面向业务用户，不复述内部键。"
+    },
+    {
+      "id": "KS-REVIEW-3",
+      "evidence": "final-01/live-interval-negation.json",
+      "originalStatus": "COMPLETED",
+      "finding": "限制说明把数值、日期筛选说成文本比较，且把已经显示全部5行说成仅显示部分。",
+      "rootFix": "独立复核明确覆盖claims和limitations的事实、字段类型与展示完整性。"
+    },
+    {
+      "id": "KS-REVIEW-4",
+      "evidence": "coverage-attempt/live-insufficient.json",
+      "originalStatus": "CLARIFY",
+      "finding": "计划复核仅根据销售报表名称推断差旅主题不在知识范围，拒绝了有权执行的只读检索。",
+      "rootFix": "规划与复核共享授权范围与主题完整性的区别；增加其他主题已发布资料的真实模型变体。"
+    },
+    {
+      "id": "KS-REVIEW-5",
+      "evidence": "coverage-attempt/live-diverse-conflict.json",
+      "originalStatus": "PARTIAL",
+      "finding": "一次复核approved为false但理由最后表示应批准，下一次又对等价单位表述作出无依据拒绝。",
+      "rootFix": "统一复核最终判定与理由的一致性要求，要求具体事实差异；保留拒绝和PARTIAL，不自动批准。"
+    },
+    {
+      "id": "KS-REVIEW-6",
+      "evidence": "verification-attempt/live-analysis.json",
+      "originalStatus": "PARTIAL",
+      "finding": "覆盖数字在模型上下文中可读，但当回答把它作为结论复述时，没有相应可引用原文；原有数字校验正确拒绝了无依据引用。",
+      "rootFix": "新增来自实际检索结果的独立DATA执行证据，保留来源与片段单位。它不占知识片段预算，不读取业务行，模型必须自己选择引用；没有放宽数字校验。"
+    },
+    {
+      "id": "KS-REVIEW-7",
+      "evidence": "verification-attempt/live-conflict-injection.json",
+      "originalStatus": "FAILED",
+      "finding": "真实PLAN_REVIEW传输失败，日志记录ResourceAccessException；没有足够证据细分具体网络原因。",
+      "rootFix": "保留失败和缺失用量，未改权限、预算或错误分类；另一次显式真实调用复验。"
+    },
+    {
+      "id": "KS-REVIEW-8",
+      "evidence": "verification-attempt/live-comparison.json",
+      "originalStatus": "PARTIAL",
+      "finding": "初次回答的差额数值未被本条引用支持，有界修正的响应又违反严格JSON协议，安全终止。",
+      "rootFix": "原数值、严格JSON和有界修正保护保持；新的真实复验分别记录，不把此轮失败抹去。"
+    }
+  ],
+  "coverageContractRegression": {
+    "before": { "tests": 3, "failures": 3, "errors": 0 },
+    "after": { "tests": 3, "failures": 0, "errors": 0 },
+    "beforeXml": "final/knowledge-search-coverage-before-fix.xml",
+    "afterSuites": "final/knowledge-search-coverage-unit-suites.json"
+  },
+  "browserAttemptNote": "coverage-attempt的浏览器夹具因上述真实模型失败明确abort，未开展该轮浏览器操作，不能计为浏览器通过。"
+}

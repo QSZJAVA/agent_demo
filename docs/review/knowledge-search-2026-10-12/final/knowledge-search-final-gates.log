@@ -1,0 +1,22 @@
+node tools/check-comments.cjs
+exitCode=0
+注释检查通过：244 个生产类型、225 个实体字段、44 个请求/表单字段、167 个record、45 个前端模块；47 张表、557 个字段清单。
+
+node tools/check-docs-real-model.cjs
+exitCode=0
+Real-model documentation check passed (170 files).
+
+node tools/check-demo-baseline.cjs
+exitCode=0
+V1 business assistant baseline passed; 98 Markdown files and 15 generated flows checked.
+
+node tools/check-no-legacy-compat.cjs
+exitCode=0
+Current source compatibility check passed; one V1 baseline, no retired protocols or database adapters.
+
+git -c core.safecrlf=false diff --check
+exitCode=0
+
+git -c core.safecrlf=false diff --cached --check
+exitCode=0
+

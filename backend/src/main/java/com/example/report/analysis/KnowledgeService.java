@@ -74,7 +74,36 @@ public class KnowledgeService {
      * @param fingerprint 定义、实际有效规则和已发布资料的稳定摘要，草稿修改不改变它
      * @param referenceTime 此次依据的UTC观测时间
      */
-    public record Snapshot(CatalogEntry report,Object dictionary,List<AnalysisEvidence.Source> sources,String fingerprint,Instant referenceTime) { }
+    public record Snapshot(CatalogEntry report,SemanticDictionaryService.Entry dictionary,List<AnalysisEvidence.Source> sources,String fingerprint,Instant referenceTime) { }
+
+    /**
+     * 管理员只读检索表单，不接收客户端来源、词典、时间或召回预算。
+     * @param companyCode 当前有维护权限的单一公司
+     * @param reportId 当前有维护权限的单一报表
+     * @param question 需要试查的完整问题，1至2000字符，不写入任务或审计正文
+     */
+    public record SearchRequest(String companyCode,String reportId,String question) {
+        public SearchRequest {new AnalysisContract.Request(companyCode,reportId,question,null);}
+    }
+    /**
+     * 管理员试查的范围和版本依据；仅说明本次读取时的结果，不授予后续访问权限。
+     * @param companyCode 本次实际检索的公司
+     * @param reportId 本次实际检索的报表
+     * @param question 实际使用的问题原文，未持久化
+     * @param referenceTime 本次读取时的UTC观测时间
+     * @param fingerprint 词典、规则、目录和有效发布资料的当前摘要
+     * @param result 与分析执行共用的实际检索结果
+     */
+    public record SearchPreview(String companyCode,String reportId,String question,Instant referenceTime,String fingerprint,KnowledgeSearch.Result result) { }
+
+    /** 试查不调用模型、不读取业务行；返回前再次检查身份和完整依据版本，变化时要求显式重新检索。 */
+    public SearchPreview preview(CurrentUser user,SearchRequest request) {
+        permissions.requireAdmin(current(user));var before=snapshot(user,request.companyCode(),request.reportId());
+        var result=KnowledgeSearch.search(request.question(),before.sources(),before.dictionary().definition(),12);
+        var after=snapshot(user,request.companyCode(),request.reportId());
+        if(!before.fingerprint().equals(after.fingerprint()))throw new ApiException(409,"检索期间知识依据已变化，请重新试查");
+        return new SearchPreview(request.companyCode(),request.reportId(),request.question(),before.referenceTime(),before.fingerprint(),result);
+    }
 
     /** 当前用户导航选项只来自授权目录，不向模型开放其他公司或报表。 */
     public Map<String,Object> catalog(CurrentUser user){var fresh=current(user);catalog.refreshForValidation();return Map.of("companies",fresh.companies().stream().sorted().toList(),
@@ -130,7 +159,8 @@ public class KnowledgeService {
     public Snapshot snapshot(CurrentUser user,String company,String reportId) {
         var report=scope(user,company,reportId);Instant at=Instant.now();LocalDate day=at.atZone(ZoneId.of("Asia/Shanghai")).toLocalDate();String range=company+" / "+reportId;
         var sources=new ArrayList<AnalysisEvidence.Source>();var fingerprint=new ArrayList<Object>();fingerprint.add(QuerySnapshotStore.definitionHash(List.of(report)));fingerprint.add(day.toString());
-        var dictionary=dictionaries.read(user,new SemanticDictionary.Scope(BusinessQuery.Domain.REPORT,company,reportId)).get("entry");fingerprint.add(dictionary);
+        var dictionary=(SemanticDictionaryService.Entry)dictionaries.read(user,new SemanticDictionary.Scope(BusinessQuery.Domain.REPORT,company,reportId)).get("entry");
+        dictionary.definition().validate(BusinessFields.forDomain(BusinessQuery.Domain.REPORT,report.fields()));fingerprint.add(dictionary);
         add(sources,"catalog-"+report.catalogVersion(),report.reportName()+"：目录与字段",Long.toString(report.catalogVersion()),range,"当前目录；观测日期 "+day,
                 "报表名称："+report.reportName()+"\n用途："+Objects.toString(report.description(),"未声明")+"\n字段定义："+JsonUtil.toJson(BusinessFields.forDomain(BusinessQuery.Domain.REPORT,report.fields())));
         add(sources,"dictionary-"+Digests.sha256(JsonUtil.toJson(dictionary)).substring(0,16),report.reportName()+"：业务词典",Digests.sha256(JsonUtil.toJson(dictionary)),range,"当前词典；观测日期 "+day,JsonUtil.toJson(dictionary));
@@ -154,11 +184,13 @@ public class KnowledgeService {
     /** 分块按原始字符范围进行且每块明确编号，片段不是资料完整性承诺；检索结果另标记召回截断。 */
     private static void add(List<AnalysisEvidence.Source> out,String id,String title,String version,String scope,String at,String content) {
         String safe=AnalysisEvidence.safeText(content);
-        for(int start=0,index=1;start<safe.length();start+=1800,index++) {
+        for(int start=0,index=1;start<safe.length();index++) {
+            int end=Math.min(start+1800,safe.length());if(end<safe.length()&&Character.isHighSurrogate(safe.charAt(end-1)))end--;
             String partTitle=title+"（片段"+index+"）";
             // 来源元数据也是引用依据。生成可信标题/版本/范围前缀，保持quote始终来自text的单一严格规则。
             String header=AnalysisEvidence.safeText("来源标题："+partTitle+"\n来源版本："+version+"\n适用范围："+scope+"\n时间说明："+at+"\n正文片段：\n");
-            out.add(new AnalysisEvidence.Source(id+"-p"+index,"KNOWLEDGE",partTitle,version,scope,at,header+safe.substring(start,Math.min(start+1800,safe.length()))));
+            // 检索前完成引用切片，返回预算按实际可引用片段计算；切片均保留原始来源，不依赖编号后缀推断归属。
+            out.addAll(AnalysisEvidence.parts(new AnalysisEvidence.Source(id+"-p"+index,id,"KNOWLEDGE",partTitle,version,scope,at,header+safe.substring(start,end))));start=end;
         }
     }
 }

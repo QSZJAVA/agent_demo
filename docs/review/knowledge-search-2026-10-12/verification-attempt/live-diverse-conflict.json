@@ -1,0 +1,382 @@
+{
+  "id" : "318e8605e6e94faa814a69b247ab100b",
+  "status" : "COMPLETED",
+  "stage" : "FINISHED",
+  "reason" : null,
+  "message" : "分析与依据核验已完成",
+  "version" : 14,
+  "request" : {
+    "question" : "核对当前资料中amount是否包含税额的规定，说明是否存在冲突并引用依据。",
+    "reportId" : "rpt-sales-order",
+    "snapshotId" : null,
+    "companyCode" : "A"
+  },
+  "created_at" : "2026-10-12T12:26:53.503Z",
+  "started_at" : "2026-10-12T12:26:53.528Z",
+  "finished_at" : "2026-10-12T12:27:09.040Z",
+  "expires_at" : "2026-10-13T12:26:53.503Z",
+  "plan" : {
+    "mode" : "EXECUTE",
+    "steps" : [ {
+      "rank" : null,
+      "other" : null,
+      "query" : null,
+      "action" : "KNOWLEDGE",
+      "source" : null,
+      "analysis" : null,
+      "knowledgeQuestion" : "当前已选公司A销售报表范围内，关于amount字段是否包含税额的制度规定有哪些？请列出口径、生效时间及来源，并判断是否存在相互冲突。"
+    } ],
+    "objective" : "在已选公司A与销售报表授权范围内，检索并核对当前资料中关于amount是否包含税额的制度口径，识别是否存在冲突，并引用相关依据。",
+    "clarification" : null
+  },
+  "steps" : [ {
+    "index" : 0,
+    "action" : "KNOWLEDGE",
+    "result" : {
+      "hits" : [ {
+        "sourceId" : "catalog-6-p1",
+        "aliasTerms" : [ ],
+        "directTerms" : [ "公司", "销售", "售报", "报表", "范围", "销售报", "售报表", "amount", "字段", "时间", "来源" ]
+      }, {
+        "sourceId" : "document-74d9a6553cbe46d585a68cdb6a51e5e3-v2-p1",
+        "aliasTerms" : [ ],
+        "directTerms" : [ "范围", "amount", "包含", "含税", "税额", "制度", "包含税", "含税额", "口径", "生效", "时间", "来源" ]
+      }, {
+        "sourceId" : "document-e7bf16b2bac14ff7a112ae64463ff832-v2-p1",
+        "aliasTerms" : [ ],
+        "directTerms" : [ "范围", "amount", "包含", "含税", "税额", "制度", "包含税", "含税额", "口径", "生效", "时间", "来源" ]
+      }, {
+        "sourceId" : "document-ec6dbde2f04b4a15b25c3e77d14b07d9-v2-p1",
+        "aliasTerms" : [ ],
+        "directTerms" : [ "范围", "amount", "包含", "含税", "税额", "制度", "包含税", "含税额", "口径", "生效", "时间", "来源" ]
+      }, {
+        "sourceId" : "rule-1-1-p1",
+        "aliasTerms" : [ ],
+        "directTerms" : [ "销售", "售报", "报表", "范围", "销售报", "售报表", "amount", "生效", "时间", "来源" ]
+      }, {
+        "sourceId" : "dictionary-c195d75d400d5e72-p1",
+        "aliasTerms" : [ ],
+        "directTerms" : [ "销售", "售报", "报表", "范围", "销售报", "售报表", "时间", "来源" ]
+      }, {
+        "sourceId" : "document-e7bf16b2bac14ff7a112ae64463ff832-v2-p2",
+        "aliasTerms" : [ ],
+        "directTerms" : [ "范围", "amount", "税额", "制度", "口径", "生效", "时间", "来源" ]
+      }, {
+        "sourceId" : "document-ec6dbde2f04b4a15b25c3e77d14b07d9-v2-p2",
+        "aliasTerms" : [ ],
+        "directTerms" : [ "范围", "amount", "税额", "制度", "口径", "生效", "时间", "来源" ]
+      }, {
+        "sourceId" : "document-e7bf16b2bac14ff7a112ae64463ff832-v2-p3",
+        "aliasTerms" : [ ],
+        "directTerms" : [ "范围", "amount", "税额", "制度", "口径", "生效", "时间", "来源" ]
+      }, {
+        "sourceId" : "document-ec6dbde2f04b4a15b25c3e77d14b07d9-v2-p3",
+        "aliasTerms" : [ ],
+        "directTerms" : [ "范围", "amount", "税额", "制度", "口径", "生效", "时间", "来源" ]
+      }, {
+        "sourceId" : "document-e7bf16b2bac14ff7a112ae64463ff832-v2-p4",
+        "aliasTerms" : [ ],
+        "directTerms" : [ "范围", "amount", "税额", "制度", "口径", "生效", "时间", "来源" ]
+      }, {
+        "sourceId" : "document-ec6dbde2f04b4a15b25c3e77d14b07d9-v2-p4",
+        "aliasTerms" : [ ],
+        "directTerms" : [ "范围", "amount", "税额", "制度", "口径", "生效", "时间", "来源" ]
+      } ],
+      "kind" : "KNOWLEDGE",
+      "matched" : 18,
+      "sources" : [ {
+        "id" : "catalog-6-p1",
+        "kind" : "KNOWLEDGE",
+        "text" : "来源标题：销售报表：目录与字段（片段1）\n来源版本：6\n适用范围：A / rpt-sales-order\n时间说明：当前目录；观测日期 2026-10-12\n正文片段：\n报表名称：销售报表\n用途：销售订单台账：按订单统计金额与派单状态\n字段定义：[{\"name\":\"reportId\",\"type\":\"string\",\"description\":\"报表稳定标识\"},{\"name\":\"reportName\",\"type\":\"string\",\"description\":\"报表名称\"},{\"name\":\"companyCode\",\"type\":\"string\",\"description\":\"所属公司代码\"},{\"name\":\"docNo\",\"type\":\"string\",\"description\":\"来源单据号\"},{\"name\":\"amount\",\"type\":\"decimal\",\"description\":\"来源金额，币种见 currency；空值表示未提供\"},{\"name\":\"currency\",\"type\":\"string\",\"description\":\"来源声明币种；空值表示未声明，不能跨币种合计\"},{\"name\":\"date\",\"type\":\"date\",\"description\":\"业务日期；空值表示未配置\"},{\"name\":\"status\",\"type\":\"string\",\"description\":\"报表派单状态：未派单/已派单\"},{\"name\":\"orderNo\",\"type\":\"string\",\"description\":\"订单号\"},{\"name\":\"productName\",\"type\":\"string\",\"description\":\"产品名称\"},{\"name\":\"saleDate\",\"type\":\"date\",\"description\":\"销售日期，字符串 yyyy-MM-dd\"},{\"name\":\"daysSinceSale\",\"type\":\"long\",\"description\":\"距销售日期的天数（派生）\"},{\"name\":\"dispatched\",\"type\":\"boolean\",\"description\":\"来源记录是否已派单；true为已派单，false为未派单，不代表满足派单规则\"},{\"name\":\"recordId\",\"type\":\"string\",\"description\":\"报表内稳定记录标识\"}]",
+        "scope" : "A / rpt-sales-order",
+        "title" : "销售报表：目录与字段（片段1）",
+        "version" : "6",
+        "originId" : "catalog-6",
+        "observedAt" : "当前目录；观测日期 2026-10-12"
+      }, {
+        "id" : "document-74d9a6553cbe46d585a68cdb6a51e5e3-v2-p1",
+        "kind" : "KNOWLEDGE",
+        "text" : "来源标题：另一份amount税额口径（合成制度）（片段1）\n来源版本：2\n适用范围：A / rpt-sales-order\n时间说明：生效 2026-01-01；失效 未指定\n正文片段：\n来源：本仓库隔离验收合成资料\namount不包含税额。",
+        "scope" : "A / rpt-sales-order",
+        "title" : "另一份amount税额口径（合成制度）（片段1）",
+        "version" : "2",
+        "originId" : "document-74d9a6553cbe46d585a68cdb6a51e5e3-v2",
+        "observedAt" : "生效 2026-01-01；失效 未指定"
+      }, {
+        "id" : "document-e7bf16b2bac14ff7a112ae64463ff832-v2-p1",
+        "kind" : "KNOWLEDGE",
+        "text" : "来源标题：amount税额口径甲（合成制度）（片段1）\n来源版本：2\n适用范围：A / rpt-sales-order\n时间说明：生效 2026-01-01；失效 未指定\n正文片段：\n来源：本仓库隔离验收合成资料\namount包含税额。\ntax policy details remain applicable.\ntax policy details remain applicable.\ntax policy details remain applicable.\ntax policy details remain applicable.\ntax policy details remain applicable.\ntax policy details remain applicable.\ntax policy details remain applicable.\ntax policy details remain applicable.\ntax policy details remain applicable.\ntax policy details remain applicable.\ntax policy details remain applicable.\ntax policy details remain applicable.\ntax policy details remain applicable.\ntax policy details remain applicable.\ntax policy details remain applicable.\ntax policy details remain applicable.\ntax policy details remain applicable.\ntax policy details remain applicable.\ntax policy details remain applicable.\ntax policy details remain applicable.\ntax policy details remain applicable.\ntax policy details remain applicable.\ntax policy details remain applicable.\ntax policy details remain applicable.\ntax policy details remain applicable.\ntax policy details remain applicable.\ntax policy details remain applicable.\ntax policy details remain applicable.\ntax policy details remain applicable.\ntax policy details remain applicable.\ntax policy details remain applicable.\ntax policy details remain applicable.\ntax policy details remain applicable.\ntax policy details remain applicable.\ntax policy details remain applicable.\ntax policy details remain applicable.\ntax policy details remain applicable.\ntax policy details remain applicable.\ntax policy details remain applicable.\ntax policy details remain applicable.\ntax policy details remain applicable.\ntax policy details remain applicable.\ntax policy details remain applicable.\ntax policy details remain applicable.\ntax policy details remain applicable.\ntax policy details remain applicable.\ntax policy details remain",
+        "scope" : "A / rpt-sales-order",
+        "title" : "amount税额口径甲（合成制度）（片段1）",
+        "version" : "2",
+        "originId" : "document-e7bf16b2bac14ff7a112ae64463ff832-v2",
+        "observedAt" : "生效 2026-01-01；失效 未指定"
+      }, {
+        "id" : "document-ec6dbde2f04b4a15b25c3e77d14b07d9-v2-p1",
+        "kind" : "KNOWLEDGE",
+        "text" : "来源标题：amount税额口径乙（合成制度）（片段1）\n来源版本：2\n适用范围：A / rpt-sales-order\n时间说明：生效 2026-01-01；失效 未指定\n正文片段：\n来源：本仓库隔离验收合成资料\namount包含税额。\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax ",
+        "scope" : "A / rpt-sales-order",
+        "title" : "amount税额口径乙（合成制度）（片段1）",
+        "version" : "2",
+        "originId" : "document-ec6dbde2f04b4a15b25c3e77d14b07d9-v2",
+        "observedAt" : "生效 2026-01-01；失效 未指定"
+      }, {
+        "id" : "rule-1-1-p1",
+        "kind" : "KNOWLEDGE",
+        "text" : "来源标题：销售报表：当前派单规则（片段1）\n来源版本：1\n适用范围：A / rpt-sales-order\n时间说明：当前生效规则；观测日期 2026-10-12\n正文片段：\n仅解释已配置的规则，不证明任意单据符合规则或已被派单。\n{\"id\":1,\"version\":1,\"companyCode\":\"*\",\"expression\":\"amount > 20\",\"description\":\"销售订单金额大于 20 元需要派单\",\"effectiveFrom\":null,\"effectiveTo\":null}",
+        "scope" : "A / rpt-sales-order",
+        "title" : "销售报表：当前派单规则（片段1）",
+        "version" : "1",
+        "originId" : "rule-1-1",
+        "observedAt" : "当前生效规则；观测日期 2026-10-12"
+      }, {
+        "id" : "dictionary-c195d75d400d5e72-p1",
+        "kind" : "KNOWLEDGE",
+        "text" : "来源标题：销售报表：业务词典（片段1）\n来源版本：c195d75d400d5e72538359bef2ff9b7c6764040c0971b0280b2ee95a8fd2b82c\n适用范围：A / rpt-sales-order\n时间说明：当前词典；观测日期 2026-10-12\n正文片段：\n{\"scope\":{\"domain\":\"REPORT\",\"companyCode\":\"A\",\"reportId\":\"rpt-sales-order\"},\"version\":0,\"definition\":{\"companyName\":\"\",\"companyAliases\":[],\"timeZone\":\"Asia/Shanghai\",\"fiscalStartMonth\":1,\"holidays\":[],\"fields\":[]}}",
+        "scope" : "A / rpt-sales-order",
+        "title" : "销售报表：业务词典（片段1）",
+        "version" : "c195d75d400d5e72538359bef2ff9b7c6764040c0971b0280b2ee95a8fd2b82c",
+        "originId" : "dictionary-c195d75d400d5e72",
+        "observedAt" : "当前词典；观测日期 2026-10-12"
+      }, {
+        "id" : "document-e7bf16b2bac14ff7a112ae64463ff832-v2-p2",
+        "kind" : "KNOWLEDGE",
+        "text" : "来源标题：amount税额口径甲（合成制度）（片段2）\n来源版本：2\n适用范围：A / rpt-sales-order\n时间说明：生效 2026-01-01；失效 未指定\n正文片段：\n applicable.\ntax policy details remain applicable.\ntax policy details remain applicable.\ntax policy details remain applicable.\ntax policy details remain applicable.\ntax policy details remain applicable.\ntax policy details remain applicable.\ntax policy details remain applicable.\ntax policy details remain applicable.\ntax policy details remain applicable.\ntax policy details remain applicable.\ntax policy details remain applicable.\ntax policy details remain applicable.\ntax policy details remain applicable.\ntax policy details remain applicable.\ntax policy details remain applicable.\ntax policy details remain applicable.\ntax policy details remain applicable.\ntax policy details remain applicable.\ntax policy details remain applicable.\ntax policy details remain applicable.\ntax policy details remain applicable.\ntax policy details remain applicable.\ntax policy details remain applicable.\ntax policy details remain applicable.\ntax policy details remain applicable.\ntax policy details remain applicable.\ntax policy details remain applicable.\ntax policy details remain applicable.\ntax policy details remain applicable.\ntax policy details remain applicable.\ntax policy details remain applicable.\ntax policy details remain applicable.\ntax policy details remain applicable.\ntax policy details remain applicable.\ntax policy details remain applicable.\ntax policy details remain applicable.\ntax policy details remain applicable.\ntax policy details remain applicable.\ntax policy details remain applicable.\ntax policy details remain applicable.\ntax policy details remain applicable.\ntax policy details remain applicable.\ntax policy details remain applicable.\ntax policy details remain applicable.\ntax policy details remain applicable.\ntax policy details remain applicable.\ntax policy details remain applicable.\nt",
+        "scope" : "A / rpt-sales-order",
+        "title" : "amount税额口径甲（合成制度）（片段2）",
+        "version" : "2",
+        "originId" : "document-e7bf16b2bac14ff7a112ae64463ff832-v2",
+        "observedAt" : "生效 2026-01-01；失效 未指定"
+      }, {
+        "id" : "document-ec6dbde2f04b4a15b25c3e77d14b07d9-v2-p2",
+        "kind" : "KNOWLEDGE",
+        "text" : "来源标题：amount税额口径乙（合成制度）（片段2）\n来源版本：2\n适用范围：A / rpt-sales-order\n时间说明：生效 2026-01-01；失效 未指定\n正文片段：\npolicy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax po",
+        "scope" : "A / rpt-sales-order",
+        "title" : "amount税额口径乙（合成制度）（片段2）",
+        "version" : "2",
+        "originId" : "document-ec6dbde2f04b4a15b25c3e77d14b07d9-v2",
+        "observedAt" : "生效 2026-01-01；失效 未指定"
+      }, {
+        "id" : "document-e7bf16b2bac14ff7a112ae64463ff832-v2-p3",
+        "kind" : "KNOWLEDGE",
+        "text" : "来源标题：amount税额口径甲（合成制度）（片段3）\n来源版本：2\n适用范围：A / rpt-sales-order\n时间说明：生效 2026-01-01；失效 未指定\n正文片段：\nax policy details remain applicable.\ntax policy details remain applicable.\ntax policy details remain applicable.\ntax policy details remain applicable.\ntax policy details remain applicable.\ntax policy details remain applicable.\ntax policy details remain applicable.\ntax policy details remain applicable.\ntax policy details remain applicable.\ntax policy details remain applicable.\ntax policy details remain applicable.\ntax policy details remain applicable.\ntax policy details remain applicable.\ntax policy details remain applicable.\ntax policy details remain applicable.\ntax policy details remain applicable.\ntax policy details remain applicable.\ntax policy details remain applicable.\ntax policy details remain applicable.\ntax policy details remain applicable.\ntax policy details remain applicable.\ntax policy details remain applicable.\ntax policy details remain applicable.\ntax policy details remain applicable.\ntax policy details remain applicable.\ntax policy details remain applicable.\ntax policy details remain applicable.\ntax policy details remain applicable.\ntax policy details remain applicable.\ntax policy details remain applicable.\ntax policy details remain applicable.\ntax policy details remain applicable.\ntax policy details remain applicable.\ntax policy details remain applicable.\ntax policy details remain applicable.\ntax policy details remain applicable.\ntax policy details remain applicable.\ntax policy details remain applicable.\ntax policy details remain applicable.\ntax policy details remain applicable.\ntax policy details remain applicable.\ntax policy details remain applicable.\ntax policy details remain applicable.\ntax policy details remain applicable.\ntax policy details remain applicable.\ntax policy details remain applicable.\ntax policy details remain applicable.\ntax policy deta",
+        "scope" : "A / rpt-sales-order",
+        "title" : "amount税额口径甲（合成制度）（片段3）",
+        "version" : "2",
+        "originId" : "document-e7bf16b2bac14ff7a112ae64463ff832-v2",
+        "observedAt" : "生效 2026-01-01；失效 未指定"
+      }, {
+        "id" : "document-ec6dbde2f04b4a15b25c3e77d14b07d9-v2-p3",
+        "kind" : "KNOWLEDGE",
+        "text" : "来源标题：amount税额口径乙（合成制度）（片段3）\n来源版本：2\n适用范围：A / rpt-sales-order\n时间说明：生效 2026-01-01；失效 未指定\n正文片段：\nlicy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax poli",
+        "scope" : "A / rpt-sales-order",
+        "title" : "amount税额口径乙（合成制度）（片段3）",
+        "version" : "2",
+        "originId" : "document-ec6dbde2f04b4a15b25c3e77d14b07d9-v2",
+        "observedAt" : "生效 2026-01-01；失效 未指定"
+      }, {
+        "id" : "document-e7bf16b2bac14ff7a112ae64463ff832-v2-p4",
+        "kind" : "KNOWLEDGE",
+        "text" : "来源标题：amount税额口径甲（合成制度）（片段4）\n来源版本：2\n适用范围：A / rpt-sales-order\n时间说明：生效 2026-01-01；失效 未指定\n正文片段：\nils remain applicable.\ntax policy details remain applicable.\ntax policy details remain applicable.\ntax policy details remain applicable.\ntax policy details remain applicable.\ntax policy details remain applicable.\ntax policy details remain applicable.\ntax policy details remain applicable.\ntax policy details remain applicable.\ntax policy details remain applicable.\ntax policy details remain applicable.\ntax policy details remain applicable.\ntax policy details remain applicable.\ntax policy details remain applicable.\ntax policy details remain applicable.\ntax policy details remain applicable.\ntax policy details remain applicable.\ntax policy details remain applicable.\ntax policy details remain applicable.\ntax policy details remain applicable.\ntax policy details remain applicable.\ntax policy details remain applicable.\ntax policy details remain applicable.\ntax policy details remain applicable.\ntax policy details remain applicable.\ntax policy details remain applicable.\ntax policy details remain applicable.\ntax policy details remain applicable.\ntax policy details remain applicable.\ntax policy details remain applicable.\ntax policy details remain applicable.\ntax policy details remain applicable.\ntax policy details remain applicable.\ntax policy details remain applicable.\ntax policy details remain applicable.\ntax policy details remain applicable.\ntax policy details remain applicable.\ntax policy details remain applicable.\ntax policy details remain applicable.\ntax policy details remain applicable.\ntax policy details remain applicable.\ntax policy details remain applicable.\ntax policy details remain applicable.\ntax policy details remain applicable.\ntax policy details remain applicable.\ntax policy details remain applicable.\ntax policy details remain applicable.\ntax policy details remain app",
+        "scope" : "A / rpt-sales-order",
+        "title" : "amount税额口径甲（合成制度）（片段4）",
+        "version" : "2",
+        "originId" : "document-e7bf16b2bac14ff7a112ae64463ff832-v2",
+        "observedAt" : "生效 2026-01-01；失效 未指定"
+      }, {
+        "id" : "document-ec6dbde2f04b4a15b25c3e77d14b07d9-v2-p4",
+        "kind" : "KNOWLEDGE",
+        "text" : "来源标题：amount税额口径乙（合成制度）（片段4）\n来源版本：2\n适用范围：A / rpt-sales-order\n时间说明：生效 2026-01-01；失效 未指定\n正文片段：\ncy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy",
+        "scope" : "A / rpt-sales-order",
+        "title" : "amount税额口径乙（合成制度）（片段4）",
+        "version" : "2",
+        "originId" : "document-ec6dbde2f04b4a15b25c3e77d14b07d9-v2",
+        "observedAt" : "生效 2026-01-01；失效 未指定"
+      } ],
+      "coverage" : {
+        "matchedSources" : 6,
+        "returnedSources" : 6,
+        "searchedSources" : 6
+      },
+      "searched" : 18,
+      "truncated" : true,
+      "expansions" : [ ],
+      "queryTerms" : [ "前已", "已选", "选公", "公司", "当前已", "前已选", "已选公", "选公司", "销售", "售报", "报表", "表范", "范围", "围内", "销售报", "售报表", "报表范", "表范围", "范围内", "关于", "amount", "字段", "段是", "否包", "包含", "含税", "税额", "额的", "的制", "制度", "度规", "规定", "定有", "有哪", "字段是", "段是否", "是否包", "否包含", "包含税", "含税额", "税额的", "额的制", "的制度", "制度规", "度规定", "规定有", "定有哪", "有哪些", "请列", "列出", "出口", "口径", "请列出", "列出口", "出口径", "生效", "效时", "时间", "间及", "及来", "来源", "生效时", "效时间", "时间及", "间及来", "及来源", "并判", "判断", "断是", "否存", "存在", "在相", "相互", "互冲", "冲突", "并判断", "判断是", "断是否", "是否存", "否存在", "存在相", "在相互", "相互冲", "互冲突" ],
+      "expansionTruncated" : false
+    },
+    "status" : "COMPLETED",
+    "sources" : [ {
+      "id" : "catalog-6-p1",
+      "kind" : "KNOWLEDGE",
+      "text" : "来源标题：销售报表：目录与字段（片段1）\n来源版本：6\n适用范围：A / rpt-sales-order\n时间说明：当前目录；观测日期 2026-10-12\n正文片段：\n报表名称：销售报表\n用途：销售订单台账：按订单统计金额与派单状态\n字段定义：[{\"name\":\"reportId\",\"type\":\"string\",\"description\":\"报表稳定标识\"},{\"name\":\"reportName\",\"type\":\"string\",\"description\":\"报表名称\"},{\"name\":\"companyCode\",\"type\":\"string\",\"description\":\"所属公司代码\"},{\"name\":\"docNo\",\"type\":\"string\",\"description\":\"来源单据号\"},{\"name\":\"amount\",\"type\":\"decimal\",\"description\":\"来源金额，币种见 currency；空值表示未提供\"},{\"name\":\"currency\",\"type\":\"string\",\"description\":\"来源声明币种；空值表示未声明，不能跨币种合计\"},{\"name\":\"date\",\"type\":\"date\",\"description\":\"业务日期；空值表示未配置\"},{\"name\":\"status\",\"type\":\"string\",\"description\":\"报表派单状态：未派单/已派单\"},{\"name\":\"orderNo\",\"type\":\"string\",\"description\":\"订单号\"},{\"name\":\"productName\",\"type\":\"string\",\"description\":\"产品名称\"},{\"name\":\"saleDate\",\"type\":\"date\",\"description\":\"销售日期，字符串 yyyy-MM-dd\"},{\"name\":\"daysSinceSale\",\"type\":\"long\",\"description\":\"距销售日期的天数（派生）\"},{\"name\":\"dispatched\",\"type\":\"boolean\",\"description\":\"来源记录是否已派单；true为已派单，false为未派单，不代表满足派单规则\"},{\"name\":\"recordId\",\"type\":\"string\",\"description\":\"报表内稳定记录标识\"}]",
+      "scope" : "A / rpt-sales-order",
+      "title" : "销售报表：目录与字段（片段1）",
+      "version" : "6",
+      "originId" : "catalog-6",
+      "observedAt" : "当前目录；观测日期 2026-10-12"
+    }, {
+      "id" : "document-74d9a6553cbe46d585a68cdb6a51e5e3-v2-p1",
+      "kind" : "KNOWLEDGE",
+      "text" : "来源标题：另一份amount税额口径（合成制度）（片段1）\n来源版本：2\n适用范围：A / rpt-sales-order\n时间说明：生效 2026-01-01；失效 未指定\n正文片段：\n来源：本仓库隔离验收合成资料\namount不包含税额。",
+      "scope" : "A / rpt-sales-order",
+      "title" : "另一份amount税额口径（合成制度）（片段1）",
+      "version" : "2",
+      "originId" : "document-74d9a6553cbe46d585a68cdb6a51e5e3-v2",
+      "observedAt" : "生效 2026-01-01；失效 未指定"
+    }, {
+      "id" : "document-e7bf16b2bac14ff7a112ae64463ff832-v2-p1",
+      "kind" : "KNOWLEDGE",
+      "text" : "来源标题：amount税额口径甲（合成制度）（片段1）\n来源版本：2\n适用范围：A / rpt-sales-order\n时间说明：生效 2026-01-01；失效 未指定\n正文片段：\n来源：本仓库隔离验收合成资料\namount包含税额。\ntax policy details remain applicable.\ntax policy details remain applicable.\ntax policy details remain applicable.\ntax policy details remain applicable.\ntax policy details remain applicable.\ntax policy details remain applicable.\ntax policy details remain applicable.\ntax policy details remain applicable.\ntax policy details remain applicable.\ntax policy details remain applicable.\ntax policy details remain applicable.\ntax policy details remain applicable.\ntax policy details remain applicable.\ntax policy details remain applicable.\ntax policy details remain applicable.\ntax policy details remain applicable.\ntax policy details remain applicable.\ntax policy details remain applicable.\ntax policy details remain applicable.\ntax policy details remain applicable.\ntax policy details remain applicable.\ntax policy details remain applicable.\ntax policy details remain applicable.\ntax policy details remain applicable.\ntax policy details remain applicable.\ntax policy details remain applicable.\ntax policy details remain applicable.\ntax policy details remain applicable.\ntax policy details remain applicable.\ntax policy details remain applicable.\ntax policy details remain applicable.\ntax policy details remain applicable.\ntax policy details remain applicable.\ntax policy details remain applicable.\ntax policy details remain applicable.\ntax policy details remain applicable.\ntax policy details remain applicable.\ntax policy details remain applicable.\ntax policy details remain applicable.\ntax policy details remain applicable.\ntax policy details remain applicable.\ntax policy details remain applicable.\ntax policy details remain applicable.\ntax policy details remain applicable.\ntax policy details remain applicable.\ntax policy details remain applicable.\ntax policy details remain",
+      "scope" : "A / rpt-sales-order",
+      "title" : "amount税额口径甲（合成制度）（片段1）",
+      "version" : "2",
+      "originId" : "document-e7bf16b2bac14ff7a112ae64463ff832-v2",
+      "observedAt" : "生效 2026-01-01；失效 未指定"
+    }, {
+      "id" : "document-ec6dbde2f04b4a15b25c3e77d14b07d9-v2-p1",
+      "kind" : "KNOWLEDGE",
+      "text" : "来源标题：amount税额口径乙（合成制度）（片段1）\n来源版本：2\n适用范围：A / rpt-sales-order\n时间说明：生效 2026-01-01；失效 未指定\n正文片段：\n来源：本仓库隔离验收合成资料\namount包含税额。\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax ",
+      "scope" : "A / rpt-sales-order",
+      "title" : "amount税额口径乙（合成制度）（片段1）",
+      "version" : "2",
+      "originId" : "document-ec6dbde2f04b4a15b25c3e77d14b07d9-v2",
+      "observedAt" : "生效 2026-01-01；失效 未指定"
+    }, {
+      "id" : "rule-1-1-p1",
+      "kind" : "KNOWLEDGE",
+      "text" : "来源标题：销售报表：当前派单规则（片段1）\n来源版本：1\n适用范围：A / rpt-sales-order\n时间说明：当前生效规则；观测日期 2026-10-12\n正文片段：\n仅解释已配置的规则，不证明任意单据符合规则或已被派单。\n{\"id\":1,\"version\":1,\"companyCode\":\"*\",\"expression\":\"amount > 20\",\"description\":\"销售订单金额大于 20 元需要派单\",\"effectiveFrom\":null,\"effectiveTo\":null}",
+      "scope" : "A / rpt-sales-order",
+      "title" : "销售报表：当前派单规则（片段1）",
+      "version" : "1",
+      "originId" : "rule-1-1",
+      "observedAt" : "当前生效规则；观测日期 2026-10-12"
+    }, {
+      "id" : "dictionary-c195d75d400d5e72-p1",
+      "kind" : "KNOWLEDGE",
+      "text" : "来源标题：销售报表：业务词典（片段1）\n来源版本：c195d75d400d5e72538359bef2ff9b7c6764040c0971b0280b2ee95a8fd2b82c\n适用范围：A / rpt-sales-order\n时间说明：当前词典；观测日期 2026-10-12\n正文片段：\n{\"scope\":{\"domain\":\"REPORT\",\"companyCode\":\"A\",\"reportId\":\"rpt-sales-order\"},\"version\":0,\"definition\":{\"companyName\":\"\",\"companyAliases\":[],\"timeZone\":\"Asia/Shanghai\",\"fiscalStartMonth\":1,\"holidays\":[],\"fields\":[]}}",
+      "scope" : "A / rpt-sales-order",
+      "title" : "销售报表：业务词典（片段1）",
+      "version" : "c195d75d400d5e72538359bef2ff9b7c6764040c0971b0280b2ee95a8fd2b82c",
+      "originId" : "dictionary-c195d75d400d5e72",
+      "observedAt" : "当前词典；观测日期 2026-10-12"
+    }, {
+      "id" : "document-e7bf16b2bac14ff7a112ae64463ff832-v2-p2",
+      "kind" : "KNOWLEDGE",
+      "text" : "来源标题：amount税额口径甲（合成制度）（片段2）\n来源版本：2\n适用范围：A / rpt-sales-order\n时间说明：生效 2026-01-01；失效 未指定\n正文片段：\n applicable.\ntax policy details remain applicable.\ntax policy details remain applicable.\ntax policy details remain applicable.\ntax policy details remain applicable.\ntax policy details remain applicable.\ntax policy details remain applicable.\ntax policy details remain applicable.\ntax policy details remain applicable.\ntax policy details remain applicable.\ntax policy details remain applicable.\ntax policy details remain applicable.\ntax policy details remain applicable.\ntax policy details remain applicable.\ntax policy details remain applicable.\ntax policy details remain applicable.\ntax policy details remain applicable.\ntax policy details remain applicable.\ntax policy details remain applicable.\ntax policy details remain applicable.\ntax policy details remain applicable.\ntax policy details remain applicable.\ntax policy details remain applicable.\ntax policy details remain applicable.\ntax policy details remain applicable.\ntax policy details remain applicable.\ntax policy details remain applicable.\ntax policy details remain applicable.\ntax policy details remain applicable.\ntax policy details remain applicable.\ntax policy details remain applicable.\ntax policy details remain applicable.\ntax policy details remain applicable.\ntax policy details remain applicable.\ntax policy details remain applicable.\ntax policy details remain applicable.\ntax policy details remain applicable.\ntax policy details remain applicable.\ntax policy details remain applicable.\ntax policy details remain applicable.\ntax policy details remain applicable.\ntax policy details remain applicable.\ntax policy details remain applicable.\ntax policy details remain applicable.\ntax policy details remain applicable.\ntax policy details remain applicable.\ntax policy details remain applicable.\ntax policy details remain applicable.\nt",
+      "scope" : "A / rpt-sales-order",
+      "title" : "amount税额口径甲（合成制度）（片段2）",
+      "version" : "2",
+      "originId" : "document-e7bf16b2bac14ff7a112ae64463ff832-v2",
+      "observedAt" : "生效 2026-01-01；失效 未指定"
+    }, {
+      "id" : "document-ec6dbde2f04b4a15b25c3e77d14b07d9-v2-p2",
+      "kind" : "KNOWLEDGE",
+      "text" : "来源标题：amount税额口径乙（合成制度）（片段2）\n来源版本：2\n适用范围：A / rpt-sales-order\n时间说明：生效 2026-01-01；失效 未指定\n正文片段：\npolicy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax po",
+      "scope" : "A / rpt-sales-order",
+      "title" : "amount税额口径乙（合成制度）（片段2）",
+      "version" : "2",
+      "originId" : "document-ec6dbde2f04b4a15b25c3e77d14b07d9-v2",
+      "observedAt" : "生效 2026-01-01；失效 未指定"
+    }, {
+      "id" : "document-e7bf16b2bac14ff7a112ae64463ff832-v2-p3",
+      "kind" : "KNOWLEDGE",
+      "text" : "来源标题：amount税额口径甲（合成制度）（片段3）\n来源版本：2\n适用范围：A / rpt-sales-order\n时间说明：生效 2026-01-01；失效 未指定\n正文片段：\nax policy details remain applicable.\ntax policy details remain applicable.\ntax policy details remain applicable.\ntax policy details remain applicable.\ntax policy details remain applicable.\ntax policy details remain applicable.\ntax policy details remain applicable.\ntax policy details remain applicable.\ntax policy details remain applicable.\ntax policy details remain applicable.\ntax policy details remain applicable.\ntax policy details remain applicable.\ntax policy details remain applicable.\ntax policy details remain applicable.\ntax policy details remain applicable.\ntax policy details remain applicable.\ntax policy details remain applicable.\ntax policy details remain applicable.\ntax policy details remain applicable.\ntax policy details remain applicable.\ntax policy details remain applicable.\ntax policy details remain applicable.\ntax policy details remain applicable.\ntax policy details remain applicable.\ntax policy details remain applicable.\ntax policy details remain applicable.\ntax policy details remain applicable.\ntax policy details remain applicable.\ntax policy details remain applicable.\ntax policy details remain applicable.\ntax policy details remain applicable.\ntax policy details remain applicable.\ntax policy details remain applicable.\ntax policy details remain applicable.\ntax policy details remain applicable.\ntax policy details remain applicable.\ntax policy details remain applicable.\ntax policy details remain applicable.\ntax policy details remain applicable.\ntax policy details remain applicable.\ntax policy details remain applicable.\ntax policy details remain applicable.\ntax policy details remain applicable.\ntax policy details remain applicable.\ntax policy details remain applicable.\ntax policy details remain applicable.\ntax policy details remain applicable.\ntax policy deta",
+      "scope" : "A / rpt-sales-order",
+      "title" : "amount税额口径甲（合成制度）（片段3）",
+      "version" : "2",
+      "originId" : "document-e7bf16b2bac14ff7a112ae64463ff832-v2",
+      "observedAt" : "生效 2026-01-01；失效 未指定"
+    }, {
+      "id" : "document-ec6dbde2f04b4a15b25c3e77d14b07d9-v2-p3",
+      "kind" : "KNOWLEDGE",
+      "text" : "来源标题：amount税额口径乙（合成制度）（片段3）\n来源版本：2\n适用范围：A / rpt-sales-order\n时间说明：生效 2026-01-01；失效 未指定\n正文片段：\nlicy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax poli",
+      "scope" : "A / rpt-sales-order",
+      "title" : "amount税额口径乙（合成制度）（片段3）",
+      "version" : "2",
+      "originId" : "document-ec6dbde2f04b4a15b25c3e77d14b07d9-v2",
+      "observedAt" : "生效 2026-01-01；失效 未指定"
+    }, {
+      "id" : "document-e7bf16b2bac14ff7a112ae64463ff832-v2-p4",
+      "kind" : "KNOWLEDGE",
+      "text" : "来源标题：amount税额口径甲（合成制度）（片段4）\n来源版本：2\n适用范围：A / rpt-sales-order\n时间说明：生效 2026-01-01；失效 未指定\n正文片段：\nils remain applicable.\ntax policy details remain applicable.\ntax policy details remain applicable.\ntax policy details remain applicable.\ntax policy details remain applicable.\ntax policy details remain applicable.\ntax policy details remain applicable.\ntax policy details remain applicable.\ntax policy details remain applicable.\ntax policy details remain applicable.\ntax policy details remain applicable.\ntax policy details remain applicable.\ntax policy details remain applicable.\ntax policy details remain applicable.\ntax policy details remain applicable.\ntax policy details remain applicable.\ntax policy details remain applicable.\ntax policy details remain applicable.\ntax policy details remain applicable.\ntax policy details remain applicable.\ntax policy details remain applicable.\ntax policy details remain applicable.\ntax policy details remain applicable.\ntax policy details remain applicable.\ntax policy details remain applicable.\ntax policy details remain applicable.\ntax policy details remain applicable.\ntax policy details remain applicable.\ntax policy details remain applicable.\ntax policy details remain applicable.\ntax policy details remain applicable.\ntax policy details remain applicable.\ntax policy details remain applicable.\ntax policy details remain applicable.\ntax policy details remain applicable.\ntax policy details remain applicable.\ntax policy details remain applicable.\ntax policy details remain applicable.\ntax policy details remain applicable.\ntax policy details remain applicable.\ntax policy details remain applicable.\ntax policy details remain applicable.\ntax policy details remain applicable.\ntax policy details remain applicable.\ntax policy details remain applicable.\ntax policy details remain applicable.\ntax policy details remain applicable.\ntax policy details remain app",
+      "scope" : "A / rpt-sales-order",
+      "title" : "amount税额口径甲（合成制度）（片段4）",
+      "version" : "2",
+      "originId" : "document-e7bf16b2bac14ff7a112ae64463ff832-v2",
+      "observedAt" : "生效 2026-01-01；失效 未指定"
+    }, {
+      "id" : "document-ec6dbde2f04b4a15b25c3e77d14b07d9-v2-p4",
+      "kind" : "KNOWLEDGE",
+      "text" : "来源标题：amount税额口径乙（合成制度）（片段4）\n来源版本：2\n适用范围：A / rpt-sales-order\n时间说明：生效 2026-01-01；失效 未指定\n正文片段：\ncy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy",
+      "scope" : "A / rpt-sales-order",
+      "title" : "amount税额口径乙（合成制度）（片段4）",
+      "version" : "2",
+      "originId" : "document-ec6dbde2f04b4a15b25c3e77d14b07d9-v2",
+      "observedAt" : "生效 2026-01-01；失效 未指定"
+    } ]
+  } ],
+  "answer" : {
+    "claims" : [ {
+      "text" : "当前适用范围的资料中，amount税额口径存在相互矛盾的规定：文件《amount税额口径甲（合成制度）》第2版（生效2026-01-01，失效未指定）规定amount包含税额；文件《amount税额口径乙（合成制度）》第2版（生效2026-01-01，失效未指定）同样规定amount包含税额。但《另一份amount税额口径（合成制度）》第2版（生效2026-01-01，失效未指定）规定amount不包含税额。两方口径方向相反，构成冲突。",
+      "citations" : [ {
+        "quote" : "来源标题：amount税额口径甲（合成制度）（片段1）\n来源版本：2\n适用范围：A / rpt-sales-order\n时间说明：生效 2026-01-01；失效 未指定\n正文片段：\n来源：本仓库隔离验收合成资料\namount包含税额。\ntax policy details remain applicable.\ntax policy details remain applicable.\ntax policy details remain applicable.\ntax policy details remain applicable.\ntax policy details remain applicable.\ntax policy details remain applicable.\ntax policy details remain applicable.\ntax policy details remain applicable.\ntax policy details remain applicable.\ntax policy details remain applicable.\ntax policy details remain applicable.\ntax policy details remain applicable.\ntax policy details remain applicable.\ntax policy details remain applicable.\ntax policy details remain applicable.\ntax policy details remain applicable.\ntax policy details remain applicable.\ntax policy details remain applicable.\ntax policy details remain applicable.\ntax policy details remain applicable.\ntax policy details remain applicable.\ntax policy details remain applicable.\ntax policy details remain applicable.\ntax policy details remain applicable.\ntax policy details remain applicable.\ntax policy details remain applicable.\ntax policy details remain applicable.\ntax policy details remain applicable.\ntax policy details remain applicable.\ntax policy details remain applicable.\ntax policy details remain applicable.\ntax policy details remain applicable.\ntax policy details remain applicable.\ntax policy details remain applicable.\ntax policy details remain applicable.\ntax policy details remain applicable.\ntax policy details remain applicable.\ntax policy details remain applicable.\ntax policy details remain applicable.\ntax policy details remain applicable.\ntax policy details remain applicable.\ntax policy details remain applicable.\ntax policy details remain applicable.\ntax policy details remain applicable.\ntax policy details remain applicable.\ntax policy details remain applicable.\ntax policy details remain",
+        "sourceId" : "document-e7bf16b2bac14ff7a112ae64463ff832-v2-p1"
+      }, {
+        "quote" : "来源标题：amount税额口径乙（合成制度）（片段1）\n来源版本：2\n适用范围：A / rpt-sales-order\n时间说明：生效 2026-01-01；失效 未指定\n正文片段：\n来源：本仓库隔离验收合成资料\namount包含税额。\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax policy supporting notes.\ntax ",
+        "sourceId" : "document-ec6dbde2f04b4a15b25c3e77d14b07d9-v2-p1"
+      }, {
+        "quote" : "来源标题：另一份amount税额口径（合成制度）（片段1）\n来源版本：2\n适用范围：A / rpt-sales-order\n时间说明：生效 2026-01-01；失效 未指定\n正文片段：\n来源：本仓库隔离验收合成资料\namount不包含税额。",
+        "sourceId" : "document-74d9a6553cbe46d585a68cdb6a51e5e3-v2-p1"
+      } ]
+    }, {
+      "text" : "报表目录中amount字段的定义为“来源金额，币种见 currency；空值表示未提供”，该定义本身并未对是否含税作出说明，不能据此判定税额口径。",
+      "citations" : [ {
+        "quote" : "来源标题：销售报表：目录与字段（片段1）\n来源版本：6\n适用范围：A / rpt-sales-order\n时间说明：当前目录；观测日期 2026-10-12\n正文片段：\n报表名称：销售报表\n用途：销售订单台账：按订单统计金额与派单状态\n字段定义：[{\"name\":\"reportId\",\"type\":\"string\",\"description\":\"报表稳定标识\"},{\"name\":\"reportName\",\"type\":\"string\",\"description\":\"报表名称\"},{\"name\":\"companyCode\",\"type\":\"string\",\"description\":\"所属公司代码\"},{\"name\":\"docNo\",\"type\":\"string\",\"description\":\"来源单据号\"},{\"name\":\"amount\",\"type\":\"decimal\",\"description\":\"来源金额，币种见 currency；空值表示未提供\"},{\"name\":\"currency\",\"type\":\"string\",\"description\":\"来源声明币种；空值表示未声明，不能跨币种合计\"},{\"name\":\"date\",\"type\":\"date\",\"description\":\"业务日期；空值表示未配置\"},{\"name\":\"status\",\"type\":\"string\",\"description\":\"报表派单状态：未派单/已派单\"},{\"name\":\"orderNo\",\"type\":\"string\",\"description\":\"订单号\"},{\"name\":\"productName\",\"type\":\"string\",\"description\":\"产品名称\"},{\"name\":\"saleDate\",\"type\":\"date\",\"description\":\"销售日期，字符串 yyyy-MM-dd\"},{\"name\":\"daysSinceSale\",\"type\":\"long\",\"description\":\"距销售日期的天数（派生）\"},{\"name\":\"dispatched\",\"type\":\"boolean\",\"description\":\"来源记录是否已派单；true为已派单，false为未派单，不代表满足派单规则\"},{\"name\":\"recordId\",\"type\":\"string\",\"description\":\"报表内稳定记录标识\"}]",
+        "sourceId" : "catalog-6-p1"
+      } ]
+    } ],
+    "status" : "CONFLICTING",
+    "limitations" : [ "本轮知识检索结果为截断状态，因此以上冲突判断仅基于本轮已返回的资料，不能据此宣称已覆盖全部企业制度或得出没有其他规定的结论。", "派单规则中的amount > 20 只解释金额阈值，不用于判定amount是否含税。" ]
+  },
+  "usage" : [ {
+    "model" : "deepseek-v4.1-flash",
+    "stage" : "PLAN",
+    "number" : 1,
+    "status" : "RESPONDED",
+    "elapsedMs" : 3313,
+    "inputTokens" : 4214,
+    "outputTokens" : 119,
+    "usageComplete" : true,
+    "cachedInputTokens" : 1920
+  }, {
+    "model" : "deepseek-v4.1-flash",
+    "stage" : "PLAN_REVIEW",
+    "number" : 2,
+    "status" : "RESPONDED",
+    "elapsedMs" : 3438,
+    "inputTokens" : 3273,
+    "outputTokens" : 55,
+    "usageComplete" : true,
+    "cachedInputTokens" : 896
+  }, {
+    "model" : "deepseek-v4.1-flash",
+    "stage" : "ANSWER",
+    "number" : 3,
+    "status" : "RESPONDED",
+    "elapsedMs" : 4385,
+    "inputTokens" : 7134,
+    "outputTokens" : 338,
+    "usageComplete" : true,
+    "cachedInputTokens" : 768
+  }, {
+    "model" : "deepseek-v4.1-flash",
+    "stage" : "ANSWER_REVIEW",
+    "number" : 4,
+    "status" : "RESPONDED",
+    "elapsedMs" : 3998,
+    "inputTokens" : 6912,
+    "outputTokens" : 134,
+    "usageComplete" : true,
+    "cachedInputTokens" : 512
+  } ]
+}

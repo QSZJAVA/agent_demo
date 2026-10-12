@@ -1,0 +1,31 @@
+package com.example.report.analysis;
+
+import org.junit.jupiter.api.Test;
+import java.util.*;
+import static org.junit.jupiter.api.Assertions.*;
+
+/** 知识召回的独立行为回归；验证词界、来源覆盖和词典边界，不把排序当成答案真实性证明。 */
+class KnowledgeSearchTest {
+    static AnalysisEvidence.Source source(String id,String origin,String title,String text) {
+        return new AnalysisEvidence.Source(id,"KNOWLEDGE",title,"1","A / rpt-sales-order","当前有效",text);
+    }
+
+    @Test void englishWordDoesNotMatchInsideUnrelatedIdentifiers() {
+        var corpus=List.of(source("syntax","syntax","解析说明","syntax parser"),source("tax","tax","Tax policy","tax is documented"));
+        var result=KnowledgeSearch.search("tax",corpus,12);
+        assertEquals(List.of("tax"),result.sources().stream().map(AnalysisEvidence.Source::id).toList());
+    }
+
+    @Test void oneLongDocumentCannotCrowdOutAnotherMatchingSource() {
+        var corpus=new ArrayList<AnalysisEvidence.Source>();
+        for(int i=0;i<18;i++)corpus.add(source("a-"+String.format("%02d",i),"long-document","Tax policy","tax applies"));
+        corpus.add(source("z-conflict","other-document","Tax policy","tax does not apply"));
+        var result=KnowledgeSearch.search("tax",corpus,12);
+        assertTrue(result.sources().stream().anyMatch(s->s.id().equals("z-conflict")),"另一份真实来源不能被长文档的重复片段排除");
+    }
+
+    @Test void fullWidthCaseAndPunctuationPreserveAnActualWholeWord() {
+        var corpus=List.of(source("tax","tax","ＴＡＸ policy","（tax）"));
+        assertEquals(1,KnowledgeSearch.search("Ｔａｘ",corpus,12).matched());
+    }
+}

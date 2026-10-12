@@ -11,15 +11,16 @@ public final class AnalysisEvidence {
     /**
      * 一个授权且有版本的引用单元，不含可执行指令或永久权限。
      * @param id 本轮唯一来源编号
-     * @param kind DATA确定性数据或KNOWLEDGE业务定义/制度
+     * @param originId 原始资料或数据步骤的稳定编号，所有引用切片共享，用于统计独立来源而非猜测编号后缀
+     * @param kind DATA确定性业务数据或检索执行事实，KNOWLEDGE业务定义/制度
      * @param title 人可读来源名称
      * @param version 来源版本、内容摘要或快照标识
      * @param scope 明确的公司和报表范围
      * @param observedAt 观测时间或来源生效时间说明
      * @param text 可引用的完整片段，超过预算在建立证据前拆分，不能无标记截断
      */
-    public record Source(String id,String kind,String title,String version,String scope,String observedAt,String text) {
-        public Source {AnalysisContract.text(id,128,"证据编号");AnalysisContract.text(title,300,"来源名称");AnalysisContract.text(version,128,"来源版本");
+    public record Source(String id,String originId,String kind,String title,String version,String scope,String observedAt,String text) {
+        public Source {AnalysisContract.text(id,128,"证据编号");AnalysisContract.text(originId,128,"原始来源编号");AnalysisContract.text(title,300,"来源名称");AnalysisContract.text(version,128,"来源版本");
             AnalysisContract.text(scope,200,"来源范围");AnalysisContract.text(observedAt,200,"来源时间");AnalysisContract.text(text,16000,"来源原文");
             if(!Set.of("DATA","KNOWLEDGE").contains(kind))AnalysisContract.fail("证据类型无效");}
     }
@@ -82,7 +83,7 @@ public final class AnalysisEvidence {
         while(start<text.length()) {
             int end=Math.min(start+1800,text.length());
             if(end<text.length()){int newline=text.lastIndexOf('\n',end);if(newline>start+600)end=newline+1;else if(Character.isHighSurrogate(text.charAt(end-1)))end--;}
-            result.add(new Source(source.id()+"-q"+number,source.kind(),source.title()+"（引用片段"+number+"）",source.version(),source.scope(),source.observedAt(),text.substring(start,end)));
+            result.add(new Source(source.id()+"-q"+number,source.originId(),source.kind(),source.title()+"（引用片段"+number+"）",source.version(),source.scope(),source.observedAt(),text.substring(start,end)));
             start=end;number++;
         }
         return List.copyOf(result);

@@ -5,14 +5,14 @@ const fs = require('node:fs'), path = require('node:path'), vm = require('node:v
 const read = file => fs.readFileSync(path.join(__dirname, '../src', file), 'utf8')
 function harness(view) {
   const requests = [], prompts = []
-  const names = ['analysisCatalog', 'analysisRuns', 'analysisRun', 'submitAnalysis', 'cancelAnalysis', 'analysisRows', 'queryPage', 'knowledgeDocuments', 'knowledgeHistory', 'saveKnowledge', 'publishKnowledge', 'disableKnowledge']
+  const names = ['analysisCatalog', 'analysisRuns', 'analysisRun', 'submitAnalysis', 'cancelAnalysis', 'analysisRows', 'queryPage', 'knowledgeDocuments', 'knowledgeHistory', 'saveKnowledge', 'publishKnowledge', 'disableKnowledge', 'searchKnowledge']
   let id = 0
-  const sandbox = { component: null, crypto: { randomUUID: () => `key-${++id}` }, setTimeout: () => 1, clearTimeout() {}, Intl, Date }
+  const sandbox = { component: null, KnowledgeResults: {}, crypto: { randomUUID: () => `key-${++id}` }, setTimeout: () => 1, clearTimeout() {}, Intl, Date }
   for (const name of names) sandbox[name] = (...args) => new Promise((resolve, reject) => requests.push({ name, args, resolve, reject }))
   const script = read(`views/${view}.vue`).match(/<script>([\s\S]*?)<\/script>/)[1].replace(/import[^\n]*from\s+['"][^'"]+['"]/g, '').replace('export default', 'component =')
   vm.runInNewContext(script, sandbox)
   const component = sandbox.component, state = component.data()
-  Object.assign(state, { _alive: true, _seq: 0, _detailSeq: 0, _historySeq: 0, $route: { path: '/analysis', query: {} }, $prompt: (...args) => new Promise((resolve, reject) => prompts.push({ args, resolve, reject })) })
+  Object.assign(state, { _alive: true, _seq: 0, _detailSeq: 0, _historySeq: 0, _searchSeq: 0, $route: { path: '/analysis', query: {} }, $prompt: (...args) => new Promise((resolve, reject) => prompts.push({ args, resolve, reject })) })
   state.$router = { replace: location => { state.$route = location; return Promise.resolve() }, push() {} }
   for (const [key, fn] of Object.entries(component.methods)) state[key] = fn.bind(state)
   for (const [key, fn] of Object.entries(component.computed)) Object.defineProperty(state, key, { get: () => fn.call(state) })
@@ -92,6 +92,78 @@ test('closing knowledge history rejects the late original response', async () =>
   assert.equal(state.revisions.length, 0); assert.equal(state.historyVisible, false)
 })
 test('source quotations and model text are rendered as escaped text', () => {
-  for (const file of ['views/AnalysisWorkspace.vue', 'views/KnowledgeAdmin.vue']) assert.doesNotMatch(read(file), /v-html|innerHTML/)
+  for (const file of ['views/AnalysisWorkspace.vue', 'views/KnowledgeAdmin.vue', 'components/KnowledgeResults.vue']) assert.doesNotMatch(read(file), /v-html|innerHTML/)
   assert.match(read('views/QueryWorkspace.vue'), /分析此结果/)
+})
+
+function searchForm(state) { state.catalog.admin = true; state.company = 'A'; state.report = 'rpt-sales-order'; state.searchQuestion = 'booked value' }
+
+test('knowledge search sends only the selected scope and current question', async () => {
+  const { state, requests } = harness('KnowledgeAdmin'); searchForm(state)
+  const searching = state.search()
+  assert.equal(requests[0].name, 'searchKnowledge')
+  assert.deepEqual(JSON.parse(JSON.stringify(requests[0].args[0])), { companyCode: 'A', reportId: 'rpt-sales-order', question: 'booked value' })
+  requests[0].resolve({ question: 'booked value', result: { sources: [] } }); await searching
+  assert.equal(state.searchResult.question, 'booked value'); assert.equal(state.searching, false)
+})
+
+test('changing the question discards old hits without clearing the newer loading state', async () => {
+  const { state, requests } = harness('KnowledgeAdmin'); searchForm(state)
+  const first = state.search(); state.searchQuestion = 'tax'; state.invalidateSearch(); const second = state.search()
+  requests[0].resolve({ question: 'booked value' }); await first
+  assert.equal(state.searchResult, null); assert.equal(state.searching, true)
+  requests[1].resolve({ question: 'tax' }); await second; assert.equal(state.searchResult.question, 'tax')
+})
+
+test('knowledge search rejects an old scope even if its response arrives last', async () => {
+  const { state, requests } = harness('KnowledgeAdmin'); searchForm(state)
+  const searching = state.search(); state.company = 'B'; state.scopeChanged()
+  requests[0].resolve({ companyCode: 'A' }); await searching; assert.equal(state.searchResult, null)
+  requests[1].resolve([]); await tick(); assert.equal(state.company, 'B')
+})
+
+test('refresh clears displayed search evidence and invalidates a running search', async () => {
+  const { state, requests } = harness('KnowledgeAdmin'); searchForm(state); state.searchResult = { old: true }
+  const searching = state.search(), refresh = state.load()
+  requests[0].resolve({ old: true }); await searching; assert.equal(state.searchResult, null)
+  requests[1].resolve([]); await refresh; assert.equal(state.searching, false)
+})
+
+test('search failures keep the question available for an explicit retry', async () => {
+  const { state, requests } = harness('KnowledgeAdmin'); searchForm(state)
+  const failed = state.search(); requests[0].reject(new Error('知识依据已变化')); await failed
+  assert.equal(state.searchResult, null); assert.match(state.searchError, /已变化/); assert.equal(state.searchQuestion, 'booked value')
+  const retry = state.search(); assert.equal(state.searchError, ''); requests[1].resolve({ current: true }); await retry
+  assert.equal(state.searchResult.current, true)
+})
+
+test('publication invalidates search evidence before the mutation returns', async () => {
+  const { state, requests, prompts } = harness('KnowledgeAdmin'); searchForm(state); state.searchResult = { old: true }
+  const publish = state.transition({ id: 'doc', row_version: 2, content: { title: '资料' } }, true)
+  prompts[0].resolve({ value: '明确发布' }); await tick()
+  assert.equal(state.searchResult, null); assert.equal(state.busy, true)
+  requests[0].reject(new Error('版本冲突')); await publish; assert.equal(state.searchResult, null)
+})
+
+test('empty scope clears the old list and cancels its late response', async () => {
+  const { state, requests } = harness('KnowledgeAdmin'); searchForm(state)
+  const first = state.load(); state.company = ''; await state.load(); requests[0].resolve([{ company: 'A' }]); await first
+  assert.equal(state.documents.length, 0); assert.equal(state.canSearch, false); assert.equal(state.loading, false)
+})
+
+test('destroying the knowledge page drops outstanding search content', async () => {
+  const { state, component, requests } = harness('KnowledgeAdmin'); searchForm(state)
+  const searching = state.search(); component.beforeDestroy.call(state); requests[0].resolve({ stale: true }); await searching
+  assert.equal(state.searchResult, null)
+})
+
+test('unhandled scope or question edits still cannot adopt mismatched search results', async () => {
+  const { state, requests } = harness('KnowledgeAdmin'); searchForm(state)
+  const searching = state.search(); state.searchQuestion = 'new'; requests[0].resolve({ question: 'booked value' }); await searching
+  assert.equal(state.searchResult, null)
+})
+
+test('non-administrators cannot initiate a local knowledge search', async () => {
+  const { state, requests } = harness('KnowledgeAdmin'); searchForm(state); state.catalog.admin = false; await state.search()
+  assert.equal(requests.length, 0)
 })

@@ -26,7 +26,7 @@
             <template v-if="step.result">
               <template v-if="step.result.kind === 'ROWS'"><p>完整结果 {{ step.result.count }} 条 · 当前展示 {{ step.result.displayedCount }} 条</p><p v-if="step.result.summary">合计：{{ amounts(step.result.summary.amountsByCurrency) }}</p><el-table :data="step.result.rows" size="mini" border><el-table-column v-for="column in columns(step.result.columns)" :key="column.name" :prop="column.name" :label="column.description || column.name" min-width="110"><template slot-scope="scope">{{ cell(scope.row[column.name]) }}</template></el-table-column></el-table><el-button size="small" class="row-button" @click="showRows(step.index)">查看完整明细</el-button><el-button v-if="step.action === 'QUERY' || step.action === 'SNAPSHOT'" type="text" @click="openSnapshot(step.result.snapshotId)">打开查询快照</el-button></template>
               <template v-else-if="step.result.kind === 'GROUPS'"><p>共 {{ step.result.groupsCount }} 组，展示 {{ step.result.displayedCount }} 组<span v-if="!step.result.allGroupsDisplayed">；后续排名使用完整集合</span></p><el-table :data="step.result.groups" size="mini" border><el-table-column label="分组" min-width="170"><template slot-scope="scope">{{ dimensions(scope.row.dimensions) }}</template></el-table-column><el-table-column prop="period" label="期间" min-width="90" /><el-table-column prop="currency" label="币种" width="70" /><el-table-column prop="count" label="条数" width="70" /><el-table-column prop="sum" label="金额合计" min-width="115" /><el-table-column prop="average" label="均值" min-width="110" /></el-table><details v-if="step.result.comparison"><summary>期间对比结果</summary><pre>{{ pretty(step.result.comparison) }}</pre></details></template>
-              <template v-else-if="step.result.kind === 'KNOWLEDGE'"><p>在当前适用知识中检索到 {{ step.result.matched }} 个片段，引用候选 {{ step.result.sources.length }} 个。</p><p v-if="step.result.truncated" class="muted">候选超过本次展示预算，不能据此断言已覆盖全部制度。</p><p v-if="!step.result.sources.length" class="muted">没有找到匹配依据；可以补充具体术语，或由管理员发布资料。</p><details v-for="source in step.result.sources" :key="source.id"><summary>{{ source.title }} · 版本 {{ source.version }}</summary><p class="muted">{{ source.scope }} · {{ source.observedAt }}</p><pre>{{ source.text }}</pre></details></template>
+              <knowledge-results v-else-if="step.result.kind === 'KNOWLEDGE'" :result="step.result" />
               <details v-else><summary>查看对比结果</summary><pre>{{ pretty(step.result) }}</pre></details>
             </template>
           </el-card>
@@ -41,11 +41,13 @@
 
 <script>
 /** 有限分析任务与引用工作区；异步响应绑定任务和页面代次，刷新只恢复原运行，提交失败重试沿用同一个请求号。 */
+import KnowledgeResults from '../components/KnowledgeResults.vue'
 import { analysisCatalog, analysisRuns, analysisRun, submitAnalysis, cancelAnalysis, analysisRows } from '../api/analysis'
 import { queryPage } from '../api/queryWorkspace'
 
 export default {
   name: 'AnalysisWorkspace',
+  components: { KnowledgeResults },
   data() { return { ready: false, catalog: { companies: [], reports: [], admin: false }, form: { companyCode: '', reportId: '', question: '' }, sourceId: null, history: [], run: null, error: '', loading: false, submitting: false, historyBusy: false, pending: null, rowsVisible: false, rowStep: null, rowPage: null, rowsBusy: false, rowsError: '' } },
   computed: {
     canSubmit() { return this.ready && this.form.companyCode && this.form.reportId && this.form.question.trim() && !this.submitting },
