@@ -31,12 +31,14 @@ public class ConversationController {
     private final ConversationService conversationService;
     private final PermissionService permissionService;
     private final CardStateService cardStateService;
+    private final com.example.report.semantic.ChatAnalysisService chatAnalyses;
 
     public ConversationController(ConversationService conversationService, PermissionService permissionService,
-                                  CardStateService cardStateService) {
+                                  CardStateService cardStateService,com.example.report.semantic.ChatAnalysisService chatAnalyses) {
         this.conversationService = conversationService;
         this.permissionService = permissionService;
         this.cardStateService = cardStateService;
+        this.chatAnalyses = chatAnalyses;
     }
 
     @GetMapping
@@ -54,7 +56,8 @@ public class ConversationController {
                                               @RequestParam(required = false) Long beforeId,
                                               @RequestParam(defaultValue = "100") int size) {
         CurrentUser user = permissionService.resolve(userId);
-        List<MessageView> views = conversationService.messages(user, id, beforeId, Math.min(Math.max(size, 1), 500));
+        List<MessageView> views = conversationService.messages(user, id, beforeId, Math.min(Math.max(size, 1), 500)).stream()
+                .map(view->chatAnalyses.history(user,id,view)).toList();
         Map<String, CardStateService.CardState> previews = cardStateService.previewStates(user, views.stream()
                 .filter(v -> "preview".equals(v.cardType())).map(MessageView::previewId).filter(Objects::nonNull).toList());
         Map<String, CardStateService.CardState> plans = cardStateService.planStates(user, views.stream()

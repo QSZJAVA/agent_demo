@@ -1,0 +1,250 @@
+TAP version 13
+# Subtest: 网络发送之前完整请求已保存且回读，正常分析事件只产生一张引用卡片
+ok 1 - 网络发送之前完整请求已保存且回读，正常分析事件只产生一张引用卡片
+  ---
+  duration_ms: 8.4345
+  type: 'test'
+  ...
+# Subtest: 首个SSE事件丢失仍按准确key找到原会话和原任务，不创建第二轮
+ok 2 - 首个SSE事件丢失仍按准确key找到原会话和原任务，不创建第二轮
+  ---
+  duration_ms: 2.5674
+  type: 'test'
+  ...
+# Subtest: 未知提交经过刷新只GET，显式核对才同key同完整载荷POST且不重复历史消息
+ok 3 - 未知提交经过刷新只GET，显式核对才同key同完整载荷POST且不重复历史消息
+  ---
+  duration_ms: 4.0173
+  type: 'test'
+  ...
+# Subtest: PLANNING只GET等待，转为READY后仍等待明确核对动作
+ok 4 - PLANNING只GET等待，转为READY后仍等待明确核对动作
+  ---
+  duration_ms: 1.6423
+  type: 'test'
+  ...
+# Subtest: 404恢复隐藏原展示且不自动POST，显式核对收到410继续保留原key并停止新请求
+ok 5 - 404恢复隐藏原展示且不自动POST，显式核对收到410继续保留原key并停止新请求
+  ---
+  duration_ms: 1.836
+  type: 'test'
+  ...
+# Subtest: 权限和期限读取失败清空已显示问题与卡片，不从缓存恢复答案
+ok 6 - 权限和期限读取失败清空已显示问题与卡片，不从缓存恢复答案
+  ---
+  duration_ms: 2.5829
+  type: 'test'
+  ...
+# Subtest: 同一用户更换令牌后旧SSE被中止，迟到事件不能显示或恢复私有内容
+ok 7 - 同一用户更换令牌后旧SSE被中止，迟到事件不能显示或恢复私有内容
+  ---
+  duration_ms: 2.3727
+  type: 'test'
+  ...
+# Subtest: 同用户换token期间返回的GET不能恢复原会话，也不能清掉新登录保存记录
+ok 8 - 同用户换token期间返回的GET不能恢复原会话，也不能清掉新登录保存记录
+  ---
+  duration_ms: 2.1657
+  type: 'test'
+  ...
+# Subtest: 新会话代次撤销迟到轮次GET，不改变新页面或清理原保存记录
+ok 9 - 新会话代次撤销迟到轮次GET，不改变新页面或清理原保存记录
+  ---
+  duration_ms: 1.6657
+  type: 'test'
+  ...
+# Subtest: 存储不可写时保留输入，不乐观显示已发送消息，也不发送网络请求
+ok 10 - 存储不可写时保留输入，不乐观显示已发送消息，也不发送网络请求
+  ---
+  duration_ms: 1.2431
+  type: 'test'
+  ...
+# Subtest: 结构性拒绝只清原保存记录并允许明确修改，不自动创建另一轮
+ok 11 - 结构性拒绝只清原保存记录并允许明确修改，不自动创建另一轮
+  ---
+  duration_ms: 1.5876
+  type: 'test'
+  ...
+# Subtest: 409响应按准确key读取已有轮次，不能把冲突当成未执行后创建新key
+ok 12 - 409响应按准确key读取已有轮次，不能把冲突当成未执行后创建新key
+  ---
+  duration_ms: 1.4632
+  type: 'test'
+  ...
+# Subtest: 关闭抽屉后停止轮次轮询，重新打开仅GET并保留原key
+ok 13 - 关闭抽屉后停止轮次轮询，重新打开仅GET并保留原key
+  ---
+  duration_ms: 2.1853
+  type: 'test'
+  ...
+# Subtest: 已中断与失败回执释放未知提交，明确重新发送才生成新key
+ok 14 - 已中断与失败回执释放未知提交，明确重新发送才生成新key
+  ---
+  duration_ms: 3.4698
+  type: 'test'
+  ...
+# Subtest: 不属于原请求的回执不会清理保存记录或自动重放
+ok 15 - 不属于原请求的回执不会清理保存记录或自动重放
+  ---
+  duration_ms: 1.3415
+  type: 'test'
+  ...
+# Subtest: 提交记录在服务器确认后无法清理时仍保留原key，存储恢复后GET即可完成核对
+ok 16 - 提交记录在服务器确认后无法清理时仍保留原key，存储恢复后GET即可完成核对
+  ---
+  duration_ms: 1.8298
+  type: 'test'
+  ...
+# Subtest: 轮次GET失权后流中暂存的业务卡片不能在finally重新出现
+ok 17 - 轮次GET失权后流中暂存的业务卡片不能在finally重新出现
+  ---
+  duration_ms: 1.8974
+  type: 'test'
+  ...
+# Subtest: GET回执与已收到的conversation事件轮次不同则保留未知提交
+ok 18 - GET回执与已收到的conversation事件轮次不同则保留未知提交
+  ---
+  duration_ms: 1.3536
+  type: 'test'
+  ...
+# Subtest: 只有用户明确结束不可访问的本页核对才释放输入，动作本身不创建或重发任务
+ok 19 - 只有用户明确结束不可访问的本页核对才释放输入，动作本身不创建或重发任务
+  ---
+  duration_ms: 1.6578
+  type: 'test'
+  ...
+# Subtest: 首帧或尾帧丢失后PLANNING转完成会补读普通结果，历史按消息标识稳定去重
+not ok 20 - 首帧或尾帧丢失后PLANNING转完成会补读普通结果，历史按消息标识稳定去重
+  ---
+  duration_ms: 1.9819
+  type: 'test'
+  location: 'D:\\demo-v1\\demo\\frontend\\tests\\chat-recovery.test.cjs:180:1'
+  failureType: 'testCodeFailure'
+  error: |-
+    Expected values to be strictly equal:
+    
+    1 !== 2
+    
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: 2
+  actual: 1
+  operator: 'strictEqual'
+  stack: |-
+    TestContext.<anonymous> (D:\demo-v1\demo\frontend\tests\chat-recovery.test.cjs:198:49)
+    async Test.run (node:internal/test_runner/test:1054:7)
+    async Test.processPendingSubtests (node:internal/test_runner/test:744:7)
+  ...
+# Subtest: 首次接收但由并发执行者完成的无结果流也会恢复历史，不能只信replayed标志
+not ok 21 - 首次接收但由并发执行者完成的无结果流也会恢复历史，不能只信replayed标志
+  ---
+  duration_ms: 2.0851
+  type: 'test'
+  location: 'D:\\demo-v1\\demo\\frontend\\tests\\chat-recovery.test.cjs:204:1'
+  failureType: 'testCodeFailure'
+  error: |-
+    Expected values to be strictly equal:
+    
+    0 !== 1
+    
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: 1
+  actual: 0
+  operator: 'strictEqual'
+  stack: |-
+    TestContext.<anonymous> (D:\demo-v1\demo\frontend\tests\chat-recovery.test.cjs:209:75)
+    async Test.run (node:internal/test_runner/test:1054:7)
+    async Test.processPendingSubtests (node:internal/test_runner/test:744:7)
+  ...
+# Subtest: GET404后用户显式核对首次被接收仍恢复完整历史，文字相同的不同历史消息不会误合并
+not ok 22 - GET404后用户显式核对首次被接收仍恢复完整历史，文字相同的不同历史消息不会误合并
+  ---
+  duration_ms: 2.4989
+  type: 'test'
+  location: 'D:\\demo-v1\\demo\\frontend\\tests\\chat-recovery.test.cjs:213:1'
+  failureType: 'testCodeFailure'
+  error: |-
+    Expected values to be strictly equal:
+    
+    0 !== 1
+    
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: 1
+  actual: 0
+  operator: 'strictEqual'
+  stack: |-
+    TestContext.<anonymous> (D:\demo-v1\demo\frontend\tests\chat-recovery.test.cjs:228:125)
+    async Test.run (node:internal/test_runner/test:1054:7)
+    async Test.processPendingSubtests (node:internal/test_runner/test:744:7)
+  ...
+# Subtest: 完整实时结果与完成回执不被尚未投影的历史覆盖
+ok 23 - 完整实时结果与完成回执不被尚未投影的历史覆盖
+  ---
+  duration_ms: 1.5796
+  type: 'test'
+  ...
+# Subtest: 冻结依据失效的error后FAILED回执保留权威原因，历史读取不会恢复核对入口
+ok 24 - 冻结依据失效的error后FAILED回执保留权威原因，历史读取不会恢复核对入口
+  ---
+  duration_ms: 4.1529
+  type: 'test'
+  ...
+# Subtest: SUBMITTED回执不再允许读取任务时保留原因，并清掉同轮历史和流中暂存引用
+not ok 25 - SUBMITTED回执不再允许读取任务时保留原因，并清掉同轮历史和流中暂存引用
+  ---
+  duration_ms: 1.5214
+  type: 'test'
+  location: 'D:\\demo-v1\\demo\\frontend\\tests\\chat-recovery.test.cjs:263:1'
+  failureType: 'testCodeFailure'
+  error: |-
+    Expected values to be strictly equal:
+    + actual - expected
+    
+    + ''
+    - '原分析任务已不可读取，请发送新的完整问题'
+    
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: '原分析任务已不可读取，请发送新的完整问题'
+  actual: ''
+  operator: 'strictEqual'
+  stack: |-
+    TestContext.<anonymous> (D:\demo-v1\demo\frontend\tests\chat-recovery.test.cjs:271:10)
+    async Test.run (node:internal/test_runner/test:1054:7)
+    async Test.processPendingSubtests (node:internal/test_runner/test:744:7)
+  ...
+# Subtest: SUBMITTED不可读任务的原因优先于历史读取失败提示，清理原key后仍可见
+not ok 26 - SUBMITTED不可读任务的原因优先于历史读取失败提示，清理原key后仍可见
+  ---
+  duration_ms: 1.5279
+  type: 'test'
+  location: 'D:\\demo-v1\\demo\\frontend\\tests\\chat-recovery.test.cjs:274:1'
+  failureType: 'testCodeFailure'
+  error: |-
+    Expected values to be strictly equal:
+    + actual - expected
+    
+    + ''
+    - '原分析任务已不可读取，请发送新的完整问题'
+    
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: '原分析任务已不可读取，请发送新的完整问题'
+  actual: ''
+  operator: 'strictEqual'
+  stack: |-
+    TestContext.<anonymous> (D:\demo-v1\demo\frontend\tests\chat-recovery.test.cjs:282:48)
+    async Test.run (node:internal/test_runner/test:1054:7)
+    async Test.processPendingSubtests (node:internal/test_runner/test:744:7)
+  ...
+1..26
+# tests 26
+# suites 0
+# pass 21
+# fail 5
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 109.4991

@@ -1,0 +1,141 @@
+{
+  "capturedAt": "2026-10-12T19:20:26.774Z",
+  "scope": "真实前端组件、保存器和回执解析器的受控 Node 回归及 Vite 构建；真实模型、HTTP MCP 和浏览器验收由主代理继续执行",
+  "tests": {
+    "log": "frontend-all-recovery-01.log",
+    "total": 343,
+    "passed": 343,
+    "failed": 0,
+    "cancelled": 0,
+    "skipped": 0
+  },
+  "focusedRecovery": {
+    "log": "recovery-contract-after-02.log",
+    "total": 54,
+    "passed": 54,
+    "failed": 0,
+    "cancelled": 0,
+    "skipped": 0
+  },
+  "focusedCardExpiry": {
+    "log": "expiry-card-after-fix-02.log",
+    "total": 26,
+    "passed": 26,
+    "failed": 0,
+    "cancelled": 0,
+    "skipped": 0
+  },
+  "build": {
+    "succeeded": true,
+    "log": "frontend-build-recovery-01.log",
+    "bundleSizeWarning": "index chunk 571.73 kB；未修改依赖或框架版本"
+  },
+  "gates": {
+    "comments": "passed",
+    "frontendDiffCheck": "passed"
+  },
+  "coverage": [
+    "首帧与尾帧丢失、PLANNING转明确终态、首次接收但并发执行者完成时的历史补读",
+    "GET404后的显式同key同载荷核对，不将replayed=false解释成已恢复完整历史",
+    "必填historyReady=false时保留原结果与key，每3秒只GET原回执，投影完成后按持久化消息id替换",
+    "SUBMITTED不可读任务和FAILED冻结依据失效的权威原因不被历史加载覆盖，旧分析引用不复活",
+    "30秒展示有效期、权限或知识版本变化、断网/挂起、后台隐藏、迟到版本与响应、取消结果未知"
+  ],
+  "failureEvidence": [
+    {
+      "log": "recovery-contract-before.log",
+      "total": 26,
+      "passed": 21,
+      "failed": 5,
+      "cancelled": 0,
+      "skipped": 0,
+      "cause": "实际恢复缺口修复前：轮询终态漏历史、并发无结果流与首次显式核对未补读、SUBMITTED不可读原因丢失"
+    },
+    {
+      "log": "recovery-projection-before.log",
+      "total": 31,
+      "passed": 21,
+      "failed": 10,
+      "cancelled": 0,
+      "skipped": 0,
+      "cause": "新增历史投影完整性契约与历史代次测试；未修复实现无法保持未投影结果和原请求记录"
+    },
+    {
+      "log": "recovery-contract-after-01.log",
+      "total": 54,
+      "passed": 46,
+      "failed": 3,
+      "cancelled": 5,
+      "skipped": 0,
+      "cause": "首次实现中核对按钮computed可能返回undefined；两个旧成功流夹具缺首尾回执，正确进入历史恢复后暴露夹具未完成的请求。已修为布尔并补全当前协议，保留原断言。"
+    },
+    {
+      "log": "expiry-card-before-fix.log",
+      "total": 23,
+      "passed": 7,
+      "failed": 16,
+      "cancelled": 0,
+      "skipped": 0,
+      "cause": "修复前终态无自动重核且运行态挂起可无限显示旧答案；新增期限和时序断言记录原失败"
+    }
+  ],
+  "sourceManifest": "source-manifest-recovery-01.json",
+  "preservedPreviousBaseline": "validation-summary.json",
+  "files": [
+    {
+      "name": "recovery-contract-before.log",
+      "bytes": 9723,
+      "sha256": "0d17f1a5ad61ac6e5bd58eb0bd87c4fe717786a5cb9a9f50e3c639182913f3ad"
+    },
+    {
+      "name": "recovery-projection-before.log",
+      "bytes": 13961,
+      "sha256": "948569f51a16f7529bb3c388a02c539753bb7b9e40ef0637a8beeb0ea06e1c2b"
+    },
+    {
+      "name": "recovery-contract-after-01.log",
+      "bytes": 16246,
+      "sha256": "537bc7e195e547de7b42e5d38cc97e8dd6cc180861cec58c5441b635e82a170a"
+    },
+    {
+      "name": "recovery-contract-after-02.log",
+      "bytes": 12994,
+      "sha256": "f15f9bbfedeb00fc0e1a3cac6e1236a319cd219a51c5c278b2ac3485965f8467"
+    },
+    {
+      "name": "expiry-card-before-fix.log",
+      "bytes": 24394,
+      "sha256": "5f537771105c718132a9c8b86e2eb59f0d160ff3ac128de13f64bb0302de57c4"
+    },
+    {
+      "name": "expiry-card-after-fix-01.log",
+      "bytes": 5508,
+      "sha256": "ed6ad71576246e91023d76448dad705a9bec4eaa10354798a28732fa795c3261"
+    },
+    {
+      "name": "expiry-card-after-fix-02.log",
+      "bytes": 6235,
+      "sha256": "3973cd929fd5d1be018073c0bcdef52e224072dd1ad4eedda1480573d4b46085"
+    },
+    {
+      "name": "frontend-all-recovery-01.log",
+      "bytes": 79312,
+      "sha256": "6ac25c8e4187ec90ae60fe3a04ed102dbba4945be7c8d05dbb21459e301ad335"
+    },
+    {
+      "name": "frontend-build-recovery-01.log",
+      "bytes": 3163,
+      "sha256": "d4a064b1bc82a13413de424fd8cca738dae1afc34abca811ee71be09bc675086"
+    },
+    {
+      "name": "comments-recovery-01.log",
+      "bytes": 166,
+      "sha256": "93e27e47bb79231548bcfb6c41ebab0256c8ea46193ed1dc67c9b3784f042b79"
+    },
+    {
+      "name": "diff-check-recovery-01.log",
+      "bytes": 1185,
+      "sha256": "3dc1c5fb5f1e62600d1252f48590a55f8412243c633970d5f3e1e32de63d482e"
+    }
+  ]
+}

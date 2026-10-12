@@ -8,10 +8,12 @@
       <el-alert v-if="preparationMessage" :title="preparationMessage" type="info" :closable="false" show-icon class="notice" />
       <el-alert v-if="pending && !submitting" title="本次提交结果尚未确认。请点击“核对本次提交”，沿用原问题、范围和请求号核对；核对完成后可修改问题或开始新任务。" type="warning" :closable="false" show-icon class="notice" />
       <div class="scope">
+        <label>执行范围 <el-select v-model="form.mode" size="small" :disabled="formLocked" @change="modeChanged"><el-option label="当前数据分析" value="CURRENT_DATA" /><el-option label="仅分析选定结果" value="SNAPSHOT_ONLY" :disabled="!sourceId" /><el-option label="业务知识问答" value="KNOWLEDGE_ONLY" /></el-select></label>
         <label>公司 <el-select v-model="form.companyCode" size="small" :disabled="formLocked || !!sourceId" @change="scopeChanged"><el-option v-for="company in catalog.companies" :key="company" :label="company + ' 公司'" :value="company" /></el-select></label>
         <label>报表 <el-select v-model="form.reportId" size="small" :disabled="formLocked || !!sourceId" @change="scopeChanged"><el-option v-for="report in catalog.reports" :key="report.reportId" :label="report.reportName" :value="report.reportId" /></el-select></label>
         <el-tag v-if="sourceId" type="info">{{ sourceReady ? '已选择查询快照' : '查询快照尚未通过核对' }}</el-tag><el-button v-if="sourceId" type="text" :disabled="formLocked" @click="clearSource">改用当前数据</el-button>
       </div>
+      <p class="muted">{{ modeHint }}</p>
       <el-input ref="questionInput" v-model="form.question" type="textarea" :rows="3" :maxlength="2000" show-word-limit :disabled="formLocked" placeholder="例如：按产品汇总上月销售额，取金额最高的两个产品，展开它们的明细；再说明销售金额的口径。" @input="questionChanged" />
       <div class="actions"><el-button type="primary" :loading="submitting" :disabled="!canSubmit" @click="submit">{{ submitLabel }}</el-button><span>一次任务最多 6 步，可查看依据和中间结果。</span></div>
     </el-card>
@@ -23,7 +25,7 @@
       <div class="results" v-loading="loading">
         <el-card v-if="!run"><p class="muted">选择公司和报表，输入问题。历史任务可以直接打开，刷新不会重新分析。</p></el-card>
         <template v-else>
-          <el-card><div class="between"><div><el-tag :type="run.status === 'COMPLETED' ? 'success' : 'info'">{{ statusText(run.status) }}</el-tag><span class="stage">{{ stageText(run.stage) }}</span></div><el-button v-if="isActive" size="small" :disabled="formLocked" @click="cancel">取消任务</el-button><el-button v-if="isTerminal" size="small" :loading="preparing" :disabled="submitting || loading || !!pending" @click="prepareRun">{{ prepareLabel }}</el-button></div><h3>{{ run.request.question }}</h3><p class="muted">{{ run.request.companyCode }} 公司 · {{ reportName(run.request.reportId) }} · {{ time(run.created_at) }}</p><p v-if="run.message" role="status">{{ run.message }}</p><p v-if="run.plan">目标：{{ run.plan.objective }}</p></el-card>
+          <el-card><div class="between"><div><el-tag :type="run.status === 'COMPLETED' ? 'success' : 'info'">{{ statusText(run.status) }}</el-tag><span class="stage">{{ stageText(run.stage) }}</span></div><el-button v-if="isActive" size="small" :disabled="formLocked" @click="cancel">取消任务</el-button><el-button v-if="isTerminal" size="small" :loading="preparing" :disabled="submitting || loading || !!pending" @click="prepareRun">{{ prepareLabel }}</el-button></div><h3>{{ run.request.question }}</h3><p class="muted">{{ modeText(run.request.mode) }} · {{ run.request.companyCode }} 公司 · {{ reportName(run.request.reportId) }} · {{ time(run.created_at) }}</p><p v-if="run.message" role="status">{{ run.message }}</p><p v-if="run.plan">目标：{{ run.plan.objective }}</p></el-card>
           <el-card v-for="step in run.steps" :key="step.index" class="step-card">
             <div slot="header" class="between"><b>{{ step.index + 1 }}. {{ actionText(step.action) }}</b><el-tag size="small" :type="step.status === 'COMPLETED' ? 'success' : step.status === 'FAILED' ? 'danger' : 'info'">{{ stepText(step.status) }}</el-tag></div>
             <p v-if="step.message" role="alert">{{ step.message }}</p>
@@ -54,9 +56,11 @@ import { createAnalysisPendingStore } from '../utils/analysisPending'
 export default {
   name: 'AnalysisWorkspace',
   components: { KnowledgeResults },
-  data() { return { ready: false, catalog: { companies: [], reports: [], admin: false }, form: { companyCode: '', reportId: '', question: '' }, sourceId: null, sourceReady: true, history: [], run: null, error: '', loading: false, submitting: false, preparing: false, restoring: false, preparationMessage: '', pendingNotice: '', pendingStorageError: '', historyBusy: false, pending: null, rowsVisible: false, rowStep: null, rowPage: null, rowsBusy: false, rowsError: '' } },
+  data() { return { ready: false, catalog: { companies: [], reports: [], admin: false }, form: { companyCode: '', reportId: '', question: '', mode: 'CURRENT_DATA' }, sourceId: null, sourceReady: true, history: [], run: null, error: '', loading: false, submitting: false, preparing: false, restoring: false, preparationMessage: '', pendingNotice: '', pendingStorageError: '', historyBusy: false, pending: null, rowsVisible: false, rowStep: null, rowPage: null, rowsBusy: false, rowsError: '' } },
   computed: {
-    canSubmit() { return !this.restoring && !this.submitting && !this.preparing && !this.loading && (!!this.pending || (this.ready && this.form.companyCode && this.form.reportId && this.form.question.trim() && (!this.sourceId || this.sourceReady))) },
+    canSubmit() { return !this.restoring && !this.submitting && !this.preparing && !this.loading && (!!this.pending || (this.ready && this.modeValid && this.form.companyCode && this.form.reportId && this.form.question.trim() && (!this.sourceId || this.sourceReady))) },
+    modeValid() { return ['KNOWLEDGE_ONLY', 'CURRENT_DATA', 'SNAPSHOT_ONLY'].includes(this.form.mode) && (this.form.mode !== 'KNOWLEDGE_ONLY' || !this.sourceId) && (this.form.mode !== 'SNAPSHOT_ONLY' || !!this.sourceId) },
+    modeHint() { return ({ KNOWLEDGE_ONLY: '仅检索所选范围内已发布的业务资料，不查询业务明细。', SNAPSHOT_ONLY: '只使用选定查询结果，可结合知识资料解释；不会补查当前业务数据。', CURRENT_DATA: this.sourceId ? '可查询当前数据，并使用选定结果进行对比。' : '可在所选范围内查询、统计和比较当前业务数据。' })[this.form.mode] || '执行范围无效，请重新选择。' },
     formLocked() { return this.restoring || this.submitting || this.preparing || !!this.pending },
     submitLabel() { return this.pending ? '核对本次提交' : '开始分析' },
     isActive() { return this.run && ['QUEUED', 'RUNNING'].includes(this.run.status) },
@@ -70,7 +74,7 @@ export default {
   methods: {
     pendingStore() { if (!this._pendingStore) this._pendingStore = createAnalysisPendingStore({ getIdentity: () => ({ userId: getCurrentUserId(), token: getSessionToken() }) }); return this._pendingStore },
     /** 会话改变时撤销所有旧页面响应，清除显示内容；新页面或显式恢复操作重新建立 owner 绑定。 */
-    identityChanged(message) { this._seq++; this._historySeq++; this.invalidatePreparation(); this.closeRows(); clearTimeout(this._timer); this.pending = null; this.form = { companyCode: '', reportId: '', question: '' }; this.catalog = { companies: [], reports: [], admin: false }; this.sourceId = null; this.sourceReady = false; this.run = null; this.history = []; this.historyBusy = false; this.ready = false; this.restoring = false; this.submitting = false; this.loading = false; this._pendingStore = null; this.error = message; this.pendingStorageError = message },
+    identityChanged(message) { this._seq++; this._historySeq++; this.invalidatePreparation(); this.closeRows(); clearTimeout(this._timer); this.pending = null; this.form = { companyCode: '', reportId: '', question: '', mode: 'CURRENT_DATA' }; this.catalog = { companies: [], reports: [], admin: false }; this.sourceId = null; this.sourceReady = false; this.run = null; this.history = []; this.historyBusy = false; this.ready = false; this.restoring = false; this.submitting = false; this.loading = false; this._pendingStore = null; this.error = message; this.pendingStorageError = message },
     /** 先核对会话、当前目录与显式快照再显示保存的问题；恢复本身只读取，不提交任务。 */
     async initialize() {
       if (!this._alive || this.submitting) return
@@ -83,10 +87,11 @@ export default {
         await store.checkSession(); if (!this.valid(seq)) return
         this.catalog = catalog
         const request = saved.pending?.request, source = request ? request.snapshotId : this.$route.query.source || null
-        const nextForm = request ? { companyCode: request.companyCode, reportId: request.reportId, question: request.question } : { companyCode: catalog.companies[0] || '', reportId: catalog.reports[0]?.reportId || '', question: this.form.question }
+        const nextForm = request ? { companyCode: request.companyCode, reportId: request.reportId, question: request.question, mode: request.mode } : { companyCode: catalog.companies[0] || '', reportId: catalog.reports[0]?.reportId || '', question: this.form.question, mode: this.$route.query.mode || (source ? 'SNAPSHOT_ONLY' : 'CURRENT_DATA') }
         let sourceReady = !source, validationError = ''
+        if (!['KNOWLEDGE_ONLY', 'CURRENT_DATA', 'SNAPSHOT_ONLY'].includes(nextForm.mode) || (nextForm.mode === 'KNOWLEDGE_ONLY' && source) || (nextForm.mode === 'SNAPSHOT_ONLY' && !source)) validationError = '执行范围与所选数据不一致，请重新选择；原请求不会自动改成当前数据。'
         if (request && !this.hasScope(request.companyCode, request.reportId)) validationError = '待核对请求的原范围已不在当前目录中，请核对本次提交取得服务器结果。'
-        else if (source) {
+        else if (source && !validationError) {
           try {
             const snapshot = await queryPage(source, 1)
             if (!this.valid(seq)) return
@@ -112,10 +117,12 @@ export default {
     async loadHistory() { const seq = ++this._historySeq; this.historyBusy = true; try { const rows = await analysisRuns(); if (this._alive && seq === this._historySeq) this.history = rows } catch (e) { if (this._alive && seq === this._historySeq) this.error = e.message } finally { if (this._alive && seq === this._historySeq) this.historyBusy = false } },
     hasScope(company, report) { return this.catalog.companies.includes(company) && this.catalog.reports.some(item => item.reportId === report) },
     /** 未核对提交始终以保存的请求为准；即使迟到的输入事件到达，也不能覆盖载荷或丢失幂等请求号。 */
-    restorePendingRequest() { if (!this.pending) return false; const request = this.pending.request; this.form = { companyCode: request.companyCode, reportId: request.reportId, question: request.question }; this.sourceId = request.snapshotId; return true },
+    restorePendingRequest() { if (!this.pending) return false; const request = this.pending.request; this.form = { companyCode: request.companyCode, reportId: request.reportId, question: request.question, mode: request.mode }; this.sourceId = request.snapshotId; return true },
     scopeChanged() { if (this.restorePendingRequest()) return; this.ready = this.hasScope(this.form.companyCode, this.form.reportId) },
     questionChanged() { this.restorePendingRequest() },
-    clearSource() { if (this.restorePendingRequest() || this.submitting || this.preparing) return; this.sourceId = null; this.sourceReady = true; this.ready = this.hasScope(this.form.companyCode, this.form.reportId); const query = { ...this.$route.query }; delete query.source; this.$router.replace({ path: '/analysis', query }).catch(() => {}) },
+    /** 只有明确选择执行范围时才解除快照；待核对请求保持原模式和原来源，不因其他输入事件变化。 */
+    modeChanged() { if (this.restorePendingRequest()) return; if (this.form.mode === 'KNOWLEDGE_ONLY') { this.sourceId = null; this.sourceReady = true }; this.ready = this.hasScope(this.form.companyCode, this.form.reportId); this.setRoute(this.$route.query.run) },
+    clearSource() { if (this.restorePendingRequest() || this.submitting || this.preparing) return; this.form.mode = 'CURRENT_DATA'; this.sourceId = null; this.sourceReady = true; this.ready = this.hasScope(this.form.companyCode, this.form.reportId); this.setRoute(this.$route.query.run) },
     invalidatePreparation() { this._prepareSeq++; this.preparing = false; this.preparationMessage = '' },
     /** 回填终态任务只准备新表单；显式快照先重新核对范围，失败时须由用户决定是否改用当前数据。 */
     async prepareRun() {
@@ -123,9 +130,10 @@ export default {
       if (!this.isTerminal || this.restoring || this.submitting || this.loading || this.preparing) return
       const id = this.run.id, request = { ...this.run.request }, seq = ++this._prepareSeq
       const current = () => this._alive && seq === this._prepareSeq && this.run?.id === id
-      const fill = sourceReady => { this.form = { companyCode: request.companyCode, reportId: request.reportId, question: request.question }; this.sourceId = request.snapshotId || null; this.sourceReady = sourceReady; this.ready = this.hasScope(request.companyCode, request.reportId) }
+      const fill = sourceReady => { this.form = { companyCode: request.companyCode, reportId: request.reportId, question: request.question, mode: request.mode }; this.sourceId = request.snapshotId || null; this.sourceReady = sourceReady; this.ready = this.hasScope(request.companyCode, request.reportId) }
       this.preparing = true; this.preparationMessage = ''; this.error = ''; this.closeRows()
       try {
+        if (!['KNOWLEDGE_ONLY', 'CURRENT_DATA', 'SNAPSHOT_ONLY'].includes(request.mode)) throw new Error('原任务执行范围无效，请重新填写问题。')
         if (!this.hasScope(request.companyCode, request.reportId)) throw new Error('原任务范围已不在当前可选目录中，请重新选择公司和报表。')
         if (request.snapshotId) {
           const snapshot = await queryPage(request.snapshotId, 1)
@@ -177,7 +185,7 @@ export default {
         } else this.error = (e.message || '提交结果尚未确认') + '。请点击“核对本次提交”，沿用原请求号核对。'
       } finally { if (this.valid(seq)) this.submitting = false }
     },
-    async setRoute(id) { if (this.$route.query.run !== id || (this.$route.query.source || null) !== this.sourceId) await this.$router.replace({ path: '/analysis', query: { ...(this.sourceId ? { source: this.sourceId } : {}), ...(id ? { run: id } : {}) } }).catch(() => {}) },
+    async setRoute(id) { if (this.$route.query.run !== id || (this.$route.query.source || null) !== this.sourceId || this.$route.query.mode !== this.form.mode) await this.$router.replace({ path: '/analysis', query: { mode: this.form.mode, ...(this.sourceId ? { source: this.sourceId } : {}), ...(id ? { run: id } : {}) } }).catch(() => {}) },
     async openRun(id, route = true) { if (this.submitting || this.restoring) return; const seq = ++this._seq; this.invalidatePreparation(); this.loading = true; this.error = ''; this.run = null; this.closeRows(); clearTimeout(this._timer);
       try { const run = await analysisRun(id); if (!this.valid(seq)) return; this.run = run; if (route) await this.setRoute(id); if (this.valid(seq)) this.schedule() } catch (e) { if (this.valid(seq)) this.error = e.message || '任务无法恢复' } finally { if (this.valid(seq)) this.loading = false } },
     schedule() { clearTimeout(this._timer); if (this._alive && this.isActive) this._timer = setTimeout(() => this.poll(), 1200) },
@@ -202,6 +210,7 @@ export default {
     pretty(value) { return JSON.stringify(value, null, 2) },
     time(value) { return value ? new Date(value).toLocaleString('zh-CN', { timeZone: 'Asia/Shanghai', hour12: false }) : '—' },
     actionText(value) { return ({ QUERY: '查询基础数据', SNAPSHOT: '读取选定快照', GROUP: '分组与指标', RANK: '完整集合排名', DRILLDOWN: '展开相关明细', COMPARE: '查询结果对比', KNOWLEDGE: '检索业务依据' })[value] || value },
+    modeText(value) { return ({ KNOWLEDGE_ONLY: '业务知识问答', CURRENT_DATA: '当前数据分析', SNAPSHOT_ONLY: '仅分析选定结果' })[value] || '执行范围无效' },
     stepText(value) { if (value === 'RUNNING' && !this.isActive) return '未完成'; return ({ RUNNING: '执行中', COMPLETED: '已完成', FAILED: '未完成' })[value] || value },
     statusText(value) { return ({ QUEUED: '等待执行', RUNNING: '分析中', COMPLETED: '已完成', CLARIFY: '需要补充说明', PARTIAL: '部分完成', FAILED: '未完成', CANCELLED: '已取消', INTERRUPTED: '已中断' })[value] || value },
     stageText(value) { return ({ QUEUED: '排队中', PLAN: '整理分析步骤', PLAN_REVIEW: '核对分析范围和要求', STEP: '读取与计算', RAG_REWRITE: '整理知识检索表达', RAG_RERANK: '核对知识片段相关性', ANSWER: '整理有依据的回答', ANSWER_REVIEW: '核对回答依据', FINISHED: '' })[value] ?? value },

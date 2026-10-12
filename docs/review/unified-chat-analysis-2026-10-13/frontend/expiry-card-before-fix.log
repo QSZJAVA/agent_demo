@@ -1,0 +1,813 @@
+TAP version 13
+# Subtest: 卡片答案只来自GET，引用载荷内的答案不显示，终态读取不创建新任务
+not ok 1 - 卡片答案只来自GET，引用载荷内的答案不显示，终态读取不创建新任务
+  ---
+  duration_ms: 2.5758
+  type: 'test'
+  location: 'D:\\demo-v1\\demo\\frontend\\tests\\analysis-task-card.test.cjs:33:1'
+  failureType: 'testCodeFailure'
+  error: |-
+    Expected values to be strictly equal:
+    
+    0 !== 1
+    
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: 1
+  actual: 0
+  operator: 'strictEqual'
+  stack: |-
+    TestContext.<anonymous> (D:\demo-v1\demo\frontend\tests\analysis-task-card.test.cjs:37:110)
+    async Test.run (node:internal/test_runner/test:1054:7)
+    async startSubtestAfterBootstrap (node:internal/test_runner/harness:296:3)
+  ...
+# Subtest: 中性不可用卡片和缺失引用不会读取其他任务
+ok 2 - 中性不可用卡片和缺失引用不会读取其他任务
+  ---
+  duration_ms: 2.2329
+  type: 'test'
+  ...
+# Subtest: 任务范围和引用不一致时不显示任何返回答案
+ok 3 - 任务范围和引用不一致时不显示任何返回答案
+  ---
+  duration_ms: 2.1142
+  type: 'test'
+  ...
+# Subtest: 权限或资料版本读取失败清空上次成功答案，不继续显示最后成功值
+ok 4 - 权限或资料版本读取失败清空上次成功答案，不继续显示最后成功值
+  ---
+  duration_ms: 0.6732
+  type: 'test'
+  ...
+# Subtest: 隐藏和销毁撤销读取并停止轮询，迟到的成功或失败不恢复旧答案
+ok 5 - 隐藏和销毁撤销读取并停止轮询，迟到的成功或失败不恢复旧答案
+  ---
+  duration_ms: 1.4087
+  type: 'test'
+  ...
+# Subtest: 重新显示只GET核对同一任务，旧页面响应不能覆盖新的读取
+ok 6 - 重新显示只GET核对同一任务，旧页面响应不能覆盖新的读取
+  ---
+  duration_ms: 0.6525
+  type: 'test'
+  ...
+# Subtest: 同用户的新令牌撤销旧任务内容，迟到GET不能写入新登录
+ok 7 - 同用户的新令牌撤销旧任务内容，迟到GET不能写入新登录
+  ---
+  duration_ms: 0.6201
+  type: 'test'
+  ...
+# Subtest: 取消确认后的新读取不会被旧RUNNING轮询覆盖
+not ok 8 - 取消确认后的新读取不会被旧RUNNING轮询覆盖
+  ---
+  duration_ms: 4.6055
+  type: 'test'
+  location: 'D:\\demo-v1\\demo\\frontend\\tests\\analysis-task-card.test.cjs:84:1'
+  failureType: 'testCodeFailure'
+  error: |-
+    Expected values to be strictly equal:
+    
+    0 !== 1
+    
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: 1
+  actual: 0
+  operator: 'strictEqual'
+  stack: |-
+    TestContext.<anonymous> (D:\demo-v1\demo\frontend\tests\analysis-task-card.test.cjs:90:91)
+    async Test.run (node:internal/test_runner/test:1054:7)
+    async Test.processPendingSubtests (node:internal/test_runner/test:744:7)
+  ...
+# Subtest: 已确认终态的旧版本响应不能倒退任务版本
+not ok 9 - 已确认终态的旧版本响应不能倒退任务版本
+  ---
+  duration_ms: 1.0373
+  type: 'test'
+  location: 'D:\\demo-v1\\demo\\frontend\\tests\\analysis-task-card.test.cjs:93:1'
+  failureType: 'testCodeFailure'
+  error: |-
+    Expected values to be strictly equal:
+    
+    0 !== 1
+    
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: 1
+  actual: 0
+  operator: 'strictEqual'
+  stack: |-
+    TestContext.<anonymous> (D:\demo-v1\demo\frontend\tests\analysis-task-card.test.cjs:96:91)
+    async Test.run (node:internal/test_runner/test:1054:7)
+    async Test.processPendingSubtests (node:internal/test_runner/test:744:7)
+  ...
+# Subtest: 所有终态在29999毫秒仍可见，30000毫秒先撤下再GET同一任务
+not ok 10 - 所有终态在29999毫秒仍可见，30000毫秒先撤下再GET同一任务
+  ---
+  duration_ms: 2.7229
+  type: 'test'
+  location: 'D:\\demo-v1\\demo\\frontend\\tests\\analysis-task-card.test.cjs:99:1'
+  failureType: 'testCodeFailure'
+  error: |-
+    Expected values to be strictly equal:
+    + actual - expected
+    
+    + {
+    +   answer: {
+    +     claims: [
+    +       {
+    +         citations: [],
+    +         text: '受控依据'
+    +       }
+    +     ],
+    +     limitations: [],
+    +     status: 'ANSWERED'
+    +   },
+    +   id: 'dddddddddddddddddddddddddddddddd',
+    +   request: {
+    +     companyCode: 'A',
+    +     mode: 'KNOWLEDGE_ONLY',
+    +     question: '销售口径',
+    +     reportId: 'rpt-sales-order'
+    +   },
+    +   stage: 'FINISHED',
+    +   status: 'COMPLETED',
+    +   steps: [],
+    +   version: 5
+    + }
+    - null
+    
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: ~
+  actual:
+    id: 'dddddddddddddddddddddddddddddddd'
+    status: 'COMPLETED'
+    version: 5
+    stage: 'FINISHED'
+    request:
+      companyCode: 'A'
+      reportId: 'rpt-sales-order'
+      mode: 'KNOWLEDGE_ONLY'
+      question: '销售口径'
+    steps:
+    answer:
+      status: 'ANSWERED'
+      claims:
+        0:
+          text: '受控依据'
+          citations:
+      limitations:
+  operator: 'strictEqual'
+  stack: |-
+    TestContext.<anonymous> (D:\demo-v1\demo\frontend\tests\analysis-task-card.test.cjs:105:12)
+    async Test.run (node:internal/test_runner/test:1054:7)
+    async Test.processPendingSubtests (node:internal/test_runner/test:744:7)
+  ...
+# Subtest: 同令牌下撤权或知识版本变化最多30秒撤下答案，拒绝后不自动重试
+not ok 11 - 同令牌下撤权或知识版本变化最多30秒撤下答案，拒绝后不自动重试
+  ---
+  duration_ms: 1.3937
+  type: 'test'
+  location: 'D:\\demo-v1\\demo\\frontend\\tests\\analysis-task-card.test.cjs:111:1'
+  failureType: 'testCodeFailure'
+  error: |-
+    Expected values to be strictly equal:
+    + actual - expected
+    
+    + {
+    +   answer: {
+    +     claims: [
+    +       {
+    +         citations: [],
+    +         text: '受控依据'
+    +       }
+    +     ],
+    +     limitations: [],
+    +     status: 'ANSWERED'
+    +   },
+    +   id: 'dddddddddddddddddddddddddddddddd',
+    +   request: {
+    +     companyCode: 'A',
+    +     mode: 'KNOWLEDGE_ONLY',
+    +     question: '销售口径',
+    +     reportId: 'rpt-sales-order'
+    +   },
+    +   stage: 'FINISHED',
+    +   status: 'COMPLETED',
+    +   steps: [],
+    +   version: 1
+    + }
+    - null
+    
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: ~
+  actual:
+    id: 'dddddddddddddddddddddddddddddddd'
+    status: 'COMPLETED'
+    version: 1
+    stage: 'FINISHED'
+    request:
+      companyCode: 'A'
+      reportId: 'rpt-sales-order'
+      mode: 'KNOWLEDGE_ONLY'
+      question: '销售口径'
+    steps:
+    answer:
+      status: 'ANSWERED'
+      claims:
+        0:
+          text: '受控依据'
+          citations:
+      limitations:
+  operator: 'strictEqual'
+  stack: |-
+    TestContext.<anonymous> (D:\demo-v1\demo\frontend\tests\analysis-task-card.test.cjs:115:12)
+    async Test.run (node:internal/test_runner/test:1054:7)
+    async Test.processPendingSubtests (node:internal/test_runner/test:744:7)
+  ...
+# Subtest: 运行态轮询挂起也会到期撤下答案，过期前发出的成功响应不能复活内容
+not ok 12 - 运行态轮询挂起也会到期撤下答案，过期前发出的成功响应不能复活内容
+  ---
+  duration_ms: 1.2824
+  type: 'test'
+  location: 'D:\\demo-v1\\demo\\frontend\\tests\\analysis-task-card.test.cjs:123:1'
+  failureType: 'testCodeFailure'
+  error: |-
+    Expected values to be strictly equal:
+    + actual - expected
+    
+    + {
+    +   answer: {
+    +     claims: [
+    +       {
+    +         citations: [],
+    +         text: '受控依据'
+    +       }
+    +     ],
+    +     limitations: [],
+    +     status: 'ANSWERED'
+    +   },
+    +   id: 'dddddddddddddddddddddddddddddddd',
+    +   request: {
+    +     companyCode: 'A',
+    +     mode: 'KNOWLEDGE_ONLY',
+    +     question: '销售口径',
+    +     reportId: 'rpt-sales-order'
+    +   },
+    +   stage: 'FINISHED',
+    +   status: 'RUNNING',
+    +   steps: [],
+    +   version: 5
+    + }
+    - null
+    
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: ~
+  actual:
+    id: 'dddddddddddddddddddddddddddddddd'
+    status: 'RUNNING'
+    version: 5
+    stage: 'FINISHED'
+    request:
+      companyCode: 'A'
+      reportId: 'rpt-sales-order'
+      mode: 'KNOWLEDGE_ONLY'
+      question: '销售口径'
+    steps:
+    answer:
+      status: 'ANSWERED'
+      claims:
+        0:
+          text: '受控依据'
+          citations:
+      limitations:
+  operator: 'strictEqual'
+  stack: |-
+    TestContext.<anonymous> (D:\demo-v1\demo\frontend\tests\analysis-task-card.test.cjs:130:10)
+    async Test.run (node:internal/test_runner/test:1054:7)
+    async Test.processPendingSubtests (node:internal/test_runner/test:744:7)
+  ...
+# Subtest: 过期后的GET持续挂起或断网时不保留旧答案，也不产生重叠轮询
+not ok 13 - 过期后的GET持续挂起或断网时不保留旧答案，也不产生重叠轮询
+  ---
+  duration_ms: 1.0977
+  type: 'test'
+  location: 'D:\\demo-v1\\demo\\frontend\\tests\\analysis-task-card.test.cjs:137:1'
+  failureType: 'testCodeFailure'
+  error: |-
+    Expected values to be strictly equal:
+    + actual - expected
+    
+    + {
+    +   answer: {
+    +     claims: [
+    +       {
+    +         citations: [],
+    +         text: '受控依据'
+    +       }
+    +     ],
+    +     limitations: [],
+    +     status: 'ANSWERED'
+    +   },
+    +   id: 'dddddddddddddddddddddddddddddddd',
+    +   request: {
+    +     companyCode: 'A',
+    +     mode: 'KNOWLEDGE_ONLY',
+    +     question: '销售口径',
+    +     reportId: 'rpt-sales-order'
+    +   },
+    +   stage: 'FINISHED',
+    +   status: 'COMPLETED',
+    +   steps: [],
+    +   version: 1
+    + }
+    - null
+    
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: ~
+  actual:
+    id: 'dddddddddddddddddddddddddddddddd'
+    status: 'COMPLETED'
+    version: 1
+    stage: 'FINISHED'
+    request:
+      companyCode: 'A'
+      reportId: 'rpt-sales-order'
+      mode: 'KNOWLEDGE_ONLY'
+      question: '销售口径'
+    steps:
+    answer:
+      status: 'ANSWERED'
+      claims:
+        0:
+          text: '受控依据'
+          citations:
+      limitations:
+  operator: 'strictEqual'
+  stack: |-
+    TestContext.<anonymous> (D:\demo-v1\demo\frontend\tests\analysis-task-card.test.cjs:139:38)
+    async Test.run (node:internal/test_runner/test:1054:7)
+    async Test.processPendingSubtests (node:internal/test_runner/test:744:7)
+  ...
+# Subtest: 超过30秒才返回的GET不重新展示已经超过本次核验有效期的内容
+not ok 14 - 超过30秒才返回的GET不重新展示已经超过本次核验有效期的内容
+  ---
+  duration_ms: 1.0901
+  type: 'test'
+  location: 'D:\\demo-v1\\demo\\frontend\\tests\\analysis-task-card.test.cjs:146:1'
+  failureType: 'testCodeFailure'
+  error: |-
+    Expected values to be strictly equal:
+    + actual - expected
+    
+    + {
+    +   answer: {
+    +     claims: [
+    +       {
+    +         citations: [],
+    +         text: '受控依据'
+    +       }
+    +     ],
+    +     limitations: [],
+    +     status: 'ANSWERED'
+    +   },
+    +   id: 'dddddddddddddddddddddddddddddddd',
+    +   request: {
+    +     companyCode: 'A',
+    +     mode: 'KNOWLEDGE_ONLY',
+    +     question: '销售口径',
+    +     reportId: 'rpt-sales-order'
+    +   },
+    +   stage: 'FINISHED',
+    +   status: 'COMPLETED',
+    +   steps: [],
+    +   version: 5
+    + }
+    - null
+    
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: ~
+  actual:
+    id: 'dddddddddddddddddddddddddddddddd'
+    status: 'COMPLETED'
+    version: 5
+    stage: 'FINISHED'
+    request:
+      companyCode: 'A'
+      reportId: 'rpt-sales-order'
+      mode: 'KNOWLEDGE_ONLY'
+      question: '销售口径'
+    steps:
+    answer:
+      status: 'ANSWERED'
+      claims:
+        0:
+          text: '受控依据'
+          citations:
+      limitations:
+  operator: 'strictEqual'
+  stack: |-
+    TestContext.<anonymous> (D:\demo-v1\demo\frontend\tests\analysis-task-card.test.cjs:149:10)
+    async Test.run (node:internal/test_runner/test:1054:7)
+    async Test.processPendingSubtests (node:internal/test_runner/test:744:7)
+  ...
+# Subtest: 展示有效期从GET开始核验计时，网络延迟不会延长原授权窗口
+not ok 15 - 展示有效期从GET开始核验计时，网络延迟不会延长原授权窗口
+  ---
+  duration_ms: 1.2744
+  type: 'test'
+  location: 'D:\\demo-v1\\demo\\frontend\\tests\\analysis-task-card.test.cjs:152:1'
+  failureType: 'testCodeFailure'
+  error: |-
+    Expected values to be strictly equal:
+    + actual - expected
+    
+    + {
+    +   answer: {
+    +     claims: [
+    +       {
+    +         citations: [],
+    +         text: '受控依据'
+    +       }
+    +     ],
+    +     limitations: [],
+    +     status: 'ANSWERED'
+    +   },
+    +   id: 'dddddddddddddddddddddddddddddddd',
+    +   request: {
+    +     companyCode: 'A',
+    +     mode: 'KNOWLEDGE_ONLY',
+    +     question: '销售口径',
+    +     reportId: 'rpt-sales-order'
+    +   },
+    +   stage: 'FINISHED',
+    +   status: 'COMPLETED',
+    +   steps: [],
+    +   version: 1
+    + }
+    - null
+    
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: ~
+  actual:
+    id: 'dddddddddddddddddddddddddddddddd'
+    status: 'COMPLETED'
+    version: 1
+    stage: 'FINISHED'
+    request:
+      companyCode: 'A'
+      reportId: 'rpt-sales-order'
+      mode: 'KNOWLEDGE_ONLY'
+      question: '销售口径'
+    steps:
+    answer:
+      status: 'ANSWERED'
+      claims:
+        0:
+          text: '受控依据'
+          citations:
+      limitations:
+  operator: 'strictEqual'
+  stack: |-
+    TestContext.<anonymous> (D:\demo-v1\demo\frontend\tests\analysis-task-card.test.cjs:156:34)
+    async Test.run (node:internal/test_runner/test:1054:7)
+    async Test.processPendingSubtests (node:internal/test_runner/test:744:7)
+  ...
+# Subtest: 运行态成功轮询更新展示有效期，后续挂起不沿用早先的计时器
+not ok 16 - 运行态成功轮询更新展示有效期，后续挂起不沿用早先的计时器
+  ---
+  duration_ms: 1.2107
+  type: 'test'
+  location: 'D:\\demo-v1\\demo\\frontend\\tests\\analysis-task-card.test.cjs:159:1'
+  failureType: 'testCodeFailure'
+  error: |-
+    Expected values to be strictly equal:
+    + actual - expected
+    
+    + {
+    +   answer: {
+    +     claims: [
+    +       {
+    +         citations: [],
+    +         text: '受控依据'
+    +       }
+    +     ],
+    +     limitations: [],
+    +     status: 'ANSWERED'
+    +   },
+    +   id: 'dddddddddddddddddddddddddddddddd',
+    +   request: {
+    +     companyCode: 'A',
+    +     mode: 'KNOWLEDGE_ONLY',
+    +     question: '销售口径',
+    +     reportId: 'rpt-sales-order'
+    +   },
+    +   stage: 'FINISHED',
+    +   status: 'RUNNING',
+    +   steps: [],
+    +   version: 2
+    + }
+    - null
+    
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: ~
+  actual:
+    id: 'dddddddddddddddddddddddddddddddd'
+    status: 'RUNNING'
+    version: 2
+    stage: 'FINISHED'
+    request:
+      companyCode: 'A'
+      reportId: 'rpt-sales-order'
+      mode: 'KNOWLEDGE_ONLY'
+      question: '销售口径'
+    steps:
+    answer:
+      status: 'ANSWERED'
+      claims:
+        0:
+          text: '受控依据'
+          citations:
+      limitations:
+  operator: 'strictEqual'
+  stack: |-
+    TestContext.<anonymous> (D:\demo-v1\demo\frontend\tests\analysis-task-card.test.cjs:165:34)
+    async Test.run (node:internal/test_runner/test:1054:7)
+    async Test.processPendingSubtests (node:internal/test_runner/test:744:7)
+  ...
+# Subtest: 过期和显式重读仍保留同一引用的最高版本，低版本不能恢复旧答案
+not ok 17 - 过期和显式重读仍保留同一引用的最高版本，低版本不能恢复旧答案
+  ---
+  duration_ms: 1.6764
+  type: 'test'
+  location: 'D:\\demo-v1\\demo\\frontend\\tests\\analysis-task-card.test.cjs:168:1'
+  failureType: 'testCodeFailure'
+  error: "Cannot read properties of undefined (reading 'resolve')"
+  code: 'ERR_TEST_FAILURE'
+  name: 'TypeError'
+  stack: |-
+    TestContext.<anonymous> (D:\demo-v1\demo\frontend\tests\analysis-task-card.test.cjs:170:46)
+    async Test.run (node:internal/test_runner/test:1054:7)
+    async Test.processPendingSubtests (node:internal/test_runner/test:744:7)
+  ...
+# Subtest: 旧版本返回不会延长当前已确认答案的展示有效期
+not ok 18 - 旧版本返回不会延长当前已确认答案的展示有效期
+  ---
+  duration_ms: 1.0568
+  type: 'test'
+  location: 'D:\\demo-v1\\demo\\frontend\\tests\\analysis-task-card.test.cjs:178:1'
+  failureType: 'testCodeFailure'
+  error: |-
+    Expected values to be strictly equal:
+    + actual - expected
+    
+    + {
+    +   answer: {
+    +     claims: [
+    +       {
+    +         citations: [],
+    +         text: '受控依据'
+    +       }
+    +     ],
+    +     limitations: [],
+    +     status: 'ANSWERED'
+    +   },
+    +   id: 'dddddddddddddddddddddddddddddddd',
+    +   request: {
+    +     companyCode: 'A',
+    +     mode: 'KNOWLEDGE_ONLY',
+    +     question: '销售口径',
+    +     reportId: 'rpt-sales-order'
+    +   },
+    +   stage: 'FINISHED',
+    +   status: 'COMPLETED',
+    +   steps: [],
+    +   version: 5
+    + }
+    - null
+    
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: ~
+  actual:
+    id: 'dddddddddddddddddddddddddddddddd'
+    status: 'COMPLETED'
+    version: 5
+    stage: 'FINISHED'
+    request:
+      companyCode: 'A'
+      reportId: 'rpt-sales-order'
+      mode: 'KNOWLEDGE_ONLY'
+      question: '销售口径'
+    steps:
+    answer:
+      status: 'ANSWERED'
+      claims:
+        0:
+          text: '受控依据'
+          citations:
+      limitations:
+  operator: 'strictEqual'
+  stack: |-
+    TestContext.<anonymous> (D:\demo-v1\demo\frontend\tests\analysis-task-card.test.cjs:183:34)
+    async Test.run (node:internal/test_runner/test:1054:7)
+    async Test.processPendingSubtests (node:internal/test_runner/test:744:7)
+  ...
+# Subtest: 同一显示代次内较早GET的迟到成功或失败不能覆盖最新读取结果
+not ok 19 - 同一显示代次内较早GET的迟到成功或失败不能覆盖最新读取结果
+  ---
+  duration_ms: 0.8356
+  type: 'test'
+  location: 'D:\\demo-v1\\demo\\frontend\\tests\\analysis-task-card.test.cjs:186:1'
+  failureType: 'testCodeFailure'
+  error: |-
+    Expected values to be strictly equal:
+    + actual - expected
+    
+    + 'RUNNING'
+    - 'COMPLETED'
+    
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: 'COMPLETED'
+  actual: 'RUNNING'
+  operator: 'strictEqual'
+  stack: |-
+    TestContext.<anonymous> (D:\demo-v1\demo\frontend\tests\analysis-task-card.test.cjs:193:12)
+    async Test.run (node:internal/test_runner/test:1054:7)
+    async Test.processPendingSubtests (node:internal/test_runner/test:744:7)
+  ...
+# Subtest: 最新GET拒绝后旧并发成功响应不能复活原答案
+not ok 20 - 最新GET拒绝后旧并发成功响应不能复活原答案
+  ---
+  duration_ms: 0.6792
+  type: 'test'
+  location: 'D:\\demo-v1\\demo\\frontend\\tests\\analysis-task-card.test.cjs:197:1'
+  failureType: 'testCodeFailure'
+  error: |-
+    Expected values to be strictly equal:
+    + actual - expected
+    
+    + {
+    +   answer: {
+    +     claims: [
+    +       {
+    +         citations: [],
+    +         text: '受控依据'
+    +       }
+    +     ],
+    +     limitations: [],
+    +     status: 'ANSWERED'
+    +   },
+    +   id: 'dddddddddddddddddddddddddddddddd',
+    +   request: {
+    +     companyCode: 'A',
+    +     mode: 'KNOWLEDGE_ONLY',
+    +     question: '销售口径',
+    +     reportId: 'rpt-sales-order'
+    +   },
+    +   stage: 'FINISHED',
+    +   status: 'COMPLETED',
+    +   steps: [],
+    +   version: 5
+    + }
+    - null
+    
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: ~
+  actual:
+    id: 'dddddddddddddddddddddddddddddddd'
+    status: 'COMPLETED'
+    version: 5
+    stage: 'FINISHED'
+    request:
+      companyCode: 'A'
+      reportId: 'rpt-sales-order'
+      mode: 'KNOWLEDGE_ONLY'
+      question: '销售口径'
+    steps:
+    answer:
+      status: 'ANSWERED'
+      claims:
+        0:
+          text: '受控依据'
+          citations:
+      limitations:
+  operator: 'strictEqual'
+  stack: |-
+    TestContext.<anonymous> (D:\demo-v1\demo\frontend\tests\analysis-task-card.test.cjs:202:10)
+    async Test.run (node:internal/test_runner/test:1054:7)
+    async Test.processPendingSubtests (node:internal/test_runner/test:744:7)
+  ...
+# Subtest: 隐藏卡片立即清空答案并停止所有计时，重新显示只GET不执行任务
+ok 21 - 隐藏卡片立即清空答案并停止所有计时，重新显示只GET不执行任务
+  ---
+  duration_ms: 1.246
+  type: 'test'
+  ...
+# Subtest: 浏览器页面隐藏也立即撤下答案，恢复和销毁正确管理可见性监听
+not ok 22 - 浏览器页面隐藏也立即撤下答案，恢复和销毁正确管理可见性监听
+  ---
+  duration_ms: 0.6875
+  type: 'test'
+  location: 'D:\\demo-v1\\demo\\frontend\\tests\\analysis-task-card.test.cjs:215:1'
+  failureType: 'testCodeFailure'
+  error: |-
+    Expected values to be strictly equal:
+    
+    0 !== 1
+    
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: 1
+  actual: 0
+  operator: 'strictEqual'
+  stack: |-
+    TestContext.<anonymous> (D:\demo-v1\demo\frontend\tests\analysis-task-card.test.cjs:217:10)
+    Test.runInAsyncScope (node:async_hooks:214:14)
+    Test.run (node:internal/test_runner/test:1047:25)
+    Test.processPendingSubtests (node:internal/test_runner/test:744:18)
+    Test.postRun (node:internal/test_runner/test:1173:19)
+    Test.run (node:internal/test_runner/test:1101:12)
+    async Test.processPendingSubtests (node:internal/test_runner/test:744:7)
+  ...
+# Subtest: 终态答案到期时发现登录已变化，仅清理展示而不沿用新身份读取旧任务
+not ok 23 - 终态答案到期时发现登录已变化，仅清理展示而不沿用新身份读取旧任务
+  ---
+  duration_ms: 1.0539
+  type: 'test'
+  location: 'D:\\demo-v1\\demo\\frontend\\tests\\analysis-task-card.test.cjs:228:1'
+  failureType: 'testCodeFailure'
+  error: |-
+    Expected values to be strictly equal:
+    + actual - expected
+    
+    + {
+    +   answer: {
+    +     claims: [
+    +       {
+    +         citations: [],
+    +         text: '受控依据'
+    +       }
+    +     ],
+    +     limitations: [],
+    +     status: 'ANSWERED'
+    +   },
+    +   id: 'dddddddddddddddddddddddddddddddd',
+    +   request: {
+    +     companyCode: 'A',
+    +     mode: 'KNOWLEDGE_ONLY',
+    +     question: '销售口径',
+    +     reportId: 'rpt-sales-order'
+    +   },
+    +   stage: 'FINISHED',
+    +   status: 'COMPLETED',
+    +   steps: [],
+    +   version: 1
+    + }
+    - null
+    
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: ~
+  actual:
+    id: 'dddddddddddddddddddddddddddddddd'
+    status: 'COMPLETED'
+    version: 1
+    stage: 'FINISHED'
+    request:
+      companyCode: 'A'
+      reportId: 'rpt-sales-order'
+      mode: 'KNOWLEDGE_ONLY'
+      question: '销售口径'
+    steps:
+    answer:
+      status: 'ANSWERED'
+      claims:
+        0:
+          text: '受控依据'
+          citations:
+      limitations:
+  operator: 'strictEqual'
+  stack: |-
+    TestContext.<anonymous> (D:\demo-v1\demo\frontend\tests\analysis-task-card.test.cjs:231:10)
+    async Test.run (node:internal/test_runner/test:1054:7)
+    async Test.processPendingSubtests (node:internal/test_runner/test:744:7)
+  ...
+1..23
+# tests 23
+# suites 0
+# pass 7
+# fail 16
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 82.972

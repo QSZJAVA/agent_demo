@@ -22,7 +22,8 @@ function Invoke-FieldTurn($Conversation,[string]$Message) {
     $taskWait=3000-([DateTime]::UtcNow-$script:taskLastRequest).TotalMilliseconds
     if($taskWait -gt 0){Start-Sleep -Milliseconds ([int]$taskWait)}
     $script:taskLastRequest=[DateTime]::UtcNow
-    $response=Invoke-WebRequest ($BaseUrl+'agent/chat') -Method Post -ContentType 'application/json' -Headers $taskHeaders -TimeoutSec 120 -Body (@{conversationId=$Conversation;message=$Message}|ConvertTo-Json)
+    $taskTurnHeaders=$taskHeaders.Clone();$taskTurnHeaders['Idempotency-Key']='chat-'+[Guid]::NewGuid().ToString('N')
+    $response=Invoke-WebRequest ($BaseUrl+'agent/chat') -Method Post -ContentType 'application/json' -Headers $taskTurnHeaders -TimeoutSec 120 -Body (@{conversationId=$Conversation;message=$Message}|ConvertTo-Json)
     $events=@()
     foreach($block in ($response.Content.Replace("`r`n","`n") -split "`n`n")) {
         $kind=$null;$data=$null

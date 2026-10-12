@@ -76,6 +76,8 @@ const assert = require('node:assert/strict')
 const fs = require('node:fs')
 const path = require('node:path')
 const vm = require('node:vm')
+// 本组关注预览选择，使用当前回执字段表示成功流；断帧和投影延迟由统一聊天专项验证。
+const completedTurn = key => ({ clientKey: key, requestId: 'a'.repeat(32), conversationId: 'conv1', status: 'COMPLETED', message: null, canReconcile: false, historyReady: true, analysisTask: null, expiresAt: '2099-01-01T00:00:00Z' })
 
 // Exercise the component's real methods without introducing a browser-test dependency.
 const source = fs.readFileSync(path.join(__dirname, '../src/components/agent/AgentChat.vue'), 'utf8')
@@ -87,8 +89,11 @@ function harness(overrides = {}, storage = new Map()) {
   const calls = { discovery: [], polls: [] }
   const job = { id: 'job1', status: 'SUCCEEDED', previewId: 'preview1' }
   const sandbox = {
-    result: null, PreviewCard: {}, PlanCard: {}, ResultCard: {}, ReportChoiceCard: {}, BusinessQueryCard: {}, QueryConditionEditor: {},
-    getCurrentUserId: () => 'user1',
+    result: null, PreviewCard: {}, PlanCard: {}, ResultCard: {}, ReportChoiceCard: {}, BusinessQueryCard: {}, QueryConditionEditor: {}, AnalysisTaskCard: {},
+    getCurrentUserId: () => 'user1', getSessionToken: () => 'session1', crypto: require('node:crypto').webcrypto, clearTimeout() {},
+    // 本组只验证原预览/选择交互，轮次服务使用已完成回执；完整当前协议在chat-recovery测试中验证。
+    readChatReceipt: value => value, analysisTaskReference: value => value, chatTurnSettled: status => ['SUBMITTED', 'COMPLETED', 'INTERRUPTED', 'FAILED'].includes(status),
+    fetchChatTurn: async key => completedTurn(key),
     sessionStorage: {
       getItem: key => storage.get(key), setItem: (key, value) => storage.set(key, value),
       removeItem: key => storage.delete(key)
@@ -106,10 +111,14 @@ function harness(overrides = {}, storage = new Map()) {
     },
     ...overrides
   }
+  const originalStream = sandbox.streamChat
+  sandbox.streamChat = (request, handler, key) => originalStream(request, (type, data) => handler(type, type === 'conversation' ? { requestId: 'a'.repeat(32), replayed: false, ...data } : data), key)
   vm.runInNewContext(source, sandbox)
   const component = sandbox.result
-  const state = { ...component.data(), $message: { warning() {} }, $emit() {} }
-  Object.defineProperty(state, 'busy', { get: () => component.computed.busy.call(state) })
+  const state = { ...component.data(), chatReady: true, $message: { warning() {} }, $emit() {} }
+  let pending = null
+  state._chatPendingStore = { async checkSession() {}, async verify() {}, async read() { return { pending, notice: '' } }, async clear() { pending = null; return true }, async create(request, key) { pending = { request, key }; return pending } }
+  for (const [key, getter] of Object.entries(component.computed)) Object.defineProperty(state, key, { get: () => getter.call(state) })
   for (const [key, method] of Object.entries(component.methods)) state[key] = method.bind(state)
   state.scrollToBottom = () => {}
   state.loadConversations = async () => {}
@@ -208,6 +217,7 @@ test('switching accounts aborts SSE and ignores late events and recovery', async
     }
   })
   const sending = state.send('query')
+  await new Promise(resolve => setImmediate(resolve))
   event('conversation', { conversationId: 'private' })
   user = 'user2'
   component.beforeDestroy.call(state)
@@ -287,8 +297,9 @@ test('late history response cannot replace another conversation', async () => {
 
 test('selected record identity is sent with its preview', async () => {
   let request
-  const { state } = harness({ streamChat: args => {
+  const { state } = harness({ streamChat: (args, event, key) => {
     request = args
+    event('conversation', { conversationId: 'conv1' }); event('text', { delta: '已读取本次选择' }); event('turn_receipt', completedTurn(key))
     return { promise: Promise.resolve() }
   } })
   state.uiPreviewId = 'preview1'
@@ -324,7 +335,7 @@ test('sending is blocked until initial history finishes and remains usable after
   let finish, sent = 0
   const { state } = harness({
     fetchMessages: () => new Promise(resolve => { finish = resolve }),
-    streamChat: (_, event) => { sent++; event('text', { delta: 'new answer' }); return { promise: Promise.resolve() } }
+    streamChat: (_, event, key) => { sent++; event('conversation', { conversationId: 'conv1' }); event('text', { delta: 'new answer' }); event('turn_receipt', completedTurn(key)); return { promise: Promise.resolve() } }
   })
   const opening = state.openConversation('conv1', true)
   assert.equal(state.busy, true)

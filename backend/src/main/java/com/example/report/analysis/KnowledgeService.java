@@ -39,7 +39,7 @@ public class KnowledgeService {
      */
     public record Content(String companyCode,String reportId,String title,String body,String sourceName,String sourceUri,String effectiveFrom,String effectiveTo) {
         public Content {
-            new AnalysisContract.Request(companyCode,reportId,"知识资料校验",null);
+            new AnalysisContract.Request(companyCode,reportId,"知识资料校验",AnalysisContract.Mode.KNOWLEDGE_ONLY,null);
             AnalysisContract.text(title,200,"标题");AnalysisContract.text(body,12000,"正文");AnalysisContract.text(sourceName,200,"来源名称");
             for(String value:List.of(title,body,sourceName))ModelEgressPolicy.requireSafeText(value);
             try {var from=LocalDate.parse(effectiveFrom);if(effectiveTo!=null&&!LocalDate.parse(effectiveTo).isAfter(from))AnalysisContract.fail("失效日期须晚于生效日期");}
@@ -83,7 +83,7 @@ public class KnowledgeService {
      * @param question 需要试查的完整问题，1至2000字符，不写入任务或审计正文
      */
     public record SearchRequest(String companyCode,String reportId,String question) {
-        public SearchRequest {new AnalysisContract.Request(companyCode,reportId,question,null);}
+        public SearchRequest {new AnalysisContract.Request(companyCode,reportId,question,AnalysisContract.Mode.KNOWLEDGE_ONLY,null);}
     }
     /**
      * 管理员试查的范围和版本依据；仅说明本次读取时的结果，不授予后续访问权限。

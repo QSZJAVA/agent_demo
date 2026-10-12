@@ -107,14 +107,15 @@ async function main() {
   for (const scenario of corpus.scenarios) {
     let conversationId = null; const cards = [], clarifications = []
     for (const [index, turn] of scenario.turns.entries()) {
-      const started = Date.now(), errors = []; let events = [], observed, actualDiagnostic, truth, transport = false, input
+      // 请求号属于本轮完整输入；任何显式核对必须复用它，不能由传输层自动换键重试。
+      const started = Date.now(), errors = [], clientKey = 'chat-' + crypto.randomUUID(); let events = [], observed, actualDiagnostic, truth, transport = false, input
       try {
         await wait(Math.max(0, 3000 - (Date.now() - lastStart))); lastStart = Date.now()
         input = { conversationId, message: turn.message }
         if (turn.edit) { const card = cards[turn.edit.from ?? cards.length - 1]; if (!card?.interpretation?.queryRef) throw new Error('Missing prior query reference'); input.queryEdit = { queryRef: card.interpretation.queryRef, conditions: turn.edit.conditions } }
         if (turn.choose) { const card = clarifications[turn.choose.from ?? clarifications.length - 1]; if (!card) throw new Error('Missing prior clarification'); input.clarificationReply = { clarificationRef: card.clarificationRef, value: turn.choose.value } }
         let response
-        try { response = await fetch(new URL('/api/agent/chat', base), { method: 'POST', headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + token }, body: JSON.stringify(input), signal: AbortSignal.timeout(240000) }) }
+        try { response = await fetch(new URL('/api/agent/chat', base), { method: 'POST', headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + token, 'Idempotency-Key': clientKey }, body: JSON.stringify(input), signal: AbortSignal.timeout(240000) }) }
         catch { transport = true; throw new Error('CHAT_TRANSPORT_FAILURE') }
         if (!response.ok) { transport = true; throw new Error('CHAT_HTTP_' + response.status) }
         const wire = await response.text()
@@ -138,7 +139,7 @@ async function main() {
         else throw new Error('Unknown corpus expectation')
       } catch (error) { errors.push(error.message?.match(/^[A-Z0-9_]+$/)?.[0] || error.constructor.name) }
       const category = classify(turn.expect, observed, actualDiagnostic, errors, transport)
-      evidence.cases.push({ caseId: `${scenario.id}/${index + 1}`, message: turn.message, interaction: turn.edit ? 'EDIT' : turn.choose ? 'CHOICE' : 'TEXT', expected: turn.expect,
+      evidence.cases.push({ caseId: `${scenario.id}/${index + 1}`, clientKey, message: turn.message, interaction: turn.edit ? 'EDIT' : turn.choose ? 'CHOICE' : 'TEXT', expected: turn.expect,
         conversationId, passed: errors.length === 0, category, errors, durationMs: Date.now() - started, diagnostic: actualDiagnostic || null, truth: truth || null, events })
       save(); console.log(`${scenario.id}/${index + 1}: ${errors.length ? 'FAIL ' + errors.join(',') : 'PASS'} (${category})`)
     }

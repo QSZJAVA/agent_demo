@@ -129,6 +129,14 @@ public final class AssistantInteraction {
                     yield scope && included;
                 }
             };
+        } else if(plan.analysis()!=null) {
+            // 知识与分析指令已经明确绑定单公司、单报表，必须保留所有已完成的范围选择。
+            // 此处尚无可验证的分析步骤或字段谓词，不能仅凭范围一致就宣称保留了FIELD/VALUE选择。
+            matches=switch(o.kind()){
+                case COMPANY->v.equals(plan.analysis().companyCode());
+                case REPORT->v.equals(plan.analysis().reportId());
+                case FIELD,VALUE->false;
+            };
         } else if(plan.route()==AssistantPlan.Route.DISPATCH && (o.kind()==ClarificationOptions.Kind.COMPANY || o.kind()==ClarificationOptions.Kind.REPORT)) {
             var evidence=JsonUtil.MAPPER.valueToTree(facts);var scope=evidence.path("scope");
             if(scope.isObject())matches=o.kind()==ClarificationOptions.Kind.COMPANY?v.equals(scope.path("companyCode").asText()):!scope.path("allReports").asBoolean() && scope.path("reportIds").size()==1 && v.equals(scope.path("reportIds").path(0).asText());

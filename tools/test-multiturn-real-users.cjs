@@ -123,7 +123,7 @@ function fingerprints() {
 /** 每个轮次只发送一次；断连或模型失败保留为失败，必须另建证据文件才能重跑。 */
 async function chat(conversationId, message) {
   await sleep(Math.max(0, delay-(Date.now()-lastTurn))); lastTurn=Date.now();
-  const response=await fetch(apiBase+'agent/chat',{method:'POST',headers:{'Content-Type':'application/json',Authorization:'Bearer '+token},
+  const response=await fetch(apiBase+'agent/chat',{method:'POST',headers:{'Content-Type':'application/json',Authorization:'Bearer '+token,'Idempotency-Key':'chat-'+crypto.randomUUID()},
     body:JSON.stringify({conversationId,message}),signal:AbortSignal.timeout(200000)});
   const wire=await response.text();
   if(!response.ok)throw new Error('Chat HTTP '+response.status+' '+wire.slice(0,400));

@@ -42,7 +42,10 @@ class SchemaCommentsDatabaseTest {
         try(var stream=SchemaCommentsDatabaseTest.class.getResourceAsStream("/db/schema-comments.json")) {
             assertNotNull(stream); specs=JsonUtil.MAPPER.readTree(stream);
         }
-        assertEquals(47,specs.size()); int checked=0;
+        var expectedTables=new TreeSet<String>();specs.fieldNames().forEachRemaining(expectedTables::add);
+        assertTrue(expectedTables.contains("chat_turn_receipt"));
+        assertEquals(expectedTables,new TreeSet<>(jdbc.queryForList("SELECT TABLE_NAME FROM information_schema.tables WHERE TABLE_SCHEMA=DATABASE() AND TABLE_NAME NOT IN ('flyway_schema_history','external_business')",String.class)));
+        int expectedFields=0;for(JsonNode spec:specs)expectedFields+=spec.path("columns").size();int checked=0;
         var names=specs.fieldNames();
         while(names.hasNext()) {
             String table=names.next(); JsonNode spec=specs.get(table);
@@ -53,7 +56,8 @@ class SchemaCommentsDatabaseTest {
                 assertEquals(field.getValue().asText(),jdbc.queryForObject("SELECT COLUMN_COMMENT FROM information_schema.columns WHERE TABLE_SCHEMA=DATABASE() AND TABLE_NAME=? AND COLUMN_NAME=?",String.class,table,field.getKey()),table+"."+field.getKey()); checked++;
             }
         }
-        assertEquals(557,checked);
+        assertEquals(expectedFields,checked);
+        assertEquals(checked,jdbc.queryForObject("SELECT COUNT(*) FROM information_schema.columns WHERE TABLE_SCHEMA=DATABASE() AND TABLE_NAME NOT IN ('flyway_schema_history','external_business')",Integer.class));
         assertEquals(0,jdbc.queryForObject("SELECT COUNT(*) FROM information_schema.columns WHERE TABLE_SCHEMA=DATABASE() AND TABLE_NAME NOT IN ('flyway_schema_history','external_business') AND COLUMN_COMMENT=''",Integer.class));
     }
 }

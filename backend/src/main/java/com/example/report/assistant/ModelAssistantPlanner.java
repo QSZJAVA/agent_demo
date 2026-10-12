@@ -59,6 +59,8 @@ public class ModelAssistantPlanner implements AssistantPlanner {
         input.put("businessDictionary",protectContext(JsonUtil.MAPPER.valueToTree(context.dictionary()),originals));
         input.put("resolvedClarification",protectContext(JsonUtil.MAPPER.valueToTree(context.resolvedClarification()),originals));
         input.put("requestedQuery",protectContext(JsonUtil.MAPPER.valueToTree(context.requestedQuery()),originals));
+        // 请求前已核验的查询引用在目标、规划与独立复核间保持一致；只提供元数据，不通过草稿查询取得额外来源。
+        input.put("analysisContext",protectContext(JsonUtil.MAPPER.valueToTree(context.analysisContext()),originals));
         input.put("today",java.time.LocalDate.now(java.time.ZoneId.of("Asia/Shanghai")).toString());input.put("companies",companies.stream().sorted().toList());
         input.put("reports",reports.stream().map(r->Map.of("reportId",r.reportId(),"name",r.reportName(),"aliases",r.ref().aliases(),
                 "description",Objects.toString(r.ref().description(),""),"dispatchEnabled",r.dispatchEnabled(),"fields",BusinessFields.forDomain(BusinessQuery.Domain.REPORT,r.fields()))).toList());
@@ -162,6 +164,7 @@ public class ModelAssistantPlanner implements AssistantPlanner {
     /** 两份计划接受同一只读预检，按完整计划在本轮缓存；没有一份模型期望可直接产生预览或清单。 */
     private Map<String,Object> validateDraft(String message,DialogueState state,AssistantPlan plan,AssistantPlanningContext context,Map<AssistantPlan,Map<String,Object>> validated,Set<String> authorizedReports,Set<String> authorizedCompanies) {
         AssistantRouteGuard.validate(message,state,plan,authorizedReports,authorizedCompanies);
+        if(plan.analysis()!=null)AssistantRouteGuard.validateAnalysis(state,plan.analysis(),authorizedReports,authorizedCompanies,context.analysisContext());
         if(plan.clarificationOptions()!=null)plan.clarificationOptions().validate(authorizedReports,authorizedCompanies,context);
         if(plan.dispatch()!=null) {
             new com.example.report.semantic.IntentCodec().validate(plan.dispatch().intent(),message);
@@ -267,7 +270,7 @@ public class ModelAssistantPlanner implements AssistantPlanner {
      */
     private TaskPurpose purpose(String message,Map<String,Object> context,DialogueState state,SensitiveData.ModelText originals,ReviewBudget budget) {
         var input=new LinkedHashMap<String,Object>();input.put("taskStage","TASK_PURPOSE");
-        for(String key:List.of("message","lastRoute","lastAttemptRoute","queryUnresolved","dispatchPreviewPresent","dispatchPlanPresent","recentConversation","businessDictionary","resolvedClarification","requestedQuery","today"))input.put(key,context.get(key));
+        for(String key:List.of("message","lastRoute","lastAttemptRoute","queryUnresolved","dispatchPreviewPresent","dispatchPlanPresent","recentConversation","businessDictionary","resolvedClarification","requestedQuery","analysisContext","today"))input.put(key,context.get(key));
         // 目标只看当前焦点中的查询；保存以供显式返回的背景查询，不能抢占刚展示的候选选择。
         var activeQuery="BUSINESS_QUERY".equals(state.getAssistantFocus())?state.getBusinessQuery():null;
         input.put("activeQuery",activeQuery==null?null:context.get("previousQuery"));

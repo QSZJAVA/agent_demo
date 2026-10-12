@@ -131,8 +131,10 @@ class AssistantMcpLiveReviewTest {
     private void step(String message,Consumer<Map<String,JsonNode>> verify) throws Exception {
         var result=new LinkedHashMap<String,Object>();result.put("message",message);result.put("passed",false);evidence.add(result);
         var request=new LinkedHashMap<String,Object>();request.put("message",message);request.put("conversationId",conversationId);
+        // 每个明确的新问题生成稳定键并归档，后续若核对该请求须复用此键和完整载荷。
+        String clientKey="chat-"+UUID.randomUUID();result.put("clientKey",clientKey);
         var response=http.send(HttpRequest.newBuilder(URI.create(agentUrl+"/api/agent/chat")).timeout(Duration.ofSeconds(190))
-                .header("Authorization","Bearer "+token).header("Content-Type","application/json")
+                .header("Authorization","Bearer "+token).header("Content-Type","application/json").header("Idempotency-Key",clientKey)
                 .POST(HttpRequest.BodyPublishers.ofString(json.writeValueAsString(request))).build(),HttpResponse.BodyHandlers.ofString());
         assertEquals(200,response.statusCode());var events=new LinkedHashMap<String,JsonNode>();var all=new ArrayList<Map<String,Object>>();
         for(String block:response.body().replace("\r\n","\n").split("\n\n")) {

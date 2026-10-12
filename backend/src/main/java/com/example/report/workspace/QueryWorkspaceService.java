@@ -54,6 +54,10 @@ public class QueryWorkspaceService {
     public QuerySnapshotStore.Run require(CurrentUser user,String id) {
         var current=current(user);var run=store.require(current,id);requireDefinition(current,run.result().query(),run.companies(),run.definitionHash());return run;
     }
+    /** 在提交和恢复前核对完整序号覆盖，不加载来源事实、不重查业务系统；缺失或额外行使原快照失效。 */
+    public QuerySnapshotStore.Run requireComplete(CurrentUser user,String id) {
+        var run=require(user,id);store.requireComplete(run);require(user,id);return run;
+    }
     /** 重新解析当前身份；处理期间的撤权或租户变化使整次操作失败，不能继续使用入口处的旧授权。 */
     private CurrentUser current(CurrentUser original){var current=permissions.resolve(original.userId());if(!current.tenantId().equals(original.tenantId()) || !current.permissionVersion().equals(original.permissionVersion()))throw ApiException.forbidden("工作区读取期间权限已变化");return current;}
     /** 比对创建时公司集合和每份报表的当前口径；全公司查询不能因权限扩大而静默扩大保存的范围。 */

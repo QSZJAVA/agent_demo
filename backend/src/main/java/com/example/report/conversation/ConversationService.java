@@ -146,7 +146,7 @@ public class ConversationService {
         for (AgentMessage m : list) {
             views.add(new MessageView(m.getId(), m.getRole(), m.getContent(), m.getCardType(),
                     m.getPayload() == null ? null : JsonUtil.toMap(m.getPayload()),
-                    m.getPreviewId(), m.getPlanId(), m.getCreatedAt(), null, null));
+                    m.getPreviewId(), m.getPlanId(), m.getCreatedAt(), null, null, null));
         }
         return views;
     }
@@ -237,6 +237,19 @@ public class ConversationService {
         m.setPreviewId(previewId);
         m.setPlanId(planId);
         submit(m, false);
+    }
+
+    /**
+     * 在分析提交的同一事务保存五字段任务引用；稳定轮次事件键使核对与迟到响应不会追加第二张卡片。
+     * 不借用派单planId，也不持久化答案；读取时由外层重新核对会话—轮次—子任务关系和当前业务权限。
+     * @param requestId 服务器接收时生成的稳定轮次标识
+     * @param reference requestId、runId、mode、companyCode和reportId组成的唯一任务引用
+     */
+    public void logAnalysisTask(String conversationId,String userId,String requestId,Map<String,Object> reference) {
+        if(requestId==null||!requestId.matches("[a-f0-9]{32}")||!reference.keySet().equals(java.util.Set.of("requestId","runId","mode","companyCode","reportId"))
+                ||!requestId.equals(reference.get("requestId")))throw new ApiException(422,"分析卡片引用不完整");
+        AgentMessage message=base(conversationId,userId,AgentMessage.ROLE_CARD);message.setCardType("analysis_task");message.setPayload(JsonUtil.toJson(reference));
+        long event=journal.message(message,false,"card:analysis_task:"+requestId);projector.afterCommit(event);
     }
 
     private Object capPayload(Object payload) {

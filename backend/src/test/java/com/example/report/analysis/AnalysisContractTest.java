@@ -10,7 +10,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 /** 分析图严格契约回归；只验证纯程序边界，不替代真实模型规划或业务接口验收。 */
 class AnalysisContractTest {
-    static final AnalysisContract.Request REQUEST=new AnalysisContract.Request("A","rpt-sales-order","按产品统计再展开前两组",null);
+    static final AnalysisContract.Request REQUEST=new AnalysisContract.Request("A","rpt-sales-order","按产品统计再展开前两组",AnalysisContract.Mode.CURRENT_DATA,null);
     static final List<FieldInfo> FIELDS=List.of(new FieldInfo("amount","decimal","金额"),new FieldInfo("productName","string","产品"),new FieldInfo("date","date","日期"));
     static AnalysisContract.Step query(String company){return new AnalysisContract.Step("QUERY",null,null,new BusinessQuery(BusinessQuery.Domain.REPORT,BusinessQuery.View.LIST,List.of("rpt-sales-order"),company,List.of(),null,false,1,20,null),null,null,null);}
     static AnalysisContract.Step group(int source){return new AnalysisContract.Step("GROUP",source,null,null,new QueryAnalysis.Request(List.of("productName"),null,"NONE",null),null,null);}
@@ -30,7 +30,7 @@ class AnalysisContractTest {
     @Test void rejectsExtraFieldAndDuplicateKeys(){String json=JsonUtil.toJson(REQUEST);assertThrows(ApiException.class,()->AnalysisContract.decode(json.replaceFirst("\\{","{\"tenantId\":\"OTHER\","),AnalysisContract.Request.class));assertThrows(ApiException.class,()->AnalysisContract.decode(json.replaceFirst("\\{","{\"companyCode\":\"B\","),AnalysisContract.Request.class));}
     @Test void rejectsNumericStringCoercionAndNullPrimitive(){assertThrows(ApiException.class,()->AnalysisContract.decode("{\"field\":\"amount\",\"descending\":true,\"count\":\"2\"}",AnalysisContract.Rank.class));assertThrows(ApiException.class,()->AnalysisContract.decode("{\"field\":\"amount\",\"descending\":null,\"count\":2}",AnalysisContract.Rank.class));}
     @Test void rejectsUnusedArguments(){assertThrows(ApiException.class,()->new AnalysisContract.Step("KNOWLEDGE",null,null,null,new QueryAnalysis.Request(List.of(),null,"NONE",null),null,"口径"));}
-    @Test void forbidsCredentialTextBeforeAnyModelCall(){assertThrows(ApiException.class,()->new AnalysisContract.Request("A","rpt-sales-order","password=not-a-real-fixture",null));}
+    @Test void forbidsCredentialTextBeforeAnyModelCall(){assertThrows(ApiException.class,()->new AnalysisContract.Request("A","rpt-sales-order","password=not-a-real-fixture",AnalysisContract.Mode.CURRENT_DATA,null));}
     @Test void rejectsInvalidNestedCitationAsProtocolError(){assertThrows(ApiException.class,()->AnalysisContract.decode("{\"status\":\"ANSWERED\",\"claims\":[{\"text\":\"结论\",\"citations\":[null]}],\"limitations\":[]}",AnalysisEvidence.Answer.class));}
     @Test void validatesTypedReviewWithoutWeakeningDuplicateKeyProtection(){var accepted=AnalysisContract.decode("{\"approved\":true,\"reason\":\"只读图及来源复核通过\"}",AnalysisContract.Review.class);assertTrue(accepted.approved());
         assertThrows(ApiException.class,()->AnalysisContract.decode("{\"approved\":false,\"approved\":true,\"reason\":\"重复判断\"}",AnalysisContract.Review.class));}

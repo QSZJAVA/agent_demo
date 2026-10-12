@@ -31,7 +31,7 @@ public record TaskPurpose(String requestedResult,Purpose purpose,QueryContext qu
     public TaskPurpose(Purpose purpose,QueryContext queryContext,String evidence,SemanticReview.TargetCount count){this(purpose,queryContext,evidence,count,purpose==Purpose.BUSINESS_QUERY?BusinessQuery.Domain.REPORT:null);}
     public TaskPurpose(Purpose purpose,QueryContext queryContext,String evidence){this(purpose,queryContext,evidence,null);}
     /** 业务结果类别；不包含确认执行、源业务修改或外部审批能力。 */
-    public enum Purpose { BUSINESS_QUERY, PREVIEW, PREPARE_DISPATCH, CANCEL_PLAN, SHOW_RESULT, EXPLAIN_RULES, HELP, CLARIFY }
+    public enum Purpose { BUSINESS_QUERY, PREVIEW, PREPARE_DISPATCH, CANCEL_PLAN, SHOW_RESULT, EXPLAIN_RULES, KNOWLEDGE, ANALYSIS, HELP, CLARIFY }
     /** INDEPENDENT为独立新任务；FOLLOW_UP承接当前成功查询；RECOVERY按本轮补充重建未完成请求，不继承成功状态；NOT_QUERY为非查询。 */
     public enum QueryContext { INDEPENDENT, FOLLOW_UP, RECOVERY, NOT_QUERY }
     /** 只读取已经明确的协议动作，不从原文推断路由。 */

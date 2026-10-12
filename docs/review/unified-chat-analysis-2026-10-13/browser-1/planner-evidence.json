@@ -1,0 +1,615 @@
+[ {
+  "case" : 1,
+  "source" : "MODEL",
+  "callWithinCase" : 1,
+  "message" : "A公司销售金额的业务口径是什么？它是否等于已收款？请给出知识依据。",
+  "analysisContext" : {
+    "available" : false,
+    "source" : { }
+  },
+  "plan" : {
+    "route" : "KNOWLEDGE",
+    "query" : null,
+    "followUp" : false,
+    "clarification" : null,
+    "removedFilters" : [ ],
+    "dispatch" : null,
+    "clarificationOptions" : null,
+    "analysis" : {
+      "companyCode" : "A",
+      "reportId" : "rpt-sales-order",
+      "mode" : "KNOWLEDGE_ONLY",
+      "sourceRef" : null
+    }
+  },
+  "diagnostics" : {
+    "requestId" : "fixture-observation-1-1",
+    "outcome" : "ACCEPTED",
+    "dictionaryHash" : "37cee8092b8cc8e484986d48951b8ec993cddc7fee5c5bc6acb98c8403d4d38a",
+    "schemaHashes" : {
+      "PURPOSE" : "c866d2963241198f9f3814664abf1ee47fa6cf89cc0c4ee4756392471e983384",
+      "REVIEW" : "61b5dde92f63313cc694351ce10db1f55744f7c6c9ae377fd7c9b6c73ac54665",
+      "PLAN" : "d8bd96d35937cca2d779200f103bdb49fe1577a602bb47bb0a8524d087eb85d8"
+    },
+    "durationMs" : 12509,
+    "modelCalls" : 3,
+    "repairCalls" : 0,
+    "firstPass" : true,
+    "usageComplete" : true,
+    "inputTokens" : 37679,
+    "outputTokens" : 708,
+    "cost" : null,
+    "costComplete" : false,
+    "calls" : [ {
+      "stage" : "PURPOSE",
+      "attempt" : 1,
+      "contractHash" : "ec15c528be92f7ebff13cf1019e9895491111a6c6b08f899e5fda4c58798e20f",
+      "inputBytes" : 2545,
+      "outputBytes" : 340,
+      "inputTokens" : 4009,
+      "outputTokens" : 79,
+      "usageComplete" : true,
+      "model" : "deepseek-v4.1-flash",
+      "status" : "RETURNED",
+      "failure" : null,
+      "durationMs" : 3500
+    }, {
+      "stage" : "PLAN",
+      "attempt" : 1,
+      "contractHash" : "7ef1f1f2448e2f23d2ff268b997a2c0acc79006f4d8ed4dceec734bb0cae7d65",
+      "inputBytes" : 7914,
+      "outputBytes" : 237,
+      "inputTokens" : 14716,
+      "outputTokens" : 68,
+      "usageComplete" : true,
+      "model" : "deepseek-v4.1-flash",
+      "status" : "RETURNED",
+      "failure" : null,
+      "durationMs" : 3010
+    }, {
+      "stage" : "REVIEW",
+      "attempt" : 1,
+      "contractHash" : "5e2e3d5dc00449004d1963106d7f63956743991f0dd55cd3d40303b7131ee8aa",
+      "inputBytes" : 8006,
+      "outputBytes" : 2291,
+      "inputTokens" : 18954,
+      "outputTokens" : 561,
+      "usageComplete" : true,
+      "model" : "deepseek-v4.1-flash",
+      "status" : "RETURNED",
+      "failure" : null,
+      "durationMs" : 5933
+    } ],
+    "validations" : [ {
+      "stage" : "PURPOSE",
+      "outcome" : "VALIDATED",
+      "detail" : ""
+    }, {
+      "stage" : "PRECHECK",
+      "outcome" : "PASSED",
+      "detail" : ""
+    }, {
+      "stage" : "REVIEW",
+      "outcome" : "VALIDATED",
+      "detail" : ""
+    }, {
+      "stage" : "PLAN",
+      "outcome" : "ACCEPTED",
+      "detail" : ""
+    } ]
+  },
+  "outcome" : "ACCEPTED",
+  "elapsedMs" : 12499,
+  "completedAt" : "2026-10-12T20:23:28.043476100Z"
+}, {
+  "case" : 1,
+  "source" : "MODEL",
+  "callWithinCase" : 2,
+  "message" : "查询A公司2026年9月的销售报表，按产品汇总销售金额，取金额最高的两个产品，展开它们的全部相关单据，再根据现有业务知识说明销售金额是否等于已收款。",
+  "analysisContext" : {
+    "available" : false,
+    "source" : { }
+  },
+  "plan" : {
+    "route" : "ANALYSIS",
+    "query" : null,
+    "followUp" : false,
+    "clarification" : null,
+    "removedFilters" : [ ],
+    "dispatch" : null,
+    "clarificationOptions" : null,
+    "analysis" : {
+      "companyCode" : "A",
+      "reportId" : "rpt-sales-order",
+      "mode" : "CURRENT_DATA",
+      "sourceRef" : null
+    }
+  },
+  "diagnostics" : {
+    "requestId" : "fixture-observation-1-2",
+    "outcome" : "ACCEPTED",
+    "dictionaryHash" : "eb4fb45a457b88f6ba0346b9d552ac59393ea64714d4a6f56e2d041cd70485a8",
+    "schemaHashes" : {
+      "PURPOSE" : "c866d2963241198f9f3814664abf1ee47fa6cf89cc0c4ee4756392471e983384",
+      "REVIEW" : "61b5dde92f63313cc694351ce10db1f55744f7c6c9ae377fd7c9b6c73ac54665",
+      "PLAN" : "d8bd96d35937cca2d779200f103bdb49fe1577a602bb47bb0a8524d087eb85d8"
+    },
+    "durationMs" : 12042,
+    "modelCalls" : 3,
+    "repairCalls" : 0,
+    "firstPass" : true,
+    "usageComplete" : true,
+    "inputTokens" : 37845,
+    "outputTokens" : 718,
+    "cost" : null,
+    "costComplete" : false,
+    "calls" : [ {
+      "stage" : "PURPOSE",
+      "attempt" : 1,
+      "contractHash" : "ec15c528be92f7ebff13cf1019e9895491111a6c6b08f899e5fda4c58798e20f",
+      "inputBytes" : 2673,
+      "outputBytes" : 556,
+      "inputTokens" : 4035,
+      "outputTokens" : 123,
+      "usageComplete" : true,
+      "model" : "deepseek-v4.1-flash",
+      "status" : "RETURNED",
+      "failure" : null,
+      "durationMs" : 3754
+    }, {
+      "stage" : "PLAN",
+      "attempt" : 1,
+      "contractHash" : "7ef1f1f2448e2f23d2ff268b997a2c0acc79006f4d8ed4dceec734bb0cae7d65",
+      "inputBytes" : 8258,
+      "outputBytes" : 234,
+      "inputTokens" : 14786,
+      "outputTokens" : 64,
+      "usageComplete" : true,
+      "model" : "deepseek-v4.1-flash",
+      "status" : "RETURNED",
+      "failure" : null,
+      "durationMs" : 3390
+    }, {
+      "stage" : "REVIEW",
+      "attempt" : 1,
+      "contractHash" : "5e2e3d5dc00449004d1963106d7f63956743991f0dd55cd3d40303b7131ee8aa",
+      "inputBytes" : 8350,
+      "outputBytes" : 2323,
+      "inputTokens" : 19024,
+      "outputTokens" : 531,
+      "usageComplete" : true,
+      "model" : "deepseek-v4.1-flash",
+      "status" : "RETURNED",
+      "failure" : null,
+      "durationMs" : 4884
+    } ],
+    "validations" : [ {
+      "stage" : "PURPOSE",
+      "outcome" : "VALIDATED",
+      "detail" : ""
+    }, {
+      "stage" : "PRECHECK",
+      "outcome" : "PASSED",
+      "detail" : ""
+    }, {
+      "stage" : "REVIEW",
+      "outcome" : "VALIDATED",
+      "detail" : ""
+    }, {
+      "stage" : "PLAN",
+      "outcome" : "ACCEPTED",
+      "detail" : ""
+    } ]
+  },
+  "outcome" : "ACCEPTED",
+  "elapsedMs" : 12039,
+  "completedAt" : "2026-10-12T20:26:57.734954400Z"
+}, {
+  "case" : 1,
+  "source" : "MODEL",
+  "callWithinCase" : 3,
+  "message" : "查询A公司2026年9月销售报表，金额大于100元且不超过110元，按金额从高到低展示。",
+  "analysisContext" : {
+    "available" : false,
+    "source" : { }
+  },
+  "plan" : {
+    "route" : "BUSINESS_QUERY",
+    "query" : {
+      "domain" : "REPORT",
+      "view" : "LIST",
+      "reportIds" : [ "rpt-sales-order" ],
+      "companyCode" : "A",
+      "conditions" : [ {
+        "allOf" : [ {
+          "field" : "date",
+          "operator" : "GTE",
+          "values" : [ "2026-09-01" ]
+        }, {
+          "field" : "date",
+          "operator" : "LT",
+          "values" : [ "2026-10-01" ]
+        }, {
+          "field" : "amount",
+          "operator" : "GT",
+          "values" : [ "100" ]
+        }, {
+          "field" : "amount",
+          "operator" : "LTE",
+          "values" : [ "110" ]
+        } ]
+      } ],
+      "sortField" : "amount",
+      "descending" : true,
+      "page" : 1,
+      "size" : 20,
+      "groupBy" : null
+    },
+    "followUp" : false,
+    "clarification" : null,
+    "removedFilters" : [ ],
+    "dispatch" : null,
+    "clarificationOptions" : null,
+    "analysis" : null
+  },
+  "diagnostics" : {
+    "requestId" : "fixture-observation-1-3",
+    "outcome" : "ACCEPTED",
+    "dictionaryHash" : "98b321542488a0cea87b2bdb0c79b647f8ba893aaefd83842ea4aef84a1828bc",
+    "schemaHashes" : {
+      "PURPOSE" : "c866d2963241198f9f3814664abf1ee47fa6cf89cc0c4ee4756392471e983384",
+      "REVIEW" : "61b5dde92f63313cc694351ce10db1f55744f7c6c9ae377fd7c9b6c73ac54665",
+      "PLAN" : "d8bd96d35937cca2d779200f103bdb49fe1577a602bb47bb0a8524d087eb85d8"
+    },
+    "durationMs" : 10426,
+    "modelCalls" : 3,
+    "repairCalls" : 0,
+    "firstPass" : true,
+    "usageComplete" : true,
+    "inputTokens" : 37755,
+    "outputTokens" : 1057,
+    "cost" : null,
+    "costComplete" : false,
+    "calls" : [ {
+      "stage" : "PURPOSE",
+      "attempt" : 1,
+      "contractHash" : "ec15c528be92f7ebff13cf1019e9895491111a6c6b08f899e5fda4c58798e20f",
+      "inputBytes" : 2571,
+      "outputBytes" : 378,
+      "inputTokens" : 4021,
+      "outputTokens" : 99,
+      "usageComplete" : true,
+      "model" : "deepseek-v4.1-flash",
+      "status" : "RETURNED",
+      "failure" : null,
+      "durationMs" : 2460
+    }, {
+      "stage" : "PLAN",
+      "attempt" : 1,
+      "contractHash" : "7ef1f1f2448e2f23d2ff268b997a2c0acc79006f4d8ed4dceec734bb0cae7d65",
+      "inputBytes" : 7978,
+      "outputBytes" : 946,
+      "inputTokens" : 14748,
+      "outputTokens" : 263,
+      "usageComplete" : true,
+      "model" : "deepseek-v4.1-flash",
+      "status" : "RETURNED",
+      "failure" : null,
+      "durationMs" : 3172
+    }, {
+      "stage" : "REVIEW",
+      "attempt" : 1,
+      "contractHash" : "5e2e3d5dc00449004d1963106d7f63956743991f0dd55cd3d40303b7131ee8aa",
+      "inputBytes" : 8070,
+      "outputBytes" : 2533,
+      "inputTokens" : 18986,
+      "outputTokens" : 695,
+      "usageComplete" : true,
+      "model" : "deepseek-v4.1-flash",
+      "status" : "RETURNED",
+      "failure" : null,
+      "durationMs" : 4734
+    } ],
+    "validations" : [ {
+      "stage" : "PURPOSE",
+      "outcome" : "VALIDATED",
+      "detail" : ""
+    }, {
+      "stage" : "PRECHECK",
+      "outcome" : "PASSED",
+      "detail" : ""
+    }, {
+      "stage" : "PRECHECK",
+      "outcome" : "PASSED",
+      "detail" : ""
+    }, {
+      "stage" : "REVIEW",
+      "outcome" : "VALIDATED",
+      "detail" : ""
+    }, {
+      "stage" : "PLAN",
+      "outcome" : "ACCEPTED",
+      "detail" : ""
+    } ]
+  },
+  "outcome" : "ACCEPTED",
+  "elapsedMs" : 10424,
+  "completedAt" : "2026-10-12T20:32:58.067233200Z"
+}, {
+  "case" : 1,
+  "source" : "MODEL",
+  "callWithinCase" : 4,
+  "message" : "仅分析刚才这批结果，按产品统计金额合计，取金额最高的一组并展开它的全部单据；不要重新查询当前数据。",
+  "analysisContext" : {
+    "available" : true,
+    "source" : {
+      "expiresAt" : "2026-10-13T20:32:53.287Z",
+      "query" : {
+        "domain" : "REPORT",
+        "view" : "LIST",
+        "reportIds" : [ "rpt-sales-order" ],
+        "companyCode" : "A",
+        "conditions" : [ {
+          "allOf" : [ {
+            "field" : "date",
+            "operator" : "GTE",
+            "values" : [ "2026-09-01" ]
+          }, {
+            "field" : "date",
+            "operator" : "LT",
+            "values" : [ "2026-10-01" ]
+          }, {
+            "field" : "amount",
+            "operator" : "GT",
+            "values" : [ "100" ]
+          }, {
+            "field" : "amount",
+            "operator" : "LTE",
+            "values" : [ "110" ]
+          } ]
+        } ],
+        "sortField" : "amount",
+        "descending" : true,
+        "page" : 1,
+        "size" : 20,
+        "groupBy" : null
+      },
+      "reportId" : "rpt-sales-order",
+      "completeness" : "COMPLETE",
+      "observedAt" : "2026-10-12T20:32:53.286Z",
+      "companyCode" : "A",
+      "sourceRef" : "analysis-source-f771b5880402a7af387952b7"
+    }
+  },
+  "plan" : {
+    "route" : "ANALYSIS",
+    "query" : null,
+    "followUp" : false,
+    "clarification" : null,
+    "removedFilters" : [ ],
+    "dispatch" : null,
+    "clarificationOptions" : null,
+    "analysis" : {
+      "companyCode" : "A",
+      "reportId" : "rpt-sales-order",
+      "mode" : "SNAPSHOT_ONLY",
+      "sourceRef" : "analysis-source-f771b5880402a7af387952b7"
+    }
+  },
+  "diagnostics" : {
+    "requestId" : "fixture-observation-1-4",
+    "outcome" : "ACCEPTED",
+    "dictionaryHash" : "a09a366e0d2103696dbf837ee84344148b9c2585cbb1d6a6c48a4bb18422b815",
+    "schemaHashes" : {
+      "PURPOSE" : "c866d2963241198f9f3814664abf1ee47fa6cf89cc0c4ee4756392471e983384",
+      "REVIEW" : "61b5dde92f63313cc694351ce10db1f55744f7c6c9ae377fd7c9b6c73ac54665",
+      "PLAN" : "d8bd96d35937cca2d779200f103bdb49fe1577a602bb47bb0a8524d087eb85d8"
+    },
+    "durationMs" : 16944,
+    "modelCalls" : 5,
+    "repairCalls" : 2,
+    "firstPass" : false,
+    "usageComplete" : true,
+    "inputTokens" : 88652,
+    "outputTokens" : 1691,
+    "cost" : null,
+    "costComplete" : false,
+    "calls" : [ {
+      "stage" : "PURPOSE",
+      "attempt" : 1,
+      "contractHash" : "ec15c528be92f7ebff13cf1019e9895491111a6c6b08f899e5fda4c58798e20f",
+      "inputBytes" : 7063,
+      "outputBytes" : 483,
+      "inputTokens" : 5432,
+      "outputTokens" : 120,
+      "usageComplete" : true,
+      "model" : "deepseek-v4.1-flash",
+      "status" : "RETURNED",
+      "failure" : null,
+      "durationMs" : 3064
+    }, {
+      "stage" : "PLAN",
+      "attempt" : 1,
+      "contractHash" : "7ef1f1f2448e2f23d2ff268b997a2c0acc79006f4d8ed4dceec734bb0cae7d65",
+      "inputBytes" : 15790,
+      "outputBytes" : 333,
+      "inputTokens" : 17205,
+      "outputTokens" : 114,
+      "usageComplete" : true,
+      "model" : "deepseek-v4.1-flash",
+      "status" : "RETURNED",
+      "failure" : null,
+      "durationMs" : 2589
+    }, {
+      "stage" : "REVIEW",
+      "attempt" : 1,
+      "contractHash" : "5e2e3d5dc00449004d1963106d7f63956743991f0dd55cd3d40303b7131ee8aa",
+      "inputBytes" : 15882,
+      "outputBytes" : 1562,
+      "inputTokens" : 21443,
+      "outputTokens" : 389,
+      "usageComplete" : true,
+      "model" : "deepseek-v4.1-flash",
+      "status" : "RETURNED",
+      "failure" : null,
+      "durationMs" : 3448
+    }, {
+      "stage" : "REVIEW",
+      "attempt" : 2,
+      "contractHash" : "5e2e3d5dc00449004d1963106d7f63956743991f0dd55cd3d40303b7131ee8aa",
+      "inputBytes" : 18996,
+      "outputBytes" : 1859,
+      "inputTokens" : 22182,
+      "outputTokens" : 449,
+      "usageComplete" : true,
+      "model" : "deepseek-v4.1-flash",
+      "status" : "RETURNED",
+      "failure" : null,
+      "durationMs" : 3518
+    }, {
+      "stage" : "REVIEW",
+      "attempt" : 3,
+      "contractHash" : "5e2e3d5dc00449004d1963106d7f63956743991f0dd55cd3d40303b7131ee8aa",
+      "inputBytes" : 20009,
+      "outputBytes" : 2378,
+      "inputTokens" : 22390,
+      "outputTokens" : 619,
+      "usageComplete" : true,
+      "model" : "deepseek-v4.1-flash",
+      "status" : "RETURNED",
+      "failure" : null,
+      "durationMs" : 4298
+    } ],
+    "validations" : [ {
+      "stage" : "PURPOSE",
+      "outcome" : "VALIDATED",
+      "detail" : ""
+    }, {
+      "stage" : "PRECHECK",
+      "outcome" : "PASSED",
+      "detail" : ""
+    }, {
+      "stage" : "REVIEW",
+      "outcome" : "INVALID_EXPECTATION",
+      "detail" : "本轮复核仍有不一致的前提或证据"
+    }, {
+      "stage" : "REVIEW",
+      "outcome" : "INVALID_EXPECTATION",
+      "detail" : "本轮复核仍有不一致的前提或证据"
+    }, {
+      "stage" : "REVIEW",
+      "outcome" : "VALIDATED",
+      "detail" : ""
+    }, {
+      "stage" : "PLAN",
+      "outcome" : "ACCEPTED",
+      "detail" : ""
+    } ]
+  },
+  "outcome" : "ACCEPTED",
+  "elapsedMs" : 16940,
+  "completedAt" : "2026-10-12T20:35:30.491134900Z"
+}, {
+  "case" : 1,
+  "source" : "MODEL",
+  "callWithinCase" : 5,
+  "message" : "请说明A公司销售报表金额为什么不能作为已收款金额，并给出已发布的知识依据。",
+  "analysisContext" : {
+    "available" : false,
+    "source" : { }
+  },
+  "plan" : {
+    "route" : "KNOWLEDGE",
+    "query" : null,
+    "followUp" : false,
+    "clarification" : null,
+    "removedFilters" : [ ],
+    "dispatch" : null,
+    "clarificationOptions" : null,
+    "analysis" : {
+      "companyCode" : "A",
+      "reportId" : "rpt-sales-order",
+      "mode" : "KNOWLEDGE_ONLY",
+      "sourceRef" : null
+    }
+  },
+  "diagnostics" : {
+    "requestId" : "fixture-observation-1-5",
+    "outcome" : "ACCEPTED",
+    "dictionaryHash" : "76acfc19f865618a62394ea447765de43acd99817621f96fd3608b4f5ebf1cb3",
+    "schemaHashes" : {
+      "PURPOSE" : "c866d2963241198f9f3814664abf1ee47fa6cf89cc0c4ee4756392471e983384",
+      "REVIEW" : "61b5dde92f63313cc694351ce10db1f55744f7c6c9ae377fd7c9b6c73ac54665",
+      "PLAN" : "d8bd96d35937cca2d779200f103bdb49fe1577a602bb47bb0a8524d087eb85d8"
+    },
+    "durationMs" : 8033,
+    "modelCalls" : 3,
+    "repairCalls" : 0,
+    "firstPass" : true,
+    "usageComplete" : true,
+    "inputTokens" : 37700,
+    "outputTokens" : 481,
+    "cost" : null,
+    "costComplete" : false,
+    "calls" : [ {
+      "stage" : "PURPOSE",
+      "attempt" : 1,
+      "contractHash" : "ec15c528be92f7ebff13cf1019e9895491111a6c6b08f899e5fda4c58798e20f",
+      "inputBytes" : 2572,
+      "outputBytes" : 358,
+      "inputTokens" : 4014,
+      "outputTokens" : 82,
+      "usageComplete" : true,
+      "model" : "deepseek-v4.1-flash",
+      "status" : "RETURNED",
+      "failure" : null,
+      "durationMs" : 2515
+    }, {
+      "stage" : "PLAN",
+      "attempt" : 1,
+      "contractHash" : "7ef1f1f2448e2f23d2ff268b997a2c0acc79006f4d8ed4dceec734bb0cae7d65",
+      "inputBytes" : 7959,
+      "outputBytes" : 237,
+      "inputTokens" : 14724,
+      "outputTokens" : 68,
+      "usageComplete" : true,
+      "model" : "deepseek-v4.1-flash",
+      "status" : "RETURNED",
+      "failure" : null,
+      "durationMs" : 2136
+    }, {
+      "stage" : "REVIEW",
+      "attempt" : 1,
+      "contractHash" : "5e2e3d5dc00449004d1963106d7f63956743991f0dd55cd3d40303b7131ee8aa",
+      "inputBytes" : 8051,
+      "outputBytes" : 1457,
+      "inputTokens" : 18962,
+      "outputTokens" : 331,
+      "usageComplete" : true,
+      "model" : "deepseek-v4.1-flash",
+      "status" : "RETURNED",
+      "failure" : null,
+      "durationMs" : 3371
+    } ],
+    "validations" : [ {
+      "stage" : "PURPOSE",
+      "outcome" : "VALIDATED",
+      "detail" : ""
+    }, {
+      "stage" : "PRECHECK",
+      "outcome" : "PASSED",
+      "detail" : ""
+    }, {
+      "stage" : "REVIEW",
+      "outcome" : "VALIDATED",
+      "detail" : ""
+    }, {
+      "stage" : "PLAN",
+      "outcome" : "ACCEPTED",
+      "detail" : ""
+    } ]
+  },
+  "outcome" : "ACCEPTED",
+  "elapsedMs" : 8031,
+  "completedAt" : "2026-10-12T20:40:53.977129900Z"
+} ]

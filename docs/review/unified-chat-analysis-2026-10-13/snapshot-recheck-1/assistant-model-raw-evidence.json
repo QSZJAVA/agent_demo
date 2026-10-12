@@ -1,0 +1,3332 @@
+[ {
+  "input" : {
+    "taskStage" : "TASK_PURPOSE",
+    "lastRoute" : null,
+    "lastAttemptRoute" : null,
+    "queryUnresolved" : false,
+    "dispatchPreviewPresent" : false,
+    "dispatchPlanPresent" : false,
+    "recentConversation" : [ ],
+    "businessDictionary" : {
+      "entries" : [ ],
+      "referenceTime" : "2026-10-12T19:49:12.952784200Z",
+      "defaultCalendar" : {
+        "nextFiscalYearStart" : "2027-01-01",
+        "today" : "2026-10-13",
+        "holidayCalendarComplete" : false,
+        "fiscalYearStart" : "2026-01-01",
+        "previousMonthStart" : "2026-09-01",
+        "timeZone" : "Asia/Shanghai",
+        "nextMonthStart" : "2026-11-01",
+        "previousMonthEndExclusive" : "2026-10-01",
+        "monthStart" : "2026-10-01",
+        "configuredHolidays" : [ ]
+      },
+      "fingerprint" : "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    "resolvedClarification" : { },
+    "requestedQuery" : null,
+    "analysisContext" : {
+      "source" : { },
+      "available" : false
+    },
+    "today" : "2026-10-13",
+    "activeQuery" : null,
+    "visibleQueryRows" : [ ],
+    "visibleQueryResult" : null,
+    "reportCatalog" : [ {
+      "aliases" : [ "销售", "销售台账", "订单销售表", "销售明细", "销售订单", "sales report", "客户对账" ],
+      "reportId" : "rpt-sales-order",
+      "description" : "销售订单台账：按订单统计金额与派单状态",
+      "name" : "销售报表",
+      "fields" : [ {
+        "name" : "reportId",
+        "type" : "string",
+        "description" : "报表稳定标识"
+      }, {
+        "name" : "reportName",
+        "type" : "string",
+        "description" : "报表名称"
+      }, {
+        "name" : "companyCode",
+        "type" : "string",
+        "description" : "所属公司代码"
+      }, {
+        "name" : "docNo",
+        "type" : "string",
+        "description" : "来源单据号"
+      }, {
+        "name" : "amount",
+        "type" : "decimal",
+        "description" : "来源金额，币种见 currency；空值表示未提供"
+      }, {
+        "name" : "currency",
+        "type" : "string",
+        "description" : "来源声明币种；空值表示未声明，不能跨币种合计"
+      }, {
+        "name" : "date",
+        "type" : "date",
+        "description" : "业务日期；空值表示未配置"
+      }, {
+        "name" : "status",
+        "type" : "string",
+        "description" : "报表派单状态：未派单/已派单"
+      }, {
+        "name" : "orderNo",
+        "type" : "string",
+        "description" : "订单号"
+      }, {
+        "name" : "productName",
+        "type" : "string",
+        "description" : "产品名称"
+      }, {
+        "name" : "saleDate",
+        "type" : "date",
+        "description" : "销售日期，字符串 yyyy-MM-dd"
+      }, {
+        "name" : "daysSinceSale",
+        "type" : "long",
+        "description" : "距销售日期的天数（派生）"
+      }, {
+        "name" : "dispatched",
+        "type" : "boolean",
+        "description" : "来源记录是否已派单；true为已派单，false为未派单，不代表满足派单规则"
+      }, {
+        "name" : "recordId",
+        "type" : "string",
+        "description" : "报表内稳定记录标识"
+      } ]
+    } ],
+    "currentReportMentions" : [ {
+      "reportId" : "rpt-sales-order",
+      "mentions" : [ "销售报表", "销售" ]
+    } ],
+    "companies" : [ "A" ],
+    "message" : "查询A公司2026年9月销售报表，金额大于100元且不超过110元，按金额从高到低展示。"
+  },
+  "callIndex" : 0,
+  "output" : "{\"requestedResult\":\"查询A公司2026年9月销售报表中金额大于100元且不超过110元的记录，并按金额从高到低展示。\",\"purpose\":\"BUSINESS_QUERY\",\"queryDomain\":\"REPORT\",\"queryView\":\"LIST\",\"queryContext\":\"INDEPENDENT\",\"evidence\":\"查询A公司2026年9月销售报表，金额大于100元且不超过110元，按金额从高到低展示。\",\"targetCount\":null}",
+  "completedAt" : "2026-10-13T03:49:15.677641100+08:00"
+}, {
+  "input" : {
+    "messageIndex" : -1,
+    "businessDictionary" : {
+      "entries" : [ ],
+      "referenceTime" : "2026-10-12T19:49:12.952784200Z",
+      "defaultCalendar" : {
+        "nextFiscalYearStart" : "2027-01-01",
+        "today" : "2026-10-13",
+        "holidayCalendarComplete" : false,
+        "fiscalYearStart" : "2026-01-01",
+        "previousMonthStart" : "2026-09-01",
+        "timeZone" : "Asia/Shanghai",
+        "nextMonthStart" : "2026-11-01",
+        "previousMonthEndExclusive" : "2026-10-01",
+        "monthStart" : "2026-10-01",
+        "configuredHolidays" : [ ]
+      },
+      "fingerprint" : "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    "resolvedClarification" : { },
+    "requestedQuery" : null,
+    "analysisContext" : {
+      "source" : { },
+      "available" : false
+    },
+    "today" : "2026-10-13",
+    "companies" : [ "A" ],
+    "reports" : [ {
+      "dispatchEnabled" : true,
+      "name" : "销售报表",
+      "description" : "销售订单台账：按订单统计金额与派单状态",
+      "reportId" : "rpt-sales-order",
+      "fields" : [ {
+        "name" : "reportId",
+        "type" : "string",
+        "description" : "报表稳定标识"
+      }, {
+        "name" : "reportName",
+        "type" : "string",
+        "description" : "报表名称"
+      }, {
+        "name" : "companyCode",
+        "type" : "string",
+        "description" : "所属公司代码"
+      }, {
+        "name" : "docNo",
+        "type" : "string",
+        "description" : "来源单据号"
+      }, {
+        "name" : "amount",
+        "type" : "decimal",
+        "description" : "来源金额，币种见 currency；空值表示未提供"
+      }, {
+        "name" : "currency",
+        "type" : "string",
+        "description" : "来源声明币种；空值表示未声明，不能跨币种合计"
+      }, {
+        "name" : "date",
+        "type" : "date",
+        "description" : "业务日期；空值表示未配置"
+      }, {
+        "name" : "status",
+        "type" : "string",
+        "description" : "报表派单状态：未派单/已派单"
+      }, {
+        "name" : "orderNo",
+        "type" : "string",
+        "description" : "订单号"
+      }, {
+        "name" : "productName",
+        "type" : "string",
+        "description" : "产品名称"
+      }, {
+        "name" : "saleDate",
+        "type" : "date",
+        "description" : "销售日期，字符串 yyyy-MM-dd"
+      }, {
+        "name" : "daysSinceSale",
+        "type" : "long",
+        "description" : "距销售日期的天数（派生）"
+      }, {
+        "name" : "dispatched",
+        "type" : "boolean",
+        "description" : "来源记录是否已派单；true为已派单，false为未派单，不代表满足派单规则"
+      }, {
+        "name" : "recordId",
+        "type" : "string",
+        "description" : "报表内稳定记录标识"
+      } ],
+      "aliases" : [ "销售", "销售台账", "订单销售表", "销售明细", "销售订单", "sales report", "客户对账" ]
+    } ],
+    "currentReportMentions" : [ {
+      "reportId" : "rpt-sales-order",
+      "mentions" : [ "销售报表", "销售" ]
+    } ],
+    "dispatchFields" : [ {
+      "name" : "reportId",
+      "type" : "string",
+      "description" : "报表稳定标识"
+    }, {
+      "name" : "reportName",
+      "type" : "string",
+      "description" : "报表名称"
+    }, {
+      "name" : "companyCode",
+      "type" : "string",
+      "description" : "所属公司代码"
+    }, {
+      "name" : "docNo",
+      "type" : "string",
+      "description" : "来源单据号"
+    }, {
+      "name" : "amount",
+      "type" : "decimal",
+      "description" : "来源金额，币种见 currency；空值表示未提供"
+    }, {
+      "name" : "currency",
+      "type" : "string",
+      "description" : "来源声明币种；空值表示未声明，不能跨币种合计"
+    }, {
+      "name" : "date",
+      "type" : "date",
+      "description" : "业务日期；空值表示未配置"
+    }, {
+      "name" : "status",
+      "type" : "string",
+      "description" : "派单条目执行状态：待执行/成功/失败/结果未知/已跳过"
+    }, {
+      "name" : "planId",
+      "type" : "string",
+      "description" : "清单标识"
+    }, {
+      "name" : "requestId",
+      "type" : "string",
+      "description" : "稳定派单请求号，未发送时为空"
+    }, {
+      "name" : "operatorName",
+      "type" : "string",
+      "description" : "清单创建人展示名"
+    }, {
+      "name" : "createdByMe",
+      "type" : "boolean",
+      "description" : "是否当前登录人创建，由服务端身份计算；我的/本人发起使用true，不能把人称代词当创建人姓名"
+    }, {
+      "name" : "planStatus",
+      "type" : "string",
+      "description" : "清单当前状态"
+    }, {
+      "name" : "message",
+      "type" : "string",
+      "description" : "最近派单结果说明，空值表示未提供"
+    }, {
+      "name" : "createdDate",
+      "type" : "date",
+      "description" : "清单创建日期，Asia/Shanghai"
+    } ],
+    "workOrderFields" : [ {
+      "name" : "reportId",
+      "type" : "string",
+      "description" : "报表稳定标识"
+    }, {
+      "name" : "reportName",
+      "type" : "string",
+      "description" : "报表名称"
+    }, {
+      "name" : "companyCode",
+      "type" : "string",
+      "description" : "所属公司代码"
+    }, {
+      "name" : "docNo",
+      "type" : "string",
+      "description" : "来源单据号"
+    }, {
+      "name" : "amount",
+      "type" : "decimal",
+      "description" : "来源金额，币种见 currency；空值表示未提供"
+    }, {
+      "name" : "currency",
+      "type" : "string",
+      "description" : "来源声明币种；空值表示未声明，不能跨币种合计"
+    }, {
+      "name" : "date",
+      "type" : "date",
+      "description" : "业务日期；空值表示未配置"
+    }, {
+      "name" : "status",
+      "type" : "string",
+      "description" : "工单办理状态：待审批/处理中/已完成/已驳回"
+    }, {
+      "name" : "orderId",
+      "type" : "string",
+      "description" : "工单编号，须准确匹配"
+    }, {
+      "name" : "title",
+      "type" : "string",
+      "description" : "工单主题"
+    }, {
+      "name" : "stage",
+      "type" : "string",
+      "description" : "当前环节，已结束时为归档或退回"
+    }, {
+      "name" : "assignee",
+      "type" : "string",
+      "description" : "当前处理人，已结束时为空"
+    }, {
+      "name" : "requestId",
+      "type" : "string",
+      "description" : "关联派单请求号，固定演示示例为空"
+    }, {
+      "name" : "source",
+      "type" : "string",
+      "description" : "固定演示示例或实际演示派单关联"
+    }, {
+      "name" : "createdDate",
+      "type" : "date",
+      "description" : "工单创建日期，Asia/Shanghai"
+    }, {
+      "name" : "updatedDate",
+      "type" : "date",
+      "description" : "最近流程变化日期；固定演示不会随查询推进"
+    } ],
+    "previousQuery" : null,
+    "previousRows" : [ ],
+    "lastRoute" : null,
+    "lastAttemptRoute" : null,
+    "previousResult" : {
+      "totalCount" : null,
+      "displayedCount" : 0,
+      "allMatchesDisplayed" : false
+    },
+    "queryObjects" : {
+      "available" : false,
+      "sourceRef" : null,
+      "unavailableReason" : "NO_QUERY",
+      "recoveryHint" : "尚无成功展示的业务记录，请先明确并查询要处理的报表对象",
+      "preparation" : {
+        "sources" : [ "QUERY_ROWS", "QUERY_ALL" ],
+        "requiresSeparatePreview" : false,
+        "requiresCurrentPermissionAndQualificationCheck" : true,
+        "executionRequiresConfirmation" : true
+      },
+      "allMatchesDisplayed" : false,
+      "totalCount" : null,
+      "rows" : [ ]
+    },
+    "recentConversation" : [ ],
+    "dispatchSelection" : { },
+    "queryUnresolved" : false,
+    "dispatchPreviewPresent" : false,
+    "dispatchPlanPresent" : false,
+    "dispatchUnresolved" : false,
+    "dispatchCapabilities" : {
+      "selectionBoundary" : "CURRENT_PREVIEW_OR_FINAL_SCOPE_SNAPSHOT",
+      "quantifiers" : [ "ONE", "ALL", "UNSPECIFIED" ],
+      "keepOnlySelectors" : [ "DOCUMENT", "DESCRIPTION", "COUNTERPARTY", "FIELDS", "REFERENCE" ],
+      "unsupported" : [ "SORT", "LIMIT", "MULTI_QUERY_PROGRAM", "UNCONFIGURED_FIELD" ],
+      "selectorsByReport" : {
+        "rpt-sales-order" : [ "DOCUMENT", "DESCRIPTION", "FIELDS", "ALL", "REFERENCE" ]
+      },
+      "recordSelectors" : [ "DOCUMENT", "DESCRIPTION", "COUNTERPARTY", "FIELDS", "ALL", "REFERENCE" ],
+      "recordOperations" : [ "EXCLUDE", "RESTORE", "REPLACE_EXCLUSIONS", "RESTORE_ALL", "KEEP_ONLY" ],
+      "scopeFilters" : [ "ONE_COMPANY_OR_ALL_AUTHORIZED", "REPORT_SET" ]
+    },
+    "dispatchFieldsByReport" : {
+      "rpt-sales-order" : [ {
+        "name" : "companyCode",
+        "type" : "string",
+        "description" : "公司代码"
+      }, {
+        "name" : "orderNo",
+        "type" : "string",
+        "description" : "订单号"
+      }, {
+        "name" : "productName",
+        "type" : "string",
+        "description" : "产品名称"
+      }, {
+        "name" : "amount",
+        "type" : "decimal",
+        "description" : "订单金额（元）"
+      }, {
+        "name" : "saleDate",
+        "type" : "date",
+        "description" : "销售日期，字符串 yyyy-MM-dd"
+      }, {
+        "name" : "daysSinceSale",
+        "type" : "long",
+        "description" : "距销售日期的天数（派生）"
+      }, {
+        "name" : "dispatched",
+        "type" : "boolean",
+        "description" : "是否已派单（派生，粗筛后恒为 false）"
+      } ]
+    },
+    "dispatchContext" : {
+      "desired" : {
+        "companyCode" : null,
+        "allReports" : true,
+        "reportIds" : [ ]
+      },
+      "effective" : null,
+      "phase" : "READY",
+      "unresolvedCompany" : false,
+      "unresolvedReports" : false,
+      "unresolvedRecords" : false,
+      "previewRef" : null,
+      "planRef" : null,
+      "previewPreparation" : {
+        "source" : "PREVIEW",
+        "requiresRedisplay" : false
+      },
+      "lastSelectionReferences" : [ ],
+      "lastSelectionReferencesComplete" : true,
+      "lastFailure" : null
+    },
+    "attemptHistory" : [ ],
+    "taskPurpose" : {
+      "requestedResult" : "查询A公司2026年9月销售报表中金额大于100元且不超过110元的记录，并按金额从高到低展示。",
+      "purpose" : "BUSINESS_QUERY",
+      "queryContext" : "INDEPENDENT",
+      "evidence" : "查询A公司2026年9月销售报表，金额大于100元且不超过110元，按金额从高到低展示。",
+      "targetCount" : null,
+      "queryDomain" : "REPORT",
+      "queryView" : "LIST"
+    },
+    "message" : "查询A公司2026年9月销售报表，金额大于100元且不超过110元，按金额从高到低展示。"
+  },
+  "callIndex" : 1,
+  "output" : "{\"route\":\"BUSINESS_QUERY\",\"query\":{\"domain\":\"REPORT\",\"view\":\"LIST\",\"reportIds\":[\"rpt-sales-order\"],\"companyCode\":\"A\",\"conditions\":[{\"allOf\":[{\"field\":\"saleDate\",\"operator\":\"GTE\",\"values\":[\"2026-09-01\"]},{\"field\":\"saleDate\",\"operator\":\"LT\",\"values\":[\"2026-10-01\"]},{\"field\":\"amount\",\"operator\":\"GT\",\"values\":[\"100\"]},{\"field\":\"amount\",\"operator\":\"LTE\",\"values\":[\"110\"]}]}],\"sortField\":\"amount\",\"descending\":true,\"page\":1,\"size\":20,\"groupBy\":null},\"followUp\":false,\"clarification\":null,\"removedFilters\":[],\"dispatch\":null,\"clarificationOptions\":null,\"analysis\":null}",
+  "completedAt" : "2026-10-13T03:49:18.260897500+08:00"
+}, {
+  "input" : {
+    "messageIndex" : -1,
+    "businessDictionary" : {
+      "entries" : [ ],
+      "referenceTime" : "2026-10-12T19:49:12.952784200Z",
+      "defaultCalendar" : {
+        "nextFiscalYearStart" : "2027-01-01",
+        "today" : "2026-10-13",
+        "holidayCalendarComplete" : false,
+        "fiscalYearStart" : "2026-01-01",
+        "previousMonthStart" : "2026-09-01",
+        "timeZone" : "Asia/Shanghai",
+        "nextMonthStart" : "2026-11-01",
+        "previousMonthEndExclusive" : "2026-10-01",
+        "monthStart" : "2026-10-01",
+        "configuredHolidays" : [ ]
+      },
+      "fingerprint" : "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    "resolvedClarification" : { },
+    "requestedQuery" : null,
+    "analysisContext" : {
+      "source" : { },
+      "available" : false
+    },
+    "today" : "2026-10-13",
+    "companies" : [ "A" ],
+    "reports" : [ {
+      "dispatchEnabled" : true,
+      "name" : "销售报表",
+      "description" : "销售订单台账：按订单统计金额与派单状态",
+      "reportId" : "rpt-sales-order",
+      "fields" : [ {
+        "name" : "reportId",
+        "type" : "string",
+        "description" : "报表稳定标识"
+      }, {
+        "name" : "reportName",
+        "type" : "string",
+        "description" : "报表名称"
+      }, {
+        "name" : "companyCode",
+        "type" : "string",
+        "description" : "所属公司代码"
+      }, {
+        "name" : "docNo",
+        "type" : "string",
+        "description" : "来源单据号"
+      }, {
+        "name" : "amount",
+        "type" : "decimal",
+        "description" : "来源金额，币种见 currency；空值表示未提供"
+      }, {
+        "name" : "currency",
+        "type" : "string",
+        "description" : "来源声明币种；空值表示未声明，不能跨币种合计"
+      }, {
+        "name" : "date",
+        "type" : "date",
+        "description" : "业务日期；空值表示未配置"
+      }, {
+        "name" : "status",
+        "type" : "string",
+        "description" : "报表派单状态：未派单/已派单"
+      }, {
+        "name" : "orderNo",
+        "type" : "string",
+        "description" : "订单号"
+      }, {
+        "name" : "productName",
+        "type" : "string",
+        "description" : "产品名称"
+      }, {
+        "name" : "saleDate",
+        "type" : "date",
+        "description" : "销售日期，字符串 yyyy-MM-dd"
+      }, {
+        "name" : "daysSinceSale",
+        "type" : "long",
+        "description" : "距销售日期的天数（派生）"
+      }, {
+        "name" : "dispatched",
+        "type" : "boolean",
+        "description" : "来源记录是否已派单；true为已派单，false为未派单，不代表满足派单规则"
+      }, {
+        "name" : "recordId",
+        "type" : "string",
+        "description" : "报表内稳定记录标识"
+      } ],
+      "aliases" : [ "销售", "销售台账", "订单销售表", "销售明细", "销售订单", "sales report", "客户对账" ]
+    } ],
+    "currentReportMentions" : [ {
+      "reportId" : "rpt-sales-order",
+      "mentions" : [ "销售报表", "销售" ]
+    } ],
+    "dispatchFields" : [ {
+      "name" : "reportId",
+      "type" : "string",
+      "description" : "报表稳定标识"
+    }, {
+      "name" : "reportName",
+      "type" : "string",
+      "description" : "报表名称"
+    }, {
+      "name" : "companyCode",
+      "type" : "string",
+      "description" : "所属公司代码"
+    }, {
+      "name" : "docNo",
+      "type" : "string",
+      "description" : "来源单据号"
+    }, {
+      "name" : "amount",
+      "type" : "decimal",
+      "description" : "来源金额，币种见 currency；空值表示未提供"
+    }, {
+      "name" : "currency",
+      "type" : "string",
+      "description" : "来源声明币种；空值表示未声明，不能跨币种合计"
+    }, {
+      "name" : "date",
+      "type" : "date",
+      "description" : "业务日期；空值表示未配置"
+    }, {
+      "name" : "status",
+      "type" : "string",
+      "description" : "派单条目执行状态：待执行/成功/失败/结果未知/已跳过"
+    }, {
+      "name" : "planId",
+      "type" : "string",
+      "description" : "清单标识"
+    }, {
+      "name" : "requestId",
+      "type" : "string",
+      "description" : "稳定派单请求号，未发送时为空"
+    }, {
+      "name" : "operatorName",
+      "type" : "string",
+      "description" : "清单创建人展示名"
+    }, {
+      "name" : "createdByMe",
+      "type" : "boolean",
+      "description" : "是否当前登录人创建，由服务端身份计算；我的/本人发起使用true，不能把人称代词当创建人姓名"
+    }, {
+      "name" : "planStatus",
+      "type" : "string",
+      "description" : "清单当前状态"
+    }, {
+      "name" : "message",
+      "type" : "string",
+      "description" : "最近派单结果说明，空值表示未提供"
+    }, {
+      "name" : "createdDate",
+      "type" : "date",
+      "description" : "清单创建日期，Asia/Shanghai"
+    } ],
+    "workOrderFields" : [ {
+      "name" : "reportId",
+      "type" : "string",
+      "description" : "报表稳定标识"
+    }, {
+      "name" : "reportName",
+      "type" : "string",
+      "description" : "报表名称"
+    }, {
+      "name" : "companyCode",
+      "type" : "string",
+      "description" : "所属公司代码"
+    }, {
+      "name" : "docNo",
+      "type" : "string",
+      "description" : "来源单据号"
+    }, {
+      "name" : "amount",
+      "type" : "decimal",
+      "description" : "来源金额，币种见 currency；空值表示未提供"
+    }, {
+      "name" : "currency",
+      "type" : "string",
+      "description" : "来源声明币种；空值表示未声明，不能跨币种合计"
+    }, {
+      "name" : "date",
+      "type" : "date",
+      "description" : "业务日期；空值表示未配置"
+    }, {
+      "name" : "status",
+      "type" : "string",
+      "description" : "工单办理状态：待审批/处理中/已完成/已驳回"
+    }, {
+      "name" : "orderId",
+      "type" : "string",
+      "description" : "工单编号，须准确匹配"
+    }, {
+      "name" : "title",
+      "type" : "string",
+      "description" : "工单主题"
+    }, {
+      "name" : "stage",
+      "type" : "string",
+      "description" : "当前环节，已结束时为归档或退回"
+    }, {
+      "name" : "assignee",
+      "type" : "string",
+      "description" : "当前处理人，已结束时为空"
+    }, {
+      "name" : "requestId",
+      "type" : "string",
+      "description" : "关联派单请求号，固定演示示例为空"
+    }, {
+      "name" : "source",
+      "type" : "string",
+      "description" : "固定演示示例或实际演示派单关联"
+    }, {
+      "name" : "createdDate",
+      "type" : "date",
+      "description" : "工单创建日期，Asia/Shanghai"
+    }, {
+      "name" : "updatedDate",
+      "type" : "date",
+      "description" : "最近流程变化日期；固定演示不会随查询推进"
+    } ],
+    "previousQuery" : null,
+    "previousRows" : [ ],
+    "lastRoute" : null,
+    "lastAttemptRoute" : null,
+    "previousResult" : {
+      "totalCount" : null,
+      "displayedCount" : 0,
+      "allMatchesDisplayed" : false
+    },
+    "queryObjects" : {
+      "available" : false,
+      "sourceRef" : null,
+      "unavailableReason" : "NO_QUERY",
+      "recoveryHint" : "尚无成功展示的业务记录，请先明确并查询要处理的报表对象",
+      "preparation" : {
+        "sources" : [ "QUERY_ROWS", "QUERY_ALL" ],
+        "requiresSeparatePreview" : false,
+        "requiresCurrentPermissionAndQualificationCheck" : true,
+        "executionRequiresConfirmation" : true
+      },
+      "allMatchesDisplayed" : false,
+      "totalCount" : null,
+      "rows" : [ ]
+    },
+    "recentConversation" : [ ],
+    "dispatchSelection" : { },
+    "queryUnresolved" : false,
+    "dispatchPreviewPresent" : false,
+    "dispatchPlanPresent" : false,
+    "dispatchUnresolved" : false,
+    "dispatchCapabilities" : {
+      "selectionBoundary" : "CURRENT_PREVIEW_OR_FINAL_SCOPE_SNAPSHOT",
+      "quantifiers" : [ "ONE", "ALL", "UNSPECIFIED" ],
+      "keepOnlySelectors" : [ "DOCUMENT", "DESCRIPTION", "COUNTERPARTY", "FIELDS", "REFERENCE" ],
+      "unsupported" : [ "SORT", "LIMIT", "MULTI_QUERY_PROGRAM", "UNCONFIGURED_FIELD" ],
+      "selectorsByReport" : {
+        "rpt-sales-order" : [ "DOCUMENT", "DESCRIPTION", "FIELDS", "ALL", "REFERENCE" ]
+      },
+      "recordSelectors" : [ "DOCUMENT", "DESCRIPTION", "COUNTERPARTY", "FIELDS", "ALL", "REFERENCE" ],
+      "recordOperations" : [ "EXCLUDE", "RESTORE", "REPLACE_EXCLUSIONS", "RESTORE_ALL", "KEEP_ONLY" ],
+      "scopeFilters" : [ "ONE_COMPANY_OR_ALL_AUTHORIZED", "REPORT_SET" ]
+    },
+    "dispatchFieldsByReport" : {
+      "rpt-sales-order" : [ {
+        "name" : "companyCode",
+        "type" : "string",
+        "description" : "公司代码"
+      }, {
+        "name" : "orderNo",
+        "type" : "string",
+        "description" : "订单号"
+      }, {
+        "name" : "productName",
+        "type" : "string",
+        "description" : "产品名称"
+      }, {
+        "name" : "amount",
+        "type" : "decimal",
+        "description" : "订单金额（元）"
+      }, {
+        "name" : "saleDate",
+        "type" : "date",
+        "description" : "销售日期，字符串 yyyy-MM-dd"
+      }, {
+        "name" : "daysSinceSale",
+        "type" : "long",
+        "description" : "距销售日期的天数（派生）"
+      }, {
+        "name" : "dispatched",
+        "type" : "boolean",
+        "description" : "是否已派单（派生，粗筛后恒为 false）"
+      } ]
+    },
+    "dispatchContext" : {
+      "desired" : {
+        "companyCode" : null,
+        "allReports" : true,
+        "reportIds" : [ ]
+      },
+      "effective" : null,
+      "phase" : "READY",
+      "unresolvedCompany" : false,
+      "unresolvedReports" : false,
+      "unresolvedRecords" : false,
+      "previewRef" : null,
+      "planRef" : null,
+      "previewPreparation" : {
+        "source" : "PREVIEW",
+        "requiresRedisplay" : false
+      },
+      "lastSelectionReferences" : [ ],
+      "lastSelectionReferencesComplete" : true,
+      "lastFailure" : null
+    },
+    "taskPurpose" : {
+      "requestedResult" : "查询A公司2026年9月销售报表中金额大于100元且不超过110元的记录，并按金额从高到低展示。",
+      "purpose" : "BUSINESS_QUERY",
+      "queryContext" : "INDEPENDENT",
+      "evidence" : "查询A公司2026年9月销售报表，金额大于100元且不超过110元，按金额从高到低展示。",
+      "targetCount" : null,
+      "queryDomain" : "REPORT",
+      "queryView" : "LIST"
+    },
+    "observedTerms" : {
+      "matches" : [ ],
+      "truncated" : false
+    },
+    "taskStage" : "INDEPENDENT_EXPECTATION",
+    "reviewRepairHistory" : [ ],
+    "message" : "查询A公司2026年9月销售报表，金额大于100元且不超过110元，按金额从高到低展示。"
+  },
+  "callIndex" : 2,
+  "output" : "{\n  \"requirements\": [\n    {\n      \"aspect\": \"ACTION\",\n      \"messageIndex\": -1,\n      \"evidence\": \"查询A公司2026年9月销售报表\",\n      \"meaning\": \"用户要求执行普通业务查询，读取销售报表记录。\"\n    },\n    {\n      \"aspect\": \"SCOPE\",\n      \"messageIndex\": -1,\n      \"evidence\": \"A公司2026年9月销售报表\",\n      \"meaning\": \"限定所属公司为A，报表为销售报表（rpt-sales-order）。\"\n    },\n    {\n      \"aspect\": \"CONDITIONS\",\n      \"messageIndex\": -1,\n      \"evidence\": \"A公司2026年9月销售报表，金额大于100元且不超过110元，按金额从高到低展示。\",\n      \"meaning\": \"销售日期在2026年9月1日至2026年9月30日之间；金额大于100元且小于等于110元，两个条件同时满足。\"\n    },\n    {\n      \"aspect\": \"CONDITIONS\",\n      \"messageIndex\": -1,\n      \"evidence\": \"金额大于100元\",\n      \"meaning\": \"金额大于100元，即amount > 100，不含等于100。\"\n    },\n    {\n      \"aspect\": \"CONDITIONS\",\n      \"messageIndex\": -1,\n      \"evidence\": \"不超过110元\",\n      \"meaning\": \"金额不超过110元，即amount <= 110，包含等于110。\"\n    },\n    {\n      \"aspect\": \"CONDITIONS\",\n      \"messageIndex\": -1,\n      \"evidence\": \"2026年9月\",\n      \"meaning\": \"销售日期在2026年9月1日至2026年9月30日之间。\"\n    },\n    {\n      \"aspect\": \"PRESENTATION\",\n      \"messageIndex\": -1,\n      \"evidence\": \"按金额从高到低展示\",\n      \"meaning\": \"按金额降序排列，展示形式为列表。\"\n    },\n    {\n      \"aspect\": \"CONTINUITY\",\n      \"messageIndex\": -1,\n      \"evidence\": \"查询A公司2026年9月销售报表\",\n      \"meaning\": \"这是一个独立的新查询，不承接历史查询上下文。\"\n    }\n  ],\n  \"expectedPlan\": {\n    \"route\": \"BUSINESS_QUERY\",\n    \"query\": {\n      \"domain\": \"REPORT\",\n      \"view\": \"LIST\",\n      \"reportIds\": [\n        \"rpt-sales-order\"\n      ],\n      \"companyCode\": \"A\",\n      \"conditions\": [\n        {\n          \"allOf\": [\n            {\n              \"field\": \"saleDate\",\n              \"operator\": \"GTE\",\n              \"values\": [\n                \"2026-09-01\"\n              ]\n            },\n            {\n              \"field\": \"saleDate\",\n              \"operator\": \"LT\",\n              \"values\": [\n                \"2026-10-01\"\n              ]\n            },\n            {\n              \"field\": \"amount\",\n              \"operator\": \"GT\",\n              \"values\": [\n                \"100\"\n              ]\n            },\n            {\n              \"field\": \"amount\",\n              \"operator\": \"LTE\",\n              \"values\": [\n                \"110\"\n              ]\n            }\n          ]\n        }\n      ],\n      \"sortField\": \"amount\",\n      \"descending\": true,\n      \"page\": 1,\n      \"size\": 20,\n      \"groupBy\": null\n    },\n    \"followUp\": false,\n    \"clarification\": null,\n    \"removedFilters\": [],\n    \"dispatch\": null,\n    \"clarificationOptions\": null,\n    \"analysis\": null\n  },\n  \"conditionChecks\": [\n    {\n      \"condition\": {\n        \"field\": \"saleDate\",\n        \"operator\": \"GTE\",\n        \"values\": [\n          \"2026-09-01\"\n        ]\n      },\n      \"origin\": \"CURRENT_REQUEST\",\n      \"evidence\": \"2026年9月\",\n      \"negationEvidence\": \"\"\n    },\n    {\n      \"condition\": {\n        \"field\": \"saleDate\",\n        \"operator\": \"LT\",\n        \"values\": [\n          \"2026-10-01\"\n        ]\n      },\n      \"origin\": \"CURRENT_REQUEST\",\n      \"evidence\": \"2026年9月\",\n      \"negationEvidence\": \"\"\n    },\n    {\n      \"condition\": {\n        \"field\": \"amount\",\n        \"operator\": \"GT\",\n        \"values\": [\n          \"100\"\n        ]\n      },\n      \"origin\": \"CURRENT_REQUEST\",\n      \"evidence\": \"金额大于100元\",\n      \"negationEvidence\": \"\"\n    },\n    {\n      \"condition\": {\n        \"field\": \"amount\",\n        \"operator\": \"LTE\",\n        \"values\": [\n          \"110\"\n        ]\n      },\n      \"origin\": \"CURRENT_REQUEST\",\n      \"evidence\": \"不超过110元\",\n      \"negationEvidence\": \"\"\n    }\n  ],\n  \"priorConditionChanges\": [],\n  \"targetCount\": null\n}",
+  "completedAt" : "2026-10-13T03:49:28.533653200+08:00"
+}, {
+  "input" : {
+    "taskStage" : "TASK_PURPOSE",
+    "lastRoute" : "BUSINESS_QUERY",
+    "lastAttemptRoute" : "BUSINESS_QUERY",
+    "queryUnresolved" : false,
+    "dispatchPreviewPresent" : false,
+    "dispatchPlanPresent" : false,
+    "recentConversation" : [ {
+      "role" : "user",
+      "content" : "查询A公司2026年9月销售报表，金额大于100元且不超过110元，按金额从高到低展示。",
+      "messageIndex" : 0
+    }, {
+      "role" : "assistant",
+      "content" : "本次查询匹配 10 条报表记录，当前第 1 页展示 10 条。",
+      "messageIndex" : 1
+    } ],
+    "businessDictionary" : {
+      "entries" : [ ],
+      "referenceTime" : "2026-10-12T19:49:28.763336700Z",
+      "defaultCalendar" : {
+        "nextFiscalYearStart" : "2027-01-01",
+        "today" : "2026-10-13",
+        "holidayCalendarComplete" : false,
+        "fiscalYearStart" : "2026-01-01",
+        "previousMonthStart" : "2026-09-01",
+        "timeZone" : "Asia/Shanghai",
+        "nextMonthStart" : "2026-11-01",
+        "previousMonthEndExclusive" : "2026-10-01",
+        "monthStart" : "2026-10-01",
+        "configuredHolidays" : [ ]
+      },
+      "fingerprint" : "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    "resolvedClarification" : { },
+    "requestedQuery" : null,
+    "analysisContext" : {
+      "source" : {
+        "reportId" : "rpt-sales-order",
+        "completeness" : "COMPLETE",
+        "observedAt" : "2026-10-12T19:49:18.329Z",
+        "companyCode" : "A",
+        "sourceRef" : "analysis-source-9cee536caafb86c01610b1eb",
+        "expiresAt" : "2026-10-13T19:49:18.333Z",
+        "query" : {
+          "domain" : "REPORT",
+          "view" : "LIST",
+          "reportIds" : [ "rpt-sales-order" ],
+          "companyCode" : "A",
+          "conditions" : [ {
+            "allOf" : [ {
+              "field" : "saleDate",
+              "operator" : "GTE",
+              "values" : [ "2026-09-01" ]
+            }, {
+              "field" : "saleDate",
+              "operator" : "LT",
+              "values" : [ "2026-10-01" ]
+            }, {
+              "field" : "amount",
+              "operator" : "GT",
+              "values" : [ "100" ]
+            }, {
+              "field" : "amount",
+              "operator" : "LTE",
+              "values" : [ "110" ]
+            } ]
+          } ],
+          "sortField" : "amount",
+          "descending" : true,
+          "page" : 1,
+          "size" : 20,
+          "groupBy" : null
+        }
+      },
+      "available" : true
+    },
+    "today" : "2026-10-13",
+    "activeQuery" : {
+      "domain" : "REPORT",
+      "view" : "LIST",
+      "reportIds" : [ "rpt-sales-order" ],
+      "companyCode" : "A",
+      "conditions" : [ {
+        "allOf" : [ {
+          "field" : "saleDate",
+          "operator" : "GTE",
+          "values" : [ "2026-09-01" ]
+        }, {
+          "field" : "saleDate",
+          "operator" : "LT",
+          "values" : [ "2026-10-01" ]
+        }, {
+          "field" : "amount",
+          "operator" : "GT",
+          "values" : [ "100" ]
+        }, {
+          "field" : "amount",
+          "operator" : "LTE",
+          "values" : [ "110" ]
+        } ]
+      } ],
+      "sortField" : "amount",
+      "descending" : true,
+      "page" : 1,
+      "size" : 20,
+      "groupBy" : null
+    },
+    "visibleQueryRows" : [ {
+      "date" : "2026-09-26",
+      "docNo" : "UA-109",
+      "amount" : "109.01",
+      "status" : "未派单",
+      "orderNo" : "UA-109",
+      "currency" : "CNY",
+      "recordId" : "1109",
+      "reportId" : "rpt-sales-order",
+      "saleDate" : "2026-09-26",
+      "dispatched" : "false",
+      "reportName" : "销售报表",
+      "companyCode" : "A",
+      "productName" : "alpha ",
+      "displayIndex" : "1",
+      "daysSinceSale" : "17"
+    }, {
+      "date" : "2026-09-25",
+      "docNo" : "UA-108",
+      "amount" : "108.01",
+      "status" : "未派单",
+      "orderNo" : "UA-108",
+      "currency" : "CNY",
+      "recordId" : "1108",
+      "reportId" : "rpt-sales-order",
+      "saleDate" : "2026-09-25",
+      "dispatched" : "false",
+      "reportName" : "销售报表",
+      "companyCode" : "A",
+      "productName" : "Alpha",
+      "displayIndex" : "2",
+      "daysSinceSale" : "18"
+    }, {
+      "date" : "2026-09-24",
+      "docNo" : "UA-107",
+      "amount" : "107.01",
+      "status" : "未派单",
+      "orderNo" : "UA-107",
+      "currency" : "CNY",
+      "recordId" : "1107",
+      "reportId" : "rpt-sales-order",
+      "saleDate" : "2026-09-24",
+      "dispatched" : "false",
+      "reportName" : "销售报表",
+      "companyCode" : "A",
+      "productName" : "alpha ",
+      "displayIndex" : "3",
+      "daysSinceSale" : "19"
+    }, {
+      "date" : "2026-09-23",
+      "docNo" : "UA-106",
+      "amount" : "106.01",
+      "status" : "未派单",
+      "orderNo" : "UA-106",
+      "currency" : "CNY",
+      "recordId" : "1106",
+      "reportId" : "rpt-sales-order",
+      "saleDate" : "2026-09-23",
+      "dispatched" : "false",
+      "reportName" : "销售报表",
+      "companyCode" : "A",
+      "productName" : "Alpha",
+      "displayIndex" : "4",
+      "daysSinceSale" : "20"
+    }, {
+      "date" : "2026-09-22",
+      "docNo" : "UA-105",
+      "amount" : "105.01",
+      "status" : "未派单",
+      "orderNo" : "UA-105",
+      "currency" : "CNY",
+      "recordId" : "1105",
+      "reportId" : "rpt-sales-order",
+      "saleDate" : "2026-09-22",
+      "dispatched" : "false",
+      "reportName" : "销售报表",
+      "companyCode" : "A",
+      "productName" : "alpha ",
+      "displayIndex" : "5",
+      "daysSinceSale" : "21"
+    }, {
+      "date" : "2026-09-21",
+      "docNo" : "UA-104",
+      "amount" : "104.01",
+      "status" : "未派单",
+      "orderNo" : "UA-104",
+      "currency" : "CNY",
+      "recordId" : "1104",
+      "reportId" : "rpt-sales-order",
+      "saleDate" : "2026-09-21",
+      "dispatched" : "false",
+      "reportName" : "销售报表",
+      "companyCode" : "A",
+      "productName" : "Alpha",
+      "displayIndex" : "6",
+      "daysSinceSale" : "22"
+    }, {
+      "date" : "2026-09-20",
+      "docNo" : "UA-103",
+      "amount" : "103.01",
+      "status" : "未派单",
+      "orderNo" : "UA-103",
+      "currency" : "CNY",
+      "recordId" : "1103",
+      "reportId" : "rpt-sales-order",
+      "saleDate" : "2026-09-20",
+      "dispatched" : "false",
+      "reportName" : "销售报表",
+      "companyCode" : "A",
+      "productName" : "alpha ",
+      "displayIndex" : "7",
+      "daysSinceSale" : "23"
+    }, {
+      "date" : "2026-09-19",
+      "docNo" : "UA-102",
+      "amount" : "102.01",
+      "status" : "未派单",
+      "orderNo" : "UA-102",
+      "currency" : "CNY",
+      "recordId" : "1102",
+      "reportId" : "rpt-sales-order",
+      "saleDate" : "2026-09-19",
+      "dispatched" : "false",
+      "reportName" : "销售报表",
+      "companyCode" : "A",
+      "productName" : "Alpha",
+      "displayIndex" : "8",
+      "daysSinceSale" : "24"
+    }, {
+      "date" : "2026-09-18",
+      "docNo" : "UA-101",
+      "amount" : "101.01",
+      "status" : "未派单",
+      "orderNo" : "UA-101",
+      "currency" : "CNY",
+      "recordId" : "1101",
+      "reportId" : "rpt-sales-order",
+      "saleDate" : "2026-09-18",
+      "dispatched" : "false",
+      "reportName" : "销售报表",
+      "companyCode" : "A",
+      "productName" : "alpha ",
+      "displayIndex" : "9",
+      "daysSinceSale" : "25"
+    }, {
+      "date" : "2026-09-17",
+      "docNo" : "UA-100",
+      "amount" : "100.01",
+      "status" : "未派单",
+      "orderNo" : "UA-100",
+      "currency" : "CNY",
+      "recordId" : "1100",
+      "reportId" : "rpt-sales-order",
+      "saleDate" : "2026-09-17",
+      "dispatched" : "false",
+      "reportName" : "销售报表",
+      "companyCode" : "A",
+      "productName" : "Alpha",
+      "displayIndex" : "10",
+      "daysSinceSale" : "26"
+    } ],
+    "visibleQueryResult" : {
+      "totalCount" : 10,
+      "displayedCount" : 10,
+      "allMatchesDisplayed" : true
+    },
+    "reportCatalog" : [ {
+      "aliases" : [ "销售", "销售台账", "订单销售表", "销售明细", "销售订单", "sales report", "客户对账" ],
+      "reportId" : "rpt-sales-order",
+      "description" : "销售订单台账：按订单统计金额与派单状态",
+      "name" : "销售报表",
+      "fields" : [ {
+        "name" : "reportId",
+        "type" : "string",
+        "description" : "报表稳定标识"
+      }, {
+        "name" : "reportName",
+        "type" : "string",
+        "description" : "报表名称"
+      }, {
+        "name" : "companyCode",
+        "type" : "string",
+        "description" : "所属公司代码"
+      }, {
+        "name" : "docNo",
+        "type" : "string",
+        "description" : "来源单据号"
+      }, {
+        "name" : "amount",
+        "type" : "decimal",
+        "description" : "来源金额，币种见 currency；空值表示未提供"
+      }, {
+        "name" : "currency",
+        "type" : "string",
+        "description" : "来源声明币种；空值表示未声明，不能跨币种合计"
+      }, {
+        "name" : "date",
+        "type" : "date",
+        "description" : "业务日期；空值表示未配置"
+      }, {
+        "name" : "status",
+        "type" : "string",
+        "description" : "报表派单状态：未派单/已派单"
+      }, {
+        "name" : "orderNo",
+        "type" : "string",
+        "description" : "订单号"
+      }, {
+        "name" : "productName",
+        "type" : "string",
+        "description" : "产品名称"
+      }, {
+        "name" : "saleDate",
+        "type" : "date",
+        "description" : "销售日期，字符串 yyyy-MM-dd"
+      }, {
+        "name" : "daysSinceSale",
+        "type" : "long",
+        "description" : "距销售日期的天数（派生）"
+      }, {
+        "name" : "dispatched",
+        "type" : "boolean",
+        "description" : "来源记录是否已派单；true为已派单，false为未派单，不代表满足派单规则"
+      }, {
+        "name" : "recordId",
+        "type" : "string",
+        "description" : "报表内稳定记录标识"
+      } ]
+    } ],
+    "currentReportMentions" : [ ],
+    "companies" : [ "A" ],
+    "message" : "仅分析刚才这批结果，按产品统计金额合计，取金额最高的一组并展开它的全部单据；不要重新查询当前数据。"
+  },
+  "callIndex" : 3,
+  "output" : "{\n  \"requestedResult\": \"仅基于刚才那批销售报表结果，按产品统计金额合计，取金额最高的一组并展开该组的全部单据，不重新查询数据。\",\n  \"purpose\": \"ANALYSIS\",\n  \"queryDomain\": null,\n  \"queryView\": null,\n  \"queryContext\": \"NOT_QUERY\",\n  \"evidence\": \"仅分析刚才这批结果，按产品统计金额合计，取金额最高的一组并展开它的全部单据；不要重新查询当前数据。\",\n  \"targetCount\": null\n}",
+  "completedAt" : "2026-10-13T03:49:30.606901100+08:00"
+}, {
+  "input" : {
+    "messageIndex" : -1,
+    "businessDictionary" : {
+      "entries" : [ ],
+      "referenceTime" : "2026-10-12T19:49:28.763336700Z",
+      "defaultCalendar" : {
+        "nextFiscalYearStart" : "2027-01-01",
+        "today" : "2026-10-13",
+        "holidayCalendarComplete" : false,
+        "fiscalYearStart" : "2026-01-01",
+        "previousMonthStart" : "2026-09-01",
+        "timeZone" : "Asia/Shanghai",
+        "nextMonthStart" : "2026-11-01",
+        "previousMonthEndExclusive" : "2026-10-01",
+        "monthStart" : "2026-10-01",
+        "configuredHolidays" : [ ]
+      },
+      "fingerprint" : "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    "resolvedClarification" : { },
+    "requestedQuery" : null,
+    "analysisContext" : {
+      "source" : {
+        "reportId" : "rpt-sales-order",
+        "completeness" : "COMPLETE",
+        "observedAt" : "2026-10-12T19:49:18.329Z",
+        "companyCode" : "A",
+        "sourceRef" : "analysis-source-9cee536caafb86c01610b1eb",
+        "expiresAt" : "2026-10-13T19:49:18.333Z",
+        "query" : {
+          "domain" : "REPORT",
+          "view" : "LIST",
+          "reportIds" : [ "rpt-sales-order" ],
+          "companyCode" : "A",
+          "conditions" : [ {
+            "allOf" : [ {
+              "field" : "saleDate",
+              "operator" : "GTE",
+              "values" : [ "2026-09-01" ]
+            }, {
+              "field" : "saleDate",
+              "operator" : "LT",
+              "values" : [ "2026-10-01" ]
+            }, {
+              "field" : "amount",
+              "operator" : "GT",
+              "values" : [ "100" ]
+            }, {
+              "field" : "amount",
+              "operator" : "LTE",
+              "values" : [ "110" ]
+            } ]
+          } ],
+          "sortField" : "amount",
+          "descending" : true,
+          "page" : 1,
+          "size" : 20,
+          "groupBy" : null
+        }
+      },
+      "available" : true
+    },
+    "today" : "2026-10-13",
+    "companies" : [ "A" ],
+    "reports" : [ {
+      "dispatchEnabled" : true,
+      "name" : "销售报表",
+      "description" : "销售订单台账：按订单统计金额与派单状态",
+      "reportId" : "rpt-sales-order",
+      "fields" : [ {
+        "name" : "reportId",
+        "type" : "string",
+        "description" : "报表稳定标识"
+      }, {
+        "name" : "reportName",
+        "type" : "string",
+        "description" : "报表名称"
+      }, {
+        "name" : "companyCode",
+        "type" : "string",
+        "description" : "所属公司代码"
+      }, {
+        "name" : "docNo",
+        "type" : "string",
+        "description" : "来源单据号"
+      }, {
+        "name" : "amount",
+        "type" : "decimal",
+        "description" : "来源金额，币种见 currency；空值表示未提供"
+      }, {
+        "name" : "currency",
+        "type" : "string",
+        "description" : "来源声明币种；空值表示未声明，不能跨币种合计"
+      }, {
+        "name" : "date",
+        "type" : "date",
+        "description" : "业务日期；空值表示未配置"
+      }, {
+        "name" : "status",
+        "type" : "string",
+        "description" : "报表派单状态：未派单/已派单"
+      }, {
+        "name" : "orderNo",
+        "type" : "string",
+        "description" : "订单号"
+      }, {
+        "name" : "productName",
+        "type" : "string",
+        "description" : "产品名称"
+      }, {
+        "name" : "saleDate",
+        "type" : "date",
+        "description" : "销售日期，字符串 yyyy-MM-dd"
+      }, {
+        "name" : "daysSinceSale",
+        "type" : "long",
+        "description" : "距销售日期的天数（派生）"
+      }, {
+        "name" : "dispatched",
+        "type" : "boolean",
+        "description" : "来源记录是否已派单；true为已派单，false为未派单，不代表满足派单规则"
+      }, {
+        "name" : "recordId",
+        "type" : "string",
+        "description" : "报表内稳定记录标识"
+      } ],
+      "aliases" : [ "销售", "销售台账", "订单销售表", "销售明细", "销售订单", "sales report", "客户对账" ]
+    } ],
+    "currentReportMentions" : [ ],
+    "dispatchFields" : [ {
+      "name" : "reportId",
+      "type" : "string",
+      "description" : "报表稳定标识"
+    }, {
+      "name" : "reportName",
+      "type" : "string",
+      "description" : "报表名称"
+    }, {
+      "name" : "companyCode",
+      "type" : "string",
+      "description" : "所属公司代码"
+    }, {
+      "name" : "docNo",
+      "type" : "string",
+      "description" : "来源单据号"
+    }, {
+      "name" : "amount",
+      "type" : "decimal",
+      "description" : "来源金额，币种见 currency；空值表示未提供"
+    }, {
+      "name" : "currency",
+      "type" : "string",
+      "description" : "来源声明币种；空值表示未声明，不能跨币种合计"
+    }, {
+      "name" : "date",
+      "type" : "date",
+      "description" : "业务日期；空值表示未配置"
+    }, {
+      "name" : "status",
+      "type" : "string",
+      "description" : "派单条目执行状态：待执行/成功/失败/结果未知/已跳过"
+    }, {
+      "name" : "planId",
+      "type" : "string",
+      "description" : "清单标识"
+    }, {
+      "name" : "requestId",
+      "type" : "string",
+      "description" : "稳定派单请求号，未发送时为空"
+    }, {
+      "name" : "operatorName",
+      "type" : "string",
+      "description" : "清单创建人展示名"
+    }, {
+      "name" : "createdByMe",
+      "type" : "boolean",
+      "description" : "是否当前登录人创建，由服务端身份计算；我的/本人发起使用true，不能把人称代词当创建人姓名"
+    }, {
+      "name" : "planStatus",
+      "type" : "string",
+      "description" : "清单当前状态"
+    }, {
+      "name" : "message",
+      "type" : "string",
+      "description" : "最近派单结果说明，空值表示未提供"
+    }, {
+      "name" : "createdDate",
+      "type" : "date",
+      "description" : "清单创建日期，Asia/Shanghai"
+    } ],
+    "workOrderFields" : [ {
+      "name" : "reportId",
+      "type" : "string",
+      "description" : "报表稳定标识"
+    }, {
+      "name" : "reportName",
+      "type" : "string",
+      "description" : "报表名称"
+    }, {
+      "name" : "companyCode",
+      "type" : "string",
+      "description" : "所属公司代码"
+    }, {
+      "name" : "docNo",
+      "type" : "string",
+      "description" : "来源单据号"
+    }, {
+      "name" : "amount",
+      "type" : "decimal",
+      "description" : "来源金额，币种见 currency；空值表示未提供"
+    }, {
+      "name" : "currency",
+      "type" : "string",
+      "description" : "来源声明币种；空值表示未声明，不能跨币种合计"
+    }, {
+      "name" : "date",
+      "type" : "date",
+      "description" : "业务日期；空值表示未配置"
+    }, {
+      "name" : "status",
+      "type" : "string",
+      "description" : "工单办理状态：待审批/处理中/已完成/已驳回"
+    }, {
+      "name" : "orderId",
+      "type" : "string",
+      "description" : "工单编号，须准确匹配"
+    }, {
+      "name" : "title",
+      "type" : "string",
+      "description" : "工单主题"
+    }, {
+      "name" : "stage",
+      "type" : "string",
+      "description" : "当前环节，已结束时为归档或退回"
+    }, {
+      "name" : "assignee",
+      "type" : "string",
+      "description" : "当前处理人，已结束时为空"
+    }, {
+      "name" : "requestId",
+      "type" : "string",
+      "description" : "关联派单请求号，固定演示示例为空"
+    }, {
+      "name" : "source",
+      "type" : "string",
+      "description" : "固定演示示例或实际演示派单关联"
+    }, {
+      "name" : "createdDate",
+      "type" : "date",
+      "description" : "工单创建日期，Asia/Shanghai"
+    }, {
+      "name" : "updatedDate",
+      "type" : "date",
+      "description" : "最近流程变化日期；固定演示不会随查询推进"
+    } ],
+    "previousQuery" : {
+      "domain" : "REPORT",
+      "view" : "LIST",
+      "reportIds" : [ "rpt-sales-order" ],
+      "companyCode" : "A",
+      "conditions" : [ {
+        "allOf" : [ {
+          "field" : "saleDate",
+          "operator" : "GTE",
+          "values" : [ "2026-09-01" ]
+        }, {
+          "field" : "saleDate",
+          "operator" : "LT",
+          "values" : [ "2026-10-01" ]
+        }, {
+          "field" : "amount",
+          "operator" : "GT",
+          "values" : [ "100" ]
+        }, {
+          "field" : "amount",
+          "operator" : "LTE",
+          "values" : [ "110" ]
+        } ]
+      } ],
+      "sortField" : "amount",
+      "descending" : true,
+      "page" : 1,
+      "size" : 20,
+      "groupBy" : null
+    },
+    "previousRows" : [ {
+      "date" : "2026-09-26",
+      "docNo" : "UA-109",
+      "amount" : "109.01",
+      "status" : "未派单",
+      "orderNo" : "UA-109",
+      "currency" : "CNY",
+      "recordId" : "1109",
+      "reportId" : "rpt-sales-order",
+      "saleDate" : "2026-09-26",
+      "dispatched" : "false",
+      "reportName" : "销售报表",
+      "companyCode" : "A",
+      "productName" : "alpha ",
+      "displayIndex" : "1",
+      "daysSinceSale" : "17"
+    }, {
+      "date" : "2026-09-25",
+      "docNo" : "UA-108",
+      "amount" : "108.01",
+      "status" : "未派单",
+      "orderNo" : "UA-108",
+      "currency" : "CNY",
+      "recordId" : "1108",
+      "reportId" : "rpt-sales-order",
+      "saleDate" : "2026-09-25",
+      "dispatched" : "false",
+      "reportName" : "销售报表",
+      "companyCode" : "A",
+      "productName" : "Alpha",
+      "displayIndex" : "2",
+      "daysSinceSale" : "18"
+    }, {
+      "date" : "2026-09-24",
+      "docNo" : "UA-107",
+      "amount" : "107.01",
+      "status" : "未派单",
+      "orderNo" : "UA-107",
+      "currency" : "CNY",
+      "recordId" : "1107",
+      "reportId" : "rpt-sales-order",
+      "saleDate" : "2026-09-24",
+      "dispatched" : "false",
+      "reportName" : "销售报表",
+      "companyCode" : "A",
+      "productName" : "alpha ",
+      "displayIndex" : "3",
+      "daysSinceSale" : "19"
+    }, {
+      "date" : "2026-09-23",
+      "docNo" : "UA-106",
+      "amount" : "106.01",
+      "status" : "未派单",
+      "orderNo" : "UA-106",
+      "currency" : "CNY",
+      "recordId" : "1106",
+      "reportId" : "rpt-sales-order",
+      "saleDate" : "2026-09-23",
+      "dispatched" : "false",
+      "reportName" : "销售报表",
+      "companyCode" : "A",
+      "productName" : "Alpha",
+      "displayIndex" : "4",
+      "daysSinceSale" : "20"
+    }, {
+      "date" : "2026-09-22",
+      "docNo" : "UA-105",
+      "amount" : "105.01",
+      "status" : "未派单",
+      "orderNo" : "UA-105",
+      "currency" : "CNY",
+      "recordId" : "1105",
+      "reportId" : "rpt-sales-order",
+      "saleDate" : "2026-09-22",
+      "dispatched" : "false",
+      "reportName" : "销售报表",
+      "companyCode" : "A",
+      "productName" : "alpha ",
+      "displayIndex" : "5",
+      "daysSinceSale" : "21"
+    }, {
+      "date" : "2026-09-21",
+      "docNo" : "UA-104",
+      "amount" : "104.01",
+      "status" : "未派单",
+      "orderNo" : "UA-104",
+      "currency" : "CNY",
+      "recordId" : "1104",
+      "reportId" : "rpt-sales-order",
+      "saleDate" : "2026-09-21",
+      "dispatched" : "false",
+      "reportName" : "销售报表",
+      "companyCode" : "A",
+      "productName" : "Alpha",
+      "displayIndex" : "6",
+      "daysSinceSale" : "22"
+    }, {
+      "date" : "2026-09-20",
+      "docNo" : "UA-103",
+      "amount" : "103.01",
+      "status" : "未派单",
+      "orderNo" : "UA-103",
+      "currency" : "CNY",
+      "recordId" : "1103",
+      "reportId" : "rpt-sales-order",
+      "saleDate" : "2026-09-20",
+      "dispatched" : "false",
+      "reportName" : "销售报表",
+      "companyCode" : "A",
+      "productName" : "alpha ",
+      "displayIndex" : "7",
+      "daysSinceSale" : "23"
+    }, {
+      "date" : "2026-09-19",
+      "docNo" : "UA-102",
+      "amount" : "102.01",
+      "status" : "未派单",
+      "orderNo" : "UA-102",
+      "currency" : "CNY",
+      "recordId" : "1102",
+      "reportId" : "rpt-sales-order",
+      "saleDate" : "2026-09-19",
+      "dispatched" : "false",
+      "reportName" : "销售报表",
+      "companyCode" : "A",
+      "productName" : "Alpha",
+      "displayIndex" : "8",
+      "daysSinceSale" : "24"
+    }, {
+      "date" : "2026-09-18",
+      "docNo" : "UA-101",
+      "amount" : "101.01",
+      "status" : "未派单",
+      "orderNo" : "UA-101",
+      "currency" : "CNY",
+      "recordId" : "1101",
+      "reportId" : "rpt-sales-order",
+      "saleDate" : "2026-09-18",
+      "dispatched" : "false",
+      "reportName" : "销售报表",
+      "companyCode" : "A",
+      "productName" : "alpha ",
+      "displayIndex" : "9",
+      "daysSinceSale" : "25"
+    }, {
+      "date" : "2026-09-17",
+      "docNo" : "UA-100",
+      "amount" : "100.01",
+      "status" : "未派单",
+      "orderNo" : "UA-100",
+      "currency" : "CNY",
+      "recordId" : "1100",
+      "reportId" : "rpt-sales-order",
+      "saleDate" : "2026-09-17",
+      "dispatched" : "false",
+      "reportName" : "销售报表",
+      "companyCode" : "A",
+      "productName" : "Alpha",
+      "displayIndex" : "10",
+      "daysSinceSale" : "26"
+    } ],
+    "lastRoute" : "BUSINESS_QUERY",
+    "lastAttemptRoute" : "BUSINESS_QUERY",
+    "previousResult" : {
+      "totalCount" : 10,
+      "displayedCount" : 10,
+      "allMatchesDisplayed" : true
+    },
+    "queryObjects" : {
+      "available" : true,
+      "sourceRef" : "query-5322f22645a73cda",
+      "unavailableReason" : null,
+      "recoveryHint" : null,
+      "preparation" : {
+        "sources" : [ "QUERY_ROWS", "QUERY_ALL" ],
+        "requiresSeparatePreview" : false,
+        "requiresCurrentPermissionAndQualificationCheck" : true,
+        "executionRequiresConfirmation" : true
+      },
+      "allMatchesDisplayed" : true,
+      "totalCount" : 10,
+      "rows" : [ {
+        "date" : "2026-09-26",
+        "docNo" : "UA-109",
+        "amount" : "109.01",
+        "status" : "未派单",
+        "orderNo" : "UA-109",
+        "currency" : "CNY",
+        "recordId" : "1109",
+        "reportId" : "rpt-sales-order",
+        "saleDate" : "2026-09-26",
+        "dispatched" : "false",
+        "reportName" : "销售报表",
+        "companyCode" : "A",
+        "productName" : "alpha ",
+        "displayIndex" : "1",
+        "daysSinceSale" : "17",
+        "referenceKey" : "row-1"
+      }, {
+        "date" : "2026-09-25",
+        "docNo" : "UA-108",
+        "amount" : "108.01",
+        "status" : "未派单",
+        "orderNo" : "UA-108",
+        "currency" : "CNY",
+        "recordId" : "1108",
+        "reportId" : "rpt-sales-order",
+        "saleDate" : "2026-09-25",
+        "dispatched" : "false",
+        "reportName" : "销售报表",
+        "companyCode" : "A",
+        "productName" : "Alpha",
+        "displayIndex" : "2",
+        "daysSinceSale" : "18",
+        "referenceKey" : "row-2"
+      }, {
+        "date" : "2026-09-24",
+        "docNo" : "UA-107",
+        "amount" : "107.01",
+        "status" : "未派单",
+        "orderNo" : "UA-107",
+        "currency" : "CNY",
+        "recordId" : "1107",
+        "reportId" : "rpt-sales-order",
+        "saleDate" : "2026-09-24",
+        "dispatched" : "false",
+        "reportName" : "销售报表",
+        "companyCode" : "A",
+        "productName" : "alpha ",
+        "displayIndex" : "3",
+        "daysSinceSale" : "19",
+        "referenceKey" : "row-3"
+      }, {
+        "date" : "2026-09-23",
+        "docNo" : "UA-106",
+        "amount" : "106.01",
+        "status" : "未派单",
+        "orderNo" : "UA-106",
+        "currency" : "CNY",
+        "recordId" : "1106",
+        "reportId" : "rpt-sales-order",
+        "saleDate" : "2026-09-23",
+        "dispatched" : "false",
+        "reportName" : "销售报表",
+        "companyCode" : "A",
+        "productName" : "Alpha",
+        "displayIndex" : "4",
+        "daysSinceSale" : "20",
+        "referenceKey" : "row-4"
+      }, {
+        "date" : "2026-09-22",
+        "docNo" : "UA-105",
+        "amount" : "105.01",
+        "status" : "未派单",
+        "orderNo" : "UA-105",
+        "currency" : "CNY",
+        "recordId" : "1105",
+        "reportId" : "rpt-sales-order",
+        "saleDate" : "2026-09-22",
+        "dispatched" : "false",
+        "reportName" : "销售报表",
+        "companyCode" : "A",
+        "productName" : "alpha ",
+        "displayIndex" : "5",
+        "daysSinceSale" : "21",
+        "referenceKey" : "row-5"
+      }, {
+        "date" : "2026-09-21",
+        "docNo" : "UA-104",
+        "amount" : "104.01",
+        "status" : "未派单",
+        "orderNo" : "UA-104",
+        "currency" : "CNY",
+        "recordId" : "1104",
+        "reportId" : "rpt-sales-order",
+        "saleDate" : "2026-09-21",
+        "dispatched" : "false",
+        "reportName" : "销售报表",
+        "companyCode" : "A",
+        "productName" : "Alpha",
+        "displayIndex" : "6",
+        "daysSinceSale" : "22",
+        "referenceKey" : "row-6"
+      }, {
+        "date" : "2026-09-20",
+        "docNo" : "UA-103",
+        "amount" : "103.01",
+        "status" : "未派单",
+        "orderNo" : "UA-103",
+        "currency" : "CNY",
+        "recordId" : "1103",
+        "reportId" : "rpt-sales-order",
+        "saleDate" : "2026-09-20",
+        "dispatched" : "false",
+        "reportName" : "销售报表",
+        "companyCode" : "A",
+        "productName" : "alpha ",
+        "displayIndex" : "7",
+        "daysSinceSale" : "23",
+        "referenceKey" : "row-7"
+      }, {
+        "date" : "2026-09-19",
+        "docNo" : "UA-102",
+        "amount" : "102.01",
+        "status" : "未派单",
+        "orderNo" : "UA-102",
+        "currency" : "CNY",
+        "recordId" : "1102",
+        "reportId" : "rpt-sales-order",
+        "saleDate" : "2026-09-19",
+        "dispatched" : "false",
+        "reportName" : "销售报表",
+        "companyCode" : "A",
+        "productName" : "Alpha",
+        "displayIndex" : "8",
+        "daysSinceSale" : "24",
+        "referenceKey" : "row-8"
+      }, {
+        "date" : "2026-09-18",
+        "docNo" : "UA-101",
+        "amount" : "101.01",
+        "status" : "未派单",
+        "orderNo" : "UA-101",
+        "currency" : "CNY",
+        "recordId" : "1101",
+        "reportId" : "rpt-sales-order",
+        "saleDate" : "2026-09-18",
+        "dispatched" : "false",
+        "reportName" : "销售报表",
+        "companyCode" : "A",
+        "productName" : "alpha ",
+        "displayIndex" : "9",
+        "daysSinceSale" : "25",
+        "referenceKey" : "row-9"
+      }, {
+        "date" : "2026-09-17",
+        "docNo" : "UA-100",
+        "amount" : "100.01",
+        "status" : "未派单",
+        "orderNo" : "UA-100",
+        "currency" : "CNY",
+        "recordId" : "1100",
+        "reportId" : "rpt-sales-order",
+        "saleDate" : "2026-09-17",
+        "dispatched" : "false",
+        "reportName" : "销售报表",
+        "companyCode" : "A",
+        "productName" : "Alpha",
+        "displayIndex" : "10",
+        "daysSinceSale" : "26",
+        "referenceKey" : "row-10"
+      } ]
+    },
+    "recentConversation" : [ {
+      "role" : "user",
+      "content" : "查询A公司2026年9月销售报表，金额大于100元且不超过110元，按金额从高到低展示。",
+      "messageIndex" : 0
+    }, {
+      "role" : "assistant",
+      "content" : "本次查询匹配 10 条报表记录，当前第 1 页展示 10 条。",
+      "messageIndex" : 1
+    } ],
+    "dispatchSelection" : { },
+    "queryUnresolved" : false,
+    "dispatchPreviewPresent" : false,
+    "dispatchPlanPresent" : false,
+    "dispatchUnresolved" : false,
+    "dispatchCapabilities" : {
+      "selectionBoundary" : "CURRENT_PREVIEW_OR_FINAL_SCOPE_SNAPSHOT",
+      "quantifiers" : [ "ONE", "ALL", "UNSPECIFIED" ],
+      "keepOnlySelectors" : [ "DOCUMENT", "DESCRIPTION", "COUNTERPARTY", "FIELDS", "REFERENCE" ],
+      "unsupported" : [ "SORT", "LIMIT", "MULTI_QUERY_PROGRAM", "UNCONFIGURED_FIELD" ],
+      "selectorsByReport" : {
+        "rpt-sales-order" : [ "DOCUMENT", "DESCRIPTION", "FIELDS", "ALL", "REFERENCE" ]
+      },
+      "recordSelectors" : [ "DOCUMENT", "DESCRIPTION", "COUNTERPARTY", "FIELDS", "ALL", "REFERENCE" ],
+      "recordOperations" : [ "EXCLUDE", "RESTORE", "REPLACE_EXCLUSIONS", "RESTORE_ALL", "KEEP_ONLY" ],
+      "scopeFilters" : [ "ONE_COMPANY_OR_ALL_AUTHORIZED", "REPORT_SET" ]
+    },
+    "dispatchFieldsByReport" : {
+      "rpt-sales-order" : [ {
+        "name" : "companyCode",
+        "type" : "string",
+        "description" : "公司代码"
+      }, {
+        "name" : "orderNo",
+        "type" : "string",
+        "description" : "订单号"
+      }, {
+        "name" : "productName",
+        "type" : "string",
+        "description" : "产品名称"
+      }, {
+        "name" : "amount",
+        "type" : "decimal",
+        "description" : "订单金额（元）"
+      }, {
+        "name" : "saleDate",
+        "type" : "date",
+        "description" : "销售日期，字符串 yyyy-MM-dd"
+      }, {
+        "name" : "daysSinceSale",
+        "type" : "long",
+        "description" : "距销售日期的天数（派生）"
+      }, {
+        "name" : "dispatched",
+        "type" : "boolean",
+        "description" : "是否已派单（派生，粗筛后恒为 false）"
+      } ]
+    },
+    "dispatchContext" : {
+      "desired" : {
+        "companyCode" : null,
+        "allReports" : true,
+        "reportIds" : [ ]
+      },
+      "effective" : null,
+      "phase" : "READY",
+      "unresolvedCompany" : false,
+      "unresolvedReports" : false,
+      "unresolvedRecords" : false,
+      "previewRef" : null,
+      "planRef" : null,
+      "previewPreparation" : {
+        "source" : "PREVIEW",
+        "requiresRedisplay" : true
+      },
+      "lastSelectionReferences" : [ ],
+      "lastSelectionReferencesComplete" : true,
+      "lastFailure" : null
+    },
+    "attemptHistory" : [ ],
+    "taskPurpose" : {
+      "requestedResult" : "仅基于刚才那批销售报表结果，按产品统计金额合计，取金额最高的一组并展开该组的全部单据，不重新查询数据。",
+      "purpose" : "ANALYSIS",
+      "queryContext" : "NOT_QUERY",
+      "evidence" : "仅分析刚才这批结果，按产品统计金额合计，取金额最高的一组并展开它的全部单据；不要重新查询当前数据。",
+      "targetCount" : null,
+      "queryDomain" : null,
+      "queryView" : null
+    },
+    "message" : "仅分析刚才这批结果，按产品统计金额合计，取金额最高的一组并展开它的全部单据；不要重新查询当前数据。"
+  },
+  "callIndex" : 4,
+  "output" : "{\"route\":\"ANALYSIS\",\"query\":null,\"followUp\":false,\"clarification\":null,\"removedFilters\":[],\"dispatch\":null,\"clarificationOptions\":null,\"analysis\":{\"companyCode\":\"A\",\"reportId\":\"rpt-sales-order\",\"mode\":\"SNAPSHOT_ONLY\",\"sourceRef\":\"analysis-source-9cee536caafb86c01610b1eb\"}}",
+  "completedAt" : "2026-10-13T03:49:32.578616100+08:00"
+}, {
+  "input" : {
+    "messageIndex" : -1,
+    "businessDictionary" : {
+      "entries" : [ ],
+      "referenceTime" : "2026-10-12T19:49:28.763336700Z",
+      "defaultCalendar" : {
+        "nextFiscalYearStart" : "2027-01-01",
+        "today" : "2026-10-13",
+        "holidayCalendarComplete" : false,
+        "fiscalYearStart" : "2026-01-01",
+        "previousMonthStart" : "2026-09-01",
+        "timeZone" : "Asia/Shanghai",
+        "nextMonthStart" : "2026-11-01",
+        "previousMonthEndExclusive" : "2026-10-01",
+        "monthStart" : "2026-10-01",
+        "configuredHolidays" : [ ]
+      },
+      "fingerprint" : "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    "resolvedClarification" : { },
+    "requestedQuery" : null,
+    "analysisContext" : {
+      "source" : {
+        "reportId" : "rpt-sales-order",
+        "completeness" : "COMPLETE",
+        "observedAt" : "2026-10-12T19:49:18.329Z",
+        "companyCode" : "A",
+        "sourceRef" : "analysis-source-9cee536caafb86c01610b1eb",
+        "expiresAt" : "2026-10-13T19:49:18.333Z",
+        "query" : {
+          "domain" : "REPORT",
+          "view" : "LIST",
+          "reportIds" : [ "rpt-sales-order" ],
+          "companyCode" : "A",
+          "conditions" : [ {
+            "allOf" : [ {
+              "field" : "saleDate",
+              "operator" : "GTE",
+              "values" : [ "2026-09-01" ]
+            }, {
+              "field" : "saleDate",
+              "operator" : "LT",
+              "values" : [ "2026-10-01" ]
+            }, {
+              "field" : "amount",
+              "operator" : "GT",
+              "values" : [ "100" ]
+            }, {
+              "field" : "amount",
+              "operator" : "LTE",
+              "values" : [ "110" ]
+            } ]
+          } ],
+          "sortField" : "amount",
+          "descending" : true,
+          "page" : 1,
+          "size" : 20,
+          "groupBy" : null
+        }
+      },
+      "available" : true
+    },
+    "today" : "2026-10-13",
+    "companies" : [ "A" ],
+    "reports" : [ {
+      "dispatchEnabled" : true,
+      "name" : "销售报表",
+      "description" : "销售订单台账：按订单统计金额与派单状态",
+      "reportId" : "rpt-sales-order",
+      "fields" : [ {
+        "name" : "reportId",
+        "type" : "string",
+        "description" : "报表稳定标识"
+      }, {
+        "name" : "reportName",
+        "type" : "string",
+        "description" : "报表名称"
+      }, {
+        "name" : "companyCode",
+        "type" : "string",
+        "description" : "所属公司代码"
+      }, {
+        "name" : "docNo",
+        "type" : "string",
+        "description" : "来源单据号"
+      }, {
+        "name" : "amount",
+        "type" : "decimal",
+        "description" : "来源金额，币种见 currency；空值表示未提供"
+      }, {
+        "name" : "currency",
+        "type" : "string",
+        "description" : "来源声明币种；空值表示未声明，不能跨币种合计"
+      }, {
+        "name" : "date",
+        "type" : "date",
+        "description" : "业务日期；空值表示未配置"
+      }, {
+        "name" : "status",
+        "type" : "string",
+        "description" : "报表派单状态：未派单/已派单"
+      }, {
+        "name" : "orderNo",
+        "type" : "string",
+        "description" : "订单号"
+      }, {
+        "name" : "productName",
+        "type" : "string",
+        "description" : "产品名称"
+      }, {
+        "name" : "saleDate",
+        "type" : "date",
+        "description" : "销售日期，字符串 yyyy-MM-dd"
+      }, {
+        "name" : "daysSinceSale",
+        "type" : "long",
+        "description" : "距销售日期的天数（派生）"
+      }, {
+        "name" : "dispatched",
+        "type" : "boolean",
+        "description" : "来源记录是否已派单；true为已派单，false为未派单，不代表满足派单规则"
+      }, {
+        "name" : "recordId",
+        "type" : "string",
+        "description" : "报表内稳定记录标识"
+      } ],
+      "aliases" : [ "销售", "销售台账", "订单销售表", "销售明细", "销售订单", "sales report", "客户对账" ]
+    } ],
+    "currentReportMentions" : [ ],
+    "dispatchFields" : [ {
+      "name" : "reportId",
+      "type" : "string",
+      "description" : "报表稳定标识"
+    }, {
+      "name" : "reportName",
+      "type" : "string",
+      "description" : "报表名称"
+    }, {
+      "name" : "companyCode",
+      "type" : "string",
+      "description" : "所属公司代码"
+    }, {
+      "name" : "docNo",
+      "type" : "string",
+      "description" : "来源单据号"
+    }, {
+      "name" : "amount",
+      "type" : "decimal",
+      "description" : "来源金额，币种见 currency；空值表示未提供"
+    }, {
+      "name" : "currency",
+      "type" : "string",
+      "description" : "来源声明币种；空值表示未声明，不能跨币种合计"
+    }, {
+      "name" : "date",
+      "type" : "date",
+      "description" : "业务日期；空值表示未配置"
+    }, {
+      "name" : "status",
+      "type" : "string",
+      "description" : "派单条目执行状态：待执行/成功/失败/结果未知/已跳过"
+    }, {
+      "name" : "planId",
+      "type" : "string",
+      "description" : "清单标识"
+    }, {
+      "name" : "requestId",
+      "type" : "string",
+      "description" : "稳定派单请求号，未发送时为空"
+    }, {
+      "name" : "operatorName",
+      "type" : "string",
+      "description" : "清单创建人展示名"
+    }, {
+      "name" : "createdByMe",
+      "type" : "boolean",
+      "description" : "是否当前登录人创建，由服务端身份计算；我的/本人发起使用true，不能把人称代词当创建人姓名"
+    }, {
+      "name" : "planStatus",
+      "type" : "string",
+      "description" : "清单当前状态"
+    }, {
+      "name" : "message",
+      "type" : "string",
+      "description" : "最近派单结果说明，空值表示未提供"
+    }, {
+      "name" : "createdDate",
+      "type" : "date",
+      "description" : "清单创建日期，Asia/Shanghai"
+    } ],
+    "workOrderFields" : [ {
+      "name" : "reportId",
+      "type" : "string",
+      "description" : "报表稳定标识"
+    }, {
+      "name" : "reportName",
+      "type" : "string",
+      "description" : "报表名称"
+    }, {
+      "name" : "companyCode",
+      "type" : "string",
+      "description" : "所属公司代码"
+    }, {
+      "name" : "docNo",
+      "type" : "string",
+      "description" : "来源单据号"
+    }, {
+      "name" : "amount",
+      "type" : "decimal",
+      "description" : "来源金额，币种见 currency；空值表示未提供"
+    }, {
+      "name" : "currency",
+      "type" : "string",
+      "description" : "来源声明币种；空值表示未声明，不能跨币种合计"
+    }, {
+      "name" : "date",
+      "type" : "date",
+      "description" : "业务日期；空值表示未配置"
+    }, {
+      "name" : "status",
+      "type" : "string",
+      "description" : "工单办理状态：待审批/处理中/已完成/已驳回"
+    }, {
+      "name" : "orderId",
+      "type" : "string",
+      "description" : "工单编号，须准确匹配"
+    }, {
+      "name" : "title",
+      "type" : "string",
+      "description" : "工单主题"
+    }, {
+      "name" : "stage",
+      "type" : "string",
+      "description" : "当前环节，已结束时为归档或退回"
+    }, {
+      "name" : "assignee",
+      "type" : "string",
+      "description" : "当前处理人，已结束时为空"
+    }, {
+      "name" : "requestId",
+      "type" : "string",
+      "description" : "关联派单请求号，固定演示示例为空"
+    }, {
+      "name" : "source",
+      "type" : "string",
+      "description" : "固定演示示例或实际演示派单关联"
+    }, {
+      "name" : "createdDate",
+      "type" : "date",
+      "description" : "工单创建日期，Asia/Shanghai"
+    }, {
+      "name" : "updatedDate",
+      "type" : "date",
+      "description" : "最近流程变化日期；固定演示不会随查询推进"
+    } ],
+    "previousQuery" : {
+      "domain" : "REPORT",
+      "view" : "LIST",
+      "reportIds" : [ "rpt-sales-order" ],
+      "companyCode" : "A",
+      "conditions" : [ {
+        "allOf" : [ {
+          "field" : "saleDate",
+          "operator" : "GTE",
+          "values" : [ "2026-09-01" ]
+        }, {
+          "field" : "saleDate",
+          "operator" : "LT",
+          "values" : [ "2026-10-01" ]
+        }, {
+          "field" : "amount",
+          "operator" : "GT",
+          "values" : [ "100" ]
+        }, {
+          "field" : "amount",
+          "operator" : "LTE",
+          "values" : [ "110" ]
+        } ]
+      } ],
+      "sortField" : "amount",
+      "descending" : true,
+      "page" : 1,
+      "size" : 20,
+      "groupBy" : null
+    },
+    "previousRows" : [ {
+      "date" : "2026-09-26",
+      "docNo" : "UA-109",
+      "amount" : "109.01",
+      "status" : "未派单",
+      "orderNo" : "UA-109",
+      "currency" : "CNY",
+      "recordId" : "1109",
+      "reportId" : "rpt-sales-order",
+      "saleDate" : "2026-09-26",
+      "dispatched" : "false",
+      "reportName" : "销售报表",
+      "companyCode" : "A",
+      "productName" : "alpha ",
+      "displayIndex" : "1",
+      "daysSinceSale" : "17"
+    }, {
+      "date" : "2026-09-25",
+      "docNo" : "UA-108",
+      "amount" : "108.01",
+      "status" : "未派单",
+      "orderNo" : "UA-108",
+      "currency" : "CNY",
+      "recordId" : "1108",
+      "reportId" : "rpt-sales-order",
+      "saleDate" : "2026-09-25",
+      "dispatched" : "false",
+      "reportName" : "销售报表",
+      "companyCode" : "A",
+      "productName" : "Alpha",
+      "displayIndex" : "2",
+      "daysSinceSale" : "18"
+    }, {
+      "date" : "2026-09-24",
+      "docNo" : "UA-107",
+      "amount" : "107.01",
+      "status" : "未派单",
+      "orderNo" : "UA-107",
+      "currency" : "CNY",
+      "recordId" : "1107",
+      "reportId" : "rpt-sales-order",
+      "saleDate" : "2026-09-24",
+      "dispatched" : "false",
+      "reportName" : "销售报表",
+      "companyCode" : "A",
+      "productName" : "alpha ",
+      "displayIndex" : "3",
+      "daysSinceSale" : "19"
+    }, {
+      "date" : "2026-09-23",
+      "docNo" : "UA-106",
+      "amount" : "106.01",
+      "status" : "未派单",
+      "orderNo" : "UA-106",
+      "currency" : "CNY",
+      "recordId" : "1106",
+      "reportId" : "rpt-sales-order",
+      "saleDate" : "2026-09-23",
+      "dispatched" : "false",
+      "reportName" : "销售报表",
+      "companyCode" : "A",
+      "productName" : "Alpha",
+      "displayIndex" : "4",
+      "daysSinceSale" : "20"
+    }, {
+      "date" : "2026-09-22",
+      "docNo" : "UA-105",
+      "amount" : "105.01",
+      "status" : "未派单",
+      "orderNo" : "UA-105",
+      "currency" : "CNY",
+      "recordId" : "1105",
+      "reportId" : "rpt-sales-order",
+      "saleDate" : "2026-09-22",
+      "dispatched" : "false",
+      "reportName" : "销售报表",
+      "companyCode" : "A",
+      "productName" : "alpha ",
+      "displayIndex" : "5",
+      "daysSinceSale" : "21"
+    }, {
+      "date" : "2026-09-21",
+      "docNo" : "UA-104",
+      "amount" : "104.01",
+      "status" : "未派单",
+      "orderNo" : "UA-104",
+      "currency" : "CNY",
+      "recordId" : "1104",
+      "reportId" : "rpt-sales-order",
+      "saleDate" : "2026-09-21",
+      "dispatched" : "false",
+      "reportName" : "销售报表",
+      "companyCode" : "A",
+      "productName" : "Alpha",
+      "displayIndex" : "6",
+      "daysSinceSale" : "22"
+    }, {
+      "date" : "2026-09-20",
+      "docNo" : "UA-103",
+      "amount" : "103.01",
+      "status" : "未派单",
+      "orderNo" : "UA-103",
+      "currency" : "CNY",
+      "recordId" : "1103",
+      "reportId" : "rpt-sales-order",
+      "saleDate" : "2026-09-20",
+      "dispatched" : "false",
+      "reportName" : "销售报表",
+      "companyCode" : "A",
+      "productName" : "alpha ",
+      "displayIndex" : "7",
+      "daysSinceSale" : "23"
+    }, {
+      "date" : "2026-09-19",
+      "docNo" : "UA-102",
+      "amount" : "102.01",
+      "status" : "未派单",
+      "orderNo" : "UA-102",
+      "currency" : "CNY",
+      "recordId" : "1102",
+      "reportId" : "rpt-sales-order",
+      "saleDate" : "2026-09-19",
+      "dispatched" : "false",
+      "reportName" : "销售报表",
+      "companyCode" : "A",
+      "productName" : "Alpha",
+      "displayIndex" : "8",
+      "daysSinceSale" : "24"
+    }, {
+      "date" : "2026-09-18",
+      "docNo" : "UA-101",
+      "amount" : "101.01",
+      "status" : "未派单",
+      "orderNo" : "UA-101",
+      "currency" : "CNY",
+      "recordId" : "1101",
+      "reportId" : "rpt-sales-order",
+      "saleDate" : "2026-09-18",
+      "dispatched" : "false",
+      "reportName" : "销售报表",
+      "companyCode" : "A",
+      "productName" : "alpha ",
+      "displayIndex" : "9",
+      "daysSinceSale" : "25"
+    }, {
+      "date" : "2026-09-17",
+      "docNo" : "UA-100",
+      "amount" : "100.01",
+      "status" : "未派单",
+      "orderNo" : "UA-100",
+      "currency" : "CNY",
+      "recordId" : "1100",
+      "reportId" : "rpt-sales-order",
+      "saleDate" : "2026-09-17",
+      "dispatched" : "false",
+      "reportName" : "销售报表",
+      "companyCode" : "A",
+      "productName" : "Alpha",
+      "displayIndex" : "10",
+      "daysSinceSale" : "26"
+    } ],
+    "lastRoute" : "BUSINESS_QUERY",
+    "lastAttemptRoute" : "BUSINESS_QUERY",
+    "previousResult" : {
+      "totalCount" : 10,
+      "displayedCount" : 10,
+      "allMatchesDisplayed" : true
+    },
+    "queryObjects" : {
+      "available" : true,
+      "sourceRef" : "query-5322f22645a73cda",
+      "unavailableReason" : null,
+      "recoveryHint" : null,
+      "preparation" : {
+        "sources" : [ "QUERY_ROWS", "QUERY_ALL" ],
+        "requiresSeparatePreview" : false,
+        "requiresCurrentPermissionAndQualificationCheck" : true,
+        "executionRequiresConfirmation" : true
+      },
+      "allMatchesDisplayed" : true,
+      "totalCount" : 10,
+      "rows" : [ {
+        "date" : "2026-09-26",
+        "docNo" : "UA-109",
+        "amount" : "109.01",
+        "status" : "未派单",
+        "orderNo" : "UA-109",
+        "currency" : "CNY",
+        "recordId" : "1109",
+        "reportId" : "rpt-sales-order",
+        "saleDate" : "2026-09-26",
+        "dispatched" : "false",
+        "reportName" : "销售报表",
+        "companyCode" : "A",
+        "productName" : "alpha ",
+        "displayIndex" : "1",
+        "daysSinceSale" : "17",
+        "referenceKey" : "row-1"
+      }, {
+        "date" : "2026-09-25",
+        "docNo" : "UA-108",
+        "amount" : "108.01",
+        "status" : "未派单",
+        "orderNo" : "UA-108",
+        "currency" : "CNY",
+        "recordId" : "1108",
+        "reportId" : "rpt-sales-order",
+        "saleDate" : "2026-09-25",
+        "dispatched" : "false",
+        "reportName" : "销售报表",
+        "companyCode" : "A",
+        "productName" : "Alpha",
+        "displayIndex" : "2",
+        "daysSinceSale" : "18",
+        "referenceKey" : "row-2"
+      }, {
+        "date" : "2026-09-24",
+        "docNo" : "UA-107",
+        "amount" : "107.01",
+        "status" : "未派单",
+        "orderNo" : "UA-107",
+        "currency" : "CNY",
+        "recordId" : "1107",
+        "reportId" : "rpt-sales-order",
+        "saleDate" : "2026-09-24",
+        "dispatched" : "false",
+        "reportName" : "销售报表",
+        "companyCode" : "A",
+        "productName" : "alpha ",
+        "displayIndex" : "3",
+        "daysSinceSale" : "19",
+        "referenceKey" : "row-3"
+      }, {
+        "date" : "2026-09-23",
+        "docNo" : "UA-106",
+        "amount" : "106.01",
+        "status" : "未派单",
+        "orderNo" : "UA-106",
+        "currency" : "CNY",
+        "recordId" : "1106",
+        "reportId" : "rpt-sales-order",
+        "saleDate" : "2026-09-23",
+        "dispatched" : "false",
+        "reportName" : "销售报表",
+        "companyCode" : "A",
+        "productName" : "Alpha",
+        "displayIndex" : "4",
+        "daysSinceSale" : "20",
+        "referenceKey" : "row-4"
+      }, {
+        "date" : "2026-09-22",
+        "docNo" : "UA-105",
+        "amount" : "105.01",
+        "status" : "未派单",
+        "orderNo" : "UA-105",
+        "currency" : "CNY",
+        "recordId" : "1105",
+        "reportId" : "rpt-sales-order",
+        "saleDate" : "2026-09-22",
+        "dispatched" : "false",
+        "reportName" : "销售报表",
+        "companyCode" : "A",
+        "productName" : "alpha ",
+        "displayIndex" : "5",
+        "daysSinceSale" : "21",
+        "referenceKey" : "row-5"
+      }, {
+        "date" : "2026-09-21",
+        "docNo" : "UA-104",
+        "amount" : "104.01",
+        "status" : "未派单",
+        "orderNo" : "UA-104",
+        "currency" : "CNY",
+        "recordId" : "1104",
+        "reportId" : "rpt-sales-order",
+        "saleDate" : "2026-09-21",
+        "dispatched" : "false",
+        "reportName" : "销售报表",
+        "companyCode" : "A",
+        "productName" : "Alpha",
+        "displayIndex" : "6",
+        "daysSinceSale" : "22",
+        "referenceKey" : "row-6"
+      }, {
+        "date" : "2026-09-20",
+        "docNo" : "UA-103",
+        "amount" : "103.01",
+        "status" : "未派单",
+        "orderNo" : "UA-103",
+        "currency" : "CNY",
+        "recordId" : "1103",
+        "reportId" : "rpt-sales-order",
+        "saleDate" : "2026-09-20",
+        "dispatched" : "false",
+        "reportName" : "销售报表",
+        "companyCode" : "A",
+        "productName" : "alpha ",
+        "displayIndex" : "7",
+        "daysSinceSale" : "23",
+        "referenceKey" : "row-7"
+      }, {
+        "date" : "2026-09-19",
+        "docNo" : "UA-102",
+        "amount" : "102.01",
+        "status" : "未派单",
+        "orderNo" : "UA-102",
+        "currency" : "CNY",
+        "recordId" : "1102",
+        "reportId" : "rpt-sales-order",
+        "saleDate" : "2026-09-19",
+        "dispatched" : "false",
+        "reportName" : "销售报表",
+        "companyCode" : "A",
+        "productName" : "Alpha",
+        "displayIndex" : "8",
+        "daysSinceSale" : "24",
+        "referenceKey" : "row-8"
+      }, {
+        "date" : "2026-09-18",
+        "docNo" : "UA-101",
+        "amount" : "101.01",
+        "status" : "未派单",
+        "orderNo" : "UA-101",
+        "currency" : "CNY",
+        "recordId" : "1101",
+        "reportId" : "rpt-sales-order",
+        "saleDate" : "2026-09-18",
+        "dispatched" : "false",
+        "reportName" : "销售报表",
+        "companyCode" : "A",
+        "productName" : "alpha ",
+        "displayIndex" : "9",
+        "daysSinceSale" : "25",
+        "referenceKey" : "row-9"
+      }, {
+        "date" : "2026-09-17",
+        "docNo" : "UA-100",
+        "amount" : "100.01",
+        "status" : "未派单",
+        "orderNo" : "UA-100",
+        "currency" : "CNY",
+        "recordId" : "1100",
+        "reportId" : "rpt-sales-order",
+        "saleDate" : "2026-09-17",
+        "dispatched" : "false",
+        "reportName" : "销售报表",
+        "companyCode" : "A",
+        "productName" : "Alpha",
+        "displayIndex" : "10",
+        "daysSinceSale" : "26",
+        "referenceKey" : "row-10"
+      } ]
+    },
+    "recentConversation" : [ {
+      "role" : "user",
+      "content" : "查询A公司2026年9月销售报表，金额大于100元且不超过110元，按金额从高到低展示。",
+      "messageIndex" : 0
+    }, {
+      "role" : "assistant",
+      "content" : "本次查询匹配 10 条报表记录，当前第 1 页展示 10 条。",
+      "messageIndex" : 1
+    } ],
+    "dispatchSelection" : { },
+    "queryUnresolved" : false,
+    "dispatchPreviewPresent" : false,
+    "dispatchPlanPresent" : false,
+    "dispatchUnresolved" : false,
+    "dispatchCapabilities" : {
+      "selectionBoundary" : "CURRENT_PREVIEW_OR_FINAL_SCOPE_SNAPSHOT",
+      "quantifiers" : [ "ONE", "ALL", "UNSPECIFIED" ],
+      "keepOnlySelectors" : [ "DOCUMENT", "DESCRIPTION", "COUNTERPARTY", "FIELDS", "REFERENCE" ],
+      "unsupported" : [ "SORT", "LIMIT", "MULTI_QUERY_PROGRAM", "UNCONFIGURED_FIELD" ],
+      "selectorsByReport" : {
+        "rpt-sales-order" : [ "DOCUMENT", "DESCRIPTION", "FIELDS", "ALL", "REFERENCE" ]
+      },
+      "recordSelectors" : [ "DOCUMENT", "DESCRIPTION", "COUNTERPARTY", "FIELDS", "ALL", "REFERENCE" ],
+      "recordOperations" : [ "EXCLUDE", "RESTORE", "REPLACE_EXCLUSIONS", "RESTORE_ALL", "KEEP_ONLY" ],
+      "scopeFilters" : [ "ONE_COMPANY_OR_ALL_AUTHORIZED", "REPORT_SET" ]
+    },
+    "dispatchFieldsByReport" : {
+      "rpt-sales-order" : [ {
+        "name" : "companyCode",
+        "type" : "string",
+        "description" : "公司代码"
+      }, {
+        "name" : "orderNo",
+        "type" : "string",
+        "description" : "订单号"
+      }, {
+        "name" : "productName",
+        "type" : "string",
+        "description" : "产品名称"
+      }, {
+        "name" : "amount",
+        "type" : "decimal",
+        "description" : "订单金额（元）"
+      }, {
+        "name" : "saleDate",
+        "type" : "date",
+        "description" : "销售日期，字符串 yyyy-MM-dd"
+      }, {
+        "name" : "daysSinceSale",
+        "type" : "long",
+        "description" : "距销售日期的天数（派生）"
+      }, {
+        "name" : "dispatched",
+        "type" : "boolean",
+        "description" : "是否已派单（派生，粗筛后恒为 false）"
+      } ]
+    },
+    "dispatchContext" : {
+      "desired" : {
+        "companyCode" : null,
+        "allReports" : true,
+        "reportIds" : [ ]
+      },
+      "effective" : null,
+      "phase" : "READY",
+      "unresolvedCompany" : false,
+      "unresolvedReports" : false,
+      "unresolvedRecords" : false,
+      "previewRef" : null,
+      "planRef" : null,
+      "previewPreparation" : {
+        "source" : "PREVIEW",
+        "requiresRedisplay" : true
+      },
+      "lastSelectionReferences" : [ ],
+      "lastSelectionReferencesComplete" : true,
+      "lastFailure" : null
+    },
+    "taskPurpose" : {
+      "requestedResult" : "仅基于刚才那批销售报表结果，按产品统计金额合计，取金额最高的一组并展开该组的全部单据，不重新查询数据。",
+      "purpose" : "ANALYSIS",
+      "queryContext" : "NOT_QUERY",
+      "evidence" : "仅分析刚才这批结果，按产品统计金额合计，取金额最高的一组并展开它的全部单据；不要重新查询当前数据。",
+      "targetCount" : null,
+      "queryDomain" : null,
+      "queryView" : null
+    },
+    "observedTerms" : {
+      "matches" : [ ],
+      "truncated" : false
+    },
+    "taskStage" : "INDEPENDENT_EXPECTATION",
+    "reviewRepairHistory" : [ ],
+    "message" : "仅分析刚才这批结果，按产品统计金额合计，取金额最高的一组并展开它的全部单据；不要重新查询当前数据。"
+  },
+  "callIndex" : 5,
+  "output" : "{\"requirements\":[{\"aspect\":\"ACTION\",\"messageIndex\":-1,\"evidence\":\"仅分析刚才这批结果，按产品统计金额合计，取金额最高的一组并展开该组的全部单据；不要重新查询当前数据。\",\"meaning\":\"用户要求对上一批查询结果做多步只读分析：先按产品分组汇总金额，再取合计最高一组，最后展开该组全部单据；明确不重新查询当前数据，因此属于ANALYSIS且必须只用原快照(SNAPSHOT_ONLY)，不得读取当前业务数据。\"},{\"aspect\":\"SCOPE\",\"messageIndex\":-1,\"evidence\":\"仅分析刚才这批结果\",\"meaning\":\"分析对象限定为刚才那批成功查询结果对应的单一公司A与单一报表rpt-sales-order（销售报表），范围来自当前完整快照而非全部授权范围。\"},{\"aspect\":\"REFERENCE\",\"messageIndex\":-1,\"evidence\":\"仅分析刚才这批结果\",\"meaning\":\"引用analysisContext中可用且完整的来源快照，companyCode=A、reportId=rpt-sales-order，sourceRef=analysis-source-9cee536caafb86c01610b1eb；该快照completeness=COMPLETE，可承接。\"},{\"aspect\":\"CONDITIONS\",\"messageIndex\":-1,\"evidence\":\"不要重新查询当前数据。\",\"meaning\":\"明确否定重新查询，属于读取方式限制：禁止CURRENT_DATA及重新QUERY，只能使用原快照中的既有条件集合（saleDate 2026-09-01至2026-10-01不含、amount大于100且不超过110）作为分析数据基。\"},{\"aspect\":\"CONTINUITY\",\"messageIndex\":-1,\"evidence\":\"仅分析刚才这批结果\",\"meaning\":\"承接上一轮成功查询，不新建查询、不继承为BUSINESS_QUERY；原查询条件与结果作为快照事实保留在分析中，本轮不重新要求也不撤销。\"},{\"aspect\":\"PRESENTATION\",\"messageIndex\":-1,\"evidence\":\"按产品统计金额合计，取金额最高的一组并展开该组的全部单据\",\"meaning\":\"需要分组统计（按productName汇总amount）、取最大值组并展开该组内全部单据，属于有限多步分析步骤，由有限分析器按原问题执行，不在统一计划中另写步骤字段。\"}],\"expectedPlan\":{\"route\":\"ANALYSIS\",\"query\":null,\"followUp\":false,\"clarification\":null,\"removedFilters\":[],\"dispatch\":null,\"clarificationOptions\":null,\"analysis\":{\"companyCode\":\"A\",\"reportId\":\"rpt-sales-order\",\"mode\":\"SNAPSHOT_ONLY\",\"sourceRef\":\"analysis-source-9cee536caafb86c01610b1eb\"}},\"conditionChecks\":[],\"priorConditionChanges\":[],\"targetCount\":null}",
+  "completedAt" : "2026-10-13T03:49:37.246546300+08:00"
+}, {
+  "input" : {
+    "messageIndex" : -1,
+    "businessDictionary" : {
+      "entries" : [ ],
+      "referenceTime" : "2026-10-12T19:49:28.763336700Z",
+      "defaultCalendar" : {
+        "nextFiscalYearStart" : "2027-01-01",
+        "today" : "2026-10-13",
+        "holidayCalendarComplete" : false,
+        "fiscalYearStart" : "2026-01-01",
+        "previousMonthStart" : "2026-09-01",
+        "timeZone" : "Asia/Shanghai",
+        "nextMonthStart" : "2026-11-01",
+        "previousMonthEndExclusive" : "2026-10-01",
+        "monthStart" : "2026-10-01",
+        "configuredHolidays" : [ ]
+      },
+      "fingerprint" : "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    "resolvedClarification" : { },
+    "requestedQuery" : null,
+    "analysisContext" : {
+      "source" : {
+        "reportId" : "rpt-sales-order",
+        "completeness" : "COMPLETE",
+        "observedAt" : "2026-10-12T19:49:18.329Z",
+        "companyCode" : "A",
+        "sourceRef" : "analysis-source-9cee536caafb86c01610b1eb",
+        "expiresAt" : "2026-10-13T19:49:18.333Z",
+        "query" : {
+          "domain" : "REPORT",
+          "view" : "LIST",
+          "reportIds" : [ "rpt-sales-order" ],
+          "companyCode" : "A",
+          "conditions" : [ {
+            "allOf" : [ {
+              "field" : "saleDate",
+              "operator" : "GTE",
+              "values" : [ "2026-09-01" ]
+            }, {
+              "field" : "saleDate",
+              "operator" : "LT",
+              "values" : [ "2026-10-01" ]
+            }, {
+              "field" : "amount",
+              "operator" : "GT",
+              "values" : [ "100" ]
+            }, {
+              "field" : "amount",
+              "operator" : "LTE",
+              "values" : [ "110" ]
+            } ]
+          } ],
+          "sortField" : "amount",
+          "descending" : true,
+          "page" : 1,
+          "size" : 20,
+          "groupBy" : null
+        }
+      },
+      "available" : true
+    },
+    "today" : "2026-10-13",
+    "companies" : [ "A" ],
+    "reports" : [ {
+      "dispatchEnabled" : true,
+      "name" : "销售报表",
+      "description" : "销售订单台账：按订单统计金额与派单状态",
+      "reportId" : "rpt-sales-order",
+      "fields" : [ {
+        "name" : "reportId",
+        "type" : "string",
+        "description" : "报表稳定标识"
+      }, {
+        "name" : "reportName",
+        "type" : "string",
+        "description" : "报表名称"
+      }, {
+        "name" : "companyCode",
+        "type" : "string",
+        "description" : "所属公司代码"
+      }, {
+        "name" : "docNo",
+        "type" : "string",
+        "description" : "来源单据号"
+      }, {
+        "name" : "amount",
+        "type" : "decimal",
+        "description" : "来源金额，币种见 currency；空值表示未提供"
+      }, {
+        "name" : "currency",
+        "type" : "string",
+        "description" : "来源声明币种；空值表示未声明，不能跨币种合计"
+      }, {
+        "name" : "date",
+        "type" : "date",
+        "description" : "业务日期；空值表示未配置"
+      }, {
+        "name" : "status",
+        "type" : "string",
+        "description" : "报表派单状态：未派单/已派单"
+      }, {
+        "name" : "orderNo",
+        "type" : "string",
+        "description" : "订单号"
+      }, {
+        "name" : "productName",
+        "type" : "string",
+        "description" : "产品名称"
+      }, {
+        "name" : "saleDate",
+        "type" : "date",
+        "description" : "销售日期，字符串 yyyy-MM-dd"
+      }, {
+        "name" : "daysSinceSale",
+        "type" : "long",
+        "description" : "距销售日期的天数（派生）"
+      }, {
+        "name" : "dispatched",
+        "type" : "boolean",
+        "description" : "来源记录是否已派单；true为已派单，false为未派单，不代表满足派单规则"
+      }, {
+        "name" : "recordId",
+        "type" : "string",
+        "description" : "报表内稳定记录标识"
+      } ],
+      "aliases" : [ "销售", "销售台账", "订单销售表", "销售明细", "销售订单", "sales report", "客户对账" ]
+    } ],
+    "currentReportMentions" : [ ],
+    "dispatchFields" : [ {
+      "name" : "reportId",
+      "type" : "string",
+      "description" : "报表稳定标识"
+    }, {
+      "name" : "reportName",
+      "type" : "string",
+      "description" : "报表名称"
+    }, {
+      "name" : "companyCode",
+      "type" : "string",
+      "description" : "所属公司代码"
+    }, {
+      "name" : "docNo",
+      "type" : "string",
+      "description" : "来源单据号"
+    }, {
+      "name" : "amount",
+      "type" : "decimal",
+      "description" : "来源金额，币种见 currency；空值表示未提供"
+    }, {
+      "name" : "currency",
+      "type" : "string",
+      "description" : "来源声明币种；空值表示未声明，不能跨币种合计"
+    }, {
+      "name" : "date",
+      "type" : "date",
+      "description" : "业务日期；空值表示未配置"
+    }, {
+      "name" : "status",
+      "type" : "string",
+      "description" : "派单条目执行状态：待执行/成功/失败/结果未知/已跳过"
+    }, {
+      "name" : "planId",
+      "type" : "string",
+      "description" : "清单标识"
+    }, {
+      "name" : "requestId",
+      "type" : "string",
+      "description" : "稳定派单请求号，未发送时为空"
+    }, {
+      "name" : "operatorName",
+      "type" : "string",
+      "description" : "清单创建人展示名"
+    }, {
+      "name" : "createdByMe",
+      "type" : "boolean",
+      "description" : "是否当前登录人创建，由服务端身份计算；我的/本人发起使用true，不能把人称代词当创建人姓名"
+    }, {
+      "name" : "planStatus",
+      "type" : "string",
+      "description" : "清单当前状态"
+    }, {
+      "name" : "message",
+      "type" : "string",
+      "description" : "最近派单结果说明，空值表示未提供"
+    }, {
+      "name" : "createdDate",
+      "type" : "date",
+      "description" : "清单创建日期，Asia/Shanghai"
+    } ],
+    "workOrderFields" : [ {
+      "name" : "reportId",
+      "type" : "string",
+      "description" : "报表稳定标识"
+    }, {
+      "name" : "reportName",
+      "type" : "string",
+      "description" : "报表名称"
+    }, {
+      "name" : "companyCode",
+      "type" : "string",
+      "description" : "所属公司代码"
+    }, {
+      "name" : "docNo",
+      "type" : "string",
+      "description" : "来源单据号"
+    }, {
+      "name" : "amount",
+      "type" : "decimal",
+      "description" : "来源金额，币种见 currency；空值表示未提供"
+    }, {
+      "name" : "currency",
+      "type" : "string",
+      "description" : "来源声明币种；空值表示未声明，不能跨币种合计"
+    }, {
+      "name" : "date",
+      "type" : "date",
+      "description" : "业务日期；空值表示未配置"
+    }, {
+      "name" : "status",
+      "type" : "string",
+      "description" : "工单办理状态：待审批/处理中/已完成/已驳回"
+    }, {
+      "name" : "orderId",
+      "type" : "string",
+      "description" : "工单编号，须准确匹配"
+    }, {
+      "name" : "title",
+      "type" : "string",
+      "description" : "工单主题"
+    }, {
+      "name" : "stage",
+      "type" : "string",
+      "description" : "当前环节，已结束时为归档或退回"
+    }, {
+      "name" : "assignee",
+      "type" : "string",
+      "description" : "当前处理人，已结束时为空"
+    }, {
+      "name" : "requestId",
+      "type" : "string",
+      "description" : "关联派单请求号，固定演示示例为空"
+    }, {
+      "name" : "source",
+      "type" : "string",
+      "description" : "固定演示示例或实际演示派单关联"
+    }, {
+      "name" : "createdDate",
+      "type" : "date",
+      "description" : "工单创建日期，Asia/Shanghai"
+    }, {
+      "name" : "updatedDate",
+      "type" : "date",
+      "description" : "最近流程变化日期；固定演示不会随查询推进"
+    } ],
+    "previousQuery" : {
+      "domain" : "REPORT",
+      "view" : "LIST",
+      "reportIds" : [ "rpt-sales-order" ],
+      "companyCode" : "A",
+      "conditions" : [ {
+        "allOf" : [ {
+          "field" : "saleDate",
+          "operator" : "GTE",
+          "values" : [ "2026-09-01" ]
+        }, {
+          "field" : "saleDate",
+          "operator" : "LT",
+          "values" : [ "2026-10-01" ]
+        }, {
+          "field" : "amount",
+          "operator" : "GT",
+          "values" : [ "100" ]
+        }, {
+          "field" : "amount",
+          "operator" : "LTE",
+          "values" : [ "110" ]
+        } ]
+      } ],
+      "sortField" : "amount",
+      "descending" : true,
+      "page" : 1,
+      "size" : 20,
+      "groupBy" : null
+    },
+    "previousRows" : [ {
+      "date" : "2026-09-26",
+      "docNo" : "UA-109",
+      "amount" : "109.01",
+      "status" : "未派单",
+      "orderNo" : "UA-109",
+      "currency" : "CNY",
+      "recordId" : "1109",
+      "reportId" : "rpt-sales-order",
+      "saleDate" : "2026-09-26",
+      "dispatched" : "false",
+      "reportName" : "销售报表",
+      "companyCode" : "A",
+      "productName" : "alpha ",
+      "displayIndex" : "1",
+      "daysSinceSale" : "17"
+    }, {
+      "date" : "2026-09-25",
+      "docNo" : "UA-108",
+      "amount" : "108.01",
+      "status" : "未派单",
+      "orderNo" : "UA-108",
+      "currency" : "CNY",
+      "recordId" : "1108",
+      "reportId" : "rpt-sales-order",
+      "saleDate" : "2026-09-25",
+      "dispatched" : "false",
+      "reportName" : "销售报表",
+      "companyCode" : "A",
+      "productName" : "Alpha",
+      "displayIndex" : "2",
+      "daysSinceSale" : "18"
+    }, {
+      "date" : "2026-09-24",
+      "docNo" : "UA-107",
+      "amount" : "107.01",
+      "status" : "未派单",
+      "orderNo" : "UA-107",
+      "currency" : "CNY",
+      "recordId" : "1107",
+      "reportId" : "rpt-sales-order",
+      "saleDate" : "2026-09-24",
+      "dispatched" : "false",
+      "reportName" : "销售报表",
+      "companyCode" : "A",
+      "productName" : "alpha ",
+      "displayIndex" : "3",
+      "daysSinceSale" : "19"
+    }, {
+      "date" : "2026-09-23",
+      "docNo" : "UA-106",
+      "amount" : "106.01",
+      "status" : "未派单",
+      "orderNo" : "UA-106",
+      "currency" : "CNY",
+      "recordId" : "1106",
+      "reportId" : "rpt-sales-order",
+      "saleDate" : "2026-09-23",
+      "dispatched" : "false",
+      "reportName" : "销售报表",
+      "companyCode" : "A",
+      "productName" : "Alpha",
+      "displayIndex" : "4",
+      "daysSinceSale" : "20"
+    }, {
+      "date" : "2026-09-22",
+      "docNo" : "UA-105",
+      "amount" : "105.01",
+      "status" : "未派单",
+      "orderNo" : "UA-105",
+      "currency" : "CNY",
+      "recordId" : "1105",
+      "reportId" : "rpt-sales-order",
+      "saleDate" : "2026-09-22",
+      "dispatched" : "false",
+      "reportName" : "销售报表",
+      "companyCode" : "A",
+      "productName" : "alpha ",
+      "displayIndex" : "5",
+      "daysSinceSale" : "21"
+    }, {
+      "date" : "2026-09-21",
+      "docNo" : "UA-104",
+      "amount" : "104.01",
+      "status" : "未派单",
+      "orderNo" : "UA-104",
+      "currency" : "CNY",
+      "recordId" : "1104",
+      "reportId" : "rpt-sales-order",
+      "saleDate" : "2026-09-21",
+      "dispatched" : "false",
+      "reportName" : "销售报表",
+      "companyCode" : "A",
+      "productName" : "Alpha",
+      "displayIndex" : "6",
+      "daysSinceSale" : "22"
+    }, {
+      "date" : "2026-09-20",
+      "docNo" : "UA-103",
+      "amount" : "103.01",
+      "status" : "未派单",
+      "orderNo" : "UA-103",
+      "currency" : "CNY",
+      "recordId" : "1103",
+      "reportId" : "rpt-sales-order",
+      "saleDate" : "2026-09-20",
+      "dispatched" : "false",
+      "reportName" : "销售报表",
+      "companyCode" : "A",
+      "productName" : "alpha ",
+      "displayIndex" : "7",
+      "daysSinceSale" : "23"
+    }, {
+      "date" : "2026-09-19",
+      "docNo" : "UA-102",
+      "amount" : "102.01",
+      "status" : "未派单",
+      "orderNo" : "UA-102",
+      "currency" : "CNY",
+      "recordId" : "1102",
+      "reportId" : "rpt-sales-order",
+      "saleDate" : "2026-09-19",
+      "dispatched" : "false",
+      "reportName" : "销售报表",
+      "companyCode" : "A",
+      "productName" : "Alpha",
+      "displayIndex" : "8",
+      "daysSinceSale" : "24"
+    }, {
+      "date" : "2026-09-18",
+      "docNo" : "UA-101",
+      "amount" : "101.01",
+      "status" : "未派单",
+      "orderNo" : "UA-101",
+      "currency" : "CNY",
+      "recordId" : "1101",
+      "reportId" : "rpt-sales-order",
+      "saleDate" : "2026-09-18",
+      "dispatched" : "false",
+      "reportName" : "销售报表",
+      "companyCode" : "A",
+      "productName" : "alpha ",
+      "displayIndex" : "9",
+      "daysSinceSale" : "25"
+    }, {
+      "date" : "2026-09-17",
+      "docNo" : "UA-100",
+      "amount" : "100.01",
+      "status" : "未派单",
+      "orderNo" : "UA-100",
+      "currency" : "CNY",
+      "recordId" : "1100",
+      "reportId" : "rpt-sales-order",
+      "saleDate" : "2026-09-17",
+      "dispatched" : "false",
+      "reportName" : "销售报表",
+      "companyCode" : "A",
+      "productName" : "Alpha",
+      "displayIndex" : "10",
+      "daysSinceSale" : "26"
+    } ],
+    "lastRoute" : "BUSINESS_QUERY",
+    "lastAttemptRoute" : "BUSINESS_QUERY",
+    "previousResult" : {
+      "totalCount" : 10,
+      "displayedCount" : 10,
+      "allMatchesDisplayed" : true
+    },
+    "queryObjects" : {
+      "available" : true,
+      "sourceRef" : "query-5322f22645a73cda",
+      "unavailableReason" : null,
+      "recoveryHint" : null,
+      "preparation" : {
+        "sources" : [ "QUERY_ROWS", "QUERY_ALL" ],
+        "requiresSeparatePreview" : false,
+        "requiresCurrentPermissionAndQualificationCheck" : true,
+        "executionRequiresConfirmation" : true
+      },
+      "allMatchesDisplayed" : true,
+      "totalCount" : 10,
+      "rows" : [ {
+        "date" : "2026-09-26",
+        "docNo" : "UA-109",
+        "amount" : "109.01",
+        "status" : "未派单",
+        "orderNo" : "UA-109",
+        "currency" : "CNY",
+        "recordId" : "1109",
+        "reportId" : "rpt-sales-order",
+        "saleDate" : "2026-09-26",
+        "dispatched" : "false",
+        "reportName" : "销售报表",
+        "companyCode" : "A",
+        "productName" : "alpha ",
+        "displayIndex" : "1",
+        "daysSinceSale" : "17",
+        "referenceKey" : "row-1"
+      }, {
+        "date" : "2026-09-25",
+        "docNo" : "UA-108",
+        "amount" : "108.01",
+        "status" : "未派单",
+        "orderNo" : "UA-108",
+        "currency" : "CNY",
+        "recordId" : "1108",
+        "reportId" : "rpt-sales-order",
+        "saleDate" : "2026-09-25",
+        "dispatched" : "false",
+        "reportName" : "销售报表",
+        "companyCode" : "A",
+        "productName" : "Alpha",
+        "displayIndex" : "2",
+        "daysSinceSale" : "18",
+        "referenceKey" : "row-2"
+      }, {
+        "date" : "2026-09-24",
+        "docNo" : "UA-107",
+        "amount" : "107.01",
+        "status" : "未派单",
+        "orderNo" : "UA-107",
+        "currency" : "CNY",
+        "recordId" : "1107",
+        "reportId" : "rpt-sales-order",
+        "saleDate" : "2026-09-24",
+        "dispatched" : "false",
+        "reportName" : "销售报表",
+        "companyCode" : "A",
+        "productName" : "alpha ",
+        "displayIndex" : "3",
+        "daysSinceSale" : "19",
+        "referenceKey" : "row-3"
+      }, {
+        "date" : "2026-09-23",
+        "docNo" : "UA-106",
+        "amount" : "106.01",
+        "status" : "未派单",
+        "orderNo" : "UA-106",
+        "currency" : "CNY",
+        "recordId" : "1106",
+        "reportId" : "rpt-sales-order",
+        "saleDate" : "2026-09-23",
+        "dispatched" : "false",
+        "reportName" : "销售报表",
+        "companyCode" : "A",
+        "productName" : "Alpha",
+        "displayIndex" : "4",
+        "daysSinceSale" : "20",
+        "referenceKey" : "row-4"
+      }, {
+        "date" : "2026-09-22",
+        "docNo" : "UA-105",
+        "amount" : "105.01",
+        "status" : "未派单",
+        "orderNo" : "UA-105",
+        "currency" : "CNY",
+        "recordId" : "1105",
+        "reportId" : "rpt-sales-order",
+        "saleDate" : "2026-09-22",
+        "dispatched" : "false",
+        "reportName" : "销售报表",
+        "companyCode" : "A",
+        "productName" : "alpha ",
+        "displayIndex" : "5",
+        "daysSinceSale" : "21",
+        "referenceKey" : "row-5"
+      }, {
+        "date" : "2026-09-21",
+        "docNo" : "UA-104",
+        "amount" : "104.01",
+        "status" : "未派单",
+        "orderNo" : "UA-104",
+        "currency" : "CNY",
+        "recordId" : "1104",
+        "reportId" : "rpt-sales-order",
+        "saleDate" : "2026-09-21",
+        "dispatched" : "false",
+        "reportName" : "销售报表",
+        "companyCode" : "A",
+        "productName" : "Alpha",
+        "displayIndex" : "6",
+        "daysSinceSale" : "22",
+        "referenceKey" : "row-6"
+      }, {
+        "date" : "2026-09-20",
+        "docNo" : "UA-103",
+        "amount" : "103.01",
+        "status" : "未派单",
+        "orderNo" : "UA-103",
+        "currency" : "CNY",
+        "recordId" : "1103",
+        "reportId" : "rpt-sales-order",
+        "saleDate" : "2026-09-20",
+        "dispatched" : "false",
+        "reportName" : "销售报表",
+        "companyCode" : "A",
+        "productName" : "alpha ",
+        "displayIndex" : "7",
+        "daysSinceSale" : "23",
+        "referenceKey" : "row-7"
+      }, {
+        "date" : "2026-09-19",
+        "docNo" : "UA-102",
+        "amount" : "102.01",
+        "status" : "未派单",
+        "orderNo" : "UA-102",
+        "currency" : "CNY",
+        "recordId" : "1102",
+        "reportId" : "rpt-sales-order",
+        "saleDate" : "2026-09-19",
+        "dispatched" : "false",
+        "reportName" : "销售报表",
+        "companyCode" : "A",
+        "productName" : "Alpha",
+        "displayIndex" : "8",
+        "daysSinceSale" : "24",
+        "referenceKey" : "row-8"
+      }, {
+        "date" : "2026-09-18",
+        "docNo" : "UA-101",
+        "amount" : "101.01",
+        "status" : "未派单",
+        "orderNo" : "UA-101",
+        "currency" : "CNY",
+        "recordId" : "1101",
+        "reportId" : "rpt-sales-order",
+        "saleDate" : "2026-09-18",
+        "dispatched" : "false",
+        "reportName" : "销售报表",
+        "companyCode" : "A",
+        "productName" : "alpha ",
+        "displayIndex" : "9",
+        "daysSinceSale" : "25",
+        "referenceKey" : "row-9"
+      }, {
+        "date" : "2026-09-17",
+        "docNo" : "UA-100",
+        "amount" : "100.01",
+        "status" : "未派单",
+        "orderNo" : "UA-100",
+        "currency" : "CNY",
+        "recordId" : "1100",
+        "reportId" : "rpt-sales-order",
+        "saleDate" : "2026-09-17",
+        "dispatched" : "false",
+        "reportName" : "销售报表",
+        "companyCode" : "A",
+        "productName" : "Alpha",
+        "displayIndex" : "10",
+        "daysSinceSale" : "26",
+        "referenceKey" : "row-10"
+      } ]
+    },
+    "recentConversation" : [ {
+      "role" : "user",
+      "content" : "查询A公司2026年9月销售报表，金额大于100元且不超过110元，按金额从高到低展示。",
+      "messageIndex" : 0
+    }, {
+      "role" : "assistant",
+      "content" : "本次查询匹配 10 条报表记录，当前第 1 页展示 10 条。",
+      "messageIndex" : 1
+    } ],
+    "dispatchSelection" : { },
+    "queryUnresolved" : false,
+    "dispatchPreviewPresent" : false,
+    "dispatchPlanPresent" : false,
+    "dispatchUnresolved" : false,
+    "dispatchCapabilities" : {
+      "selectionBoundary" : "CURRENT_PREVIEW_OR_FINAL_SCOPE_SNAPSHOT",
+      "quantifiers" : [ "ONE", "ALL", "UNSPECIFIED" ],
+      "keepOnlySelectors" : [ "DOCUMENT", "DESCRIPTION", "COUNTERPARTY", "FIELDS", "REFERENCE" ],
+      "unsupported" : [ "SORT", "LIMIT", "MULTI_QUERY_PROGRAM", "UNCONFIGURED_FIELD" ],
+      "selectorsByReport" : {
+        "rpt-sales-order" : [ "DOCUMENT", "DESCRIPTION", "FIELDS", "ALL", "REFERENCE" ]
+      },
+      "recordSelectors" : [ "DOCUMENT", "DESCRIPTION", "COUNTERPARTY", "FIELDS", "ALL", "REFERENCE" ],
+      "recordOperations" : [ "EXCLUDE", "RESTORE", "REPLACE_EXCLUSIONS", "RESTORE_ALL", "KEEP_ONLY" ],
+      "scopeFilters" : [ "ONE_COMPANY_OR_ALL_AUTHORIZED", "REPORT_SET" ]
+    },
+    "dispatchFieldsByReport" : {
+      "rpt-sales-order" : [ {
+        "name" : "companyCode",
+        "type" : "string",
+        "description" : "公司代码"
+      }, {
+        "name" : "orderNo",
+        "type" : "string",
+        "description" : "订单号"
+      }, {
+        "name" : "productName",
+        "type" : "string",
+        "description" : "产品名称"
+      }, {
+        "name" : "amount",
+        "type" : "decimal",
+        "description" : "订单金额（元）"
+      }, {
+        "name" : "saleDate",
+        "type" : "date",
+        "description" : "销售日期，字符串 yyyy-MM-dd"
+      }, {
+        "name" : "daysSinceSale",
+        "type" : "long",
+        "description" : "距销售日期的天数（派生）"
+      }, {
+        "name" : "dispatched",
+        "type" : "boolean",
+        "description" : "是否已派单（派生，粗筛后恒为 false）"
+      } ]
+    },
+    "dispatchContext" : {
+      "desired" : {
+        "companyCode" : null,
+        "allReports" : true,
+        "reportIds" : [ ]
+      },
+      "effective" : null,
+      "phase" : "READY",
+      "unresolvedCompany" : false,
+      "unresolvedReports" : false,
+      "unresolvedRecords" : false,
+      "previewRef" : null,
+      "planRef" : null,
+      "previewPreparation" : {
+        "source" : "PREVIEW",
+        "requiresRedisplay" : true
+      },
+      "lastSelectionReferences" : [ ],
+      "lastSelectionReferencesComplete" : true,
+      "lastFailure" : null
+    },
+    "taskPurpose" : {
+      "requestedResult" : "仅基于刚才那批销售报表结果，按产品统计金额合计，取金额最高的一组并展开该组的全部单据，不重新查询数据。",
+      "purpose" : "ANALYSIS",
+      "queryContext" : "NOT_QUERY",
+      "evidence" : "仅分析刚才这批结果，按产品统计金额合计，取金额最高的一组并展开它的全部单据；不要重新查询当前数据。",
+      "targetCount" : null,
+      "queryDomain" : null,
+      "queryView" : null
+    },
+    "observedTerms" : {
+      "matches" : [ ],
+      "truncated" : false
+    },
+    "taskStage" : "INDEPENDENT_EXPECTATION",
+    "reviewRepairHistory" : [ {
+      "validationError" : "requirements[0].evidence=\"仅分析刚才这批结果，按产品统计金额合计，取金额最高的一组并展开该组的全部单据；不要重新查询当前数据。\"不是本轮连续原文；requirements[5].evidence=\"按产品统计金额合计，取金额最高的一组并展开该组的全部单据\"不是本轮连续原文。本次校验的唯一原文source=\"仅分析刚才这批结果，按产品统计金额合计，取金额最高的一组并展开它的全部单据；不要重新查询当前数据。\"。从此source重新选择每个被指出的连续片段，不再复制无效引用。并列句省略的主语、字段名或单位不能补入evidence；必要时引用完整原句，业务解释写在meaning。只修正引用，不改动已正确的动作、对象、条件或比较关系；历史只能解释含义，不能替代本轮依据",
+      "attempt" : 1
+    } ],
+    "invalidReview" : "{\"requirements\":[{\"aspect\":\"ACTION\",\"messageIndex\":-1,\"evidence\":\"仅分析刚才这批结果，按产品统计金额合计，取金额最高的一组并展开该组的全部单据；不要重新查询当前数据。\",\"meaning\":\"用户要求对上一批查询结果做多步只读分析：先按产品分组汇总金额，再取合计最高一组，最后展开该组全部单据；明确不重新查询当前数据，因此属于ANALYSIS且必须只用原快照(SNAPSHOT_ONLY)，不得读取当前业务数据。\"},{\"aspect\":\"SCOPE\",\"messageIndex\":-1,\"evidence\":\"仅分析刚才这批结果\",\"meaning\":\"分析对象限定为刚才那批成功查询结果对应的单一公司A与单一报表rpt-sales-order（销售报表），范围来自当前完整快照而非全部授权范围。\"},{\"aspect\":\"REFERENCE\",\"messageIndex\":-1,\"evidence\":\"仅分析刚才这批结果\",\"meaning\":\"引用analysisContext中可用且完整的来源快照，companyCode=A、reportId=rpt-sales-order，sourceRef=analysis-source-9cee536caafb86c01610b1eb；该快照completeness=COMPLETE，可承接。\"},{\"aspect\":\"CONDITIONS\",\"messageIndex\":-1,\"evidence\":\"不要重新查询当前数据。\",\"meaning\":\"明确否定重新查询，属于读取方式限制：禁止CURRENT_DATA及重新QUERY，只能使用原快照中的既有条件集合（saleDate 2026-09-01至2026-10-01不含、amount大于100且不超过110）作为分析数据基。\"},{\"aspect\":\"CONTINUITY\",\"messageIndex\":-1,\"evidence\":\"仅分析刚才这批结果\",\"meaning\":\"承接上一轮成功查询，不新建查询、不继承为BUSINESS_QUERY；原查询条件与结果作为快照事实保留在分析中，本轮不重新要求也不撤销。\"},{\"aspect\":\"PRESENTATION\",\"messageIndex\":-1,\"evidence\":\"按产品统计金额合计，取金额最高的一组并展开该组的全部单据\",\"meaning\":\"需要分组统计（按productName汇总amount）、取最大值组并展开该组内全部单据，属于有限多步分析步骤，由有限分析器按原问题执行，不在统一计划中另写步骤字段。\"}],\"expectedPlan\":{\"route\":\"ANALYSIS\",\"query\":null,\"followUp\":false,\"clarification\":null,\"removedFilters\":[],\"dispatch\":null,\"clarificationOptions\":null,\"analysis\":{\"companyCode\":\"A\",\"reportId\":\"rpt-sales-order\",\"mode\":\"SNAPSHOT_ONLY\",\"sourceRef\":\"analysis-source-9cee536caafb86c01610b1eb\"}},\"conditionChecks\":[],\"priorConditionChanges\":[],\"targetCount\":null}",
+    "reviewValidationError" : "requirements[0].evidence=\"仅分析刚才这批结果，按产品统计金额合计，取金额最高的一组并展开该组的全部单据；不要重新查询当前数据。\"不是本轮连续原文；requirements[5].evidence=\"按产品统计金额合计，取金额最高的一组并展开该组的全部单据\"不是本轮连续原文。本次校验的唯一原文source=\"仅分析刚才这批结果，按产品统计金额合计，取金额最高的一组并展开它的全部单据；不要重新查询当前数据。\"。从此source重新选择每个被指出的连续片段，不再复制无效引用。并列句省略的主语、字段名或单位不能补入evidence；必要时引用完整原句，业务解释写在meaning。只修正引用，不改动已正确的动作、对象、条件或比较关系；历史只能解释含义，不能替代本轮依据",
+    "message" : "仅分析刚才这批结果，按产品统计金额合计，取金额最高的一组并展开它的全部单据；不要重新查询当前数据。"
+  },
+  "callIndex" : 6,
+  "output" : "{\n  \"requirements\": [\n    {\n      \"aspect\": \"ACTION\",\n      \"messageIndex\": -1,\n      \"evidence\": \"仅分析刚才这批结果，按产品统计金额合计，取金额最高的一组并展开它的全部单据；不要重新查询当前数据。\",\n      \"meaning\": \"用户要求对上一批查询结果做有限多步只读分析：按产品分组汇总金额、取合计最高一组并展开该组全部单据；明确不重新查询当前数据，因此路线为ANALYSIS，读取模式必须为SNAPSHOT_ONLY，不得读取当前业务数据。\"\n    },\n    {\n      \"aspect\": \"SCOPE\",\n      \"messageIndex\": -1,\n      \"evidence\": \"仅分析刚才这批结果\",\n      \"meaning\": \"分析对象限定为刚才成功查询结果对应的单一公司A和单一报表rpt-sales-order（销售报表），范围来自该完整快照，不是全部授权范围。\"\n    },\n    {\n      \"aspect\": \"REFERENCE\",\n      \"messageIndex\": -1,\n      \"evidence\": \"刚才这批结果\",\n      \"meaning\": \"指代上一轮成功查询的完整快照；analysisContext.source.available=true且completeness=COMPLETE，companyCode=A、reportId=rpt-sales-order、sourceRef=analysis-source-9cee536caafb86c01610b1eb，可直接承接。\"\n    },\n    {\n      \"aspect\": \"CONDITIONS\",\n      \"messageIndex\": -1,\n      \"evidence\": \"不要重新查询当前数据。\",\n      \"meaning\": \"明确否定重新查询，属于读取方式限制：禁止CURRENT_DATA及重新QUERY，只能使用原快照中的既有条件集合（saleDate 2026-09-01至2026-10-01不含、amount大于100且不超过110）作为分析数据基。\"\n    },\n    {\n      \"aspect\": \"CONTINUITY\",\n      \"messageIndex\": -1,\n      \"evidence\": \"仅分析刚才这批结果\",\n      \"meaning\": \"承接上一轮成功查询，不新建BUSINESS_QUERY，不重新要求或撤销原查询条件；原查询条件与结果作为快照事实保留在分析中。\"\n    },\n    {\n      \"aspect\": \"PRESENTATION\",\n      \"messageIndex\": -1,\n      \"evidence\": \"按产品统计金额合计，取金额最高的一组并展开它的全部单据\",\n      \"meaning\": \"需要分组统计（按productName汇总amount）、取最大值组并展开该组内全部单据，属于有限多步分析步骤，由有限分析器按原问题执行。\"\n    }\n  ],\n  \"expectedPlan\": {\n    \"route\": \"ANALYSIS\",\n    \"query\": null,\n    \"followUp\": false,\n    \"clarification\": null,\n    \"removedFilters\": [],\n    \"dispatch\": null,\n    \"clarificationOptions\": null,\n    \"analysis\": {\n      \"companyCode\": \"A\",\n      \"reportId\": \"rpt-sales-order\",\n      \"mode\": \"SNAPSHOT_ONLY\",\n      \"sourceRef\": \"analysis-source-9cee536caafb86c01610b1eb\"\n    }\n  },\n  \"conditionChecks\": [],\n  \"priorConditionChanges\": [],\n  \"targetCount\": null\n}",
+  "completedAt" : "2026-10-13T03:49:42.017608700+08:00"
+} ]

@@ -39,6 +39,13 @@ public final class TaskPlanComparison {
      */
     public static void validateRequirementCoverage(SemanticReview review) {
         var plan=review.expectedPlan();
+        if(plan.analysis()!=null) {
+            var required=new LinkedHashSet<>(List.of(SemanticReview.Aspect.ACTION,SemanticReview.Aspect.SCOPE));
+            if(plan.analysis().sourceRef()!=null)required.add(SemanticReview.Aspect.REFERENCE);
+            review.requirements().forEach(requirement->required.remove(requirement.aspect()));
+            if(!required.isEmpty())throw new ModelContractViolation("知识或分析复核缺少读取边界依据",
+                    "requirements缺少"+required+"维度的本轮原文。须说明知识/分析动作及读取模式、单公司单报表范围；绑定快照时另说明本轮指代与analysisContext来源的对应。不能通过删去sourceRef、改查当前数据或替换范围绕过缺失依据");
+        }
         boolean hasConditions=!TaskConditionEvidence.conditions(plan).isEmpty()
                 || !plan.removedFilters().isEmpty() || !review.priorConditionChanges().isEmpty()
                 || plan.dispatch()!=null && plan.dispatch().intent().scopeChanges().stream()
@@ -107,13 +114,13 @@ public final class TaskPlanComparison {
 
     /** 维度由协议字段决定，不采信模型将范围或动作变化归类成无关的展示修正。 */
     private static SemanticReview.Aspect aspect(String path) {
-        if(path.equals("/route") || path.startsWith("/dispatch/intent/action") || path.startsWith("/dispatch/intent/restrictions"))return SemanticReview.Aspect.ACTION;
+        if(path.equals("/route") || path.equals("/analysis/mode") || path.startsWith("/dispatch/intent/action") || path.startsWith("/dispatch/intent/restrictions"))return SemanticReview.Aspect.ACTION;
         if(path.equals("/followUp") || path.startsWith("/removedFilters"))return SemanticReview.Aspect.CONTINUITY;
         if(path.equals("/clarification") || path.startsWith("/clarificationOptions") || path.startsWith("/dispatch/intent/clarify") || path.startsWith("/dispatch/intent/unsupportedConditions"))return SemanticReview.Aspect.CAPABILITY;
         if(path.startsWith("/query/conditions") || path.startsWith("/dispatch/intent/scopeChanges")
                 || path.startsWith("/dispatch/intent/reportConstraints"))return SemanticReview.Aspect.CONDITIONS;
-        if(path.startsWith("/dispatch/source") || path.startsWith("/dispatch/referenceKeys"))return SemanticReview.Aspect.REFERENCE;
-        if(path.equals("/query/domain") || path.equals("/query/reportIds") || path.equals("/query/companyCode"))return SemanticReview.Aspect.SCOPE;
+        if(path.equals("/analysis/sourceRef") || path.startsWith("/dispatch/source") || path.startsWith("/dispatch/referenceKeys"))return SemanticReview.Aspect.REFERENCE;
+        if(path.equals("/analysis/companyCode") || path.equals("/analysis/reportId") || path.equals("/query/domain") || path.equals("/query/reportIds") || path.equals("/query/companyCode"))return SemanticReview.Aspect.SCOPE;
         if(path.startsWith("/query/"))return SemanticReview.Aspect.PRESENTATION;
         // 路由整体改变时query/dispatch同时出现或消失；这属于动作更换，而非字段或来源的小修正。
         return SemanticReview.Aspect.ACTION;

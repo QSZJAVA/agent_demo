@@ -1,0 +1,853 @@
+{
+  "id" : "8ee55c9296e54e17956fe87cbf0d69e3",
+  "status" : "COMPLETED",
+  "stage" : "FINISHED",
+  "reason" : null,
+  "message" : "分析与依据核验已完成",
+  "version" : 20,
+  "request" : {
+    "mode" : "SNAPSHOT_ONLY",
+    "question" : "仅分析刚才这批结果，按产品统计金额合计，取金额最高的一组并展开它的全部单据；不要重新查询当前数据。",
+    "reportId" : "rpt-sales-order",
+    "snapshotId" : "7be04c8b98674f93b6ec01d19c46db59",
+    "companyCode" : "A"
+  },
+  "created_at" : "2026-10-12T19:35:22.129Z",
+  "started_at" : "2026-10-12T19:35:22.175Z",
+  "finished_at" : "2026-10-12T19:35:35.855Z",
+  "expires_at" : "2026-10-13T19:35:22.129Z",
+  "plan" : {
+    "mode" : "EXECUTE",
+    "steps" : [ {
+      "rank" : null,
+      "other" : null,
+      "query" : null,
+      "action" : "SNAPSHOT",
+      "source" : null,
+      "analysis" : null,
+      "knowledgeQuestion" : null
+    }, {
+      "rank" : null,
+      "other" : null,
+      "query" : null,
+      "action" : "GROUP",
+      "source" : 0,
+      "analysis" : {
+        "bucket" : "NONE",
+        "dateField" : null,
+        "dimensions" : [ "productName" ],
+        "compareMonth" : null
+      },
+      "knowledgeQuestion" : null
+    }, {
+      "rank" : {
+        "count" : 1,
+        "field" : "sum",
+        "descending" : true
+      },
+      "other" : null,
+      "query" : null,
+      "action" : "RANK",
+      "source" : 1,
+      "analysis" : null,
+      "knowledgeQuestion" : null
+    }, {
+      "rank" : null,
+      "other" : 2,
+      "query" : null,
+      "action" : "DRILLDOWN",
+      "source" : 0,
+      "analysis" : null,
+      "knowledgeQuestion" : null
+    } ],
+    "objective" : "仅对给定快照（snapshotId=7be04c8b98674f93b6ec01d19c46db59）中的全部结果按产品统计金额合计，取金额最高的一组，并展开该组的全部单据，不重新查询当前数据。",
+    "clarification" : null
+  },
+  "steps" : [ {
+    "index" : 0,
+    "action" : "SNAPSHOT",
+    "result" : {
+      "kind" : "ROWS",
+      "rows" : [ {
+        "date" : "2026-09-26",
+        "docNo" : "UA-109",
+        "amount" : "109.01",
+        "rowKey" : "rpt-sales-order:1109",
+        "status" : "未派单",
+        "orderNo" : "UA-109",
+        "currency" : "CNY",
+        "recordId" : "1109",
+        "reportId" : "rpt-sales-order",
+        "saleDate" : "2026-09-26",
+        "dispatched" : "false",
+        "reportName" : "销售报表",
+        "companyCode" : "A",
+        "productName" : "alpha ",
+        "daysSinceSale" : "17"
+      }, {
+        "date" : "2026-09-25",
+        "docNo" : "UA-108",
+        "amount" : "108.01",
+        "rowKey" : "rpt-sales-order:1108",
+        "status" : "未派单",
+        "orderNo" : "UA-108",
+        "currency" : "CNY",
+        "recordId" : "1108",
+        "reportId" : "rpt-sales-order",
+        "saleDate" : "2026-09-25",
+        "dispatched" : "false",
+        "reportName" : "销售报表",
+        "companyCode" : "A",
+        "productName" : "Alpha",
+        "daysSinceSale" : "18"
+      }, {
+        "date" : "2026-09-24",
+        "docNo" : "UA-107",
+        "amount" : "107.01",
+        "rowKey" : "rpt-sales-order:1107",
+        "status" : "未派单",
+        "orderNo" : "UA-107",
+        "currency" : "CNY",
+        "recordId" : "1107",
+        "reportId" : "rpt-sales-order",
+        "saleDate" : "2026-09-24",
+        "dispatched" : "false",
+        "reportName" : "销售报表",
+        "companyCode" : "A",
+        "productName" : "alpha ",
+        "daysSinceSale" : "19"
+      }, {
+        "date" : "2026-09-23",
+        "docNo" : "UA-106",
+        "amount" : "106.01",
+        "rowKey" : "rpt-sales-order:1106",
+        "status" : "未派单",
+        "orderNo" : "UA-106",
+        "currency" : "CNY",
+        "recordId" : "1106",
+        "reportId" : "rpt-sales-order",
+        "saleDate" : "2026-09-23",
+        "dispatched" : "false",
+        "reportName" : "销售报表",
+        "companyCode" : "A",
+        "productName" : "Alpha",
+        "daysSinceSale" : "20"
+      }, {
+        "date" : "2026-09-22",
+        "docNo" : "UA-105",
+        "amount" : "105.01",
+        "rowKey" : "rpt-sales-order:1105",
+        "status" : "未派单",
+        "orderNo" : "UA-105",
+        "currency" : "CNY",
+        "recordId" : "1105",
+        "reportId" : "rpt-sales-order",
+        "saleDate" : "2026-09-22",
+        "dispatched" : "false",
+        "reportName" : "销售报表",
+        "companyCode" : "A",
+        "productName" : "alpha ",
+        "daysSinceSale" : "21"
+      }, {
+        "date" : "2026-09-21",
+        "docNo" : "UA-104",
+        "amount" : "104.01",
+        "rowKey" : "rpt-sales-order:1104",
+        "status" : "未派单",
+        "orderNo" : "UA-104",
+        "currency" : "CNY",
+        "recordId" : "1104",
+        "reportId" : "rpt-sales-order",
+        "saleDate" : "2026-09-21",
+        "dispatched" : "false",
+        "reportName" : "销售报表",
+        "companyCode" : "A",
+        "productName" : "Alpha",
+        "daysSinceSale" : "22"
+      }, {
+        "date" : "2026-09-20",
+        "docNo" : "UA-103",
+        "amount" : "103.01",
+        "rowKey" : "rpt-sales-order:1103",
+        "status" : "未派单",
+        "orderNo" : "UA-103",
+        "currency" : "CNY",
+        "recordId" : "1103",
+        "reportId" : "rpt-sales-order",
+        "saleDate" : "2026-09-20",
+        "dispatched" : "false",
+        "reportName" : "销售报表",
+        "companyCode" : "A",
+        "productName" : "alpha ",
+        "daysSinceSale" : "23"
+      }, {
+        "date" : "2026-09-19",
+        "docNo" : "UA-102",
+        "amount" : "102.01",
+        "rowKey" : "rpt-sales-order:1102",
+        "status" : "未派单",
+        "orderNo" : "UA-102",
+        "currency" : "CNY",
+        "recordId" : "1102",
+        "reportId" : "rpt-sales-order",
+        "saleDate" : "2026-09-19",
+        "dispatched" : "false",
+        "reportName" : "销售报表",
+        "companyCode" : "A",
+        "productName" : "Alpha",
+        "daysSinceSale" : "24"
+      }, {
+        "date" : "2026-09-18",
+        "docNo" : "UA-101",
+        "amount" : "101.01",
+        "rowKey" : "rpt-sales-order:1101",
+        "status" : "未派单",
+        "orderNo" : "UA-101",
+        "currency" : "CNY",
+        "recordId" : "1101",
+        "reportId" : "rpt-sales-order",
+        "saleDate" : "2026-09-18",
+        "dispatched" : "false",
+        "reportName" : "销售报表",
+        "companyCode" : "A",
+        "productName" : "alpha ",
+        "daysSinceSale" : "25"
+      }, {
+        "date" : "2026-09-17",
+        "docNo" : "UA-100",
+        "amount" : "100.01",
+        "rowKey" : "rpt-sales-order:1100",
+        "status" : "未派单",
+        "orderNo" : "UA-100",
+        "currency" : "CNY",
+        "recordId" : "1100",
+        "reportId" : "rpt-sales-order",
+        "saleDate" : "2026-09-17",
+        "dispatched" : "false",
+        "reportName" : "销售报表",
+        "companyCode" : "A",
+        "productName" : "Alpha",
+        "daysSinceSale" : "26"
+      } ],
+      "count" : 10,
+      "query" : {
+        "page" : 1,
+        "size" : 20,
+        "view" : "LIST",
+        "domain" : "REPORT",
+        "groupBy" : null,
+        "reportIds" : [ "rpt-sales-order" ],
+        "sortField" : "amount",
+        "conditions" : [ {
+          "allOf" : [ {
+            "field" : "amount",
+            "values" : [ "100" ],
+            "operator" : "GT"
+          }, {
+            "field" : "amount",
+            "values" : [ "110" ],
+            "operator" : "LTE"
+          }, {
+            "field" : "date",
+            "values" : [ "2026-09-01" ],
+            "operator" : "GTE"
+          }, {
+            "field" : "date",
+            "values" : [ "2026-10-01" ],
+            "operator" : "LT"
+          } ]
+        } ],
+        "descending" : true,
+        "companyCode" : "A"
+      },
+      "source" : "业务系统当前记录",
+      "columns" : [ {
+        "name" : "reportId",
+        "type" : "string",
+        "description" : "报表稳定标识"
+      }, {
+        "name" : "reportName",
+        "type" : "string",
+        "description" : "报表名称"
+      }, {
+        "name" : "companyCode",
+        "type" : "string",
+        "description" : "所属公司代码"
+      }, {
+        "name" : "docNo",
+        "type" : "string",
+        "description" : "来源单据号"
+      }, {
+        "name" : "amount",
+        "type" : "decimal",
+        "description" : "来源金额，币种见 currency；空值表示未提供"
+      }, {
+        "name" : "currency",
+        "type" : "string",
+        "description" : "来源声明币种；空值表示未声明，不能跨币种合计"
+      }, {
+        "name" : "date",
+        "type" : "date",
+        "description" : "业务日期；空值表示未配置"
+      }, {
+        "name" : "status",
+        "type" : "string",
+        "description" : "报表派单状态：未派单/已派单"
+      }, {
+        "name" : "orderNo",
+        "type" : "string",
+        "description" : "订单号"
+      }, {
+        "name" : "productName",
+        "type" : "string",
+        "description" : "产品名称"
+      }, {
+        "name" : "saleDate",
+        "type" : "date",
+        "description" : "销售日期，字符串 yyyy-MM-dd"
+      }, {
+        "name" : "daysSinceSale",
+        "type" : "long",
+        "description" : "距销售日期的天数（派生）"
+      }, {
+        "name" : "dispatched",
+        "type" : "boolean",
+        "description" : "来源记录是否已派单；true为已派单，false为未派单，不代表满足派单规则"
+      }, {
+        "name" : "recordId",
+        "type" : "string",
+        "description" : "报表内稳定记录标识"
+      } ],
+      "summary" : {
+        "count" : 10,
+        "groups" : { },
+        "statusCounts" : {
+          "未派单" : 10
+        },
+        "pendingApprovers" : { },
+        "amountsByCurrency" : {
+          "CNY" : "1045.10"
+        },
+        "unclassifiedAmountCount" : 0
+      },
+      "complete" : true,
+      "observedAt" : "2026-10-12T19:35:07.173Z",
+      "snapshotId" : "7be04c8b98674f93b6ec01d19c46db59",
+      "resultScope" : "基础查询全部匹配记录",
+      "displayedCount" : 10,
+      "allRowsDisplayed" : true
+    },
+    "status" : "COMPLETED",
+    "sources" : [ {
+      "id" : "step-1-q1",
+      "kind" : "DATA",
+      "text" : "已完成操作：SNAPSHOT。\n本步骤统计范围：基础查询全部匹配记录；计数与金额仅属于该集合。\n实际执行查询：{\"domain\":\"REPORT\",\"view\":\"LIST\",\"reportIds\":[\"rpt-sales-order\"],\"companyCode\":\"A\",\"conditions\":[{\"allOf\":[{\"field\":\"amount\",\"operator\":\"GT\",\"values\":[\"100\"]},{\"field\":\"amount\",\"operator\":\"LTE\",\"values\":[\"110\"]},{\"field\":\"date\",\"operator\":\"GTE\",\"values\":[\"2026-09-01\"]},{\"field\":\"date\",\"operator\":\"LT\",\"values\":[\"2026-10-01\"]}]}],\"sortField\":\"amount\",\"descending\":true,\"page\":1,\"size\":20,\"groupBy\":null}\n明细查看说明：界面第1步已完成，可通过“查看完整明细”每页20条读取原查询快照；翻页不调用模型、不重新读取业务来源。\n完整结果共10条记录。\n金额合计：1045.10 CNY。\n页面行预览为10条；全部行已展示：true。\n\n结构化事实：\n{\"kind\":\"ROWS\",\"snapshotId\":\"7be04c8b98674f93b6ec01d19c46db59\",\"count\":10,\"query\":{\"domain\":\"REPORT\",\"view\":\"LIST\",\"reportIds\":[\"rpt-sales-order\"],\"companyCode\":\"A\",\"conditions\":[{\"allOf\":[{\"field\":\"amount\",\"operator\":\"GT\",\"values\":[\"100\"]},{\"field\":\"amount\",\"operator\":\"LTE\",\"values\":[\"110\"]},{\"field\":\"date\",\"operator\":\"GTE\",\"values\":[\"2026-09-01\"]},{\"field\":\"date\",\"operator\":\"LT\",\"values\":[\"2026-10-01\"]}]}],\"sortField\":\"amount\",\"descending\":true,\"page\":1,\"size\":20,\"groupBy\":null},\"rows\":[{\"companyCode\":\"A\",\"orderNo\":\"UA-109\",\"productName\":\"alpha \",\"amount\":\"109.01\",\"saleDate\":\"2026-09-26\",\"daysSinceSale\":\"17\",\"dispatched\":\"false\",\"rowKey\":\"rpt-sales-order:1109\",\"recordId\":\"1109\",\"reportId\":\"rpt-sales-order\",\"reportName\":\"销售报表\",\"docNo\":\"UA-109\",\"date\":\"2026-09-26\",\"currency\":\"CNY\",\"status\":\"未派单\"},{\"companyCode\":\"A\",\"orderNo\":\"UA-108\",\"productName\":\"Alpha\",\"amount\":\"108.01\",\"saleDate\":\"2026-09-25\",\"daysSinceSale\":\"18\",\"dispatched\":\"false\",\"rowKey\":\"rpt-sales-order:1108\",\"recordId\":\"1108\",\"reportId\":\"rpt-sales-order\",\"reportName\":\"销售报表\",\"docNo\":\"UA-108\",\"date\":\"2026-09-25\",\"currency\":\"CNY\",\"status\":\"未派单\"},{\"companyCode\":\"A\",\"orderNo\":\"UA-107\",\"productName\":\"alpha \",\"amount\":\"107.01\",\"saleDate\":\"2026-09-2",
+      "scope" : "A / rpt-sales-order",
+      "title" : "第1步 SNAPSHOT（引用片段1）",
+      "version" : "a967dab62413fedf887ba99af45d209e6792aac6fd7c73a0123e18c57359332b",
+      "originId" : "step-1",
+      "observedAt" : "2026-10-12T19:35:07.173Z",
+      "contentOffset" : 0
+    }, {
+      "id" : "step-1-q2",
+      "kind" : "DATA",
+      "text" : "4\",\"daysSinceSale\":\"19\",\"dispatched\":\"false\",\"rowKey\":\"rpt-sales-order:1107\",\"recordId\":\"1107\",\"reportId\":\"rpt-sales-order\",\"reportName\":\"销售报表\",\"docNo\":\"UA-107\",\"date\":\"2026-09-24\",\"currency\":\"CNY\",\"status\":\"未派单\"},{\"companyCode\":\"A\",\"orderNo\":\"UA-106\",\"productName\":\"Alpha\",\"amount\":\"106.01\",\"saleDate\":\"2026-09-23\",\"daysSinceSale\":\"20\",\"dispatched\":\"false\",\"rowKey\":\"rpt-sales-order:1106\",\"recordId\":\"1106\",\"reportId\":\"rpt-sales-order\",\"reportName\":\"销售报表\",\"docNo\":\"UA-106\",\"date\":\"2026-09-23\",\"currency\":\"CNY\",\"status\":\"未派单\"},{\"companyCode\":\"A\",\"orderNo\":\"UA-105\",\"productName\":\"alpha \",\"amount\":\"105.01\",\"saleDate\":\"2026-09-22\",\"daysSinceSale\":\"21\",\"dispatched\":\"false\",\"rowKey\":\"rpt-sales-order:1105\",\"recordId\":\"1105\",\"reportId\":\"rpt-sales-order\",\"reportName\":\"销售报表\",\"docNo\":\"UA-105\",\"date\":\"2026-09-22\",\"currency\":\"CNY\",\"status\":\"未派单\"},{\"companyCode\":\"A\",\"orderNo\":\"UA-104\",\"productName\":\"Alpha\",\"amount\":\"104.01\",\"saleDate\":\"2026-09-21\",\"daysSinceSale\":\"22\",\"dispatched\":\"false\",\"rowKey\":\"rpt-sales-order:1104\",\"recordId\":\"1104\",\"reportId\":\"rpt-sales-order\",\"reportName\":\"销售报表\",\"docNo\":\"UA-104\",\"date\":\"2026-09-21\",\"currency\":\"CNY\",\"status\":\"未派单\"},{\"companyCode\":\"A\",\"orderNo\":\"UA-103\",\"productName\":\"alpha \",\"amount\":\"103.01\",\"saleDate\":\"2026-09-20\",\"daysSinceSale\":\"23\",\"dispatched\":\"false\",\"rowKey\":\"rpt-sales-order:1103\",\"recordId\":\"1103\",\"reportId\":\"rpt-sales-order\",\"reportName\":\"销售报表\",\"docNo\":\"UA-103\",\"date\":\"2026-09-20\",\"currency\":\"CNY\",\"status\":\"未派单\"},{\"companyCode\":\"A\",\"orderNo\":\"UA-102\",\"productName\":\"Alpha\",\"amount\":\"102.01\",\"saleDate\":\"2026-09-19\",\"daysSinceSale\":\"24\",\"dispatched\":\"false\",\"rowKey\":\"rpt-sales-order:1102\",\"recordId\":\"1102\",\"reportId\":\"rpt-sales-order\",\"reportName\":\"销售报表\",\"docNo\":\"UA-102\",\"date\":\"2026-09-19\",\"currency\":\"CNY\",\"status\":\"未派单\"},{\"companyCode\":\"A\",",
+      "scope" : "A / rpt-sales-order",
+      "title" : "第1步 SNAPSHOT（引用片段2）",
+      "version" : "a967dab62413fedf887ba99af45d209e6792aac6fd7c73a0123e18c57359332b",
+      "originId" : "step-1",
+      "observedAt" : "2026-10-12T19:35:07.173Z",
+      "contentOffset" : 0
+    }, {
+      "id" : "step-1-q3",
+      "kind" : "DATA",
+      "text" : "\"orderNo\":\"UA-101\",\"productName\":\"alpha \",\"amount\":\"101.01\",\"saleDate\":\"2026-09-18\",\"daysSinceSale\":\"25\",\"dispatched\":\"false\",\"rowKey\":\"rpt-sales-order:1101\",\"recordId\":\"1101\",\"reportId\":\"rpt-sales-order\",\"reportName\":\"销售报表\",\"docNo\":\"UA-101\",\"date\":\"2026-09-18\",\"currency\":\"CNY\",\"status\":\"未派单\"},{\"companyCode\":\"A\",\"orderNo\":\"UA-100\",\"productName\":\"Alpha\",\"amount\":\"100.01\",\"saleDate\":\"2026-09-17\",\"daysSinceSale\":\"26\",\"dispatched\":\"false\",\"rowKey\":\"rpt-sales-order:1100\",\"recordId\":\"1100\",\"reportId\":\"rpt-sales-order\",\"reportName\":\"销售报表\",\"docNo\":\"UA-100\",\"date\":\"2026-09-17\",\"currency\":\"CNY\",\"status\":\"未派单\"}],\"displayedCount\":10,\"allRowsDisplayed\":true,\"complete\":true,\"observedAt\":\"2026-10-12T19:35:07.173Z\",\"source\":\"业务系统当前记录\",\"summary\":{\"count\":10,\"amountsByCurrency\":{\"CNY\":\"1045.10\"},\"statusCounts\":{\"未派单\":10},\"groups\":{},\"pendingApprovers\":{},\"unclassifiedAmountCount\":0},\"resultScope\":\"基础查询全部匹配记录\",\"displayStep\":1}",
+      "scope" : "A / rpt-sales-order",
+      "title" : "第1步 SNAPSHOT（引用片段3）",
+      "version" : "a967dab62413fedf887ba99af45d209e6792aac6fd7c73a0123e18c57359332b",
+      "originId" : "step-1",
+      "observedAt" : "2026-10-12T19:35:07.173Z",
+      "contentOffset" : 0
+    } ]
+  }, {
+    "index" : 1,
+    "action" : "GROUP",
+    "result" : {
+      "kind" : "GROUPS",
+      "count" : 10,
+      "query" : {
+        "page" : 1,
+        "size" : 20,
+        "view" : "LIST",
+        "domain" : "REPORT",
+        "groupBy" : null,
+        "reportIds" : [ "rpt-sales-order" ],
+        "sortField" : "amount",
+        "conditions" : [ {
+          "allOf" : [ {
+            "field" : "amount",
+            "values" : [ "100" ],
+            "operator" : "GT"
+          }, {
+            "field" : "amount",
+            "values" : [ "110" ],
+            "operator" : "LTE"
+          }, {
+            "field" : "date",
+            "values" : [ "2026-09-01" ],
+            "operator" : "GTE"
+          }, {
+            "field" : "date",
+            "values" : [ "2026-10-01" ],
+            "operator" : "LT"
+          } ]
+        } ],
+        "descending" : true,
+        "companyCode" : "A"
+      },
+      "groups" : [ {
+        "sum" : "520.05",
+        "count" : 5,
+        "period" : null,
+        "average" : "104.01",
+        "currency" : "CNY",
+        "dimensions" : {
+          "productName" : "Alpha"
+        },
+        "amountCount" : 5,
+        "missingAmountCount" : 0
+      }, {
+        "sum" : "525.05",
+        "count" : 5,
+        "period" : null,
+        "average" : "105.01",
+        "currency" : "CNY",
+        "dimensions" : {
+          "productName" : "alpha "
+        },
+        "amountCount" : 5,
+        "missingAmountCount" : 0
+      } ],
+      "snapshot" : {
+        "id" : "7be04c8b98674f93b6ec01d19c46db59",
+        "expiresAt" : "2026-10-13T19:35:07.173Z",
+        "consistency" : "LOCAL_REPEATABLE_READ",
+        "contentHash" : "b896efb3d7b3d78c30b0922ace7f470b2c013e7188e607bfde4a69bfa0593f51",
+        "scannedRows" : 10,
+        "completeness" : "COMPLETE"
+      },
+      "definition" : {
+        "bucket" : "NONE",
+        "dateField" : null,
+        "dimensions" : [ "productName" ],
+        "compareMonth" : null
+      },
+      "observedAt" : "2026-10-12T19:35:07.173Z",
+      "snapshotId" : "7be04c8b98674f93b6ec01d19c46db59",
+      "groupsCount" : 2,
+      "resultScope" : "来源步骤的分组统计集合",
+      "averageScale" : 6,
+      "displayedCount" : 2,
+      "missingDateCount" : 0,
+      "allGroupsDisplayed" : true,
+      "unclassifiedAmountCount" : 0
+    },
+    "status" : "COMPLETED",
+    "sources" : [ {
+      "id" : "step-2",
+      "kind" : "DATA",
+      "text" : "已完成操作：GROUP。\n本步骤统计范围：来源步骤的分组统计集合；计数与金额仅属于该集合。\n实际执行查询：{\"domain\":\"REPORT\",\"view\":\"LIST\",\"reportIds\":[\"rpt-sales-order\"],\"companyCode\":\"A\",\"conditions\":[{\"allOf\":[{\"field\":\"amount\",\"operator\":\"GT\",\"values\":[\"100\"]},{\"field\":\"amount\",\"operator\":\"LTE\",\"values\":[\"110\"]},{\"field\":\"date\",\"operator\":\"GTE\",\"values\":[\"2026-09-01\"]},{\"field\":\"date\",\"operator\":\"LT\",\"values\":[\"2026-10-01\"]}]}],\"sortField\":\"amount\",\"descending\":true,\"page\":1,\"size\":20,\"groupBy\":null}\n结果共2组，页面展示2组。\n分组：{\"productName\":\"Alpha\"}；期间：无期间分组；币种：CNY；记录数：5；金额合计：520.05；均值：104.01。\n分组：{\"productName\":\"alpha \"}；期间：无期间分组；币种：CNY；记录数：5；金额合计：525.05；均值：105.01。\n\n结构化事实：\n{\"snapshot\":{\"id\":\"7be04c8b98674f93b6ec01d19c46db59\",\"expiresAt\":\"2026-10-13T19:35:07.173Z\",\"completeness\":\"COMPLETE\",\"consistency\":\"LOCAL_REPEATABLE_READ\",\"contentHash\":\"b896efb3d7b3d78c30b0922ace7f470b2c013e7188e607bfde4a69bfa0593f51\",\"scannedRows\":10},\"definition\":{\"dimensions\":[\"productName\"],\"dateField\":null,\"bucket\":\"NONE\",\"compareMonth\":null},\"groups\":[{\"dimensions\":{\"productName\":\"Alpha\"},\"currency\":\"CNY\",\"period\":null,\"count\":5,\"amountCount\":5,\"missingAmountCount\":0,\"sum\":\"520.05\",\"average\":\"104.01\"},{\"dimensions\":{\"productName\":\"alpha \"},\"currency\":\"CNY\",\"period\":null,\"count\":5,\"amountCount\":5,\"missingAmountCount\":0,\"sum\":\"525.05\",\"average\":\"105.01\"}],\"count\":10,\"unclassifiedAmountCount\":0,\"missingDateCount\":0,\"averageScale\":6,\"query\":{\"domain\":\"REPORT\",\"view\":\"LIST\",\"reportIds\":[\"rpt-sales-order\"],\"companyCode\":\"A\",\"conditions\":[{\"allOf\":[{\"field\":\"amount\",\"operator\":\"GT\",\"values\":[\"100\"]},{\"field\":\"amount\",\"operator\":\"LTE\",\"values\":[\"110\"]},{\"field\":\"date\",\"operator\":\"GTE\",\"values\":[\"2026-09-01\"]},{\"field\":\"date\",\"operator\":\"LT\",\"values\":[\"2026-10-01\"]}]}],\"sortField\":\"amount\",\"descending\":true,\"page\":1,\"size\":20,\"groupBy\":null},\"observedAt\":\"2026-10-12T19:35:07.173Z\",\"kind\":\"GROUPS\",\"groupsCount\":2,\"displayedCount\":2,\"allGroupsDisplayed\":true,\"snapshotId\":\"7be04c8b98674f93b6ec01d19c46db59\",\"resultScope\":\"来源步骤的分组统计集合\",\"displayStep\":2}",
+      "scope" : "A / rpt-sales-order",
+      "title" : "第2步 GROUP",
+      "version" : "844bac4e1ef0e598e9967ce827c21fd2e18374aa7a4e68984522f0b4987d39b5",
+      "originId" : "step-2",
+      "observedAt" : "2026-10-12T19:35:07.173Z",
+      "contentOffset" : 0
+    } ]
+  }, {
+    "index" : 2,
+    "action" : "RANK",
+    "result" : {
+      "kind" : "GROUPS",
+      "query" : {
+        "page" : 1,
+        "size" : 20,
+        "view" : "LIST",
+        "domain" : "REPORT",
+        "groupBy" : null,
+        "reportIds" : [ "rpt-sales-order" ],
+        "sortField" : "amount",
+        "conditions" : [ {
+          "allOf" : [ {
+            "field" : "amount",
+            "values" : [ "100" ],
+            "operator" : "GT"
+          }, {
+            "field" : "amount",
+            "values" : [ "110" ],
+            "operator" : "LTE"
+          }, {
+            "field" : "date",
+            "values" : [ "2026-09-01" ],
+            "operator" : "GTE"
+          }, {
+            "field" : "date",
+            "values" : [ "2026-10-01" ],
+            "operator" : "LT"
+          } ]
+        } ],
+        "descending" : true,
+        "companyCode" : "A"
+      },
+      "groups" : [ {
+        "sum" : "525.05",
+        "count" : 5,
+        "period" : null,
+        "average" : "105.01",
+        "currency" : "CNY",
+        "dimensions" : {
+          "productName" : "alpha "
+        },
+        "amountCount" : 5,
+        "missingAmountCount" : 0
+      } ],
+      "ranking" : {
+        "count" : 1,
+        "field" : "sum",
+        "descending" : true
+      },
+      "definition" : {
+        "bucket" : "NONE",
+        "dateField" : null,
+        "dimensions" : [ "productName" ],
+        "compareMonth" : null
+      },
+      "observedAt" : "2026-10-12T19:35:07.173Z",
+      "snapshotId" : "7be04c8b98674f93b6ec01d19c46db59",
+      "groupsCount" : 1,
+      "resultScope" : "本步骤排名选集",
+      "displayedCount" : 1,
+      "allGroupsDisplayed" : true
+    },
+    "status" : "COMPLETED",
+    "sources" : [ {
+      "id" : "step-3",
+      "kind" : "DATA",
+      "text" : "已完成操作：RANK。\n本步骤统计范围：本步骤排名选集；计数与金额仅属于该集合。\n实际执行查询：{\"domain\":\"REPORT\",\"view\":\"LIST\",\"reportIds\":[\"rpt-sales-order\"],\"companyCode\":\"A\",\"conditions\":[{\"allOf\":[{\"field\":\"amount\",\"operator\":\"GT\",\"values\":[\"100\"]},{\"field\":\"amount\",\"operator\":\"LTE\",\"values\":[\"110\"]},{\"field\":\"date\",\"operator\":\"GTE\",\"values\":[\"2026-09-01\"]},{\"field\":\"date\",\"operator\":\"LT\",\"values\":[\"2026-10-01\"]}]}],\"sortField\":\"amount\",\"descending\":true,\"page\":1,\"size\":20,\"groupBy\":null}\n结果共1组，页面展示1组。\n分组：{\"productName\":\"alpha \"}；期间：无期间分组；币种：CNY；记录数：5；金额合计：525.05；均值：105.01。\n实际排名规则：{\"field\":\"sum\",\"descending\":true,\"count\":1}\n\n结构化事实：\n{\"query\":{\"domain\":\"REPORT\",\"view\":\"LIST\",\"reportIds\":[\"rpt-sales-order\"],\"companyCode\":\"A\",\"conditions\":[{\"allOf\":[{\"field\":\"amount\",\"operator\":\"GT\",\"values\":[\"100\"]},{\"field\":\"amount\",\"operator\":\"LTE\",\"values\":[\"110\"]},{\"field\":\"date\",\"operator\":\"GTE\",\"values\":[\"2026-09-01\"]},{\"field\":\"date\",\"operator\":\"LT\",\"values\":[\"2026-10-01\"]}]}],\"sortField\":\"amount\",\"descending\":true,\"page\":1,\"size\":20,\"groupBy\":null},\"observedAt\":\"2026-10-12T19:35:07.173Z\",\"kind\":\"GROUPS\",\"groups\":[{\"dimensions\":{\"productName\":\"alpha \"},\"currency\":\"CNY\",\"period\":null,\"count\":5,\"amountCount\":5,\"missingAmountCount\":0,\"sum\":\"525.05\",\"average\":\"105.01\"}],\"groupsCount\":1,\"displayedCount\":1,\"allGroupsDisplayed\":true,\"definition\":{\"dimensions\":[\"productName\"],\"dateField\":null,\"bucket\":\"NONE\",\"compareMonth\":null},\"ranking\":{\"field\":\"sum\",\"descending\":true,\"count\":1},\"snapshotId\":\"7be04c8b98674f93b6ec01d19c46db59\",\"resultScope\":\"本步骤排名选集\",\"displayStep\":3}",
+      "scope" : "A / rpt-sales-order",
+      "title" : "第3步 RANK",
+      "version" : "9dba9d2a81f78684a42a529be807277fc1f737574651da2cdc7d2b51d33b3634",
+      "originId" : "step-3",
+      "observedAt" : "2026-10-12T19:35:07.173Z",
+      "contentOffset" : 0
+    } ]
+  }, {
+    "index" : 3,
+    "action" : "DRILLDOWN",
+    "result" : {
+      "kind" : "ROWS",
+      "rows" : [ {
+        "date" : "2026-09-26",
+        "docNo" : "UA-109",
+        "amount" : "109.01",
+        "rowKey" : "rpt-sales-order:1109",
+        "status" : "未派单",
+        "orderNo" : "UA-109",
+        "currency" : "CNY",
+        "recordId" : "1109",
+        "reportId" : "rpt-sales-order",
+        "saleDate" : "2026-09-26",
+        "dispatched" : "false",
+        "reportName" : "销售报表",
+        "companyCode" : "A",
+        "productName" : "alpha ",
+        "daysSinceSale" : "17"
+      }, {
+        "date" : "2026-09-24",
+        "docNo" : "UA-107",
+        "amount" : "107.01",
+        "rowKey" : "rpt-sales-order:1107",
+        "status" : "未派单",
+        "orderNo" : "UA-107",
+        "currency" : "CNY",
+        "recordId" : "1107",
+        "reportId" : "rpt-sales-order",
+        "saleDate" : "2026-09-24",
+        "dispatched" : "false",
+        "reportName" : "销售报表",
+        "companyCode" : "A",
+        "productName" : "alpha ",
+        "daysSinceSale" : "19"
+      }, {
+        "date" : "2026-09-22",
+        "docNo" : "UA-105",
+        "amount" : "105.01",
+        "rowKey" : "rpt-sales-order:1105",
+        "status" : "未派单",
+        "orderNo" : "UA-105",
+        "currency" : "CNY",
+        "recordId" : "1105",
+        "reportId" : "rpt-sales-order",
+        "saleDate" : "2026-09-22",
+        "dispatched" : "false",
+        "reportName" : "销售报表",
+        "companyCode" : "A",
+        "productName" : "alpha ",
+        "daysSinceSale" : "21"
+      }, {
+        "date" : "2026-09-20",
+        "docNo" : "UA-103",
+        "amount" : "103.01",
+        "rowKey" : "rpt-sales-order:1103",
+        "status" : "未派单",
+        "orderNo" : "UA-103",
+        "currency" : "CNY",
+        "recordId" : "1103",
+        "reportId" : "rpt-sales-order",
+        "saleDate" : "2026-09-20",
+        "dispatched" : "false",
+        "reportName" : "销售报表",
+        "companyCode" : "A",
+        "productName" : "alpha ",
+        "daysSinceSale" : "23"
+      }, {
+        "date" : "2026-09-18",
+        "docNo" : "UA-101",
+        "amount" : "101.01",
+        "rowKey" : "rpt-sales-order:1101",
+        "status" : "未派单",
+        "orderNo" : "UA-101",
+        "currency" : "CNY",
+        "recordId" : "1101",
+        "reportId" : "rpt-sales-order",
+        "saleDate" : "2026-09-18",
+        "dispatched" : "false",
+        "reportName" : "销售报表",
+        "companyCode" : "A",
+        "productName" : "alpha ",
+        "daysSinceSale" : "25"
+      } ],
+      "count" : 5,
+      "query" : {
+        "page" : 1,
+        "size" : 20,
+        "view" : "LIST",
+        "domain" : "REPORT",
+        "groupBy" : null,
+        "reportIds" : [ "rpt-sales-order" ],
+        "sortField" : "amount",
+        "conditions" : [ {
+          "allOf" : [ {
+            "field" : "amount",
+            "values" : [ "100" ],
+            "operator" : "GT"
+          }, {
+            "field" : "amount",
+            "values" : [ "110" ],
+            "operator" : "LTE"
+          }, {
+            "field" : "date",
+            "values" : [ "2026-09-01" ],
+            "operator" : "GTE"
+          }, {
+            "field" : "date",
+            "values" : [ "2026-10-01" ],
+            "operator" : "LT"
+          } ]
+        } ],
+        "descending" : true,
+        "companyCode" : "A"
+      },
+      "source" : "业务系统当前记录",
+      "columns" : [ {
+        "name" : "reportId",
+        "type" : "string",
+        "description" : "报表稳定标识"
+      }, {
+        "name" : "reportName",
+        "type" : "string",
+        "description" : "报表名称"
+      }, {
+        "name" : "companyCode",
+        "type" : "string",
+        "description" : "所属公司代码"
+      }, {
+        "name" : "docNo",
+        "type" : "string",
+        "description" : "来源单据号"
+      }, {
+        "name" : "amount",
+        "type" : "decimal",
+        "description" : "来源金额，币种见 currency；空值表示未提供"
+      }, {
+        "name" : "currency",
+        "type" : "string",
+        "description" : "来源声明币种；空值表示未声明，不能跨币种合计"
+      }, {
+        "name" : "date",
+        "type" : "date",
+        "description" : "业务日期；空值表示未配置"
+      }, {
+        "name" : "status",
+        "type" : "string",
+        "description" : "报表派单状态：未派单/已派单"
+      }, {
+        "name" : "orderNo",
+        "type" : "string",
+        "description" : "订单号"
+      }, {
+        "name" : "productName",
+        "type" : "string",
+        "description" : "产品名称"
+      }, {
+        "name" : "saleDate",
+        "type" : "date",
+        "description" : "销售日期，字符串 yyyy-MM-dd"
+      }, {
+        "name" : "daysSinceSale",
+        "type" : "long",
+        "description" : "距销售日期的天数（派生）"
+      }, {
+        "name" : "dispatched",
+        "type" : "boolean",
+        "description" : "来源记录是否已派单；true为已派单，false为未派单，不代表满足派单规则"
+      }, {
+        "name" : "recordId",
+        "type" : "string",
+        "description" : "报表内稳定记录标识"
+      } ],
+      "summary" : {
+        "count" : 5,
+        "groups" : { },
+        "statusCounts" : {
+          "未派单" : 5
+        },
+        "pendingApprovers" : { },
+        "amountsByCurrency" : {
+          "CNY" : "525.05"
+        },
+        "unclassifiedAmountCount" : 0
+      },
+      "complete" : true,
+      "selection" : [ {
+        "sum" : "525.05",
+        "count" : 5,
+        "period" : null,
+        "average" : "105.01",
+        "currency" : "CNY",
+        "dimensions" : {
+          "productName" : "alpha "
+        },
+        "amountCount" : 5,
+        "missingAmountCount" : 0
+      } ],
+      "definition" : {
+        "bucket" : "NONE",
+        "dateField" : null,
+        "dimensions" : [ "productName" ],
+        "compareMonth" : null
+      },
+      "observedAt" : "2026-10-12T19:35:07.173Z",
+      "snapshotId" : "7be04c8b98674f93b6ec01d19c46db59",
+      "resultScope" : "已选分组对应的原快照明细集合",
+      "displayedCount" : 5,
+      "allRowsDisplayed" : true,
+      "selectedGroupCount" : 1
+    },
+    "status" : "COMPLETED",
+    "sources" : [ {
+      "id" : "step-4-q1",
+      "kind" : "DATA",
+      "text" : "已完成操作：DRILLDOWN。\n本步骤统计范围：已选分组对应的原快照明细集合；计数与金额仅属于该集合。\n实际执行查询：{\"domain\":\"REPORT\",\"view\":\"LIST\",\"reportIds\":[\"rpt-sales-order\"],\"companyCode\":\"A\",\"conditions\":[{\"allOf\":[{\"field\":\"amount\",\"operator\":\"GT\",\"values\":[\"100\"]},{\"field\":\"amount\",\"operator\":\"LTE\",\"values\":[\"110\"]},{\"field\":\"date\",\"operator\":\"GTE\",\"values\":[\"2026-09-01\"]},{\"field\":\"date\",\"operator\":\"LT\",\"values\":[\"2026-10-01\"]}]}],\"sortField\":\"amount\",\"descending\":true,\"page\":1,\"size\":20,\"groupBy\":null}\n明细查看说明：界面第4步已完成，可通过“查看完整明细”每页20条读取原查询快照；翻页不调用模型、不重新读取业务来源。\n按已选1个分组展开原快照明细。\n完整结果共5条记录。\n金额合计：525.05 CNY。\n页面行预览为5条；全部行已展示：true。\n\n结构化事实：\n{\"kind\":\"ROWS\",\"snapshotId\":\"7be04c8b98674f93b6ec01d19c46db59\",\"count\":5,\"query\":{\"domain\":\"REPORT\",\"view\":\"LIST\",\"reportIds\":[\"rpt-sales-order\"],\"companyCode\":\"A\",\"conditions\":[{\"allOf\":[{\"field\":\"amount\",\"operator\":\"GT\",\"values\":[\"100\"]},{\"field\":\"amount\",\"operator\":\"LTE\",\"values\":[\"110\"]},{\"field\":\"date\",\"operator\":\"GTE\",\"values\":[\"2026-09-01\"]},{\"field\":\"date\",\"operator\":\"LT\",\"values\":[\"2026-10-01\"]}]}],\"sortField\":\"amount\",\"descending\":true,\"page\":1,\"size\":20,\"groupBy\":null},\"rows\":[{\"companyCode\":\"A\",\"orderNo\":\"UA-109\",\"productName\":\"alpha \",\"amount\":\"109.01\",\"saleDate\":\"2026-09-26\",\"daysSinceSale\":\"17\",\"dispatched\":\"false\",\"rowKey\":\"rpt-sales-order:1109\",\"recordId\":\"1109\",\"reportId\":\"rpt-sales-order\",\"reportName\":\"销售报表\",\"docNo\":\"UA-109\",\"date\":\"2026-09-26\",\"currency\":\"CNY\",\"status\":\"未派单\"},{\"companyCode\":\"A\",\"orderNo\":\"UA-107\",\"productName\":\"alpha \",\"amount\":\"107.01\",\"saleDate\":\"2026-09-24\",\"daysSinceSale\":\"19\",\"dispatched\":\"false\",\"rowKey\":\"rpt-sales-order:1107\",\"recordId\":\"1107\",\"reportId\":\"rpt-sales-order\",\"reportName\":\"销售报表\",\"docNo\":\"UA-107\",\"date\":\"2026-09-24\",\"currency\":\"CNY\",\"status\":\"未派单\"},{\"companyCode\":\"A\",\"orderNo\":\"UA-105\",\"productName\":\"alpha \",\"amount\":\"105.01\",\"sa",
+      "scope" : "A / rpt-sales-order",
+      "title" : "第4步 DRILLDOWN（引用片段1）",
+      "version" : "99e695098b97e641375530afc8a479fb31966ac4548249a1126744d3d3298c4c",
+      "originId" : "step-4",
+      "observedAt" : "2026-10-12T19:35:07.173Z",
+      "contentOffset" : 0
+    }, {
+      "id" : "step-4-q2",
+      "kind" : "DATA",
+      "text" : "leDate\":\"2026-09-22\",\"daysSinceSale\":\"21\",\"dispatched\":\"false\",\"rowKey\":\"rpt-sales-order:1105\",\"recordId\":\"1105\",\"reportId\":\"rpt-sales-order\",\"reportName\":\"销售报表\",\"docNo\":\"UA-105\",\"date\":\"2026-09-22\",\"currency\":\"CNY\",\"status\":\"未派单\"},{\"companyCode\":\"A\",\"orderNo\":\"UA-103\",\"productName\":\"alpha \",\"amount\":\"103.01\",\"saleDate\":\"2026-09-20\",\"daysSinceSale\":\"23\",\"dispatched\":\"false\",\"rowKey\":\"rpt-sales-order:1103\",\"recordId\":\"1103\",\"reportId\":\"rpt-sales-order\",\"reportName\":\"销售报表\",\"docNo\":\"UA-103\",\"date\":\"2026-09-20\",\"currency\":\"CNY\",\"status\":\"未派单\"},{\"companyCode\":\"A\",\"orderNo\":\"UA-101\",\"productName\":\"alpha \",\"amount\":\"101.01\",\"saleDate\":\"2026-09-18\",\"daysSinceSale\":\"25\",\"dispatched\":\"false\",\"rowKey\":\"rpt-sales-order:1101\",\"recordId\":\"1101\",\"reportId\":\"rpt-sales-order\",\"reportName\":\"销售报表\",\"docNo\":\"UA-101\",\"date\":\"2026-09-18\",\"currency\":\"CNY\",\"status\":\"未派单\"}],\"displayedCount\":5,\"allRowsDisplayed\":true,\"complete\":true,\"observedAt\":\"2026-10-12T19:35:07.173Z\",\"source\":\"业务系统当前记录\",\"summary\":{\"count\":5,\"amountsByCurrency\":{\"CNY\":\"525.05\"},\"statusCounts\":{\"未派单\":5},\"groups\":{},\"pendingApprovers\":{},\"unclassifiedAmountCount\":0},\"selectedGroupCount\":1,\"definition\":{\"dimensions\":[\"productName\"],\"dateField\":null,\"bucket\":\"NONE\",\"compareMonth\":null},\"resultScope\":\"已选分组对应的原快照明细集合\",\"displayStep\":4}",
+      "scope" : "A / rpt-sales-order",
+      "title" : "第4步 DRILLDOWN（引用片段2）",
+      "version" : "99e695098b97e641375530afc8a479fb31966ac4548249a1126744d3d3298c4c",
+      "originId" : "step-4",
+      "observedAt" : "2026-10-12T19:35:07.173Z",
+      "contentOffset" : 0
+    } ]
+  } ],
+  "answer" : {
+    "claims" : [ {
+      "text" : "在这批快照的10条记录中，按产品名称分组共得到2组，金额最高的一组是\"alpha \"，其金额合计为525.05 CNY（5条记录）；另一组\"Alpha\"金额合计为520.05 CNY（5条记录）。两组金额单位均为CNY。",
+      "citations" : [ {
+        "quote" : "已完成操作：GROUP。\n本步骤统计范围：来源步骤的分组统计集合；计数与金额仅属于该集合。\n实际执行查询：{\"domain\":\"REPORT\",\"view\":\"LIST\",\"reportIds\":[\"rpt-sales-order\"],\"companyCode\":\"A\",\"conditions\":[{\"allOf\":[{\"field\":\"amount\",\"operator\":\"GT\",\"values\":[\"100\"]},{\"field\":\"amount\",\"operator\":\"LTE\",\"values\":[\"110\"]},{\"field\":\"date\",\"operator\":\"GTE\",\"values\":[\"2026-09-01\"]},{\"field\":\"date\",\"operator\":\"LT\",\"values\":[\"2026-10-01\"]}]}],\"sortField\":\"amount\",\"descending\":true,\"page\":1,\"size\":20,\"groupBy\":null}\n结果共2组，页面展示2组。\n分组：{\"productName\":\"Alpha\"}；期间：无期间分组；币种：CNY；记录数：5；金额合计：520.05；均值：104.01。\n分组：{\"productName\":\"alpha \"}；期间：无期间分组；币种：CNY；记录数：5；金额合计：525.05；均值：105.01。\n\n结构化事实：\n{\"snapshot\":{\"id\":\"7be04c8b98674f93b6ec01d19c46db59\",\"expiresAt\":\"2026-10-13T19:35:07.173Z\",\"completeness\":\"COMPLETE\",\"consistency\":\"LOCAL_REPEATABLE_READ\",\"contentHash\":\"b896efb3d7b3d78c30b0922ace7f470b2c013e7188e607bfde4a69bfa0593f51\",\"scannedRows\":10},\"definition\":{\"dimensions\":[\"productName\"],\"dateField\":null,\"bucket\":\"NONE\",\"compareMonth\":null},\"groups\":[{\"dimensions\":{\"productName\":\"Alpha\"},\"currency\":\"CNY\",\"period\":null,\"count\":5,\"amountCount\":5,\"missingAmountCount\":0,\"sum\":\"520.05\",\"average\":\"104.01\"},{\"dimensions\":{\"productName\":\"alpha \"},\"currency\":\"CNY\",\"period\":null,\"count\":5,\"amountCount\":5,\"missingAmountCount\":0,\"sum\":\"525.05\",\"average\":\"105.01\"}],\"count\":10,\"unclassifiedAmountCount\":0,\"missingDateCount\":0,\"averageScale\":6,\"query\":{\"domain\":\"REPORT\",\"view\":\"LIST\",\"reportIds\":[\"rpt-sales-order\"],\"companyCode\":\"A\",\"conditions\":[{\"allOf\":[{\"field\":\"amount\",\"operator\":\"GT\",\"values\":[\"100\"]},{\"field\":\"amount\",\"operator\":\"LTE\",\"values\":[\"110\"]},{\"field\":\"date\",\"operator\":\"GTE\",\"values\":[\"2026-09-01\"]},{\"field\":\"date\",\"operator\":\"LT\",\"values\":[\"2026-10-01\"]}]}],\"sortField\":\"amount\",\"descending\":true,\"page\":1,\"size\":20,\"groupBy\":null},\"observedAt\":\"2026-10-12T19:35:07.173Z\",\"kind\":\"GROUPS\",\"groupsCount\":2,\"displayedCount\":2,\"allGroupsDisplayed\":true,\"snapshotId\":\"7be04c8b98674f93b6ec01d19c46db59\",\"resultScope\":\"来源步骤的分组统计集合\",\"displayStep\":2}",
+        "sourceId" : "step-2"
+      }, {
+        "quote" : "已完成操作：RANK。\n本步骤统计范围：本步骤排名选集；计数与金额仅属于该集合。\n实际执行查询：{\"domain\":\"REPORT\",\"view\":\"LIST\",\"reportIds\":[\"rpt-sales-order\"],\"companyCode\":\"A\",\"conditions\":[{\"allOf\":[{\"field\":\"amount\",\"operator\":\"GT\",\"values\":[\"100\"]},{\"field\":\"amount\",\"operator\":\"LTE\",\"values\":[\"110\"]},{\"field\":\"date\",\"operator\":\"GTE\",\"values\":[\"2026-09-01\"]},{\"field\":\"date\",\"operator\":\"LT\",\"values\":[\"2026-10-01\"]}]}],\"sortField\":\"amount\",\"descending\":true,\"page\":1,\"size\":20,\"groupBy\":null}\n结果共1组，页面展示1组。\n分组：{\"productName\":\"alpha \"}；期间：无期间分组；币种：CNY；记录数：5；金额合计：525.05；均值：105.01。\n实际排名规则：{\"field\":\"sum\",\"descending\":true,\"count\":1}\n\n结构化事实：\n{\"query\":{\"domain\":\"REPORT\",\"view\":\"LIST\",\"reportIds\":[\"rpt-sales-order\"],\"companyCode\":\"A\",\"conditions\":[{\"allOf\":[{\"field\":\"amount\",\"operator\":\"GT\",\"values\":[\"100\"]},{\"field\":\"amount\",\"operator\":\"LTE\",\"values\":[\"110\"]},{\"field\":\"date\",\"operator\":\"GTE\",\"values\":[\"2026-09-01\"]},{\"field\":\"date\",\"operator\":\"LT\",\"values\":[\"2026-10-01\"]}]}],\"sortField\":\"amount\",\"descending\":true,\"page\":1,\"size\":20,\"groupBy\":null},\"observedAt\":\"2026-10-12T19:35:07.173Z\",\"kind\":\"GROUPS\",\"groups\":[{\"dimensions\":{\"productName\":\"alpha \"},\"currency\":\"CNY\",\"period\":null,\"count\":5,\"amountCount\":5,\"missingAmountCount\":0,\"sum\":\"525.05\",\"average\":\"105.01\"}],\"groupsCount\":1,\"displayedCount\":1,\"allGroupsDisplayed\":true,\"definition\":{\"dimensions\":[\"productName\"],\"dateField\":null,\"bucket\":\"NONE\",\"compareMonth\":null},\"ranking\":{\"field\":\"sum\",\"descending\":true,\"count\":1},\"snapshotId\":\"7be04c8b98674f93b6ec01d19c46db59\",\"resultScope\":\"本步骤排名选集\",\"displayStep\":3}",
+        "sourceId" : "step-3"
+      } ]
+    }, {
+      "text" : "金额最高的\"alpha \"组展开明细共5条，金额合计525.05 CNY，全部记录状态均为未派单。",
+      "citations" : [ {
+        "quote" : "已完成操作：DRILLDOWN。\n本步骤统计范围：已选分组对应的原快照明细集合；计数与金额仅属于该集合。\n实际执行查询：{\"domain\":\"REPORT\",\"view\":\"LIST\",\"reportIds\":[\"rpt-sales-order\"],\"companyCode\":\"A\",\"conditions\":[{\"allOf\":[{\"field\":\"amount\",\"operator\":\"GT\",\"values\":[\"100\"]},{\"field\":\"amount\",\"operator\":\"LTE\",\"values\":[\"110\"]},{\"field\":\"date\",\"operator\":\"GTE\",\"values\":[\"2026-09-01\"]},{\"field\":\"date\",\"operator\":\"LT\",\"values\":[\"2026-10-01\"]}]}],\"sortField\":\"amount\",\"descending\":true,\"page\":1,\"size\":20,\"groupBy\":null}\n明细查看说明：界面第4步已完成，可通过“查看完整明细”每页20条读取原查询快照；翻页不调用模型、不重新读取业务来源。\n按已选1个分组展开原快照明细。\n完整结果共5条记录。\n金额合计：525.05 CNY。\n页面行预览为5条；全部行已展示：true。\n\n结构化事实：\n{\"kind\":\"ROWS\",\"snapshotId\":\"7be04c8b98674f93b6ec01d19c46db59\",\"count\":5,\"query\":{\"domain\":\"REPORT\",\"view\":\"LIST\",\"reportIds\":[\"rpt-sales-order\"],\"companyCode\":\"A\",\"conditions\":[{\"allOf\":[{\"field\":\"amount\",\"operator\":\"GT\",\"values\":[\"100\"]},{\"field\":\"amount\",\"operator\":\"LTE\",\"values\":[\"110\"]},{\"field\":\"date\",\"operator\":\"GTE\",\"values\":[\"2026-09-01\"]},{\"field\":\"date\",\"operator\":\"LT\",\"values\":[\"2026-10-01\"]}]}],\"sortField\":\"amount\",\"descending\":true,\"page\":1,\"size\":20,\"groupBy\":null},\"rows\":[{\"companyCode\":\"A\",\"orderNo\":\"UA-109\",\"productName\":\"alpha \",\"amount\":\"109.01\",\"saleDate\":\"2026-09-26\",\"daysSinceSale\":\"17\",\"dispatched\":\"false\",\"rowKey\":\"rpt-sales-order:1109\",\"recordId\":\"1109\",\"reportId\":\"rpt-sales-order\",\"reportName\":\"销售报表\",\"docNo\":\"UA-109\",\"date\":\"2026-09-26\",\"currency\":\"CNY\",\"status\":\"未派单\"},{\"companyCode\":\"A\",\"orderNo\":\"UA-107\",\"productName\":\"alpha \",\"amount\":\"107.01\",\"saleDate\":\"2026-09-24\",\"daysSinceSale\":\"19\",\"dispatched\":\"false\",\"rowKey\":\"rpt-sales-order:1107\",\"recordId\":\"1107\",\"reportId\":\"rpt-sales-order\",\"reportName\":\"销售报表\",\"docNo\":\"UA-107\",\"date\":\"2026-09-24\",\"currency\":\"CNY\",\"status\":\"未派单\"},{\"companyCode\":\"A\",\"orderNo\":\"UA-105\",\"productName\":\"alpha \",\"amount\":\"105.01\",\"sa",
+        "sourceId" : "step-4-q1"
+      }, {
+        "quote" : "leDate\":\"2026-09-22\",\"daysSinceSale\":\"21\",\"dispatched\":\"false\",\"rowKey\":\"rpt-sales-order:1105\",\"recordId\":\"1105\",\"reportId\":\"rpt-sales-order\",\"reportName\":\"销售报表\",\"docNo\":\"UA-105\",\"date\":\"2026-09-22\",\"currency\":\"CNY\",\"status\":\"未派单\"},{\"companyCode\":\"A\",\"orderNo\":\"UA-103\",\"productName\":\"alpha \",\"amount\":\"103.01\",\"saleDate\":\"2026-09-20\",\"daysSinceSale\":\"23\",\"dispatched\":\"false\",\"rowKey\":\"rpt-sales-order:1103\",\"recordId\":\"1103\",\"reportId\":\"rpt-sales-order\",\"reportName\":\"销售报表\",\"docNo\":\"UA-103\",\"date\":\"2026-09-20\",\"currency\":\"CNY\",\"status\":\"未派单\"},{\"companyCode\":\"A\",\"orderNo\":\"UA-101\",\"productName\":\"alpha \",\"amount\":\"101.01\",\"saleDate\":\"2026-09-18\",\"daysSinceSale\":\"25\",\"dispatched\":\"false\",\"rowKey\":\"rpt-sales-order:1101\",\"recordId\":\"1101\",\"reportId\":\"rpt-sales-order\",\"reportName\":\"销售报表\",\"docNo\":\"UA-101\",\"date\":\"2026-09-18\",\"currency\":\"CNY\",\"status\":\"未派单\"}],\"displayedCount\":5,\"allRowsDisplayed\":true,\"complete\":true,\"observedAt\":\"2026-10-12T19:35:07.173Z\",\"source\":\"业务系统当前记录\",\"summary\":{\"count\":5,\"amountsByCurrency\":{\"CNY\":\"525.05\"},\"statusCounts\":{\"未派单\":5},\"groups\":{},\"pendingApprovers\":{},\"unclassifiedAmountCount\":0},\"selectedGroupCount\":1,\"definition\":{\"dimensions\":[\"productName\"],\"dateField\":null,\"bucket\":\"NONE\",\"compareMonth\":null},\"resultScope\":\"已选分组对应的原快照明细集合\",\"displayStep\":4}",
+        "sourceId" : "step-4-q2"
+      } ]
+    }, {
+      "text" : "该组明细包括：UA-109（109.01）、UA-107（107.01）、UA-105（105.01）、UA-103（103.01）、UA-101（101.01），币种均为CNY。",
+      "citations" : [ {
+        "quote" : "已完成操作：DRILLDOWN。\n本步骤统计范围：已选分组对应的原快照明细集合；计数与金额仅属于该集合。\n实际执行查询：{\"domain\":\"REPORT\",\"view\":\"LIST\",\"reportIds\":[\"rpt-sales-order\"],\"companyCode\":\"A\",\"conditions\":[{\"allOf\":[{\"field\":\"amount\",\"operator\":\"GT\",\"values\":[\"100\"]},{\"field\":\"amount\",\"operator\":\"LTE\",\"values\":[\"110\"]},{\"field\":\"date\",\"operator\":\"GTE\",\"values\":[\"2026-09-01\"]},{\"field\":\"date\",\"operator\":\"LT\",\"values\":[\"2026-10-01\"]}]}],\"sortField\":\"amount\",\"descending\":true,\"page\":1,\"size\":20,\"groupBy\":null}\n明细查看说明：界面第4步已完成，可通过“查看完整明细”每页20条读取原查询快照；翻页不调用模型、不重新读取业务来源。\n按已选1个分组展开原快照明细。\n完整结果共5条记录。\n金额合计：525.05 CNY。\n页面行预览为5条；全部行已展示：true。\n\n结构化事实：\n{\"kind\":\"ROWS\",\"snapshotId\":\"7be04c8b98674f93b6ec01d19c46db59\",\"count\":5,\"query\":{\"domain\":\"REPORT\",\"view\":\"LIST\",\"reportIds\":[\"rpt-sales-order\"],\"companyCode\":\"A\",\"conditions\":[{\"allOf\":[{\"field\":\"amount\",\"operator\":\"GT\",\"values\":[\"100\"]},{\"field\":\"amount\",\"operator\":\"LTE\",\"values\":[\"110\"]},{\"field\":\"date\",\"operator\":\"GTE\",\"values\":[\"2026-09-01\"]},{\"field\":\"date\",\"operator\":\"LT\",\"values\":[\"2026-10-01\"]}]}],\"sortField\":\"amount\",\"descending\":true,\"page\":1,\"size\":20,\"groupBy\":null},\"rows\":[{\"companyCode\":\"A\",\"orderNo\":\"UA-109\",\"productName\":\"alpha \",\"amount\":\"109.01\",\"saleDate\":\"2026-09-26\",\"daysSinceSale\":\"17\",\"dispatched\":\"false\",\"rowKey\":\"rpt-sales-order:1109\",\"recordId\":\"1109\",\"reportId\":\"rpt-sales-order\",\"reportName\":\"销售报表\",\"docNo\":\"UA-109\",\"date\":\"2026-09-26\",\"currency\":\"CNY\",\"status\":\"未派单\"},{\"companyCode\":\"A\",\"orderNo\":\"UA-107\",\"productName\":\"alpha \",\"amount\":\"107.01\",\"saleDate\":\"2026-09-24\",\"daysSinceSale\":\"19\",\"dispatched\":\"false\",\"rowKey\":\"rpt-sales-order:1107\",\"recordId\":\"1107\",\"reportId\":\"rpt-sales-order\",\"reportName\":\"销售报表\",\"docNo\":\"UA-107\",\"date\":\"2026-09-24\",\"currency\":\"CNY\",\"status\":\"未派单\"},{\"companyCode\":\"A\",\"orderNo\":\"UA-105\",\"productName\":\"alpha \",\"amount\":\"105.01\",\"sa",
+        "sourceId" : "step-4-q1"
+      }, {
+        "quote" : "leDate\":\"2026-09-22\",\"daysSinceSale\":\"21\",\"dispatched\":\"false\",\"rowKey\":\"rpt-sales-order:1105\",\"recordId\":\"1105\",\"reportId\":\"rpt-sales-order\",\"reportName\":\"销售报表\",\"docNo\":\"UA-105\",\"date\":\"2026-09-22\",\"currency\":\"CNY\",\"status\":\"未派单\"},{\"companyCode\":\"A\",\"orderNo\":\"UA-103\",\"productName\":\"alpha \",\"amount\":\"103.01\",\"saleDate\":\"2026-09-20\",\"daysSinceSale\":\"23\",\"dispatched\":\"false\",\"rowKey\":\"rpt-sales-order:1103\",\"recordId\":\"1103\",\"reportId\":\"rpt-sales-order\",\"reportName\":\"销售报表\",\"docNo\":\"UA-103\",\"date\":\"2026-09-20\",\"currency\":\"CNY\",\"status\":\"未派单\"},{\"companyCode\":\"A\",\"orderNo\":\"UA-101\",\"productName\":\"alpha \",\"amount\":\"101.01\",\"saleDate\":\"2026-09-18\",\"daysSinceSale\":\"25\",\"dispatched\":\"false\",\"rowKey\":\"rpt-sales-order:1101\",\"recordId\":\"1101\",\"reportId\":\"rpt-sales-order\",\"reportName\":\"销售报表\",\"docNo\":\"UA-101\",\"date\":\"2026-09-18\",\"currency\":\"CNY\",\"status\":\"未派单\"}],\"displayedCount\":5,\"allRowsDisplayed\":true,\"complete\":true,\"observedAt\":\"2026-10-12T19:35:07.173Z\",\"source\":\"业务系统当前记录\",\"summary\":{\"count\":5,\"amountsByCurrency\":{\"CNY\":\"525.05\"},\"statusCounts\":{\"未派单\":5},\"groups\":{},\"pendingApprovers\":{},\"unclassifiedAmountCount\":0},\"selectedGroupCount\":1,\"definition\":{\"dimensions\":[\"productName\"],\"dateField\":null,\"bucket\":\"NONE\",\"compareMonth\":null},\"resultScope\":\"已选分组对应的原快照明细集合\",\"displayStep\":4}",
+        "sourceId" : "step-4-q2"
+      } ]
+    } ],
+    "status" : "ANSWERED",
+    "limitations" : [ "产品名称\"Alpha\"与\"alpha \"按原值区分，未合并为同一实体。" ]
+  },
+  "usage" : [ {
+    "model" : "deepseek-v4.1-flash",
+    "stage" : "PLAN",
+    "number" : 1,
+    "status" : "RESPONDED",
+    "elapsedMs" : 4072,
+    "inputTokens" : 3300,
+    "outputTokens" : 235,
+    "usageComplete" : true,
+    "cachedInputTokens" : 896
+  }, {
+    "model" : "deepseek-v4.1-flash",
+    "stage" : "PLAN_REVIEW",
+    "number" : 2,
+    "status" : "RESPONDED",
+    "elapsedMs" : 2366,
+    "inputTokens" : 3074,
+    "outputTokens" : 56,
+    "usageComplete" : true,
+    "cachedInputTokens" : 896
+  }, {
+    "model" : "deepseek-v4.1-flash",
+    "stage" : "ANSWER",
+    "number" : 3,
+    "status" : "RESPONDED",
+    "elapsedMs" : 3731,
+    "inputTokens" : 7501,
+    "outputTokens" : 234,
+    "usageComplete" : true,
+    "cachedInputTokens" : 896
+  }, {
+    "model" : "deepseek-v4.1-flash",
+    "stage" : "ANSWER_REVIEW",
+    "number" : 4,
+    "status" : "RESPONDED",
+    "elapsedMs" : 2922,
+    "inputTokens" : 7389,
+    "outputTokens" : 83,
+    "usageComplete" : true,
+    "cachedInputTokens" : 768
+  } ]
+}

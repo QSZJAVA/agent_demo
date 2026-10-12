@@ -45,18 +45,25 @@ public class AgentController {
 
     /**
      * 对话：POST JSON，返回 text/event-stream。
-     * 事件：conversation / text / business_query / semantic_clarification / preview / choice / plan / result / error / done
+     * 事件：conversation / text / business_query / semantic_clarification / analysis_task / turn_receipt / preview / choice / plan / result / error / done。
+     * Idempotency-Key须在发送前持久保存；重复完整载荷仅核对原轮次，不自动重新解释问题。
      */
     @PostMapping(value = "/chat", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
     public Flux<ServerSentEvent<Object>> chat(@RequestHeader(PermissionService.USER_HEADER) String userId,
-                                              @RequestBody ChatRequest request) {
+                                              @RequestHeader("Idempotency-Key") String key,@RequestBody ChatRequest request) {
         CurrentUser user = permissionService.resolve(userId);
         if (request.getMessage() == null || request.getMessage().isBlank()) {
             throw new ApiException("消息不能为空");
         }
         if (request.getMessage().length() > 2000) throw new ApiException("消息不能超过 2000 字");
-        return chatService.chat(user, request.getConversationId(), request.getMessage().trim(),
-                request.getPreviewId(), request.getExcludedRecords(),request.getQueryEdit(),request.getClarificationReply());
+        return chatService.chat(user, request.getConversationId(), request.getMessage(),
+                request.getPreviewId(), request.getExcludedRecords(),request.getQueryEdit(),request.getClarificationReply(),key);
+    }
+
+    /** 按原客户端键恢复首次响应丢失的接收结果；GET不能触发模型、重新查询或提交分析。 */
+    @GetMapping("/turns/{key}")
+    public Result<Map<String,Object>> turn(@RequestHeader(PermissionService.USER_HEADER) String userId,@PathVariable String key) {
+        return Result.ok(chatService.receipt(permissionService.resolve(userId),key));
     }
 
     /** 预览快照全量记录与当前状态（前端按 previewId 拉取渲染表格） */

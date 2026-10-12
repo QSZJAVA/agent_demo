@@ -4,9 +4,9 @@ const assert = require('node:assert/strict')
 const fs = require('node:fs'), path = require('node:path'), vm = require('node:vm')
 const { webcrypto } = require('node:crypto')
 const context = { TextEncoder }
-vm.runInNewContext(fs.readFileSync(path.join(__dirname, '../src/utils/analysisPending.js'), 'utf8').replace('export function', 'function'), context)
+vm.runInNewContext(fs.readFileSync(path.join(__dirname, '../src/utils/pendingRequestStore.js'), 'utf8').replace(/export /g, '') + fs.readFileSync(path.join(__dirname, '../src/utils/analysisPending.js'), 'utf8').replace(/^import .*$/gm, '').replace(/export /g, ''), context)
 const { createAnalysisPendingStore } = context
-const request = { companyCode: 'A', reportId: 'rpt-sales-order', question: '订单金额是否等于已收款', snapshotId: null }
+const request = { companyCode: 'A', reportId: 'rpt-sales-order', question: '订单金额是否等于已收款', mode: 'CURRENT_DATA', snapshotId: null }
 const HOUR = 60 * 60 * 1000
 
 function fixture() {
@@ -56,7 +56,7 @@ test('记录满24小时即丢弃，未来时间与损坏签名也不能恢复或
 })
 
 test('当前请求边界接受最长公司报表问题以及合法的小写快照标识', async () => {
-  const env = fixture(), value = { companyCode: 'A'.repeat(32), reportId: 'a'.repeat(64), question: '问'.repeat(2000), snapshotId: 'abcdefabcdefab01'.repeat(2) }
+  const env = fixture(), value = { companyCode: 'A'.repeat(32), reportId: 'a'.repeat(64), question: '问'.repeat(2000), mode: 'CURRENT_DATA', snapshotId: 'abcdefabcdefab01'.repeat(2) }
   const pending = await env.store().create(value, 'analysis-boundary')
   await env.store().verify(pending)
   assert.deepEqual(JSON.parse(JSON.stringify((await env.store().read()).pending.request)), value)
@@ -133,4 +133,15 @@ test('身份在摘要计算期间改变时，不写入旧登录的请求正文',
   env.state.identity = { userId: 'reader', token: 'new-session' }; release()
   await assert.rejects(saving, error => error.pendingFailure === 'SESSION_CHANGED')
   assert.equal(env.values.size, 0)
+})
+
+test('模式进入保存与签名，知识问答不接受快照，快照分析必须显式来源', async () => {
+  const snapshot = 'a'.repeat(32)
+  for (const value of [{ ...request, mode: 'KNOWLEDGE_ONLY' }, { ...request, mode: 'CURRENT_DATA', snapshotId: snapshot }, { ...request, mode: 'SNAPSHOT_ONLY', snapshotId: snapshot }]) {
+    const env = fixture(), saved = await env.store().create(value, 'analysis-mode-contract')
+    assert.equal((await env.store().read()).pending.request.mode, value.mode); await env.store().verify(saved)
+  }
+  for (const value of [{ ...request, mode: 'KNOWLEDGE_ONLY', snapshotId: snapshot }, { ...request, mode: 'SNAPSHOT_ONLY' }, { ...request, mode: null }, { ...request, mode: 'UNRESTRICTED' }, Object.fromEntries(Object.entries(request).filter(([key]) => key !== 'mode'))]) {
+    const env = fixture(); await assert.rejects(env.store().create(value, 'analysis-invalid-mode'), error => error.pendingFailure === 'CORRUPT'); assert.equal(env.values.size, 0)
+  }
 })

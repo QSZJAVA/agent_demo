@@ -11,6 +11,22 @@ import java.util.*;
 /** 有限分析图的唯一外部契约；模型只能组合白名单只读操作，不能提供身份、SQL、执行接口或任意引用。 */
 public final class AnalysisContract {
     public static final int MAX_STEPS=6, MAX_MODEL_CALLS=10, MAX_QUERIES=2, RUN_SECONDS=240;
+    /** 用户明确选择的读取模式；动作列表同时约束模型Schema、完整计划与运行恢复，不根据问题文字猜测或扩大权限。 */
+    public enum Mode {
+        KNOWLEDGE_ONLY(List.of("KNOWLEDGE")),
+        CURRENT_DATA(List.of("QUERY","SNAPSHOT","GROUP","RANK","DRILLDOWN","COMPARE","KNOWLEDGE")),
+        SNAPSHOT_ONLY(List.of("SNAPSHOT","GROUP","RANK","DRILLDOWN","KNOWLEDGE"));
+        /** 当前模式允许的有序动作白名单；顺序稳定，参与执行配置指纹。 */
+        private final List<String> actions;
+        Mode(List<String> actions){this.actions=List.copyOf(actions);}
+        /** 返回不可变动作白名单；它只限制读取能力，不替代公司、报表、租约和快照权限校验。 */
+        public List<String> allowedActions(){return actions;}
+        /** 校验模式与用户显式来源是否一致；当前数据模式可带原快照参与比较，知识模式不接收业务快照。 */
+        public void requireSource(boolean selected){
+            if(this==KNOWLEDGE_ONLY&&selected)fail("知识问答模式不能指定业务查询快照");
+            if(this==SNAPSHOT_ONLY&&!selected)fail("快照分析模式必须明确选择查询快照");
+        }
+    }
     /** 规划与独立复核共用的操作语义；source/other 始终指向步骤，而不是字段或知识来源编号。 */
     static final String OPERATIONS="""
         步骤引用从0开始，必须指向前序步骤。各操作的必填输入如下，其余参数必须显式为null：
@@ -41,11 +57,13 @@ public final class AnalysisContract {
      * @param companyCode 当前有权访问的公司代码
      * @param reportId 当前有权访问的报表标识
      * @param question 本轮完整问题，1至2000字符；不自动继承历史文字
-     * @param snapshotId 用户明确选择的本人查询快照，可空
+     * @param mode 必填读取模式：KNOWLEDGE_ONLY仅知识，CURRENT_DATA允许当前数据及显式快照，SNAPSHOT_ONLY仅选定快照及知识
+     * @param snapshotId 用户明确选择的本人查询快照；SNAPSHOT_ONLY必填、KNOWLEDGE_ONLY必须为空，CURRENT_DATA可空
      */
-    public record Request(String companyCode,String reportId,String question,String snapshotId) {
+    public record Request(String companyCode,String reportId,String question,Mode mode,String snapshotId) {
         public Request {
             text(companyCode,32,"公司");text(reportId,64,"报表");text(question,2000,"问题");
+            if(mode==null)fail("必须明确选择分析读取模式");mode.requireSource(snapshotId!=null);
             if(!reportId.matches("[a-z][a-z0-9-]{2,63}") || snapshotId!=null&&!snapshotId.matches("[a-f0-9]{32}"))fail("分析范围或快照标识无效");
             ModelEgressPolicy.requireSafeText(question);
         }
@@ -109,7 +127,7 @@ public final class AnalysisContract {
     public static void validate(Request request,Plan plan,List<FieldInfo> columns) {
         int bases=0;
         for(int i=0;i<plan.steps().size();i++) {
-            var step=plan.steps().get(i);
+            var step=plan.steps().get(i);requireAction(request,step);
             if(step.source()!=null&&(step.source()<0||step.source()>=i) || step.other()!=null&&(step.other()<0||step.other()>=i))fail("步骤只能引用已完成的前序步骤");
             switch(step.action()) {
                 case "QUERY" -> {
@@ -118,7 +136,7 @@ public final class AnalysisContract {
                             || !q.reportIds().equals(List.of(request.reportId()))||!Objects.equals(q.companyCode(),request.companyCode()))fail("基础查询必须保持选定公司、报表和完整列表语义");
                     BusinessQueryEngine.validate(q,columns);
                 }
-                case "SNAPSHOT" -> {bases++;if(request.snapshotId()==null)fail("没有用户明确选择的快照");}
+                case "SNAPSHOT" -> bases++;
                 case "GROUP" -> {
                     rowsInput(plan,step.source());
                     for(String field:step.analysis().dimensions())field(columns,field);
@@ -144,6 +162,11 @@ public final class AnalysisContract {
         }
         if(bases>MAX_QUERIES)fail("单次分析最多读取两份基础查询或快照");
     }
+    /** 全图、实际步骤及明细恢复共用的模式守卫；必须在任何业务来源访问前执行，模型复核不能替它授权动作。 */
+    public static void requireAction(Request request,Step step) {
+        if(!request.mode().allowedActions().contains(step.action()))fail("读取模式"+request.mode()+"不允许执行"+step.action());
+        if("SNAPSHOT".equals(step.action())&&request.snapshotId()==null)fail("没有用户明确选择的快照");
+    }
     /** 程序已验证的依赖路径供独立语义复核阅读；调用者必须先validate，不能用说明替代图校验。 */
     static List<Map<String,Object>> lineage(Plan plan) {
         var result=new ArrayList<Map<String,Object>>();
@@ -161,22 +184,24 @@ public final class AnalysisContract {
 
     /** 所有HTTP和模型输入共用严格解码，拒绝额外字段、缺字段、重复键和隐式类型转换。 */
     public static <T>T decode(Object input,Class<T> type) {
-        try {String text=input instanceof String s?s:JsonUtil.toJson(input);if(text.getBytes(java.nio.charset.StandardCharsets.UTF_8).length>128*1024)fail("分析参数超过体积预算");return JsonUtil.strictMapper().readValue(text,type);}
+        try {String text=input instanceof String s?s:JsonUtil.toJson(input);if(text.getBytes(java.nio.charset.StandardCharsets.UTF_8).length>128*1024)fail("分析参数超过体积预算");
+            T decoded=JsonUtil.strictMapper().readValue(text,type);if(decoded==null)fail("分析参数必须为完整对象，不能输出null");return decoded;}
         catch(Exception failure){for(Throwable cause=failure;cause!=null;cause=cause.getCause())if(cause instanceof ApiException api)throw api;
             // 诊断只记录异常类型和目标契约，不输出可能包含原问题、制度正文或凭据的解析器原始消息。
             org.slf4j.LoggerFactory.getLogger(AnalysisContract.class).warn("分析协议解码拒绝 target={} type={}",type.getSimpleName(),failure.getClass().getSimpleName());
             throw new ApiException(422,failure instanceof com.fasterxml.jackson.core.JsonParseException?"结构化JSON语法无效或含重复键；每个键只能出现一次":"分析参数的字段、类型或范围不符合当前协议");}
     }
-    /** 原生Schema使用同一查询契约；不用的步骤参数仍要求显式为null。 */
-    public static String planSchema() {
+    /** 原生Schema按用户已选模式收窄动作及参数；禁用的工具参数只能为null，全图与逐步守卫仍独立执行。 */
+    public static String planSchema(Mode mode) {
+        Objects.requireNonNull(mode,"分析读取模式");var allowed=mode.allowedActions();var none=Map.<String,Object>of("type","null");
         var analysis=object(fields("dimensions",array(string(),3),"dateField",nullable(string()),"bucket",enumeration("NONE","DAY","MONTH"),"compareMonth",nullable(string())));
         var rank=object(fields("field",described(string(64),"行排名使用真实字段；GROUP排名只用sum/count/average，不使用amount或表达式"),"descending",Map.of("type","boolean"),"count",Map.of("type","integer","minimum",1,"maximum",50)));
         var reference=nullable(Map.of("type","integer","minimum",0,"maximum",MAX_STEPS-1));
-        var step=object(fields("action",enumeration("QUERY","SNAPSHOT","GROUP","RANK","DRILLDOWN","COMPARE","KNOWLEDGE"),
-                "source",described(reference,"GROUP/RANK/DRILLDOWN/COMPARE的前序主输入序号，从0开始；QUERY/SNAPSHOT/KNOWLEDGE必须为null"),
-                "other",described(reference,"仅DRILLDOWN引用分组RANK序号，COMPARE引用另一个基础查询；其他操作必须为null"),
-                "query",described(nullable(querySchema()),"仅QUERY非空；page/size只控制首屏，执行器保存并读取完整匹配集合"),"analysis",described(nullable(analysis),"仅GROUP非空"),
-                "rank",described(nullable(rank),"仅RANK非空"),"knowledgeQuestion",described(nullable(string(1000)),"仅KNOWLEDGE非空；在已选scope检索，无需来源编号")));
+        var step=object(fields("action",enumeration(allowed.toArray(String[]::new)),
+                "source",described(mode==Mode.KNOWLEDGE_ONLY?none:reference,"GROUP/RANK/DRILLDOWN/COMPARE的前序主输入序号，从0开始；QUERY/SNAPSHOT/KNOWLEDGE必须为null"),
+                "other",described(allowed.contains("DRILLDOWN")||allowed.contains("COMPARE")?reference:none,"仅DRILLDOWN引用分组RANK序号，COMPARE引用另一个基础查询；其他操作必须为null"),
+                "query",described(allowed.contains("QUERY")?nullable(querySchema()):none,"仅QUERY非空；page/size只控制首屏，执行器保存并读取完整匹配集合"),"analysis",described(allowed.contains("GROUP")?nullable(analysis):none,"仅GROUP非空"),
+                "rank",described(allowed.contains("RANK")?nullable(rank):none,"仅RANK非空"),"knowledgeQuestion",described(mode==Mode.KNOWLEDGE_ONLY?string(1000):nullable(string(1000)),"仅KNOWLEDGE非空；在已选scope检索，无需来源编号")));
         return JsonUtil.toJson(object(fields("mode",enumeration("EXECUTE","CLARIFY"),"objective",string(500),"clarification",nullable(string(500)),"steps",array(step,MAX_STEPS))));
     }
     public static String reviewSchema(){return JsonUtil.toJson(object(fields("approved",Map.of("type","boolean"),"reason",string(1000))));}

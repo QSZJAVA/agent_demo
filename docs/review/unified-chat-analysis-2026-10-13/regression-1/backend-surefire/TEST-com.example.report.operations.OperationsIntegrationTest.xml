@@ -1,0 +1,814 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://maven.apache.org/surefire/maven-surefire-plugin/xsd/surefire-test-report.xsd" version="3.0.2" name="com.example.report.operations.OperationsIntegrationTest" time="28.774" tests="42" errors="0" skipped="1" failures="0" flakes="0">
+  <properties>
+    <property name="java.specification.version" value="21"/>
+    <property name="sun.cpu.isalist" value="amd64"/>
+    <property name="sun.jnu.encoding" value="GBK"/>
+    <property name="java.class.path" value="D:\demo-v1\demo\backend\target\test-classes;D:\demo-v1\demo\backend\target\classes;C:\Users\Qis\.m2\repository\io\modelcontextprotocol\sdk\mcp-core\0.18.3\mcp-core-0.18.3.jar;C:\Users\Qis\.m2\repository\org\slf4j\slf4j-api\2.0.18\slf4j-api-2.0.18.jar;C:\Users\Qis\.m2\repository\com\fasterxml\jackson\core\jackson-annotations\2.21\jackson-annotations-2.21.jar;C:\Users\Qis\.m2\repository\io\projectreactor\reactor-core\3.7.19\reactor-core-3.7.19.jar;C:\Users\Qis\.m2\repository\org\reactivestreams\reactive-streams\1.0.4\reactive-streams-1.0.4.jar;C:\Users\Qis\.m2\repository\io\modelcontextprotocol\sdk\mcp-json-jackson2\0.18.3\mcp-json-jackson2-0.18.3.jar;C:\Users\Qis\.m2\repository\com\fasterxml\jackson\core\jackson-databind\2.21.4\jackson-databind-2.21.4.jar;C:\Users\Qis\.m2\repository\com\fasterxml\jackson\core\jackson-core\2.21.4\jackson-core-2.21.4.jar;C:\Users\Qis\.m2\repository\com\networknt\json-schema-validator\2.0.0\json-schema-validator-2.0.0.jar;C:\Users\Qis\.m2\repository\com\ethlo\time\itu\1.14.0\itu-1.14.0.jar;C:\Users\Qis\.m2\repository\com\fasterxml\jackson\dataformat\jackson-dataformat-yaml\2.21.4\jackson-dataformat-yaml-2.21.4.jar;C:\Users\Qis\.m2\repository\org\springframework\boot\spring-boot-starter-web\3.5.16\spring-boot-starter-web-3.5.16.jar;C:\Users\Qis\.m2\repository\org\springframework\boot\spring-boot-starter\3.5.16\spring-boot-starter-3.5.16.jar;C:\Users\Qis\.m2\repository\org\springframework\boot\spring-boot\3.5.16\spring-boot-3.5.16.jar;C:\Users\Qis\.m2\repository\org\springframework\boot\spring-boot-starter-logging\3.5.16\spring-boot-starter-logging-3.5.16.jar;C:\Users\Qis\.m2\repository\ch\qos\logback\logback-classic\1.5.34\logback-classic-1.5.34.jar;C:\Users\Qis\.m2\repository\ch\qos\logback\logback-core\1.5.34\logback-core-1.5.34.jar;C:\Users\Qis\.m2\repository\org\apache\logging\log4j\log4j-to-slf4j\2.24.3\log4j-to-slf4j-2.24.3.jar;C:\Users\Qis\.m2\repository\org\apache\logging\log4j\log4j-api\2.24.3\log4j-api-2.24.3.jar;C:\Users\Qis\.m2\repository\org\slf4j\jul-to-slf4j\2.0.18\jul-to-slf4j-2.0.18.jar;C:\Users\Qis\.m2\repository\jakarta\annotation\jakarta.annotation-api\2.1.1\jakarta.annotation-api-2.1.1.jar;C:\Users\Qis\.m2\repository\org\yaml\snakeyaml\2.4\snakeyaml-2.4.jar;C:\Users\Qis\.m2\repository\org\springframework\boot\spring-boot-starter-json\3.5.16\spring-boot-starter-json-3.5.16.jar;C:\Users\Qis\.m2\repository\com\fasterxml\jackson\datatype\jackson-datatype-jdk8\2.21.4\jackson-datatype-jdk8-2.21.4.jar;C:\Users\Qis\.m2\repository\com\fasterxml\jackson\module\jackson-module-parameter-names\2.21.4\jackson-module-parameter-names-2.21.4.jar;C:\Users\Qis\.m2\repository\org\springframework\boot\spring-boot-starter-tomcat\3.5.16\spring-boot-starter-tomcat-3.5.16.jar;C:\Users\Qis\.m2\repository\org\apache\tomcat\embed\tomcat-embed-core\10.1.55\tomcat-embed-core-10.1.55.jar;C:\Users\Qis\.m2\repository\org\apache\tomcat\embed\tomcat-embed-el\10.1.55\tomcat-embed-el-10.1.55.jar;C:\Users\Qis\.m2\repository\org\apache\tomcat\embed\tomcat-embed-websocket\10.1.55\tomcat-embed-websocket-10.1.55.jar;C:\Users\Qis\.m2\repository\org\springframework\spring-web\6.2.19\spring-web-6.2.19.jar;C:\Users\Qis\.m2\repository\org\springframework\spring-beans\6.2.19\spring-beans-6.2.19.jar;C:\Users\Qis\.m2\repository\io\micrometer\micrometer-observation\1.15.12\micrometer-observation-1.15.12.jar;C:\Users\Qis\.m2\repository\io\micrometer\micrometer-commons\1.15.12\micrometer-commons-1.15.12.jar;C:\Users\Qis\.m2\repository\org\springframework\spring-webmvc\6.2.19\spring-webmvc-6.2.19.jar;C:\Users\Qis\.m2\repository\org\springframework\spring-aop\6.2.19\spring-aop-6.2.19.jar;C:\Users\Qis\.m2\repository\org\springframework\spring-context\6.2.19\spring-context-6.2.19.jar;C:\Users\Qis\.m2\repository\org\springframework\spring-expression\6.2.19\spring-expression-6.2.19.jar;C:\Users\Qis\.m2\repository\com\baomidou\mybatis-plus-spring-boot3-starter\3.5.17\mybatis-plus-spring-boot3-starter-3.5.17.jar;C:\Users\Qis\.m2\repository\com\baomidou\mybatis-plus\3.5.17\mybatis-plus-3.5.17.jar;C:\Users\Qis\.m2\repository\com\baomidou\mybatis-plus-core\3.5.17\mybatis-plus-core-3.5.17.jar;C:\Users\Qis\.m2\repository\com\baomidou\mybatis-plus-annotation\3.5.17\mybatis-plus-annotation-3.5.17.jar;C:\Users\Qis\.m2\repository\com\baomidou\mybatis-plus-spring\3.5.17\mybatis-plus-spring-3.5.17.jar;C:\Users\Qis\.m2\repository\com\baomidou\mybatis-plus-extension\3.5.17\mybatis-plus-extension-3.5.17.jar;C:\Users\Qis\.m2\repository\org\mybatis\mybatis\3.5.19\mybatis-3.5.19.jar;C:\Users\Qis\.m2\repository\org\mybatis\mybatis-spring\3.0.5\mybatis-spring-3.0.5.jar;C:\Users\Qis\.m2\repository\com\baomidou\mybatis-plus-spring-boot-autoconfigure\3.5.17\mybatis-plus-spring-boot-autoconfigure-3.5.17.jar;C:\Users\Qis\.m2\repository\com\baomidou\mybatis-plus-spring-boot-native-image\3.5.17\mybatis-plus-spring-boot-native-image-3.5.17.jar;C:\Users\Qis\.m2\repository\org\springframework\boot\spring-boot-autoconfigure\3.5.16\spring-boot-autoconfigure-3.5.16.jar;C:\Users\Qis\.m2\repository\org\springframework\boot\spring-boot-starter-jdbc\3.5.16\spring-boot-starter-jdbc-3.5.16.jar;C:\Users\Qis\.m2\repository\com\zaxxer\HikariCP\6.3.3\HikariCP-6.3.3.jar;C:\Users\Qis\.m2\repository\org\springframework\spring-jdbc\6.2.19\spring-jdbc-6.2.19.jar;C:\Users\Qis\.m2\repository\com\mysql\mysql-connector-j\9.7.0\mysql-connector-j-9.7.0.jar;C:\Users\Qis\.m2\repository\org\flywaydb\flyway-core\11.7.2\flyway-core-11.7.2.jar;C:\Users\Qis\.m2\repository\com\fasterxml\jackson\dataformat\jackson-dataformat-toml\2.21.4\jackson-dataformat-toml-2.21.4.jar;C:\Users\Qis\.m2\repository\com\fasterxml\jackson\datatype\jackson-datatype-jsr310\2.21.4\jackson-datatype-jsr310-2.21.4.jar;C:\Users\Qis\.m2\repository\org\flywaydb\flyway-mysql\11.7.2\flyway-mysql-11.7.2.jar;C:\Users\Qis\.m2\repository\org\springframework\boot\spring-boot-starter-data-redis\3.5.16\spring-boot-starter-data-redis-3.5.16.jar;C:\Users\Qis\.m2\repository\io\lettuce\lettuce-core\6.6.0.RELEASE\lettuce-core-6.6.0.RELEASE.jar;C:\Users\Qis\.m2\repository\redis\clients\authentication\redis-authx-core\0.1.1-beta2\redis-authx-core-0.1.1-beta2.jar;C:\Users\Qis\.m2\repository\io\netty\netty-common\4.1.135.Final\netty-common-4.1.135.Final.jar;C:\Users\Qis\.m2\repository\io\netty\netty-handler\4.1.135.Final\netty-handler-4.1.135.Final.jar;C:\Users\Qis\.m2\repository\io\netty\netty-resolver\4.1.135.Final\netty-resolver-4.1.135.Final.jar;C:\Users\Qis\.m2\repository\io\netty\netty-buffer\4.1.135.Final\netty-buffer-4.1.135.Final.jar;C:\Users\Qis\.m2\repository\io\netty\netty-transport-native-unix-common\4.1.135.Final\netty-transport-native-unix-common-4.1.135.Final.jar;C:\Users\Qis\.m2\repository\io\netty\netty-codec\4.1.135.Final\netty-codec-4.1.135.Final.jar;C:\Users\Qis\.m2\repository\io\netty\netty-transport\4.1.135.Final\netty-transport-4.1.135.Final.jar;C:\Users\Qis\.m2\repository\org\springframework\data\spring-data-redis\3.5.13\spring-data-redis-3.5.13.jar;C:\Users\Qis\.m2\repository\org\springframework\data\spring-data-keyvalue\3.5.13\spring-data-keyvalue-3.5.13.jar;C:\Users\Qis\.m2\repository\org\springframework\data\spring-data-commons\3.5.13\spring-data-commons-3.5.13.jar;C:\Users\Qis\.m2\repository\org\springframework\spring-tx\6.2.19\spring-tx-6.2.19.jar;C:\Users\Qis\.m2\repository\org\springframework\spring-oxm\6.2.19\spring-oxm-6.2.19.jar;C:\Users\Qis\.m2\repository\org\springframework\spring-context-support\6.2.19\spring-context-support-6.2.19.jar;C:\Users\Qis\.m2\repository\org\springframework\ai\spring-ai-starter-model-openai\1.1.8\spring-ai-starter-model-openai-1.1.8.jar;C:\Users\Qis\.m2\repository\org\springframework\ai\spring-ai-autoconfigure-model-openai\1.1.8\spring-ai-autoconfigure-model-openai-1.1.8.jar;C:\Users\Qis\.m2\repository\org\springframework\ai\spring-ai-autoconfigure-model-tool\1.1.8\spring-ai-autoconfigure-model-tool-1.1.8.jar;C:\Users\Qis\.m2\repository\org\springframework\ai\spring-ai-autoconfigure-retry\1.1.8\spring-ai-autoconfigure-retry-1.1.8.jar;C:\Users\Qis\.m2\repository\org\springframework\ai\spring-ai-autoconfigure-model-chat-observation\1.1.8\spring-ai-autoconfigure-model-chat-observation-1.1.8.jar;C:\Users\Qis\.m2\repository\org\springframework\ai\spring-ai-autoconfigure-model-embedding-observation\1.1.8\spring-ai-autoconfigure-model-embedding-observation-1.1.8.jar;C:\Users\Qis\.m2\repository\org\springframework\ai\spring-ai-autoconfigure-model-image-observation\1.1.8\spring-ai-autoconfigure-model-image-observation-1.1.8.jar;C:\Users\Qis\.m2\repository\org\springframework\ai\spring-ai-openai\1.1.8\spring-ai-openai-1.1.8.jar;C:\Users\Qis\.m2\repository\org\springframework\ai\spring-ai-model\1.1.8\spring-ai-model-1.1.8.jar;C:\Users\Qis\.m2\repository\org\springframework\ai\spring-ai-commons\1.1.8\spring-ai-commons-1.1.8.jar;C:\Users\Qis\.m2\repository\io\micrometer\micrometer-core\1.15.12\micrometer-core-1.15.12.jar;C:\Users\Qis\.m2\repository\org\hdrhistogram\HdrHistogram\2.2.2\HdrHistogram-2.2.2.jar;C:\Users\Qis\.m2\repository\org\latencyutils\LatencyUtils\2.0.3\LatencyUtils-2.0.3.jar;C:\Users\Qis\.m2\repository\io\micrometer\context-propagation\1.1.4\context-propagation-1.1.4.jar;C:\Users\Qis\.m2\repository\org\springframework\ai\spring-ai-template-st\1.1.8\spring-ai-template-st-1.1.8.jar;C:\Users\Qis\.m2\repository\org\antlr\ST4\4.3.4\ST4-4.3.4.jar;C:\Users\Qis\.m2\repository\org\antlr\antlr-runtime\3.5.3\antlr-runtime-3.5.3.jar;C:\Users\Qis\.m2\repository\org\springframework\spring-messaging\6.2.19\spring-messaging-6.2.19.jar;C:\Users\Qis\.m2\repository\org\antlr\antlr4-runtime\4.13.1\antlr4-runtime-4.13.1.jar;C:\Users\Qis\.m2\repository\com\github\victools\jsonschema-module-swagger-2\4.38.0\jsonschema-module-swagger-2-4.38.0.jar;C:\Users\Qis\.m2\repository\io\swagger\core\v3\swagger-annotations-jakarta\2.2.38\swagger-annotations-jakarta-2.2.38.jar;C:\Users\Qis\.m2\repository\org\springframework\ai\spring-ai-retry\1.1.8\spring-ai-retry-1.1.8.jar;C:\Users\Qis\.m2\repository\org\springframework\retry\spring-retry\2.0.13\spring-retry-2.0.13.jar;C:\Users\Qis\.m2\repository\com\github\victools\jsonschema-generator\4.38.0\jsonschema-generator-4.38.0.jar;C:\Users\Qis\.m2\repository\com\fasterxml\classmate\1.7.3\classmate-1.7.3.jar;C:\Users\Qis\.m2\repository\com\github\victools\jsonschema-module-jackson\4.38.0\jsonschema-module-jackson-4.38.0.jar;C:\Users\Qis\.m2\repository\org\springframework\spring-webflux\6.2.19\spring-webflux-6.2.19.jar;C:\Users\Qis\.m2\repository\org\springframework\ai\spring-ai-autoconfigure-model-chat-client\1.1.8\spring-ai-autoconfigure-model-chat-client-1.1.8.jar;C:\Users\Qis\.m2\repository\org\springframework\ai\spring-ai-client-chat\1.1.8\spring-ai-client-chat-1.1.8.jar;C:\Users\Qis\.m2\repository\com\fasterxml\jackson\module\jackson-module-jsonSchema\2.21.4\jackson-module-jsonSchema-2.21.4.jar;C:\Users\Qis\.m2\repository\javax\validation\validation-api\1.1.0.Final\validation-api-1.1.0.Final.jar;C:\Users\Qis\.m2\repository\com\knuddels\jtokkit\1.1.0\jtokkit-1.1.0.jar;C:\Users\Qis\.m2\repository\org\springframework\ai\spring-ai-autoconfigure-model-chat-memory\1.1.8\spring-ai-autoconfigure-model-chat-memory-1.1.8.jar;C:\Users\Qis\.m2\repository\com\googlecode\aviator\aviator\5.4.4\aviator-5.4.4.jar;C:\Users\Qis\.m2\repository\org\projectlombok\lombok\1.18.46\lombok-1.18.46.jar;C:\Users\Qis\.m2\repository\org\springframework\boot\spring-boot-starter-test\3.5.16\spring-boot-starter-test-3.5.16.jar;C:\Users\Qis\.m2\repository\org\springframework\boot\spring-boot-test\3.5.16\spring-boot-test-3.5.16.jar;C:\Users\Qis\.m2\repository\org\springframework\boot\spring-boot-test-autoconfigure\3.5.16\spring-boot-test-autoconfigure-3.5.16.jar;C:\Users\Qis\.m2\repository\com\jayway\jsonpath\json-path\2.9.0\json-path-2.9.0.jar;C:\Users\Qis\.m2\repository\jakarta\xml\bind\jakarta.xml.bind-api\4.0.5\jakarta.xml.bind-api-4.0.5.jar;C:\Users\Qis\.m2\repository\jakarta\activation\jakarta.activation-api\2.1.4\jakarta.activation-api-2.1.4.jar;C:\Users\Qis\.m2\repository\net\minidev\json-smart\2.5.2\json-smart-2.5.2.jar;C:\Users\Qis\.m2\repository\net\minidev\accessors-smart\2.5.2\accessors-smart-2.5.2.jar;C:\Users\Qis\.m2\repository\org\ow2\asm\asm\9.7.1\asm-9.7.1.jar;C:\Users\Qis\.m2\repository\org\assertj\assertj-core\3.27.7\assertj-core-3.27.7.jar;C:\Users\Qis\.m2\repository\net\bytebuddy\byte-buddy\1.17.8\byte-buddy-1.17.8.jar;C:\Users\Qis\.m2\repository\org\awaitility\awaitility\4.2.2\awaitility-4.2.2.jar;C:\Users\Qis\.m2\repository\org\hamcrest\hamcrest\3.0\hamcrest-3.0.jar;C:\Users\Qis\.m2\repository\org\junit\jupiter\junit-jupiter\5.12.2\junit-jupiter-5.12.2.jar;C:\Users\Qis\.m2\repository\org\junit\jupiter\junit-jupiter-api\5.12.2\junit-jupiter-api-5.12.2.jar;C:\Users\Qis\.m2\repository\org\opentest4j\opentest4j\1.3.0\opentest4j-1.3.0.jar;C:\Users\Qis\.m2\repository\org\junit\platform\junit-platform-commons\1.12.2\junit-platform-commons-1.12.2.jar;C:\Users\Qis\.m2\repository\org\apiguardian\apiguardian-api\1.1.2\apiguardian-api-1.1.2.jar;C:\Users\Qis\.m2\repository\org\junit\jupiter\junit-jupiter-params\5.12.2\junit-jupiter-params-5.12.2.jar;C:\Users\Qis\.m2\repository\org\junit\jupiter\junit-jupiter-engine\5.12.2\junit-jupiter-engine-5.12.2.jar;C:\Users\Qis\.m2\repository\org\junit\platform\junit-platform-engine\1.12.2\junit-platform-engine-1.12.2.jar;C:\Users\Qis\.m2\repository\org\mockito\mockito-core\5.17.0\mockito-core-5.17.0.jar;C:\Users\Qis\.m2\repository\net\bytebuddy\byte-buddy-agent\1.17.8\byte-buddy-agent-1.17.8.jar;C:\Users\Qis\.m2\repository\org\objenesis\objenesis\3.3\objenesis-3.3.jar;C:\Users\Qis\.m2\repository\org\mockito\mockito-junit-jupiter\5.17.0\mockito-junit-jupiter-5.17.0.jar;C:\Users\Qis\.m2\repository\org\skyscreamer\jsonassert\1.5.3\jsonassert-1.5.3.jar;C:\Users\Qis\.m2\repository\com\vaadin\external\google\android-json\0.0.20131108.vaadin1\android-json-0.0.20131108.vaadin1.jar;C:\Users\Qis\.m2\repository\org\springframework\spring-core\6.2.19\spring-core-6.2.19.jar;C:\Users\Qis\.m2\repository\org\springframework\spring-jcl\6.2.19\spring-jcl-6.2.19.jar;C:\Users\Qis\.m2\repository\org\springframework\spring-test\6.2.19\spring-test-6.2.19.jar;C:\Users\Qis\.m2\repository\org\xmlunit\xmlunit-core\2.10.4\xmlunit-core-2.10.4.jar;"/>
+    <property name="java.vm.vendor" value="Eclipse Adoptium"/>
+    <property name="sun.arch.data.model" value="64"/>
+    <property name="user.variant" value=""/>
+    <property name="java.vendor.url" value="https://adoptium.net/"/>
+    <property name="catalina.useNaming" value="false"/>
+    <property name="user.timezone" value="Asia/Shanghai"/>
+    <property name="os.name" value="Windows 10"/>
+    <property name="java.vm.specification.version" value="21"/>
+    <property name="APPLICATION_NAME" value="report-demo"/>
+    <property name="sun.java.launcher" value="SUN_STANDARD"/>
+    <property name="user.country" value="CN"/>
+    <property name="sun.boot.library.path" value="D:\productSoftware\jdk-21\bin"/>
+    <property name="sun.java.command" value="C:\Users\Qis\AppData\Local\Temp\surefire8092828011559925444\surefirebooter-20261013025636408_3.jar C:\Users\Qis\AppData\Local\Temp\surefire8092828011559925444 2026-10-13T02-56-36_347-jvmRun1 surefire-20261013025636408_1tmp surefire_0-20261013025636408_2tmp"/>
+    <property name="jdk.debug" value="release"/>
+    <property name="surefire.test.class.path" value="D:\demo-v1\demo\backend\target\test-classes;D:\demo-v1\demo\backend\target\classes;C:\Users\Qis\.m2\repository\io\modelcontextprotocol\sdk\mcp-core\0.18.3\mcp-core-0.18.3.jar;C:\Users\Qis\.m2\repository\org\slf4j\slf4j-api\2.0.18\slf4j-api-2.0.18.jar;C:\Users\Qis\.m2\repository\com\fasterxml\jackson\core\jackson-annotations\2.21\jackson-annotations-2.21.jar;C:\Users\Qis\.m2\repository\io\projectreactor\reactor-core\3.7.19\reactor-core-3.7.19.jar;C:\Users\Qis\.m2\repository\org\reactivestreams\reactive-streams\1.0.4\reactive-streams-1.0.4.jar;C:\Users\Qis\.m2\repository\io\modelcontextprotocol\sdk\mcp-json-jackson2\0.18.3\mcp-json-jackson2-0.18.3.jar;C:\Users\Qis\.m2\repository\com\fasterxml\jackson\core\jackson-databind\2.21.4\jackson-databind-2.21.4.jar;C:\Users\Qis\.m2\repository\com\fasterxml\jackson\core\jackson-core\2.21.4\jackson-core-2.21.4.jar;C:\Users\Qis\.m2\repository\com\networknt\json-schema-validator\2.0.0\json-schema-validator-2.0.0.jar;C:\Users\Qis\.m2\repository\com\ethlo\time\itu\1.14.0\itu-1.14.0.jar;C:\Users\Qis\.m2\repository\com\fasterxml\jackson\dataformat\jackson-dataformat-yaml\2.21.4\jackson-dataformat-yaml-2.21.4.jar;C:\Users\Qis\.m2\repository\org\springframework\boot\spring-boot-starter-web\3.5.16\spring-boot-starter-web-3.5.16.jar;C:\Users\Qis\.m2\repository\org\springframework\boot\spring-boot-starter\3.5.16\spring-boot-starter-3.5.16.jar;C:\Users\Qis\.m2\repository\org\springframework\boot\spring-boot\3.5.16\spring-boot-3.5.16.jar;C:\Users\Qis\.m2\repository\org\springframework\boot\spring-boot-starter-logging\3.5.16\spring-boot-starter-logging-3.5.16.jar;C:\Users\Qis\.m2\repository\ch\qos\logback\logback-classic\1.5.34\logback-classic-1.5.34.jar;C:\Users\Qis\.m2\repository\ch\qos\logback\logback-core\1.5.34\logback-core-1.5.34.jar;C:\Users\Qis\.m2\repository\org\apache\logging\log4j\log4j-to-slf4j\2.24.3\log4j-to-slf4j-2.24.3.jar;C:\Users\Qis\.m2\repository\org\apache\logging\log4j\log4j-api\2.24.3\log4j-api-2.24.3.jar;C:\Users\Qis\.m2\repository\org\slf4j\jul-to-slf4j\2.0.18\jul-to-slf4j-2.0.18.jar;C:\Users\Qis\.m2\repository\jakarta\annotation\jakarta.annotation-api\2.1.1\jakarta.annotation-api-2.1.1.jar;C:\Users\Qis\.m2\repository\org\yaml\snakeyaml\2.4\snakeyaml-2.4.jar;C:\Users\Qis\.m2\repository\org\springframework\boot\spring-boot-starter-json\3.5.16\spring-boot-starter-json-3.5.16.jar;C:\Users\Qis\.m2\repository\com\fasterxml\jackson\datatype\jackson-datatype-jdk8\2.21.4\jackson-datatype-jdk8-2.21.4.jar;C:\Users\Qis\.m2\repository\com\fasterxml\jackson\module\jackson-module-parameter-names\2.21.4\jackson-module-parameter-names-2.21.4.jar;C:\Users\Qis\.m2\repository\org\springframework\boot\spring-boot-starter-tomcat\3.5.16\spring-boot-starter-tomcat-3.5.16.jar;C:\Users\Qis\.m2\repository\org\apache\tomcat\embed\tomcat-embed-core\10.1.55\tomcat-embed-core-10.1.55.jar;C:\Users\Qis\.m2\repository\org\apache\tomcat\embed\tomcat-embed-el\10.1.55\tomcat-embed-el-10.1.55.jar;C:\Users\Qis\.m2\repository\org\apache\tomcat\embed\tomcat-embed-websocket\10.1.55\tomcat-embed-websocket-10.1.55.jar;C:\Users\Qis\.m2\repository\org\springframework\spring-web\6.2.19\spring-web-6.2.19.jar;C:\Users\Qis\.m2\repository\org\springframework\spring-beans\6.2.19\spring-beans-6.2.19.jar;C:\Users\Qis\.m2\repository\io\micrometer\micrometer-observation\1.15.12\micrometer-observation-1.15.12.jar;C:\Users\Qis\.m2\repository\io\micrometer\micrometer-commons\1.15.12\micrometer-commons-1.15.12.jar;C:\Users\Qis\.m2\repository\org\springframework\spring-webmvc\6.2.19\spring-webmvc-6.2.19.jar;C:\Users\Qis\.m2\repository\org\springframework\spring-aop\6.2.19\spring-aop-6.2.19.jar;C:\Users\Qis\.m2\repository\org\springframework\spring-context\6.2.19\spring-context-6.2.19.jar;C:\Users\Qis\.m2\repository\org\springframework\spring-expression\6.2.19\spring-expression-6.2.19.jar;C:\Users\Qis\.m2\repository\com\baomidou\mybatis-plus-spring-boot3-starter\3.5.17\mybatis-plus-spring-boot3-starter-3.5.17.jar;C:\Users\Qis\.m2\repository\com\baomidou\mybatis-plus\3.5.17\mybatis-plus-3.5.17.jar;C:\Users\Qis\.m2\repository\com\baomidou\mybatis-plus-core\3.5.17\mybatis-plus-core-3.5.17.jar;C:\Users\Qis\.m2\repository\com\baomidou\mybatis-plus-annotation\3.5.17\mybatis-plus-annotation-3.5.17.jar;C:\Users\Qis\.m2\repository\com\baomidou\mybatis-plus-spring\3.5.17\mybatis-plus-spring-3.5.17.jar;C:\Users\Qis\.m2\repository\com\baomidou\mybatis-plus-extension\3.5.17\mybatis-plus-extension-3.5.17.jar;C:\Users\Qis\.m2\repository\org\mybatis\mybatis\3.5.19\mybatis-3.5.19.jar;C:\Users\Qis\.m2\repository\org\mybatis\mybatis-spring\3.0.5\mybatis-spring-3.0.5.jar;C:\Users\Qis\.m2\repository\com\baomidou\mybatis-plus-spring-boot-autoconfigure\3.5.17\mybatis-plus-spring-boot-autoconfigure-3.5.17.jar;C:\Users\Qis\.m2\repository\com\baomidou\mybatis-plus-spring-boot-native-image\3.5.17\mybatis-plus-spring-boot-native-image-3.5.17.jar;C:\Users\Qis\.m2\repository\org\springframework\boot\spring-boot-autoconfigure\3.5.16\spring-boot-autoconfigure-3.5.16.jar;C:\Users\Qis\.m2\repository\org\springframework\boot\spring-boot-starter-jdbc\3.5.16\spring-boot-starter-jdbc-3.5.16.jar;C:\Users\Qis\.m2\repository\com\zaxxer\HikariCP\6.3.3\HikariCP-6.3.3.jar;C:\Users\Qis\.m2\repository\org\springframework\spring-jdbc\6.2.19\spring-jdbc-6.2.19.jar;C:\Users\Qis\.m2\repository\com\mysql\mysql-connector-j\9.7.0\mysql-connector-j-9.7.0.jar;C:\Users\Qis\.m2\repository\org\flywaydb\flyway-core\11.7.2\flyway-core-11.7.2.jar;C:\Users\Qis\.m2\repository\com\fasterxml\jackson\dataformat\jackson-dataformat-toml\2.21.4\jackson-dataformat-toml-2.21.4.jar;C:\Users\Qis\.m2\repository\com\fasterxml\jackson\datatype\jackson-datatype-jsr310\2.21.4\jackson-datatype-jsr310-2.21.4.jar;C:\Users\Qis\.m2\repository\org\flywaydb\flyway-mysql\11.7.2\flyway-mysql-11.7.2.jar;C:\Users\Qis\.m2\repository\org\springframework\boot\spring-boot-starter-data-redis\3.5.16\spring-boot-starter-data-redis-3.5.16.jar;C:\Users\Qis\.m2\repository\io\lettuce\lettuce-core\6.6.0.RELEASE\lettuce-core-6.6.0.RELEASE.jar;C:\Users\Qis\.m2\repository\redis\clients\authentication\redis-authx-core\0.1.1-beta2\redis-authx-core-0.1.1-beta2.jar;C:\Users\Qis\.m2\repository\io\netty\netty-common\4.1.135.Final\netty-common-4.1.135.Final.jar;C:\Users\Qis\.m2\repository\io\netty\netty-handler\4.1.135.Final\netty-handler-4.1.135.Final.jar;C:\Users\Qis\.m2\repository\io\netty\netty-resolver\4.1.135.Final\netty-resolver-4.1.135.Final.jar;C:\Users\Qis\.m2\repository\io\netty\netty-buffer\4.1.135.Final\netty-buffer-4.1.135.Final.jar;C:\Users\Qis\.m2\repository\io\netty\netty-transport-native-unix-common\4.1.135.Final\netty-transport-native-unix-common-4.1.135.Final.jar;C:\Users\Qis\.m2\repository\io\netty\netty-codec\4.1.135.Final\netty-codec-4.1.135.Final.jar;C:\Users\Qis\.m2\repository\io\netty\netty-transport\4.1.135.Final\netty-transport-4.1.135.Final.jar;C:\Users\Qis\.m2\repository\org\springframework\data\spring-data-redis\3.5.13\spring-data-redis-3.5.13.jar;C:\Users\Qis\.m2\repository\org\springframework\data\spring-data-keyvalue\3.5.13\spring-data-keyvalue-3.5.13.jar;C:\Users\Qis\.m2\repository\org\springframework\data\spring-data-commons\3.5.13\spring-data-commons-3.5.13.jar;C:\Users\Qis\.m2\repository\org\springframework\spring-tx\6.2.19\spring-tx-6.2.19.jar;C:\Users\Qis\.m2\repository\org\springframework\spring-oxm\6.2.19\spring-oxm-6.2.19.jar;C:\Users\Qis\.m2\repository\org\springframework\spring-context-support\6.2.19\spring-context-support-6.2.19.jar;C:\Users\Qis\.m2\repository\org\springframework\ai\spring-ai-starter-model-openai\1.1.8\spring-ai-starter-model-openai-1.1.8.jar;C:\Users\Qis\.m2\repository\org\springframework\ai\spring-ai-autoconfigure-model-openai\1.1.8\spring-ai-autoconfigure-model-openai-1.1.8.jar;C:\Users\Qis\.m2\repository\org\springframework\ai\spring-ai-autoconfigure-model-tool\1.1.8\spring-ai-autoconfigure-model-tool-1.1.8.jar;C:\Users\Qis\.m2\repository\org\springframework\ai\spring-ai-autoconfigure-retry\1.1.8\spring-ai-autoconfigure-retry-1.1.8.jar;C:\Users\Qis\.m2\repository\org\springframework\ai\spring-ai-autoconfigure-model-chat-observation\1.1.8\spring-ai-autoconfigure-model-chat-observation-1.1.8.jar;C:\Users\Qis\.m2\repository\org\springframework\ai\spring-ai-autoconfigure-model-embedding-observation\1.1.8\spring-ai-autoconfigure-model-embedding-observation-1.1.8.jar;C:\Users\Qis\.m2\repository\org\springframework\ai\spring-ai-autoconfigure-model-image-observation\1.1.8\spring-ai-autoconfigure-model-image-observation-1.1.8.jar;C:\Users\Qis\.m2\repository\org\springframework\ai\spring-ai-openai\1.1.8\spring-ai-openai-1.1.8.jar;C:\Users\Qis\.m2\repository\org\springframework\ai\spring-ai-model\1.1.8\spring-ai-model-1.1.8.jar;C:\Users\Qis\.m2\repository\org\springframework\ai\spring-ai-commons\1.1.8\spring-ai-commons-1.1.8.jar;C:\Users\Qis\.m2\repository\io\micrometer\micrometer-core\1.15.12\micrometer-core-1.15.12.jar;C:\Users\Qis\.m2\repository\org\hdrhistogram\HdrHistogram\2.2.2\HdrHistogram-2.2.2.jar;C:\Users\Qis\.m2\repository\org\latencyutils\LatencyUtils\2.0.3\LatencyUtils-2.0.3.jar;C:\Users\Qis\.m2\repository\io\micrometer\context-propagation\1.1.4\context-propagation-1.1.4.jar;C:\Users\Qis\.m2\repository\org\springframework\ai\spring-ai-template-st\1.1.8\spring-ai-template-st-1.1.8.jar;C:\Users\Qis\.m2\repository\org\antlr\ST4\4.3.4\ST4-4.3.4.jar;C:\Users\Qis\.m2\repository\org\antlr\antlr-runtime\3.5.3\antlr-runtime-3.5.3.jar;C:\Users\Qis\.m2\repository\org\springframework\spring-messaging\6.2.19\spring-messaging-6.2.19.jar;C:\Users\Qis\.m2\repository\org\antlr\antlr4-runtime\4.13.1\antlr4-runtime-4.13.1.jar;C:\Users\Qis\.m2\repository\com\github\victools\jsonschema-module-swagger-2\4.38.0\jsonschema-module-swagger-2-4.38.0.jar;C:\Users\Qis\.m2\repository\io\swagger\core\v3\swagger-annotations-jakarta\2.2.38\swagger-annotations-jakarta-2.2.38.jar;C:\Users\Qis\.m2\repository\org\springframework\ai\spring-ai-retry\1.1.8\spring-ai-retry-1.1.8.jar;C:\Users\Qis\.m2\repository\org\springframework\retry\spring-retry\2.0.13\spring-retry-2.0.13.jar;C:\Users\Qis\.m2\repository\com\github\victools\jsonschema-generator\4.38.0\jsonschema-generator-4.38.0.jar;C:\Users\Qis\.m2\repository\com\fasterxml\classmate\1.7.3\classmate-1.7.3.jar;C:\Users\Qis\.m2\repository\com\github\victools\jsonschema-module-jackson\4.38.0\jsonschema-module-jackson-4.38.0.jar;C:\Users\Qis\.m2\repository\org\springframework\spring-webflux\6.2.19\spring-webflux-6.2.19.jar;C:\Users\Qis\.m2\repository\org\springframework\ai\spring-ai-autoconfigure-model-chat-client\1.1.8\spring-ai-autoconfigure-model-chat-client-1.1.8.jar;C:\Users\Qis\.m2\repository\org\springframework\ai\spring-ai-client-chat\1.1.8\spring-ai-client-chat-1.1.8.jar;C:\Users\Qis\.m2\repository\com\fasterxml\jackson\module\jackson-module-jsonSchema\2.21.4\jackson-module-jsonSchema-2.21.4.jar;C:\Users\Qis\.m2\repository\javax\validation\validation-api\1.1.0.Final\validation-api-1.1.0.Final.jar;C:\Users\Qis\.m2\repository\com\knuddels\jtokkit\1.1.0\jtokkit-1.1.0.jar;C:\Users\Qis\.m2\repository\org\springframework\ai\spring-ai-autoconfigure-model-chat-memory\1.1.8\spring-ai-autoconfigure-model-chat-memory-1.1.8.jar;C:\Users\Qis\.m2\repository\com\googlecode\aviator\aviator\5.4.4\aviator-5.4.4.jar;C:\Users\Qis\.m2\repository\org\projectlombok\lombok\1.18.46\lombok-1.18.46.jar;C:\Users\Qis\.m2\repository\org\springframework\boot\spring-boot-starter-test\3.5.16\spring-boot-starter-test-3.5.16.jar;C:\Users\Qis\.m2\repository\org\springframework\boot\spring-boot-test\3.5.16\spring-boot-test-3.5.16.jar;C:\Users\Qis\.m2\repository\org\springframework\boot\spring-boot-test-autoconfigure\3.5.16\spring-boot-test-autoconfigure-3.5.16.jar;C:\Users\Qis\.m2\repository\com\jayway\jsonpath\json-path\2.9.0\json-path-2.9.0.jar;C:\Users\Qis\.m2\repository\jakarta\xml\bind\jakarta.xml.bind-api\4.0.5\jakarta.xml.bind-api-4.0.5.jar;C:\Users\Qis\.m2\repository\jakarta\activation\jakarta.activation-api\2.1.4\jakarta.activation-api-2.1.4.jar;C:\Users\Qis\.m2\repository\net\minidev\json-smart\2.5.2\json-smart-2.5.2.jar;C:\Users\Qis\.m2\repository\net\minidev\accessors-smart\2.5.2\accessors-smart-2.5.2.jar;C:\Users\Qis\.m2\repository\org\ow2\asm\asm\9.7.1\asm-9.7.1.jar;C:\Users\Qis\.m2\repository\org\assertj\assertj-core\3.27.7\assertj-core-3.27.7.jar;C:\Users\Qis\.m2\repository\net\bytebuddy\byte-buddy\1.17.8\byte-buddy-1.17.8.jar;C:\Users\Qis\.m2\repository\org\awaitility\awaitility\4.2.2\awaitility-4.2.2.jar;C:\Users\Qis\.m2\repository\org\hamcrest\hamcrest\3.0\hamcrest-3.0.jar;C:\Users\Qis\.m2\repository\org\junit\jupiter\junit-jupiter\5.12.2\junit-jupiter-5.12.2.jar;C:\Users\Qis\.m2\repository\org\junit\jupiter\junit-jupiter-api\5.12.2\junit-jupiter-api-5.12.2.jar;C:\Users\Qis\.m2\repository\org\opentest4j\opentest4j\1.3.0\opentest4j-1.3.0.jar;C:\Users\Qis\.m2\repository\org\junit\platform\junit-platform-commons\1.12.2\junit-platform-commons-1.12.2.jar;C:\Users\Qis\.m2\repository\org\apiguardian\apiguardian-api\1.1.2\apiguardian-api-1.1.2.jar;C:\Users\Qis\.m2\repository\org\junit\jupiter\junit-jupiter-params\5.12.2\junit-jupiter-params-5.12.2.jar;C:\Users\Qis\.m2\repository\org\junit\jupiter\junit-jupiter-engine\5.12.2\junit-jupiter-engine-5.12.2.jar;C:\Users\Qis\.m2\repository\org\junit\platform\junit-platform-engine\1.12.2\junit-platform-engine-1.12.2.jar;C:\Users\Qis\.m2\repository\org\mockito\mockito-core\5.17.0\mockito-core-5.17.0.jar;C:\Users\Qis\.m2\repository\net\bytebuddy\byte-buddy-agent\1.17.8\byte-buddy-agent-1.17.8.jar;C:\Users\Qis\.m2\repository\org\objenesis\objenesis\3.3\objenesis-3.3.jar;C:\Users\Qis\.m2\repository\org\mockito\mockito-junit-jupiter\5.17.0\mockito-junit-jupiter-5.17.0.jar;C:\Users\Qis\.m2\repository\org\skyscreamer\jsonassert\1.5.3\jsonassert-1.5.3.jar;C:\Users\Qis\.m2\repository\com\vaadin\external\google\android-json\0.0.20131108.vaadin1\android-json-0.0.20131108.vaadin1.jar;C:\Users\Qis\.m2\repository\org\springframework\spring-core\6.2.19\spring-core-6.2.19.jar;C:\Users\Qis\.m2\repository\org\springframework\spring-jcl\6.2.19\spring-jcl-6.2.19.jar;C:\Users\Qis\.m2\repository\org\springframework\spring-test\6.2.19\spring-test-6.2.19.jar;C:\Users\Qis\.m2\repository\org\xmlunit\xmlunit-core\2.10.4\xmlunit-core-2.10.4.jar;"/>
+    <property name="sun.cpu.endian" value="little"/>
+    <property name="user.home" value="C:\Users\Qis"/>
+    <property name="user.language" value="zh"/>
+    <property name="java.specification.vendor" value="Oracle Corporation"/>
+    <property name="java.version.date" value="2026-08-18"/>
+    <property name="java.home" value="D:\productSoftware\jdk-21"/>
+    <property name="file.separator" value="\"/>
+    <property name="basedir" value="D:\demo-v1\demo\backend"/>
+    <property name="java.vm.compressedOopsMode" value="Zero based"/>
+    <property name="line.separator" value="&#10;"/>
+    <property name="java.vm.specification.vendor" value="Oracle Corporation"/>
+    <property name="java.specification.name" value="Java Platform API Specification"/>
+    <property name="FILE_LOG_CHARSET" value="UTF-8"/>
+    <property name="java.awt.headless" value="true"/>
+    <property name="surefire.real.class.path" value="C:\Users\Qis\AppData\Local\Temp\surefire8092828011559925444\surefirebooter-20261013025636408_3.jar"/>
+    <property name="LOG_LEVEL_PATTERN" value="%5p [%X{traceId:-}]"/>
+    <property name="user.script" value=""/>
+    <property name="polyglot.engine.WarnInterpreterOnly" value="false"/>
+    <property name="sun.management.compiler" value="HotSpot 64-Bit Tiered Compilers"/>
+    <property name="java.runtime.version" value="21.0.12.1+1-LTS"/>
+    <property name="user.name" value="Qis"/>
+    <property name="stdout.encoding" value="GBK"/>
+    <property name="path.separator" value=";"/>
+    <property name="os.version" value="10.0"/>
+    <property name="java.runtime.name" value="OpenJDK Runtime Environment"/>
+    <property name="file.encoding" value="UTF-8"/>
+    <property name="java.vm.name" value="OpenJDK 64-Bit Server VM"/>
+    <property name="java.vendor.version" value="Temurin-21.0.12.1+1"/>
+    <property name="localRepository" value="C:\Users\Qis\.m2\repository"/>
+    <property name="java.vendor.url.bug" value="https://github.com/adoptium/adoptium-support/issues"/>
+    <property name="java.io.tmpdir" value="C:\Users\Qis\AppData\Local\Temp\"/>
+    <property name="catalina.home" value="C:\Users\Qis\AppData\Local\Temp\tomcat.0.11300247613718656552"/>
+    <property name="com.zaxxer.hikari.pool_number" value="1"/>
+    <property name="java.version" value="21.0.12.1"/>
+    <property name="user.dir" value="D:\demo-v1\demo\backend"/>
+    <property name="os.arch" value="amd64"/>
+    <property name="java.vm.specification.name" value="Java Virtual Machine Specification"/>
+    <property name="PID" value="33416"/>
+    <property name="sun.os.patch.level" value=""/>
+    <property name="CONSOLE_LOG_CHARSET" value="UTF-8"/>
+    <property name="catalina.base" value="C:\Users\Qis\AppData\Local\Temp\tomcat.0.11300247613718656552"/>
+    <property name="native.encoding" value="GBK"/>
+    <property name="java.library.path" value="D:\productSoftware\jdk-21\bin;C:\Windows\Sun\Java\bin;C:\Windows\system32;C:\Windows;C:\Users\Qis\AppData\Local\Programs\PowerShell;C:\Users\Qis\.codex\tmp\arg0\codex-arg0rBMj1j;C:\Users\Qis\.cache\codex-runtimes\codex-primary-runtime\dependencies\native\libheif\libheif\bin;C:\Users\Qis\.cache\codex-runtimes\codex-primary-runtime\dependencies\native\jxrlib\jxrlib\bin;C:\Users\Qis\.cache\codex-runtimes\codex-primary-runtime\dependencies\native\poppler\Library\bin;C:\Users\Qis\.cache\codex-runtimes\codex-primary-runtime\dependencies\bin\override;C:\Windows\system32;C:\Windows;C:\Windows\System32\Wbem;C:\Windows\System32\WindowsPowerShell\v1.0\;C:\Windows\System32\OpenSSH\;D:\productSoftware\Git\cmd;D:\productSoftware\nvm;D:\productSoftware\node\nodejs;C:\Users\Qis\AppData\Local\Programs\PowerShell;C:\Users\Qis\.cache\codex-runtimes\codex-primary-runtime\dependencies\native\powershell;C:\Users\Qis\AppData\Local\Microsoft\WindowsApps;D:\productSoftware\nvm;D:\productSoftware\node\nodejs;D:\productSoftware\jdk-21\bin;D:\productSoftware\mysql-8.0.46\bin;D:\productSoftware\redis-5.0.14.1;D:\productSoftware\IntelliJ IDEA 2026.2.3\bin;C:\Users\Qis\.cache\codex-runtimes\codex-primary-runtime\dependencies\bin\fallback;C:\Users\Qis\.cache\codex-runtimes\codex-primary-runtime\dependencies\node\bin;C:\Users\Qis\.cache\codex-runtimes\codex-primary-runtime\dependencies\native\git\cmd;C:\Users\Qis\AppData\Local\OpenAI\Codex\bin\9a7ba4b9ea0c44a3;C:\Users\Qis\AppData\Local\OpenAI\Codex\bin\2e5e00daee91c61d;."/>
+    <property name="java.vm.info" value="mixed mode, sharing"/>
+    <property name="stderr.encoding" value="GBK"/>
+    <property name="java.vendor" value="Eclipse Adoptium"/>
+    <property name="java.vm.version" value="21.0.12.1+1-LTS"/>
+    <property name="sun.io.unicode.encoding" value="UnicodeLittle"/>
+    <property name="java.class.version" value="65.0"/>
+    <property name="LOGGED_APPLICATION_NAME" value="[report-demo] "/>
+  </properties>
+  <testcase name="fullApplicationStartsAndAdminApisRejectRegularUsers" classname="com.example.report.operations.OperationsIntegrationTest" time="0.084">
+    <system-out><![CDATA[02:57:10.342 [main] INFO org.springframework.test.context.support.AnnotationConfigContextLoaderUtils -- Could not detect default configuration classes for test class [com.example.report.operations.OperationsIntegrationTest]: OperationsIntegrationTest does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+02:57:10.453 [main] INFO org.springframework.boot.test.context.SpringBootTestContextBootstrapper -- Found @SpringBootConfiguration com.example.report.ReportApplication for test class com.example.report.operations.OperationsIntegrationTest
+
+  .   ____          _            __ _ _
+ /\\ / ___'_ __ _ _(_)_ __  __ _ \ \ \ \
+( ( )\___ | '_ | '_| | '_ \/ _` | \ \ \ \
+ \\/  ___)| |_)| | | | | || (_| |  ) ) ) )
+  '  |____| .__|_| |_|_| |_\__, | / / / /
+ =========|_|==============|___/=/_/_/_/
+
+ :: Spring Boot ::               (v3.5.16)
+
+ISOLATED_DATABASE_TARGET=p2_it_61dd9c8788754348a78eeabb655122bb
+2026-10-13T02:57:10.662+08:00  INFO [] 33416 --- [report-demo] [           main] c.e.r.o.OperationsIntegrationTest        : Starting OperationsIntegrationTest using Java 21.0.12.1 with PID 33416 (started by Qis in D:\demo-v1\demo\backend)
+2026-10-13T02:57:10.663+08:00  INFO [] 33416 --- [report-demo] [           main] c.e.r.o.OperationsIntegrationTest        : The following 1 profile is active: "mock"
+2026-10-13T02:57:11.257+08:00  INFO [] 33416 --- [report-demo] [           main] .s.d.r.c.RepositoryConfigurationDelegate : Multiple Spring Data modules found, entering strict repository configuration mode
+2026-10-13T02:57:11.258+08:00  INFO [] 33416 --- [report-demo] [           main] .s.d.r.c.RepositoryConfigurationDelegate : Bootstrapping Spring Data Redis repositories in DEFAULT mode.
+2026-10-13T02:57:11.283+08:00  INFO [] 33416 --- [report-demo] [           main] .s.d.r.c.RepositoryConfigurationDelegate : Finished Spring Data repository scanning in 17 ms. Found 0 Redis repository interfaces.
+2026-10-13T02:57:11.578+08:00  INFO [] 33416 --- [report-demo] [           main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat initialized with port 0 (http)
+2026-10-13T02:57:11.586+08:00  INFO [] 33416 --- [report-demo] [           main] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
+2026-10-13T02:57:11.587+08:00  INFO [] 33416 --- [report-demo] [           main] o.apache.catalina.core.StandardEngine    : Starting Servlet engine: [Apache Tomcat/10.1.55]
+2026-10-13T02:57:11.613+08:00  INFO [] 33416 --- [report-demo] [           main] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring embedded WebApplicationContext
+2026-10-13T02:57:11.613+08:00  INFO [] 33416 --- [report-demo] [           main] w.s.c.ServletWebServerApplicationContext : Root WebApplicationContext: initialization completed in 943 ms
+2026-10-13T02:57:11.697+08:00  INFO [] 33416 --- [report-demo] [           main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Starting...
+2026-10-13T02:57:11.718+08:00  INFO [] 33416 --- [report-demo] [           main] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Added connection com.mysql.cj.jdbc.ConnectionImpl@5c38ceb8
+2026-10-13T02:57:11.719+08:00  INFO [] 33416 --- [report-demo] [           main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Start completed.
+2026-10-13T02:57:11.728+08:00  INFO [] 33416 --- [report-demo] [           main] org.flywaydb.core.FlywayExecutor         : Database: jdbc:mysql://localhost:3306/p2_it_61dd9c8788754348a78eeabb655122bb?createDatabaseIfNotExist=true&characterEncoding=UTF-8&serverTimezone=Asia/Shanghai (MySQL 8.0)
+2026-10-13T02:57:11.731+08:00  INFO [] 33416 --- [report-demo] [           main] o.f.c.i.s.JdbcTableSchemaHistory         : Schema history table `p2_it_61dd9c8788754348a78eeabb655122bb`.`flyway_schema_history` does not exist yet
+2026-10-13T02:57:11.732+08:00  INFO [] 33416 --- [report-demo] [           main] o.f.core.internal.command.DbValidate     : Successfully validated 1 migration (execution time 00:00.001s)
+2026-10-13T02:57:11.736+08:00  INFO [] 33416 --- [report-demo] [           main] o.f.c.i.s.JdbcTableSchemaHistory         : Creating Schema History table `p2_it_61dd9c8788754348a78eeabb655122bb`.`flyway_schema_history` ...
+2026-10-13T02:57:11.787+08:00  INFO [] 33416 --- [report-demo] [           main] o.f.core.internal.command.DbMigrate      : Current version of schema `p2_it_61dd9c8788754348a78eeabb655122bb`: << Empty Schema >>
+2026-10-13T02:57:11.794+08:00  INFO [] 33416 --- [report-demo] [           main] o.f.core.internal.command.DbMigrate      : Migrating schema `p2_it_61dd9c8788754348a78eeabb655122bb` to version "1 - baseline"
+2026-10-13T02:57:12.480+08:00  WARN [] 33416 --- [report-demo] [           main] o.f.c.i.s.DefaultSqlScriptExecutor       : DB: Integer display width is deprecated and will be removed in a future release. (SQL State: HY000 - Error Code: 1681)
+2026-10-13T02:57:12.480+08:00  WARN [] 33416 --- [report-demo] [           main] o.f.c.i.s.DefaultSqlScriptExecutor       : DB: Integer display width is deprecated and will be removed in a future release. (SQL State: HY000 - Error Code: 1681)
+2026-10-13T02:57:12.636+08:00  WARN [] 33416 --- [report-demo] [           main] o.f.c.i.s.DefaultSqlScriptExecutor       : DB: Integer display width is deprecated and will be removed in a future release. (SQL State: HY000 - Error Code: 1681)
+2026-10-13T02:57:13.168+08:00  WARN [] 33416 --- [report-demo] [           main] o.f.c.i.s.DefaultSqlScriptExecutor       : DB: Integer display width is deprecated and will be removed in a future release. (SQL State: HY000 - Error Code: 1681)
+2026-10-13T02:57:13.699+08:00  WARN [] 33416 --- [report-demo] [           main] o.f.c.i.s.DefaultSqlScriptExecutor       : DB: Integer display width is deprecated and will be removed in a future release. (SQL State: HY000 - Error Code: 1681)
+2026-10-13T02:57:13.756+08:00  INFO [] 33416 --- [report-demo] [           main] o.f.core.internal.command.DbMigrate      : Successfully applied 1 migration to schema `p2_it_61dd9c8788754348a78eeabb655122bb`, now at version v1 (execution time 00:01.954s)
+2026-10-13T02:57:13.942+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:14.027+08:00  INFO [] 33416 --- [report-demo] [           main] com.example.report.rule.RuleCache        : 派单规则缓存已加载：4 条，指纹 1:1,2:1,3:1,4:1
+2026-10-13T02:57:14.264+08:00  INFO [] 33416 --- [report-demo] [           main] b.m.s.MybatisPlusApplicationContextAware : Register ApplicationContext instances org.springframework.boot.web.servlet.context.AnnotationConfigServletWebServerApplicationContext@6e496e14
+2026-10-13T02:57:14.347+08:00  INFO [] 33416 --- [report-demo] [           main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat started on port 50897 (http) with context path '/'
+2026-10-13T02:57:14.404+08:00  INFO [] 33416 --- [report-demo] [           main] c.e.r.o.OperationsIntegrationTest        : Started OperationsIntegrationTest in 3.909 seconds (process running for 37.911)
+2026-10-13T02:57:14.407+08:00  INFO [] 33416 --- [report-demo] [   scheduling-1] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:14.415+08:00  INFO [] 33416 --- [report-demo] [   scheduling-1] com.example.report.rule.RuleCache        : 派单规则缓存已加载：4 条，指纹 1:1,2:1,3:1,4:1
+2026-10-13T02:57:14.465+08:00  INFO [] 33416 --- [report-demo] [o-auto-1-exec-1] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring DispatcherServlet 'dispatcherServlet'
+2026-10-13T02:57:14.465+08:00  INFO [] 33416 --- [report-demo] [o-auto-1-exec-1] o.s.web.servlet.DispatcherServlet        : Initializing Servlet 'dispatcherServlet'
+2026-10-13T02:57:14.465+08:00  INFO [] 33416 --- [report-demo] [o-auto-1-exec-1] o.s.web.servlet.DispatcherServlet        : Completed initialization in 0 ms
+]]></system-out>
+  </testcase>
+  <testcase name="policyCasRollbackAndCatalogGateInvalidateOldPreview" classname="com.example.report.operations.OperationsIntegrationTest" time="0.118">
+    <system-out><![CDATA[2026-10-13T02:57:14.520+08:00  INFO [] 33416 --- [report-demo] [           main] com.example.report.rule.RuleCache        : 派单规则缓存已加载：4 条，指纹 1:1,2:1,3:1,4:1
+2026-10-13T02:57:14.527+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:14.528+08:00  INFO [] 33416 --- [report-demo] [           main] com.example.report.rule.RuleCache        : 派单规则缓存已加载：4 条，指纹 1:1,2:1,3:1,4:1
+2026-10-13T02:57:14.569+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:14.572+08:00  INFO [] 33416 --- [report-demo] [enerContainer-1] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:14.583+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:14.583+08:00  INFO [] 33416 --- [report-demo] [           main] com.example.report.rule.RuleCache        : 派单规则缓存已加载：4 条，指纹 1:1,2:1,3:1,4:1
+2026-10-13T02:57:14.591+08:00  INFO [] 33416 --- [report-demo] [           main] c.e.report.dispatch.PreviewService       : 预览 7a3f17df6f124d16b32b1f2f5a120e66 已失效：CATALOG_CHANGED
+2026-10-13T02:57:14.610+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:14.612+08:00  INFO [] 33416 --- [report-demo] [enerContainer-2] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+]]></system-out>
+  </testcase>
+  <testcase name="aliasHistoryAndRollbackRestoreDefinitionWithHigherVersion" classname="com.example.report.operations.OperationsIntegrationTest" time="0.062">
+    <system-out><![CDATA[2026-10-13T02:57:14.635+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:14.637+08:00  INFO [] 33416 --- [report-demo] [enerContainer-3] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:14.669+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+]]></system-out>
+  </testcase>
+  <testcase name="unscopedSamplingIsUnavailableWhileRecordingPreservesVersionDimensions" classname="com.example.report.operations.OperationsIntegrationTest" time="0.01">
+    <system-out><![CDATA[2026-10-13T02:57:14.677+08:00  INFO [] 33416 --- [report-demo] [enerContainer-4] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+]]></system-out>
+  </testcase>
+  <testcase name="erasureRemovesMessagesAndPreventsLateRepopulation" classname="com.example.report.operations.OperationsIntegrationTest" time="0.059"/>
+  <testcase name="unresolvedPlanHoldsErasureAndAppearsInWorkbench" classname="com.example.report.operations.OperationsIntegrationTest" time="0.153">
+    <system-out><![CDATA[2026-10-13T02:57:14.795+08:00  INFO [] 33416 --- [report-demo] [           main] com.example.report.rule.RuleCache        : 派单规则缓存已加载：4 条，指纹 1:1,2:1,3:1,4:1
+2026-10-13T02:57:14.799+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:14.799+08:00  INFO [] 33416 --- [report-demo] [           main] com.example.report.rule.RuleCache        : 派单规则缓存已加载：4 条，指纹 1:1,2:1,3:1,4:1
+2026-10-13T02:57:14.841+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:14.842+08:00  INFO [] 33416 --- [report-demo] [           main] com.example.report.rule.RuleCache        : 派单规则缓存已加载：4 条，指纹 1:1,2:1,3:1,4:1
+2026-10-13T02:57:14.849+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:14.850+08:00  INFO [] 33416 --- [report-demo] [           main] com.example.report.rule.RuleCache        : 派单规则缓存已加载：4 条，指纹 1:1,2:1,3:1,4:1
+2026-10-13T02:57:14.885+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:14.893+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+]]></system-out>
+  </testcase>
+  <testcase name="retentionSweepExecutesRealSqlWithoutTouchingUnresolvedWork" classname="com.example.report.operations.OperationsIntegrationTest" time="0.071">
+    <system-out><![CDATA[2026-10-13T02:57:14.923+08:00  INFO [] 33416 --- [report-demo] [           main] com.example.report.rule.RuleCache        : 派单规则缓存已加载：4 条，指纹 1:1,2:1,3:1,4:1
+2026-10-13T02:57:14.928+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:14.928+08:00  INFO [] 33416 --- [report-demo] [           main] com.example.report.rule.RuleCache        : 派单规则缓存已加载：4 条，指纹 1:1,2:1,3:1,4:1
+]]></system-out>
+  </testcase>
+  <testcase name="twoConcurrentPolicyWritersCannotLoseAnUpdate" classname="com.example.report.operations.OperationsIntegrationTest" time="0.016"/>
+  <testcase name="rollbackRestoresNullOwnerAndEffectiveDates" classname="com.example.report.operations.OperationsIntegrationTest" time="0.049">
+    <system-out><![CDATA[2026-10-13T02:57:15.008+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:15.010+08:00  INFO [] 33416 --- [report-demo] [enerContainer-5] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:15.032+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:15.034+08:00  INFO [] 33416 --- [report-demo] [enerContainer-6] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+]]></system-out>
+  </testcase>
+  <testcase name="automaticEvaluationIsVersionedDeduplicatedAndTenantEditable" classname="com.example.report.operations.OperationsIntegrationTest" time="0.025"/>
+  <testcase name="operatorCanRetryOnlyDefiniteFailuresUsingOriginalRequestIds" classname="com.example.report.operations.OperationsIntegrationTest" time="0.4">
+    <system-out><![CDATA[2026-10-13T02:57:15.095+08:00  INFO [] 33416 --- [report-demo] [           main] com.example.report.rule.RuleCache        : 派单规则缓存已加载：4 条，指纹 1:1,2:1,3:1,4:1
+2026-10-13T02:57:15.099+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:15.099+08:00  INFO [] 33416 --- [report-demo] [           main] com.example.report.rule.RuleCache        : 派单规则缓存已加载：4 条，指纹 1:1,2:1,3:1,4:1
+2026-10-13T02:57:15.134+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:15.134+08:00  INFO [] 33416 --- [report-demo] [           main] com.example.report.rule.RuleCache        : 派单规则缓存已加载：4 条，指纹 1:1,2:1,3:1,4:1
+2026-10-13T02:57:15.138+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:15.139+08:00  INFO [] 33416 --- [report-demo] [           main] com.example.report.rule.RuleCache        : 派单规则缓存已加载：4 条，指纹 1:1,2:1,3:1,4:1
+2026-10-13T02:57:15.164+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:15.165+08:00  INFO [] 33416 --- [report-demo] [           main] com.example.report.rule.RuleCache        : 派单规则缓存已加载：4 条，指纹 1:1,2:1,3:1,4:1
+2026-10-13T02:57:15.166+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:15.169+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:15.169+08:00  INFO [] 33416 --- [report-demo] [           main] com.example.report.rule.RuleCache        : 派单规则缓存已加载：4 条，指纹 1:1,2:1,3:1,4:1
+2026-10-13T02:57:15.172+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:15.173+08:00  INFO [] 33416 --- [report-demo] [           main] com.example.report.rule.RuleCache        : 派单规则缓存已加载：4 条，指纹 1:1,2:1,3:1,4:1
+2026-10-13T02:57:15.184+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:15.184+08:00  INFO [] 33416 --- [report-demo] [           main] com.example.report.rule.RuleCache        : 派单规则缓存已加载：4 条，指纹 1:1,2:1,3:1,4:1
+2026-10-13T02:57:15.292+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:15.306+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:15.308+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:15.309+08:00  INFO [] 33416 --- [report-demo] [           main] com.example.report.rule.RuleCache        : 派单规则缓存已加载：4 条，指纹 1:1,2:1,3:1,4:1
+2026-10-13T02:57:15.320+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:15.320+08:00  INFO [] 33416 --- [report-demo] [           main] com.example.report.rule.RuleCache        : 派单规则缓存已加载：4 条，指纹 1:1,2:1,3:1,4:1
+2026-10-13T02:57:15.337+08:00  INFO [] 33416 --- [report-demo] [           main] c.e.report.dispatch.MockDispatchGateway  : [模拟派单接口] 费用报表 A EXP-2026-0001 金额 8600.00 派单成功 requestId=7e4ab4326b6b45f78b390206ed316059-4
+2026-10-13T02:57:15.375+08:00  INFO [] 33416 --- [report-demo] [           main] c.e.report.dispatch.MockDispatchGateway  : [模拟派单接口] 费用报表 A EXP-2026-0002 金额 3200.00 派单成功 requestId=7e4ab4326b6b45f78b390206ed316059-5
+2026-10-13T02:57:15.415+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:15.432+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+]]></system-out>
+  </testcase>
+  <testcase name="closingKnownFailureNeverDispatchesAndCannotCloseUnknownWork" classname="com.example.report.operations.OperationsIntegrationTest" time="0.132">
+    <system-out><![CDATA[2026-10-13T02:57:15.485+08:00  INFO [] 33416 --- [report-demo] [           main] com.example.report.rule.RuleCache        : 派单规则缓存已加载：4 条，指纹 1:1,2:1,3:1,4:1
+2026-10-13T02:57:15.489+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:15.489+08:00  INFO [] 33416 --- [report-demo] [           main] com.example.report.rule.RuleCache        : 派单规则缓存已加载：4 条，指纹 1:1,2:1,3:1,4:1
+2026-10-13T02:57:15.521+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:15.522+08:00  INFO [] 33416 --- [report-demo] [           main] com.example.report.rule.RuleCache        : 派单规则缓存已加载：4 条，指纹 1:1,2:1,3:1,4:1
+2026-10-13T02:57:15.525+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:15.525+08:00  INFO [] 33416 --- [report-demo] [           main] com.example.report.rule.RuleCache        : 派单规则缓存已加载：4 条，指纹 1:1,2:1,3:1,4:1
+2026-10-13T02:57:15.549+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:15.573+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:15.592+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+]]></system-out>
+  </testcase>
+  <testcase name="globalRatesRemainAvailableWhenDetailGroupsReachTheLimit" classname="com.example.report.operations.OperationsIntegrationTest" time="5.347"/>
+  <testcase name="retentionAlsoFindsTenantsWithoutConversationsOrCustomPolicies" classname="com.example.report.operations.OperationsIntegrationTest" time="0.034"/>
+  <testcase name="terminalRetentionClearsAllFactCopiesAndKeepsExecutionIdentity(String, String)[1]" classname="com.example.report.operations.OperationsIntegrationTest" time="0.078">
+    <system-out><![CDATA[2026-10-13T02:57:21.038+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+]]></system-out>
+  </testcase>
+  <testcase name="terminalRetentionClearsAllFactCopiesAndKeepsExecutionIdentity(String, String)[2]" classname="com.example.report.operations.OperationsIntegrationTest" time="0.03">
+    <system-out><![CDATA[2026-10-13T02:57:21.087+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+]]></system-out>
+  </testcase>
+  <testcase name="terminalRetentionClearsAllFactCopiesAndKeepsExecutionIdentity(String, String)[3]" classname="com.example.report.operations.OperationsIntegrationTest" time="0.033">
+    <system-out><![CDATA[2026-10-13T02:57:21.120+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+]]></system-out>
+  </testcase>
+  <testcase name="terminalRetentionClearsAllFactCopiesAndKeepsExecutionIdentity(String, String)[4]" classname="com.example.report.operations.OperationsIntegrationTest" time="0.032">
+    <system-out><![CDATA[2026-10-13T02:57:21.152+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+]]></system-out>
+  </testcase>
+  <testcase name="terminalRetentionClearsAllFactCopiesAndKeepsExecutionIdentity(String, String)[5]" classname="com.example.report.operations.OperationsIntegrationTest" time="0.032">
+    <system-out><![CDATA[2026-10-13T02:57:21.185+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+]]></system-out>
+  </testcase>
+  <testcase name="unresolvedRetentionPreservesEveryFactUntilRecoveryFinishes(String, String)[1]" classname="com.example.report.operations.OperationsIntegrationTest" time="0.021"/>
+  <testcase name="unresolvedRetentionPreservesEveryFactUntilRecoveryFinishes(String, String)[2]" classname="com.example.report.operations.OperationsIntegrationTest" time="0.02"/>
+  <testcase name="unresolvedRetentionPreservesEveryFactUntilRecoveryFinishes(String, String)[3]" classname="com.example.report.operations.OperationsIntegrationTest" time="0.021"/>
+  <testcase name="unresolvedRetentionPreservesEveryFactUntilRecoveryFinishes(String, String)[4]" classname="com.example.report.operations.OperationsIntegrationTest" time="0.02"/>
+  <testcase name="unresolvedRetentionPreservesEveryFactUntilRecoveryFinishes(String, String)[5]" classname="com.example.report.operations.OperationsIntegrationTest" time="0.02"/>
+  <testcase name="unresolvedRetentionPreservesEveryFactUntilRecoveryFinishes(String, String)[6]" classname="com.example.report.operations.OperationsIntegrationTest" time="0.021"/>
+  <testcase name="unresolvedRetentionPreservesEveryFactUntilRecoveryFinishes(String, String)[7]" classname="com.example.report.operations.OperationsIntegrationTest" time="0.019"/>
+  <testcase name="largeTerminalPlanIsPurgedInResumableBatchesBeforeCompletionIsMarked" classname="com.example.report.operations.OperationsIntegrationTest" time="2.624"/>
+  <testcase name="retentionUsesEachTenantsOwnPolicyWithoutClearingAnotherTenantsFactsEarly" classname="com.example.report.operations.OperationsIntegrationTest" time="0.053"/>
+  <testcase name="metricDetailsAndTotalsShareCurrentCompanyReportAndTenantPermissions" classname="com.example.report.operations.OperationsIntegrationTest" time="0.229"/>
+  <testcase name="missingMetricPermissionsAreUnavailableRatherThanReportedAsZero" classname="com.example.report.operations.OperationsIntegrationTest" time="0.006"/>
+  <testcase name="allMetricEntryPointsRequireAdministrativeIdentityAndBoundedTimeWindow" classname="com.example.report.operations.OperationsIntegrationTest" time="0.002"/>
+  <testcase name="metricHttpResponseDeclaresUnavailableSamplingAndAuthorizedCompleteTotals" classname="com.example.report.operations.OperationsIntegrationTest" time="0.022"/>
+  <testcase name="operatorPlanReadIsBoundedScopedAndDoesNotChangeExpiredBusinessState" classname="com.example.report.operations.OperationsIntegrationTest" time="2.704">
+    <system-out><![CDATA[2026-10-13T02:57:26.952+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:26.953+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:26.962+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:26.964+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:26.968+08:00  INFO [83ca8725b08d4d1b] 33416 --- [report-demo] [o-auto-1-exec-4] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:26.968+08:00  INFO [83ca8725b08d4d1b] 33416 --- [report-demo] [o-auto-1-exec-4] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+]]></system-out>
+  </testcase>
+  <testcase name="metricWindowStaysFixedWhenDatabaseTimeAdvancesBetweenDetailsAndTotals" classname="com.example.report.operations.OperationsIntegrationTest" time="0.013"/>
+  <testcase name="remainingExclusionCopiesKeepCleanupResumableAcrossManyTerminalPlans" classname="com.example.report.operations.OperationsIntegrationTest" time="5.582"/>
+  <testcase name="dictionaryPublicationValidatesScopeAndInvalidatesOldExecutionVersions" classname="com.example.report.operations.OperationsIntegrationTest" time="0.096">
+    <system-out><![CDATA[2026-10-13T02:57:32.578+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:32.597+08:00  INFO [] 33416 --- [report-demo] [           main] com.example.report.rule.RuleCache        : 派单规则缓存已加载：4 条，指纹 1:1,2:1,3:1,4:1
+2026-10-13T02:57:32.600+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:32.600+08:00  INFO [] 33416 --- [report-demo] [           main] com.example.report.rule.RuleCache        : 派单规则缓存已加载：4 条，指纹 1:1,2:1,3:1,4:1
+2026-10-13T02:57:32.625+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:32.626+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:32.629+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:32.629+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:32.638+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:32.639+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:32.640+08:00  INFO [] 33416 --- [report-demo] [enerContainer-7] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:32.642+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:32.643+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:32.652+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:32.653+08:00  INFO [] 33416 --- [report-demo] [           main] com.example.report.rule.RuleCache        : 派单规则缓存已加载：4 条，指纹 1:1,2:1,3:1,4:1
+2026-10-13T02:57:32.659+08:00  INFO [] 33416 --- [report-demo] [           main] c.e.report.dispatch.PreviewService       : 预览 7baaaed7dc4d4683b42cfbfabe7a0761 已失效：CATALOG_CHANGED
+2026-10-13T02:57:32.667+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:32.668+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:32.669+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:32.670+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:32.670+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:32.671+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+]]></system-out>
+  </testcase>
+  <testcase name="concurrentDictionaryWritersPublishOneCompleteVersion" classname="com.example.report.operations.OperationsIntegrationTest" time="0.017">
+    <system-out><![CDATA[2026-10-13T02:57:32.674+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:32.677+08:00  INFO [] 33416 --- [report-demo] [ol-135-thread-2] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:32.678+08:00  INFO [] 33416 --- [report-demo] [ol-135-thread-1] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:32.678+08:00  INFO [] 33416 --- [report-demo] [ol-135-thread-2] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:32.678+08:00  INFO [] 33416 --- [report-demo] [ol-135-thread-1] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:32.685+08:00  INFO [] 33416 --- [report-demo] [ol-135-thread-2] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:32.687+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:32.688+08:00  INFO [] 33416 --- [report-demo] [enerContainer-8] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:32.689+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+]]></system-out>
+  </testcase>
+  <testcase name="dictionaryHttpRejectsCoercionAndCrossCompanyScope" classname="com.example.report.operations.OperationsIntegrationTest" time="0.018">
+    <system-out><![CDATA[2026-10-13T02:57:32.695+08:00  INFO [6612b5a7ef9a40b7] 33416 --- [report-demo] [o-auto-1-exec-5] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:32.699+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:32.707+08:00  INFO [f76e57d500da4c7b] 33416 --- [report-demo] [o-auto-1-exec-7] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+]]></system-out>
+  </testcase>
+  <testcase name="diagnosticOwnershipRevocationDeletionAndPaginationUseReliableEvents" classname="com.example.report.operations.OperationsIntegrationTest" time="2.092">
+    <system-out><![CDATA[2026-10-13T02:57:34.695+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:34.697+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:34.699+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:34.701+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:34.702+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:34.703+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:34.705+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:34.706+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:34.708+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:34.709+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:34.710+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:34.712+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:34.713+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:34.715+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:34.716+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:34.718+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:34.719+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:34.720+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:34.722+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:34.723+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:34.725+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:34.726+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:34.728+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:34.729+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:34.733+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+]]></system-out>
+  </testcase>
+  <testcase name="feedbackIsIdempotentScopedAndPagedBeforeOtherRounds" classname="com.example.report.operations.OperationsIntegrationTest" time="3.795">
+    <system-out><![CDATA[2026-10-13T02:57:34.849+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:34.850+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:34.865+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:34.866+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:34.869+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:34.870+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:34.872+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:34.873+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:34.875+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:34.876+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:34.891+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:34.893+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:34.910+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:34.911+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:34.927+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:34.928+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:34.945+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:34.946+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:34.962+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:34.963+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:34.977+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:34.978+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:34.994+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:34.995+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:35.009+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:35.010+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:35.024+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:35.025+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:35.039+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:35.040+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:35.054+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:35.055+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:35.069+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:35.070+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:35.086+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:35.087+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:35.102+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:35.103+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:35.118+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:35.119+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:35.133+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:35.135+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:35.158+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:35.159+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:35.185+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:35.186+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:35.200+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:35.201+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:35.218+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:35.219+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:35.233+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:35.234+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:35.250+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:35.252+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:35.267+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:35.268+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:35.282+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:35.283+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:35.298+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:35.298+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:35.313+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:35.314+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:35.332+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:35.333+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:35.348+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:35.349+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:35.364+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:35.364+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:35.380+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:35.381+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:35.396+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:35.397+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:35.413+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:35.414+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:35.428+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:35.428+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:35.444+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:35.445+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:35.460+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:35.461+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:35.476+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:35.477+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:35.492+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:35.493+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:35.509+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:35.510+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:35.525+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:35.526+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:35.541+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:35.541+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:35.557+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:35.558+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:35.573+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:35.573+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:35.589+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:35.590+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:35.604+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:35.605+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:35.621+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:35.622+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:35.636+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:35.637+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:35.653+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:35.654+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:35.669+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:35.670+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:35.684+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:35.685+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:35.700+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:35.701+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:35.716+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:35.717+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:35.732+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:35.733+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:35.748+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:35.749+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:35.763+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:35.764+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:35.779+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:35.780+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:35.796+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:35.797+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:35.812+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:35.813+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:35.828+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:35.829+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:35.843+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:35.844+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:35.859+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:35.860+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:35.875+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:35.876+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:35.891+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:35.892+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:35.907+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:35.908+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:35.921+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:35.922+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:35.936+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:35.936+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:35.952+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:35.953+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:35.968+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:35.969+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:35.985+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:35.986+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:36.001+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:36.002+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:36.020+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:36.021+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:36.035+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:36.036+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:36.051+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:36.052+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:36.066+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:36.067+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:36.081+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:36.082+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:36.098+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:36.099+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:36.112+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:36.113+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:36.128+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:36.130+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:36.143+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:36.144+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:36.168+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:36.169+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:36.203+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:36.204+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:36.219+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:36.221+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:36.241+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:36.242+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:36.257+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:36.258+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:36.273+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:36.274+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:36.289+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:36.290+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:36.304+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:36.305+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:36.319+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:36.320+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:36.336+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:36.337+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:36.354+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:36.354+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:36.370+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:36.371+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:36.386+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:36.387+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:36.402+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:36.403+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:36.418+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:36.419+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:36.434+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:36.435+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:36.450+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:36.451+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:36.464+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:36.465+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:36.481+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:36.481+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:36.496+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:36.497+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:36.512+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:36.513+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:36.528+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:36.529+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:36.544+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:36.545+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:36.559+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:36.560+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:36.575+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:36.576+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:36.597+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:36.598+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:36.613+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:36.613+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:36.629+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:36.629+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:36.645+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:36.646+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:36.661+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:36.662+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:36.676+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:36.677+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:36.692+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:36.693+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:36.706+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:36.707+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:36.722+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:36.723+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:36.737+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:36.738+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:36.753+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:36.754+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:36.768+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:36.769+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:36.785+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:36.786+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:36.801+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:36.801+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:36.816+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:36.817+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:36.832+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:36.833+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:36.848+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:36.849+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:36.863+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:36.864+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:36.880+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:36.880+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:36.894+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:36.895+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:36.908+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:36.909+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:36.923+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:36.923+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:36.938+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:36.940+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:36.954+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:36.955+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:36.969+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:36.970+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:36.987+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:36.988+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:37.003+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:37.003+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:37.018+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:37.019+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:37.034+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:37.035+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:37.049+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:37.050+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:37.064+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:37.066+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:37.081+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:37.082+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:37.096+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:37.097+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:37.112+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:37.112+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:37.128+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:37.129+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:37.143+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:37.144+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:37.159+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:37.160+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:37.188+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:37.188+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:37.213+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:37.214+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:37.229+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:37.230+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:37.244+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:37.245+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:37.261+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:37.262+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:37.277+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:37.278+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:37.294+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:37.295+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:37.309+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:37.310+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:37.324+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:37.325+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:37.339+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:37.340+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:37.355+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:37.356+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:37.371+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:37.372+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:37.386+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:37.387+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:37.403+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:37.403+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:37.417+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:37.418+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:37.433+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:37.434+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:37.450+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:37.451+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:37.478+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:37.479+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:37.494+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:37.495+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:37.509+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:37.510+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:37.524+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:37.525+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:37.540+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:37.541+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:37.555+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:37.556+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:37.569+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:37.570+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:37.584+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:37.585+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:37.601+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:37.602+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:37.617+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:37.618+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:37.633+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:37.634+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:37.647+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:37.648+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:37.662+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:37.663+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:37.677+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:37.678+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:37.693+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:37.693+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:37.708+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:37.709+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:37.723+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:37.724+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:37.738+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:37.738+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:37.752+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:37.753+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:37.767+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:37.768+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:37.783+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:37.784+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:37.800+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:37.801+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:37.815+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:37.816+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:37.829+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:37.830+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:37.844+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:37.845+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:37.860+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:37.861+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:37.876+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:37.877+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:37.893+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:37.894+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:37.909+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:37.910+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:37.924+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:37.925+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:37.938+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:37.939+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:37.954+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:37.955+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:37.969+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:37.970+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:37.986+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:37.986+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:38.002+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:38.003+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:38.018+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:38.019+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:38.034+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:38.035+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:38.050+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:38.051+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:38.065+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:38.066+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:38.079+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:38.080+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:38.095+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:38.096+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:38.111+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:38.112+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:38.130+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:38.130+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:38.146+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:38.147+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:38.162+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:38.163+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:38.186+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:38.187+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:38.215+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:38.216+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:38.231+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:38.232+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:38.246+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:38.246+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:38.264+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:38.265+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:38.280+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:38.281+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:38.296+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:38.297+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:38.312+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:38.313+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:38.328+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:38.329+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:38.343+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:38.344+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:38.359+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:38.360+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:38.375+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:38.376+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:38.392+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:38.392+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:38.408+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:38.408+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:38.423+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:38.424+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:38.438+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:38.439+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:38.455+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:38.456+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:38.470+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:38.471+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:38.485+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:38.486+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:38.499+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:38.500+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:38.515+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:38.516+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:38.530+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:38.530+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:38.544+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:38.545+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:38.559+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:38.560+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:38.575+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:38.576+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:38.590+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:38.593+08:00  INFO [] 33416 --- [report-demo] [           main] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+]]></system-out>
+  </testcase>
+  <testcase name="parallelFeedbackRetriesReturnTheSameDurableEvent" classname="com.example.report.operations.OperationsIntegrationTest" time="0.038">
+    <system-out><![CDATA[2026-10-13T02:57:38.627+08:00  INFO [] 33416 --- [report-demo] [ol-136-thread-2] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:38.628+08:00  INFO [] 33416 --- [report-demo] [ol-136-thread-1] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:38.628+08:00  INFO [] 33416 --- [report-demo] [ol-136-thread-2] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+2026-10-13T02:57:38.634+08:00  INFO [] 33416 --- [report-demo] [ol-136-thread-1] c.example.report.catalog.ReportCatalog   : 报表目录已加载：3 张报表（已发布 3，配置无效 0）
+]]></system-out>
+  </testcase>
+  <testcase name="browserAcceptanceSession" classname="com.example.report.operations.OperationsIntegrationTest" time="0.0">
+    <skipped message="Environment variable [P2_UI] with value [false] does not match regular expression [true]"/>
+  </testcase>
+</testsuite>

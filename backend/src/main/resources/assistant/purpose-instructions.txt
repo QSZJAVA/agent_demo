@@ -11,6 +11,8 @@ purpose类别：
 - CANCEL_PLAN：取消当前待确认清单。
 - SHOW_RESULT：查看已有清单及其执行状态，不刷新候选或创建新清单。
 - EXPLAIN_RULES：查询派单规则说明。
+- KNOWLEDGE：需要从当前授权资料检索并引用依据的业务制度、政策、定义或指标口径问答，不为解释制度而查询业务行；具体资料是否命中由后续检索决定，不把字段词典之外的主题当作通用帮助或无能力。
+- ANALYSIS：有界多步统计、分组排名后展开、两个查询集合比较、同时分析数据与解释知识，或明确只计算原查询快照的任务。普通单次列表、详情或一个维度汇总仍是BUSINESS_QUERY；判断实际所需结果与读取约束，不按“分析”等单词机械选类。
 - HELP：问候、能力、操作方法和确认机制。询问助手是否支持某项能力，即使该能力尚未提供，目标也是了解能力，仍为HELP；解释不能代办审批并不是执行审批。
 - CLARIFY：本轮目标本身多义、互相矛盾，或明确请求实际执行当前未提供的业务写入/审批等动作。不能仅因句子提到未支持动作就把能力咨询判为CLARIFY。
 
@@ -27,6 +29,8 @@ reportCatalog.fields说明业务字段含义，visibleQueryRows是当前成功�
 queryView只在purpose=BUSINESS_QUERY时填写：LIST为按条件查询一类业务记录，DETAIL为展开用户已指明的单条对象、读取该笔属性或办理过程，SUMMARY为整个范围的数量、合计或分组，ELIGIBILITY为单条报表对象的派单规则资格核验。其他purpose的queryView必须为null。展开已展示且唯一定位的某张单据属于DETAIL；展开整张报表或查看一类明细记录仍为LIST。单笔金额或到期日是DETAIL，集合合计是SUMMARY。不能仅因列表碰巧命中一条就改为DETAIL，也不能因单行列表返回同一记录就用LIST代替用户要求的单条详情。身份是否唯一和结果是否完整由后续预检验证，缺少前提时仍可澄清，不能取第一行冒充目标。
 
 queryContext仅在purpose=BUSINESS_QUERY时选择INDEPENDENT、FOLLOW_UP或RECOVERY，其他purpose必须NOT_QUERY。INDEPENDENT表示明确的新范围、新对象或新话题，不自动保留旧条件；用户明确重来后，旧排除条件也不能因当前结果碰巧相同而继承。FOLLOW_UP必须存在activeQuery、queryUnresolved=false且queryDomain相同，表示在当前成功查询基础上细化同一集合或同一对象，未撤销条件继续有效；仅仅都是工单、报表或只读查询不能证明承接。RECOVERY用于queryUnresolved=true且本轮明确补充或继续尚未完成的请求：结合本轮与真实用户已明确的请求重建完整范围和条件，不能把未完成误解为用户要全部公司/全部报表，也不能把失败结果当作可引用对象。没有可靠原始范围时须澄清，不默认扩大。RECOVERY对应followUp=false、removedFilters=[]、priorConditionChanges=[]；它与用户明确另起新任务的INDEPENDENT不同。若本轮是在调整当前候选，目标是PREVIEW，不能为了合法改成任何普通查询。
+
+KNOWLEDGE/ANALYSIS的queryDomain、queryView、targetCount均为null，queryContext=NOT_QUERY。分析中的Top N数量不是派单总条数，保持在requestedResult和原问题中交后续有限分析器处理。analysisContext.source仅描述服务器核验的当前成功完整查询快照，可解释本轮“只用原结果”等指代；available=false不代表不能问知识或分析当前数据。缺少原快照时仍保留用户分析目标，后续应澄清来源，不能为可执行而改成当前数据查询。目标阶段不生成sourceRef、实际snapshotId或另一份问题。
 
 targetCount只表达用户本轮明确指定的最终候选选择或待确认清单总条数。count为规范整数，evidence为包含数量及其所指对象的本轮连续原话。只根据当前要求声明，不根据历史执行是否成功、页面实际选中几条或动作是否可行而减数或省略；实际不足由后续只读预检要求澄清。金额、序号、页大小、普通查询返回数、局部排除或恢复操作的数量都不是最终总数，必须为null。操作两条记录后可能留下更多记录，不能把操作量转成最终集合大小。
 

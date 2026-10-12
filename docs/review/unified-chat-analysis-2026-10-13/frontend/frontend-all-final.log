@@ -1,0 +1,1898 @@
+
+> report-demo-frontend@1.0.0 test
+> node --test tests/*.test.cjs
+
+TAP version 13
+# Subtest: query editors and clarification buttons expire when a later user turn starts
+ok 1 - query editors and clarification buttons expire when a later user turn starts
+  ---
+  duration_ms: 5.2934
+  type: 'test'
+  ...
+# Subtest: semantic selection event applies to the exact preview and survives history reload
+ok 2 - semantic selection event applies to the exact preview and survives history reload
+  ---
+  duration_ms: 3.2833
+  type: 'test'
+  ...
+# Subtest: late restored selection cannot affect a different conversation
+ok 3 - late restored selection cannot affect a different conversation
+  ---
+  duration_ms: 7.4568
+  type: 'test'
+  ...
+# Subtest: server exclusion updates during a page fetch preserve the requested page and checkbox identity
+ok 4 - server exclusion updates during a page fetch preserve the requested page and checkbox identity
+  ---
+  duration_ms: 1.9292
+  type: 'test'
+  ...
+# Subtest: manual selection is persisted before enabling actions and restored from server
+ok 5 - manual selection is persisted before enabling actions and restored from server
+  ---
+  duration_ms: 1.2918
+  type: 'test'
+  ...
+# Subtest: manual selection failure blocks dispatch and late success cannot overwrite another conversation
+ok 6 - manual selection failure blocks dispatch and late success cannot overwrite another conversation
+  ---
+  duration_ms: 2.627
+  type: 'test'
+  ...
+# Subtest: SSE disconnect before job event discovers the task and renders its result
+ok 7 - SSE disconnect before job event discovers the task and renders its result
+  ---
+  duration_ms: 5.05
+  type: 'test'
+  ...
+# Subtest: refresh can recover with only a saved conversation after discovery failed
+ok 8 - refresh can recover with only a saved conversation after discovery failed
+  ---
+  duration_ms: 2.3367
+  type: 'test'
+  ...
+# Subtest: refresh replaces a saved older job with the latest conversation request
+ok 9 - refresh replaces a saved older job with the latest conversation request
+  ---
+  duration_ms: 1.3465
+  type: 'test'
+  ...
+# Subtest: opening conversation without local storage discovers a running task
+ok 10 - opening conversation without local storage discovers a running task
+  ---
+  duration_ms: 1.4821
+  type: 'test'
+  ...
+# Subtest: completed task already in history does not add another preview card
+ok 11 - completed task already in history does not add another preview card
+  ---
+  duration_ms: 1.1279
+  type: 'test'
+  ...
+# Subtest: switching accounts aborts SSE and ignores late events and recovery
+ok 12 - switching accounts aborts SSE and ignores late events and recovery
+  ---
+  duration_ms: 4.9066
+  type: 'test'
+  ...
+# Subtest: destroy cancels polling delay without issuing another request
+ok 13 - destroy cancels polling delay without issuing another request
+  ---
+  duration_ms: 1.3133
+  type: 'test'
+  ...
+# Subtest: conversation pagination appends and deduplicates subsequent pages
+ok 14 - conversation pagination appends and deduplicates subsequent pages
+  ---
+  duration_ms: 1.0412
+  type: 'test'
+  ...
+# Subtest: older history uses cursor, deduplicates, and preserves scroll position
+ok 15 - older history uses cursor, deduplicates, and preserves scroll position
+  ---
+  duration_ms: 1.3824
+  type: 'test'
+  ...
+# Subtest: late history response cannot replace another conversation
+ok 16 - late history response cannot replace another conversation
+  ---
+  duration_ms: 2.0467
+  type: 'test'
+  ...
+# Subtest: selected record identity is sent with its preview
+ok 17 - selected record identity is sent with its preview
+  ---
+  duration_ms: 1.2394
+  type: 'test'
+  ...
+# Subtest: duplicate document numbers and page changes preserve exact selection
+ok 18 - duplicate document numbers and page changes preserve exact selection
+  ---
+  duration_ms: 0.9763
+  type: 'test'
+  ...
+# Subtest: sending is blocked until initial history finishes and remains usable afterwards
+ok 19 - sending is blocked until initial history finishes and remains usable afterwards
+  ---
+  duration_ms: 1.2634
+  type: 'test'
+  ...
+# Subtest: failed selection restore blocks both chat and plan creation until a successful retry
+ok 20 - failed selection restore blocks both chat and plan creation until a successful retry
+  ---
+  duration_ms: 1.7859
+  type: 'test'
+  ...
+# Subtest: expired or older-page preview retains the server exclusions for safe refresh
+ok 21 - expired or older-page preview retains the server exclusions for safe refresh
+  ---
+  duration_ms: 0.911
+  type: 'test'
+  ...
+# Subtest: failed history request releases the sending guard
+ok 22 - failed history request releases the sending guard
+  ---
+  duration_ms: 1.3449
+  type: 'test'
+  ...
+# Subtest: invalid current selection cannot silently restore as all selected
+ok 23 - invalid current selection cannot silently restore as all selected
+  ---
+  duration_ms: 1.2216
+  type: 'test'
+  ...
+# Subtest: edited ranges, OR branches and clearing reach the chat request with the authoritative query reference
+ok 24 - edited ranges, OR branches and clearing reach the chat request with the authoritative query reference
+  ---
+  duration_ms: 28.7195
+  type: 'test'
+  ...
+# Subtest: clarification selections keep the stable value and current reference instead of only sending the display label
+ok 25 - clarification selections keep the stable value and current reference instead of only sending the display label
+  ---
+  duration_ms: 2.0594
+  type: 'test'
+  ...
+# Subtest: ordinary chat sends only its declared request fields and preserves preview selection
+ok 26 - ordinary chat sends only its declared request fields and preserves preview selection
+  ---
+  duration_ms: 1.094
+  type: 'test'
+  ...
+# Subtest: replayed conversations and turn receipts remain SSE events with the original request id
+ok 27 - replayed conversations and turn receipts remain SSE events with the original request id
+  ---
+  duration_ms: 1.7426
+  type: 'test'
+  ...
+# Subtest: only a complete Result failure is a definite rejection and successful JSON is not a chat replay
+ok 28 - only a complete Result failure is a definite rejection and successful JSON is not a chat replay
+  ---
+  duration_ms: 8.0272
+  type: 'test'
+  ...
+# Subtest: a missing or malformed idempotency key is rejected before a network request
+ok 29 - a missing or malformed idempotency key is rejected before a network request
+  ---
+  duration_ms: 0.9571
+  type: 'test'
+  ...
+# Subtest: 金额显示保留分位、负数和全部精度，不舍入合法的大额值
+ok 30 - 金额显示保留分位、负数和全部精度，不舍入合法的大额值
+  ---
+  duration_ms: 1.0221
+  type: 'test'
+  ...
+# Subtest: 缺失金额与零区分，数字或科学计数法不能绕过当前字符串契约
+ok 31 - 缺失金额与零区分，数字或科学计数法不能绕过当前字符串契约
+  ---
+  duration_ms: 0.2358
+  type: 'test'
+  ...
+# Subtest: 精确求和覆盖大额加分、小数相加、负数和不同小数位数
+ok 32 - 精确求和覆盖大额加分、小数相加、负数和不同小数位数
+  ---
+  duration_ms: 0.3645
+  type: 'test'
+  ...
+# Subtest: 无效和缺失金额带独立计数，不会静默计作零或完整合计
+ok 33 - 无效和缺失金额带独立计数，不会静默计作零或完整合计
+  ---
+  duration_ms: 0.1689
+  type: 'test'
+  ...
+# Subtest: 144 组正负分位边界按独立整数分账本核对求和
+ok 34 - 144 组正负分位边界按独立整数分账本核对求和
+  ---
+  duration_ms: 2.0808
+  type: 'test'
+  ...
+# Subtest: 普通报表、候选预览及清单对 HTTP 和历史 JSON 回读金额保持一致
+ok 35 - 普通报表、候选预览及清单对 HTTP 和历史 JSON 回读金额保持一致
+  ---
+  duration_ms: 3.4734
+  type: 'test'
+  ...
+# Subtest: 报表合计展示精确总额，空页和未提供金额不会显示伪造的零合计
+ok 36 - 报表合计展示精确总额，空页和未提供金额不会显示伪造的零合计
+  ---
+  duration_ms: 0.9601
+  type: 'test'
+  ...
+# Subtest: 保存只包含请求、key、签名和时间，owner 使用摘要且同一会话可恢复原 key
+ok 37 - 保存只包含请求、key、签名和时间，owner 使用摘要且同一会话可恢复原 key
+  ---
+  duration_ms: 13.3979
+  type: 'test'
+  ...
+# Subtest: 用户或令牌变化后旧保存器拒绝继续，新保存器不读取旧问题并丢弃旧记录
+ok 38 - 用户或令牌变化后旧保存器拒绝继续，新保存器不读取旧问题并丢弃旧记录
+  ---
+  duration_ms: 2.6404
+  type: 'test'
+  ...
+# Subtest: 记录满24小时即丢弃，未来时间与损坏签名也不能恢复或迁移
+ok 39 - 记录满24小时即丢弃，未来时间与损坏签名也不能恢复或迁移
+  ---
+  duration_ms: 3.6825
+  type: 'test'
+  ...
+# Subtest: 当前请求边界接受最长公司报表问题以及合法的小写快照标识
+ok 40 - 当前请求边界接受最长公司报表问题以及合法的小写快照标识
+  ---
+  duration_ms: 1.5064
+  type: 'test'
+  ...
+# Subtest: 损坏存储的范围和标识即使签名重算一致也按当前后端协议拒绝恢复
+ok 41 - 损坏存储的范围和标识即使签名重算一致也按当前后端协议拒绝恢复
+  ---
+  duration_ms: 8.6059
+  type: 'test'
+  ...
+# Subtest: 损坏JSON只清除分析自己的记录，不触碰会话认证或其他页面数据
+ok 42 - 损坏JSON只清除分析自己的记录，不触碰会话认证或其他页面数据
+  ---
+  duration_ms: 1.2001
+  type: 'test'
+  ...
+# Subtest: 核对前再次检查期限，过期记录不能继续使用旧key发起执行
+ok 43 - 核对前再次检查期限，过期记录不能继续使用旧key发起执行
+  ---
+  duration_ms: 4.0149
+  type: 'test'
+  ...
+# Subtest: 旧确认只清理匹配记录，不能删掉同会话的后续提交
+ok 44 - 旧确认只清理匹配记录，不能删掉同会话的后续提交
+  ---
+  duration_ms: 5.9983
+  type: 'test'
+  ...
+# Subtest: 旧登录迟到的确认不能清理新登录刚保存的请求
+ok 45 - 旧登录迟到的确认不能清理新登录刚保存的请求
+  ---
+  duration_ms: 1.4679
+  type: 'test'
+  ...
+# Subtest: 已有未知提交或并发保存不能被新的请求号覆盖
+ok 46 - 已有未知提交或并发保存不能被新的请求号覆盖
+  ---
+  duration_ms: 2.0422
+  type: 'test'
+  ...
+# Subtest: 存储和WebCrypto不可用时明确失败，不返回已保存记录
+ok 47 - 存储和WebCrypto不可用时明确失败，不返回已保存记录
+  ---
+  duration_ms: 2.024
+  type: 'test'
+  ...
+# Subtest: 身份在摘要计算期间改变时，不写入旧登录的请求正文
+ok 48 - 身份在摘要计算期间改变时，不写入旧登录的请求正文
+  ---
+  duration_ms: 1.544
+  type: 'test'
+  ...
+# Subtest: 模式进入保存与签名，知识问答不接受快照，快照分析必须显式来源
+ok 49 - 模式进入保存与签名，知识问答不接受快照，快照分析必须显式来源
+  ---
+  duration_ms: 11.346
+  type: 'test'
+  ...
+# Subtest: 卡片答案只来自GET，引用载荷内的答案不显示，终态读取不创建新任务
+ok 50 - 卡片答案只来自GET，引用载荷内的答案不显示，终态读取不创建新任务
+  ---
+  duration_ms: 3.5425
+  type: 'test'
+  ...
+# Subtest: 中性不可用卡片和缺失引用不会读取其他任务
+ok 51 - 中性不可用卡片和缺失引用不会读取其他任务
+  ---
+  duration_ms: 3.9239
+  type: 'test'
+  ...
+# Subtest: 任务范围和引用不一致时不显示任何返回答案
+ok 52 - 任务范围和引用不一致时不显示任何返回答案
+  ---
+  duration_ms: 3.4645
+  type: 'test'
+  ...
+# Subtest: 权限或资料版本读取失败清空上次成功答案，不继续显示最后成功值
+ok 53 - 权限或资料版本读取失败清空上次成功答案，不继续显示最后成功值
+  ---
+  duration_ms: 1.1624
+  type: 'test'
+  ...
+# Subtest: 隐藏和销毁撤销读取并停止轮询，迟到的成功或失败不恢复旧答案
+ok 54 - 隐藏和销毁撤销读取并停止轮询，迟到的成功或失败不恢复旧答案
+  ---
+  duration_ms: 3.0503
+  type: 'test'
+  ...
+# Subtest: 重新显示只GET核对同一任务，旧页面响应不能覆盖新的读取
+ok 55 - 重新显示只GET核对同一任务，旧页面响应不能覆盖新的读取
+  ---
+  duration_ms: 0.9596
+  type: 'test'
+  ...
+# Subtest: 同用户的新令牌撤销旧任务内容，迟到GET不能写入新登录
+ok 56 - 同用户的新令牌撤销旧任务内容，迟到GET不能写入新登录
+  ---
+  duration_ms: 0.8808
+  type: 'test'
+  ...
+# Subtest: 取消确认后的新读取不会被旧RUNNING轮询覆盖
+ok 57 - 取消确认后的新读取不会被旧RUNNING轮询覆盖
+  ---
+  duration_ms: 5.8924
+  type: 'test'
+  ...
+# Subtest: 已确认终态的旧版本响应不能倒退任务版本
+ok 58 - 已确认终态的旧版本响应不能倒退任务版本
+  ---
+  duration_ms: 1.2045
+  type: 'test'
+  ...
+# Subtest: new analysis forms default to current data while a snapshot link selects snapshot-only mode
+ok 59 - new analysis forms default to current data while a snapshot link selects snapshot-only mode
+  ---
+  duration_ms: 10.8414
+  type: 'test'
+  ...
+# Subtest: explicit current-data comparison retains the selected snapshot and knowledge mode explicitly removes it
+ok 60 - explicit current-data comparison retains the selected snapshot and knowledge mode explicitly removes it
+  ---
+  duration_ms: 1.2876
+  type: 'test'
+  ...
+# Subtest: unknown submissions retain the original mode and snapshot despite late mode changes
+ok 61 - unknown submissions retain the original mode and snapshot despite late mode changes
+  ---
+  duration_ms: 2.2293
+  type: 'test'
+  ...
+# Subtest: terminal knowledge task preparation preserves its mode and does not read business snapshots
+ok 62 - terminal knowledge task preparation preserves its mode and does not read business snapshots
+  ---
+  duration_ms: 1.6192
+  type: 'test'
+  ...
+# Subtest: invalid knowledge-with-snapshot links never issue a business snapshot read
+ok 63 - invalid knowledge-with-snapshot links never issue a business snapshot read
+  ---
+  duration_ms: 1.4109
+  type: 'test'
+  ...
+# Subtest: late task response cannot replace a newly selected task
+ok 64 - late task response cannot replace a newly selected task
+  ---
+  duration_ms: 2.7928
+  type: 'test'
+  ...
+# Subtest: uncertain submit retries reuse the original idempotency key
+ok 65 - uncertain submit retries reuse the original idempotency key
+  ---
+  duration_ms: 2.2244
+  type: 'test'
+  ...
+# Subtest: changing a question after a confirmed submission creates a new explicit request key
+ok 66 - changing a question after a confirmed submission creates a new explicit request key
+  ---
+  duration_ms: 1.6445
+  type: 'test'
+  ...
+# Subtest: refresh recovery reads the existing task without submitting it again
+ok 67 - refresh recovery reads the existing task without submitting it again
+  ---
+  duration_ms: 1.6965
+  type: 'test'
+  ...
+# Subtest: a late running poll cannot overwrite a confirmed cancellation
+ok 68 - a late running poll cannot overwrite a confirmed cancellation
+  ---
+  duration_ms: 1.4734
+  type: 'test'
+  ...
+# Subtest: an unfinished step does not appear active after the task was cancelled
+ok 69 - an unfinished step does not appear active after the task was cancelled
+  ---
+  duration_ms: 1.0137
+  type: 'test'
+  ...
+# Subtest: changing tasks closes and invalidates an old detail page
+ok 70 - changing tasks closes and invalidates an old detail page
+  ---
+  duration_ms: 2.3169
+  type: 'test'
+  ...
+# Subtest: destroying a page drops in-flight result data
+ok 71 - destroying a page drops in-flight result data
+  ---
+  duration_ms: 0.9798
+  type: 'test'
+  ...
+# Subtest: selected snapshot must finish validation before submission is enabled
+ok 72 - selected snapshot must finish validation before submission is enabled
+  ---
+  duration_ms: 1.7415
+  type: 'test'
+  ...
+# Subtest: knowledge scope changes discard a late previous list
+ok 73 - knowledge scope changes discard a late previous list
+  ---
+  duration_ms: 1.1145
+  type: 'test'
+  ...
+# Subtest: publication confirmation cannot apply after scope changes
+ok 74 - publication confirmation cannot apply after scope changes
+  ---
+  duration_ms: 1.1347
+  type: 'test'
+  ...
+# Subtest: draft save preserves editor content after a version conflict
+ok 75 - draft save preserves editor content after a version conflict
+  ---
+  duration_ms: 0.9361
+  type: 'test'
+  ...
+# Subtest: closing knowledge history rejects the late original response
+ok 76 - closing knowledge history rejects the late original response
+  ---
+  duration_ms: 0.7676
+  type: 'test'
+  ...
+# Subtest: source quotations and model text are rendered as escaped text
+ok 77 - source quotations and model text are rendered as escaped text
+  ---
+  duration_ms: 1.1575
+  type: 'test'
+  ...
+# Subtest: knowledge search sends only the selected scope and current question
+ok 78 - knowledge search sends only the selected scope and current question
+  ---
+  duration_ms: 1.4369
+  type: 'test'
+  ...
+# Subtest: changing the question discards old hits without clearing the newer loading state
+ok 79 - changing the question discards old hits without clearing the newer loading state
+  ---
+  duration_ms: 0.7608
+  type: 'test'
+  ...
+# Subtest: knowledge search rejects an old scope even if its response arrives last
+ok 80 - knowledge search rejects an old scope even if its response arrives last
+  ---
+  duration_ms: 2.7819
+  type: 'test'
+  ...
+# Subtest: refresh clears displayed search evidence and invalidates a running search
+ok 81 - refresh clears displayed search evidence and invalidates a running search
+  ---
+  duration_ms: 0.931
+  type: 'test'
+  ...
+# Subtest: search failures keep the question available for an explicit retry
+ok 82 - search failures keep the question available for an explicit retry
+  ---
+  duration_ms: 0.9028
+  type: 'test'
+  ...
+# Subtest: publication invalidates search evidence before the mutation returns
+ok 83 - publication invalidates search evidence before the mutation returns
+  ---
+  duration_ms: 2.423
+  type: 'test'
+  ...
+# Subtest: empty scope clears the old list and cancels its late response
+ok 84 - empty scope clears the old list and cancels its late response
+  ---
+  duration_ms: 0.9617
+  type: 'test'
+  ...
+# Subtest: destroying the knowledge page drops outstanding search content
+ok 85 - destroying the knowledge page drops outstanding search content
+  ---
+  duration_ms: 0.9222
+  type: 'test'
+  ...
+# Subtest: unhandled scope or question edits still cannot adopt mismatched search results
+ok 86 - unhandled scope or question edits still cannot adopt mismatched search results
+  ---
+  duration_ms: 0.882
+  type: 'test'
+  ...
+# Subtest: non-administrators cannot initiate a local knowledge search
+ok 87 - non-administrators cannot initiate a local knowledge search
+  ---
+  duration_ms: 1.1316
+  type: 'test'
+  ...
+# Subtest: semantic search uses its explicit endpoint and keeps actual model usage
+ok 88 - semantic search uses its explicit endpoint and keeps actual model usage
+  ---
+  duration_ms: 0.8576
+  type: 'test'
+  ...
+# Subtest: switching search mode discards the old semantic response and duplicate clicks do not issue extra calls
+ok 89 - switching search mode discards the old semantic response and duplicate clicks do not issue extra calls
+  ---
+  duration_ms: 0.8195
+  type: 'test'
+  ...
+# Subtest: a failed semantic attempt clears the previous success and never silently calls lexical search
+ok 90 - a failed semantic attempt clears the previous success and never silently calls lexical search
+  ---
+  duration_ms: 0.9402
+  type: 'test'
+  ...
+# Subtest: semantic responses lose display authority after an edit, scope change, refresh or page destruction
+ok 91 - semantic responses lose display authority after an edit, scope change, refresh or page destruction
+  ---
+  duration_ms: 2.9926
+  type: 'test'
+  ...
+# Subtest: terminal task preparation fills the original request without submitting or reusing an unrelated snapshot
+ok 92 - terminal task preparation fills the original request without submitting or reusing an unrelated snapshot
+  ---
+  duration_ms: 1.8026
+  type: 'test'
+  ...
+# Subtest: prepared rerun requires a later explicit submit with a new request key and leaves the original task intact
+ok 93 - prepared rerun requires a later explicit submit with a new request key and leaves the original task intact
+  ---
+  duration_ms: 3.8887
+  type: 'test'
+  ...
+# Subtest: uncertain submission B prevents preparing terminal task A and keeps the original request for reconciliation
+ok 94 - uncertain submission B prevents preparing terminal task A and keeps the original request for reconciliation
+  ---
+  duration_ms: 5.4183
+  type: 'test'
+  ...
+# Subtest: uncertain submission cannot lose its key through question, scope or snapshot edits
+ok 95 - uncertain submission cannot lose its key through question, scope or snapshot edits
+  ---
+  duration_ms: 1.7696
+  type: 'test'
+  ...
+# Subtest: reconciliation sends the pending payload even when unrelated local form state no longer matches it
+ok 96 - reconciliation sends the pending payload even when unrelated local form state no longer matches it
+  ---
+  duration_ms: 1.3537
+  type: 'test'
+  ...
+# Subtest: explicit server 4xx rejections unlock editing without automatically resubmitting a new task
+ok 97 - explicit server 4xx rejections unlock editing without automatically resubmitting a new task
+  ---
+  duration_ms: 9.4315
+  type: 'test'
+  ...
+# Subtest: 503 and transport failures retain the exact pending request including an untrusted numeric transport code
+ok 98 - 503 and transport failures retain the exact pending request including an untrusted numeric transport code
+  ---
+  duration_ms: 1.3534
+  type: 'test'
+  ...
+# Subtest: cancelling a displayed prior task cannot invalidate an in-flight submission or its pending request
+ok 99 - cancelling a displayed prior task cannot invalidate an in-flight submission or its pending request
+  ---
+  duration_ms: 1.739
+  type: 'test'
+  ...
+# Subtest: preparing an explicit snapshot blocks submission until its scope has been revalidated
+ok 100 - preparing an explicit snapshot blocks submission until its scope has been revalidated
+  ---
+  duration_ms: 0.958
+  type: 'test'
+  ...
+# Subtest: expired or mismatched original snapshots stay explicit and cannot silently switch the task to current data
+ok 101 - expired or mismatched original snapshots stay explicit and cannot silently switch the task to current data
+  ---
+  duration_ms: 1.7418
+  type: 'test'
+  ...
+# Subtest: failed historical snapshot S1 replaces URL snapshot S2 so refresh cannot restore S2
+ok 102 - failed historical snapshot S1 replaces URL snapshot S2 so refresh cannot restore S2
+  ---
+  duration_ms: 2.3611
+  type: 'test'
+  ...
+# Subtest: a pre-cancellation poll failure cannot erase the confirmed terminal task or freeze its snapshot preparation
+ok 103 - a pre-cancellation poll failure cannot erase the confirmed terminal task or freeze its snapshot preparation
+  ---
+  duration_ms: 1.109
+  type: 'test'
+  ...
+# Subtest: snapshot preparation releases its loading state when its owned task disappears
+ok 104 - snapshot preparation releases its loading state when its owned task disappears
+  ---
+  duration_ms: 0.8755
+  type: 'test'
+  ...
+# Subtest: changing tasks or destroying the page discards late preparation without replacing the current form
+ok 105 - changing tasks or destroying the page discards late preparation without replacing the current form
+  ---
+  duration_ms: 1.6939
+  type: 'test'
+  ...
+# Subtest: active tasks cannot prepare a second run and removed scopes require an explicit new selection
+ok 106 - active tasks cannot prepare a second run and removed scopes require an explicit new selection
+  ---
+  duration_ms: 0.9616
+  type: 'test'
+  ...
+# Subtest: local text import only replaces the draft body and leaves title, source, saving and publishing to the administrator
+ok 107 - local text import only replaces the draft body and leaves title, source, saving and publishing to the administrator
+  ---
+  duration_ms: 22.3556
+  type: 'test'
+  ...
+# Subtest: failed text import preserves the unsaved body and reports the budget without truncation
+ok 108 - failed text import preserves the unsaved body and reports the budget without truncation
+  ---
+  duration_ms: 1.3145
+  type: 'test'
+  ...
+# Subtest: NUL 文件导入保留原正文并提示字符问题，不写入草稿或发布资料
+ok 109 - NUL 文件导入保留原正文并提示字符问题，不写入草稿或发布资料
+  ---
+  duration_ms: 1.0044
+  type: 'test'
+  ...
+# Subtest: text import does not start a file read after local administrator access is removed
+ok 110 - text import does not start a file read after local administrator access is removed
+  ---
+  duration_ms: 0.9981
+  type: 'test'
+  ...
+# Subtest: file reads cannot overwrite a changed body, closed editor, new document, new scope or destroyed page
+ok 111 - file reads cannot overwrite a changed body, closed editor, new document, new scope or destroyed page
+  ---
+  duration_ms: 5.456
+  type: 'test'
+  ...
+# Subtest: a replaced file selection keeps its own loading state and ignores the first read failure
+ok 112 - a replaced file selection keeps its own loading state and ignores the first read failure
+  ---
+  duration_ms: 1.2164
+  type: 'test'
+  ...
+# Subtest: refresh restores the saved request and key without a submission until an explicit reconciliation click
+ok 113 - refresh restores the saved request and key without a submission until an explicit reconciliation click
+  ---
+  duration_ms: 12.544
+  type: 'test'
+  ...
+# Subtest: network and 503 failures keep the session record through leaving and returning to the workspace
+ok 114 - network and 503 failures keep the session record through leaving and returning to the workspace
+  ---
+  duration_ms: 7.0807
+  type: 'test'
+  ...
+# Subtest: success and explicit rejection arriving after the page leaves still clear only their saved record
+ok 115 - success and explicit rejection arriving after the page leaves still clear only their saved record
+  ---
+  duration_ms: 4.2724
+  type: 'test'
+  ...
+# Subtest: saved snapshot replaces an unrelated URL source and is checked before the question is restored
+ok 116 - saved snapshot replaces an unrelated URL source and is checked before the question is restored
+  ---
+  duration_ms: 4.9092
+  type: 'test'
+  ...
+# Subtest: restoration checks the current catalog and does not read a saved snapshot outside that scope
+ok 117 - restoration checks the current catalog and does not read a saved snapshot outside that scope
+  ---
+  duration_ms: 1.8428
+  type: 'test'
+  ...
+# Subtest: another user or login token never restores the previous owner question
+ok 118 - another user or login token never restores the previous owner question
+  ---
+  duration_ms: 4.0512
+  type: 'test'
+  ...
+# Subtest: expired or corrupted records are explicitly discarded without carrying their question into a new task
+ok 119 - expired or corrupted records are explicitly discarded without carrying their question into a new task
+  ---
+  duration_ms: 2.9127
+  type: 'test'
+  ...
+# Subtest: session changes before reconciliation or before a response is adopted cannot submit or display old-owner content
+ok 120 - session changes before reconciliation or before a response is adopted cannot submit or display old-owner content
+  ---
+  duration_ms: 3.3783
+  type: 'test'
+  ...
+# Subtest: unavailable session storage stops before network submission and reports that saving was not confirmed
+ok 121 - unavailable session storage stops before network submission and reports that saving was not confirmed
+  ---
+  duration_ms: 1.3049
+  type: 'test'
+  ...
+# Subtest: rechecking recovery invalidates older task and history reads and releases their loading states
+ok 122 - rechecking recovery invalidates older task and history reads and releases their loading states
+  ---
+  duration_ms: 1.5128
+  type: 'test'
+  ...
+# Subtest: rechecking recovery cancels a pending history preparation before it can overwrite the recovered form
+ok 123 - rechecking recovery cancels a pending history preparation before it can overwrite the recovered form
+  ---
+  duration_ms: 1.1824
+  type: 'test'
+  ...
+# Subtest: identity changes while a saved snapshot is being checked clear old content and invalidate outstanding history reads
+ok 124 - identity changes while a saved snapshot is being checked clear old content and invalidate outstanding history reads
+  ---
+  duration_ms: 1.7579
+  type: 'test'
+  ...
+# Subtest: authenticated requests use a session token without the simulated identity header
+ok 125 - authenticated requests use a session token without the simulated identity header
+  ---
+  duration_ms: 1.9036
+  type: 'test'
+  ...
+# Subtest: another browser tab cannot replace the identity associated with this tab session
+ok 126 - another browser tab cannot replace the identity associated with this tab session
+  ---
+  duration_ms: 1.4039
+  type: 'test'
+  ...
+# Subtest: session expiry clears credentials and notifies the login screen
+ok 127 - session expiry clears credentials and notifies the login screen
+  ---
+  duration_ms: 4.5871
+  type: 'test'
+  ...
+# Subtest: old and anonymous requests cannot expire a newer session
+ok 128 - old and anonymous requests cannot expire a newer session
+  ---
+  duration_ms: 1.7057
+  type: 'test'
+  ...
+# Subtest: http 401 only expires the session associated with that request
+ok 129 - http 401 only expires the session associated with that request
+  ---
+  duration_ms: 2.3513
+  type: 'test'
+  ...
+# Subtest: business 401 only expires the session associated with that request
+ok 130 - business 401 only expires the session associated with that request
+  ---
+  duration_ms: 2.8032
+  type: 'test'
+  ...
+# Subtest: late SSE authentication error HTTP 401 cannot clear a new login
+ok 131 - late SSE authentication error HTTP 401 cannot clear a new login
+  ---
+  duration_ms: 3.2704
+  type: 'test'
+  ...
+# Subtest: late SSE authentication error HTTP 200 cannot clear a new login
+ok 132 - late SSE authentication error HTTP 200 cannot clear a new login
+  ---
+  duration_ms: 1.0796
+  type: 'test'
+  ...
+# Subtest: 金额和大整数标识始终保留服务端字符串精度
+ok 133 - 金额和大整数标识始终保留服务端字符串精度
+  ---
+  duration_ms: 1.0774
+  type: 'test'
+  ...
+# Subtest: 展示序号在分页后保持全局位置
+ok 134 - 展示序号在分页后保持全局位置
+  ---
+  duration_ms: 2.4441
+  type: 'test'
+  ...
+# Subtest: 工作区详情绑定当前页快照行，翻页后不显示已离开的工单
+ok 135 - 工作区详情绑定当前页快照行，翻页后不显示已离开的工单
+  ---
+  duration_ms: 0.8793
+  type: 'test'
+  ...
+# Subtest: 实时结果和UTC快照的同一时刻统一显示为上海时间
+ok 136 - 实时结果和UTC快照的同一时刻统一显示为上海时间
+  ---
+  duration_ms: 35.2628
+  type: 'test'
+  ...
+# Subtest: 动态报表字段不重复展示且隐藏内部标识列
+ok 137 - 动态报表字段不重复展示且隐藏内部标识列
+  ---
+  duration_ms: 0.4166
+  type: 'test'
+  ...
+# Subtest: 总结使用服务器计数而不是当前页数组长度
+ok 138 - 总结使用服务器计数而不是当前页数组长度
+  ---
+  duration_ms: 0.3194
+  type: 'test'
+  ...
+# Subtest: 状态翻译保留待核对语义，业务分组名称不作为状态翻译
+ok 139 - 状态翻译保留待核对语义，业务分组名称不作为状态翻译
+  ---
+  duration_ms: 0.3228
+  type: 'test'
+  ...
+# Subtest: 流程文本通过模板插值渲染，没有执行按钮或不可信HTML入口
+ok 140 - 流程文本通过模板插值渲染，没有执行按钮或不可信HTML入口
+  ---
+  duration_ms: 0.2061
+  type: 'test'
+  ...
+# Subtest: 资格核验完整保留正反结论与规则字段证据，普通查询不展示资格结论
+ok 141 - 资格核验完整保留正反结论与规则字段证据，普通查询不展示资格结论
+  ---
+  duration_ms: 1.1286
+  type: 'test'
+  ...
+# Subtest: 目录 A/B 历史乱序不会把 A 版本展示或回滚到 B
+ok 142 - 目录 A/B 历史乱序不会把 A 版本展示或回滚到 B
+  ---
+  duration_ms: 6.8036
+  type: 'test'
+  ...
+# Subtest: 旧历史失败不结束最新加载，也不留下上一报表的版本
+ok 143 - 旧历史失败不结束最新加载，也不留下上一报表的版本
+  ---
+  duration_ms: 2.3457
+  type: 'test'
+  ...
+# Subtest: 关闭再打开同一报表时旧响应不能重新打开窗口或填入新历史
+ok 144 - 关闭再打开同一报表时旧响应不能重新打开窗口或填入新历史
+  ---
+  duration_ms: 1.7444
+  type: 'test'
+  ...
+# Subtest: 失败历史必须成功重读才允许回滚，不能使用以前展示的行
+ok 145 - 失败历史必须成功重读才允许回滚，不能使用以前展示的行
+  ---
+  duration_ms: 3.2036
+  type: 'test'
+  ...
+# Subtest: 回滚确认期间换报表、关窗或销毁均不能发出修改
+ok 146 - 回滚确认期间换报表、关窗或销毁均不能发出修改
+  ---
+  duration_ms: 5.9358
+  type: 'test'
+  ...
+# Subtest: 别名选择和最新目录对象变化不能更改历史回滚的原目标与期望版本
+ok 147 - 别名选择和最新目录对象变化不能更改历史回滚的原目标与期望版本
+  ---
+  duration_ms: 2.1499
+  type: 'test'
+  ...
+# Subtest: 重复点击与取消回滚不会重复提交，销毁后忽略迟到历史
+ok 148 - 重复点击与取消回滚不会重复提交，销毁后忽略迟到历史
+  ---
+  duration_ms: 1.5961
+  type: 'test'
+  ...
+# Subtest: 首次请求完整保存并回读，改动外部表单不能改变已保存的选择或精确数值
+ok 149 - 首次请求完整保存并回读，改动外部表单不能改变已保存的选择或精确数值
+  ---
+  duration_ms: 12.2117
+  type: 'test'
+  ...
+# Subtest: 完整查询条件与5000项排除记录超过分析页预算时仍不截断
+ok 150 - 完整查询条件与5000项排除记录超过分析页预算时仍不截断
+  ---
+  duration_ms: 96.4828
+  type: 'test'
+  ...
+# Subtest: 旧请求字段、数值自动转换、损坏引用和编辑澄清并用均拒绝发送
+ok 151 - 旧请求字段、数值自动转换、损坏引用和编辑澄清并用均拒绝发送
+  ---
+  duration_ms: 6.2205
+  type: 'test'
+  ...
+# Subtest: 聊天和分析保存记录互不删除，换token只丢弃该领域旧登录的问题
+ok 152 - 聊天和分析保存记录互不删除，换token只丢弃该领域旧登录的问题
+  ---
+  duration_ms: 2.4616
+  type: 'test'
+  ...
+# Subtest: 过期、未来时间和签名损坏不能用于原key重放
+ok 153 - 过期、未来时间和签名损坏不能用于原key重放
+  ---
+  duration_ms: 4.8993
+  type: 'test'
+  ...
+# Subtest: 网络发送之前完整请求已保存且回读，正常分析事件只产生一张引用卡片
+ok 154 - 网络发送之前完整请求已保存且回读，正常分析事件只产生一张引用卡片
+  ---
+  duration_ms: 17.7975
+  type: 'test'
+  ...
+# Subtest: 首个SSE事件丢失仍按准确key找到原会话和原任务，不创建第二轮
+ok 155 - 首个SSE事件丢失仍按准确key找到原会话和原任务，不创建第二轮
+  ---
+  duration_ms: 3.3264
+  type: 'test'
+  ...
+# Subtest: 未知提交经过刷新只GET，显式核对才同key同完整载荷POST且不重复历史消息
+ok 156 - 未知提交经过刷新只GET，显式核对才同key同完整载荷POST且不重复历史消息
+  ---
+  duration_ms: 6.6253
+  type: 'test'
+  ...
+# Subtest: PLANNING只GET等待，转为READY后仍等待明确核对动作
+ok 157 - PLANNING只GET等待，转为READY后仍等待明确核对动作
+  ---
+  duration_ms: 4.6224
+  type: 'test'
+  ...
+# Subtest: 404恢复隐藏原展示且不自动POST，显式核对收到410继续保留原key并停止新请求
+ok 158 - 404恢复隐藏原展示且不自动POST，显式核对收到410继续保留原key并停止新请求
+  ---
+  duration_ms: 3.8643
+  type: 'test'
+  ...
+# Subtest: 权限和期限读取失败清空已显示问题与卡片，不从缓存恢复答案
+ok 159 - 权限和期限读取失败清空已显示问题与卡片，不从缓存恢复答案
+  ---
+  duration_ms: 12.4343
+  type: 'test'
+  ...
+# Subtest: 同一用户更换令牌后旧SSE被中止，迟到事件不能显示或恢复私有内容
+ok 160 - 同一用户更换令牌后旧SSE被中止，迟到事件不能显示或恢复私有内容
+  ---
+  duration_ms: 7.3674
+  type: 'test'
+  ...
+# Subtest: 同用户换token期间返回的GET不能恢复原会话，也不能清掉新登录保存记录
+ok 161 - 同用户换token期间返回的GET不能恢复原会话，也不能清掉新登录保存记录
+  ---
+  duration_ms: 2.7019
+  type: 'test'
+  ...
+# Subtest: 新会话代次撤销迟到轮次GET，不改变新页面或清理原保存记录
+ok 162 - 新会话代次撤销迟到轮次GET，不改变新页面或清理原保存记录
+  ---
+  duration_ms: 14.1615
+  type: 'test'
+  ...
+# Subtest: 存储不可写时保留输入，不乐观显示已发送消息，也不发送网络请求
+ok 163 - 存储不可写时保留输入，不乐观显示已发送消息，也不发送网络请求
+  ---
+  duration_ms: 2.129
+  type: 'test'
+  ...
+# Subtest: 结构性拒绝只清原保存记录并允许明确修改，不自动创建另一轮
+ok 164 - 结构性拒绝只清原保存记录并允许明确修改，不自动创建另一轮
+  ---
+  duration_ms: 3.4788
+  type: 'test'
+  ...
+# Subtest: 409响应按准确key读取已有轮次，不能把冲突当成未执行后创建新key
+ok 165 - 409响应按准确key读取已有轮次，不能把冲突当成未执行后创建新key
+  ---
+  duration_ms: 2.4599
+  type: 'test'
+  ...
+# Subtest: 关闭抽屉后停止轮次轮询，重新打开仅GET并保留原key
+ok 166 - 关闭抽屉后停止轮次轮询，重新打开仅GET并保留原key
+  ---
+  duration_ms: 3.0209
+  type: 'test'
+  ...
+# Subtest: 已中断与失败回执释放未知提交，明确重新发送才生成新key
+ok 167 - 已中断与失败回执释放未知提交，明确重新发送才生成新key
+  ---
+  duration_ms: 9.8573
+  type: 'test'
+  ...
+# Subtest: 不属于原请求的回执不会清理保存记录或自动重放
+ok 168 - 不属于原请求的回执不会清理保存记录或自动重放
+  ---
+  duration_ms: 2.0034
+  type: 'test'
+  ...
+# Subtest: 提交记录在服务器确认后无法清理时仍保留原key，存储恢复后GET即可完成核对
+ok 169 - 提交记录在服务器确认后无法清理时仍保留原key，存储恢复后GET即可完成核对
+  ---
+  duration_ms: 6.56
+  type: 'test'
+  ...
+# Subtest: 轮次GET失权后流中暂存的业务卡片不能在finally重新出现
+ok 170 - 轮次GET失权后流中暂存的业务卡片不能在finally重新出现
+  ---
+  duration_ms: 6.0679
+  type: 'test'
+  ...
+# Subtest: GET回执与已收到的conversation事件轮次不同则保留未知提交
+ok 171 - GET回执与已收到的conversation事件轮次不同则保留未知提交
+  ---
+  duration_ms: 5.7298
+  type: 'test'
+  ...
+# Subtest: 只有用户明确结束不可访问的本页核对才释放输入，动作本身不创建或重发任务
+ok 172 - 只有用户明确结束不可访问的本页核对才释放输入，动作本身不创建或重发任务
+  ---
+  duration_ms: 4.6519
+  type: 'test'
+  ...
+# Subtest: every Element UI template component is imported and registered by the application
+ok 173 - every Element UI template component is imported and registered by the application
+  ---
+  duration_ms: 13.0481
+  type: 'test'
+  ...
+# Subtest: lost POST response keeps the same retry key through reload
+ok 174 - lost POST response keeps the same retry key through reload
+  ---
+  duration_ms: 6.2644
+  type: 'test'
+  ...
+# Subtest: lost polling connection resumes by GET without another mutation POST
+ok 175 - lost polling connection resumes by GET without another mutation POST
+  ---
+  duration_ms: 2.2613
+  type: 'test'
+  ...
+# Subtest: read-only card recovery clears its old key so a later explicit retry is a new action
+ok 176 - read-only card recovery clears its old key so a later explicit retry is a new action
+  ---
+  duration_ms: 2.8684
+  type: 'test'
+  ...
+# Subtest: a terminal failed task is shown and is never automatically resubmitted
+ok 177 - a terminal failed task is shown and is never automatically resubmitted
+  ---
+  duration_ms: 2.2008
+  type: 'test'
+  ...
+# Subtest: late submission response cannot continue polling after the session changes
+ok 178 - late submission response cannot continue polling after the session changes
+  ---
+  duration_ms: 1.0526
+  type: 'test'
+  ...
+# Subtest: recovering a missing task performs no POST and explains the recovery boundary
+ok 179 - recovering a missing task performs no POST and explains the recovery boundary
+  ---
+  duration_ms: 0.9763
+  type: 'test'
+  ...
+# Subtest: a session change during the terminal callback cannot return old results
+ok 180 - a session change during the terminal callback cannot return old results
+  ---
+  duration_ms: 1.1008
+  type: 'test'
+  ...
+# Subtest: late trace response cannot expose a previous plan or account
+ok 181 - late trace response cannot expose a previous plan or account
+  ---
+  duration_ms: 1.7372
+  type: 'test'
+  ...
+# Subtest: revoked trace access clears old data and keeps a retryable error
+ok 182 - revoked trace access clears old data and keeps a retryable error
+  ---
+  duration_ms: 0.8633
+  type: 'test'
+  ...
+# Subtest: trace pagination preserves the target tab, deduplicates and keeps the cursor
+ok 183 - trace pagination preserves the target tab, deduplicates and keeps the cursor
+  ---
+  duration_ms: 2.0144
+  type: 'test'
+  ...
+# Subtest: repair only queues durable evidence delivery and cannot repeat dispatch
+ok 184 - repair only queues durable evidence delivery and cannot repeat dispatch
+  ---
+  duration_ms: 0.7826
+  type: 'test'
+  ...
+# Subtest: legitimate Result errors preserve numeric business codes and an explicit server response marker
+ok 185 - legitimate Result errors preserve numeric business codes and an explicit server response marker
+  ---
+  duration_ms: 3.6953
+  type: 'test'
+  ...
+# Subtest: HTTP status and malformed Result bodies never become verified server rejection markers
+ok 186 - HTTP status and malformed Result bodies never become verified server rejection markers
+  ---
+  duration_ms: 5.6094
+  type: 'test'
+  ...
+# Subtest: network failures preserve their original identity without fabricating a server response
+ok 187 - network failures preserve their original identity without fabricating a server response
+  ---
+  duration_ms: 0.8157
+  type: 'test'
+  ...
+# Subtest: investigation lost submit response reuses original key after reload
+ok 188 - investigation lost submit response reuses original key after reload
+  ---
+  duration_ms: 7.4952
+  type: 'test'
+  ...
+# Subtest: investigation accepted task recovers only by GET
+ok 189 - investigation accepted task recovers only by GET
+  ---
+  duration_ms: 2.4
+  type: 'test'
+  ...
+# Subtest: changed unresolved payload is blocked and cannot replace original key
+ok 190 - changed unresolved payload is blocked and cannot replace original key
+  ---
+  duration_ms: 1.82
+  type: 'test'
+  ...
+# Subtest: 404 recovery forgets task and never POSTs
+ok 191 - 404 recovery forgets task and never POSTs
+  ---
+  duration_ms: 0.9823
+  type: 'test'
+  ...
+# Subtest: late submit after account change cannot save run into new identity
+ok 192 - late submit after account change cannot save run into new identity
+  ---
+  duration_ms: 1.4533
+  type: 'test'
+  ...
+# Subtest: late 404 from an old recovery cannot erase a newly submitted task
+ok 193 - late 404 from an old recovery cannot erase a newly submitted task
+  ---
+  duration_ms: 1.0848
+  type: 'test'
+  ...
+# Subtest: late rejection of a concurrent same-key submit cannot erase an accepted id
+ok 194 - late rejection of a concurrent same-key submit cannot erase an accepted id
+  ---
+  duration_ms: 1.2537
+  type: 'test'
+  ...
+# Subtest: late old successful read cannot overwrite a newer recovery key
+ok 195 - late old successful read cannot overwrite a newer recovery key
+  ---
+  duration_ms: 3.6935
+  type: 'test'
+  ...
+# Subtest: closed investigation panel ignores late report and evidence
+ok 196 - closed investigation panel ignores late report and evidence
+  ---
+  duration_ms: 1.9846
+  type: 'test'
+  ...
+# Subtest: task inbox opens the selected historical investigation without switching to the latest run
+ok 197 - task inbox opens the selected historical investigation without switching to the latest run
+  ---
+  duration_ms: 3.0689
+  type: 'test'
+  ...
+# Subtest: selected investigation must belong to the open plan and cannot populate a closed panel
+ok 198 - selected investigation must belong to the open plan and cannot populate a closed panel
+  ---
+  duration_ms: 1.918
+  type: 'test'
+  ...
+# Subtest: candidate ids and report are isolated when account changes
+ok 199 - candidate ids and report are isolated when account changes
+  ---
+  duration_ms: 1.0517
+  type: 'test'
+  ...
+# Subtest: explicit rejection releases draft so user can change oversized selection
+ok 200 - explicit rejection releases draft so user can change oversized selection
+  ---
+  duration_ms: 1.1766
+  type: 'test'
+  ...
+# Subtest: server uncertainty retains original key instead of accepting edited payload
+ok 201 - server uncertainty retains original key instead of accepting edited payload
+  ---
+  duration_ms: 0.9839
+  type: 'test'
+  ...
+# Subtest: pending submission button resumes stored request and keeps selected scope frozen
+ok 202 - pending submission button resumes stored request and keeps selected scope frozen
+  ---
+  duration_ms: 0.9856
+  type: 'test'
+  ...
+# Subtest: candidate loading is not stranded when investigation request generation changes
+ok 203 - candidate loading is not stranded when investigation request generation changes
+  ---
+  duration_ms: 1.0083
+  type: 'test'
+  ...
+# Subtest: explicit read recovery clears the superseded submit spinner
+ok 204 - explicit read recovery clears the superseded submit spinner
+  ---
+  duration_ms: 0.8112
+  type: 'test'
+  ...
+# Subtest: header select-all above ten restores explicit scope without silently truncating
+ok 205 - header select-all above ten restores explicit scope without silently truncating
+  ---
+  duration_ms: 0.8837
+  type: 'test'
+  ...
+# Subtest: terminal COMPLETED drains steps read before terminal commit, including further pages
+ok 206 - terminal COMPLETED drains steps read before terminal commit, including further pages
+  ---
+  duration_ms: 1.0495
+  type: 'test'
+  ...
+# Subtest: terminal FAILED drains steps read before terminal commit, including further pages
+ok 207 - terminal FAILED drains steps read before terminal commit, including further pages
+  ---
+  duration_ms: 0.9175
+  type: 'test'
+  ...
+# Subtest: terminal CANCELLED drains steps read before terminal commit, including further pages
+ok 208 - terminal CANCELLED drains steps read before terminal commit, including further pages
+  ---
+  duration_ms: 0.9872
+  type: 'test'
+  ...
+# Subtest: terminal follow-up step read cannot update closed or superseded panel
+ok 209 - terminal follow-up step read cannot update closed or superseded panel
+  ---
+  duration_ms: 1.5952
+  type: 'test'
+  ...
+# Subtest: failed terminal step read retains cursor and can recover with an explicit refresh
+ok 210 - failed terminal step read retains cursor and can recover with an explicit refresh
+  ---
+  duration_ms: 1.8047
+  type: 'test'
+  ...
+# Subtest: compiled report template keeps finding and unresolved sibling keys unique
+ok 211 - compiled report template keeps finding and unresolved sibling keys unique
+  ---
+  duration_ms: 286.3902
+  type: 'test'
+  ...
+# Subtest: UTF-8 BOM、Markdown 和 HTML 字符保持为完整文本，不推断来源或执行标记
+ok 212 - UTF-8 BOM、Markdown 和 HTML 字符保持为完整文本，不推断来源或执行标记
+  ---
+  duration_ms: 1.9119
+  type: 'test'
+  ...
+# Subtest: 正文 12,000 字符边界保持完整，超长不截断或返回部分正文
+ok 213 - 正文 12,000 字符边界保持完整，超长不截断或返回部分正文
+  ---
+  duration_ms: 2.1072
+  type: 'test'
+  ...
+# Subtest: 超过 64 KiB 的文件在读取前拒绝
+ok 214 - 超过 64 KiB 的文件在读取前拒绝
+  ---
+  duration_ms: 0.1948
+  type: 'test'
+  ...
+# Subtest: 文件扩展名、空内容和非法 UTF-8 均明确拒绝
+ok 215 - 文件扩展名、空内容和非法 UTF-8 均明确拒绝
+  ---
+  duration_ms: 0.4259
+  type: 'test'
+  ...
+# Subtest: UTF-8 NUL 和无 BOM UTF-16 中的 NUL 均在回填前拒绝
+ok 216 - UTF-8 NUL 和无 BOM UTF-16 中的 NUL 均在回填前拒绝
+  ---
+  duration_ms: 0.5952
+  type: 'test'
+  ...
+# Subtest: 实际读取大小变化和读取失败不能作为成功导入
+ok 217 - 实际读取大小变化和读取失败不能作为成功导入
+  ---
+  duration_ms: 0.2504
+  type: 'test'
+  ...
+# Subtest: semantic preview has an independent 100-second timeout without changing lexical transport or resubmitting
+ok 218 - semantic preview has an independent 100-second timeout without changing lexical transport or resubmitting
+  ---
+  duration_ms: 1.764
+  type: 'test'
+  ...
+# Subtest: semantic-only candidates show actual query routes without manufacturing direct or alias hits
+ok 219 - semantic-only candidates show actual query routes without manufacturing direct or alias hits
+  ---
+  duration_ms: 1.5786
+  type: 'test'
+  ...
+# Subtest: lexical preview remains lexical and absent routes do not become invented query expressions
+ok 220 - lexical preview remains lexical and absent routes do not become invented query expressions
+  ---
+  duration_ms: 1.9002
+  type: 'test'
+  ...
+# Subtest: 同一字段因不同查询触发的展开项保留独立渲染键
+ok 221 - 同一字段因不同查询触发的展开项保留独立渲染键
+  ---
+  duration_ms: 180.8982
+  type: 'test'
+  ...
+# Subtest: overlapping page responses 2,3 preserve selection and latest page
+ok 222 - overlapping page responses 2,3 preserve selection and latest page
+  ---
+  duration_ms: 2.2668
+  type: 'test'
+  ...
+# Subtest: overlapping page responses 3,2 preserve selection and latest page
+ok 223 - overlapping page responses 3,2 preserve selection and latest page
+  ---
+  duration_ms: 1.6047
+  type: 'test'
+  ...
+# Subtest: stale page failure cannot unlock selection during the latest request
+ok 224 - stale page failure cannot unlock selection during the latest request
+  ---
+  duration_ms: 1.5821
+  type: 'test'
+  ...
+# Subtest: manual unknown is shown as pending reconciliation and recovered from server
+ok 225 - manual unknown is shown as pending reconciliation and recovered from server
+  ---
+  duration_ms: 2.2829
+  type: 'test'
+  ...
+# Subtest: manual dispatch submits only the selected adjacent large ID as a string
+ok 226 - manual dispatch submits only the selected adjacent large ID as a string
+  ---
+  duration_ms: 1.196
+  type: 'test'
+  ...
+# Subtest: manual history keeps the latest loading state when an older page fails
+ok 227 - manual history keeps the latest loading state when an older page fails
+  ---
+  duration_ms: 3.3871
+  type: 'test'
+  ...
+# Subtest: manual history expansion follows plan identity across refresh and clears on page change
+ok 228 - manual history expansion follows plan identity across refresh and clears on page change
+  ---
+  duration_ms: 1.6986
+  type: 'test'
+  ...
+# Subtest: late policy cannot replace the newly selected report policy
+ok 229 - late policy cannot replace the newly selected report policy
+  ---
+  duration_ms: 5.6072
+  type: 'test'
+  ...
+# Subtest: policy saving is blocked while the selected policy is loading
+ok 230 - policy saving is blocked while the selected policy is loading
+  ---
+  duration_ms: 2.3133
+  type: 'test'
+  ...
+# Subtest: out-of-order item pages cannot expose the previous task
+ok 231 - out-of-order item pages cannot expose the previous task
+  ---
+  duration_ms: 1.5093
+  type: 'test'
+  ...
+# Subtest: switching account while an approval dialog is open cannot send an action
+ok 232 - switching account while an approval dialog is open cannot send an action
+  ---
+  duration_ms: 1.2301
+  type: 'test'
+  ...
+# Subtest: workbench refresh ignores stale pages and results after disposal
+ok 233 - workbench refresh ignores stale pages and results after disposal
+  ---
+  duration_ms: 3.9244
+  type: 'test'
+  ...
+# Subtest: empty metrics display absence of samples rather than zero failure
+ok 234 - empty metrics display absence of samples rather than zero failure
+  ---
+  duration_ms: 2.8632
+  type: 'test'
+  ...
+# Subtest: headline rates use uncapped totals rather than truncated report detail
+ok 235 - headline rates use uncapped totals rather than truncated report detail
+  ---
+  duration_ms: 1.6318
+  type: 'test'
+  ...
+# Subtest: unverifiable sampling never appears as empty valid data or zero rates
+ok 236 - unverifiable sampling never appears as empty valid data or zero rates
+  ---
+  duration_ms: 1.5852
+  type: 'test'
+  ...
+# Subtest: missing data permissions display denial without a fabricated zero count
+ok 237 - missing data permissions display denial without a fabricated zero count
+  ---
+  duration_ms: 1.8499
+  type: 'test'
+  ...
+# Subtest: statistics loading is distinct from an authorized empty result
+ok 238 - statistics loading is distinct from an authorized empty result
+  ---
+  duration_ms: 1.5616
+  type: 'test'
+  ...
+# Subtest: late metric windows cannot replace current counts or authorization scope
+ok 239 - late metric windows cannot replace current counts or authorization scope
+  ---
+  duration_ms: 1.8871
+  type: 'test'
+  ...
+# Subtest: metric response after account disposal cannot repopulate the old page
+ok 240 - metric response after account disposal cannot repopulate the old page
+  ---
+  duration_ms: 1.0783
+  type: 'test'
+  ...
+# Subtest: all-selected button pins the clicked preview and rejects a superseded source without falling back
+ok 241 - all-selected button pins the clicked preview and rejects a superseded source without falling back
+  ---
+  duration_ms: 7.1558
+  type: 'test'
+  ...
+# Subtest: card creation preserves exact selection and retries a lost response with the same idempotency key
+ok 242 - card creation preserves exact selection and retries a lost response with the same idempotency key
+  ---
+  duration_ms: 1.8917
+  type: 'test'
+  ...
+# Subtest: changed selection after a failed response gets a new key including when restored to all-selected
+ok 243 - changed selection after a failed response gets a new key including when restored to all-selected
+  ---
+  duration_ms: 3.6612
+  type: 'test'
+  ...
+# Subtest: pending card creation blocks double clicks and ignores a result after account disposal
+ok 244 - pending card creation blocks double clicks and ignores a result after account disposal
+  ---
+  duration_ms: 1.4414
+  type: 'test'
+  ...
+# Subtest: late plan page cannot overwrite the last requested page
+ok 245 - late plan page cannot overwrite the last requested page
+  ---
+  duration_ms: 1.0405
+  type: 'test'
+  ...
+# Subtest: late pre-reconciliation page cannot replace a refreshed success result
+ok 246 - late pre-reconciliation page cannot replace a refreshed success result
+  ---
+  duration_ms: 0.9187
+  type: 'test'
+  ...
+# Subtest: plan change and destruction invalidate outstanding page responses
+ok 247 - plan change and destruction invalidate outstanding page responses
+  ---
+  duration_ms: 5.5415
+  type: 'test'
+  ...
+# Subtest: 真实生产应用图中只存在一份 Vue 运行时
+ok 248 - 真实生产应用图中只存在一份 Vue 运行时
+  ---
+  duration_ms: 2578.1223
+  type: 'test'
+  ...
+# Subtest: 生产 ESM 页面能观察 CommonJS store 新增的表头和数据
+ok 249 - 生产 ESM 页面能观察 CommonJS store 新增的表头和数据
+  ---
+  duration_ms: 1.678
+  type: 'test'
+  ...
+# Subtest: self-managed query routes retain page state while identity and business refresh recreate it
+ok 250 - self-managed query routes retain page state while identity and business refresh recreate it
+  ---
+  duration_ms: 2.1184
+  type: 'test'
+  ...
+# Subtest: opening and paging persist the requested position, including a failed page
+ok 251 - opening and paging persist the requested position, including a failed page
+  ---
+  duration_ms: 7.0825
+  type: 'test'
+  ...
+# Subtest: route changes within the same snapshot load the requested page once and clear selection without a run
+ok 252 - route changes within the same snapshot load the requested page once and clear selection without a run
+  ---
+  duration_ms: 2.2868
+  type: 'test'
+  ...
+# Subtest: running a saved query persists the new snapshot instead of restoring the previous one
+ok 253 - running a saved query persists the new snapshot instead of restoring the previous one
+  ---
+  duration_ms: 7.3213
+  type: 'test'
+  ...
+# Subtest: switching snapshots discards both late facts and late errors
+ok 254 - switching snapshots discards both late facts and late errors
+  ---
+  duration_ms: 1.3336
+  type: 'test'
+  ...
+# Subtest: same user with a new login session cannot receive a late snapshot
+ok 255 - same user with a new login session cannot receive a late snapshot
+  ---
+  duration_ms: 1.4161
+  type: 'test'
+  ...
+# Subtest: changing snapshot during export submission never attaches the old task to new data
+ok 256 - changing snapshot during export submission never attaches the old task to new data
+  ---
+  duration_ms: 1.1959
+  type: 'test'
+  ...
+# Subtest: failed paging clears old facts and can retry the same requested page
+ok 257 - failed paging clears old facts and can retry the same requested page
+  ---
+  duration_ms: 1.2722
+  type: 'test'
+  ...
+# Subtest: late ranking cannot authorize a changed count or direction
+ok 258 - late ranking cannot authorize a changed count or direction
+  ---
+  duration_ms: 1.27
+  type: 'test'
+  ...
+# Subtest: ranking does not prepare a plan until the explicit prepare action
+ok 259 - ranking does not prepare a plan until the explicit prepare action
+  ---
+  duration_ms: 1.503
+  type: 'test'
+  ...
+# Subtest: closing the component discards late analysis output
+ok 260 - closing the component discards late analysis output
+  ---
+  duration_ms: 1.2249
+  type: 'test'
+  ...
+# Subtest: lost export reply reuses the original persisted key
+ok 261 - lost export reply reuses the original persisted key
+  ---
+  duration_ms: 1.635
+  type: 'test'
+  ...
+# Subtest: late export response after login change never writes a task ID
+ok 262 - late export response after login change never writes a task ID
+  ---
+  duration_ms: 0.9606
+  type: 'test'
+  ...
+# Subtest: download refuses a JSON error envelope even with HTTP 200
+ok 263 - download refuses a JSON error envelope even with HTTP 200
+  ---
+  duration_ms: 1.0949
+  type: 'test'
+  ...
+# Subtest: download does not publish bytes after a session change
+ok 264 - download does not publish bytes after a session change
+  ---
+  duration_ms: 0.751
+  type: 'test'
+  ...
+# Subtest: task refresh ignores a stale read-marker response
+ok 265 - task refresh ignores a stale read-marker response
+  ---
+  duration_ms: 1.2157
+  type: 'test'
+  ...
+# Subtest: out-of-order report pages never replace the latest requested rows
+ok 266 - out-of-order report pages never replace the latest requested rows
+  ---
+  duration_ms: 1.6656
+  type: 'test'
+  ...
+# Subtest: deleted last page is reloaded at the last valid page
+ok 267 - deleted last page is reloaded at the last valid page
+  ---
+  duration_ms: 5.583
+  type: 'test'
+  ...
+# Subtest: failed or disposed report requests cannot leave actionable stale rows
+ok 268 - failed or disposed report requests cannot leave actionable stale rows
+  ---
+  duration_ms: 1.4091
+  type: 'test'
+  ...
+# Subtest: report failure remains visible through retry and clears only after authoritative success
+ok 269 - report failure remains visible through retry and clears only after authoritative success
+  ---
+  duration_ms: 0.9403
+  type: 'test'
+  ...
+# Subtest: empty successful reports differ from failed reads and stale failures cannot overwrite recovery
+ok 270 - empty successful reports differ from failed reads and stale failures cannot overwrite recovery
+  ---
+  duration_ms: 0.9616
+  type: 'test'
+  ...
+# Subtest: disposal prevents late failures and new requests from changing report recovery state
+ok 271 - disposal prevents late failures and new requests from changing report recovery state
+  ---
+  duration_ms: 1.9536
+  type: 'test'
+  ...
+# Subtest: 字段乱序只展示当前报表，旧字段不能被插入当前表达式
+ok 272 - 字段乱序只展示当前报表，旧字段不能被插入当前表达式
+  ---
+  duration_ms: 10.994
+  type: 'test'
+  ...
+# Subtest: 旧字段请求失败不能解除新请求加载状态，当前失败可明确重读
+ok 273 - 旧字段请求失败不能解除新请求加载状态，当前失败可明确重读
+  ---
+  duration_ms: 2.2594
+  type: 'test'
+  ...
+# Subtest: 关闭重开同一规则与销毁都会使旧字段响应失效
+ok 274 - 关闭重开同一规则与销毁都会使旧字段响应失效
+  ---
+  duration_ms: 2.4211
+  type: 'test'
+  ...
+# Subtest: 语法校验结果绑定报表、公司和表达式，改完输入不再显示旧成功
+ok 275 - 语法校验结果绑定报表、公司和表达式，改完输入不再显示旧成功
+  ---
+  duration_ms: 3.9612
+  type: 'test'
+  ...
+# Subtest: 当前成功校验随输入变化立即失效，失败重试不会保留成功提示
+ok 276 - 当前成功校验随输入变化立即失效，失败重试不会保留成功提示
+  ---
+  duration_ms: 1.5046
+  type: 'test'
+  ...
+# Subtest: 校验乱序时旧失败不解除新校验加载，同输入新窗口仍拒绝旧成功
+ok 277 - 校验乱序时旧失败不解除新校验加载，同输入新窗口仍拒绝旧成功
+  ---
+  duration_ms: 1.6699
+  type: 'test'
+  ...
+# Subtest: 关闭编辑器期间校验返回不能显示通过，重开后可重新校验
+ok 278 - 关闭编辑器期间校验返回不能显示通过，重开后可重新校验
+  ---
+  duration_ms: 1.7663
+  type: 'test'
+  ...
+# Subtest: 保存旧草稿的迟到回包不能关闭或解除新编辑器的保存状态
+ok 279 - 保存旧草稿的迟到回包不能关闭或解除新编辑器的保存状态
+  ---
+  duration_ms: 1.7436
+  type: 'test'
+  ...
+# Subtest: 规则历史 A/B 乱序不会把 A 的内容显示在 B 的标题下
+ok 280 - 规则历史 A/B 乱序不会把 A 的内容显示在 B 的标题下
+  ---
+  duration_ms: 6.0716
+  type: 'test'
+  ...
+# Subtest: 切换规则历史清空旧事实，旧请求失败不结束新范围读取
+ok 281 - 切换规则历史清空旧事实，旧请求失败不结束新范围读取
+  ---
+  duration_ms: 2.2568
+  type: 'test'
+  ...
+# Subtest: 关闭后重开相同规则范围，旧历史不能填入新窗口
+ok 282 - 关闭后重开相同规则范围，旧历史不能填入新窗口
+  ---
+  duration_ms: 1.6463
+  type: 'test'
+  ...
+# Subtest: 当前规则历史失败保留原范围，重试成功后清除错误
+ok 283 - 当前规则历史失败保留原范围，重试成功后清除错误
+  ---
+  duration_ms: 1.4171
+  type: 'test'
+  ...
+# Subtest: 关闭历史后迟到成功或失败都不能重新打开窗口
+ok 284 - 关闭历史后迟到成功或失败都不能重新打开窗口
+  ---
+  duration_ms: 2.8625
+  type: 'test'
+  ...
+# Subtest: 离开规则页面后忽略历史回包，也不再发出新的历史请求
+ok 285 - 离开规则页面后忽略历史回包，也不再发出新的历史请求
+  ---
+  duration_ms: 1.2691
+  type: 'test'
+  ...
+# Subtest: failed trial clears the old result and releases loading
+ok 286 - failed trial clears the old result and releases loading
+  ---
+  duration_ms: 5.9034
+  type: 'test'
+  ...
+# Subtest: editing report, company or expression invalidates displayed results
+ok 287 - editing report, company or expression invalidates displayed results
+  ---
+  duration_ms: 2.9081
+  type: 'test'
+  ...
+# Subtest: input changes during a request reject the late response
+ok 288 - input changes during a request reject the late response
+  ---
+  duration_ms: 1.6839
+  type: 'test'
+  ...
+# Subtest: opening another editor invalidates old requests even with identical inputs
+ok 289 - opening another editor invalidates old requests even with identical inputs
+  ---
+  duration_ms: 1.4012
+  type: 'test'
+  ...
+# Subtest: an old failure cannot end loading or replace a newer result
+ok 290 - an old failure cannot end loading or replace a newer result
+  ---
+  duration_ms: 1.9097
+  type: 'test'
+  ...
+# Subtest: closing and destroying an editor prevent late results
+ok 291 - closing and destroying an editor prevent late results
+  ---
+  duration_ms: 2.3817
+  type: 'test'
+  ...
+# Subtest: dictionary late replies never cross company scope or release another request loading state
+ok 292 - dictionary late replies never cross company scope or release another request loading state
+  ---
+  duration_ms: 8.5206
+  type: 'test'
+  ...
+# Subtest: failed dictionary refresh clears the editable old definition
+ok 293 - failed dictionary refresh clears the editable old definition
+  ---
+  duration_ms: 1.624
+  type: 'test'
+  ...
+# Subtest: publish confirmation is pinned to scope and never submits after switching company
+ok 294 - publish confirmation is pinned to scope and never submits after switching company
+  ---
+  duration_ms: 1.3727
+  type: 'test'
+  ...
+# Subtest: publish confirmation cannot silently submit an edited definition or new version
+ok 295 - publish confirmation cannot silently submit an edited definition or new version
+  ---
+  duration_ms: 1.8353
+  type: 'test'
+  ...
+# Subtest: valid publish uses the captured version and reloads the published scope
+ok 296 - valid publish uses the captured version and reloads the published scope
+  ---
+  duration_ms: 1.4505
+  type: 'test'
+  ...
+# Subtest: validation results expire on either definition or reason edits without leaving a spinner
+ok 297 - validation results expire on either definition or reason edits without leaving a spinner
+  ---
+  duration_ms: 2.2497
+  type: 'test'
+  ...
+# Subtest: history closing and reopening ignores the previous result and binds the title
+ok 298 - history closing and reopening ignores the previous result and binds the title
+  ---
+  duration_ms: 1.1961
+  type: 'test'
+  ...
+# Subtest: a different login or disposal prevents late diagnostic and dictionary publication
+ok 299 - a different login or disposal prevents late diagnostic and dictionary publication
+  ---
+  duration_ms: 1.2792
+  type: 'test'
+  ...
+# Subtest: feedback retries reuse the request key and changed text receives a new key
+ok 300 - feedback retries reuse the request key and changed text receives a new key
+  ---
+  duration_ms: 2.0605
+  type: 'test'
+  ...
+# Subtest: late feedback pages cannot append to a newly opened diagnostic
+ok 301 - late feedback pages cannot append to a newly opened diagnostic
+  ---
+  duration_ms: 1.5362
+  type: 'test'
+  ...
+# Subtest: condition edits preserve large decimals, textual IDs, both interval ends and OR groups
+ok 302 - condition edits preserve large decimals, textual IDs, both interval ends and OR groups
+  ---
+  duration_ms: 0.4786
+  type: 'test'
+  ...
+# Subtest: condition edits distinguish clearing all conditions, an invalid empty group and NULL
+ok 303 - condition edits distinguish clearing all conditions, an invalid empty group and NULL
+  ---
+  duration_ms: 0.3607
+  type: 'test'
+  ...
+# Subtest: task status changes reject late replies and reset to first page
+ok 304 - task status changes reject late replies and reset to first page
+  ---
+  duration_ms: 2.8072
+  type: 'test'
+  ...
+# Subtest: failed paging clears facts and retries the same cursor without skipping a page
+ok 305 - failed paging clears facts and retries the same cursor without skipping a page
+  ---
+  duration_ms: 1.1117
+  type: 'test'
+  ...
+# Subtest: an empty permission filtered scan can still load older visible tasks
+ok 306 - an empty permission filtered scan can still load older visible tasks
+  ---
+  duration_ms: 0.9496
+  type: 'test'
+  ...
+# Subtest: old failures cannot clear the loading state or overwrite a newer request
+ok 307 - old failures cannot clear the loading state or overwrite a newer request
+  ---
+  duration_ms: 0.8902
+  type: 'test'
+  ...
+# Subtest: late task replies after logout, another session or destruction are discarded
+ok 308 - late task replies after logout, another session or destruction are discarded
+  ---
+  duration_ms: 2.5007
+  type: 'test'
+  ...
+# Subtest: plan details are bound to both target and open dialog lifetime
+ok 309 - plan details are bound to both target and open dialog lifetime
+  ---
+  duration_ms: 1.912
+  type: 'test'
+  ...
+# Subtest: revoked detail reads clear earlier facts and keep a retryable error
+ok 310 - revoked detail reads clear earlier facts and keep a retryable error
+  ---
+  duration_ms: 0.7603
+  type: 'test'
+  ...
+# Subtest: operator job detail uses the delegated read path and resets for ordinary jobs
+ok 311 - operator job detail uses the delegated read path and resets for ordinary jobs
+  ---
+  duration_ms: 0.6904
+  type: 'test'
+  ...
+# Subtest: closing, switching, refreshing or losing a session invalidates a pending business confirmation
+ok 312 - closing, switching, refreshing or losing a session invalidates a pending business confirmation
+  ---
+  duration_ms: 5.2
+  type: 'test'
+  ...
+# Subtest: explicit confirmation submits once and refreshes the matching plan without replaying on read
+ok 313 - explicit confirmation submits once and refreshes the matching plan without replaying on read
+  ---
+  duration_ms: 7.5132
+  type: 'test'
+  ...
+# Subtest: history and plan clients only make GET calls and encode plan identity
+ok 314 - history and plan clients only make GET calls and encode plan identity
+  ---
+  duration_ms: 1.7048
+  type: 'test'
+  ...
+1..314
+# tests 314
+# suites 0
+# pass 314
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 3024.4507

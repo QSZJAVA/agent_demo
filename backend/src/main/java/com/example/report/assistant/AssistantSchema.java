@@ -28,11 +28,11 @@ public final class AssistantSchema {
         return object(props("field",string(false),"operator",operator,
                 "values",array(string(false),30)));
     }
-    /** 模型一次选择业务查询或已有派单规划；澄清提供说明及可核验候选，不携带可执行查询。 */
+    /** 模型一次选择查询、派单、知识或有限分析；分析只带范围、模式与服务器引用，本轮问题由外层原样绑定。 */
     public static String planSchema() {
         var nullableQuery=new LinkedHashMap<>(querySchema());nullableQuery.put("type",List.of("object","null"));
         var removals=array(object(props("field",string(false),"evidence",string(false))),16);
-        removals.put("description","仅BUSINESS_QUERY且followUp=true时声明整个旧字段限制被撤销，且该字段不再出现在新conditions。更换比较符、阈值或一个端点后仍使用该字段时不填。DISPATCH、HELP、CLARIFY及独立新查询必须为空；候选排除/恢复不是筛选撤销。");
+        removals.put("description","仅BUSINESS_QUERY且followUp=true时声明整个旧字段限制被撤销，且该字段不再出现在新conditions。更换比较符、阈值或一个端点后仍使用该字段时不填。DISPATCH、KNOWLEDGE、ANALYSIS、HELP、CLARIFY及独立新查询必须为空；候选排除/恢复不是筛选撤销。");
         Map<String,Object> intent;
         try(var in=new org.springframework.core.io.ClassPathResource("semantic/intent-v1.schema.json").getInputStream()) {
             intent=JsonUtil.toMap(new String(in.readAllBytes(),java.nio.charset.StandardCharsets.UTF_8));
@@ -45,8 +45,14 @@ public final class AssistantSchema {
         var clarificationOptions=object(props("kind",enumeration("COMPANY","REPORT","FIELD","VALUE"),"domain",props("type",List.of("string","null"),"enum",Arrays.asList("REPORT","DISPATCH","WORK_ORDER",null)),"companyCode",string(true),"reportId",string(true),"field",string(true),"values",array(string(false),8)));
         clarificationOptions.put("type",List.of("object","null"));
         clarificationOptions.put("description","仅CLARIFY且存在2至8个可核实候选时提供。COMPANY使用授权公司代码；REPORT使用授权报表ID，两者domain/companyCode/reportId/field均为空。FIELD给domain、companyCode、reportId及真实字段名values，field为空。VALUE给domain、companyCode、reportId、field和businessDictionary中同一范围已声明的枚举原值。不能跨公司或数据域拼凑候选，不提供未授权、未知或虚构选项。其他情况显式为null。");
-        return JsonUtil.toJson(object(props("route",enumeration("BUSINESS_QUERY","DISPATCH","HELP","CLARIFY"),"query",nullableQuery,
-                "followUp",Map.of("type","boolean"),"clarification",string(true),"removedFilters",removals,"dispatch",dispatch,"clarificationOptions",clarificationOptions)));
+        var analysisRef=props("type",List.of("string","null"),"pattern","^analysis-source-[a-f0-9]{24}$","maxLength",40,
+                "description","只能复制本轮analysisContext中的sourceRef；不能提供snapshotId、其他引用或模型自造标识。知识模式为null，快照模式必填，当前数据模式仅在用户明确比较原快照时填写。");
+        var analysis=object(props("companyCode",props("type","string","minLength",1,"maxLength",32),
+                "reportId",props("type","string","pattern","^[a-z][a-z0-9-]{2,63}$","maxLength",64),
+                "mode",enumeration("KNOWLEDGE_ONLY","CURRENT_DATA","SNAPSHOT_ONLY"),"sourceRef",analysisRef));
+        analysis.put("type",List.of("object","null"));analysis.put("description","KNOWLEDGE只用KNOWLEDGE_ONLY；ANALYSIS选择CURRENT_DATA或SNAPSHOT_ONLY。单公司单报表必须来自当前授权目录。其他路由为null。不含question或执行步骤，服务器始终绑定用户本轮原文。");
+        return JsonUtil.toJson(object(props("route",enumeration("BUSINESS_QUERY","DISPATCH","KNOWLEDGE","ANALYSIS","HELP","CLARIFY"),"query",nullableQuery,
+                "followUp",Map.of("type","boolean"),"clarification",string(true),"removedFilters",removals,"dispatch",dispatch,"clarificationOptions",clarificationOptions,"analysis",analysis)));
     }
     /** 复核先声明原文语义，再给完整期望；通过与差异由程序计算，不接受自由文本自报结论。 */
     public static String reviewSchema() {
@@ -56,7 +62,7 @@ public final class AssistantSchema {
         var count=targetCountSchema();
         var checks=array(object(props("condition",filterSchema(),"origin",enumeration("CURRENT_REQUEST","ACTIVE_QUERY","VISIBLE_OBJECT"),
                 "evidence",string(false),"negationEvidence",string(false))),128);
-        checks.put("description","每项严格只有condition、origin、evidence、negationEvidence。condition按field、operator、values绑定expectedPlan内实际字段条件，与数组顺序无关；同一条件重复出现时只说明一次。CURRENT_REQUEST是本轮新增/修改；ACTIVE_QUERY只能继承previousQuery中完全相同且仍有效的条件；VISIBLE_OBJECT只能引用实际展示字段值。evidence为本轮原话。negationEvidence只引用对整个比较取反的独立否定短语；不含本数及候选排除时为空。无条件时为[]。");
+        checks.put("description","每项严格只有condition、origin、evidence、negationEvidence。condition按field、operator、values绑定expectedPlan内实际字段条件，与数组顺序无关；同一条件重复出现时只说明一次。CURRENT_REQUEST是本轮新增/修改；ACTIVE_QUERY只能继承previousQuery中完全相同且仍有效的条件；VISIBLE_OBJECT只能引用实际展示字段值。evidence为本轮原话。negationEvidence只引用对整个比较取反的独立否定短语；不含本数及候选排除时为空。无条件时为[]；KNOWLEDGE/ANALYSIS由专用分析器继续理解原问题，此处不生成query条件，必须为[]。");
         var changes=array(object(props("condition",filterSchema(),"evidence",string(false))),128);
         changes.put("description","每项严格只有condition和evidence。同报表、公司和数据域的FOLLOW_UP中，每个未原样保留的previousQuery旧条件须逐项说明；condition复制真实旧条件，evidence引用本轮授权改变它的原话。端点方向由旧operator确定，不额外输出scope。只改上限不删除下限，反之亦然。重复相同限制没有旧条件变化。没有变化、独立查询、跨范围查询、资格核验及非查询均为[]。");
         // 先生成实际期望计划，再为其中存在的条件声明证据；避免先列历史条件后才决定澄清而留下无效证据。
@@ -65,7 +71,7 @@ public final class AssistantSchema {
     /** 详细复核前使用的独立目标契约，不暴露记录选择、SQL或执行参数。 */
     public static String purposeSchema(){
         var purpose=enumeration(Arrays.stream(TaskPurpose.Purpose.values()).map(Enum::name).toArray(String[]::new));
-        purpose.put("description","按用户要求的结果分类。询问能力或是否支持某项操作使用HELP，即使该操作当前不支持；只有明确请求执行未支持操作或目标多义才CLARIFY，不能把解释能力当成执行授权。");
+        purpose.put("description","按用户要求的结果分类。KNOWLEDGE用于需引用资料的制度/口径问答；ANALYSIS用于有限多步统计、排序展开、比较或明确只分析已有快照。普通一次查询保留BUSINESS_QUERY。询问助手能力或是否支持某项操作使用HELP，即使该操作当前不支持；只有明确请求执行未支持操作或目标多义才CLARIFY，不能把解释能力当成执行授权。");
         var domain=props("type",List.of("string","null"),"enum",Arrays.asList("REPORT","DISPATCH","WORK_ORDER",null),
                 "description","BUSINESS_QUERY必须填写REPORT报表业务记录、DISPATCH派单记录或WORK_ORDER工单；其他目标填null。FOLLOW_UP必须与activeQuery.domain相同，跨域查询必须INDEPENDENT。");
         var result=string(false);result.put("description","先用一句业务语言说明用户本轮想得到的结果，包括明确总数与限定；这是目标，不是系统要先做的步骤。需要先核对候选时也不能把用户的建单目标改成预览。");
@@ -78,7 +84,7 @@ public final class AssistantSchema {
     private static Map<String,Object> targetCountSchema() {
         var count=object(props("count",Map.of("type","integer","minimum",0,"maximum",100000),"evidence",string(false)));
         count.put("type",List.of("object","null"));
-        count.put("description","仅当本轮明确指定最终候选选择/待确认清单总条数时填写；金额、序号、排除或恢复操作的局部条数不是最终总数。未限定时必须为null。count不依据当前实际条数推断。");
+        count.put("description","仅当本轮明确指定最终候选选择/待确认清单总条数时填写；金额、序号、排除或恢复操作的局部条数、有限分析中的排名组数均不是该派单总数。KNOWLEDGE/ANALYSIS及未限定时必须为null。count不依据当前实际条数推断。");
         return count;
     }
     private static Map<String,Object> object(Map<String,Object> fields){return props("type","object","properties",fields,"required",List.copyOf(fields.keySet()),"additionalProperties",false);}

@@ -15,7 +15,7 @@ import static org.mockito.Mockito.*;
 class AnalysisModelUsageTest {
     @SuppressWarnings("unchecked")
     static AnalysisEngine engine(AnalysisModel model){var provider=mock(ObjectProvider.class);when(provider.getIfAvailable()).thenReturn(model);return new AnalysisEngine(provider,null,mock(AnalysisRepository.class),null,null,null);}
-    static AnalysisEngine.Session session(Runnable guard){return new AnalysisEngine.Session("run","lease",new CurrentUser("T001","reader","用户",Set.of("A"),Set.of("report:sales"),false),new AnalysisContract.Request("A","rpt-sales-order","说明口径",null),KnowledgeRagTest.snapshot(List.of()),guard);}
+    static AnalysisEngine.Session session(Runnable guard){return new AnalysisEngine.Session("run","lease",new CurrentUser("T001","reader","用户",Set.of("A"),Set.of("report:sales"),false),new AnalysisContract.Request("A","rpt-sales-order","说明口径",AnalysisContract.Mode.KNOWLEDGE_ONLY,null),KnowledgeRagTest.snapshot(List.of()),guard);}
     static void call(AnalysisEngine engine,AnalysisEngine.Session session){ReflectionTestUtils.invokeMethod(engine,"call",session,"RAG_REWRITE","server instructions",Map.of(),"{}");}
     @Test void receivedUsageSurvivesPermissionOrVersionFailureAfterResponse() {
         var model=mock(AnalysisModel.class);when(model.call(anyString(),any(),anyString(),any())).thenReturn(new AnalysisModel.Reply("{}",new ModelUsage(120,30,15),25,"actual-model"));

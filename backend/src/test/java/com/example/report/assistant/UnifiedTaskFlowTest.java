@@ -63,7 +63,20 @@ class UnifiedTaskFlowTest {
             }
         };
         var assistant=new BusinessAssistantService(planner,h.catalogService,provider,conversations,permissions);
-        service=new SemanticConversationService(new IntentCodec(),store,new SemanticPlanner(h.catalogService),conversations,h.previews,h.plans,h.store.plans(),h.catalogService,h.quotas,h.props,assistant);
+        var receipts=mock(ChatTurnReceiptStore.class);var analysis=mock(ChatAnalysisService.class);
+        var received=new HashMap<String,Map<String,Object>>();var keys=new HashMap<String,String>();
+        when(receipts.receive(eq(USER1),anyString(),anyString(),any())).thenAnswer(call->{
+            String request=JsonUtil.newId(),key=call.getArgument(2);var row=new HashMap<String,Object>();
+            row.put("conversation_id",id);row.put("request_id",request);row.put("status","RECEIVED");received.put(request,row);keys.put(key,request);
+            return new ChatTurnReceiptStore.Accepted(row,false);
+        });
+        when(receipts.requireRequest(eq(USER1),anyString())).thenAnswer(call->received.get(call.getArgument(1)));
+        when(receipts.require(eq(USER1),anyString())).thenAnswer(call->received.get(keys.get(call.getArgument(1))));
+        when(receipts.begin(eq(USER1),anyString())).thenAnswer(call->{var row=received.get(call.getArgument(1));row.put("status","PLANNING");row.put("processing_until",java.time.LocalDateTime.ofInstant(java.time.Instant.now().plusSeconds(180),java.time.ZoneOffset.UTC));return true;});
+        doAnswer(call->{received.get(call.getArgument(1)).put("status","COMPLETED");return null;}).when(receipts).complete(eq(USER1),anyString());
+        when(analysis.context(eq(USER1),any())).thenReturn(Map.of("available",false,"source",Map.of()));
+        when(analysis.receipt(eq(USER1),anyMap())).thenAnswer(call->Map.of("status",((Map<?,?>)call.getArgument(1)).get("status")));
+        service=new SemanticConversationService(new IntentCodec(),store,new SemanticPlanner(h.catalogService),conversations,h.previews,h.plans,h.store.plans(),h.catalogService,h.quotas,h.props,assistant,receipts,analysis);
     }
     private List<String> turn(String message,BiFunction<String,DialogueState,AssistantPlan> factory) {
         return turn(message,null,List.of(),factory);

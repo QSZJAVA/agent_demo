@@ -1,0 +1,14 @@
+-------------------------------------------------------------------------------
+Test set: com.example.report.semantic.ChatAnalysisBoundaryTest
+-------------------------------------------------------------------------------
+Tests run: 14, Failures: 0, Errors: 1, Skipped: 0, Time elapsed: 0.065 s <<< FAILURE! -- in com.example.report.semantic.ChatAnalysisBoundaryTest
+com.example.report.semantic.ChatAnalysisBoundaryTest.inaccessibleTaskReceiptDoesNotExposePriorScopeOrCachedAnswer -- Time elapsed: 0.014 s <<< ERROR!
+java.lang.ClassCastException: class java.time.Instant cannot be cast to class java.sql.Timestamp (java.time.Instant is in module java.base of loader 'bootstrap'; java.sql.Timestamp is in module java.sql of loader 'platform')
+	at com.example.report.workspace.QuerySnapshotStore.localTime(QuerySnapshotStore.java:117)
+	at com.example.report.workspace.QuerySnapshotStore.instant(QuerySnapshotStore.java:118)
+	at com.example.report.semantic.ChatAnalysisService.receipt(ChatAnalysisService.java:138)
+	at com.example.report.semantic.ChatAnalysisBoundaryTest.inaccessibleTaskReceiptDoesNotExposePriorScopeOrCachedAnswer(ChatAnalysisBoundaryTest.java:122)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:580)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1596)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1596)
+

@@ -1,0 +1,393 @@
+- complementary:
+  - generic: 
+  - text: 报表工作台
+  - generic: 业务协同 · 演示系统
+  - generic: 业务空间
+  - menubar:
+    - menuitem " 销售报表":
+      - generic: 
+      - text: 销售报表
+    - menuitem " 我的任务":
+      - generic: 
+      - text: 我的任务
+    - menuitem " 查询工作区":
+      - generic: 
+      - text: 查询工作区
+    - menuitem " 分析与问答":
+      - generic: 
+      - text: 分析与问答
+    - menuitem " 语义质量":
+      - generic: 
+      - text: 语义质量
+    - menuitem " 派单规则":
+      - generic: 
+      - text: 派单规则
+- generic: 分析与问答
+- generic: 
+- text: 本例统一聊天用户
+- button "退出登录"
+- button " 业务助手":
+  - generic: 
+  - text: 业务助手
+- main:
+  - heading "分析与问答" [level=2]
+  - paragraph: 把统计、排序和明细展开连起来，用有来源的业务知识解释结果。
+  - alert:
+    - generic: 
+    - generic: 查询快照不存在或无权查看 
+  - text: 执行范围
+  - textbox "执行范围 ":
+    - /placeholder: 请选择
+    - text: 当前数据分析
+  - generic: 
+  - text: 公司
+  - textbox "公司 ":
+    - /placeholder: 请选择
+    - text: A 公司
+  - generic: 
+  - text: 报表
+  - textbox "报表 ":
+    - /placeholder: 请选择
+    - text: 销售报表
+  - generic: 
+  - paragraph: 可在所选范围内查询、统计和比较当前业务数据。
+  - textbox "例如：按产品汇总上月销售额，取金额最高的两个产品，展开它们的明细；再说明销售金额的口径。"
+  - generic: 0/2000
+  - button "开始分析" [disabled]
+  - generic: 一次任务最多 6 步，可查看依据和中间结果。
+  - generic: 最近任务
+  - button "刷新"
+  - paragraph: 暂无可查看的任务
+  - paragraph: 选择公司和报表，输入问题。历史任务可以直接打开，刷新不会重新分析。
+  - text: 
+- document:
+  - dialog:
+    - generic: 历史会话
+    - button " 新建":
+      - generic: 
+      - text: 新建
+    - button "查询A公司2026年9月销售报表，金额大于100元且不超过1 2026-10-13 04:35  " [active]:
+      - generic "查询A公司2026年9月销售报表，金额大于100元且不超过1"
+      - generic: 2026-10-13 04:35
+      - generic "改名": 
+      - generic "删除": 
+    - button "查询A公司2026年9月的销售报表，按产品汇总销售金额，取金 2026-10-13 04:26  ":
+      - generic "查询A公司2026年9月的销售报表，按产品汇总销售金额，取金"
+      - generic: 2026-10-13 04:26
+      - generic "改名": 
+      - generic "删除": 
+    - button "A公司销售金额的业务口径是什么？它是否等于已收款？请给出知识 2026-10-13 04:23  ":
+      - generic "A公司销售金额的业务口径是什么？它是否等于已收款？请给出知识"
+      - generic: 2026-10-13 04:23
+      - generic "改名": 
+      - generic "删除": 
+    - generic: 业务助手
+    - generic: 模型：deepseek-v4.1-flash
+    - button "":
+      - generic: 
+    - generic: 查询A公司2026年9月销售报表，金额大于100元且不超过110元，按金额从高到低展示。
+    - paragraph: 本次查询匹配 10 条报表记录，当前第 1 页展示 10 条。
+    - strong: 报表数据
+    - generic: 只读查询
+    - paragraph: 业务系统当前记录 · 查询时间 2026-10-13 04:32:53
+    - button "打开查询工作区 · 保存 / 分析 / 导出"
+    - paragraph: 公司：A；报表范围：销售报表；排序：金额 降序
+    - paragraph: 筛选：(业务日期 大于等于 2026-09-01 且 业务日期 小于 2026-10-01 且 金额 大于 100 且 金额 小于等于 110)
+    - button "修改查询条件" [disabled]
+    - tablist:
+      - tab "查看本轮条件变化与依据 ":
+        - button "查看本轮条件变化与依据 ":
+          - text: 查看本轮条件变化与依据
+          - generic: 
+    - generic: 匹配 10 条
+    - generic: CNY 合计 1045.10
+    - table:
+      - rowgroup:
+        - row "序号 单据号 报表 公司 金额 业务日期 状态 订单号 产品名称 销售日期，字符串 yyyy-MM-dd 距销售日期的天数（派生） 来源记录是否已派单；true为已派单，false为未派单，不代表满足派单规则":
+          - columnheader "序号":
+            - generic: 序号
+          - columnheader "单据号":
+            - generic: 单据号
+          - columnheader "报表":
+            - generic: 报表
+          - columnheader "公司":
+            - generic: 公司
+          - columnheader "金额":
+            - generic: 金额
+          - columnheader "业务日期":
+            - generic: 业务日期
+          - columnheader "状态":
+            - generic: 状态
+          - columnheader "订单号":
+            - generic: 订单号
+          - columnheader "产品名称":
+            - generic: 产品名称
+          - columnheader "销售日期，字符串 yyyy-MM-dd":
+            - generic: 销售日期，字符串 yyyy-MM-dd
+          - columnheader "距销售日期的天数（派生）":
+            - generic: 距销售日期的天数（派生）
+          - columnheader "来源记录是否已派单；true为已派单，false为未派单，不代表满足派单规则":
+            - generic: 来源记录是否已派单；true为已派单，false为未派单，不代表满足派单规则
+          - columnheader
+    - table:
+      - rowgroup:
+        - row "1 UA-109 销售报表 A 109.01 2026-09-26 未派单 UA-109 alpha 2026-09-26 17 false":
+          - cell "1":
+            - generic: "1"
+          - cell "UA-109":
+            - generic: UA-109
+          - cell "销售报表":
+            - generic: 销售报表
+          - cell "A":
+            - generic: A
+          - cell "109.01":
+            - generic: "109.01"
+          - cell "2026-09-26":
+            - generic: 2026-09-26
+          - cell "未派单":
+            - generic "未派单"
+          - cell "UA-109":
+            - generic: UA-109
+          - cell "alpha":
+            - generic: alpha
+          - cell "2026-09-26":
+            - generic: 2026-09-26
+          - cell "17":
+            - generic: "17"
+          - cell "false":
+            - generic: "false"
+        - row "2 UA-108 销售报表 A 108.01 2026-09-25 未派单 UA-108 Alpha 2026-09-25 18 false":
+          - cell "2":
+            - generic: "2"
+          - cell "UA-108":
+            - generic: UA-108
+          - cell "销售报表":
+            - generic: 销售报表
+          - cell "A":
+            - generic: A
+          - cell "108.01":
+            - generic: "108.01"
+          - cell "2026-09-25":
+            - generic: 2026-09-25
+          - cell "未派单":
+            - generic "未派单"
+          - cell "UA-108":
+            - generic: UA-108
+          - cell "Alpha":
+            - generic: Alpha
+          - cell "2026-09-25":
+            - generic: 2026-09-25
+          - cell "18":
+            - generic: "18"
+          - cell "false":
+            - generic: "false"
+        - row "3 UA-107 销售报表 A 107.01 2026-09-24 未派单 UA-107 alpha 2026-09-24 19 false":
+          - cell "3":
+            - generic: "3"
+          - cell "UA-107":
+            - generic: UA-107
+          - cell "销售报表":
+            - generic: 销售报表
+          - cell "A":
+            - generic: A
+          - cell "107.01":
+            - generic: "107.01"
+          - cell "2026-09-24":
+            - generic: 2026-09-24
+          - cell "未派单":
+            - generic "未派单"
+          - cell "UA-107":
+            - generic: UA-107
+          - cell "alpha":
+            - generic: alpha
+          - cell "2026-09-24":
+            - generic: 2026-09-24
+          - cell "19":
+            - generic: "19"
+          - cell "false":
+            - generic: "false"
+        - row "4 UA-106 销售报表 A 106.01 2026-09-23 未派单 UA-106 Alpha 2026-09-23 20 false":
+          - cell "4":
+            - generic: "4"
+          - cell "UA-106":
+            - generic: UA-106
+          - cell "销售报表":
+            - generic: 销售报表
+          - cell "A":
+            - generic: A
+          - cell "106.01":
+            - generic: "106.01"
+          - cell "2026-09-23":
+            - generic: 2026-09-23
+          - cell "未派单":
+            - generic "未派单"
+          - cell "UA-106":
+            - generic: UA-106
+          - cell "Alpha":
+            - generic: Alpha
+          - cell "2026-09-23":
+            - generic: 2026-09-23
+          - cell "20":
+            - generic: "20"
+          - cell "false":
+            - generic: "false"
+        - row "5 UA-105 销售报表 A 105.01 2026-09-22 未派单 UA-105 alpha 2026-09-22 21 false":
+          - cell "5":
+            - generic: "5"
+          - cell "UA-105":
+            - generic: UA-105
+          - cell "销售报表":
+            - generic: 销售报表
+          - cell "A":
+            - generic: A
+          - cell "105.01":
+            - generic: "105.01"
+          - cell "2026-09-22":
+            - generic: 2026-09-22
+          - cell "未派单":
+            - generic "未派单"
+          - cell "UA-105":
+            - generic: UA-105
+          - cell "alpha":
+            - generic: alpha
+          - cell "2026-09-22":
+            - generic: 2026-09-22
+          - cell "21":
+            - generic: "21"
+          - cell "false":
+            - generic: "false"
+        - row "6 UA-104 销售报表 A 104.01 2026-09-21 未派单 UA-104 Alpha 2026-09-21 22 false":
+          - cell "6":
+            - generic: "6"
+          - cell "UA-104":
+            - generic: UA-104
+          - cell "销售报表":
+            - generic: 销售报表
+          - cell "A":
+            - generic: A
+          - cell "104.01":
+            - generic: "104.01"
+          - cell "2026-09-21":
+            - generic: 2026-09-21
+          - cell "未派单":
+            - generic "未派单"
+          - cell "UA-104":
+            - generic: UA-104
+          - cell "Alpha":
+            - generic: Alpha
+          - cell "2026-09-21":
+            - generic: 2026-09-21
+          - cell "22":
+            - generic: "22"
+          - cell "false":
+            - generic: "false"
+        - row "7 UA-103 销售报表 A 103.01 2026-09-20 未派单 UA-103 alpha 2026-09-20 23 false":
+          - cell "7":
+            - generic: "7"
+          - cell "UA-103":
+            - generic: UA-103
+          - cell "销售报表":
+            - generic: 销售报表
+          - cell "A":
+            - generic: A
+          - cell "103.01":
+            - generic: "103.01"
+          - cell "2026-09-20":
+            - generic: 2026-09-20
+          - cell "未派单":
+            - generic "未派单"
+          - cell "UA-103":
+            - generic: UA-103
+          - cell "alpha":
+            - generic: alpha
+          - cell "2026-09-20":
+            - generic: 2026-09-20
+          - cell "23":
+            - generic: "23"
+          - cell "false":
+            - generic: "false"
+        - row "8 UA-102 销售报表 A 102.01 2026-09-19 未派单 UA-102 Alpha 2026-09-19 24 false":
+          - cell "8":
+            - generic: "8"
+          - cell "UA-102":
+            - generic: UA-102
+          - cell "销售报表":
+            - generic: 销售报表
+          - cell "A":
+            - generic: A
+          - cell "102.01":
+            - generic: "102.01"
+          - cell "2026-09-19":
+            - generic: 2026-09-19
+          - cell "未派单":
+            - generic "未派单"
+          - cell "UA-102":
+            - generic: UA-102
+          - cell "Alpha":
+            - generic: Alpha
+          - cell "2026-09-19":
+            - generic: 2026-09-19
+          - cell "24":
+            - generic: "24"
+          - cell "false":
+            - generic: "false"
+        - row "9 UA-101 销售报表 A 101.01 2026-09-18 未派单 UA-101 alpha 2026-09-18 25 false":
+          - cell "9":
+            - generic: "9"
+          - cell "UA-101":
+            - generic: UA-101
+          - cell "销售报表":
+            - generic: 销售报表
+          - cell "A":
+            - generic: A
+          - cell "101.01":
+            - generic: "101.01"
+          - cell "2026-09-18":
+            - generic: 2026-09-18
+          - cell "未派单":
+            - generic "未派单"
+          - cell "UA-101":
+            - generic: UA-101
+          - cell "alpha":
+            - generic: alpha
+          - cell "2026-09-18":
+            - generic: 2026-09-18
+          - cell "25":
+            - generic: "25"
+          - cell "false":
+            - generic: "false"
+        - row "10 UA-100 销售报表 A 100.01 2026-09-17 未派单 UA-100 Alpha 2026-09-17 26 false":
+          - cell "10":
+            - generic: "10"
+          - cell "UA-100":
+            - generic: UA-100
+          - cell "销售报表":
+            - generic: 销售报表
+          - cell "A":
+            - generic: A
+          - cell "100.01":
+            - generic: "100.01"
+          - cell "2026-09-17":
+            - generic: 2026-09-17
+          - cell "未派单":
+            - generic "未派单"
+          - cell "UA-100":
+            - generic: UA-100
+          - cell "Alpha":
+            - generic: Alpha
+          - cell "2026-09-17":
+            - generic: 2026-09-17
+          - cell "26":
+            - generic: "26"
+          - cell "false":
+            - generic: "false"
+    - generic: 第 1 页 · 每页 20 条
+    - button "上一页" [disabled]
+    - button "下一页" [disabled]
+    - generic: 历史查询快照
+    - generic: 仅分析刚才这批结果，按产品统计金额合计，取金额最高的一组并展开它的全部单据；不要重新查询当前数据。
+    - generic: 分析与问答任务
+    - status: 该任务当前不可查看，请从分析与问答页面核对。
+    - textbox "例如：查询销售报表 / 查询失败的派单记录 / 总结A公司工单（Enter 发送，Shift+Enter 换行）"
+    - generic: 派单前会先生成待确认清单，点击"确认派单"才会真正执行
+    - button "发送"

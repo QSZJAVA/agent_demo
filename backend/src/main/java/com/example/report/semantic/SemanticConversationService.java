@@ -40,12 +40,16 @@ public class SemanticConversationService {
     private final ResourceQuotaService quotas;
     private final AgentProperties props;
     private final com.example.report.assistant.BusinessAssistantService assistant;
+    private final ChatTurnReceiptStore receipts;
+    private final ChatAnalysisService chatAnalyses;
     public SemanticConversationService(IntentCodec codec, DialogueStore store, SemanticPlanner planner,
             ConversationService conversations, PreviewService previews, PlanService plans, PlanRepository planRepository,
-            ReportCatalogService catalog, ResourceQuotaService quotas, AgentProperties props,com.example.report.assistant.BusinessAssistantService assistant) {
+            ReportCatalogService catalog, ResourceQuotaService quotas, AgentProperties props,com.example.report.assistant.BusinessAssistantService assistant,
+            ChatTurnReceiptStore receipts,ChatAnalysisService chatAnalyses) {
         this.codec=codec;this.store=store;this.planner=planner;this.conversations=conversations;
         this.previews=previews;this.plans=plans;this.planRepository=planRepository;this.catalog=catalog;this.quotas=quotas;this.props=props;
         this.assistant=assistant;
+        this.receipts=receipts;this.chatAnalyses=chatAnalyses;
         if (!"active".equals(props.getSemantic().getMode())) throw new IllegalArgumentException("最终演示版仅支持 agent.semantic.mode=active");
     }
     public boolean enabled() { return "active".equals(props.getSemantic().getMode()); }
@@ -62,32 +66,63 @@ public class SemanticConversationService {
     /** 编辑和澄清必须绑定已存在会话，在同一租约内核对引用后才记录用户输入与调用模型。 */
     public Flux<ServerSentEvent<Object>> chat(CurrentUser user,String conversationId,String message,
             String uiPreviewId,List<RecordKey> excludedRecords,String model,AssistantInteraction.QueryEdit edit,AssistantInteraction.ClarificationReply answer) {
-        if(edit!=null && answer!=null || (edit!=null || answer!=null) && (conversationId==null || conversationId.isBlank()))throw new ApiException(422,"结构化回复须绑定原会话且一次只使用一种操作");
-        var conversation=conversationId==null || conversationId.isBlank() ? conversations.create(user,model) : conversations.getOwned(user,conversationId);
-        String id=conversation.getId(), requestId=JsonUtil.newId();
+        return chat(user,conversationId,message,uiPreviewId,excludedRecords,model,edit,answer,JsonUtil.newId());
+    }
+    /**
+     * HTTP调用必须携带原始稳定键；先原子接收再建立流。重复POST仅回放，只有RECEIVED或READY可在显式核对中继续原工作。
+     * 取消连接只停止本轮写入，不取消已经持久化的子分析；刷新读取回执不调用任何模型。
+     */
+    public Flux<ServerSentEvent<Object>> chat(CurrentUser user,String conversationId,String message,
+            String uiPreviewId,List<RecordKey> excludedRecords,String model,AssistantInteraction.QueryEdit edit,AssistantInteraction.ClarificationReply answer,String key) {
+        var input=new ChatTurnReceiptStore.Input(conversationId,message,uiPreviewId,excludedRecords,edit,answer);
+        var accepted=receipts.receive(user,model,key,input);
+        String id=accepted.row().get("conversation_id").toString(),requestId=accepted.row().get("request_id").toString();
+        var conversation=conversations.getOwned(user,id);
         previews.requireConversationReadable(user,id);
         Flux<AgentEvent> events=Flux.<AgentEvent>create(sink -> {
-            try (var permit=quotas.acquire(user,"chat",List.of()); var session=store.acquire(user,id)) {
-                var requestedQuery=AssistantInteraction.editedQuery(user,session.state(),edit);
-                String currentMessage=edit!=null?AssistantInteraction.editMessage(session.state(),requestedQuery):answer!=null?assistant.clarificationMessage(user,session.state(),answer):message;
-                var pending=session.state().getPendingClarification();
-                var selected=answer==null?null:new AssistantInteraction.SelectedClarification(pending,answer.value());
-                // 所有新轮次取代旧澄清；校验失败的旧按钮在此之前返回，不记录为新的业务要求。
-                session.state().setPendingClarification(null);
-                sink.next(new AgentEvent(AgentEvent.CONVERSATION,Map.of("conversationId",id,"requestId",requestId,"title",Objects.toString(conversation.getTitle(),""))));
-                Runnable guard=() -> { session.check(); ResourceQuotaService.check(permit); if (sink.isCancelled()) throw new ApiException(409,"对话连接已关闭"); };
-                Consumer<AgentEvent> emit=event -> { guard.run(); sink.next(event); };
-                turn(user,id,requestId,currentMessage,uiPreviewId,excludedRecords,model,session,guard,emit,requestedQuery,selected);
+            boolean began=false;
+            sink.next(new AgentEvent(AgentEvent.CONVERSATION,Map.of("conversationId",id,"requestId",requestId,"title",Objects.toString(conversation.getTitle(),""),"replayed",accepted.replayed())));
+            try {
+                String status=ChatTurnReceiptStore.status(receipts.requireRequest(user,requestId));
+                if(Set.of("RECEIVED","READY").contains(status))try(var permit=quotas.acquire(user,"chat",List.of());var session=store.acquire(user,id)) {
+                    Runnable guard=()->{session.check();ResourceQuotaService.check(permit);if(sink.isCancelled())throw new ApiException(409,"对话连接已关闭，请核对本次提交");};
+                    Consumer<AgentEvent> emit=event->{guard.run();sink.next(event);};
+                    guard.run();status=ChatTurnReceiptStore.status(receipts.requireRequest(user,requestId));
+                    if("READY".equals(status))chatAnalyses.submitReady(user,requestId,session,guard);
+                    else if("RECEIVED".equals(status)&&session.fenced(()->{guard.run();return receipts.begin(user,requestId);})) {
+                        began=true;
+                        var requestedQuery=AssistantInteraction.editedQuery(user,session.state(),edit);
+                        String currentMessage=edit!=null?AssistantInteraction.editMessage(session.state(),requestedQuery):answer!=null?assistant.clarificationMessage(user,session.state(),answer):message;
+                        var pending=session.state().getPendingClarification();
+                        var selected=answer==null?null:new AssistantInteraction.SelectedClarification(pending,answer.value());
+                        // 新轮次取代旧澄清；原请求回放永远不重复解析选项、不再次消费旧引用。
+                        session.state().setPendingClarification(null);
+                        turn(user,id,requestId,currentMessage,uiPreviewId,excludedRecords,model,session,guard,emit,requestedQuery,selected);
+                        session.fenced(()->{guard.run();receipts.complete(user,requestId);return null;});
+                    }
+                }
             } catch (Exception failure) {
+                // 竞争订阅未取得本轮认领权时只能回读；它的租约/配额错误不能把仍正常规划的胜出请求改成FAILED。
+                try{if(began)receipts.failed(user,requestId,sink.isCancelled()||Thread.currentThread().isInterrupted(),friendly(failure));}
+                catch(RuntimeException receiptFailure){log.warn("聊天失败回执未保存 request={} type={}",requestId,receiptFailure.getClass().getSimpleName());}
                 log.warn("语义对话未完成 conversation={} type={}",id,failure.getClass().getSimpleName());
                 sink.next(new AgentEvent(AgentEvent.ERROR,Map.of("message",friendly(failure))));
             }
-            // A completed stream permits another turn; release the dialogue and quota leases first.
+            // 先释放会话与配额，再回读权威接收结果；客户端即使遗漏其他帧，也可按原键找回同一任务。
+            if(!sink.isCancelled())try {
+                var receipt=receipt(user,key);sink.next(new AgentEvent("turn_receipt",receipt));
+                if(receipt.get("analysisTask")!=null)sink.next(new AgentEvent("analysis_task",receipt.get("analysisTask")));
+            }catch(ApiException unavailable){sink.next(new AgentEvent(AgentEvent.ERROR,Map.of("message",friendly(unavailable))));}
             sink.next(new AgentEvent(AgentEvent.DONE,Map.of())); sink.complete();
         }).subscribeOn(Schedulers.boundedElastic()).timeout(Duration.ofSeconds(store.timeoutSeconds()+5))
                 .onErrorResume(e -> Flux.just(new AgentEvent(AgentEvent.ERROR,Map.of("message","本次处理超时，请刷新会话查看已保存的结果后重试")),new AgentEvent(AgentEvent.DONE,Map.of())));
         return events.index().map(e -> ServerSentEvent.builder((Object)SensitiveData.typed(e.getT2().data()))
                 .id(requestId+":"+e.getT1()).event(e.getT2().type()).build());
+    }
+    /** 按本人客户端键只读找回原会话与任务；历史权限失效时不返回范围、引用或旧答案。 */
+    public Map<String,Object> receipt(CurrentUser user,String key) {
+        var row=receipts.require(user,key);previews.requireConversationReadable(user,row.get("conversation_id").toString());
+        return chatAnalyses.receipt(user,row);
     }
     /**
      * 本轮流程：恢复权威状态、解析并验证意图、合并期望范围、执行确定性业务、保存结果证据。失败只更新澄清/拒绝/失败阶段，不能把失败范围伪装成成功范围。
@@ -95,16 +130,20 @@ public class SemanticConversationService {
     private void turn(CurrentUser user,String id,String requestId,String message,
             String uiPreviewId,List<RecordKey> uiExcludes,String model,DialogueStore.Session session,Runnable guard,Consumer<AgentEvent> emit,BusinessQuery requestedQuery,AssistantInteraction.SelectedClarification selected) {
         long started=System.nanoTime();
-        var state=session.state(); SemanticIntent intent=null; String reply;
+        var state=session.state(); SemanticIntent intent=null; String reply;boolean analysisAttempt=false;
         state.setParserSource(null);
         conversations.logUser(id,user.userId(),message);
         try {
             hydrate(user,id,state);
             // 统一计划直接交接完整动作和对象；只读分支结束本轮，不占用预览版本或修改候选选择。
             var task=assistant.handle(user,id,requestId,message,model,session,guard,emit,currentSelection(user,state),
-                    directive->validateDispatchDraft(user,state,directive,message,uiPreviewId,uiExcludes),requestedQuery,selected);
+                    directive->validateDispatchDraft(user,state,directive,message,uiPreviewId,uiExcludes),requestedQuery,selected,
+                    chatAnalyses.context(user,state),directive->chatAnalyses.preflight(user,state,directive,message));
             if(task.isEmpty())return;
-            var directive=task.get();intent=directive.intent();
+            if(task.get().analysis()!=null) {
+                analysisAttempt=true;chatAnalyses.submitReviewed(user,id,requestId,message,model,task.get(),session,guard,started);return;
+            }
+            var directive=task.get().dispatch();intent=directive.intent();
             codec.validate(intent,message);AssistantReferences.validate(message,state,directive);guard.run();
             state.setAttemptedAt(LocalDateTime.now());
             // 新消息使此前排队的界面查询失效；即使新意图被拒绝，也不能让迟到任务覆盖当前状态。
@@ -131,6 +170,10 @@ public class SemanticConversationService {
             }
             state.setLastReason(null);state.setUnresolvedRequest(false);
         } catch (Exception failure) {
+            // READY已记录语义审计，SUBMITTED已原子保存任务；后续连接错误不能写第二条审计或覆盖可信恢复状态。
+            if(analysisAttempt&&(failure instanceof com.example.report.analysis.AnalysisService.PreparedInvalidated
+                    ||Set.of("READY","SUBMITTED").contains(ChatTurnReceiptStore.status(receipts.requireRequest(user,requestId)))))
+                throw failure instanceof RuntimeException runtime?runtime:new IllegalStateException(failure);
             if (intent==null) {
                 // 未解析的请求整轮不提交；阻止含糊建单，保留已确定范围以便下一轮明确纠正记录条件。
                 state.setUnresolvedRequest(true);

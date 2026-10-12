@@ -29,7 +29,7 @@ public class BusinessAssistantService {
         this.planner=planner;this.catalog=catalog;this.clients=clients;this.conversations=conversations;this.permissions=permissions;
     }
     /**
-     * 处理只读查询、帮助和澄清；派单返回已经复核的完整动作及来源，不允许下游再次解释原文。
+ * 处理只读查询、帮助和澄清；派单、知识与分析返回已经复核的完整计划，不允许下游再次解释原文。
      * @param user 当前身份
      * @param id 会话标识
      * @param requestId 本轮请求标识，供证据关联
@@ -40,20 +40,30 @@ public class BusinessAssistantService {
      * @param emit 有序 SSE 输出
      * @param dispatchSelection 当前候选选择的只读事实及完整性，不能当作默认操作授权
      * @param validateDispatch 派单草稿的无写入预检，返回实际目标或选择结果供通用语义复核
-     * @return 有值表示继续执行该完整派单任务；空表示本轮已处理完毕
+     * @return 有值表示由外层继续执行该完整计划；空表示本轮已处理完毕
      */
-    public Optional<DispatchDirective> handle(CurrentUser user,String id,String requestId,String message,String model,DialogueStore.Session session,Runnable guard,Consumer<AgentEvent> emit,
+    public Optional<AssistantPlan> handle(CurrentUser user,String id,String requestId,String message,String model,DialogueStore.Session session,Runnable guard,Consumer<AgentEvent> emit,
             Map<String,Object> dispatchSelection,Function<DispatchDirective,Map<String,Object>> validateDispatch) {
         return handle(user,id,requestId,message,model,session,guard,emit,dispatchSelection,validateDispatch,null);
     }
     /** 结构化编辑沿用同一模型与业务预检，额外核对用户提交的完整查询，不能转成派单动作。 */
-    public Optional<DispatchDirective> handle(CurrentUser user,String id,String requestId,String message,String model,DialogueStore.Session session,Runnable guard,Consumer<AgentEvent> emit,
+    public Optional<AssistantPlan> handle(CurrentUser user,String id,String requestId,String message,String model,DialogueStore.Session session,Runnable guard,Consumer<AgentEvent> emit,
             Map<String,Object> dispatchSelection,Function<DispatchDirective,Map<String,Object>> validateDispatch,BusinessQuery requestedQuery) {
         return handle(user,id,requestId,message,model,session,guard,emit,dispatchSelection,validateDispatch,requestedQuery,null);
     }
     /** 条件编辑与候选选择都由同一预检核对，约束同时适用于模型草稿和独立复核的完整期望。 */
-    public Optional<DispatchDirective> handle(CurrentUser user,String id,String requestId,String message,String model,DialogueStore.Session session,Runnable guard,Consumer<AgentEvent> emit,
+    public Optional<AssistantPlan> handle(CurrentUser user,String id,String requestId,String message,String model,DialogueStore.Session session,Runnable guard,Consumer<AgentEvent> emit,
             Map<String,Object> dispatchSelection,Function<DispatchDirective,Map<String,Object>> validateDispatch,BusinessQuery requestedQuery,AssistantInteraction.SelectedClarification selected) {
+        return handle(user,id,requestId,message,model,session,guard,emit,dispatchSelection,validateDispatch,requestedQuery,selected,Map.of(),directive->{throw new ApiException(422,"当前入口未提供知识与分析提交上下文");});
+    }
+    /**
+     * 外层提供受控分析来源和无副作用预检，避免分析执行引擎反向依赖形成循环；模型只得到服务器引用，不能指定任意快照。
+     * @param analysisContext 当前成功查询焦点的完整性与不透明来源引用，不含真实snapshotId
+     * @param validateAnalysis 草稿与独立复核共用的当前范围、资料、配置及快照检查，不得创建任务
+     */
+    public Optional<AssistantPlan> handle(CurrentUser user,String id,String requestId,String message,String model,DialogueStore.Session session,Runnable guard,Consumer<AgentEvent> emit,
+            Map<String,Object> dispatchSelection,Function<DispatchDirective,Map<String,Object>> validateDispatch,BusinessQuery requestedQuery,AssistantInteraction.SelectedClarification selected,
+            Map<String,Object> analysisContext,Function<AnalysisDirective,Map<String,Object>> validateAnalysis) {
         long started=System.nanoTime();var state=session.state();
         AssistantPlan plan;
         var diagnostics=new PlanningDiagnostics();SemanticDictionaryService.Snapshot dictionary=null;
@@ -80,9 +90,10 @@ public class BusinessAssistantService {
                     var result=validated.computeIfAbsent(draft.query(),query->read(user,query));
                     return queryEvidence(result);
                 }
+                if(draft.analysis()!=null)return validateAnalysis.apply(draft.analysis());
                 var facts=draft.dispatch()==null?Map.<String,Object>of():validateDispatch.apply(draft.dispatch());
                 AssistantInteraction.requireSelected(draft,selected,facts);return facts;
-            },dictionary.context(),diagnostics).withResolvedClarification(selected==null?Map.of():selected.context()).withRequestedQuery(requestedQuery));guard.run();
+            },dictionary.context(),diagnostics).withResolvedClarification(selected==null?Map.of():selected.context()).withRequestedQuery(requestedQuery).withAnalysisContext(analysisContext));guard.run();
             if(dictionaries!=null)dictionaries.requireUnchanged(user,dictionary);
         } catch(Exception failure) {
             recordDiagnostic(user,id,requestId,message,"FAILED",null,diagnostics,dictionary,session,guard);
@@ -104,7 +115,8 @@ public class BusinessAssistantService {
         recordDiagnostic(user,id,requestId,message,plan.route()==AssistantPlan.Route.CLARIFY?"CLARIFY":"ACCEPTED",plan.route().name(),diagnostics,dictionary,session,guard);
         var accepted=plan;
         session.fenced(()->{guard.run();conversations.logToolCall(id,user.userId(),"assistant_task",Map.of("requestId",requestId,"parserSource",planner.source(),"plan",accepted));return null;});
-        if(plan.route()==AssistantPlan.Route.DISPATCH) {state.setAssistantRoute("DISPATCH");state.setAssistantFocus("DISPATCH");return Optional.of(plan.dispatch());}
+        if(plan.route()==AssistantPlan.Route.DISPATCH) {state.setAssistantRoute("DISPATCH");state.setAssistantFocus("DISPATCH");return Optional.of(plan);}
+        if(plan.route()==AssistantPlan.Route.KNOWLEDGE||plan.route()==AssistantPlan.Route.ANALYSIS)return Optional.of(plan);
         if(attemptedRead[0])state.setBusinessQueryAfterPreview(true);
         boolean previousDispatch="DISPATCH".equals(state.getAssistantFocus());
         state.setAssistantRoute(plan.route().name());
@@ -112,7 +124,7 @@ public class BusinessAssistantService {
         String reply;
         try {
             reply=switch(plan.route()) {
-                case HELP -> "我是业务助手，可以查询报表数据、派单记录、工单进度和工单总结，也可以准备派单清单。你可以问“销售报表金额大于五万元的有哪些”“查询失败的派单记录”“WO-DEMO-001 到哪个环节了”“总结 A 公司工单”。工单环节与审批人为明确标注的演示数据，查询是只读的，我不能代为审批或推进工单；派单仍需核对清单并点击确认。";
+                case HELP -> "我是业务助手，可以查询报表数据、派单记录、工单进度，解释业务知识并附上依据，也可以做分组、排名和有限多步分析。你可以问“A公司销售报表金额大于五万元的有哪些”“只分析刚才这些，按产品统计金额”“解释A公司销售报表的派单条件”“WO-DEMO-001 到哪个环节了”。工单环节与审批人为演示数据；派单仍需核对清单并点击确认。";
                 case CLARIFY -> {
                     state.setUnresolvedRequest(true);
                     if(!previousDispatch)state.setBusinessUnresolved(true);
@@ -136,6 +148,11 @@ public class BusinessAssistantService {
                     var interpretation=QueryInterpretation.describe(state.getBusinessQuery(),result.query(),result.columns(),diagnostics.review(),requestId);
                     state.setBusinessPermissionVersion(user.permissionVersion());state.setBusinessQuery(result.query());state.setBusinessUnresolved(false);
                     state.setBusinessQueryRef(requestId);state.setBusinessColumns(result.columns());
+                    var snapshot=result.snapshot();
+                    state.setBusinessSnapshotId(snapshot==null?null:snapshot.id());
+                    state.setBusinessSnapshotObservedAt(snapshot==null?null:result.observedAt());
+                    state.setBusinessSnapshotExpiresAt(snapshot==null?null:snapshot.expiresAt());
+                    state.setBusinessSnapshotComplete(snapshot!=null&&"COMPLETE".equals(snapshot.completeness()));
                     state.setUnresolvedRequest(false);state.setPhase(DialogueState.Phase.READY);
                     state.setAssistantFocus("BUSINESS_QUERY");
                     var historyReports=new TreeSet<>(state.getBusinessReportIds());historyReports.addAll(result.query().reportIds());state.setBusinessReportIds(List.copyOf(historyReports));

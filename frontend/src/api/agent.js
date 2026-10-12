@@ -25,6 +25,11 @@ export function fetchMessages(conversationId, beforeId, size = 100) {
   return http.get(`/agent/conversations/${conversationId}/messages`, { params: { beforeId, size } })
 }
 
+/** 按发送前已保存的客户端键读取原轮次；GET不重新规划、不创建任务，也不替换调用方的原始载荷。 */
+export function fetchChatTurn(key) {
+  return http.get(`/agent/turns/${encodeURIComponent(key)}`)
+}
+
 export function renameConversation(conversationId, title) {
   return http.put(`/agent/conversations/${conversationId}/title`, { title })
 }
@@ -116,34 +121,35 @@ export function retryTraceDelivery(planId) {
 
 /**
  * 对话（SSE over fetch）。axios 不支持流式响应，这里用原生 fetch 读 ReadableStream。
- * onEvent(type, data) 逐个事件回调；返回 abort 函数。
+ * onEvent(type, data) 逐个事件回调；返回 abort 函数。请求号必须在调用前已随完整载荷保存并回读确认。
  * excludedRecords 是绑定 previewId 的复合记录键，服务端验证其快照归属。
  */
-export function streamChat({ conversationId, message, excludedRecords, previewId, queryEdit, clarificationReply }, onEvent) {
+export function streamChat({ conversationId, message, excludedRecords, previewId, queryEdit, clarificationReply }, onEvent, idempotencyKey) {
   const controller = new AbortController()
   const run = async () => {
+    if (typeof idempotencyKey !== 'string' || /^chat-[a-zA-Z0-9_-]{8,95}$/.exec(idempotencyKey)?.[0] !== idempotencyKey) throw new Error('聊天请求号无效，请重新检查待核对记录')
     const sessionToken = getSessionToken()
     const response = await fetch('/api/agent/chat', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
         Accept: 'text/event-stream',
+        'Idempotency-Key': idempotencyKey,
         ...authHeaders()
       },
       // 完整编辑与澄清选择必须连同原轮次引用到达服务端；只发送展示文字会丢失用户明确输入并错误沿用旧查询。
       body: JSON.stringify({ conversationId, message, excludedRecords, previewId, queryEdit, clarificationReply }),
       signal: controller.signal
     })
-    if (!response.ok) {
-      if (response.status === 401) sessionExpired(sessionToken)
-      throw new Error(`HTTP ${response.status}`)
-    }
     const contentType = response.headers.get('content-type') || ''
-    if (!contentType.includes('text/event-stream')) {
-      // 后端在进入流之前就报错时返回的是 JSON Result
-      const body = await response.json()
-      if (body.code === 401) sessionExpired(sessionToken)
-      throw new Error(body.message || '请求失败')
+    if (!response.ok || !contentType.includes('text/event-stream')) {
+      let body
+      try { body = await response.json() } catch (_) { /* 不完整错误正文不能被当成确定业务拒绝。 */ }
+      const verified = body && typeof body === 'object' && !Array.isArray(body) && Number.isInteger(body.code) && body.code > 0 && typeof body.message === 'string' && body.data === null
+      if (response.status === 401 || (verified && body.code === 401)) sessionExpired(sessionToken)
+      const error = new Error(verified ? body.message : `聊天响应不符合当前流协议（HTTP ${response.status}）`)
+      if (verified) { error.code = body.code; error.serverResponse = true }
+      throw error
     }
     const reader = response.body.getReader()
     const decoder = new TextDecoder('utf-8')

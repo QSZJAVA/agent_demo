@@ -1,0 +1,100 @@
+- complementary:
+  - generic: 
+  - text: 报表工作台
+  - generic: 业务协同 · 演示系统
+  - generic: 业务空间
+  - menubar:
+    - menuitem " 销售报表":
+      - generic: 
+      - text: 销售报表
+    - menuitem " 我的任务":
+      - generic: 
+      - text: 我的任务
+    - menuitem " 查询工作区":
+      - generic: 
+      - text: 查询工作区
+    - menuitem " 分析与问答":
+      - generic: 
+      - text: 分析与问答
+    - menuitem " 语义质量":
+      - generic: 
+      - text: 语义质量
+    - menuitem " 派单规则":
+      - generic: 
+      - text: 派单规则
+- generic: 分析与问答
+- generic: 
+- text: 本例统一聊天用户
+- button "退出登录"
+- button " 业务助手":
+  - generic: 
+  - text: 业务助手
+- main:
+  - heading "分析与问答" [level=2]
+  - paragraph: 把统计、排序和明细展开连起来，用有来源的业务知识解释结果。
+  - alert:
+    - generic: 
+    - generic: 查询快照不存在或无权查看 
+  - text: 执行范围
+  - textbox "执行范围 ":
+    - /placeholder: 请选择
+    - text: 当前数据分析
+  - generic: 
+  - text: 公司
+  - textbox "公司 ":
+    - /placeholder: 请选择
+    - text: A 公司
+  - generic: 
+  - text: 报表
+  - textbox "报表 ":
+    - /placeholder: 请选择
+    - text: 销售报表
+  - generic: 
+  - paragraph: 可在所选范围内查询、统计和比较当前业务数据。
+  - textbox "例如：按产品汇总上月销售额，取金额最高的两个产品，展开它们的明细；再说明销售金额的口径。"
+  - generic: 0/2000
+  - button "开始分析" [disabled]
+  - generic: 一次任务最多 6 步，可查看依据和中间结果。
+  - generic: 最近任务
+  - button "刷新"
+  - paragraph: 暂无可查看的任务
+  - paragraph: 选择公司和报表，输入问题。历史任务可以直接打开，刷新不会重新分析。
+  - text: 
+- document:
+  - dialog:
+    - generic: 历史会话
+    - button " 新建":
+      - generic: 
+      - text: 新建
+    - button "请说明A公司销售报表金额为什么不能作为已收款金额，并给出已发 2026-10-13 04:40  ":
+      - generic "请说明A公司销售报表金额为什么不能作为已收款金额，并给出已发"
+      - generic: 2026-10-13 04:40
+      - generic "改名": 
+      - generic "删除": 
+    - button "查询A公司2026年9月销售报表，金额大于100元且不超过1 2026-10-13 04:35  ":
+      - generic "查询A公司2026年9月销售报表，金额大于100元且不超过1"
+      - generic: 2026-10-13 04:35
+      - generic "改名": 
+      - generic "删除": 
+    - button "查询A公司2026年9月的销售报表，按产品汇总销售金额，取金 2026-10-13 04:26  ":
+      - generic "查询A公司2026年9月的销售报表，按产品汇总销售金额，取金"
+      - generic: 2026-10-13 04:26
+      - generic "改名": 
+      - generic "删除": 
+    - button "A公司销售金额的业务口径是什么？它是否等于已收款？请给出知识 2026-10-13 04:23  ":
+      - generic "A公司销售金额的业务口径是什么？它是否等于已收款？请给出知识"
+      - generic: 2026-10-13 04:23
+      - generic "改名": 
+      - generic "删除": 
+    - generic: 业务助手
+    - generic: 模型：deepseek-v4.1-flash
+    - button "":
+      - generic: 
+    - generic: 请说明A公司销售报表金额为什么不能作为已收款金额，并给出已发布的知识依据。
+    - status:
+      - paragraph: 分析方案已复核；可核对并提交原方案
+      - button "核对本次提交"
+      - button "重新读取状态"
+    - textbox "例如：查询销售报表 / 查询失败的派单记录 / 总结A公司工单（Enter 发送，Shift+Enter 换行）" [disabled]
+    - generic: 派单前会先生成待确认清单，点击"确认派单"才会真正执行
+    - button "发送" [disabled]

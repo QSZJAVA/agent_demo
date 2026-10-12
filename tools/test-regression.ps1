@@ -23,6 +23,7 @@ $env:ASSISTANT_LIVE_REVIEW='false';$env:ASSISTANT_JOINT='false'
 $env:ASSISTANT_BROWSER='false'
 $env:P1_WORKSPACE='false';$env:P1_LIVE='false';$env:P1_BROWSER='false';$env:P1_BROWSER_CHANGED='false'
 $env:P2_ANALYSIS='false';$env:P2_ANALYSIS_LIVE='false';$env:P2_ANALYSIS_BROWSER='false';$env:P2_SEARCH_BROWSER='false';$env:P2_RAG_BROWSER='false'
+$env:UNIFIED_ANALYSIS='false';$env:UNIFIED_ANALYSIS_LIVE='false';$env:UNIFIED_ANALYSIS_BROWSER='false'
 $env:INVESTIGATION_LIVE='false';$env:INVESTIGATION_CONTEXT_LIVE='false';$env:INVESTIGATION_JOINT='false';$env:INVESTIGATION_UI='false'
 & node (Join-Path $taskRoot 'tools/check-demo-baseline.cjs')
 if($LASTEXITCODE -ne 0){exit $LASTEXITCODE}

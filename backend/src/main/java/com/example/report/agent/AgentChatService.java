@@ -30,4 +30,11 @@ public class AgentChatService {
             com.example.report.assistant.AssistantInteraction.QueryEdit edit,com.example.report.assistant.AssistantInteraction.ClarificationReply answer){
         return semantic.chat(user,conversationId,message,uiPreviewId,excludedRecords,modelName(),edit,answer);
     }
+    /** HTTP入口使用发送前保存的稳定键；完整原始载荷参与服务端幂等核对，回放不重复模型调用。 */
+    public Flux<ServerSentEvent<Object>> chat(CurrentUser user,String conversationId,String message,String uiPreviewId,List<RecordKey> excludedRecords,
+            com.example.report.assistant.AssistantInteraction.QueryEdit edit,com.example.report.assistant.AssistantInteraction.ClarificationReply answer,String key){
+        return semantic.chat(user,conversationId,message,uiPreviewId,excludedRecords,modelName(),edit,answer,key);
+    }
+    /** 刷新按本人稳定键读取原接收结果，不创建会话、分析任务或模型请求。 */
+    public java.util.Map<String,Object> receipt(CurrentUser user,String key){return semantic.receipt(user,key);}
 }

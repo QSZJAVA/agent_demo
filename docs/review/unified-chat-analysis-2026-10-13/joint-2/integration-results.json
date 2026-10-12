@@ -1,0 +1,116 @@
+{
+  "profiles" : [ "real", "mcp" ],
+  "schema" : "unified_analysis_it_d4c207fd5ca540018d8cb6c14a4d8f82",
+  "semanticMode" : "active",
+  "cases" : [ {
+    "test" : "missingAndInvalidClientKeysCannotCreateConversations()",
+    "passed" : true,
+    "error" : null,
+    "recordedAt" : "2026-10-12T19:25:51.370073Z"
+  }, {
+    "test" : "sameCompletePayloadReplaysAndAnyPayloadChangeConflicts()",
+    "passed" : true,
+    "error" : null,
+    "recordedAt" : "2026-10-12T19:25:53.218625900Z"
+  }, {
+    "test" : "simultaneousFirstReceiveCommitsOnlyOneConversationAndReceipt()",
+    "passed" : true,
+    "error" : null,
+    "recordedAt" : "2026-10-12T19:25:54.214372200Z"
+  }, {
+    "test" : "concurrentReceivedSubscriptionsCannotFailTheWinningPlanner()",
+    "passed" : false,
+    "error" : "Cannot invoke \"java.util.concurrent.atomic.AtomicInteger.get()\" because \"com.example.business.UnifiedAnalysisConversationIntegrationTest.receipts.receivedReaders\" is null",
+    "recordedAt" : "2026-10-12T19:25:55.864543200Z"
+  }, {
+    "test" : "readyCheckpointSurvivesInterruptionAndExplicitReplaySkipsPlanning()",
+    "passed" : true,
+    "error" : null,
+    "recordedAt" : "2026-10-12T19:25:57.411244800Z"
+  }, {
+    "test" : "readyRecoveryRejectsPublishedKnowledgeChangeWithoutReplanning()",
+    "passed" : true,
+    "error" : null,
+    "recordedAt" : "2026-10-12T19:25:58.607927500Z"
+  }, {
+    "test" : "readyRecoveryRejectsChangedConfigurationWithoutAnEndlessReconcileLoop()",
+    "passed" : true,
+    "error" : null,
+    "recordedAt" : "2026-10-12T19:25:59.801142400Z"
+  }, {
+    "test" : "expiredPlanningIsReadOnlyInterruptedAndCannotReplayTheModel()",
+    "passed" : true,
+    "error" : null,
+    "recordedAt" : "2026-10-12T19:26:00.774401Z"
+  }, {
+    "test" : "discardedEntireResponseRecoversOriginalTaskAndConversationByKey()",
+    "passed" : true,
+    "error" : null,
+    "recordedAt" : "2026-10-12T19:26:02.261375Z"
+  }, {
+    "test" : "failureAfterCommittedAssociationCannotLoseOrDuplicateTheTaskCard()",
+    "passed" : true,
+    "error" : null,
+    "recordedAt" : "2026-10-12T19:26:03.417499200Z"
+  }, {
+    "test" : "snapshotContinuationUsesOriginalRowsAfterSourceAmountsChange()",
+    "passed" : true,
+    "error" : null,
+    "recordedAt" : "2026-10-12T19:26:05.489621400Z"
+  }, {
+    "test" : "expiredMissingAndMismatchedSnapshotSourcesCannotReadCurrentRows()",
+    "passed" : true,
+    "error" : null,
+    "recordedAt" : "2026-10-12T19:26:07.762826800Z"
+  }, {
+    "test" : "ownerPermissionAndKnowledgeChangesHideTaskHistoryAndDetail()",
+    "passed" : true,
+    "error" : null,
+    "recordedAt" : "2026-10-12T19:26:09.709216100Z"
+  }, {
+    "test" : "taskAssociationValidatesChildKeyBothFingerprintsAndCachedCardPayload()",
+    "passed" : true,
+    "error" : null,
+    "recordedAt" : "2026-10-12T19:26:11.456177100Z"
+  }, {
+    "test" : "deletedConversationMakesIndependentTaskUnreadableAndKeepsReplayTombstone()",
+    "passed" : true,
+    "error" : null,
+    "recordedAt" : "2026-10-12T19:26:13.149305Z"
+  }, {
+    "test" : "expiredReceiptPurgesTrustedBodyButCannotCreateANewConversation()",
+    "passed" : true,
+    "error" : null,
+    "recordedAt" : "2026-10-12T19:26:14.280520600Z"
+  }, {
+    "test" : "latestEmptyDatabaseMatchesAllDeclaredTableAndColumnComments()",
+    "passed" : true,
+    "error" : null,
+    "recordedAt" : "2026-10-12T19:26:15.503145300Z"
+  }, {
+    "test" : "readyRecoveryRejectsCurrentPermissionAndKeepsItsOriginalIdentity()",
+    "passed" : true,
+    "error" : null,
+    "recordedAt" : "2026-10-12T19:26:16.755078600Z"
+  }, {
+    "test" : "snapshotExpiryAfterReadyCannotChangeModeOrCreateCurrentDataTask()",
+    "passed" : true,
+    "error" : null,
+    "recordedAt" : "2026-10-12T19:26:18.164377900Z"
+  }, {
+    "test" : "temporaryActiveTaskLimitKeepsReadyAndAllowsSameKeyReconciliation()",
+    "passed" : true,
+    "error" : null,
+    "recordedAt" : "2026-10-12T19:26:19.466042200Z"
+  }, {
+    "test" : "completedTurnWaitsForMessageProjectionWithoutReplayingThePlanner()",
+    "passed" : true,
+    "error" : null,
+    "recordedAt" : "2026-10-12T19:26:20.661225700Z"
+  }, {
+    "test" : "submittedAnalysisWaitsForCardProjectionWithoutDuplicatingTheTask()",
+    "passed" : true,
+    "error" : null,
+    "recordedAt" : "2026-10-12T19:26:22.451506300Z"
+  } ]
+}

@@ -1,0 +1,416 @@
+TAP version 13
+# Subtest: query editors and clarification buttons expire when a later user turn starts
+ok 1 - query editors and clarification buttons expire when a later user turn starts
+  ---
+  duration_ms: 3.4918
+  type: 'test'
+  ...
+# Subtest: semantic selection event applies to the exact preview and survives history reload
+ok 2 - semantic selection event applies to the exact preview and survives history reload
+  ---
+  duration_ms: 1.9904
+  type: 'test'
+  ...
+# Subtest: late restored selection cannot affect a different conversation
+ok 3 - late restored selection cannot affect a different conversation
+  ---
+  duration_ms: 3.6093
+  type: 'test'
+  ...
+# Subtest: server exclusion updates during a page fetch preserve the requested page and checkbox identity
+ok 4 - server exclusion updates during a page fetch preserve the requested page and checkbox identity
+  ---
+  duration_ms: 1.2386
+  type: 'test'
+  ...
+# Subtest: manual selection is persisted before enabling actions and restored from server
+ok 5 - manual selection is persisted before enabling actions and restored from server
+  ---
+  duration_ms: 0.772
+  type: 'test'
+  ...
+# Subtest: manual selection failure blocks dispatch and late success cannot overwrite another conversation
+ok 6 - manual selection failure blocks dispatch and late success cannot overwrite another conversation
+  ---
+  duration_ms: 1.1397
+  type: 'test'
+  ...
+# Subtest: SSE disconnect before job event discovers the task and renders its result
+ok 7 - SSE disconnect before job event discovers the task and renders its result
+  ---
+  duration_ms: 1.0651
+  type: 'test'
+  ...
+# Subtest: refresh can recover with only a saved conversation after discovery failed
+ok 8 - refresh can recover with only a saved conversation after discovery failed
+  ---
+  duration_ms: 1.3917
+  type: 'test'
+  ...
+# Subtest: refresh replaces a saved older job with the latest conversation request
+ok 9 - refresh replaces a saved older job with the latest conversation request
+  ---
+  duration_ms: 0.825
+  type: 'test'
+  ...
+# Subtest: opening conversation without local storage discovers a running task
+ok 10 - opening conversation without local storage discovers a running task
+  ---
+  duration_ms: 0.9293
+  type: 'test'
+  ...
+# Subtest: completed task already in history does not add another preview card
+ok 11 - completed task already in history does not add another preview card
+  ---
+  duration_ms: 0.7655
+  type: 'test'
+  ...
+# Subtest: switching accounts aborts SSE and ignores late events and recovery
+ok 12 - switching accounts aborts SSE and ignores late events and recovery
+  ---
+  duration_ms: 2.4164
+  type: 'test'
+  ...
+# Subtest: destroy cancels polling delay without issuing another request
+ok 13 - destroy cancels polling delay without issuing another request
+  ---
+  duration_ms: 0.8512
+  type: 'test'
+  ...
+# Subtest: conversation pagination appends and deduplicates subsequent pages
+ok 14 - conversation pagination appends and deduplicates subsequent pages
+  ---
+  duration_ms: 0.6866
+  type: 'test'
+  ...
+# Subtest: older history uses cursor, deduplicates, and preserves scroll position
+ok 15 - older history uses cursor, deduplicates, and preserves scroll position
+  ---
+  duration_ms: 0.9035
+  type: 'test'
+  ...
+# Subtest: late history response cannot replace another conversation
+ok 16 - late history response cannot replace another conversation
+  ---
+  duration_ms: 0.5959
+  type: 'test'
+  ...
+# Subtest: selected record identity is sent with its preview
+not ok 17 - selected record identity is sent with its preview
+  ---
+  duration_ms: 1.2656
+  type: 'test'
+  location: 'D:\\demo-v1\\demo\\frontend\\tests\\agent-recovery.test.cjs:296:1'
+  failureType: 'testCodeFailure'
+  error: |-
+    Expected values to be strictly equal:
+    + actual - expected
+    
+    + '[{"reportId":"sales","recordId":"1"}]'
+    - '[]'
+    
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: '[]'
+  actual: '[{"reportId":"sales","recordId":"1"}]'
+  operator: 'strictEqual'
+  stack: |-
+    TestContext.<anonymous> (D:\demo-v1\demo\frontend\tests\agent-recovery.test.cjs:306:10)
+    async Test.run (node:internal/test_runner/test:1054:7)
+    async Test.processPendingSubtests (node:internal/test_runner/test:744:7)
+  ...
+# Subtest: duplicate document numbers and page changes preserve exact selection
+ok 18 - duplicate document numbers and page changes preserve exact selection
+  ---
+  duration_ms: 0.7431
+  type: 'test'
+  ...
+# Subtest: sending is blocked until initial history finishes and remains usable afterwards
+not ok 19 - sending is blocked until initial history finishes and remains usable afterwards
+  ---
+  duration_ms: 2.5882
+  type: 'test'
+  location: 'D:\\demo-v1\\demo\\frontend\\tests\\agent-recovery.test.cjs:331:1'
+  failureType: 'cancelledByParent'
+  error: 'Promise resolution is still pending but the event loop has already resolved'
+  code: 'ERR_TEST_FAILURE'
+  stack: |-
+    process.emit (node:events:519:28)
+  ...
+# Subtest: failed selection restore blocks both chat and plan creation until a successful retry
+not ok 20 - failed selection restore blocks both chat and plan creation until a successful retry
+  ---
+  duration_ms: 0
+  type: 'test'
+  location: 'D:\\demo-v1\\demo\\frontend\\tests\\agent-recovery.test.cjs:351:1'
+  failureType: 'cancelledByParent'
+  error: 'Promise resolution is still pending but the event loop has already resolved'
+  code: 'ERR_TEST_FAILURE'
+  stack: |-
+    process.emit (node:events:519:28)
+  ...
+# Subtest: expired or older-page preview retains the server exclusions for safe refresh
+not ok 21 - expired or older-page preview retains the server exclusions for safe refresh
+  ---
+  duration_ms: 0
+  type: 'test'
+  location: 'D:\\demo-v1\\demo\\frontend\\tests\\agent-recovery.test.cjs:372:1'
+  failureType: 'cancelledByParent'
+  error: 'Promise resolution is still pending but the event loop has already resolved'
+  code: 'ERR_TEST_FAILURE'
+  stack: |-
+    process.emit (node:events:519:28)
+  ...
+# Subtest: failed history request releases the sending guard
+not ok 22 - failed history request releases the sending guard
+  ---
+  duration_ms: 0
+  type: 'test'
+  location: 'D:\\demo-v1\\demo\\frontend\\tests\\agent-recovery.test.cjs:379:1'
+  failureType: 'cancelledByParent'
+  error: 'Promise resolution is still pending but the event loop has already resolved'
+  code: 'ERR_TEST_FAILURE'
+  stack: |-
+    process.emit (node:events:519:28)
+  ...
+# Subtest: invalid current selection cannot silently restore as all selected
+not ok 23 - invalid current selection cannot silently restore as all selected
+  ---
+  duration_ms: 0
+  type: 'test'
+  location: 'D:\\demo-v1\\demo\\frontend\\tests\\agent-recovery.test.cjs:385:1'
+  failureType: 'cancelledByParent'
+  error: 'Promise resolution is still pending but the event loop has already resolved'
+  code: 'ERR_TEST_FAILURE'
+  stack: |-
+    process.emit (node:events:519:28)
+  ...
+# Subtest: 网络发送之前完整请求已保存且回读，正常分析事件只产生一张引用卡片
+ok 24 - 网络发送之前完整请求已保存且回读，正常分析事件只产生一张引用卡片
+  ---
+  duration_ms: 9.0291
+  type: 'test'
+  ...
+# Subtest: 首个SSE事件丢失仍按准确key找到原会话和原任务，不创建第二轮
+ok 25 - 首个SSE事件丢失仍按准确key找到原会话和原任务，不创建第二轮
+  ---
+  duration_ms: 2.4333
+  type: 'test'
+  ...
+# Subtest: 未知提交经过刷新只GET，显式核对才同key同完整载荷POST且不重复历史消息
+ok 26 - 未知提交经过刷新只GET，显式核对才同key同完整载荷POST且不重复历史消息
+  ---
+  duration_ms: 4.0282
+  type: 'test'
+  ...
+# Subtest: PLANNING只GET等待，转为READY后仍等待明确核对动作
+ok 27 - PLANNING只GET等待，转为READY后仍等待明确核对动作
+  ---
+  duration_ms: 1.9233
+  type: 'test'
+  ...
+# Subtest: 404恢复隐藏原展示且不自动POST，显式核对收到410继续保留原key并停止新请求
+ok 28 - 404恢复隐藏原展示且不自动POST，显式核对收到410继续保留原key并停止新请求
+  ---
+  duration_ms: 1.5635
+  type: 'test'
+  ...
+# Subtest: 权限和期限读取失败清空已显示问题与卡片，不从缓存恢复答案
+ok 29 - 权限和期限读取失败清空已显示问题与卡片，不从缓存恢复答案
+  ---
+  duration_ms: 2.9934
+  type: 'test'
+  ...
+# Subtest: 同一用户更换令牌后旧SSE被中止，迟到事件不能显示或恢复私有内容
+ok 30 - 同一用户更换令牌后旧SSE被中止，迟到事件不能显示或恢复私有内容
+  ---
+  duration_ms: 2.2612
+  type: 'test'
+  ...
+# Subtest: 同用户换token期间返回的GET不能恢复原会话，也不能清掉新登录保存记录
+ok 31 - 同用户换token期间返回的GET不能恢复原会话，也不能清掉新登录保存记录
+  ---
+  duration_ms: 2.0007
+  type: 'test'
+  ...
+# Subtest: 新会话代次撤销迟到轮次GET，不改变新页面或清理原保存记录
+ok 32 - 新会话代次撤销迟到轮次GET，不改变新页面或清理原保存记录
+  ---
+  duration_ms: 1.7062
+  type: 'test'
+  ...
+# Subtest: 存储不可写时保留输入，不乐观显示已发送消息，也不发送网络请求
+ok 33 - 存储不可写时保留输入，不乐观显示已发送消息，也不发送网络请求
+  ---
+  duration_ms: 1.2606
+  type: 'test'
+  ...
+# Subtest: 结构性拒绝只清原保存记录并允许明确修改，不自动创建另一轮
+ok 34 - 结构性拒绝只清原保存记录并允许明确修改，不自动创建另一轮
+  ---
+  duration_ms: 1.8283
+  type: 'test'
+  ...
+# Subtest: 409响应按准确key读取已有轮次，不能把冲突当成未执行后创建新key
+ok 35 - 409响应按准确key读取已有轮次，不能把冲突当成未执行后创建新key
+  ---
+  duration_ms: 1.5591
+  type: 'test'
+  ...
+# Subtest: 关闭抽屉后停止轮次轮询，重新打开仅GET并保留原key
+ok 36 - 关闭抽屉后停止轮次轮询，重新打开仅GET并保留原key
+  ---
+  duration_ms: 2.5306
+  type: 'test'
+  ...
+# Subtest: 已中断与失败回执释放未知提交，明确重新发送才生成新key
+ok 37 - 已中断与失败回执释放未知提交，明确重新发送才生成新key
+  ---
+  duration_ms: 3.6385
+  type: 'test'
+  ...
+# Subtest: 不属于原请求的回执不会清理保存记录或自动重放
+not ok 38 - 不属于原请求的回执不会清理保存记录或自动重放
+  ---
+  duration_ms: 1.8101
+  type: 'test'
+  location: 'D:\\demo-v1\\demo\\frontend\\tests\\chat-recovery.test.cjs:143:1'
+  failureType: 'testCodeFailure'
+  error: |-
+    Expected values to be strictly equal:
+    + actual - expected
+    
+    + undefined
+    - false
+    
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: false
+  operator: 'strictEqual'
+  stack: |-
+    TestContext.<anonymous> (D:\demo-v1\demo\frontend\tests\chat-recovery.test.cjs:146:96)
+    async Test.run (node:internal/test_runner/test:1054:7)
+    async Test.processPendingSubtests (node:internal/test_runner/test:744:7)
+  ...
+# Subtest: 提交记录在服务器确认后无法清理时仍保留原key，存储恢复后GET即可完成核对
+ok 39 - 提交记录在服务器确认后无法清理时仍保留原key，存储恢复后GET即可完成核对
+  ---
+  duration_ms: 2.2712
+  type: 'test'
+  ...
+# Subtest: 轮次GET失权后流中暂存的业务卡片不能在finally重新出现
+ok 40 - 轮次GET失权后流中暂存的业务卡片不能在finally重新出现
+  ---
+  duration_ms: 2.026
+  type: 'test'
+  ...
+# Subtest: GET回执与已收到的conversation事件轮次不同则保留未知提交
+not ok 41 - GET回执与已收到的conversation事件轮次不同则保留未知提交
+  ---
+  duration_ms: 1.4328
+  type: 'test'
+  location: 'D:\\demo-v1\\demo\\frontend\\tests\\chat-recovery.test.cjs:165:1'
+  failureType: 'testCodeFailure'
+  error: |-
+    Expected values to be strictly equal:
+    + actual - expected
+    
+    + undefined
+    - false
+    
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: false
+  operator: 'strictEqual'
+  stack: |-
+    TestContext.<anonymous> (D:\demo-v1\demo\frontend\tests\chat-recovery.test.cjs:169:77)
+    async Test.run (node:internal/test_runner/test:1054:7)
+    async Test.processPendingSubtests (node:internal/test_runner/test:744:7)
+  ...
+# Subtest: 只有用户明确结束不可访问的本页核对才释放输入，动作本身不创建或重发任务
+ok 42 - 只有用户明确结束不可访问的本页核对才释放输入，动作本身不创建或重发任务
+  ---
+  duration_ms: 1.8687
+  type: 'test'
+  ...
+# Subtest: 首帧或尾帧丢失后PLANNING转完成会补读普通结果，历史按消息标识稳定去重
+ok 43 - 首帧或尾帧丢失后PLANNING转完成会补读普通结果，历史按消息标识稳定去重
+  ---
+  duration_ms: 2.964
+  type: 'test'
+  ...
+# Subtest: 首次接收但由并发执行者完成的无结果流也会恢复历史，不能只信replayed标志
+ok 44 - 首次接收但由并发执行者完成的无结果流也会恢复历史，不能只信replayed标志
+  ---
+  duration_ms: 2.1981
+  type: 'test'
+  ...
+# Subtest: GET404后用户显式核对首次被接收仍恢复完整历史，文字相同的不同历史消息不会误合并
+ok 45 - GET404后用户显式核对首次被接收仍恢复完整历史，文字相同的不同历史消息不会误合并
+  ---
+  duration_ms: 1.6087
+  type: 'test'
+  ...
+# Subtest: 完整实时结果与完成回执不被尚未投影的历史覆盖
+ok 46 - 完整实时结果与完成回执不被尚未投影的历史覆盖
+  ---
+  duration_ms: 1.2387
+  type: 'test'
+  ...
+# Subtest: 冻结依据失效的error后FAILED回执保留权威原因，历史读取不会恢复核对入口
+ok 47 - 冻结依据失效的error后FAILED回执保留权威原因，历史读取不会恢复核对入口
+  ---
+  duration_ms: 4.2345
+  type: 'test'
+  ...
+# Subtest: SUBMITTED回执不再允许读取任务时保留原因，并清掉同轮历史和流中暂存引用
+ok 48 - SUBMITTED回执不再允许读取任务时保留原因，并清掉同轮历史和流中暂存引用
+  ---
+  duration_ms: 1.4291
+  type: 'test'
+  ...
+# Subtest: SUBMITTED不可读任务的原因优先于历史读取失败提示，清理原key后仍可见
+ok 49 - SUBMITTED不可读任务的原因优先于历史读取失败提示，清理原key后仍可见
+  ---
+  duration_ms: 1.2747
+  type: 'test'
+  ...
+# Subtest: 历史投影完整性是必填布尔协议，不能把旧缺省或字符串解释为已完成
+ok 50 - 历史投影完整性是必填布尔协议，不能把旧缺省或字符串解释为已完成
+  ---
+  duration_ms: 0.3279
+  type: 'test'
+  ...
+# Subtest: 终态历史仍在投影时保留原消息和key，只GET直到完整历史可替换且清理
+ok 51 - 终态历史仍在投影时保留原消息和key，只GET直到完整历史可替换且清理
+  ---
+  duration_ms: 3.8803
+  type: 'test'
+  ...
+# Subtest: 尾帧丢失遇到历史投影延迟不会丢掉已收到的完整文字和卡片，完成后只有持久化消息
+ok 52 - 尾帧丢失遇到历史投影延迟不会丢掉已收到的完整文字和卡片，完成后只有持久化消息
+  ---
+  duration_ms: 1.9061
+  type: 'test'
+  ...
+# Subtest: SUBMITTED引用可先显示，投影未完成时不覆盖历史；READY仍只读等待
+ok 53 - SUBMITTED引用可先显示，投影未完成时不覆盖历史；READY仍只读等待
+  ---
+  duration_ms: 2.5353
+  type: 'test'
+  ...
+# Subtest: 恢复历史在新轮次代次开始后返回，不能覆盖新页面或清理原记录
+ok 54 - 恢复历史在新轮次代次开始后返回，不能覆盖新页面或清理原记录
+  ---
+  duration_ms: 1.3421
+  type: 'test'
+  ...
+1..54
+# tests 54
+# suites 0
+# pass 46
+# fail 3
+# cancelled 5
+# skipped 0
+# todo 0
+# duration_ms 127.8377

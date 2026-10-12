@@ -1,0 +1,112 @@
+- complementary:
+  - generic: 
+  - text: 报表工作台
+  - generic: 业务协同 · 演示系统
+  - generic: 业务空间
+  - menubar:
+    - menuitem " 销售报表":
+      - generic: 
+      - text: 销售报表
+    - menuitem " 我的任务":
+      - generic: 
+      - text: 我的任务
+    - menuitem " 查询工作区":
+      - generic: 
+      - text: 查询工作区
+    - menuitem " 分析与问答":
+      - generic: 
+      - text: 分析与问答
+    - menuitem " 语义质量":
+      - generic: 
+      - text: 语义质量
+    - menuitem " 派单规则":
+      - generic: 
+      - text: 派单规则
+- generic: 分析与问答
+- generic: 
+- text: 本例统一聊天用户
+- button "退出登录"
+- button " 业务助手":
+  - generic: 
+  - text: 业务助手
+- main:
+  - heading "分析与问答" [level=2]
+  - paragraph: 把统计、排序和明细展开连起来，用有来源的业务知识解释结果。
+  - alert:
+    - generic: 
+    - generic: 查询快照不存在或无权查看 
+  - text: 执行范围
+  - textbox "执行范围 ":
+    - /placeholder: 请选择
+    - text: 仅分析选定结果
+  - generic: 
+  - text: 公司
+  - textbox "公司 " [disabled]:
+    - /placeholder: 请选择
+    - text: A 公司
+  - generic: 
+  - text: 报表
+  - textbox "报表 " [disabled]:
+    - /placeholder: 请选择
+    - text: 销售报表
+  - generic: 
+  - generic: 查询快照尚未通过核对
+  - button "改用当前数据"
+  - paragraph: 只使用选定查询结果，可结合知识资料解释；不会补查当前业务数据。
+  - textbox "例如：按产品汇总上月销售额，取金额最高的两个产品，展开它们的明细；再说明销售金额的口径。"
+  - generic: 0/2000
+  - button "开始分析" [disabled]
+  - generic: 一次任务最多 6 步，可查看依据和中间结果。
+  - generic: 最近任务
+  - button "刷新"
+  - paragraph: 暂无可查看的任务
+  - paragraph: 选择公司和报表，输入问题。历史任务可以直接打开，刷新不会重新分析。
+  - text: 
+- document:
+  - dialog:
+    - generic: 历史会话
+    - button " 新建":
+      - generic: 
+      - text: 新建
+    - button "查询A公司2026年9月的销售报表，按产品汇总销售金额，取金 2026-10-13 04:26  ":
+      - generic "查询A公司2026年9月的销售报表，按产品汇总销售金额，取金"
+      - generic: 2026-10-13 04:26
+      - generic "改名": 
+      - generic "删除": 
+    - button "A公司销售金额的业务口径是什么？它是否等于已收款？请给出知识 2026-10-13 04:23  ":
+      - generic "A公司销售金额的业务口径是什么？它是否等于已收款？请给出知识"
+      - generic: 2026-10-13 04:23
+      - generic "改名": 
+      - generic "删除": 
+    - generic: 业务助手
+    - generic: 模型：deepseek-v4.1-flash
+    - button "":
+      - generic: 
+    - generic: 查询A公司2026年9月的销售报表，按产品汇总销售金额，取金额最高的两个产品，展开它们的全部相关单据，再根据现有业务知识说明销售金额是否等于已收款。
+    - generic: 当前数据分析
+    - generic: 已完成
+    - paragraph: 查询A公司2026年9月的销售报表，按产品汇总销售金额，取金额最高的两个产品，展开它们的全部相关单据，再根据现有业务知识说明销售金额是否等于已收款。
+    - paragraph: A 公司 · rpt-sales-order
+    - status: 分析与依据核验已完成
+    - text: 有依据的回答
+    - paragraph: A公司销售报表在2026年9月1日至2026年9月30日期间共匹配到120条记录，销售金额合计7141.20 CNY，全部为未派单状态，观测时间为2026-10-12。
+    - generic "依据：第1步 QUERY（引用片段1）"
+    - generic "依据：第1步 QUERY（引用片段5）"
+    - paragraph: 按产品汇总后共3组：“=1+1”合计1.01 CNY（1条），“Alpha”合计3540.60 CNY（60条），“alpha ”合计3599.59 CNY（59条）。按金额从高到低取前两名，为“alpha ”（3599.59 CNY，59条）和“Alpha”（3540.60 CNY，60条）。
+    - generic "依据：第2步 GROUP（引用片段1）"
+    - generic "依据：第2步 GROUP（引用片段2）"
+    - generic "依据：第3步 RANK"
+    - paragraph: 对排名前两位的分组展开明细，共119条记录，金额合计7140.19 CNY；页面当前展示20条，未展示全部明细，可通过“查看完整明细”继续读取。
+    - generic "依据：第4步 DRILLDOWN（引用片段1）"
+    - generic "依据：第4步 DRILLDOWN（引用片段5）"
+    - paragraph: 根据现行销售口径，销售金额以元为单位、币种为CNY，表示销售单的订单价款，不等于已收款；实际到账须另以收款流水证明。
+    - generic "依据：销售口径（隔离浏览器合成制度）"
+    - list:
+      - listitem: 知识检索命中的4份来源已全部返回，但检索范围限于当前授权资料，不证明授权范围之外不存在其他相关制度。
+      - listitem: 第4步明细仅展示了前20条，完整119条明细需通过界面“查看完整明细”查看。
+      - listitem: 本次未查询收款流水，无法根据现有数据判断销售金额是否已实际到账。
+    - button "查看步骤和完整依据"
+    - button "重新核对状态"
+    - textbox "例如：查询销售报表 / 查询失败的派单记录 / 总结A公司工单（Enter 发送，Shift+Enter 换行）"
+    - generic: 派单前会先生成待确认清单，点击"确认派单"才会真正执行
+    - button "发送"

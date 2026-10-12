@@ -75,6 +75,8 @@ public class DataRetentionService {
                 var system=new CurrentUser(tenant,"retention-service","数据留存服务",Set.of(),Set.of(),true);
                 for(String id:ids) request(system,id,"会话留存到期");
                 purgeResults(tenant,((Number)p.get("resultDays")).intValue());
+                // 接收键不能随正文到期删除，否则丢响应后的原POST会被当成新请求；仅清理可信正文和恢复指纹。
+                jdbc.update("UPDATE chat_turn_receipt SET trusted_request_json=NULL,scope_hash=NULL,config_hash=NULL,message=NULL,processing_until=NULL WHERE tenant_id=? AND expires_at<=UTC_TIMESTAMP(3) AND (trusted_request_json IS NOT NULL OR scope_hash IS NOT NULL OR config_hash IS NOT NULL OR message IS NOT NULL OR processing_until IS NOT NULL) LIMIT 1000",tenant);
                 jdbc.update("UPDATE dispatch_job SET result_json=NULL,message='任务结果保留期已到期' WHERE tenant_id=? AND status IN ('SUCCEEDED','FAILED') AND result_json IS NOT NULL AND updated_at<TIMESTAMPADD(DAY,?,NOW()) LIMIT 1000",tenant,-((Number)p.get("resultDays")).intValue());
                 jdbc.update("DELETE FROM business_metric WHERE tenant_id=? AND created_at<TIMESTAMPADD(DAY,?,NOW()) LIMIT 1000",tenant,-((Number)p.get("metricDays")).intValue());
                 jdbc.update("DELETE FROM operations_audit WHERE tenant_id=? AND created_at<TIMESTAMPADD(DAY,?,NOW()) LIMIT 1000",tenant,-((Number)p.get("auditDays")).intValue());
@@ -93,6 +95,11 @@ public class DataRetentionService {
             // 会话墓碑已经生效；调查报告和证据不能在删除后形成孤立的可读记录。
             var investigation=investigations==null?null:investigations.getIfAvailable();
             if(investigation!=null) investigation.eraseConversation(tenant,id);
+            // 子分析没有外部写入副作用；删除证据使在途令牌立即失效，不能留下可独立访问的已删除会话答案。
+            var analysisIds=jdbc.queryForList("SELECT a.id FROM business_analysis_run a JOIN chat_turn_receipt r ON r.analysis_run_id=a.id WHERE r.tenant_id=? AND r.conversation_id=? ORDER BY a.id LIMIT 500",String.class,tenant,id);
+            if(!analysisIds.isEmpty())jdbc.update("DELETE FROM business_analysis_run WHERE id IN ("+String.join(",",Collections.nCopies(analysisIds.size(),"?"))+")",analysisIds.toArray());
+            // 保留本人/键/输入摘要这一最小防重身份；即使原输入conversationId为空，旧POST也只能命中删除墓碑。
+            jdbc.update("UPDATE chat_turn_receipt r SET trusted_request_json=NULL,scope_hash=NULL,config_hash=NULL,analysis_run_id=NULL,message=NULL,processing_until=NULL WHERE tenant_id=? AND conversation_id=? AND NOT EXISTS(SELECT 1 FROM business_analysis_run a WHERE a.id=r.analysis_run_id)",tenant,id);
             jdbc.update("DELETE FROM semantic_dialogue WHERE tenant_id=? AND conversation_id=?",tenant,id);
             jdbc.update("DELETE FROM semantic_turn WHERE tenant_id=? AND conversation_id=? LIMIT 500",tenant,id);
             // Delete bounded batches; tombstone prevents replay from adding new messages.
@@ -100,7 +107,8 @@ public class DataRetentionService {
             jdbc.update("DELETE FROM trace_event WHERE tenant_id=? AND conversation_id=? AND event_type='MESSAGE' LIMIT 500",tenant,id);
             long left=jdbc.queryForObject("SELECT (SELECT COUNT(*) FROM agent_message WHERE tenant_id=? AND conversation_id=?)+(SELECT COUNT(*) FROM trace_event WHERE tenant_id=? AND conversation_id=? AND event_type='MESSAGE')",Long.class,tenant,id,tenant,id);
             long semanticLeft=jdbc.queryForObject("SELECT COUNT(*) FROM semantic_turn WHERE tenant_id=? AND conversation_id=?",Long.class,tenant,id);
-            if(left==0 && semanticLeft==0) {
+            long analysisLeft=jdbc.queryForObject("SELECT COUNT(*) FROM business_analysis_run a JOIN chat_turn_receipt r ON r.analysis_run_id=a.id WHERE r.tenant_id=? AND r.conversation_id=?",Long.class,tenant,id);
+            if(left==0 && semanticLeft==0 && analysisLeft==0) {
                 jdbc.update("UPDATE agent_conversation SET title=NULL,message_count=0,status='deleted' WHERE id=?",id);
                 jdbc.update("UPDATE conversation_erasure SET status='COMPLETED',completed_at=NOW(3) WHERE conversation_id=? AND status='PENDING'",id);
             }

@@ -1,0 +1,285 @@
+[ {
+  "case" : 1,
+  "source" : "MODEL",
+  "callWithinCase" : 1,
+  "message" : "查询A公司2026年9月销售报表，金额大于100元且不超过110元，按金额从高到低展示。",
+  "analysisContext" : {
+    "source" : { },
+    "available" : false
+  },
+  "plan" : {
+    "route" : "BUSINESS_QUERY",
+    "query" : {
+      "domain" : "REPORT",
+      "view" : "LIST",
+      "reportIds" : [ "rpt-sales-order" ],
+      "companyCode" : "A",
+      "conditions" : [ {
+        "allOf" : [ {
+          "field" : "saleDate",
+          "operator" : "GTE",
+          "values" : [ "2026-09-01" ]
+        }, {
+          "field" : "saleDate",
+          "operator" : "LT",
+          "values" : [ "2026-10-01" ]
+        }, {
+          "field" : "amount",
+          "operator" : "GT",
+          "values" : [ "100" ]
+        }, {
+          "field" : "amount",
+          "operator" : "LTE",
+          "values" : [ "110" ]
+        } ]
+      } ],
+      "sortField" : "amount",
+      "descending" : true,
+      "page" : 1,
+      "size" : 20,
+      "groupBy" : null
+    },
+    "followUp" : false,
+    "clarification" : null,
+    "removedFilters" : [ ],
+    "dispatch" : null,
+    "clarificationOptions" : null,
+    "analysis" : null
+  },
+  "diagnostics" : {
+    "requestId" : "fixture-observation-1-1",
+    "outcome" : "ACCEPTED",
+    "dictionaryHash" : "b63e70e4c650eec5d3dcfd5e927b96dd7f4411478797ecdef6d8ee94828c77f3",
+    "schemaHashes" : {
+      "REVIEW" : "d95eab26a85b0f28dc75cac61bf0100b7fd707b0df6185d874e851d911b39f41",
+      "PLAN" : "9342a22448895fd90c11badbf2d7f07b025b9f4cfd9a60e6a1b11d490049deb4",
+      "PURPOSE" : "8beeac291cd1556439d5f5bb887319ea7169cc4bd2f6e4e68addb79109ab04ee"
+    },
+    "durationMs" : 15599,
+    "modelCalls" : 3,
+    "repairCalls" : 0,
+    "firstPass" : true,
+    "usageComplete" : true,
+    "inputTokens" : 37758,
+    "outputTokens" : 1333,
+    "cost" : null,
+    "costComplete" : false,
+    "calls" : [ {
+      "stage" : "PURPOSE",
+      "attempt" : 1,
+      "contractHash" : "a3ae1df967bd9fe6a685a20fc3ab6977845be5254d7c7c3f383c092bd0a80d8b",
+      "inputBytes" : 2571,
+      "outputBytes" : 381,
+      "inputTokens" : 4022,
+      "outputTokens" : 99,
+      "usageComplete" : true,
+      "model" : "deepseek-v4.1-flash",
+      "status" : "RETURNED",
+      "failure" : null,
+      "durationMs" : 2711
+    }, {
+      "stage" : "PLAN",
+      "attempt" : 1,
+      "contractHash" : "24db159c16e32414326feaf0be6ce7ae1f12cc06cc4c9e84c096da9dd165c091",
+      "inputBytes" : 7981,
+      "outputBytes" : 564,
+      "inputTokens" : 14749,
+      "outputTokens" : 171,
+      "usageComplete" : true,
+      "model" : "deepseek-v4.1-flash",
+      "status" : "RETURNED",
+      "failure" : null,
+      "durationMs" : 2576
+    }, {
+      "stage" : "REVIEW",
+      "attempt" : 1,
+      "contractHash" : "824f23b236e1ceb274e62de3b8f5cdaf051c4e2468fd7c62ef79e28b886115fb",
+      "inputBytes" : 8073,
+      "outputBytes" : 4011,
+      "inputTokens" : 18987,
+      "outputTokens" : 1063,
+      "usageComplete" : true,
+      "model" : "deepseek-v4.1-flash",
+      "status" : "RETURNED",
+      "failure" : null,
+      "durationMs" : 10155
+    } ],
+    "validations" : [ {
+      "detail" : "",
+      "stage" : "PURPOSE",
+      "outcome" : "VALIDATED"
+    }, {
+      "detail" : "",
+      "stage" : "PRECHECK",
+      "outcome" : "PASSED"
+    }, {
+      "detail" : "",
+      "stage" : "REVIEW",
+      "outcome" : "VALIDATED"
+    }, {
+      "detail" : "",
+      "stage" : "PLAN",
+      "outcome" : "ACCEPTED"
+    } ]
+  },
+  "outcome" : "ACCEPTED",
+  "elapsedMs" : 15589,
+  "completedAt" : "2026-10-12T19:49:28.546528400Z"
+}, {
+  "case" : 1,
+  "source" : "MODEL",
+  "callWithinCase" : 2,
+  "message" : "仅分析刚才这批结果，按产品统计金额合计，取金额最高的一组并展开它的全部单据；不要重新查询当前数据。",
+  "analysisContext" : {
+    "source" : {
+      "reportId" : "rpt-sales-order",
+      "completeness" : "COMPLETE",
+      "observedAt" : "2026-10-12T19:49:18.329Z",
+      "companyCode" : "A",
+      "sourceRef" : "analysis-source-9cee536caafb86c01610b1eb",
+      "expiresAt" : "2026-10-13T19:49:18.333Z",
+      "query" : {
+        "domain" : "REPORT",
+        "view" : "LIST",
+        "reportIds" : [ "rpt-sales-order" ],
+        "companyCode" : "A",
+        "conditions" : [ {
+          "allOf" : [ {
+            "field" : "saleDate",
+            "operator" : "GTE",
+            "values" : [ "2026-09-01" ]
+          }, {
+            "field" : "saleDate",
+            "operator" : "LT",
+            "values" : [ "2026-10-01" ]
+          }, {
+            "field" : "amount",
+            "operator" : "GT",
+            "values" : [ "100" ]
+          }, {
+            "field" : "amount",
+            "operator" : "LTE",
+            "values" : [ "110" ]
+          } ]
+        } ],
+        "sortField" : "amount",
+        "descending" : true,
+        "page" : 1,
+        "size" : 20,
+        "groupBy" : null
+      }
+    },
+    "available" : true
+  },
+  "plan" : {
+    "route" : "ANALYSIS",
+    "query" : null,
+    "followUp" : false,
+    "clarification" : null,
+    "removedFilters" : [ ],
+    "dispatch" : null,
+    "clarificationOptions" : null,
+    "analysis" : {
+      "companyCode" : "A",
+      "reportId" : "rpt-sales-order",
+      "mode" : "SNAPSHOT_ONLY",
+      "sourceRef" : "analysis-source-9cee536caafb86c01610b1eb"
+    }
+  },
+  "diagnostics" : {
+    "requestId" : "fixture-observation-1-2",
+    "outcome" : "ACCEPTED",
+    "dictionaryHash" : "1b0e055f30df66cd4fbfc39b2d913069ebd1e770d83c851036289af5450f45d1",
+    "schemaHashes" : {
+      "REVIEW" : "d95eab26a85b0f28dc75cac61bf0100b7fd707b0df6185d874e851d911b39f41",
+      "PLAN" : "9342a22448895fd90c11badbf2d7f07b025b9f4cfd9a60e6a1b11d490049deb4",
+      "PURPOSE" : "8beeac291cd1556439d5f5bb887319ea7169cc4bd2f6e4e68addb79109ab04ee"
+    },
+    "durationMs" : 13257,
+    "modelCalls" : 4,
+    "repairCalls" : 1,
+    "firstPass" : false,
+    "usageComplete" : true,
+    "inputTokens" : 66587,
+    "outputTokens" : 1499,
+    "cost" : null,
+    "costComplete" : false,
+    "calls" : [ {
+      "stage" : "PURPOSE",
+      "attempt" : 1,
+      "contractHash" : "a3ae1df967bd9fe6a685a20fc3ab6977845be5254d7c7c3f383c092bd0a80d8b",
+      "inputBytes" : 7079,
+      "outputBytes" : 468,
+      "inputTokens" : 5442,
+      "outputTokens" : 117,
+      "usageComplete" : true,
+      "model" : "deepseek-v4.1-flash",
+      "status" : "RETURNED",
+      "failure" : null,
+      "durationMs" : 1834
+    }, {
+      "stage" : "PLAN",
+      "attempt" : 1,
+      "contractHash" : "24db159c16e32414326feaf0be6ce7ae1f12cc06cc4c9e84c096da9dd165c091",
+      "inputBytes" : 15791,
+      "outputBytes" : 273,
+      "inputTokens" : 17214,
+      "outputTokens" : 85,
+      "usageComplete" : true,
+      "model" : "deepseek-v4.1-flash",
+      "status" : "RETURNED",
+      "failure" : null,
+      "durationMs" : 1969
+    }, {
+      "stage" : "REVIEW",
+      "attempt" : 1,
+      "contractHash" : "824f23b236e1ceb274e62de3b8f5cdaf051c4e2468fd7c62ef79e28b886115fb",
+      "inputBytes" : 15883,
+      "outputBytes" : 2417,
+      "inputTokens" : 21452,
+      "outputTokens" : 590,
+      "usageComplete" : true,
+      "model" : "deepseek-v4.1-flash",
+      "status" : "RETURNED",
+      "failure" : null,
+      "durationMs" : 4635
+    }, {
+      "stage" : "REVIEW",
+      "attempt" : 2,
+      "contractHash" : "824f23b236e1ceb274e62de3b8f5cdaf051c4e2468fd7c62ef79e28b886115fb",
+      "inputBytes" : 20260,
+      "outputBytes" : 2723,
+      "inputTokens" : 22479,
+      "outputTokens" : 707,
+      "usageComplete" : true,
+      "model" : "deepseek-v4.1-flash",
+      "status" : "RETURNED",
+      "failure" : null,
+      "durationMs" : 4767
+    } ],
+    "validations" : [ {
+      "detail" : "",
+      "stage" : "PURPOSE",
+      "outcome" : "VALIDATED"
+    }, {
+      "detail" : "",
+      "stage" : "PRECHECK",
+      "outcome" : "PASSED"
+    }, {
+      "detail" : "本轮复核仍有不一致的前提或证据",
+      "stage" : "REVIEW",
+      "outcome" : "INVALID_EXPECTATION"
+    }, {
+      "detail" : "",
+      "stage" : "REVIEW",
+      "outcome" : "VALIDATED"
+    }, {
+      "detail" : "",
+      "stage" : "PLAN",
+      "outcome" : "ACCEPTED"
+    } ]
+  },
+  "outcome" : "ACCEPTED",
+  "elapsedMs" : 13251,
+  "completedAt" : "2026-10-12T19:49:42.019149400Z"
+} ]

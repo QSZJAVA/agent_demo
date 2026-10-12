@@ -779,6 +779,30 @@ CREATE TABLE `semantic_turn` (
   KEY `idx_semantic_turn_outcome` (`tenant_id`,`mode`,`outcome`,`created_at`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='语义对话逐轮解析与业务处理证据；按会话记录并保存脱敏内容';
 
+CREATE TABLE `chat_turn_receipt` (
+  `request_id` varchar(32) NOT NULL COMMENT '首次接收时生成的服务端轮次主键，关联semantic_turn.request_id；处理未完成时可尚无审计行',
+  `tenant_id` varchar(64) NOT NULL COMMENT '接收记录所属租户标识，所有读取与状态更新必须限定租户',
+  `user_id` varchar(64) NOT NULL COMMENT '接收记录所属用户标识，结合租户限定原提交者',
+  `client_key` varchar(100) NOT NULL COMMENT '客户端发送前持久保存的幂等请求号，区分大小写；同键仅允许相同完整载荷',
+  `conversation_id` varchar(32) NOT NULL COMMENT '关联agent_conversation.id；首次新会话与接收记录在同一事务创建',
+  `request_hash` char(64) NOT NULL COMMENT '完整客户端载荷规范JSON的SHA-256；包括原会话、原文、编辑、澄清及选择，不能用展示文本替代',
+  `permission_version` varchar(64) NOT NULL COMMENT '首次接收时的权限摘要，核对和恢复时必须与当前身份一致',
+  `status` varchar(16) NOT NULL COMMENT 'RECEIVED已接收、PLANNING规划中、READY已复核待提交、SUBMITTED已关联分析、COMPLETED普通轮次完成、INTERRUPTED中断、FAILED失败',
+  `trusted_request_json` json DEFAULT NULL COMMENT '已独立复核的当前AnalysisContract.Request，含mode及原文；尚未通过复核或已清理时为空',
+  `scope_hash` char(64) DEFAULT NULL COMMENT '可信分析请求冻结的授权知识范围指纹；未形成可信请求时为空',
+  `config_hash` char(64) DEFAULT NULL COMMENT '可信分析请求冻结的模型、Schema、预算和执行配置指纹；未形成可信请求时为空',
+  `analysis_run_id` varchar(32) DEFAULT NULL COMMENT '关联business_analysis_run.id；原轮次只允许关联一个子分析，未提交时为空',
+  `message` varchar(512) DEFAULT NULL COMMENT '面向用户的脱敏核对或中断说明，最多512字符；尚无说明时为空，不存模型原始响应',
+  `processing_until` datetime(3) DEFAULT NULL COMMENT '规划租约最晚截止UTC时间，过期后不能自动重推模型；不在规划阶段时为空',
+  `created_at` datetime(3) NOT NULL COMMENT '首次接收的UTC时间，重放不修改',
+  `updated_at` datetime(3) NOT NULL COMMENT '最近状态变化的UTC时间',
+  `expires_at` datetime(3) NOT NULL COMMENT '可核对期限的UTC时间，默认接收后24小时；到期清理正文，会话清理后仍保留最小防重身份',
+  PRIMARY KEY (`request_id`),
+  UNIQUE KEY `uk_chat_turn_request` (`tenant_id`,`user_id`,`client_key`),
+  KEY `idx_chat_turn_conversation` (`tenant_id`,`conversation_id`,`created_at`),
+  KEY `idx_chat_turn_expiry` (`expires_at`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin COMMENT='统一聊天的模型调用前接收与分析提交凭据；按租户本人隔离，24小时核对，正文随会话清理，保留最小防重身份且不自动重推模型';
+
 CREATE TABLE `trace_event` (
   `id` bigint NOT NULL AUTO_INCREMENT COMMENT '本表记录主键；数据库自增',
   `event_key` varchar(191) NOT NULL COMMENT '跨补写重试保持不变的事件幂等键',

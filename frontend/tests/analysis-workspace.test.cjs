@@ -7,7 +7,7 @@ const read = file => fs.readFileSync(path.join(__dirname, '../src', file), 'utf8
 const importContext = { TextDecoder }
 vm.runInNewContext(read('utils/knowledgeImport.js').replace('export async function', 'async function'), importContext)
 const pendingContext = { TextEncoder }
-vm.runInNewContext(read('utils/analysisPending.js').replace('export function', 'function'), pendingContext)
+vm.runInNewContext(read('utils/pendingRequestStore.js').replace(/export /g, '') + read('utils/analysisPending.js').replace(/^import .*$/gm, '').replace(/export /g, ''), pendingContext)
 function harness(view, options = {}) {
   const requests = [], prompts = []
   const names = ['analysisCatalog', 'analysisRuns', 'analysisRun', 'submitAnalysis', 'cancelAnalysis', 'analysisRows', 'queryPage', 'knowledgeDocuments', 'knowledgeHistory', 'saveKnowledge', 'publishKnowledge', 'disableKnowledge', 'searchKnowledge', 'searchKnowledgeSemantic']
@@ -27,9 +27,42 @@ function harness(view, options = {}) {
   for (const [key, fn] of Object.entries(component.computed)) Object.defineProperty(state, key, { get: () => fn.call(state) })
   return { state, component, requests, prompts }
 }
-const run = (id, status = 'COMPLETED', version = 1) => ({ id, status, version, steps: [], usage: [], request: { companyCode: 'A', reportId: 'rpt-sales-order', question: id } })
+const run = (id, status = 'COMPLETED', version = 1) => ({ id, status, version, steps: [], usage: [], request: { companyCode: 'A', reportId: 'rpt-sales-order', question: id, mode: 'CURRENT_DATA' } })
 const tick = () => new Promise(resolve => setImmediate(resolve))
-const form = state => { state.ready = true; state.catalog = { companies: ['A'], reports: [{ reportId: 'rpt-sales-order' }], admin: false }; state.form = { companyCode: 'A', reportId: 'rpt-sales-order', question: '销售口径是什么' } }
+const form = state => { state.ready = true; state.catalog = { companies: ['A'], reports: [{ reportId: 'rpt-sales-order' }], admin: false }; state.form = { companyCode: 'A', reportId: 'rpt-sales-order', question: '销售口径是什么', mode: 'CURRENT_DATA' } }
+
+test('new analysis forms default to current data while a snapshot link selects snapshot-only mode', async () => {
+  const { state, requests } = harness('AnalysisWorkspace'); assert.equal(state.form.mode, 'CURRENT_DATA')
+  state.$route.query.source = 'a'.repeat(32); state.form.question = '按产品汇总这些结果'
+  const initialization = state.initialize(); requests[0].resolve({ companies: ['A'], reports: [{ reportId: 'rpt-sales-order' }], admin: false }); await tick()
+  requests[1].resolve({ query: { companyCode: 'A', reportIds: ['rpt-sales-order'] } }); await tick(); requests[2].resolve([]); await initialization
+  assert.equal(state.form.mode, 'SNAPSHOT_ONLY'); assert.equal(Boolean(state.canSubmit), true)
+})
+
+test('explicit current-data comparison retains the selected snapshot and knowledge mode explicitly removes it', () => {
+  const { state } = harness('AnalysisWorkspace'); form(state); state.sourceId = 'a'.repeat(32); state.form.mode = 'CURRENT_DATA'; state.modeChanged()
+  assert.equal(state.sourceId, 'a'.repeat(32)); assert.equal(state.$route.query.source, 'a'.repeat(32)); assert.equal(state.$route.query.mode, 'CURRENT_DATA')
+  state.form.mode = 'KNOWLEDGE_ONLY'; state.modeChanged(); assert.equal(state.sourceId, null); assert.equal(state.$route.query.source, undefined); assert.equal(state.modeValid, true)
+  state.form.mode = 'SNAPSHOT_ONLY'; assert.equal(state.modeValid, false); assert.equal(Boolean(state.canSubmit), false)
+})
+
+test('unknown submissions retain the original mode and snapshot despite late mode changes', async () => {
+  const { state, requests } = harness('AnalysisWorkspace'); form(state); state.form.mode = 'SNAPSHOT_ONLY'; state.sourceId = 'a'.repeat(32)
+  const first = state.submit(); await tick(); requests[0].reject(new Error('lost response')); await first
+  state.form.mode = 'KNOWLEDGE_ONLY'; state.modeChanged(); assert.equal(state.form.mode, 'SNAPSHOT_ONLY'); assert.equal(state.sourceId, 'a'.repeat(32))
+  const recheck = state.submit(); await tick(); assert.equal(requests[1].args[0].mode, 'SNAPSHOT_ONLY'); assert.equal(requests[1].args[1], requests[0].args[1]); requests[1].resolve(run('done')); await recheck
+})
+
+test('terminal knowledge task preparation preserves its mode and does not read business snapshots', async () => {
+  const { state, requests } = harness('AnalysisWorkspace'); form(state); state.run = run('knowledge-task'); state.run.request.mode = 'KNOWLEDGE_ONLY'; state.run.request.snapshotId = null
+  await state.prepareRun(); assert.equal(state.form.mode, 'KNOWLEDGE_ONLY'); assert.equal(state.sourceId, null); assert.equal(requests.length, 0)
+})
+
+test('invalid knowledge-with-snapshot links never issue a business snapshot read', async () => {
+  const { state, requests } = harness('AnalysisWorkspace'); state.$route.query = { source: 'a'.repeat(32), mode: 'KNOWLEDGE_ONLY' }
+  const initialization = state.initialize(); requests[0].resolve({ companies: ['A'], reports: [{ reportId: 'rpt-sales-order' }], admin: false }); await initialization
+  assert.equal(requests.length, 1); assert.equal(Boolean(state.canSubmit), false); assert.match(state.error, /执行范围/)
+})
 
 test('late task response cannot replace a newly selected task', async () => {
   const { state, requests } = harness('AnalysisWorkspace')
@@ -274,7 +307,7 @@ test('reconciliation sends the pending payload even when unrelated local form st
   const { state, requests } = harness('AnalysisWorkspace'); form(state); state.sourceId = 'original-snapshot'
   const unknown = state.submit(); await tick(); requests[0].reject(new Error('提交结果未知')); await unknown
   const pending = state.pending
-  state.form = { companyCode: 'B', reportId: 'rpt-expense', question: '被迟到事件改变的表单' }; state.sourceId = 'unrelated-snapshot'; state.ready = false; state.sourceReady = false
+  state.form = { companyCode: 'B', reportId: 'rpt-expense', question: '被迟到事件改变的表单', mode: 'CURRENT_DATA' }; state.sourceId = 'unrelated-snapshot'; state.ready = false; state.sourceReady = false
   const checking = state.submit(); await tick()
   assert.equal(requests.length, 2); assert.equal(requests[1].args[1], pending.key); assert.equal(requests[1].args[0], pending.request)
   assert.equal(state.form.question, pending.request.question); assert.equal(state.sourceId, 'original-snapshot')
@@ -518,7 +551,7 @@ test('success and explicit rejection arriving after the page leaves still clear 
 test('saved snapshot replaces an unrelated URL source and is checked before the question is restored', async () => {
   for (const snapshotError of [null, '原快照已过期']) {
     const environment = pendingEnvironment()
-    const saved = await environment.store().create({ companyCode: 'A', reportId: 'rpt-sales-order', question: '仅核对原快照', snapshotId: savedSnapshot }, 'analysis-snapshot')
+    const saved = await environment.store().create({ companyCode: 'A', reportId: 'rpt-sales-order', question: '仅核对原快照', mode: 'CURRENT_DATA', snapshotId: savedSnapshot }, 'analysis-snapshot')
     const restored = await recoverPending(environment, { snapshot: savedSnapshot, snapshotError, query: { source: differentSnapshot } })
     assert.equal(restored.state.pending.key, saved.key); assert.equal(restored.state.form.question, '仅核对原快照')
     assert.equal(restored.state.sourceId, savedSnapshot); assert.equal(restored.state.$route.query.source, savedSnapshot)
@@ -528,7 +561,7 @@ test('saved snapshot replaces an unrelated URL source and is checked before the 
 
 test('restoration checks the current catalog and does not read a saved snapshot outside that scope', async () => {
   const environment = pendingEnvironment()
-  await environment.store().create({ companyCode: 'A', reportId: 'rpt-sales-order', question: '本人待核对问题', snapshotId: savedSnapshot }, 'analysis-scope')
+  await environment.store().create({ companyCode: 'A', reportId: 'rpt-sales-order', question: '本人待核对问题', mode: 'CURRENT_DATA', snapshotId: savedSnapshot }, 'analysis-scope')
   const restored = await recoverPending(environment, { companies: ['B'] })
   assert.match(restored.state.error, /当前目录/); assert.equal(restored.state.sourceReady, false)
   assert.equal(restored.requests.filter(item => ['queryPage', 'submitAnalysis'].includes(item.name)).length, 0)
@@ -537,7 +570,7 @@ test('restoration checks the current catalog and does not read a saved snapshot 
 test('another user or login token never restores the previous owner question', async () => {
   for (const next of [{ userId: 'another', token: 'session-a' }, { userId: 'reader', token: 'session-b' }]) {
     const environment = pendingEnvironment()
-    await environment.store().create({ companyCode: 'A', reportId: 'rpt-sales-order', question: '旧登录的私有问题', snapshotId: null }, 'analysis-owner')
+    await environment.store().create({ companyCode: 'A', reportId: 'rpt-sales-order', question: '旧登录的私有问题', mode: 'CURRENT_DATA', snapshotId: null }, 'analysis-owner')
     environment.env.identity = next
     const restored = await recoverPending(environment)
     assert.equal(restored.state.pending, null); assert.equal(restored.state.form.question, ''); assert.match(restored.state.pendingNotice, /其他登录会话/)
@@ -547,7 +580,7 @@ test('another user or login token never restores the previous owner question', a
 
 test('expired or corrupted records are explicitly discarded without carrying their question into a new task', async () => {
   for (const invalid of ['expired', 'corrupt']) {
-    const environment = pendingEnvironment(), saved = await environment.store().create({ companyCode: 'A', reportId: 'rpt-sales-order', question: '失效问题', snapshotId: null }, 'analysis-expired')
+    const environment = pendingEnvironment(), saved = await environment.store().create({ companyCode: 'A', reportId: 'rpt-sales-order', question: '失效问题', mode: 'CURRENT_DATA', snapshotId: null }, 'analysis-expired')
     if (invalid === 'expired') environment.env.now += 24 * 60 * 60 * 1000
     else environment.values.set(saved.ownerKey, '{broken')
     const restored = await recoverPending(environment)
@@ -604,7 +637,7 @@ test('rechecking recovery cancels a pending history preparation before it can ov
 
 test('identity changes while a saved snapshot is being checked clear old content and invalidate outstanding history reads', async () => {
   const environment = pendingEnvironment()
-  await environment.store().create({ companyCode: 'A', reportId: 'rpt-sales-order', question: '旧身份的待核对问题', snapshotId: savedSnapshot }, 'analysis-old-identity')
+  await environment.store().create({ companyCode: 'A', reportId: 'rpt-sales-order', question: '旧身份的待核对问题', mode: 'CURRENT_DATA', snapshotId: savedSnapshot }, 'analysis-old-identity')
   const { state, requests } = harness('AnalysisWorkspace', { pendingStore: environment.store() })
   const restoring = state.initialize()
   requests[0].resolve({ companies: ['A'], reports: [{ reportId: 'rpt-sales-order' }], admin: true })

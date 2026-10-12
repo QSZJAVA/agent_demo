@@ -32,7 +32,11 @@ MCP 使用 `/mcp` 上的 Streamable HTTP，支持 initialize、tools/list、tool
 
 ## 会话、预览、清单和执行
 
-`POST /api/agent/chat` 返回 SSE。历史、卡片状态和选择由 `/api/agent/conversations/...` 读取；断线恢复重读持久状态，不保证原文字流续传。预览和清单接口位于 `/api/dispatch/previews`、`/api/dispatch/plans`。
+`POST /api/agent/chat` 要求发送前保存完整载荷与 `Idempotency-Key`（8至100位字母、数字、下划线或短横线），返回 SSE。相同本人、键及完整载荷回放原轮次，不重复模型调用；同键不同内容返回409。首次输入的空 conversationId 也参与哈希，核对时不能替换为服务器创建的会话标识。首帧丢失后通过 `GET /api/agent/turns/{key}` 只读找回原会话及任务。
+
+明确核对仍 POST 原键和原载荷。`conversation` 事件含 requestId、conversationId、title、replayed；`turn_receipt` 返回 status、canReconcile、historyReady、expiresAt、message和可空analysisTask。historyReady表示该会话可靠消息已全部投影；为false时不能把不完整历史覆盖已收到的流内容。READY只复用已复核且指纹未变化的原请求，固定依据失效时明确FAILED，超时PLANNING不自动重推模型。`analysis_task`仅携带requestId、runId、mode、companyCode、reportId；答案经 `/api/analysis/runs/{id}` 当前授权读取。读取模式及状态含义见[聊天分析接续](统一聊天知识问答与分析接续.md)。
+
+历史、卡片状态和选择由 `/api/agent/conversations/...` 读取；断线恢复重读持久状态，不保证原文字流续传。预览和清单接口位于 `/api/dispatch/previews`、`/api/dispatch/plans`。
 
 手动勾选使用 `PUT /api/agent/conversations/{id}/selection` 保存当前预览的完整排除集合，并携带修改前集合进行并发比较。服务端验证预览、记录键、权限与会话租约；冲突要求重读，保存选择不构成派单确认。
 

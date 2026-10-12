@@ -89,10 +89,10 @@ for (const code of [401, 200]) {
     vm.runInContext(fs.readFileSync(path.join(__dirname, '../src/api/agent.js'), 'utf8')
       .replace(/^import .*$/gm, '').replaceAll('export function', 'function'), context)
     context.saveSession('old-session', { userId: 'old-user' })
-    const stream = context.streamChat({ message: 'test' }, () => {})
+    const stream = context.streamChat({ message: 'test' }, () => {}, 'chat-authentication-check')
     context.saveSession('new-session', { userId: 'new-user' })
     finish({ ok: code === 200, status: code, headers: { get: () => 'application/json' },
-      json: async () => ({ code: 401, message: 'expired' }) })
+      json: async () => ({ code: 401, message: 'expired', data: null }) })
     await assert.rejects(stream.promise)
     assert.equal(context.getSessionToken(), 'new-session'); assert.deepEqual(events, [])
   })

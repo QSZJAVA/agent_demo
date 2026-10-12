@@ -40,7 +40,7 @@ class CurrentProtocolBoundaryTest {
                 .setMessageConverters(new org.springframework.http.converter.json.MappingJackson2HttpMessageConverter(JsonUtil.MAPPER)).build();
         mvc.perform(org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post("/api/agent/chat")
                 .contentType("application/json").content("{\"message\":\"查询\",\"excludeDocNos\":[\"SO1\"]}")
-                .header(com.example.report.permission.PermissionService.USER_HEADER,"test-user"))
+                .header(com.example.report.permission.PermissionService.USER_HEADER,"test-user").header("Idempotency-Key","chat-protocol-test"))
                 .andExpect(org.springframework.test.web.servlet.result.MockMvcResultMatchers.status().isBadRequest())
                 .andExpect(org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath("$.code").value(400));
     }

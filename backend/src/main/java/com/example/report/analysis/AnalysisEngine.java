@@ -24,6 +24,7 @@ public class AnalysisEngine {
     static final String PLAN_RULES=AnalysisContract.OPERATIONS+"""
         你是只读业务分析规划器。只输出给定Schema，不输出推理过程。
         用户已在界面明确选择一家公司和一张报表；范围以scope为准，不改公司、报表或数据域。
+        requestMode和allowedActions是用户已选的读取边界，只能规划其中动作；它与计划mode的EXECUTE/CLARIFY不同。KNOWLEDGE_ONLY只检索知识；SNAPSHOT_ONLY只能计算给定快照并检索知识，禁止QUERY/COMPARE；CURRENT_DATA可按问题读取当前数据及明确给定快照。
         最多6步、2个QUERY/SNAPSHOT；步骤source/other是从0开始的前序序号。只用当前fields和dictionary中的字段和业务口径。
         不能跨源关联、任意计算公式、派单、审批、发布资料或执行写接口。纯知识问题只需KNOWLEDGE，不读取业务数据凑答案。
         knowledge.previewSources只是有界的规划提示，不代表全部检索结果；字段词典为空也不代表没有制度。问题和scope明确即可规划KNOWLEDGE，执行后无命中由回答说明INSUFFICIENT，不要求用户先提供答案或来源。
@@ -36,6 +37,7 @@ public class AnalysisEngine {
         """;
     static final String PLAN_REVIEW=AnalysisContract.OPERATIONS+REVIEW_VERDICT_RULES+"""
         独立核对原始question、明确scope、真实字段/词典与完整plan。只输出approved和reason。
+        requestMode和allowedActions是不可扩大的执行边界，不能以满足问题为由改用其他模式。快照不可用时须澄清，不允许改查当前数据；知识模式不能为解释制度而补查业务行。
         plan已经通过程序严格字段类型、前序引用和同源展开校验，validatedDrilldownLineage展示已核对的展开路径。仍须独立核对业务意图；不能把DRILLDOWN的行集合source改成GROUP序号。
         本系统QUERY的page=1/size=20只限定首屏；它已定义为完整快照操作，后续比较和统计读取全部匹配记录。不能以20行展示参数为由判断查询不完整或要求改用SUMMARY。
         检查是否完整满足用户所有子目标、公司报表、日期、单位、比较方向和包含边界、AND/OR、否定、数量和结果展开关系。
@@ -116,8 +118,9 @@ public class AnalysisEngine {
     }
     /** 模型/Schema/提示和预算一并冻结，排队任务不能静默换模型或扩大执行能力。 */
     public Map<String,Object> configuration(){var model=models.getIfAvailable();var value=new LinkedHashMap<String,Object>();value.put("model",model==null?Map.of("configured",false):model.configuration());
-        value.put("planSchema",AnalysisContract.schemaHash(AnalysisContract.planSchema()));value.put("answerSchema",AnalysisContract.schemaHash(AnalysisEvidence.schema()));value.put("instructions",Digests.sha256(PLAN_RULES+PLAN_REVIEW+ANSWER_RULES+ANSWER_REVIEW));
-        value.put("maxSteps",AnalysisContract.MAX_STEPS);value.put("maxQueries",AnalysisContract.MAX_QUERIES);value.put("maxModelCalls",AnalysisContract.MAX_MODEL_CALLS);value.put("runSeconds",AnalysisContract.RUN_SECONDS);value.put("modelSeconds",40);value.put("version","5");value.put("retrieval",KnowledgeRag.configuration());value.put("sourceVersion",AnalysisEvidence.SOURCE_VERSION);return Collections.unmodifiableMap(value);}
+        var planSchemas=new LinkedHashMap<String,String>();for(var mode:AnalysisContract.Mode.values())planSchemas.put(mode.name(),AnalysisContract.schemaHash(AnalysisContract.planSchema(mode)));
+        value.put("planSchemas",Collections.unmodifiableMap(planSchemas));value.put("answerSchema",AnalysisContract.schemaHash(AnalysisEvidence.schema()));value.put("instructions",Digests.sha256(PLAN_RULES+PLAN_REVIEW+ANSWER_RULES+ANSWER_REVIEW));
+        value.put("maxSteps",AnalysisContract.MAX_STEPS);value.put("maxQueries",AnalysisContract.MAX_QUERIES);value.put("maxModelCalls",AnalysisContract.MAX_MODEL_CALLS);value.put("runSeconds",AnalysisContract.RUN_SECONDS);value.put("modelSeconds",40);value.put("version","6");value.put("retrieval",KnowledgeRag.configuration());value.put("sourceVersion",AnalysisEvidence.SOURCE_VERSION);return Collections.unmodifiableMap(value);}
     public String configurationHash(){return InvestigationJson.hash(configuration());}
 
     /** 执行一次已准入任务；任何阶段失败都不会转而执行其他工具或业务写操作。 */
@@ -127,7 +130,7 @@ public class AnalysisEngine {
             boolean reviewing=false;
             try {
                 if(plan==null){var planning=new LinkedHashMap<>(input);planning.put("repair",repair(feedback,rejectedPlan));
-                    rejectedPlan=call(session,"PLAN",PLAN_RULES,planning,AnalysisContract.planSchema());plan=AnalysisContract.decode(rejectedPlan,AnalysisContract.Plan.class);
+                    rejectedPlan=call(session,"PLAN",PLAN_RULES,planning,AnalysisContract.planSchema(session.request.mode()));plan=AnalysisContract.decode(rejectedPlan,AnalysisContract.Plan.class);
                     AnalysisContract.validate(session.request,plan,fields(session));reviewFeedback="";rejectedReview="";}
                 reviewing=true;
                 var reviewInput=new LinkedHashMap<>(input);reviewInput.put("plan",plan);reviewInput.put("validatedDrilldownLineage",AnalysisContract.lineage(plan));
@@ -159,7 +162,7 @@ public class AnalysisEngine {
             }
         }
         var sources=List.copyOf(evidence.values());if(JsonUtil.toJson(sources).getBytes(StandardCharsets.UTF_8).length>80*1024)throw new ApiException(422,"本轮回答依据超过80KiB预算，请缩小分析或知识范围");
-        var answerInput=new LinkedHashMap<String,Object>();answerInput.put("question",session.request.question());answerInput.put("scope",Map.of("company",session.request.companyCode(),"report",session.request.reportId()));answerInput.put("fields",fields(session));answerInput.put("evidence",sources);
+        var answerInput=new LinkedHashMap<String,Object>();answerInput.put("question",session.request.question());answerInput.put("requestMode",session.request.mode());answerInput.put("scope",Map.of("company",session.request.companyCode(),"report",session.request.reportId()));answerInput.put("fields",fields(session));answerInput.put("evidence",sources);
         // 规划内部仍从0引用；回答只接收页面从1开始的编号，界面能力本身放入实际步骤证据并遵守相同引用验证。
         answerInput.put("steps",session.steps.stream().map(s->Map.of("stepNumber",((Number)s.get("index")).intValue()+1,"action",s.get("action"),"status",s.get("status"))).toList());
         var coverage=knowledgeCoverage(session.steps);answerInput.put("knowledgeCoverage",coverage);
@@ -199,6 +202,7 @@ public class AnalysisEngine {
     }
     private List<FieldInfo> fields(Session s){return BusinessFields.forDomain(BusinessQuery.Domain.REPORT,s.source.report().fields());}
     private Map<String,Object> context(Session session){var input=new LinkedHashMap<String,Object>();input.put("question",session.request.question());input.put("referenceDate",session.source.referenceTime().atZone(ZoneId.of("Asia/Shanghai")).toLocalDate().toString());
+        input.put("requestMode",session.request.mode());input.put("allowedActions",session.request.mode().allowedActions());
         input.put("scope",Map.of("companyCode",session.request.companyCode(),"reportId",session.request.reportId(),"reportName",session.source.report().reportName(),"description",Objects.toString(session.source.report().description(),"")));input.put("fields",fields(session));input.put("reportFields",session.source.report().fields());input.put("dictionary",session.source.dictionary());
         // 只向规划/复核提供同一授权快照的有限提示，完整回答仍必须由显式KNOWLEDGE步骤的实际召回支持。
         var preview=KnowledgeSearch.search(session.request.question(),session.source.sources(),session.source.dictionary().definition(),4);
@@ -222,6 +226,8 @@ public class AnalysisEngine {
 
     @SuppressWarnings("unchecked")
     private Node execute(Session session,AnalysisContract.Step step,List<Node> nodes,Map<String,Object> stored,int index) {
+        // 每次真实动作前重新验证读取模式；即使上游已复核，也不能把缓存计划或恢复状态视作新增权限。
+        AnalysisContract.requireAction(session.request,step);
         if("KNOWLEDGE".equals(step.action())) {
             var retrieval=session.retrieval.get(index);if(retrieval==null)throw new ApiException(503,"知识检索阶段没有产生已核验的结果");var result=retrieval.result();
             stored.put("result",retrieval.view());
@@ -232,7 +238,7 @@ public class AnalysisEngine {
         Node node;Map<String,Object> view;
         switch(step.action()) {
             case "QUERY","SNAPSHOT" -> {
-                String id="SNAPSHOT".equals(step.action())?session.request.snapshotId():assistant.read(session.user,step.query()).snapshot().id();var base=workspace.require(session.user,id);requireScope(session.request,base);
+                String id="SNAPSHOT".equals(step.action())?session.request.snapshotId():assistant.read(session.user,step.query()).snapshot().id();var base=requireBase(session.user,session.request,step,id);
                 var rows=snapshots.all(base);node=new Node(base,rows,List.of(),null);view=rowView(base,rows);
             }
             case "GROUP" -> {
@@ -340,6 +346,12 @@ public class AnalysisEngine {
         text.append("；这只是两个查询集合的数值差异。\n");
     }
     static void requireScope(AnalysisContract.Request request,QuerySnapshotStore.Run run){var query=run.result().query();if(query.domain()!=BusinessQuery.Domain.REPORT||!query.reportIds().equals(List.of(request.reportId()))||!Objects.equals(query.companyCode(),request.companyCode()))throw new ApiException(422,"选定快照与本次公司和报表范围不一致");}
+    /** 实际执行和明细恢复共用基础来源核验；SNAPSHOT必须等于请求原绑定，QUERY只读取该次已创建的完整快照。 */
+    private QuerySnapshotStore.Run requireBase(CurrentUser user,AnalysisContract.Request request,AnalysisContract.Step step,String id) {
+        AnalysisContract.requireAction(request,step);
+        if("SNAPSHOT".equals(step.action())&&!Objects.equals(request.snapshotId(),id))throw new ApiException(409,"分析快照与原请求绑定不一致");
+        var base=workspace.require(user,id);requireScope(request,base);return base;
+    }
 
     /** 发布和恢复时重新核对依赖快照；可选完整核对用于发现计算期间的清理或明细缺失。 */
     @SuppressWarnings("unchecked")
@@ -349,7 +361,8 @@ public class AnalysisEngine {
     }
     /** 明细翻页重新计算已保存图的确定性选择，只读取原快照，不调用模型、HTTP来源或重新执行分析任务。 */
     public Map<String,Object> page(CurrentUser user,AnalysisContract.Request request,AnalysisContract.Plan plan,List<Map<String,Object>> steps,int index,int page) {
-        if(index<0||index>=steps.size()||page<1||page>100000)throw new ApiException(422,"步骤或页码无效");var node=restore(user,request,plan,steps,index,new HashMap<>());
+        if(index<0||index>=steps.size()||index>=plan.steps().size()||page<1||page>100000)throw new ApiException(422,"步骤或页码无效");
+        for(var step:plan.steps())AnalysisContract.requireAction(request,step);var node=restore(user,request,plan,steps,index,new HashMap<>());
         if(!Set.of("QUERY","SNAPSHOT","DRILLDOWN","RANK").contains(plan.steps().get(index).action())||node.grouping()!=null)throw new ApiException(422,"该步骤没有行明细");
         int from=Math.min(node.rows().size(),(page-1)*20),to=Math.min(node.rows().size(),from+20);var result=new LinkedHashMap<String,Object>();result.put("count",node.rows().size());result.put("page",page);result.put("size",20);result.put("columns",node.base().result().columns());
         result.put("rows",JsonUtil.MAPPER.convertValue(SensitiveData.value(Map.of("columns",node.base().result().columns(),"rows",node.rows().subList(from,to))).get("rows"),List.class));requireSources(user,steps,false);return result;
@@ -357,8 +370,8 @@ public class AnalysisEngine {
     @SuppressWarnings("unchecked")
     private Node restore(CurrentUser user,AnalysisContract.Request request,AnalysisContract.Plan plan,List<Map<String,Object>> steps,int index,Map<Integer,Node> cache) {
         if(cache.containsKey(index))return cache.get(index);if(index>=steps.size()||!"COMPLETED".equals(steps.get(index).get("status")))throw new ApiException(409,"该步骤尚未完成");
-        var step=plan.steps().get(index);Node node;
-        if(Set.of("QUERY","SNAPSHOT").contains(step.action())){var view=(Map<String,Object>)steps.get(index).get("result");var base=workspace.require(user,view.get("snapshotId").toString());requireScope(request,base);node=new Node(base,snapshots.all(base),List.of(),null);}
+        var step=plan.steps().get(index);AnalysisContract.requireAction(request,step);Node node;
+        if(Set.of("QUERY","SNAPSHOT").contains(step.action())){var view=(Map<String,Object>)steps.get(index).get("result");var base=requireBase(user,request,step,view.get("snapshotId").toString());node=new Node(base,snapshots.all(base),List.of(),null);}
         else {
             var source=step.source()==null?null:restore(user,request,plan,steps,step.source(),cache);
             node=switch(step.action()) {

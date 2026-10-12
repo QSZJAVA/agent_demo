@@ -29,6 +29,27 @@ public final class AssistantRouteGuard {
         validateRefinement(message,state,plan,authorizedReports,authorizedCompanies);
     }
 
+    /**
+     * 在只读预检前核对知识/分析指令的授权范围和服务器引用；当前权限、到期及实际快照仍由外层回调再次读取核验。
+     * @param state 请求前的当前焦点，后台保存的旧查询不能成为当前分析来源
+     * @param directive 已通过严格结构解码的单范围指令，不含用户问题或实际snapshotId
+     * @param authorizedReports 当前调用授权报表全集，未知标识不能转为其他报表
+     * @param authorizedCompanies 当前调用授权公司全集，不从模型或历史添加权限
+     * @param analysisContext 同一轮服务器提供的available/source元数据；无来源时source为空对象
+     */
+    public static void validateAnalysis(DialogueState state,AnalysisDirective directive,Set<String> authorizedReports,Set<String> authorizedCompanies,Map<String,Object> analysisContext) {
+        if(!authorizedReports.contains(directive.reportId())||!authorizedCompanies.contains(directive.companyCode()))throw new ApiException(403,"当前无权访问指定的知识或分析范围");
+        if(directive.sourceRef()==null)return;
+        // 引用属于当前成功查询焦点；不允许从隐藏旧对象、失败查询或模型自造标识恢复另一份数据。
+        if(!"BUSINESS_QUERY".equals(state.getAssistantFocus())||state.getBusinessQuery()==null||state.isBusinessUnresolved()
+                ||!Boolean.TRUE.equals(analysisContext.get("available"))||!(analysisContext.get("source") instanceof Map<?,?> source))
+            throw new ApiException(422,"当前没有可用于分析的完整查询快照，请明确选择来源；不能改查当前数据代替原快照");
+        if(!Objects.equals(directive.sourceRef(),source.get("sourceRef"))||!"COMPLETE".equals(Objects.toString(source.get("completeness"),"")))
+            throw new ApiException(422,"分析引用不属于本轮服务器提供的完整查询快照");
+        if(!Objects.equals(directive.companyCode(),source.get("companyCode"))||!Objects.equals(directive.reportId(),source.get("reportId")))
+            throw new ApiException(422,"分析范围与选定查询快照的公司或报表不一致");
+    }
+
     /** 核验读取指定对象的当前事实；绑定查询身份后不用旧金额或状态条件遮蔽变化。 */
     private static void validateEligibilityTarget(String message,DialogueState state,AssistantPlan plan) {
         if(!plan.removedFilters().isEmpty())throw new ApiException(422,"资格核验按稳定身份读取当前对象，removedFilters须为空");

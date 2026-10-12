@@ -34,6 +34,11 @@ public class AnalysisRepository {
     public Map<String,Object> require(CurrentUser user,String id){var rows=jdbc.queryForList("SELECT * FROM business_analysis_run WHERE id=? AND tenant_id=? AND user_id=?",id,user.tenantId(),user.userId());
         if(rows.isEmpty()||!user.permissionVersion().equals(rows.get(0).get("permission_version")))throw ApiException.notFound("分析不存在或当前无权访问");var row=rows.get(0);
         if(!QuerySnapshotStore.instant(row.get("expires_at")).isAfter(java.time.Instant.now()))throw new ApiException(410,"分析证据已过期，请重新发起");return row;}
+    /** 聊天发起的任务随会话删除立即失去读取和继续执行权；独立分析任务不因此增加会话依赖。 */
+    public void requireConversation(String id) {
+        if(Boolean.TRUE.equals(jdbc.queryForObject("SELECT EXISTS(SELECT 1 FROM chat_turn_receipt r LEFT JOIN agent_conversation c ON c.id=r.conversation_id AND c.tenant_id=r.tenant_id AND c.user_id=r.user_id WHERE r.analysis_run_id=? AND (c.id IS NULL OR c.status<>'active' OR EXISTS(SELECT 1 FROM conversation_erasure e WHERE e.conversation_id=r.conversation_id)))",Boolean.class,id)))
+            throw ApiException.notFound("分析所属会话已删除，任务不再可用");
+    }
     /** 最近50项的有界本人任务入口；可见性由服务层逐项按当前范围过滤。 */
     public List<Map<String,Object>> recent(CurrentUser user){return jdbc.queryForList("SELECT * FROM business_analysis_run WHERE tenant_id=? AND user_id=? AND permission_version=? AND expires_at>UTC_TIMESTAMP(3) ORDER BY created_at DESC,id DESC LIMIT 50",user.tenantId(),user.userId(),user.permissionVersion());}
 

@@ -56,6 +56,14 @@ public class DialogueState {
     private com.example.report.assistant.BusinessQuery businessQuery;
     /** 最近成功查询轮次，结构化编辑必须精确匹配；首次查询前为空。 */
     private String businessQueryRef;
+    /** 最近成功查询的完整快照标识；纯计算或无持久快照时为空，不能据当前页重新查询代替。 */
+    private String businessSnapshotId;
+    /** 原查询的观测时间（带时区ISO文本）；无完整快照时为空，不表示当前数据时间。 */
+    private String businessSnapshotObservedAt;
+    /** 原查询快照的UTC有效期；无完整快照时为空，使用时仍须由工作区服务重核。 */
+    private String businessSnapshotExpiresAt;
+    /** 查询成功且来源明确声明COMPLETE才为true，不以当前页记录数推测全集完整。 */
+    private boolean businessSnapshotComplete;
     /** 最近成功查询的来源字段元数据，仅用于当前编辑类型校验，不授予新的字段权限。 */
     private List<com.example.report.catalog.query.FieldInfo> businessColumns = List.of();
     /** 最新仍有效的澄清问题和已复核候选；新轮次取代后清空，不能借旧按钮恢复历史动作。 */
@@ -64,9 +72,9 @@ public class DialogueState {
     private List<java.util.Map<String,String>> businessReferences = List.of();
     /** 最近成功只读查询的完整匹配条数；首次查询前为null，不以当前页长度猜测全集大小。 */
     private Long businessTotalCount;
-    /** 最近助手路由：BUSINESS_QUERY、DISPATCH、HELP或CLARIFY；尚未处理为空。 */
+    /** 最近助手路由：BUSINESS_QUERY、KNOWLEDGE、ANALYSIS、DISPATCH、HELP或CLARIFY；尚未处理为空。 */
     private String assistantRoute;
-    /** 当前业务焦点：最近使用的只读查询或派单规划；帮助、拒绝和澄清不清除已有焦点。 */
+    /** 当前业务焦点：最近使用的查询、知识、分析或派单；只有BUSINESS_QUERY允许隐式接续原查询快照。 */
     private String assistantFocus;
     /** 最近业务查询未完成时为true，模糊追问不能沿用旧结果冒充成功。 */
     private boolean businessUnresolved;

@@ -73,13 +73,15 @@ class ModelIntentTransportTest {
             var api=OpenAiApi.builder().baseUrl("http://127.0.0.1:"+server.getAddress().getPort()).apiKey("local-test").build();
             var model=OpenAiChatModel.builder().openAiApi(api).defaultOptions(OpenAiChatOptions.builder().model("test").build()).build();
             var state=new DialogueState();
-            state.setRecentUserMessages(List.of("电话13812345678"));
+            // 合成手机号只用于验证上下文脱敏，不代表真实用户或任何本机凭据。
+            String syntheticPhone="13900001234";
+            state.setRecentUserMessages(List.of("电话"+syntheticPhone));
             state.setPendingIntent(new SemanticIntent(1,SemanticIntent.Action.PREVIEW,List.of(),List.of(
                     new SemanticIntent.Restriction(SemanticIntent.ForbiddenAction.PREPARE_DISPATCH,SemanticIntent.RestrictionScope.THIS_TURN,"上轮不要派单")),SemanticIntent.Clarify.NONE));
             var parser=new ModelIntentParser(model,new IntentCodec(),new AgentProperties());
             var intent=parser.parse("排除单据"+document,new IntentParser.Context(state,List.of(),List.of(),Map.of(),
                     draft->assertEquals(document,draft.scopeChanges().get(0).mentions().get(0),"业务预检必须收到恢复后的真实标识")));
-            assertFalse(wire.get().contains(document));assertFalse(wire.get().contains("13812345678"));
+            assertFalse(wire.get().contains(document));assertFalse(wire.get().contains(syntheticPhone));
             assertFalse(wire.get().contains("上轮不要派单"));
             assertEquals(document,intent.changesFor(SemanticIntent.Target.RECORDS).get(0).mentions().get(0));
             var row=com.example.report.support.DispatchHarness.candidate("rpt-sales-order","3",document,"A","数字单据");
@@ -93,8 +95,8 @@ class ModelIntentTransportTest {
         var controller=new com.example.report.web.AgentController(chat,permissions,null,null);
         var request=new com.example.report.web.AgentController.ChatRequest();
         request.setMessage("排除单据900000000000000001");
-        controller.chat("user1",request);
-        org.mockito.Mockito.verify(chat).chat(permissions.resolve("user1"), null, request.getMessage(), null, null, null, null);
+        controller.chat("user1","chat-controller-test",request);
+        org.mockito.Mockito.verify(chat).chat(permissions.resolve("user1"), null, request.getMessage(), null, null, null, null,"chat-controller-test");
     }
 
     @Test void nativeSchemaIsActuallySentAndToolsAreAbsent() throws Exception {

@@ -1,0 +1,206 @@
+{
+  "recordedAtUtc": "2026-10-12T19:50:07.4419689Z",
+  "originalTest": "realModelChatQueryAndSnapshotContinuationKeepOriginalIntervalsAndFacts",
+  "originalAttemptStatus": "FAILED",
+  "originalAssertion": "assertEquals(1,count(\"business_query_run\"))",
+  "expectedByOldAssertion": 1,
+  "actual": 2,
+  "failureCategory": "TEST_ASSERTION_SCOPE",
+  "initialQueryResponseCompletedAt": "2026-10-12T19:35:09.539230Z",
+  "initialPlannerStages": [
+    {
+      "stage": "PURPOSE",
+      "attempt": 1,
+      "status": "RETURNED"
+    },
+    {
+      "stage": "PLAN",
+      "attempt": 1,
+      "status": "RETURNED"
+    },
+    {
+      "stage": "REVIEW",
+      "attempt": 1,
+      "status": "RETURNED"
+    },
+    {
+      "stage": "PLAN",
+      "attempt": 2,
+      "status": "RETURNED"
+    }
+  ],
+  "initialPlannerValidations": [
+    {
+      "outcome": "VALIDATED",
+      "detail": "",
+      "stage": "PURPOSE"
+    },
+    {
+      "outcome": "PASSED",
+      "detail": "",
+      "stage": "PRECHECK"
+    },
+    {
+      "outcome": "PASSED",
+      "detail": "",
+      "stage": "PRECHECK"
+    },
+    {
+      "outcome": "VALIDATED",
+      "detail": "",
+      "stage": "REVIEW"
+    },
+    {
+      "outcome": "SEMANTIC_MISMATCH",
+      "detail": "任务计划与本轮要求存在差异，请依据结构化反馈重新完整规划",
+      "stage": "PLAN"
+    },
+    {
+      "outcome": "ACCEPTED",
+      "detail": "",
+      "stage": "PLAN"
+    }
+  ],
+  "observedInitialQueries": [
+    {
+      "completedAt": "2026-10-12T19:35:01.746522900Z",
+      "status": "RETURNED",
+      "snapshotId": "81aa4380752f46fcb1267b76f3197fff",
+      "query": {
+        "domain": "REPORT",
+        "view": "LIST",
+        "reportIds": [
+          "rpt-sales-order"
+        ],
+        "companyCode": "A",
+        "conditions": [
+          {
+            "allOf": [
+              {
+                "field": "saleDate",
+                "operator": "GTE",
+                "values": [
+                  "2026-09-01"
+                ]
+              },
+              {
+                "field": "saleDate",
+                "operator": "LT",
+                "values": [
+                  "2026-10-01"
+                ]
+              },
+              {
+                "field": "amount",
+                "operator": "GT",
+                "values": [
+                  "100"
+                ]
+              },
+              {
+                "field": "amount",
+                "operator": "LTE",
+                "values": [
+                  "110"
+                ]
+              }
+            ]
+          }
+        ],
+        "sortField": "amount",
+        "descending": true,
+        "page": 1,
+        "size": 20,
+        "groupBy": null
+      },
+      "total": 10,
+      "amountsByCurrency": {
+        "CNY": "1045.10"
+      }
+    },
+    {
+      "completedAt": "2026-10-12T19:35:07.180792100Z",
+      "status": "RETURNED",
+      "snapshotId": "7be04c8b98674f93b6ec01d19c46db59",
+      "query": {
+        "domain": "REPORT",
+        "view": "LIST",
+        "reportIds": [
+          "rpt-sales-order"
+        ],
+        "companyCode": "A",
+        "conditions": [
+          {
+            "allOf": [
+              {
+                "field": "amount",
+                "operator": "GT",
+                "values": [
+                  "100"
+                ]
+              },
+              {
+                "field": "amount",
+                "operator": "LTE",
+                "values": [
+                  "110"
+                ]
+              },
+              {
+                "field": "date",
+                "operator": "GTE",
+                "values": [
+                  "2026-09-01"
+                ]
+              },
+              {
+                "field": "date",
+                "operator": "LT",
+                "values": [
+                  "2026-10-01"
+                ]
+              }
+            ]
+          }
+        ],
+        "sortField": "amount",
+        "descending": true,
+        "page": 1,
+        "size": 20,
+        "groupBy": null
+      },
+      "total": 10,
+      "amountsByCurrency": {
+        "CNY": "1045.10"
+      }
+    }
+  ],
+  "queriesAfterInitialResponse": 0,
+  "acceptedSnapshotId": "7be04c8b98674f93b6ec01d19c46db59",
+  "analysisRunId": "8ee55c9296e54e17956fe87cbf0d69e3",
+  "analysisStatus": "COMPLETED",
+  "analysisMode": "SNAPSHOT_ONLY",
+  "analysisSnapshotId": "7be04c8b98674f93b6ec01d19c46db59",
+  "analysisActions": [
+    "SNAPSHOT",
+    "GROUP",
+    "RANK",
+    "DRILLDOWN"
+  ],
+  "preservedBusinessAssertions": {
+    "finalAnswerStatus": "ANSWERED",
+    "amount": "1045.10",
+    "rankedGroupAmount": "525.05",
+    "count": 10,
+    "drilldownCount": 5
+  },
+  "conclusion": "两次真实MCP均发生在初查询完成之前：草稿saleDate与独立期望date分别预检，均为10条/1045.10 CNY。快照接续只使用最终接受的原快照，未新增MCP查询；原失败保留，不能把事后诊断改写为原用例通过。",
+  "correction": "在初查询响应后记录真实MCP次数和精确快照集合；变更当前业务事实后，接续分析要求次数和集合均保持不变。保留原问题、金额、分组与明细断言，不改生产代码。",
+  "laterOriginalAssertionsNotReached": [
+    "assertEquals(1,mcpQueries())",
+    "assertRealPlanningStages(callStart)"
+  ],
+  "verificationAfterCorrection": "PENDING_EXPLICIT_RERUN",
+  "diagnosticRevision": 2,
+  "diagnosticCorrection": "The initial derived comparison mixed PowerShell auto-parsed DateTime values with raw nanosecond ISO strings. This revision compares original ISO-8601 strings consistently in UTC; the initial derivation is retained separately. Original test evidence is unchanged."
+}

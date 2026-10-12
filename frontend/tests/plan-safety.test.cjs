@@ -5,8 +5,8 @@ function component(name, extras = {}) {
   const source = fs.readFileSync(path.join(__dirname, '../src/components/agent', name + '.vue'), 'utf8')
     .match(/<script>([\s\S]*?)<\/script>/)[1]
     .replace(/import[\s\S]*?from\s+['"][^'"]+['"]/g, '').replace('export default', 'result =')
-  const sandbox = { result: null, DispatchTrace: {}, PreviewCard: {}, PlanCard: {}, ResultCard: {}, ReportChoiceCard: {}, BusinessQueryCard: {}, QueryConditionEditor: {},
-    getCurrentUserId: () => 'user1', window: { crypto: require('node:crypto').webcrypto }, ...extras }
+  const sandbox = { result: null, DispatchTrace: {}, PreviewCard: {}, PlanCard: {}, ResultCard: {}, ReportChoiceCard: {}, BusinessQueryCard: {}, QueryConditionEditor: {}, AnalysisTaskCard: {},
+    getCurrentUserId: () => 'user1', getSessionToken: () => 'test-session', window: { crypto: require('node:crypto').webcrypto }, ...extras }
   vm.runInNewContext(source, sandbox)
   return sandbox.result
 }
@@ -20,6 +20,7 @@ function chat(createPlan) {
   const c = component('AgentChat', { createPlan,
     streamChat() { throw new Error('card action must not invoke the model') } })
   const state = stateFor(c)
+  state.chatReady = true
   Object.defineProperty(state, 'busy', { get: () => c.computed.busy.call(state) })
   state.activeId = 'conversation-1'
   state.scrollToBottom = state.refreshStates = state.loadConversations = () => {}
