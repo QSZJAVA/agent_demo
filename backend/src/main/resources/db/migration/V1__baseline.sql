@@ -47,7 +47,7 @@ CREATE TABLE `business_analysis_run` (
   `answer_json` json DEFAULT NULL COMMENT '经精确引用校验与独立依据复核的回答，未可靠完成时为空',
   `usage_json` json NOT NULL COMMENT '模型阶段、调用次数、实际token与耗时，未知计量保留null',
   `status` varchar(24) NOT NULL COMMENT 'QUEUED、RUNNING、COMPLETED、CLARIFY、PARTIAL、FAILED、CANCELLED或INTERRUPTED',
-  `stage` varchar(32) NOT NULL COMMENT '当前阶段：QUEUED、PLAN、PLAN_REVIEW、STEP、ANSWER、ANSWER_REVIEW或FINISHED',
+  `stage` varchar(32) NOT NULL COMMENT '当前阶段：QUEUED、PLAN、PLAN_REVIEW、RAG_REWRITE、RAG_RERANK、STEP、ANSWER、ANSWER_REVIEW或FINISHED',
   `reason` varchar(64) DEFAULT NULL COMMENT '失败或结束的稳定原因代码，正常完成时可空',
   `message` varchar(1000) DEFAULT NULL COMMENT '脱敏后的状态说明或澄清问题，尚无补充说明时为空',
   `claim_token` varchar(32) DEFAULT NULL COMMENT '本次认领的随机令牌，未认领或结束后为空，失租后不能回写',

@@ -1,0 +1,1170 @@
+{
+  "cases" : [ {
+    "caseId" : "cross-language-no-alias",
+    "attempt" : 1,
+    "source" : "MODEL",
+    "question" : "Do booked sales prove that customer funds have arrived?",
+    "retrieval" : {
+      "lexical" : {
+        "sources" : [ {
+          "fragmentId" : "dictionary-c195d75d400d5e72-p1",
+          "sourceId" : "dictionary-c195d75d400d5e72"
+        } ],
+        "searches" : [ {
+          "searchedFragments" : 11,
+          "matchedFragments" : 1
+        } ],
+        "fingerprint" : "777891d705e4c8b365f19867270c6c1dac51d82d55e35017ef0e6477c1b9e982",
+        "status" : "SUCCEEDED"
+      },
+      "semantic" : {
+        "status" : "SUCCEEDED",
+        "searches" : [ {
+          "searchedFragments" : 11,
+          "matchedFragments" : 10,
+          "index" : 0
+        } ],
+        "sources" : [ {
+          "fragmentId" : "document-4f8dfc0678554613992e1d4cdb0c7c3b-v2-p1",
+          "sourceId" : "cash-receipt"
+        }, {
+          "fragmentId" : "document-5ca62be75a2e4e64ab5612183882434f-v2-p1",
+          "sourceId" : "sales-basis"
+        }, {
+          "fragmentId" : "catalog-6-p1",
+          "sourceId" : "catalog-6"
+        }, {
+          "fragmentId" : "rule-1-1-p1",
+          "sourceId" : "rule-1-1"
+        }, {
+          "fragmentId" : "document-5d034643df534593a5fe9087430f6d81-v2-p1",
+          "sourceId" : "invoice-recognition"
+        }, {
+          "fragmentId" : "dictionary-c195d75d400d5e72-p1",
+          "sourceId" : "dictionary-c195d75d400d5e72"
+        }, {
+          "fragmentId" : "document-60931863155f4cec89d01458220a6ea5-v2-p1",
+          "sourceId" : "tax-exclusive"
+        }, {
+          "fragmentId" : "document-a9eac0d8a72d4cdc9e85dced38d668f4-v2-p1",
+          "sourceId" : "tax-inclusive"
+        }, {
+          "fragmentId" : "document-1ff5afc42e3749819c9d1d3f94ff1a29-v2-p1",
+          "sourceId" : "lodging-exception"
+        }, {
+          "fragmentId" : "document-283c6f6ef2aa4f0ead3e9a91d3b94f5f-v2-p1",
+          "sourceId" : "commuting"
+        } ]
+      }
+    },
+    "errors" : [ ],
+    "fingerprint" : "777891d705e4c8b365f19867270c6c1dac51d82d55e35017ef0e6477c1b9e982",
+    "run" : {
+      "status" : "COMPLETED",
+      "citationSourceIds" : [ "cash-receipt", "sales-basis", "catalog-6-p1" ],
+      "answerStatus" : "ANSWERED"
+    },
+    "durationMs" : 22203,
+    "calls" : [ {
+      "source" : "MODEL",
+      "stage" : "PLAN",
+      "at" : "2026-10-12T16:48:17.423882500Z",
+      "schemaHash" : "a5b09697dac7c06208afa51428bde514603135ec0e4459dfcf7df49ebf25e3b3",
+      "inputHash" : "d882da6f48245d665041117c54f308e51b0fec47fa5e01cb7972edb7ce83db44",
+      "rawJson" : "{\"mode\":\"EXECUTE\",\"objective\":\"在已选公司A与销售报表范围内检索已授权制度与业务口径，说明“已记账销售”能否证明客户资金已到账。\",\"clarification\":null,\"steps\":[{\"action\":\"KNOWLEDGE\",\"source\":null,\"other\":null,\"query\":null,\"analysis\":null,\"rank\":null,\"knowledgeQuestion\":\"在A公司销售报表范围内，已记账销售或已派单是否代表客户资金已到账？相关制度对销售确认、回款/资金到账的口径与依据是什么？\"}]}",
+      "status" : "RESPONDED",
+      "usageComplete" : true,
+      "reply" : {
+        "mode" : "EXECUTE",
+        "objective" : "在已选公司A与销售报表范围内检索已授权制度与业务口径，说明“已记账销售”能否证明客户资金已到账。",
+        "clarification" : null,
+        "steps" : [ {
+          "action" : "KNOWLEDGE",
+          "source" : null,
+          "other" : null,
+          "query" : null,
+          "analysis" : null,
+          "rank" : null,
+          "knowledgeQuestion" : "在A公司销售报表范围内，已记账销售或已派单是否代表客户资金已到账？相关制度对销售确认、回款/资金到账的口径与依据是什么？"
+        } ]
+      },
+      "model" : "deepseek-v4.1-flash",
+      "usage" : {
+        "inputTokens" : 3085,
+        "outputTokens" : 122,
+        "cachedInputTokens" : 2432
+      },
+      "elapsedMs" : 2977
+    }, {
+      "source" : "MODEL",
+      "stage" : "PLAN_REVIEW",
+      "at" : "2026-10-12T16:48:20.429467900Z",
+      "schemaHash" : "45c04bc41a4d7f4e30d82d7c125be115725d60612b96ad0b9eb9115aca079817",
+      "inputHash" : "d519d0999e53d2aaaadcb69434cfa7764d2fbffb6ffed3bef5c73f0d0f286ccc",
+      "rawJson" : "{\"approved\":true,\"reason\":\"纯知识问题，已选公司A与销售报表范围明确；计划仅执行一次KNOWLEDGE检索销售确认、派单与客户资金到账的业务口径，不虚构字段或要求报表含资金到账数值，符合范围且无遗漏子目标。\"}",
+      "status" : "RESPONDED",
+      "usageComplete" : true,
+      "reply" : {
+        "approved" : true,
+        "reason" : "纯知识问题，已选公司A与销售报表范围明确；计划仅执行一次KNOWLEDGE检索销售确认、派单与客户资金到账的业务口径，不虚构字段或要求报表含资金到账数值，符合范围且无遗漏子目标。"
+      },
+      "model" : "deepseek-v4.1-flash",
+      "usage" : {
+        "inputTokens" : 2147,
+        "outputTokens" : 64,
+        "cachedInputTokens" : 1408
+      },
+      "elapsedMs" : 3135
+    }, {
+      "source" : "MODEL",
+      "stage" : "RAG_REWRITE",
+      "at" : "2026-10-12T16:48:23.595357700Z",
+      "schemaHash" : "571895d58a59bf0e505fb60a036e3d9443609ee0f5d4039c05c953e19c6a94d8",
+      "inputHash" : "76141fa4743e0e64a36bc0e8383e027c40e0bf7a6203bdd845d2f2cc9f79df0d",
+      "businessQueriesAtCall" : 0,
+      "rawJson" : "{\"topics\":[{\"index\":0,\"firstQuery\":\"A公司 销售报表 已记账销售 已派单 是否等于客户资金已到账 销售确认 回款口径\",\"secondQuery\":\"销售确认 收入确认 资金到账 区别 回款 依据 制度\"}]}",
+      "status" : "RESPONDED",
+      "usageComplete" : true,
+      "reply" : {
+        "topics" : [ {
+          "index" : 0,
+          "firstQuery" : "A公司 销售报表 已记账销售 已派单 是否等于客户资金已到账 销售确认 回款口径",
+          "secondQuery" : "销售确认 收入确认 资金到账 区别 回款 依据 制度"
+        } ]
+      },
+      "model" : "deepseek-v4.1-flash",
+      "usage" : {
+        "inputTokens" : 495,
+        "outputTokens" : 65,
+        "cachedInputTokens" : 128
+      },
+      "elapsedMs" : 3078
+    }, {
+      "source" : "MODEL",
+      "stage" : "RAG_RERANK",
+      "at" : "2026-10-12T16:48:26.697090400Z",
+      "schemaHash" : "e90873a5a952a08e28bdbe2804b012a900db3877ba2ab384f7903a4505f9fea9",
+      "inputHash" : "1cab8b8a6e255e10f7702f656b1e20dc7a0e792bd0fb38d28b704d5f0a6accaf",
+      "businessQueriesAtCall" : 0,
+      "rawJson" : "{\"topics\":[{\"index\":0,\"sourceIds\":[\"c4\",\"c3\",\"c1\",\"c2\",\"c5\",\"c0\",\"c6\",\"c7\",\"c8\",\"c9\"]}]}",
+      "status" : "RESPONDED",
+      "usageComplete" : true,
+      "reply" : {
+        "topics" : [ {
+          "index" : 0,
+          "sourceIds" : [ "c4", "c3", "c1", "c2", "c5", "c0", "c6", "c7", "c8", "c9" ]
+        } ]
+      },
+      "model" : "deepseek-v4.1-flash",
+      "usage" : {
+        "inputTokens" : 2977,
+        "outputTokens" : 45,
+        "cachedInputTokens" : 128
+      },
+      "elapsedMs" : 2415
+    }, {
+      "source" : "MODEL",
+      "stage" : "ANSWER",
+      "at" : "2026-10-12T16:48:29.164544500Z",
+      "schemaHash" : "cd5d5714bc9c1241339b2680872af4416b61a17ee8344430501e5a5d1235020e",
+      "inputHash" : "46170364929db8e6255d8c72b2e2a2aa202ae08fd043fc6cff08404292764c75",
+      "rawJson" : "{\"status\":\"ANSWERED\",\"claims\":[{\"text\":\"已入账的销售金额是订单约定的应收价款，不能等同于客户已经付款；只有实际到账记录才能认定已经收款。\",\"sourceIds\":[\"document-4f8dfc0678554613992e1d4cdb0c7c3b-v2-p1\",\"document-5ca62be75a2e4e64ab5612183882434f-v2-p1\"]},{\"text\":\"销售报表是销售订单台账，按订单统计金额与派单状态，其金额字段为来源金额，本身不记录到账流水，因此不能作为客户资金到账的证明。\",\"sourceIds\":[\"catalog-6-p1\"]}],\"limitations\":[\"本次结论基于当前授权范围内的制度与目录资料；这不证明授权资料之外不存在其他制度。\"]}",
+      "status" : "RESPONDED",
+      "usageComplete" : true,
+      "knowledgeCoverage" : {
+        "performed" : true,
+        "truncated" : false,
+        "expansionTruncated" : false,
+        "steps" : [ {
+          "searchedSources" : 11,
+          "stepNumber" : 1,
+          "expansionTruncated" : false,
+          "searchedFragments" : 11,
+          "truncated" : false,
+          "matchedFragments" : 10,
+          "returnedSources" : 10,
+          "returnedFragments" : 10,
+          "matchedSources" : 10
+        } ]
+      },
+      "reply" : {
+        "status" : "ANSWERED",
+        "claims" : [ {
+          "text" : "已入账的销售金额是订单约定的应收价款，不能等同于客户已经付款；只有实际到账记录才能认定已经收款。",
+          "sourceIds" : [ "document-4f8dfc0678554613992e1d4cdb0c7c3b-v2-p1", "document-5ca62be75a2e4e64ab5612183882434f-v2-p1" ]
+        }, {
+          "text" : "销售报表是销售订单台账，按订单统计金额与派单状态，其金额字段为来源金额，本身不记录到账流水，因此不能作为客户资金到账的证明。",
+          "sourceIds" : [ "catalog-6-p1" ]
+        } ],
+        "limitations" : [ "本次结论基于当前授权范围内的制度与目录资料；这不证明授权资料之外不存在其他制度。" ]
+      },
+      "model" : "deepseek-v4.1-flash",
+      "usage" : {
+        "inputTokens" : 4662,
+        "outputTokens" : 181,
+        "cachedInputTokens" : 896
+      },
+      "elapsedMs" : 5741
+    }, {
+      "source" : "MODEL",
+      "stage" : "ANSWER_REVIEW",
+      "at" : "2026-10-12T16:48:34.933776100Z",
+      "schemaHash" : "45c04bc41a4d7f4e30d82d7c125be115725d60612b96ad0b9eb9115aca079817",
+      "inputHash" : "f3f7582b4036251946b9eed2f0eeb183f00ae5414d54f917db101cafa9547859",
+      "rawJson" : "{\"approved\":true,\"reason\":\"答案正确区分销售金额与到账记录，引用片段支持该结论；目录字段亦不包含到账流水，两处依据一致。知识检索已执行，来源数与片段数表述规范，限制说明与范围事实相符，未发现需纠正的差异。\"}",
+      "status" : "RESPONDED",
+      "usageComplete" : true,
+      "knowledgeCoverage" : {
+        "performed" : true,
+        "truncated" : false,
+        "expansionTruncated" : false,
+        "steps" : [ {
+          "searchedSources" : 11,
+          "stepNumber" : 1,
+          "expansionTruncated" : false,
+          "searchedFragments" : 11,
+          "truncated" : false,
+          "matchedFragments" : 10,
+          "returnedSources" : 10,
+          "returnedFragments" : 10,
+          "matchedSources" : 10
+        } ]
+      },
+      "reply" : {
+        "approved" : true,
+        "reason" : "答案正确区分销售金额与到账记录，引用片段支持该结论；目录字段亦不包含到账流水，两处依据一致。知识检索已执行，来源数与片段数表述规范，限制说明与范围事实相符，未发现需纠正的差异。"
+      },
+      "model" : "deepseek-v4.1-flash",
+      "usage" : {
+        "inputTokens" : 4327,
+        "outputTokens" : 64,
+        "cachedInputTokens" : 1024
+      },
+      "elapsedMs" : 4522
+    } ]
+  }, {
+    "caseId" : "negation-and-exception",
+    "attempt" : 1,
+    "source" : "MODEL",
+    "question" : "常驻地驻点工作能领差旅住宿补助吗？事前书面批准的跨地支援是否例外？",
+    "retrieval" : {
+      "lexical" : {
+        "sources" : [ {
+          "fragmentId" : "document-7a5edbf0aedc4596aac663a2dcd00396-v2-p1",
+          "sourceId" : "lodging-exception"
+        }, {
+          "fragmentId" : "document-d40e6419467240fab285a5489931338d-v2-p1",
+          "sourceId" : "commuting"
+        } ],
+        "searches" : [ {
+          "searchedFragments" : 11,
+          "matchedFragments" : 2
+        } ],
+        "fingerprint" : "08375b51234390097d004cde65ef09a16bd529ab94ddac4e3b465991b7fb3568",
+        "status" : "SUCCEEDED"
+      },
+      "semantic" : {
+        "status" : "SUCCEEDED",
+        "searches" : [ {
+          "searchedFragments" : 11,
+          "matchedFragments" : 3,
+          "index" : 0
+        } ],
+        "sources" : [ {
+          "fragmentId" : "document-7a5edbf0aedc4596aac663a2dcd00396-v2-p1",
+          "sourceId" : "lodging-exception"
+        }, {
+          "fragmentId" : "document-d40e6419467240fab285a5489931338d-v2-p1",
+          "sourceId" : "commuting"
+        }, {
+          "fragmentId" : "document-48bc5742efa34c17a23aedd2ec2aa4c3-v2-p1",
+          "sourceId" : "invoice-recognition"
+        } ]
+      }
+    },
+    "errors" : [ ],
+    "fingerprint" : "08375b51234390097d004cde65ef09a16bd529ab94ddac4e3b465991b7fb3568",
+    "run" : {
+      "status" : "COMPLETED",
+      "citationSourceIds" : [ "lodging-exception", "commuting", "knowledge-coverage-1" ],
+      "answerStatus" : "ANSWERED"
+    },
+    "durationMs" : 17196,
+    "calls" : [ {
+      "source" : "MODEL",
+      "stage" : "PLAN",
+      "at" : "2026-10-12T16:48:40.699565400Z",
+      "schemaHash" : "a5b09697dac7c06208afa51428bde514603135ec0e4459dfcf7df49ebf25e3b3",
+      "inputHash" : "ff669c571199b72e283c295877a4e1164f178b219c67e6d0f665f5429e6671fd",
+      "rawJson" : "{\"mode\":\"EXECUTE\",\"objective\":\"回答常驻地驻点工作能否领取差旅住宿补助，以及事前书面批准的跨地支援是否属于例外情形。\",\"clarification\":null,\"steps\":[{\"action\":\"KNOWLEDGE\",\"source\":null,\"other\":null,\"query\":null,\"analysis\":null,\"rank\":null,\"knowledgeQuestion\":\"常驻地驻点工作能否领取差旅住宿补助？事前书面批准的跨地支援是否为例外？\"}]}",
+      "status" : "RESPONDED",
+      "usageComplete" : true,
+      "reply" : {
+        "mode" : "EXECUTE",
+        "objective" : "回答常驻地驻点工作能否领取差旅住宿补助，以及事前书面批准的跨地支援是否属于例外情形。",
+        "clarification" : null,
+        "steps" : [ {
+          "action" : "KNOWLEDGE",
+          "source" : null,
+          "other" : null,
+          "query" : null,
+          "analysis" : null,
+          "rank" : null,
+          "knowledgeQuestion" : "常驻地驻点工作能否领取差旅住宿补助？事前书面批准的跨地支援是否为例外？"
+        } ]
+      },
+      "model" : "deepseek-v4.1-flash",
+      "usage" : {
+        "inputTokens" : 3218,
+        "outputTokens" : 98,
+        "cachedInputTokens" : 1920
+      },
+      "elapsedMs" : 2683
+    }, {
+      "source" : "MODEL",
+      "stage" : "PLAN_REVIEW",
+      "at" : "2026-10-12T16:48:43.410941100Z",
+      "schemaHash" : "45c04bc41a4d7f4e30d82d7c125be115725d60612b96ad0b9eb9115aca079817",
+      "inputHash" : "de78a16ee9c9ad577445c0d666727d70017d04f247a88ab345ee13e665d36c8a",
+      "rawJson" : "{\"approved\":true,\"reason\":\"问题为纯知识询问，计划仅执行KNOWLEDGE在已选公司报表授权范围内检索，符合授权边界；未虚构字段或超出范围，无需QUERY或数值比较。\"}",
+      "status" : "RESPONDED",
+      "usageComplete" : true,
+      "reply" : {
+        "approved" : true,
+        "reason" : "问题为纯知识询问，计划仅执行KNOWLEDGE在已选公司报表授权范围内检索，符合授权边界；未虚构字段或超出范围，无需QUERY或数值比较。"
+      },
+      "model" : "deepseek-v4.1-flash",
+      "usage" : {
+        "inputTokens" : 2256,
+        "outputTokens" : 48,
+        "cachedInputTokens" : 1024
+      },
+      "elapsedMs" : 2560
+    }, {
+      "source" : "MODEL",
+      "stage" : "RAG_REWRITE",
+      "at" : "2026-10-12T16:48:46.008143700Z",
+      "schemaHash" : "571895d58a59bf0e505fb60a036e3d9443609ee0f5d4039c05c953e19c6a94d8",
+      "inputHash" : "4258b9a2b3510035951d315d0356bdaaae0dd527e2760b9cd4171e648b53fdbf",
+      "businessQueriesAtCall" : 0,
+      "rawJson" : "{\"topics\":[{\"index\":0,\"firstQuery\":\"常驻地驻点工作 差旅住宿补助 领取条件\",\"secondQuery\":\"事前书面批准 跨地支援 差旅住宿补助 例外\"}]}",
+      "status" : "RESPONDED",
+      "usageComplete" : true,
+      "reply" : {
+        "topics" : [ {
+          "index" : 0,
+          "firstQuery" : "常驻地驻点工作 差旅住宿补助 领取条件",
+          "secondQuery" : "事前书面批准 跨地支援 差旅住宿补助 例外"
+        } ]
+      },
+      "model" : "deepseek-v4.1-flash",
+      "usage" : {
+        "inputTokens" : 489,
+        "outputTokens" : 46,
+        "cachedInputTokens" : 128
+      },
+      "elapsedMs" : 2931
+    }, {
+      "source" : "MODEL",
+      "stage" : "RAG_RERANK",
+      "at" : "2026-10-12T16:48:48.968219500Z",
+      "schemaHash" : "25a060bc72af6c5f1aa726a6897aecdb5ac008f66fcb1d83a674162d1ddcb71c",
+      "inputHash" : "2c7137365a8eacb9a9645a4492f7ee6219f0121c73f9086d40297a7307ab0293",
+      "businessQueriesAtCall" : 0,
+      "rawJson" : "{\"topics\":[{\"index\":0,\"sourceIds\":[\"c0\",\"c1\",\"c2\"]}]}",
+      "status" : "RESPONDED",
+      "usageComplete" : true,
+      "reply" : {
+        "topics" : [ {
+          "index" : 0,
+          "sourceIds" : [ "c0", "c1", "c2" ]
+        } ]
+      },
+      "model" : "deepseek-v4.1-flash",
+      "usage" : {
+        "inputTokens" : 1069,
+        "outputTokens" : 24,
+        "cachedInputTokens" : 128
+      },
+      "elapsedMs" : 2090
+    }, {
+      "source" : "MODEL",
+      "stage" : "ANSWER",
+      "at" : "2026-10-12T16:48:51.107991700Z",
+      "schemaHash" : "fe9f4328e5f3d00fe2d8ff860882aa186f701990b7d6af4542f175c05e3ff485",
+      "inputHash" : "66e6b3b2e79b85c1f64a843f515da36159b3f642d96f2e38866092cc5779550b",
+      "rawJson" : "{\"status\":\"ANSWERED\",\"claims\":[{\"text\":\"短期出差住宿补助仅适用于因公前往常驻地以外的员工；在常驻地本地驻点工作不适用该补助。\",\"sourceIds\":[\"document-7a5edbf0aedc4596aac663a2dcd00396-v2-p1\"]},{\"text\":\"经过事前书面批准的跨地支援，按批准期间纳入住宿补助范围，属于本地驻点不适用规则的例外。\",\"sourceIds\":[\"document-7a5edbf0aedc4596aac663a2dcd00396-v2-p1\"]},{\"text\":\"通勤交通补助适用于常驻工作地往返，其标准和住宿补助分别管理，不能由通勤补助推导住宿补助。\",\"sourceIds\":[\"document-d40e6419467240fab285a5489931338d-v2-p1\"]},{\"text\":\"本次已检索当前授权范围内的知识，共命中并返回3份来源、3个片段，命中的片段已全部返回。\",\"sourceIds\":[\"knowledge-coverage-1\"]}],\"limitations\":[\"本次字段别名扩展未达到预算，检索范围有限，不能据此认定授权资料之外不存在其他相关制度。\",\"各项制度自2026-01-01起生效、未标注失效时间，制度内容不证明任何具体业务已经执行、审批或符合派单条件。\"]}",
+      "status" : "RESPONDED",
+      "usageComplete" : true,
+      "knowledgeCoverage" : {
+        "performed" : true,
+        "truncated" : false,
+        "expansionTruncated" : false,
+        "steps" : [ {
+          "searchedSources" : 11,
+          "stepNumber" : 1,
+          "expansionTruncated" : false,
+          "searchedFragments" : 11,
+          "truncated" : false,
+          "matchedFragments" : 3,
+          "returnedSources" : 3,
+          "returnedFragments" : 3,
+          "matchedSources" : 3
+        } ]
+      },
+      "reply" : {
+        "status" : "ANSWERED",
+        "claims" : [ {
+          "text" : "短期出差住宿补助仅适用于因公前往常驻地以外的员工；在常驻地本地驻点工作不适用该补助。",
+          "sourceIds" : [ "document-7a5edbf0aedc4596aac663a2dcd00396-v2-p1" ]
+        }, {
+          "text" : "经过事前书面批准的跨地支援，按批准期间纳入住宿补助范围，属于本地驻点不适用规则的例外。",
+          "sourceIds" : [ "document-7a5edbf0aedc4596aac663a2dcd00396-v2-p1" ]
+        }, {
+          "text" : "通勤交通补助适用于常驻工作地往返，其标准和住宿补助分别管理，不能由通勤补助推导住宿补助。",
+          "sourceIds" : [ "document-d40e6419467240fab285a5489931338d-v2-p1" ]
+        }, {
+          "text" : "本次已检索当前授权范围内的知识，共命中并返回3份来源、3个片段，命中的片段已全部返回。",
+          "sourceIds" : [ "knowledge-coverage-1" ]
+        } ],
+        "limitations" : [ "本次字段别名扩展未达到预算，检索范围有限，不能据此认定授权资料之外不存在其他相关制度。", "各项制度自2026-01-01起生效、未标注失效时间，制度内容不证明任何具体业务已经执行、审批或符合派单条件。" ]
+      },
+      "model" : "deepseek-v4.1-flash",
+      "usage" : {
+        "inputTokens" : 2554,
+        "outputTokens" : 292,
+        "cachedInputTokens" : 896
+      },
+      "elapsedMs" : 3635
+    }, {
+      "source" : "MODEL",
+      "stage" : "ANSWER_REVIEW",
+      "at" : "2026-10-12T16:48:54.772337600Z",
+      "schemaHash" : "45c04bc41a4d7f4e30d82d7c125be115725d60612b96ad0b9eb9115aca079817",
+      "inputHash" : "e7491df653827202606d46aef68b01fafa4e32cacb9e18a47ec8ba74720fab0f",
+      "rawJson" : "{\"approved\":true,\"reason\":\"答案与来源一致：驻点工作不适用住宿补助、事前书面批准跨地支援为例外的表述均有制度原文支持；通勤补助与住宿补助分别管理的说法亦相符。知识检索说明引用正确，命中并返回3份来源、3个片段，字段别名扩展未达预算的限制与输入一致，未把未执行写成无命中，无单位混用。生效时间与业务执行未获证明的限制如实，未遗漏或虚构事实。\"}",
+      "status" : "RESPONDED",
+      "usageComplete" : true,
+      "knowledgeCoverage" : {
+        "performed" : true,
+        "truncated" : false,
+        "expansionTruncated" : false,
+        "steps" : [ {
+          "searchedSources" : 11,
+          "stepNumber" : 1,
+          "expansionTruncated" : false,
+          "searchedFragments" : 11,
+          "truncated" : false,
+          "matchedFragments" : 3,
+          "returnedSources" : 3,
+          "returnedFragments" : 3,
+          "matchedSources" : 3
+        } ]
+      },
+      "reply" : {
+        "approved" : true,
+        "reason" : "答案与来源一致：驻点工作不适用住宿补助、事前书面批准跨地支援为例外的表述均有制度原文支持；通勤补助与住宿补助分别管理的说法亦相符。知识检索说明引用正确，命中并返回3份来源、3个片段，字段别名扩展未达预算的限制与输入一致，未把未执行写成无命中，无单位混用。生效时间与业务执行未获证明的限制如实，未遗漏或虚构事实。"
+      },
+      "model" : "deepseek-v4.1-flash",
+      "usage" : {
+        "inputTokens" : 2477,
+        "outputTokens" : 105,
+        "cachedInputTokens" : 1024
+      },
+      "elapsedMs" : 2978
+    } ]
+  }, {
+    "caseId" : "similar-concept-distinction",
+    "attempt" : 1,
+    "source" : "MODEL",
+    "question" : "发票开出那天就算确认收入了吗？请按当前制度说明两者关系。",
+    "retrieval" : {
+      "lexical" : {
+        "sources" : [ {
+          "fragmentId" : "document-f32b508e6b984933999a0e00f807634b-v2-p1",
+          "sourceId" : "invoice-recognition"
+        }, {
+          "fragmentId" : "document-f156b94b8a9343719c22f81aeba042b1-v2-p1",
+          "sourceId" : "cash-receipt"
+        } ],
+        "searches" : [ {
+          "searchedFragments" : 11,
+          "matchedFragments" : 2
+        } ],
+        "fingerprint" : "dcfbb284c397a23a593cd97fed3de69d4d173128bdc056068081d4e501cbbaad",
+        "status" : "SUCCEEDED"
+      },
+      "semantic" : {
+        "status" : "SUCCEEDED",
+        "searches" : [ {
+          "searchedFragments" : 11,
+          "matchedFragments" : 4,
+          "index" : 0
+        } ],
+        "sources" : [ {
+          "fragmentId" : "document-f32b508e6b984933999a0e00f807634b-v2-p1",
+          "sourceId" : "invoice-recognition"
+        }, {
+          "fragmentId" : "document-76070a41a80541c4bbf008a9cc513e2e-v2-p1",
+          "sourceId" : "sales-basis"
+        }, {
+          "fragmentId" : "document-f156b94b8a9343719c22f81aeba042b1-v2-p1",
+          "sourceId" : "cash-receipt"
+        }, {
+          "fragmentId" : "catalog-6-p1",
+          "sourceId" : "catalog-6"
+        } ]
+      }
+    },
+    "errors" : [ ],
+    "fingerprint" : "dcfbb284c397a23a593cd97fed3de69d4d173128bdc056068081d4e501cbbaad",
+    "run" : {
+      "status" : "COMPLETED",
+      "citationSourceIds" : [ "invoice-recognition", "knowledge-coverage-1" ],
+      "answerStatus" : "ANSWERED"
+    },
+    "durationMs" : 16695,
+    "calls" : [ {
+      "source" : "MODEL",
+      "stage" : "PLAN",
+      "at" : "2026-10-12T16:48:58.895569800Z",
+      "schemaHash" : "a5b09697dac7c06208afa51428bde514603135ec0e4459dfcf7df49ebf25e3b3",
+      "inputHash" : "163dcce839c109e102c3f77cd5df74173094445283e576af02671678485c7c31",
+      "rawJson" : "{\"mode\":\"EXECUTE\",\"objective\":\"按当前制度说明开票日期与收入确认日期的关系，明确发票开出日是否等于收入确认日。\",\"clarification\":null,\"steps\":[{\"action\":\"KNOWLEDGE\",\"source\":null,\"other\":null,\"query\":null,\"analysis\":null,\"rank\":null,\"knowledgeQuestion\":\"开票日期是否等同于收入确认日期？收入确认应以什么时点为准？\"}]}",
+      "status" : "RESPONDED",
+      "usageComplete" : true,
+      "reply" : {
+        "mode" : "EXECUTE",
+        "objective" : "按当前制度说明开票日期与收入确认日期的关系，明确发票开出日是否等于收入确认日。",
+        "clarification" : null,
+        "steps" : [ {
+          "action" : "KNOWLEDGE",
+          "source" : null,
+          "other" : null,
+          "query" : null,
+          "analysis" : null,
+          "rank" : null,
+          "knowledgeQuestion" : "开票日期是否等同于收入确认日期？收入确认应以什么时点为准？"
+        } ]
+      },
+      "model" : "deepseek-v4.1-flash",
+      "usage" : {
+        "inputTokens" : 3211,
+        "outputTokens" : 92,
+        "cachedInputTokens" : 1920
+      },
+      "elapsedMs" : 2447
+    }, {
+      "source" : "MODEL",
+      "stage" : "PLAN_REVIEW",
+      "at" : "2026-10-12T16:49:01.371459200Z",
+      "schemaHash" : "45c04bc41a4d7f4e30d82d7c125be115725d60612b96ad0b9eb9115aca079817",
+      "inputHash" : "c087de89cb9aab6e2c49dea94cf04087e13e48f7625eae30b2cb24c247b84191",
+      "rawJson" : "{\"approved\":true,\"reason\":\"纯知识问题、范围与当前制度检索均已覆盖；KNOWLEDGE步骤正确，无需QUERY或报表数值字段，执行检索后可依据制度说明开票日期不等同于收入确认日期。\"}",
+      "status" : "RESPONDED",
+      "usageComplete" : true,
+      "reply" : {
+        "approved" : true,
+        "reason" : "纯知识问题、范围与当前制度检索均已覆盖；KNOWLEDGE步骤正确，无需QUERY或报表数值字段，执行检索后可依据制度说明开票日期不等同于收入确认日期。"
+      },
+      "model" : "deepseek-v4.1-flash",
+      "usage" : {
+        "inputTokens" : 2243,
+        "outputTokens" : 51,
+        "cachedInputTokens" : 1024
+      },
+      "elapsedMs" : 2408
+    }, {
+      "source" : "MODEL",
+      "stage" : "RAG_REWRITE",
+      "at" : "2026-10-12T16:49:03.816209400Z",
+      "schemaHash" : "571895d58a59bf0e505fb60a036e3d9443609ee0f5d4039c05c953e19c6a94d8",
+      "inputHash" : "ac985995ef5aa9887a6f1e74e2b73db779122e2c52b2989adcccf9b9401aca29",
+      "businessQueriesAtCall" : 0,
+      "rawJson" : "{\"topics\":[{\"index\":0,\"firstQuery\":\"开票日期 收入确认日期 两者关系 会计准则\",\"secondQuery\":\"收入确认时点 发票开具 区别 当前制度\"}]}",
+      "status" : "RESPONDED",
+      "usageComplete" : true,
+      "reply" : {
+        "topics" : [ {
+          "index" : 0,
+          "firstQuery" : "开票日期 收入确认日期 两者关系 会计准则",
+          "secondQuery" : "收入确认时点 发票开具 区别 当前制度"
+        } ]
+      },
+      "model" : "deepseek-v4.1-flash",
+      "usage" : {
+        "inputTokens" : 478,
+        "outputTokens" : 43,
+        "cachedInputTokens" : 128
+      },
+      "elapsedMs" : 2215
+    }, {
+      "source" : "MODEL",
+      "stage" : "RAG_RERANK",
+      "at" : "2026-10-12T16:49:06.054148300Z",
+      "schemaHash" : "7bbbaf6f962c2143431e7612dc8867decb424ab4763e604a3a8181056a2e06f9",
+      "inputHash" : "08d280cee0bb2e626c03be685439a680a8f4bc66a3fb1ceadb525f5259ea34ea",
+      "businessQueriesAtCall" : 0,
+      "rawJson" : "{\"topics\":[{\"index\":0,\"sourceIds\":[\"c0\",\"c3\",\"c1\",\"c2\"]}]}",
+      "status" : "RESPONDED",
+      "usageComplete" : true,
+      "reply" : {
+        "topics" : [ {
+          "index" : 0,
+          "sourceIds" : [ "c0", "c3", "c1", "c2" ]
+        } ]
+      },
+      "model" : "deepseek-v4.1-flash",
+      "usage" : {
+        "inputTokens" : 1606,
+        "outputTokens" : 27,
+        "cachedInputTokens" : 128
+      },
+      "elapsedMs" : 2140
+    }, {
+      "source" : "MODEL",
+      "stage" : "ANSWER",
+      "at" : "2026-10-12T16:49:08.239229Z",
+      "schemaHash" : "b6b8c3a2015a541d323a1c4595f38f5a2de7cd3ebd761acf9a1d24f8b47237de",
+      "inputHash" : "ebd4507ab7ab2019375cf71cf72b78789ccbe54a53707824c3380016ee42c5c9",
+      "rawJson" : "{\"status\":\"ANSWERED\",\"claims\":[{\"text\":\"根据当前制度，开票日期是发票开具日期，不等同于收入确认日期；收入确认以合同履约条件满足时点为准，不能仅据开票时间推断。\",\"sourceIds\":[\"document-f32b508e6b984933999a0e00f807634b-v2-p1\"]},{\"text\":\"本次已执行授权范围内的知识检索：搜索11份来源、11个片段，命中并返回4份来源、4个片段。该结果不证明授权资料之外不存在其他制度。\",\"sourceIds\":[\"knowledge-coverage-1\"]}],\"limitations\":[\"本次知识检索未发现将开票日期直接等同于收入确认日期的规定；若授权范围外另有制度，本次结果未覆盖。\"]}",
+      "status" : "RESPONDED",
+      "usageComplete" : true,
+      "knowledgeCoverage" : {
+        "performed" : true,
+        "truncated" : false,
+        "expansionTruncated" : false,
+        "steps" : [ {
+          "searchedSources" : 11,
+          "stepNumber" : 1,
+          "expansionTruncated" : false,
+          "searchedFragments" : 11,
+          "truncated" : false,
+          "matchedFragments" : 4,
+          "returnedSources" : 4,
+          "returnedFragments" : 4,
+          "matchedSources" : 4
+        } ]
+      },
+      "reply" : {
+        "status" : "ANSWERED",
+        "claims" : [ {
+          "text" : "根据当前制度，开票日期是发票开具日期，不等同于收入确认日期；收入确认以合同履约条件满足时点为准，不能仅据开票时间推断。",
+          "sourceIds" : [ "document-f32b508e6b984933999a0e00f807634b-v2-p1" ]
+        }, {
+          "text" : "本次已执行授权范围内的知识检索：搜索11份来源、11个片段，命中并返回4份来源、4个片段。该结果不证明授权资料之外不存在其他制度。",
+          "sourceIds" : [ "knowledge-coverage-1" ]
+        } ],
+        "limitations" : [ "本次知识检索未发现将开票日期直接等同于收入确认日期的规定；若授权范围外另有制度，本次结果未覆盖。" ]
+      },
+      "model" : "deepseek-v4.1-flash",
+      "usage" : {
+        "inputTokens" : 3106,
+        "outputTokens" : 168,
+        "cachedInputTokens" : 896
+      },
+      "elapsedMs" : 4449
+    }, {
+      "source" : "MODEL",
+      "stage" : "ANSWER_REVIEW",
+      "at" : "2026-10-12T16:49:12.714831700Z",
+      "schemaHash" : "45c04bc41a4d7f4e30d82d7c125be115725d60612b96ad0b9eb9115aca079817",
+      "inputHash" : "4fbc13e6cee1d5afc59250703b682b5d4fc8dce81ad7145c6fe35580ee381acd",
+      "rawJson" : "{\"approved\":true,\"reason\":\"答案与制度原文一致：开票日期不等同于收入确认日期，收入确认以履约条件满足时点为准；检索计数、单位与范围说明一致，限制表述未越界；无需追加未被询问的制度缺失。\"}",
+      "status" : "RESPONDED",
+      "usageComplete" : true,
+      "knowledgeCoverage" : {
+        "performed" : true,
+        "truncated" : false,
+        "expansionTruncated" : false,
+        "steps" : [ {
+          "searchedSources" : 11,
+          "stepNumber" : 1,
+          "expansionTruncated" : false,
+          "searchedFragments" : 11,
+          "truncated" : false,
+          "matchedFragments" : 4,
+          "returnedSources" : 4,
+          "returnedFragments" : 4,
+          "matchedSources" : 4
+        } ]
+      },
+      "reply" : {
+        "approved" : true,
+        "reason" : "答案与制度原文一致：开票日期不等同于收入确认日期，收入确认以履约条件满足时点为准；检索计数、单位与范围说明一致，限制表述未越界；无需追加未被询问的制度缺失。"
+      },
+      "model" : "deepseek-v4.1-flash",
+      "usage" : {
+        "inputTokens" : 2897,
+        "outputTokens" : 56,
+        "cachedInputTokens" : 1024
+      },
+      "elapsedMs" : 2654
+    } ]
+  }, {
+    "caseId" : "opposing-tax-policy",
+    "attempt" : 1,
+    "source" : "MODEL",
+    "question" : "现行资料对销售金额是否含税有一致结论吗？请列出相反依据。",
+    "retrieval" : {
+      "lexical" : {
+        "sources" : [ {
+          "fragmentId" : "document-427cb8735de54ff99126212cbf435b27-v2-p1",
+          "sourceId" : "sales-basis"
+        }, {
+          "fragmentId" : "document-27f252ef75724ee08a65dad0a8c63508-v2-p1",
+          "sourceId" : "tax-inclusive"
+        }, {
+          "fragmentId" : "document-67f1f1e381ee4f1cbb87b30b12731028-v2-p1",
+          "sourceId" : "tax-exclusive"
+        }, {
+          "fragmentId" : "document-349f7a23d8ab46859d54d11b6689efbf-v2-p1",
+          "sourceId" : "cash-receipt"
+        }, {
+          "fragmentId" : "catalog-6-p1",
+          "sourceId" : "catalog-6"
+        }, {
+          "fragmentId" : "rule-1-1-p1",
+          "sourceId" : "rule-1-1"
+        }, {
+          "fragmentId" : "dictionary-c195d75d400d5e72-p1",
+          "sourceId" : "dictionary-c195d75d400d5e72"
+        }, {
+          "fragmentId" : "document-2b680b12fc224e608d998c114a22e5b7-v2-p1",
+          "sourceId" : "commuting"
+        }, {
+          "fragmentId" : "document-3b098183c54e4f039cea99c8d6b2d7a4-v2-p1",
+          "sourceId" : "invoice-recognition"
+        }, {
+          "fragmentId" : "document-60d7cb38de7a4619bb18ae4247407c75-v2-p1",
+          "sourceId" : "lodging-exception"
+        }, {
+          "fragmentId" : "document-63464eedf5374845a7e9e70abfd64b92-v2-p1",
+          "sourceId" : "expression-syntax"
+        } ],
+        "searches" : [ {
+          "searchedFragments" : 11,
+          "matchedFragments" : 11
+        } ],
+        "fingerprint" : "b3d201b06205a2f26c2af7d368c72671f25bb00c79b926335a1eeb0236380182",
+        "status" : "SUCCEEDED"
+      },
+      "semantic" : {
+        "status" : "SUCCEEDED",
+        "searches" : [ {
+          "searchedFragments" : 11,
+          "matchedFragments" : 11,
+          "index" : 0
+        } ],
+        "sources" : [ {
+          "fragmentId" : "document-27f252ef75724ee08a65dad0a8c63508-v2-p1",
+          "sourceId" : "tax-inclusive"
+        }, {
+          "fragmentId" : "document-67f1f1e381ee4f1cbb87b30b12731028-v2-p1",
+          "sourceId" : "tax-exclusive"
+        }, {
+          "fragmentId" : "document-427cb8735de54ff99126212cbf435b27-v2-p1",
+          "sourceId" : "sales-basis"
+        }, {
+          "fragmentId" : "document-349f7a23d8ab46859d54d11b6689efbf-v2-p1",
+          "sourceId" : "cash-receipt"
+        }, {
+          "fragmentId" : "catalog-6-p1",
+          "sourceId" : "catalog-6"
+        }, {
+          "fragmentId" : "rule-1-1-p1",
+          "sourceId" : "rule-1-1"
+        }, {
+          "fragmentId" : "document-3b098183c54e4f039cea99c8d6b2d7a4-v2-p1",
+          "sourceId" : "invoice-recognition"
+        }, {
+          "fragmentId" : "dictionary-c195d75d400d5e72-p1",
+          "sourceId" : "dictionary-c195d75d400d5e72"
+        }, {
+          "fragmentId" : "document-63464eedf5374845a7e9e70abfd64b92-v2-p1",
+          "sourceId" : "expression-syntax"
+        }, {
+          "fragmentId" : "document-2b680b12fc224e608d998c114a22e5b7-v2-p1",
+          "sourceId" : "commuting"
+        }, {
+          "fragmentId" : "document-60d7cb38de7a4619bb18ae4247407c75-v2-p1",
+          "sourceId" : "lodging-exception"
+        } ]
+      }
+    },
+    "errors" : [ ],
+    "fingerprint" : "b3d201b06205a2f26c2af7d368c72671f25bb00c79b926335a1eeb0236380182",
+    "run" : {
+      "status" : "COMPLETED",
+      "citationSourceIds" : [ "tax-inclusive", "tax-exclusive", "knowledge-coverage-1" ],
+      "answerStatus" : "CONFLICTING"
+    },
+    "durationMs" : 23637,
+    "calls" : [ {
+      "source" : "MODEL",
+      "stage" : "PLAN",
+      "at" : "2026-10-12T16:49:16.735457100Z",
+      "schemaHash" : "a5b09697dac7c06208afa51428bde514603135ec0e4459dfcf7df49ebf25e3b3",
+      "inputHash" : "67e5fff1090bc61239e8dbf7b9514f4b73a5d769bd8ca476d7cb70de70068250",
+      "rawJson" : "{\"mode\":\"EXECUTE\",\"objective\":\"在已选公司A与销售报表rpt-sales-order授权范围内，检索现行资料中关于销售金额是否含税的结论，并列出相互矛盾的依据。\",\"clarification\":null,\"steps\":[{\"action\":\"KNOWLEDGE\",\"source\":null,\"other\":null,\"query\":null,\"analysis\":null,\"rank\":null,\"knowledgeQuestion\":\"现行资料对销售金额是否含税是否有统一结论？请列出认为销售金额含税与不含税（包括销项税额口径）的相反依据及各自来源。\"}]}",
+      "status" : "RESPONDED",
+      "usageComplete" : true,
+      "reply" : {
+        "mode" : "EXECUTE",
+        "objective" : "在已选公司A与销售报表rpt-sales-order授权范围内，检索现行资料中关于销售金额是否含税的结论，并列出相互矛盾的依据。",
+        "clarification" : null,
+        "steps" : [ {
+          "action" : "KNOWLEDGE",
+          "source" : null,
+          "other" : null,
+          "query" : null,
+          "analysis" : null,
+          "rank" : null,
+          "knowledgeQuestion" : "现行资料对销售金额是否含税是否有统一结论？请列出认为销售金额含税与不含税（包括销项税额口径）的相反依据及各自来源。"
+        } ]
+      },
+      "model" : "deepseek-v4.1-flash",
+      "usage" : {
+        "inputTokens" : 3600,
+        "outputTokens" : 119,
+        "cachedInputTokens" : 2560
+      },
+      "elapsedMs" : 5611
+    }, {
+      "source" : "MODEL",
+      "stage" : "PLAN_REVIEW",
+      "at" : "2026-10-12T16:49:22.369121700Z",
+      "schemaHash" : "45c04bc41a4d7f4e30d82d7c125be115725d60612b96ad0b9eb9115aca079817",
+      "inputHash" : "13afb174c91f7cc08e0f21cb6920d2f313d62183494663f40a2bc6a78188eaed",
+      "rawJson" : "{\"approved\":true,\"reason\":\"纯知识问题，计划在已选公司A与销售报表授权范围内执行KNOWLEDGE检索；知识预览已显示“销售金额包括销项税额”与“销售金额不包括销项税额”两条相反口径，符合用户要求列出相反依据且未虚构报表数值查询。\"}",
+      "status" : "RESPONDED",
+      "usageComplete" : true,
+      "reply" : {
+        "approved" : true,
+        "reason" : "纯知识问题，计划在已选公司A与销售报表授权范围内执行KNOWLEDGE检索；知识预览已显示“销售金额包括销项税额”与“销售金额不包括销项税额”两条相反口径，符合用户要求列出相反依据且未虚构报表数值查询。"
+      },
+      "model" : "deepseek-v4.1-flash",
+      "usage" : {
+        "inputTokens" : 2659,
+        "outputTokens" : 66,
+        "cachedInputTokens" : 1408
+      },
+      "elapsedMs" : 3119
+    }, {
+      "source" : "MODEL",
+      "stage" : "RAG_REWRITE",
+      "at" : "2026-10-12T16:49:25.519223900Z",
+      "schemaHash" : "571895d58a59bf0e505fb60a036e3d9443609ee0f5d4039c05c953e19c6a94d8",
+      "inputHash" : "72b70e75bd33183bb5bf5b9ec1cbe70aa6f07e80d842ea932c7b55b40260b947",
+      "businessQueriesAtCall" : 0,
+      "rawJson" : "{\"topics\":[{\"index\":0,\"firstQuery\":\"销售金额 是否含税 增值税 销项税额 口径 依据\",\"secondQuery\":\"销售收入 含税 不含税 统一结论 相反依据 来源\"}]}",
+      "status" : "RESPONDED",
+      "usageComplete" : true,
+      "reply" : {
+        "topics" : [ {
+          "index" : 0,
+          "firstQuery" : "销售金额 是否含税 增值税 销项税额 口径 依据",
+          "secondQuery" : "销售收入 含税 不含税 统一结论 相反依据 来源"
+        } ]
+      },
+      "model" : "deepseek-v4.1-flash",
+      "usage" : {
+        "inputTokens" : 498,
+        "outputTokens" : 49,
+        "cachedInputTokens" : 128
+      },
+      "elapsedMs" : 2106
+    }, {
+      "source" : "MODEL",
+      "stage" : "RAG_RERANK",
+      "at" : "2026-10-12T16:49:27.650123300Z",
+      "schemaHash" : "084ff6087c742bc100bf5b5c785ae1d9a2ba79d7a919561608399134255eb8a5",
+      "inputHash" : "964d9e4962a58cb2c336ec53845d24f9447f415fa4b017b7eca226b967b4fa1f",
+      "businessQueriesAtCall" : 0,
+      "rawJson" : "{\"topics\":[{\"index\":0,\"sourceIds\":[\"c0\",\"c2\",\"c1\",\"c4\",\"c3\",\"c5\",\"c7\",\"c6\",\"c10\",\"c8\",\"c9\"]}]}",
+      "status" : "RESPONDED",
+      "usageComplete" : true,
+      "reply" : {
+        "topics" : [ {
+          "index" : 0,
+          "sourceIds" : [ "c0", "c2", "c1", "c4", "c3", "c5", "c7", "c6", "c10", "c8", "c9" ]
+        } ]
+      },
+      "model" : "deepseek-v4.1-flash",
+      "usage" : {
+        "inputTokens" : 3139,
+        "outputTokens" : 48,
+        "cachedInputTokens" : 128
+      },
+      "elapsedMs" : 2468
+    }, {
+      "source" : "MODEL",
+      "stage" : "ANSWER",
+      "at" : "2026-10-12T16:49:30.164834700Z",
+      "schemaHash" : "a87c532e8394574583f43db70d65ed857b7d7ee6624ac68f7a856536ecd332b0",
+      "inputHash" : "3e522374cb0defe3a8e1db7112c6fc56ec2742ce5a0ffe92037cdd79235db6b3",
+      "rawJson" : "{\n  \"status\": \"CONFLICTING\",\n  \"claims\": [\n    {\n      \"text\": \"现行资料对销售金额是否含税存在相反结论：一份制度明确销售金额包括销项税额。\",\n      \"sourceIds\": [\"document-27f252ef75724ee08a65dad0a8c63508-v2-p1\"]\n    },\n    {\n      \"text\": \"另一份制度同样适用于A公司的销售报表，但明确规定销售金额不包括销项税额，与上一份制度结论相反。\",\n      \"sourceIds\": [\"document-67f1f1e381ee4f1cbb87b30b12731028-v2-p1\"]\n    },\n    {\n      \"text\": \"现有资料未提供在这两份相反口径之间的优先适用或冲突解决规则。\",\n      \"sourceIds\": [\"knowledge-coverage-1\"]\n    }\n  ],\n  \"limitations\": [\n    \"两份销售金额含税口径的制度均为现行有效且适用范围相同，结论相反，无法据此确定销售金额是否含税。\",\n    \"本次知识检索仅覆盖当前授权范围内的11份来源和11个片段，不能据此断言授权范围之外不存在其他相关规定。\"\n  ]\n}",
+      "status" : "RESPONDED",
+      "usageComplete" : true,
+      "knowledgeCoverage" : {
+        "performed" : true,
+        "truncated" : false,
+        "expansionTruncated" : false,
+        "steps" : [ {
+          "searchedSources" : 11,
+          "stepNumber" : 1,
+          "expansionTruncated" : false,
+          "searchedFragments" : 11,
+          "truncated" : false,
+          "matchedFragments" : 11,
+          "returnedSources" : 11,
+          "returnedFragments" : 11,
+          "matchedSources" : 11
+        } ]
+      },
+      "reply" : {
+        "status" : "CONFLICTING",
+        "claims" : [ {
+          "text" : "现行资料对销售金额是否含税存在相反结论：一份制度明确销售金额包括销项税额。",
+          "sourceIds" : [ "document-27f252ef75724ee08a65dad0a8c63508-v2-p1" ]
+        }, {
+          "text" : "另一份制度同样适用于A公司的销售报表，但明确规定销售金额不包括销项税额，与上一份制度结论相反。",
+          "sourceIds" : [ "document-67f1f1e381ee4f1cbb87b30b12731028-v2-p1" ]
+        }, {
+          "text" : "现有资料未提供在这两份相反口径之间的优先适用或冲突解决规则。",
+          "sourceIds" : [ "knowledge-coverage-1" ]
+        } ],
+        "limitations" : [ "两份销售金额含税口径的制度均为现行有效且适用范围相同，结论相反，无法据此确定销售金额是否含税。", "本次知识检索仅覆盖当前授权范围内的11份来源和11个片段，不能据此断言授权范围之外不存在其他相关规定。" ]
+      },
+      "model" : "deepseek-v4.1-flash",
+      "usage" : {
+        "inputTokens" : 4860,
+        "outputTokens" : 252,
+        "cachedInputTokens" : 896
+      },
+      "elapsedMs" : 6022
+    }, {
+      "source" : "MODEL",
+      "stage" : "ANSWER_REVIEW",
+      "at" : "2026-10-12T16:49:36.210210300Z",
+      "schemaHash" : "45c04bc41a4d7f4e30d82d7c125be115725d60612b96ad0b9eb9115aca079817",
+      "inputHash" : "b88901a7e109d6422361a366cd32df6ebbdda4f02dcb6dfec4aa176ddd8f6c67",
+      "rawJson" : "{\"approved\":true,\"reason\":\"答案认定为CONFLICTING，claims与原始证据一致：片段1称销售金额包括销项税额，片段2称不包括，均为A/rpt-sales-order现行有效；未提供冲突解决规则也与来源一致。知识检索确已执行，来源数与片段数均为11；限制说明中的覆盖范围与检索信息相符。未发现数字、否定、适用范围、单位或类型等方面的不一致。\"}",
+      "status" : "RESPONDED",
+      "usageComplete" : true,
+      "knowledgeCoverage" : {
+        "performed" : true,
+        "truncated" : false,
+        "expansionTruncated" : false,
+        "steps" : [ {
+          "searchedSources" : 11,
+          "stepNumber" : 1,
+          "expansionTruncated" : false,
+          "searchedFragments" : 11,
+          "truncated" : false,
+          "matchedFragments" : 11,
+          "returnedSources" : 11,
+          "returnedFragments" : 11,
+          "matchedSources" : 11
+        } ]
+      },
+      "reply" : {
+        "approved" : true,
+        "reason" : "答案认定为CONFLICTING，claims与原始证据一致：片段1称销售金额包括销项税额，片段2称不包括，均为A/rpt-sales-order现行有效；未提供冲突解决规则也与来源一致。知识检索确已执行，来源数与片段数均为11；限制说明中的覆盖范围与检索信息相符。未发现数字、否定、适用范围、单位或类型等方面的不一致。"
+      },
+      "model" : "deepseek-v4.1-flash",
+      "usage" : {
+        "inputTokens" : 4545,
+        "outputTokens" : 91,
+        "cachedInputTokens" : 1024
+      },
+      "elapsedMs" : 4053
+    } ]
+  }, {
+    "caseId" : "unrelated-no-match",
+    "attempt" : 1,
+    "source" : "MODEL",
+    "question" : "声学设备蓝鲸探测频带上限究竟是多少？",
+    "retrieval" : {
+      "lexical" : {
+        "sources" : [ ],
+        "searches" : [ {
+          "searchedFragments" : 11,
+          "matchedFragments" : 0
+        } ],
+        "fingerprint" : "c9e92aca9f48d9cf64091875aed66415d717148acbf486dc847b4e8c6b6a2058",
+        "status" : "SUCCEEDED"
+      },
+      "semantic" : {
+        "status" : "SUCCEEDED",
+        "searches" : [ {
+          "searchedFragments" : 11,
+          "matchedFragments" : 0,
+          "index" : 0
+        } ],
+        "sources" : [ ]
+      }
+    },
+    "errors" : [ ],
+    "fingerprint" : "c9e92aca9f48d9cf64091875aed66415d717148acbf486dc847b4e8c6b6a2058",
+    "run" : {
+      "status" : "COMPLETED",
+      "citationSourceIds" : [ "knowledge-coverage-1" ],
+      "answerStatus" : "INSUFFICIENT"
+    },
+    "durationMs" : 13901,
+    "calls" : [ {
+      "source" : "MODEL",
+      "stage" : "PLAN",
+      "at" : "2026-10-12T16:49:41.458342900Z",
+      "schemaHash" : "a5b09697dac7c06208afa51428bde514603135ec0e4459dfcf7df49ebf25e3b3",
+      "inputHash" : "9e058ff7d404173a1f84a15502995ccb0e6153a089cd1a3257cd06ee47de0609",
+      "rawJson" : "{\"mode\":\"EXECUTE\",\"objective\":\"在已选授权范围内检索并回答“声学设备蓝鲸探测频带上限究竟是多少”，给出可核验依据，不足则说明INSUFFICIENT。\",\"clarification\":null,\"steps\":[{\"action\":\"KNOWLEDGE\",\"source\":null,\"other\":null,\"query\":null,\"analysis\":null,\"rank\":null,\"knowledgeQuestion\":\"声学设备蓝鲸探测频带上限究竟是多少？\"}]}",
+      "status" : "RESPONDED",
+      "usageComplete" : true,
+      "reply" : {
+        "mode" : "EXECUTE",
+        "objective" : "在已选授权范围内检索并回答“声学设备蓝鲸探测频带上限究竟是多少”，给出可核验依据，不足则说明INSUFFICIENT。",
+        "clarification" : null,
+        "steps" : [ {
+          "action" : "KNOWLEDGE",
+          "source" : null,
+          "other" : null,
+          "query" : null,
+          "analysis" : null,
+          "rank" : null,
+          "knowledgeQuestion" : "声学设备蓝鲸探测频带上限究竟是多少？"
+        } ]
+      },
+      "model" : "deepseek-v4.1-flash",
+      "usage" : {
+        "inputTokens" : 2769,
+        "outputTokens" : 99,
+        "cachedInputTokens" : 2432
+      },
+      "elapsedMs" : 3017
+    }, {
+      "source" : "MODEL",
+      "stage" : "PLAN_REVIEW",
+      "at" : "2026-10-12T16:49:44.498376300Z",
+      "schemaHash" : "45c04bc41a4d7f4e30d82d7c125be115725d60612b96ad0b9eb9115aca079817",
+      "inputHash" : "673b3281d25886d83eed41c8bafb23ee87a39abb98efef6b9ac70e9ce884a01c",
+      "rawJson" : "{\"approved\":true,\"reason\":\"计划正确：纯知识问题，问题明确，独立执行KNOWLEDGE在已选A公司授权范围内检索回答，无需报表字段或来源指定；未虚构数值查询或跨范围引用。\"}",
+      "status" : "RESPONDED",
+      "usageComplete" : true,
+      "reply" : {
+        "approved" : true,
+        "reason" : "计划正确：纯知识问题，问题明确，独立执行KNOWLEDGE在已选A公司授权范围内检索回答，无需报表字段或来源指定；未虚构数值查询或跨范围引用。"
+      },
+      "model" : "deepseek-v4.1-flash",
+      "usage" : {
+        "inputTokens" : 1808,
+        "outputTokens" : 50,
+        "cachedInputTokens" : 1408
+      },
+      "elapsedMs" : 2487
+    }, {
+      "source" : "MODEL",
+      "stage" : "RAG_REWRITE",
+      "at" : "2026-10-12T16:49:47.018917Z",
+      "schemaHash" : "571895d58a59bf0e505fb60a036e3d9443609ee0f5d4039c05c953e19c6a94d8",
+      "inputHash" : "b4d83ef9f864b53ddc2015aef6e5afee9725a9fa89ad781709c1cac066aa76f2",
+      "businessQueriesAtCall" : 0,
+      "rawJson" : "{\"topics\":[{\"index\":0,\"firstQuery\":\"声学设备 蓝鲸探测 频带上限\",\"secondQuery\":\"蓝鲸探测 声学设备 最大频率\"}]}",
+      "status" : "RESPONDED",
+      "usageComplete" : true,
+      "reply" : {
+        "topics" : [ {
+          "index" : 0,
+          "firstQuery" : "声学设备 蓝鲸探测 频带上限",
+          "secondQuery" : "蓝鲸探测 声学设备 最大频率"
+        } ]
+      },
+      "model" : "deepseek-v4.1-flash",
+      "usage" : {
+        "inputTokens" : 469,
+        "outputTokens" : 40,
+        "cachedInputTokens" : 128
+      },
+      "elapsedMs" : 3155
+    }, {
+      "source" : "MODEL",
+      "stage" : "ANSWER",
+      "at" : "2026-10-12T16:49:50.223024900Z",
+      "schemaHash" : "c4f04484193326270dddbf6d8be76b84d51b1fdf326b3064444785d730437018",
+      "inputHash" : "7e90da5c1ab2cfa2b9805ee52067a1c8b7afcea575358e1dcdce506d9c0a23c9",
+      "rawJson" : "{\"status\":\"INSUFFICIENT\",\"claims\":[{\"text\":\"本次已执行当前授权范围内的知识检索，共搜索11份来源、11个片段；命中0份来源、0个片段，返回0份来源、0个片段。\",\"sourceIds\":[\"knowledge-coverage-1\"]}],\"limitations\":[\"本次知识检索未找到关于声学设备蓝鲸探测频带上限的制度或定义依据，因此无法回答该频带上限的具体数值。\",\"本次检索范围限于当前授权范围，未命中不代表授权资料之外不存在相关规定。\"]}",
+      "status" : "RESPONDED",
+      "usageComplete" : true,
+      "knowledgeCoverage" : {
+        "performed" : true,
+        "truncated" : false,
+        "expansionTruncated" : false,
+        "steps" : [ {
+          "searchedSources" : 11,
+          "stepNumber" : 1,
+          "expansionTruncated" : false,
+          "searchedFragments" : 11,
+          "truncated" : false,
+          "matchedFragments" : 0,
+          "returnedSources" : 0,
+          "returnedFragments" : 0,
+          "matchedSources" : 0
+        } ]
+      },
+      "reply" : {
+        "status" : "INSUFFICIENT",
+        "claims" : [ {
+          "text" : "本次已执行当前授权范围内的知识检索，共搜索11份来源、11个片段；命中0份来源、0个片段，返回0份来源、0个片段。",
+          "sourceIds" : [ "knowledge-coverage-1" ]
+        } ],
+        "limitations" : [ "本次知识检索未找到关于声学设备蓝鲸探测频带上限的制度或定义依据，因此无法回答该频带上限的具体数值。", "本次检索范围限于当前授权范围，未命中不代表授权资料之外不存在相关规定。" ]
+      },
+      "model" : "deepseek-v4.1-flash",
+      "usage" : {
+        "inputTokens" : 1805,
+        "outputTokens" : 118,
+        "cachedInputTokens" : 1280
+      },
+      "elapsedMs" : 2656
+    }, {
+      "source" : "MODEL",
+      "stage" : "ANSWER_REVIEW",
+      "at" : "2026-10-12T16:49:52.907759400Z",
+      "schemaHash" : "45c04bc41a4d7f4e30d82d7c125be115725d60612b96ad0b9eb9115aca079817",
+      "inputHash" : "f7286e5f4d6d6512d6d4f167cc603da8347665b261c38b3bbb6dc7d99dced69b",
+      "rawJson" : "{\"approved\":true,\"reason\":\"答案如实复述了知识检索执行事实（11份来源、11个片段，命中0、返回0），并因未检索到依据而标注INSUFFICIENT；限制说明与检索记录一致，未将未命中扩大为不存在规定，符合要求。\"}",
+      "status" : "RESPONDED",
+      "usageComplete" : true,
+      "knowledgeCoverage" : {
+        "performed" : true,
+        "truncated" : false,
+        "expansionTruncated" : false,
+        "steps" : [ {
+          "searchedSources" : 11,
+          "stepNumber" : 1,
+          "expansionTruncated" : false,
+          "searchedFragments" : 11,
+          "truncated" : false,
+          "matchedFragments" : 0,
+          "returnedSources" : 0,
+          "returnedFragments" : 0,
+          "matchedSources" : 0
+        } ]
+      },
+      "reply" : {
+        "approved" : true,
+        "reason" : "答案如实复述了知识检索执行事实（11份来源、11个片段，命中0、返回0），并因未检索到依据而标注INSUFFICIENT；限制说明与检索记录一致，未将未命中扩大为不存在规定，符合要求。"
+      },
+      "model" : "deepseek-v4.1-flash",
+      "usage" : {
+        "inputTokens" : 1628,
+        "outputTokens" : 65,
+        "cachedInputTokens" : 1024
+      },
+      "elapsedMs" : 2341
+    } ]
+  } ],
+  "referenceDate" : "2026-10-13",
+  "corpusSha256" : "343d023eb915fa38836fdeee430d8c3a207c80bf7c0366777cc9184934c9df4a"
+}

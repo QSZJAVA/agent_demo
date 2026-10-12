@@ -1,0 +1,4553 @@
+[ {
+  "source" : "TEST_DOUBLE",
+  "stage" : "PLAN",
+  "at" : "2026-10-12T14:02:58.848183200Z",
+  "schemaHash" : "ac0e041064ae224dc98f3d3988930d7c854728ccf1dfbf90e3c4442b3982eb9e",
+  "inputHash" : "1edee966feadc02f047df764e0d1907a77eebf8ba1b1fa5b3bdc958899b4c58b",
+  "rawJson" : "{\"mode\":\"EXECUTE\",\"objective\":\"按产品统计、排名并展开明细\",\"clarification\":null,\"steps\":[{\"action\":\"QUERY\",\"source\":null,\"other\":null,\"query\":{\"domain\":\"REPORT\",\"view\":\"LIST\",\"reportIds\":[\"rpt-sales-order\"],\"companyCode\":\"A\",\"conditions\":[],\"sortField\":\"amount\",\"descending\":true,\"page\":1,\"size\":20,\"groupBy\":null},\"analysis\":null,\"rank\":null,\"knowledgeQuestion\":null},{\"action\":\"GROUP\",\"source\":0,\"other\":null,\"query\":null,\"analysis\":{\"dimensions\":[\"productName\"],\"dateField\":null,\"bucket\":\"NONE\",\"compareMonth\":null},\"rank\":null,\"knowledgeQuestion\":null},{\"action\":\"RANK\",\"source\":1,\"other\":null,\"query\":null,\"analysis\":null,\"rank\":{\"field\":\"sum\",\"descending\":true,\"count\":2},\"knowledgeQuestion\":null},{\"action\":\"DRILLDOWN\",\"source\":0,\"other\":2,\"query\":null,\"analysis\":null,\"rank\":null,\"knowledgeQuestion\":null}]}",
+  "status" : "RESPONDED",
+  "usageComplete" : false,
+  "reply" : {
+    "mode" : "EXECUTE",
+    "objective" : "按产品统计、排名并展开明细",
+    "clarification" : null,
+    "steps" : [ {
+      "action" : "QUERY",
+      "source" : null,
+      "other" : null,
+      "query" : {
+        "domain" : "REPORT",
+        "view" : "LIST",
+        "reportIds" : [ "rpt-sales-order" ],
+        "companyCode" : "A",
+        "conditions" : [ ],
+        "sortField" : "amount",
+        "descending" : true,
+        "page" : 1,
+        "size" : 20,
+        "groupBy" : null
+      },
+      "analysis" : null,
+      "rank" : null,
+      "knowledgeQuestion" : null
+    }, {
+      "action" : "GROUP",
+      "source" : 0,
+      "other" : null,
+      "query" : null,
+      "analysis" : {
+        "dimensions" : [ "productName" ],
+        "dateField" : null,
+        "bucket" : "NONE",
+        "compareMonth" : null
+      },
+      "rank" : null,
+      "knowledgeQuestion" : null
+    }, {
+      "action" : "RANK",
+      "source" : 1,
+      "other" : null,
+      "query" : null,
+      "analysis" : null,
+      "rank" : {
+        "field" : "sum",
+        "descending" : true,
+        "count" : 2
+      },
+      "knowledgeQuestion" : null
+    }, {
+      "action" : "DRILLDOWN",
+      "source" : 0,
+      "other" : 2,
+      "query" : null,
+      "analysis" : null,
+      "rank" : null,
+      "knowledgeQuestion" : null
+    } ]
+  },
+  "model" : "ISOLATED_TEST_DOUBLE",
+  "usage" : {
+    "inputTokens" : null,
+    "outputTokens" : null,
+    "cachedInputTokens" : null
+  },
+  "elapsedMs" : 5
+}, {
+  "source" : "TEST_DOUBLE",
+  "stage" : "PLAN_REVIEW",
+  "at" : "2026-10-12T14:02:58.893539600Z",
+  "schemaHash" : "45c04bc41a4d7f4e30d82d7c125be115725d60612b96ad0b9eb9115aca079817",
+  "inputHash" : "7794b7333f309a470321a4faa98629541c2f32418bdfe427bfba9977ca782327",
+  "rawJson" : "{\"approved\":true,\"reason\":\"隔离状态机测试标签已核对，真实模型另外执行\"}",
+  "status" : "RESPONDED",
+  "usageComplete" : false,
+  "reply" : {
+    "approved" : true,
+    "reason" : "隔离状态机测试标签已核对，真实模型另外执行"
+  },
+  "model" : "ISOLATED_TEST_DOUBLE",
+  "usage" : {
+    "inputTokens" : null,
+    "outputTokens" : null,
+    "cachedInputTokens" : null
+  },
+  "elapsedMs" : 1
+}, {
+  "source" : "TEST_DOUBLE",
+  "stage" : "ANSWER",
+  "at" : "2026-10-12T14:02:59.343742200Z",
+  "schemaHash" : "57390e2af9dfeb0130979f6d14bfc3475313f19223849786ff806b25de711584",
+  "inputHash" : "25a8ade76f087c7546b55c36fa61ff97a53371ad09d91f883dfd2c125e43e9e2",
+  "rawJson" : "{\"status\":\"ANSWERED\",\"claims\":[{\"text\":\"结果来自所引用的当前授权依据。\",\"sourceIds\":[\"step-1-q1\"]}],\"limitations\":[]}",
+  "status" : "RESPONDED",
+  "usageComplete" : false,
+  "knowledgeCoverage" : {
+    "performed" : false,
+    "truncated" : false,
+    "expansionTruncated" : false,
+    "steps" : [ ]
+  },
+  "reply" : {
+    "status" : "ANSWERED",
+    "claims" : [ {
+      "text" : "结果来自所引用的当前授权依据。",
+      "sourceIds" : [ "step-1-q1" ]
+    } ],
+    "limitations" : [ ]
+  },
+  "model" : "ISOLATED_TEST_DOUBLE",
+  "usage" : {
+    "inputTokens" : null,
+    "outputTokens" : null,
+    "cachedInputTokens" : null
+  },
+  "elapsedMs" : 3
+}, {
+  "source" : "TEST_DOUBLE",
+  "stage" : "ANSWER_REVIEW",
+  "at" : "2026-10-12T14:02:59.385413900Z",
+  "schemaHash" : "45c04bc41a4d7f4e30d82d7c125be115725d60612b96ad0b9eb9115aca079817",
+  "inputHash" : "b8c7bc48c2c6388338f7c6ada78e47ee1a340fa2249dea4a8e09500b6f5e610a",
+  "rawJson" : "{\"approved\":true,\"reason\":\"隔离状态机测试标签已核对，真实模型另外执行\"}",
+  "status" : "RESPONDED",
+  "usageComplete" : false,
+  "knowledgeCoverage" : {
+    "performed" : false,
+    "truncated" : false,
+    "expansionTruncated" : false,
+    "steps" : [ ]
+  },
+  "reply" : {
+    "approved" : true,
+    "reason" : "隔离状态机测试标签已核对，真实模型另外执行"
+  },
+  "model" : "ISOLATED_TEST_DOUBLE",
+  "usage" : {
+    "inputTokens" : null,
+    "outputTokens" : null,
+    "cachedInputTokens" : null
+  },
+  "elapsedMs" : 1
+}, {
+  "source" : "TEST_DOUBLE",
+  "stage" : "PLAN",
+  "at" : "2026-10-12T14:03:00.510414100Z",
+  "schemaHash" : "ac0e041064ae224dc98f3d3988930d7c854728ccf1dfbf90e3c4442b3982eb9e",
+  "inputHash" : "5d6a6cef40a6a8c854c25fa6bd18d7cee75c9878af1f57487ea5f47db246d942",
+  "rawJson" : "{\"mode\":\"EXECUTE\",\"objective\":\"按产品统计、排名并展开明细\",\"clarification\":null,\"steps\":[{\"action\":\"QUERY\",\"source\":null,\"other\":null,\"query\":{\"domain\":\"REPORT\",\"view\":\"LIST\",\"reportIds\":[\"rpt-sales-order\"],\"companyCode\":\"A\",\"conditions\":[],\"sortField\":\"amount\",\"descending\":true,\"page\":1,\"size\":20,\"groupBy\":null},\"analysis\":null,\"rank\":null,\"knowledgeQuestion\":null},{\"action\":\"GROUP\",\"source\":0,\"other\":null,\"query\":null,\"analysis\":{\"dimensions\":[\"productName\"],\"dateField\":null,\"bucket\":\"NONE\",\"compareMonth\":null},\"rank\":null,\"knowledgeQuestion\":null},{\"action\":\"RANK\",\"source\":1,\"other\":null,\"query\":null,\"analysis\":null,\"rank\":{\"field\":\"sum\",\"descending\":true,\"count\":2},\"knowledgeQuestion\":null},{\"action\":\"DRILLDOWN\",\"source\":0,\"other\":2,\"query\":null,\"analysis\":null,\"rank\":null,\"knowledgeQuestion\":null}]}",
+  "status" : "RESPONDED",
+  "usageComplete" : false,
+  "reply" : {
+    "mode" : "EXECUTE",
+    "objective" : "按产品统计、排名并展开明细",
+    "clarification" : null,
+    "steps" : [ {
+      "action" : "QUERY",
+      "source" : null,
+      "other" : null,
+      "query" : {
+        "domain" : "REPORT",
+        "view" : "LIST",
+        "reportIds" : [ "rpt-sales-order" ],
+        "companyCode" : "A",
+        "conditions" : [ ],
+        "sortField" : "amount",
+        "descending" : true,
+        "page" : 1,
+        "size" : 20,
+        "groupBy" : null
+      },
+      "analysis" : null,
+      "rank" : null,
+      "knowledgeQuestion" : null
+    }, {
+      "action" : "GROUP",
+      "source" : 0,
+      "other" : null,
+      "query" : null,
+      "analysis" : {
+        "dimensions" : [ "productName" ],
+        "dateField" : null,
+        "bucket" : "NONE",
+        "compareMonth" : null
+      },
+      "rank" : null,
+      "knowledgeQuestion" : null
+    }, {
+      "action" : "RANK",
+      "source" : 1,
+      "other" : null,
+      "query" : null,
+      "analysis" : null,
+      "rank" : {
+        "field" : "sum",
+        "descending" : true,
+        "count" : 2
+      },
+      "knowledgeQuestion" : null
+    }, {
+      "action" : "DRILLDOWN",
+      "source" : 0,
+      "other" : 2,
+      "query" : null,
+      "analysis" : null,
+      "rank" : null,
+      "knowledgeQuestion" : null
+    } ]
+  },
+  "model" : "ISOLATED_TEST_DOUBLE",
+  "usage" : {
+    "inputTokens" : null,
+    "outputTokens" : null,
+    "cachedInputTokens" : null
+  },
+  "elapsedMs" : 0
+}, {
+  "source" : "TEST_DOUBLE",
+  "stage" : "PLAN_REVIEW",
+  "at" : "2026-10-12T14:03:00.538414300Z",
+  "schemaHash" : "45c04bc41a4d7f4e30d82d7c125be115725d60612b96ad0b9eb9115aca079817",
+  "inputHash" : "1995ffef1e1ef65f8fac472359fb3cebd4231e8b0de35aa3bce89fd5b1e2abfb",
+  "rawJson" : "{\"approved\":true,\"reason\":\"隔离状态机测试标签已核对，真实模型另外执行\"}",
+  "status" : "RESPONDED",
+  "usageComplete" : false,
+  "reply" : {
+    "approved" : true,
+    "reason" : "隔离状态机测试标签已核对，真实模型另外执行"
+  },
+  "model" : "ISOLATED_TEST_DOUBLE",
+  "usage" : {
+    "inputTokens" : null,
+    "outputTokens" : null,
+    "cachedInputTokens" : null
+  },
+  "elapsedMs" : 0
+}, {
+  "source" : "TEST_DOUBLE",
+  "stage" : "ANSWER",
+  "at" : "2026-10-12T14:03:00.750182800Z",
+  "schemaHash" : "57390e2af9dfeb0130979f6d14bfc3475313f19223849786ff806b25de711584",
+  "inputHash" : "6e5678ce676ec5eb069bd849746be370b2f98688e94ed8ee8dc34c0c83bf7cd2",
+  "rawJson" : "{\"status\":\"ANSWERED\",\"claims\":[{\"text\":\"结果来自所引用的当前授权依据。\",\"sourceIds\":[\"step-1-q1\"]}],\"limitations\":[]}",
+  "status" : "RESPONDED",
+  "usageComplete" : false,
+  "knowledgeCoverage" : {
+    "performed" : false,
+    "truncated" : false,
+    "expansionTruncated" : false,
+    "steps" : [ ]
+  },
+  "reply" : {
+    "status" : "ANSWERED",
+    "claims" : [ {
+      "text" : "结果来自所引用的当前授权依据。",
+      "sourceIds" : [ "step-1-q1" ]
+    } ],
+    "limitations" : [ ]
+  },
+  "model" : "ISOLATED_TEST_DOUBLE",
+  "usage" : {
+    "inputTokens" : null,
+    "outputTokens" : null,
+    "cachedInputTokens" : null
+  },
+  "elapsedMs" : 0
+}, {
+  "source" : "TEST_DOUBLE",
+  "stage" : "ANSWER_REVIEW",
+  "at" : "2026-10-12T14:03:00.789435500Z",
+  "schemaHash" : "45c04bc41a4d7f4e30d82d7c125be115725d60612b96ad0b9eb9115aca079817",
+  "inputHash" : "16bdfac6a50329b544ccb73d06f32886926be86c8b967997efb5f6f477d20d60",
+  "rawJson" : "{\"approved\":true,\"reason\":\"隔离状态机测试标签已核对，真实模型另外执行\"}",
+  "status" : "RESPONDED",
+  "usageComplete" : false,
+  "knowledgeCoverage" : {
+    "performed" : false,
+    "truncated" : false,
+    "expansionTruncated" : false,
+    "steps" : [ ]
+  },
+  "reply" : {
+    "approved" : true,
+    "reason" : "隔离状态机测试标签已核对，真实模型另外执行"
+  },
+  "model" : "ISOLATED_TEST_DOUBLE",
+  "usage" : {
+    "inputTokens" : null,
+    "outputTokens" : null,
+    "cachedInputTokens" : null
+  },
+  "elapsedMs" : 0
+}, {
+  "source" : "TEST_DOUBLE",
+  "stage" : "PLAN",
+  "at" : "2026-10-12T14:03:02.814327700Z",
+  "schemaHash" : "ac0e041064ae224dc98f3d3988930d7c854728ccf1dfbf90e3c4442b3982eb9e",
+  "inputHash" : "5b7c7bbfe9f1e5dcdbaa8a522dc74edb5d4529c1a92f2c9f4b30b1ecea70bb3f",
+  "rawJson" : "{\"mode\":\"EXECUTE\",\"objective\":\"按产品统计、排名并展开明细\",\"clarification\":null,\"steps\":[{\"action\":\"QUERY\",\"source\":null,\"other\":null,\"query\":{\"domain\":\"REPORT\",\"view\":\"LIST\",\"reportIds\":[\"rpt-sales-order\"],\"companyCode\":\"A\",\"conditions\":[],\"sortField\":\"amount\",\"descending\":true,\"page\":1,\"size\":20,\"groupBy\":null},\"analysis\":null,\"rank\":null,\"knowledgeQuestion\":null},{\"action\":\"GROUP\",\"source\":0,\"other\":null,\"query\":null,\"analysis\":{\"dimensions\":[\"productName\"],\"dateField\":null,\"bucket\":\"NONE\",\"compareMonth\":null},\"rank\":null,\"knowledgeQuestion\":null},{\"action\":\"RANK\",\"source\":1,\"other\":null,\"query\":null,\"analysis\":null,\"rank\":{\"field\":\"sum\",\"descending\":true,\"count\":2},\"knowledgeQuestion\":null},{\"action\":\"DRILLDOWN\",\"source\":0,\"other\":2,\"query\":null,\"analysis\":null,\"rank\":null,\"knowledgeQuestion\":null}]}",
+  "status" : "RESPONDED",
+  "usageComplete" : false,
+  "reply" : {
+    "mode" : "EXECUTE",
+    "objective" : "按产品统计、排名并展开明细",
+    "clarification" : null,
+    "steps" : [ {
+      "action" : "QUERY",
+      "source" : null,
+      "other" : null,
+      "query" : {
+        "domain" : "REPORT",
+        "view" : "LIST",
+        "reportIds" : [ "rpt-sales-order" ],
+        "companyCode" : "A",
+        "conditions" : [ ],
+        "sortField" : "amount",
+        "descending" : true,
+        "page" : 1,
+        "size" : 20,
+        "groupBy" : null
+      },
+      "analysis" : null,
+      "rank" : null,
+      "knowledgeQuestion" : null
+    }, {
+      "action" : "GROUP",
+      "source" : 0,
+      "other" : null,
+      "query" : null,
+      "analysis" : {
+        "dimensions" : [ "productName" ],
+        "dateField" : null,
+        "bucket" : "NONE",
+        "compareMonth" : null
+      },
+      "rank" : null,
+      "knowledgeQuestion" : null
+    }, {
+      "action" : "RANK",
+      "source" : 1,
+      "other" : null,
+      "query" : null,
+      "analysis" : null,
+      "rank" : {
+        "field" : "sum",
+        "descending" : true,
+        "count" : 2
+      },
+      "knowledgeQuestion" : null
+    }, {
+      "action" : "DRILLDOWN",
+      "source" : 0,
+      "other" : 2,
+      "query" : null,
+      "analysis" : null,
+      "rank" : null,
+      "knowledgeQuestion" : null
+    } ]
+  },
+  "model" : "ISOLATED_TEST_DOUBLE",
+  "usage" : {
+    "inputTokens" : null,
+    "outputTokens" : null,
+    "cachedInputTokens" : null
+  },
+  "elapsedMs" : 11
+}, {
+  "source" : "TEST_DOUBLE",
+  "stage" : "PLAN",
+  "at" : "2026-10-12T14:03:04.048162900Z",
+  "schemaHash" : "ac0e041064ae224dc98f3d3988930d7c854728ccf1dfbf90e3c4442b3982eb9e",
+  "inputHash" : "2c2ed702a2c964d56ac81a932c612a7df29b167eb08fc16bb533c7339754b069",
+  "rawJson" : "{\"mode\":\"EXECUTE\",\"objective\":\"按产品统计、排名并展开明细\",\"clarification\":null,\"steps\":[{\"action\":\"QUERY\",\"source\":null,\"other\":null,\"query\":{\"domain\":\"REPORT\",\"view\":\"LIST\",\"reportIds\":[\"rpt-sales-order\"],\"companyCode\":\"A\",\"conditions\":[],\"sortField\":\"amount\",\"descending\":true,\"page\":1,\"size\":20,\"groupBy\":null},\"analysis\":null,\"rank\":null,\"knowledgeQuestion\":null},{\"action\":\"GROUP\",\"source\":0,\"other\":null,\"query\":null,\"analysis\":{\"dimensions\":[\"productName\"],\"dateField\":null,\"bucket\":\"NONE\",\"compareMonth\":null},\"rank\":null,\"knowledgeQuestion\":null},{\"action\":\"RANK\",\"source\":1,\"other\":null,\"query\":null,\"analysis\":null,\"rank\":{\"field\":\"sum\",\"descending\":true,\"count\":2},\"knowledgeQuestion\":null},{\"action\":\"DRILLDOWN\",\"source\":0,\"other\":2,\"query\":null,\"analysis\":null,\"rank\":null,\"knowledgeQuestion\":null}]}",
+  "status" : "RESPONDED",
+  "usageComplete" : false,
+  "reply" : {
+    "mode" : "EXECUTE",
+    "objective" : "按产品统计、排名并展开明细",
+    "clarification" : null,
+    "steps" : [ {
+      "action" : "QUERY",
+      "source" : null,
+      "other" : null,
+      "query" : {
+        "domain" : "REPORT",
+        "view" : "LIST",
+        "reportIds" : [ "rpt-sales-order" ],
+        "companyCode" : "A",
+        "conditions" : [ ],
+        "sortField" : "amount",
+        "descending" : true,
+        "page" : 1,
+        "size" : 20,
+        "groupBy" : null
+      },
+      "analysis" : null,
+      "rank" : null,
+      "knowledgeQuestion" : null
+    }, {
+      "action" : "GROUP",
+      "source" : 0,
+      "other" : null,
+      "query" : null,
+      "analysis" : {
+        "dimensions" : [ "productName" ],
+        "dateField" : null,
+        "bucket" : "NONE",
+        "compareMonth" : null
+      },
+      "rank" : null,
+      "knowledgeQuestion" : null
+    }, {
+      "action" : "RANK",
+      "source" : 1,
+      "other" : null,
+      "query" : null,
+      "analysis" : null,
+      "rank" : {
+        "field" : "sum",
+        "descending" : true,
+        "count" : 2
+      },
+      "knowledgeQuestion" : null
+    }, {
+      "action" : "DRILLDOWN",
+      "source" : 0,
+      "other" : 2,
+      "query" : null,
+      "analysis" : null,
+      "rank" : null,
+      "knowledgeQuestion" : null
+    } ]
+  },
+  "model" : "ISOLATED_TEST_DOUBLE",
+  "usage" : {
+    "inputTokens" : null,
+    "outputTokens" : null,
+    "cachedInputTokens" : null
+  },
+  "elapsedMs" : 11
+}, {
+  "source" : "TEST_DOUBLE",
+  "stage" : "PLAN",
+  "at" : "2026-10-12T14:03:05.274862900Z",
+  "schemaHash" : "ac0e041064ae224dc98f3d3988930d7c854728ccf1dfbf90e3c4442b3982eb9e",
+  "inputHash" : "ef9b5b64a66f23e00a1e5b202ebf8b71d23a6e1ed288de83ac22a8833ba0fb00",
+  "rawJson" : "{\"mode\":\"EXECUTE\",\"objective\":\"按产品统计、排名并展开明细\",\"clarification\":null,\"steps\":[{\"action\":\"QUERY\",\"source\":null,\"other\":null,\"query\":{\"domain\":\"REPORT\",\"view\":\"LIST\",\"reportIds\":[\"rpt-sales-order\"],\"companyCode\":\"A\",\"conditions\":[],\"sortField\":\"amount\",\"descending\":true,\"page\":1,\"size\":20,\"groupBy\":null},\"analysis\":null,\"rank\":null,\"knowledgeQuestion\":null},{\"action\":\"GROUP\",\"source\":0,\"other\":null,\"query\":null,\"analysis\":{\"dimensions\":[\"productName\"],\"dateField\":null,\"bucket\":\"NONE\",\"compareMonth\":null},\"rank\":null,\"knowledgeQuestion\":null},{\"action\":\"RANK\",\"source\":1,\"other\":null,\"query\":null,\"analysis\":null,\"rank\":{\"field\":\"sum\",\"descending\":true,\"count\":2},\"knowledgeQuestion\":null},{\"action\":\"DRILLDOWN\",\"source\":0,\"other\":2,\"query\":null,\"analysis\":null,\"rank\":null,\"knowledgeQuestion\":null}]}",
+  "status" : "RESPONDED",
+  "usageComplete" : false,
+  "reply" : {
+    "mode" : "EXECUTE",
+    "objective" : "按产品统计、排名并展开明细",
+    "clarification" : null,
+    "steps" : [ {
+      "action" : "QUERY",
+      "source" : null,
+      "other" : null,
+      "query" : {
+        "domain" : "REPORT",
+        "view" : "LIST",
+        "reportIds" : [ "rpt-sales-order" ],
+        "companyCode" : "A",
+        "conditions" : [ ],
+        "sortField" : "amount",
+        "descending" : true,
+        "page" : 1,
+        "size" : 20,
+        "groupBy" : null
+      },
+      "analysis" : null,
+      "rank" : null,
+      "knowledgeQuestion" : null
+    }, {
+      "action" : "GROUP",
+      "source" : 0,
+      "other" : null,
+      "query" : null,
+      "analysis" : {
+        "dimensions" : [ "productName" ],
+        "dateField" : null,
+        "bucket" : "NONE",
+        "compareMonth" : null
+      },
+      "rank" : null,
+      "knowledgeQuestion" : null
+    }, {
+      "action" : "RANK",
+      "source" : 1,
+      "other" : null,
+      "query" : null,
+      "analysis" : null,
+      "rank" : {
+        "field" : "sum",
+        "descending" : true,
+        "count" : 2
+      },
+      "knowledgeQuestion" : null
+    }, {
+      "action" : "DRILLDOWN",
+      "source" : 0,
+      "other" : 2,
+      "query" : null,
+      "analysis" : null,
+      "rank" : null,
+      "knowledgeQuestion" : null
+    } ]
+  },
+  "model" : "ISOLATED_TEST_DOUBLE",
+  "usage" : {
+    "inputTokens" : null,
+    "outputTokens" : null,
+    "cachedInputTokens" : null
+  },
+  "elapsedMs" : 6
+}, {
+  "source" : "TEST_DOUBLE",
+  "stage" : "PLAN",
+  "at" : "2026-10-12T14:03:06.679432300Z",
+  "schemaHash" : "ac0e041064ae224dc98f3d3988930d7c854728ccf1dfbf90e3c4442b3982eb9e",
+  "inputHash" : "5041428d170d9b21688d15a790c8b6eaba56f4995033ebc67a3f12bd9607bfbb",
+  "rawJson" : "{\"mode\":\"EXECUTE\",\"objective\":\"按产品统计、排名并展开明细\",\"clarification\":null,\"steps\":[{\"action\":\"QUERY\",\"source\":null,\"other\":null,\"query\":{\"domain\":\"REPORT\",\"view\":\"LIST\",\"reportIds\":[\"rpt-sales-order\"],\"companyCode\":\"A\",\"conditions\":[],\"sortField\":\"amount\",\"descending\":true,\"page\":1,\"size\":20,\"groupBy\":null},\"analysis\":null,\"rank\":null,\"knowledgeQuestion\":null},{\"action\":\"GROUP\",\"source\":0,\"other\":null,\"query\":null,\"analysis\":{\"dimensions\":[\"productName\"],\"dateField\":null,\"bucket\":\"NONE\",\"compareMonth\":null},\"rank\":null,\"knowledgeQuestion\":null},{\"action\":\"RANK\",\"source\":1,\"other\":null,\"query\":null,\"analysis\":null,\"rank\":{\"field\":\"sum\",\"descending\":true,\"count\":2},\"knowledgeQuestion\":null},{\"action\":\"DRILLDOWN\",\"source\":0,\"other\":2,\"query\":null,\"analysis\":null,\"rank\":null,\"knowledgeQuestion\":null}]}",
+  "status" : "RESPONDED",
+  "usageComplete" : false,
+  "reply" : {
+    "mode" : "EXECUTE",
+    "objective" : "按产品统计、排名并展开明细",
+    "clarification" : null,
+    "steps" : [ {
+      "action" : "QUERY",
+      "source" : null,
+      "other" : null,
+      "query" : {
+        "domain" : "REPORT",
+        "view" : "LIST",
+        "reportIds" : [ "rpt-sales-order" ],
+        "companyCode" : "A",
+        "conditions" : [ ],
+        "sortField" : "amount",
+        "descending" : true,
+        "page" : 1,
+        "size" : 20,
+        "groupBy" : null
+      },
+      "analysis" : null,
+      "rank" : null,
+      "knowledgeQuestion" : null
+    }, {
+      "action" : "GROUP",
+      "source" : 0,
+      "other" : null,
+      "query" : null,
+      "analysis" : {
+        "dimensions" : [ "productName" ],
+        "dateField" : null,
+        "bucket" : "NONE",
+        "compareMonth" : null
+      },
+      "rank" : null,
+      "knowledgeQuestion" : null
+    }, {
+      "action" : "RANK",
+      "source" : 1,
+      "other" : null,
+      "query" : null,
+      "analysis" : null,
+      "rank" : {
+        "field" : "sum",
+        "descending" : true,
+        "count" : 2
+      },
+      "knowledgeQuestion" : null
+    }, {
+      "action" : "DRILLDOWN",
+      "source" : 0,
+      "other" : 2,
+      "query" : null,
+      "analysis" : null,
+      "rank" : null,
+      "knowledgeQuestion" : null
+    } ]
+  },
+  "model" : "ISOLATED_TEST_DOUBLE",
+  "usage" : {
+    "inputTokens" : null,
+    "outputTokens" : null,
+    "cachedInputTokens" : null
+  },
+  "elapsedMs" : 10
+}, {
+  "source" : "TEST_DOUBLE",
+  "stage" : "PLAN",
+  "at" : "2026-10-12T14:03:08.100546900Z",
+  "schemaHash" : "ac0e041064ae224dc98f3d3988930d7c854728ccf1dfbf90e3c4442b3982eb9e",
+  "inputHash" : "bc7a982e67c7b02b2a6f309fe1961e01386704d3044afba7727fcad4d2db0d2d",
+  "rawJson" : "{\"mode\":\"EXECUTE\",\"objective\":\"按产品统计、排名并展开明细\",\"clarification\":null,\"steps\":[{\"action\":\"QUERY\",\"source\":null,\"other\":null,\"query\":{\"domain\":\"REPORT\",\"view\":\"LIST\",\"reportIds\":[\"rpt-sales-order\"],\"companyCode\":\"A\",\"conditions\":[],\"sortField\":\"amount\",\"descending\":true,\"page\":1,\"size\":20,\"groupBy\":null},\"analysis\":null,\"rank\":null,\"knowledgeQuestion\":null},{\"action\":\"GROUP\",\"source\":0,\"other\":null,\"query\":null,\"analysis\":{\"dimensions\":[\"productName\"],\"dateField\":null,\"bucket\":\"NONE\",\"compareMonth\":null},\"rank\":null,\"knowledgeQuestion\":null},{\"action\":\"RANK\",\"source\":1,\"other\":null,\"query\":null,\"analysis\":null,\"rank\":{\"field\":\"sum\",\"descending\":true,\"count\":2},\"knowledgeQuestion\":null},{\"action\":\"DRILLDOWN\",\"source\":0,\"other\":2,\"query\":null,\"analysis\":null,\"rank\":null,\"knowledgeQuestion\":null}]}",
+  "status" : "RESPONDED",
+  "usageComplete" : false,
+  "reply" : {
+    "mode" : "EXECUTE",
+    "objective" : "按产品统计、排名并展开明细",
+    "clarification" : null,
+    "steps" : [ {
+      "action" : "QUERY",
+      "source" : null,
+      "other" : null,
+      "query" : {
+        "domain" : "REPORT",
+        "view" : "LIST",
+        "reportIds" : [ "rpt-sales-order" ],
+        "companyCode" : "A",
+        "conditions" : [ ],
+        "sortField" : "amount",
+        "descending" : true,
+        "page" : 1,
+        "size" : 20,
+        "groupBy" : null
+      },
+      "analysis" : null,
+      "rank" : null,
+      "knowledgeQuestion" : null
+    }, {
+      "action" : "GROUP",
+      "source" : 0,
+      "other" : null,
+      "query" : null,
+      "analysis" : {
+        "dimensions" : [ "productName" ],
+        "dateField" : null,
+        "bucket" : "NONE",
+        "compareMonth" : null
+      },
+      "rank" : null,
+      "knowledgeQuestion" : null
+    }, {
+      "action" : "RANK",
+      "source" : 1,
+      "other" : null,
+      "query" : null,
+      "analysis" : null,
+      "rank" : {
+        "field" : "sum",
+        "descending" : true,
+        "count" : 2
+      },
+      "knowledgeQuestion" : null
+    }, {
+      "action" : "DRILLDOWN",
+      "source" : 0,
+      "other" : 2,
+      "query" : null,
+      "analysis" : null,
+      "rank" : null,
+      "knowledgeQuestion" : null
+    } ]
+  },
+  "model" : "ISOLATED_TEST_DOUBLE",
+  "usage" : {
+    "inputTokens" : null,
+    "outputTokens" : null,
+    "cachedInputTokens" : null
+  },
+  "elapsedMs" : 0
+}, {
+  "source" : "TEST_DOUBLE",
+  "stage" : "PLAN_REVIEW",
+  "at" : "2026-10-12T14:03:08.122995100Z",
+  "schemaHash" : "45c04bc41a4d7f4e30d82d7c125be115725d60612b96ad0b9eb9115aca079817",
+  "inputHash" : "2de6ea5340ed12c676e51a92905a0266d444f61f7378b1ffedc57e717ee5ddea",
+  "rawJson" : "{\"approved\":true,\"reason\":\"隔离状态机测试标签已核对，真实模型另外执行\"}",
+  "status" : "RESPONDED",
+  "usageComplete" : false,
+  "reply" : {
+    "approved" : true,
+    "reason" : "隔离状态机测试标签已核对，真实模型另外执行"
+  },
+  "model" : "ISOLATED_TEST_DOUBLE",
+  "usage" : {
+    "inputTokens" : null,
+    "outputTokens" : null,
+    "cachedInputTokens" : null
+  },
+  "elapsedMs" : 0
+}, {
+  "source" : "TEST_DOUBLE",
+  "stage" : "ANSWER",
+  "at" : "2026-10-12T14:03:08.317236200Z",
+  "schemaHash" : "57390e2af9dfeb0130979f6d14bfc3475313f19223849786ff806b25de711584",
+  "inputHash" : "77165308724865c17f64aa19b78d642aa3b1ebd4b3777c9d91d35313ccb5c199",
+  "rawJson" : "{\"status\":\"ANSWERED\",\"claims\":[{\"text\":\"结果来自所引用的当前授权依据。\",\"sourceIds\":[\"step-1-q1\"]}],\"limitations\":[]}",
+  "status" : "RESPONDED",
+  "usageComplete" : false,
+  "knowledgeCoverage" : {
+    "performed" : false,
+    "truncated" : false,
+    "expansionTruncated" : false,
+    "steps" : [ ]
+  },
+  "reply" : {
+    "status" : "ANSWERED",
+    "claims" : [ {
+      "text" : "结果来自所引用的当前授权依据。",
+      "sourceIds" : [ "step-1-q1" ]
+    } ],
+    "limitations" : [ ]
+  },
+  "model" : "ISOLATED_TEST_DOUBLE",
+  "usage" : {
+    "inputTokens" : null,
+    "outputTokens" : null,
+    "cachedInputTokens" : null
+  },
+  "elapsedMs" : 0
+}, {
+  "source" : "TEST_DOUBLE",
+  "stage" : "ANSWER_REVIEW",
+  "at" : "2026-10-12T14:03:08.351178200Z",
+  "schemaHash" : "45c04bc41a4d7f4e30d82d7c125be115725d60612b96ad0b9eb9115aca079817",
+  "inputHash" : "c769855362b6477365d823e437990954010318c5e5fd3e9f14e39f16536cef4e",
+  "rawJson" : "{\"approved\":true,\"reason\":\"隔离状态机测试标签已核对，真实模型另外执行\"}",
+  "status" : "RESPONDED",
+  "usageComplete" : false,
+  "knowledgeCoverage" : {
+    "performed" : false,
+    "truncated" : false,
+    "expansionTruncated" : false,
+    "steps" : [ ]
+  },
+  "reply" : {
+    "approved" : true,
+    "reason" : "隔离状态机测试标签已核对，真实模型另外执行"
+  },
+  "model" : "ISOLATED_TEST_DOUBLE",
+  "usage" : {
+    "inputTokens" : null,
+    "outputTokens" : null,
+    "cachedInputTokens" : null
+  },
+  "elapsedMs" : 0
+}, {
+  "source" : "TEST_DOUBLE",
+  "stage" : "PLAN",
+  "at" : "2026-10-12T14:03:09.316953100Z",
+  "schemaHash" : "ac0e041064ae224dc98f3d3988930d7c854728ccf1dfbf90e3c4442b3982eb9e",
+  "inputHash" : "e0c45cb682100e651cdbd0c99f26e23f1bdd3f590b243a0fac5e806272a4db42",
+  "rawJson" : "{\"mode\":\"EXECUTE\",\"objective\":\"非法后向依赖\",\"clarification\":null,\"steps\":[{\"action\":\"QUERY\",\"source\":null,\"other\":null,\"query\":{\"domain\":\"REPORT\",\"view\":\"LIST\",\"reportIds\":[\"rpt-sales-order\"],\"companyCode\":\"A\",\"conditions\":[],\"sortField\":\"amount\",\"descending\":true,\"page\":1,\"size\":20,\"groupBy\":null},\"analysis\":null,\"rank\":null,\"knowledgeQuestion\":null},{\"action\":\"GROUP\",\"source\":2,\"other\":null,\"query\":null,\"analysis\":{\"dimensions\":[],\"dateField\":null,\"bucket\":\"NONE\",\"compareMonth\":null},\"rank\":null,\"knowledgeQuestion\":null}]}",
+  "status" : "RESPONDED",
+  "usageComplete" : false,
+  "reply" : {
+    "mode" : "EXECUTE",
+    "objective" : "非法后向依赖",
+    "clarification" : null,
+    "steps" : [ {
+      "action" : "QUERY",
+      "source" : null,
+      "other" : null,
+      "query" : {
+        "domain" : "REPORT",
+        "view" : "LIST",
+        "reportIds" : [ "rpt-sales-order" ],
+        "companyCode" : "A",
+        "conditions" : [ ],
+        "sortField" : "amount",
+        "descending" : true,
+        "page" : 1,
+        "size" : 20,
+        "groupBy" : null
+      },
+      "analysis" : null,
+      "rank" : null,
+      "knowledgeQuestion" : null
+    }, {
+      "action" : "GROUP",
+      "source" : 2,
+      "other" : null,
+      "query" : null,
+      "analysis" : {
+        "dimensions" : [ ],
+        "dateField" : null,
+        "bucket" : "NONE",
+        "compareMonth" : null
+      },
+      "rank" : null,
+      "knowledgeQuestion" : null
+    } ]
+  },
+  "model" : "ISOLATED_TEST_DOUBLE",
+  "usage" : {
+    "inputTokens" : null,
+    "outputTokens" : null,
+    "cachedInputTokens" : null
+  },
+  "elapsedMs" : 0
+}, {
+  "source" : "TEST_DOUBLE",
+  "stage" : "PLAN",
+  "at" : "2026-10-12T14:03:09.350330700Z",
+  "schemaHash" : "ac0e041064ae224dc98f3d3988930d7c854728ccf1dfbf90e3c4442b3982eb9e",
+  "inputHash" : "805dcf35a03f4a2abb4cc3398c4c84ba1747768401329a1d7694f66b2fbc0930",
+  "rawJson" : "{\"mode\":\"EXECUTE\",\"objective\":\"非法后向依赖\",\"clarification\":null,\"steps\":[{\"action\":\"QUERY\",\"source\":null,\"other\":null,\"query\":{\"domain\":\"REPORT\",\"view\":\"LIST\",\"reportIds\":[\"rpt-sales-order\"],\"companyCode\":\"A\",\"conditions\":[],\"sortField\":\"amount\",\"descending\":true,\"page\":1,\"size\":20,\"groupBy\":null},\"analysis\":null,\"rank\":null,\"knowledgeQuestion\":null},{\"action\":\"GROUP\",\"source\":2,\"other\":null,\"query\":null,\"analysis\":{\"dimensions\":[],\"dateField\":null,\"bucket\":\"NONE\",\"compareMonth\":null},\"rank\":null,\"knowledgeQuestion\":null}]}",
+  "status" : "RESPONDED",
+  "usageComplete" : false,
+  "reply" : {
+    "mode" : "EXECUTE",
+    "objective" : "非法后向依赖",
+    "clarification" : null,
+    "steps" : [ {
+      "action" : "QUERY",
+      "source" : null,
+      "other" : null,
+      "query" : {
+        "domain" : "REPORT",
+        "view" : "LIST",
+        "reportIds" : [ "rpt-sales-order" ],
+        "companyCode" : "A",
+        "conditions" : [ ],
+        "sortField" : "amount",
+        "descending" : true,
+        "page" : 1,
+        "size" : 20,
+        "groupBy" : null
+      },
+      "analysis" : null,
+      "rank" : null,
+      "knowledgeQuestion" : null
+    }, {
+      "action" : "GROUP",
+      "source" : 2,
+      "other" : null,
+      "query" : null,
+      "analysis" : {
+        "dimensions" : [ ],
+        "dateField" : null,
+        "bucket" : "NONE",
+        "compareMonth" : null
+      },
+      "rank" : null,
+      "knowledgeQuestion" : null
+    } ]
+  },
+  "model" : "ISOLATED_TEST_DOUBLE",
+  "usage" : {
+    "inputTokens" : null,
+    "outputTokens" : null,
+    "cachedInputTokens" : null
+  },
+  "elapsedMs" : 0
+}, {
+  "source" : "TEST_DOUBLE",
+  "stage" : "PLAN",
+  "at" : "2026-10-12T14:03:09.516789600Z",
+  "schemaHash" : "ac0e041064ae224dc98f3d3988930d7c854728ccf1dfbf90e3c4442b3982eb9e",
+  "inputHash" : "c500fcd01d64c59203415b45e41ef12db8afa1a951b90e10f81c9d9e09626ebd",
+  "rawJson" : "{\"mode\":\"EXECUTE\",\"objective\":\"按产品统计、排名并展开明细\",\"clarification\":null,\"steps\":[{\"action\":\"QUERY\",\"source\":null,\"other\":null,\"query\":{\"domain\":\"REPORT\",\"view\":\"LIST\",\"reportIds\":[\"rpt-sales-order\"],\"companyCode\":\"A\",\"conditions\":[],\"sortField\":\"amount\",\"descending\":true,\"page\":1,\"size\":20,\"groupBy\":null},\"analysis\":null,\"rank\":null,\"knowledgeQuestion\":null},{\"action\":\"GROUP\",\"source\":0,\"other\":null,\"query\":null,\"analysis\":{\"dimensions\":[\"productName\"],\"dateField\":null,\"bucket\":\"NONE\",\"compareMonth\":null},\"rank\":null,\"knowledgeQuestion\":null},{\"action\":\"RANK\",\"source\":1,\"other\":null,\"query\":null,\"analysis\":null,\"rank\":{\"field\":\"sum\",\"descending\":true,\"count\":2},\"knowledgeQuestion\":null},{\"action\":\"DRILLDOWN\",\"source\":0,\"other\":2,\"query\":null,\"analysis\":null,\"rank\":null,\"knowledgeQuestion\":null}]}",
+  "status" : "RESPONDED",
+  "usageComplete" : false,
+  "reply" : {
+    "mode" : "EXECUTE",
+    "objective" : "按产品统计、排名并展开明细",
+    "clarification" : null,
+    "steps" : [ {
+      "action" : "QUERY",
+      "source" : null,
+      "other" : null,
+      "query" : {
+        "domain" : "REPORT",
+        "view" : "LIST",
+        "reportIds" : [ "rpt-sales-order" ],
+        "companyCode" : "A",
+        "conditions" : [ ],
+        "sortField" : "amount",
+        "descending" : true,
+        "page" : 1,
+        "size" : 20,
+        "groupBy" : null
+      },
+      "analysis" : null,
+      "rank" : null,
+      "knowledgeQuestion" : null
+    }, {
+      "action" : "GROUP",
+      "source" : 0,
+      "other" : null,
+      "query" : null,
+      "analysis" : {
+        "dimensions" : [ "productName" ],
+        "dateField" : null,
+        "bucket" : "NONE",
+        "compareMonth" : null
+      },
+      "rank" : null,
+      "knowledgeQuestion" : null
+    }, {
+      "action" : "RANK",
+      "source" : 1,
+      "other" : null,
+      "query" : null,
+      "analysis" : null,
+      "rank" : {
+        "field" : "sum",
+        "descending" : true,
+        "count" : 2
+      },
+      "knowledgeQuestion" : null
+    }, {
+      "action" : "DRILLDOWN",
+      "source" : 0,
+      "other" : 2,
+      "query" : null,
+      "analysis" : null,
+      "rank" : null,
+      "knowledgeQuestion" : null
+    } ]
+  },
+  "model" : "ISOLATED_TEST_DOUBLE",
+  "usage" : {
+    "inputTokens" : null,
+    "outputTokens" : null,
+    "cachedInputTokens" : null
+  },
+  "elapsedMs" : 0
+}, {
+  "source" : "TEST_DOUBLE",
+  "stage" : "PLAN_REVIEW",
+  "at" : "2026-10-12T14:03:09.540562100Z",
+  "schemaHash" : "45c04bc41a4d7f4e30d82d7c125be115725d60612b96ad0b9eb9115aca079817",
+  "inputHash" : "4c9f863a5820d436ba60e70d74b802eedb419bd2af70659676fdaaf5aacebd60",
+  "rawJson" : "{\"approved\":true,\"reason\":\"隔离状态机测试标签已核对，真实模型另外执行\"}",
+  "status" : "RESPONDED",
+  "usageComplete" : false,
+  "reply" : {
+    "approved" : true,
+    "reason" : "隔离状态机测试标签已核对，真实模型另外执行"
+  },
+  "model" : "ISOLATED_TEST_DOUBLE",
+  "usage" : {
+    "inputTokens" : null,
+    "outputTokens" : null,
+    "cachedInputTokens" : null
+  },
+  "elapsedMs" : 0
+}, {
+  "source" : "TEST_DOUBLE",
+  "stage" : "ANSWER",
+  "at" : "2026-10-12T14:03:09.708931400Z",
+  "schemaHash" : "57390e2af9dfeb0130979f6d14bfc3475313f19223849786ff806b25de711584",
+  "inputHash" : "3108bfe2e60ae2f623f7d6ebb758f549fa552ee033cf04a7326e1ab0c5b9f5cf",
+  "rawJson" : "{\"status\":\"ANSWERED\",\"claims\":[{\"text\":\"结果来自所引用的当前授权依据。\",\"sourceIds\":[\"forged\"]}],\"limitations\":[]}",
+  "status" : "RESPONDED",
+  "usageComplete" : false,
+  "knowledgeCoverage" : {
+    "performed" : false,
+    "truncated" : false,
+    "expansionTruncated" : false,
+    "steps" : [ ]
+  },
+  "reply" : {
+    "status" : "ANSWERED",
+    "claims" : [ {
+      "text" : "结果来自所引用的当前授权依据。",
+      "sourceIds" : [ "forged" ]
+    } ],
+    "limitations" : [ ]
+  },
+  "model" : "ISOLATED_TEST_DOUBLE",
+  "usage" : {
+    "inputTokens" : null,
+    "outputTokens" : null,
+    "cachedInputTokens" : null
+  },
+  "elapsedMs" : 0
+}, {
+  "source" : "TEST_DOUBLE",
+  "stage" : "ANSWER",
+  "at" : "2026-10-12T14:03:09.750353300Z",
+  "schemaHash" : "57390e2af9dfeb0130979f6d14bfc3475313f19223849786ff806b25de711584",
+  "inputHash" : "77422c14beb08dde326d18a9a83bf4e084fdfe1e2b3a720cc60597bc06fba6a7",
+  "rawJson" : "{\"status\":\"ANSWERED\",\"claims\":[{\"text\":\"结果来自所引用的当前授权依据。\",\"sourceIds\":[\"forged\"]}],\"limitations\":[]}",
+  "status" : "RESPONDED",
+  "usageComplete" : false,
+  "knowledgeCoverage" : {
+    "performed" : false,
+    "truncated" : false,
+    "expansionTruncated" : false,
+    "steps" : [ ]
+  },
+  "reply" : {
+    "status" : "ANSWERED",
+    "claims" : [ {
+      "text" : "结果来自所引用的当前授权依据。",
+      "sourceIds" : [ "forged" ]
+    } ],
+    "limitations" : [ ]
+  },
+  "model" : "ISOLATED_TEST_DOUBLE",
+  "usage" : {
+    "inputTokens" : null,
+    "outputTokens" : null,
+    "cachedInputTokens" : null
+  },
+  "elapsedMs" : 0
+}, {
+  "source" : "TEST_DOUBLE",
+  "stage" : "PLAN",
+  "at" : "2026-10-12T14:03:12.550438Z",
+  "schemaHash" : "ac0e041064ae224dc98f3d3988930d7c854728ccf1dfbf90e3c4442b3982eb9e",
+  "inputHash" : "ca493129bd2383ca222dc3af24073da71040a3b8491ad1a0924263505b7b90de",
+  "rawJson" : "{\"mode\":\"EXECUTE\",\"objective\":\"分析选定快照\",\"clarification\":null,\"steps\":[{\"action\":\"SNAPSHOT\",\"source\":null,\"other\":null,\"query\":null,\"analysis\":null,\"rank\":null,\"knowledgeQuestion\":null},{\"action\":\"GROUP\",\"source\":0,\"other\":null,\"query\":null,\"analysis\":{\"dimensions\":[\"productName\"],\"dateField\":null,\"bucket\":\"NONE\",\"compareMonth\":null},\"rank\":null,\"knowledgeQuestion\":null},{\"action\":\"RANK\",\"source\":1,\"other\":null,\"query\":null,\"analysis\":null,\"rank\":{\"field\":\"sum\",\"descending\":true,\"count\":2},\"knowledgeQuestion\":null},{\"action\":\"DRILLDOWN\",\"source\":0,\"other\":2,\"query\":null,\"analysis\":null,\"rank\":null,\"knowledgeQuestion\":null}]}",
+  "status" : "RESPONDED",
+  "usageComplete" : false,
+  "reply" : {
+    "mode" : "EXECUTE",
+    "objective" : "分析选定快照",
+    "clarification" : null,
+    "steps" : [ {
+      "action" : "SNAPSHOT",
+      "source" : null,
+      "other" : null,
+      "query" : null,
+      "analysis" : null,
+      "rank" : null,
+      "knowledgeQuestion" : null
+    }, {
+      "action" : "GROUP",
+      "source" : 0,
+      "other" : null,
+      "query" : null,
+      "analysis" : {
+        "dimensions" : [ "productName" ],
+        "dateField" : null,
+        "bucket" : "NONE",
+        "compareMonth" : null
+      },
+      "rank" : null,
+      "knowledgeQuestion" : null
+    }, {
+      "action" : "RANK",
+      "source" : 1,
+      "other" : null,
+      "query" : null,
+      "analysis" : null,
+      "rank" : {
+        "field" : "sum",
+        "descending" : true,
+        "count" : 2
+      },
+      "knowledgeQuestion" : null
+    }, {
+      "action" : "DRILLDOWN",
+      "source" : 0,
+      "other" : 2,
+      "query" : null,
+      "analysis" : null,
+      "rank" : null,
+      "knowledgeQuestion" : null
+    } ]
+  },
+  "model" : "ISOLATED_TEST_DOUBLE",
+  "usage" : {
+    "inputTokens" : null,
+    "outputTokens" : null,
+    "cachedInputTokens" : null
+  },
+  "elapsedMs" : 0
+}, {
+  "source" : "TEST_DOUBLE",
+  "stage" : "PLAN_REVIEW",
+  "at" : "2026-10-12T14:03:12.573549Z",
+  "schemaHash" : "45c04bc41a4d7f4e30d82d7c125be115725d60612b96ad0b9eb9115aca079817",
+  "inputHash" : "c799ae0321db5ad2c13e91204d6ec7a9fc9552e9805fb78f0f8faa025ac51fc7",
+  "rawJson" : "{\"approved\":true,\"reason\":\"隔离状态机测试标签已核对，真实模型另外执行\"}",
+  "status" : "RESPONDED",
+  "usageComplete" : false,
+  "reply" : {
+    "approved" : true,
+    "reason" : "隔离状态机测试标签已核对，真实模型另外执行"
+  },
+  "model" : "ISOLATED_TEST_DOUBLE",
+  "usage" : {
+    "inputTokens" : null,
+    "outputTokens" : null,
+    "cachedInputTokens" : null
+  },
+  "elapsedMs" : 0
+}, {
+  "source" : "TEST_DOUBLE",
+  "stage" : "ANSWER",
+  "at" : "2026-10-12T14:03:12.713495200Z",
+  "schemaHash" : "57390e2af9dfeb0130979f6d14bfc3475313f19223849786ff806b25de711584",
+  "inputHash" : "3de688ad891042b5e46b5750cc55e4f219eab1381623187f528f17351b4ed3c0",
+  "rawJson" : "{\"status\":\"ANSWERED\",\"claims\":[{\"text\":\"结果来自所引用的当前授权依据。\",\"sourceIds\":[\"step-1-q1\"]}],\"limitations\":[]}",
+  "status" : "RESPONDED",
+  "usageComplete" : false,
+  "knowledgeCoverage" : {
+    "performed" : false,
+    "truncated" : false,
+    "expansionTruncated" : false,
+    "steps" : [ ]
+  },
+  "reply" : {
+    "status" : "ANSWERED",
+    "claims" : [ {
+      "text" : "结果来自所引用的当前授权依据。",
+      "sourceIds" : [ "step-1-q1" ]
+    } ],
+    "limitations" : [ ]
+  },
+  "model" : "ISOLATED_TEST_DOUBLE",
+  "usage" : {
+    "inputTokens" : null,
+    "outputTokens" : null,
+    "cachedInputTokens" : null
+  },
+  "elapsedMs" : 0
+}, {
+  "source" : "TEST_DOUBLE",
+  "stage" : "ANSWER_REVIEW",
+  "at" : "2026-10-12T14:03:12.738391100Z",
+  "schemaHash" : "45c04bc41a4d7f4e30d82d7c125be115725d60612b96ad0b9eb9115aca079817",
+  "inputHash" : "c278649ae5e515d6dc6853cf257da9a37beaa902e77e97665d6299164b9e0010",
+  "rawJson" : "{\"approved\":true,\"reason\":\"隔离状态机测试标签已核对，真实模型另外执行\"}",
+  "status" : "RESPONDED",
+  "usageComplete" : false,
+  "knowledgeCoverage" : {
+    "performed" : false,
+    "truncated" : false,
+    "expansionTruncated" : false,
+    "steps" : [ ]
+  },
+  "reply" : {
+    "approved" : true,
+    "reason" : "隔离状态机测试标签已核对，真实模型另外执行"
+  },
+  "model" : "ISOLATED_TEST_DOUBLE",
+  "usage" : {
+    "inputTokens" : null,
+    "outputTokens" : null,
+    "cachedInputTokens" : null
+  },
+  "elapsedMs" : 0
+}, {
+  "source" : "TEST_DOUBLE",
+  "stage" : "PLAN",
+  "at" : "2026-10-12T14:03:13.634059200Z",
+  "schemaHash" : "ac0e041064ae224dc98f3d3988930d7c854728ccf1dfbf90e3c4442b3982eb9e",
+  "inputHash" : "7fe7ade4952fa52370883b2cc8f8ed4d4d21fc71438f901fd24cb489b11b4c79",
+  "rawJson" : "{\"mode\":\"EXECUTE\",\"objective\":\"按产品统计、排名并展开明细\",\"clarification\":null,\"steps\":[{\"action\":\"QUERY\",\"source\":null,\"other\":null,\"query\":{\"domain\":\"REPORT\",\"view\":\"LIST\",\"reportIds\":[\"rpt-sales-order\"],\"companyCode\":\"A\",\"conditions\":[],\"sortField\":\"amount\",\"descending\":true,\"page\":1,\"size\":20,\"groupBy\":null},\"analysis\":null,\"rank\":null,\"knowledgeQuestion\":null},{\"action\":\"GROUP\",\"source\":0,\"other\":null,\"query\":null,\"analysis\":{\"dimensions\":[\"productName\"],\"dateField\":null,\"bucket\":\"NONE\",\"compareMonth\":null},\"rank\":null,\"knowledgeQuestion\":null},{\"action\":\"RANK\",\"source\":1,\"other\":null,\"query\":null,\"analysis\":null,\"rank\":{\"field\":\"sum\",\"descending\":true,\"count\":2},\"knowledgeQuestion\":null},{\"action\":\"DRILLDOWN\",\"source\":0,\"other\":2,\"query\":null,\"analysis\":null,\"rank\":null,\"knowledgeQuestion\":null}]}",
+  "status" : "RESPONDED",
+  "usageComplete" : false,
+  "reply" : {
+    "mode" : "EXECUTE",
+    "objective" : "按产品统计、排名并展开明细",
+    "clarification" : null,
+    "steps" : [ {
+      "action" : "QUERY",
+      "source" : null,
+      "other" : null,
+      "query" : {
+        "domain" : "REPORT",
+        "view" : "LIST",
+        "reportIds" : [ "rpt-sales-order" ],
+        "companyCode" : "A",
+        "conditions" : [ ],
+        "sortField" : "amount",
+        "descending" : true,
+        "page" : 1,
+        "size" : 20,
+        "groupBy" : null
+      },
+      "analysis" : null,
+      "rank" : null,
+      "knowledgeQuestion" : null
+    }, {
+      "action" : "GROUP",
+      "source" : 0,
+      "other" : null,
+      "query" : null,
+      "analysis" : {
+        "dimensions" : [ "productName" ],
+        "dateField" : null,
+        "bucket" : "NONE",
+        "compareMonth" : null
+      },
+      "rank" : null,
+      "knowledgeQuestion" : null
+    }, {
+      "action" : "RANK",
+      "source" : 1,
+      "other" : null,
+      "query" : null,
+      "analysis" : null,
+      "rank" : {
+        "field" : "sum",
+        "descending" : true,
+        "count" : 2
+      },
+      "knowledgeQuestion" : null
+    }, {
+      "action" : "DRILLDOWN",
+      "source" : 0,
+      "other" : 2,
+      "query" : null,
+      "analysis" : null,
+      "rank" : null,
+      "knowledgeQuestion" : null
+    } ]
+  },
+  "model" : "ISOLATED_TEST_DOUBLE",
+  "usage" : {
+    "inputTokens" : null,
+    "outputTokens" : null,
+    "cachedInputTokens" : null
+  },
+  "elapsedMs" : 0
+}, {
+  "source" : "TEST_DOUBLE",
+  "stage" : "PLAN_REVIEW",
+  "at" : "2026-10-12T14:03:13.653416600Z",
+  "schemaHash" : "45c04bc41a4d7f4e30d82d7c125be115725d60612b96ad0b9eb9115aca079817",
+  "inputHash" : "a7859bda57f1a79456a1f37df737474925a53a1c90f1fe72664bc918ad1ae197",
+  "rawJson" : "{\"approved\":true,\"reason\":\"重复键\",\"reason\":\"必须被拒绝\"}",
+  "status" : "RESPONDED",
+  "usageComplete" : false,
+  "reply" : {
+    "approved" : true,
+    "reason" : "必须被拒绝"
+  },
+  "model" : "ISOLATED_TEST_DOUBLE",
+  "usage" : {
+    "inputTokens" : null,
+    "outputTokens" : null,
+    "cachedInputTokens" : null
+  },
+  "elapsedMs" : 0
+}, {
+  "source" : "TEST_DOUBLE",
+  "stage" : "PLAN_REVIEW",
+  "at" : "2026-10-12T14:03:13.678715Z",
+  "schemaHash" : "45c04bc41a4d7f4e30d82d7c125be115725d60612b96ad0b9eb9115aca079817",
+  "inputHash" : "546caa5bcb24df6a96ebc1a26a02cb557c3090a751fe3c14580575e2243c5db8",
+  "rawJson" : "{\"approved\":true,\"reason\":\"隔离状态机测试标签已核对，真实模型另外执行\"}",
+  "status" : "RESPONDED",
+  "usageComplete" : false,
+  "reply" : {
+    "approved" : true,
+    "reason" : "隔离状态机测试标签已核对，真实模型另外执行"
+  },
+  "model" : "ISOLATED_TEST_DOUBLE",
+  "usage" : {
+    "inputTokens" : null,
+    "outputTokens" : null,
+    "cachedInputTokens" : null
+  },
+  "elapsedMs" : 0
+}, {
+  "source" : "TEST_DOUBLE",
+  "stage" : "ANSWER",
+  "at" : "2026-10-12T14:03:13.833240500Z",
+  "schemaHash" : "57390e2af9dfeb0130979f6d14bfc3475313f19223849786ff806b25de711584",
+  "inputHash" : "c78c4c5132e44a6f7c6bbc6c8848cf9b69bf55c76a67e5885dd3afe5197e0652",
+  "rawJson" : "{\"status\":\"ANSWERED\",\"claims\":[{\"text\":\"结果来自所引用的当前授权依据。\",\"sourceIds\":[\"step-1-q1\"]}],\"limitations\":[]}",
+  "status" : "RESPONDED",
+  "usageComplete" : false,
+  "knowledgeCoverage" : {
+    "performed" : false,
+    "truncated" : false,
+    "expansionTruncated" : false,
+    "steps" : [ ]
+  },
+  "reply" : {
+    "status" : "ANSWERED",
+    "claims" : [ {
+      "text" : "结果来自所引用的当前授权依据。",
+      "sourceIds" : [ "step-1-q1" ]
+    } ],
+    "limitations" : [ ]
+  },
+  "model" : "ISOLATED_TEST_DOUBLE",
+  "usage" : {
+    "inputTokens" : null,
+    "outputTokens" : null,
+    "cachedInputTokens" : null
+  },
+  "elapsedMs" : 0
+}, {
+  "source" : "TEST_DOUBLE",
+  "stage" : "ANSWER_REVIEW",
+  "at" : "2026-10-12T14:03:13.861615900Z",
+  "schemaHash" : "45c04bc41a4d7f4e30d82d7c125be115725d60612b96ad0b9eb9115aca079817",
+  "inputHash" : "79b2d4d48eabb07c85dc08648ce22a24bcb3ce6c012bf638083454ef4811655d",
+  "rawJson" : "{\"approved\":true,\"reason\":\"隔离状态机测试标签已核对，真实模型另外执行\"}",
+  "status" : "RESPONDED",
+  "usageComplete" : false,
+  "knowledgeCoverage" : {
+    "performed" : false,
+    "truncated" : false,
+    "expansionTruncated" : false,
+    "steps" : [ ]
+  },
+  "reply" : {
+    "approved" : true,
+    "reason" : "隔离状态机测试标签已核对，真实模型另外执行"
+  },
+  "model" : "ISOLATED_TEST_DOUBLE",
+  "usage" : {
+    "inputTokens" : null,
+    "outputTokens" : null,
+    "cachedInputTokens" : null
+  },
+  "elapsedMs" : 0
+}, {
+  "source" : "TEST_DOUBLE",
+  "stage" : "PLAN",
+  "at" : "2026-10-12T14:03:14.869398800Z",
+  "schemaHash" : "ac0e041064ae224dc98f3d3988930d7c854728ccf1dfbf90e3c4442b3982eb9e",
+  "inputHash" : "4734f38e7f885819e2e9e9420a928365d6ad1feee2f019cf7c3254ac19e4d8d9",
+  "rawJson" : "{\"mode\":\"EXECUTE\",\"objective\":\"按产品统计、排名并展开明细\",\"clarification\":null,\"steps\":[{\"action\":\"QUERY\",\"source\":null,\"other\":null,\"query\":{\"domain\":\"REPORT\",\"view\":\"LIST\",\"reportIds\":[\"rpt-sales-order\"],\"companyCode\":\"A\",\"conditions\":[],\"sortField\":\"amount\",\"descending\":true,\"page\":1,\"size\":20,\"groupBy\":null},\"analysis\":null,\"rank\":null,\"knowledgeQuestion\":null},{\"action\":\"GROUP\",\"source\":0,\"other\":null,\"query\":null,\"analysis\":{\"dimensions\":[\"productName\"],\"dateField\":null,\"bucket\":\"NONE\",\"compareMonth\":null},\"rank\":null,\"knowledgeQuestion\":null},{\"action\":\"RANK\",\"source\":1,\"other\":null,\"query\":null,\"analysis\":null,\"rank\":{\"field\":\"sum\",\"descending\":true,\"count\":2},\"knowledgeQuestion\":null},{\"action\":\"DRILLDOWN\",\"source\":0,\"other\":2,\"query\":null,\"analysis\":null,\"rank\":null,\"knowledgeQuestion\":null}]}",
+  "status" : "RESPONDED",
+  "usageComplete" : false,
+  "reply" : {
+    "mode" : "EXECUTE",
+    "objective" : "按产品统计、排名并展开明细",
+    "clarification" : null,
+    "steps" : [ {
+      "action" : "QUERY",
+      "source" : null,
+      "other" : null,
+      "query" : {
+        "domain" : "REPORT",
+        "view" : "LIST",
+        "reportIds" : [ "rpt-sales-order" ],
+        "companyCode" : "A",
+        "conditions" : [ ],
+        "sortField" : "amount",
+        "descending" : true,
+        "page" : 1,
+        "size" : 20,
+        "groupBy" : null
+      },
+      "analysis" : null,
+      "rank" : null,
+      "knowledgeQuestion" : null
+    }, {
+      "action" : "GROUP",
+      "source" : 0,
+      "other" : null,
+      "query" : null,
+      "analysis" : {
+        "dimensions" : [ "productName" ],
+        "dateField" : null,
+        "bucket" : "NONE",
+        "compareMonth" : null
+      },
+      "rank" : null,
+      "knowledgeQuestion" : null
+    }, {
+      "action" : "RANK",
+      "source" : 1,
+      "other" : null,
+      "query" : null,
+      "analysis" : null,
+      "rank" : {
+        "field" : "sum",
+        "descending" : true,
+        "count" : 2
+      },
+      "knowledgeQuestion" : null
+    }, {
+      "action" : "DRILLDOWN",
+      "source" : 0,
+      "other" : 2,
+      "query" : null,
+      "analysis" : null,
+      "rank" : null,
+      "knowledgeQuestion" : null
+    } ]
+  },
+  "model" : "ISOLATED_TEST_DOUBLE",
+  "usage" : {
+    "inputTokens" : null,
+    "outputTokens" : null,
+    "cachedInputTokens" : null
+  },
+  "elapsedMs" : 0
+}, {
+  "source" : "TEST_DOUBLE",
+  "stage" : "PLAN_REVIEW",
+  "at" : "2026-10-12T14:03:14.892772500Z",
+  "schemaHash" : "45c04bc41a4d7f4e30d82d7c125be115725d60612b96ad0b9eb9115aca079817",
+  "inputHash" : "c0a12f2a29d58120d4f03ac47cad1a76aa2010632481e1c641c336bec26113f5",
+  "rawJson" : "{\"approved\":true,\"reason\":\"隔离状态机测试标签已核对，真实模型另外执行\"}",
+  "status" : "RESPONDED",
+  "usageComplete" : false,
+  "reply" : {
+    "approved" : true,
+    "reason" : "隔离状态机测试标签已核对，真实模型另外执行"
+  },
+  "model" : "ISOLATED_TEST_DOUBLE",
+  "usage" : {
+    "inputTokens" : null,
+    "outputTokens" : null,
+    "cachedInputTokens" : null
+  },
+  "elapsedMs" : 0
+}, {
+  "source" : "TEST_DOUBLE",
+  "stage" : "ANSWER",
+  "at" : "2026-10-12T14:03:15.061598300Z",
+  "schemaHash" : "57390e2af9dfeb0130979f6d14bfc3475313f19223849786ff806b25de711584",
+  "inputHash" : "0a47b70212037365c861899807e1bdc9ffe0c5672814da44ab0299f4514b36a2",
+  "rawJson" : "{\"status\":\"ANSWERED\",\"claims\":[{\"text\":\"结果来自所引用的当前授权依据。\",\"sourceIds\":[\"step-1-q1\"]}],\"limitations\":[]}",
+  "status" : "RESPONDED",
+  "usageComplete" : false,
+  "knowledgeCoverage" : {
+    "performed" : false,
+    "truncated" : false,
+    "expansionTruncated" : false,
+    "steps" : [ ]
+  },
+  "reply" : {
+    "status" : "ANSWERED",
+    "claims" : [ {
+      "text" : "结果来自所引用的当前授权依据。",
+      "sourceIds" : [ "step-1-q1" ]
+    } ],
+    "limitations" : [ ]
+  },
+  "model" : "ISOLATED_TEST_DOUBLE",
+  "usage" : {
+    "inputTokens" : null,
+    "outputTokens" : null,
+    "cachedInputTokens" : null
+  },
+  "elapsedMs" : 0
+}, {
+  "source" : "TEST_DOUBLE",
+  "stage" : "ANSWER_REVIEW",
+  "at" : "2026-10-12T14:03:15.092690Z",
+  "schemaHash" : "45c04bc41a4d7f4e30d82d7c125be115725d60612b96ad0b9eb9115aca079817",
+  "inputHash" : "9b5aaa3892e2bc27d6a5b83e9ad5104712badaf87ebaaebf96e66c0ac4b0f729",
+  "rawJson" : "{\"approved\":true,\"reason\":\"隔离状态机测试标签已核对，真实模型另外执行\"}",
+  "status" : "RESPONDED",
+  "usageComplete" : false,
+  "knowledgeCoverage" : {
+    "performed" : false,
+    "truncated" : false,
+    "expansionTruncated" : false,
+    "steps" : [ ]
+  },
+  "reply" : {
+    "approved" : true,
+    "reason" : "隔离状态机测试标签已核对，真实模型另外执行"
+  },
+  "model" : "ISOLATED_TEST_DOUBLE",
+  "usage" : {
+    "inputTokens" : null,
+    "outputTokens" : null,
+    "cachedInputTokens" : null
+  },
+  "elapsedMs" : 0
+}, {
+  "source" : "TEST_DOUBLE",
+  "stage" : "PLAN",
+  "at" : "2026-10-12T14:03:16.115160200Z",
+  "schemaHash" : "ac0e041064ae224dc98f3d3988930d7c854728ccf1dfbf90e3c4442b3982eb9e",
+  "inputHash" : "9d043d22a9dc22c8de641fd6d49cbb8c529cfb6dbfda8fda65917ff358c15ad9",
+  "rawJson" : "{\"mode\":\"EXECUTE\",\"objective\":\"按产品统计、排名并展开明细\",\"clarification\":null,\"steps\":[{\"action\":\"QUERY\",\"source\":null,\"other\":null,\"query\":{\"domain\":\"REPORT\",\"view\":\"LIST\",\"reportIds\":[\"rpt-sales-order\"],\"companyCode\":\"A\",\"conditions\":[],\"sortField\":\"amount\",\"descending\":true,\"page\":1,\"size\":20,\"groupBy\":null},\"analysis\":null,\"rank\":null,\"knowledgeQuestion\":null},{\"action\":\"GROUP\",\"source\":0,\"other\":null,\"query\":null,\"analysis\":{\"dimensions\":[\"productName\"],\"dateField\":null,\"bucket\":\"NONE\",\"compareMonth\":null},\"rank\":null,\"knowledgeQuestion\":null},{\"action\":\"RANK\",\"source\":1,\"other\":null,\"query\":null,\"analysis\":null,\"rank\":{\"field\":\"sum\",\"descending\":true,\"count\":2},\"knowledgeQuestion\":null},{\"action\":\"DRILLDOWN\",\"source\":0,\"other\":2,\"query\":null,\"analysis\":null,\"rank\":null,\"knowledgeQuestion\":null}]}",
+  "status" : "RESPONDED",
+  "usageComplete" : false,
+  "reply" : {
+    "mode" : "EXECUTE",
+    "objective" : "按产品统计、排名并展开明细",
+    "clarification" : null,
+    "steps" : [ {
+      "action" : "QUERY",
+      "source" : null,
+      "other" : null,
+      "query" : {
+        "domain" : "REPORT",
+        "view" : "LIST",
+        "reportIds" : [ "rpt-sales-order" ],
+        "companyCode" : "A",
+        "conditions" : [ ],
+        "sortField" : "amount",
+        "descending" : true,
+        "page" : 1,
+        "size" : 20,
+        "groupBy" : null
+      },
+      "analysis" : null,
+      "rank" : null,
+      "knowledgeQuestion" : null
+    }, {
+      "action" : "GROUP",
+      "source" : 0,
+      "other" : null,
+      "query" : null,
+      "analysis" : {
+        "dimensions" : [ "productName" ],
+        "dateField" : null,
+        "bucket" : "NONE",
+        "compareMonth" : null
+      },
+      "rank" : null,
+      "knowledgeQuestion" : null
+    }, {
+      "action" : "RANK",
+      "source" : 1,
+      "other" : null,
+      "query" : null,
+      "analysis" : null,
+      "rank" : {
+        "field" : "sum",
+        "descending" : true,
+        "count" : 2
+      },
+      "knowledgeQuestion" : null
+    }, {
+      "action" : "DRILLDOWN",
+      "source" : 0,
+      "other" : 2,
+      "query" : null,
+      "analysis" : null,
+      "rank" : null,
+      "knowledgeQuestion" : null
+    } ]
+  },
+  "model" : "ISOLATED_TEST_DOUBLE",
+  "usage" : {
+    "inputTokens" : null,
+    "outputTokens" : null,
+    "cachedInputTokens" : null
+  },
+  "elapsedMs" : 0
+}, {
+  "source" : "TEST_DOUBLE",
+  "stage" : "PLAN_REVIEW",
+  "at" : "2026-10-12T14:03:16.137273400Z",
+  "schemaHash" : "45c04bc41a4d7f4e30d82d7c125be115725d60612b96ad0b9eb9115aca079817",
+  "inputHash" : "2733103652d7d851108b2b28f6663780a383cb6710380f6a3de43b6645d3c060",
+  "rawJson" : "{\"approved\":true,\"reason\":\"隔离状态机测试标签已核对，真实模型另外执行\"}",
+  "status" : "RESPONDED",
+  "usageComplete" : false,
+  "reply" : {
+    "approved" : true,
+    "reason" : "隔离状态机测试标签已核对，真实模型另外执行"
+  },
+  "model" : "ISOLATED_TEST_DOUBLE",
+  "usage" : {
+    "inputTokens" : null,
+    "outputTokens" : null,
+    "cachedInputTokens" : null
+  },
+  "elapsedMs" : 0
+}, {
+  "source" : "TEST_DOUBLE",
+  "stage" : "PLAN",
+  "at" : "2026-10-12T14:03:17.166712Z",
+  "schemaHash" : "ac0e041064ae224dc98f3d3988930d7c854728ccf1dfbf90e3c4442b3982eb9e",
+  "inputHash" : "81615d0b2e44ecdb604dfa8c8d57b40f7e5abb87c05964b719f59361170bfa69",
+  "rawJson" : "{\"mode\":\"EXECUTE\",\"objective\":\"比较前后半月集合\",\"clarification\":null,\"steps\":[{\"action\":\"QUERY\",\"source\":null,\"other\":null,\"query\":{\"domain\":\"REPORT\",\"view\":\"LIST\",\"reportIds\":[\"rpt-sales-order\"],\"companyCode\":\"A\",\"conditions\":[{\"allOf\":[{\"field\":\"saleDate\",\"operator\":\"LT\",\"values\":[\"2026-09-15\"]}]}],\"sortField\":null,\"descending\":false,\"page\":1,\"size\":20,\"groupBy\":null},\"analysis\":null,\"rank\":null,\"knowledgeQuestion\":null},{\"action\":\"QUERY\",\"source\":null,\"other\":null,\"query\":{\"domain\":\"REPORT\",\"view\":\"LIST\",\"reportIds\":[\"rpt-sales-order\"],\"companyCode\":\"A\",\"conditions\":[{\"allOf\":[{\"field\":\"saleDate\",\"operator\":\"GTE\",\"values\":[\"2026-09-15\"]}]}],\"sortField\":null,\"descending\":false,\"page\":1,\"size\":20,\"groupBy\":null},\"analysis\":null,\"rank\":null,\"knowledgeQuestion\":null},{\"action\":\"COMPARE\",\"source\":0,\"other\":1,\"query\":null,\"analysis\":null,\"rank\":null,\"knowledgeQuestion\":null}]}",
+  "status" : "RESPONDED",
+  "usageComplete" : false,
+  "reply" : {
+    "mode" : "EXECUTE",
+    "objective" : "比较前后半月集合",
+    "clarification" : null,
+    "steps" : [ {
+      "action" : "QUERY",
+      "source" : null,
+      "other" : null,
+      "query" : {
+        "domain" : "REPORT",
+        "view" : "LIST",
+        "reportIds" : [ "rpt-sales-order" ],
+        "companyCode" : "A",
+        "conditions" : [ {
+          "allOf" : [ {
+            "field" : "saleDate",
+            "operator" : "LT",
+            "values" : [ "2026-09-15" ]
+          } ]
+        } ],
+        "sortField" : null,
+        "descending" : false,
+        "page" : 1,
+        "size" : 20,
+        "groupBy" : null
+      },
+      "analysis" : null,
+      "rank" : null,
+      "knowledgeQuestion" : null
+    }, {
+      "action" : "QUERY",
+      "source" : null,
+      "other" : null,
+      "query" : {
+        "domain" : "REPORT",
+        "view" : "LIST",
+        "reportIds" : [ "rpt-sales-order" ],
+        "companyCode" : "A",
+        "conditions" : [ {
+          "allOf" : [ {
+            "field" : "saleDate",
+            "operator" : "GTE",
+            "values" : [ "2026-09-15" ]
+          } ]
+        } ],
+        "sortField" : null,
+        "descending" : false,
+        "page" : 1,
+        "size" : 20,
+        "groupBy" : null
+      },
+      "analysis" : null,
+      "rank" : null,
+      "knowledgeQuestion" : null
+    }, {
+      "action" : "COMPARE",
+      "source" : 0,
+      "other" : 1,
+      "query" : null,
+      "analysis" : null,
+      "rank" : null,
+      "knowledgeQuestion" : null
+    } ]
+  },
+  "model" : "ISOLATED_TEST_DOUBLE",
+  "usage" : {
+    "inputTokens" : null,
+    "outputTokens" : null,
+    "cachedInputTokens" : null
+  },
+  "elapsedMs" : 1
+}, {
+  "source" : "TEST_DOUBLE",
+  "stage" : "PLAN_REVIEW",
+  "at" : "2026-10-12T14:03:17.193360800Z",
+  "schemaHash" : "45c04bc41a4d7f4e30d82d7c125be115725d60612b96ad0b9eb9115aca079817",
+  "inputHash" : "6c41ee6e26918fa5c203917f56ead3d6cfc58f74fad425ce439b9cd6b1f780d6",
+  "rawJson" : "{\"approved\":true,\"reason\":\"隔离状态机测试标签已核对，真实模型另外执行\"}",
+  "status" : "RESPONDED",
+  "usageComplete" : false,
+  "reply" : {
+    "approved" : true,
+    "reason" : "隔离状态机测试标签已核对，真实模型另外执行"
+  },
+  "model" : "ISOLATED_TEST_DOUBLE",
+  "usage" : {
+    "inputTokens" : null,
+    "outputTokens" : null,
+    "cachedInputTokens" : null
+  },
+  "elapsedMs" : 0
+}, {
+  "source" : "TEST_DOUBLE",
+  "stage" : "ANSWER",
+  "at" : "2026-10-12T14:03:17.398081Z",
+  "schemaHash" : "d81943279d4c722bc5c25926418dd43fe4d61c818e103a73766bf78c5345eee5",
+  "inputHash" : "7ee368b40386f12afe74cf4c61ea7c58bd697886c64e188ee40043cd4084a50c",
+  "rawJson" : "{\"status\":\"ANSWERED\",\"claims\":[{\"text\":\"结果来自所引用的当前授权依据。\",\"sourceIds\":[\"step-1-q1\"]}],\"limitations\":[]}",
+  "status" : "RESPONDED",
+  "usageComplete" : false,
+  "knowledgeCoverage" : {
+    "performed" : false,
+    "truncated" : false,
+    "expansionTruncated" : false,
+    "steps" : [ ]
+  },
+  "reply" : {
+    "status" : "ANSWERED",
+    "claims" : [ {
+      "text" : "结果来自所引用的当前授权依据。",
+      "sourceIds" : [ "step-1-q1" ]
+    } ],
+    "limitations" : [ ]
+  },
+  "model" : "ISOLATED_TEST_DOUBLE",
+  "usage" : {
+    "inputTokens" : null,
+    "outputTokens" : null,
+    "cachedInputTokens" : null
+  },
+  "elapsedMs" : 0
+}, {
+  "source" : "TEST_DOUBLE",
+  "stage" : "ANSWER_REVIEW",
+  "at" : "2026-10-12T14:03:17.432430300Z",
+  "schemaHash" : "45c04bc41a4d7f4e30d82d7c125be115725d60612b96ad0b9eb9115aca079817",
+  "inputHash" : "3923ebd9627f710ca656fb3b2651a5204eb0e812f1c73b7285597b100aba3739",
+  "rawJson" : "{\"approved\":true,\"reason\":\"隔离状态机测试标签已核对，真实模型另外执行\"}",
+  "status" : "RESPONDED",
+  "usageComplete" : false,
+  "knowledgeCoverage" : {
+    "performed" : false,
+    "truncated" : false,
+    "expansionTruncated" : false,
+    "steps" : [ ]
+  },
+  "reply" : {
+    "approved" : true,
+    "reason" : "隔离状态机测试标签已核对，真实模型另外执行"
+  },
+  "model" : "ISOLATED_TEST_DOUBLE",
+  "usage" : {
+    "inputTokens" : null,
+    "outputTokens" : null,
+    "cachedInputTokens" : null
+  },
+  "elapsedMs" : 0
+}, {
+  "source" : "TEST_DOUBLE",
+  "stage" : "RAG_REWRITE",
+  "at" : "2026-10-12T14:03:19.606566100Z",
+  "schemaHash" : "a0b9f87586cd1c2a22d52a183b356928327592186c93aec46067b244b8ef2386",
+  "inputHash" : "319f8dee1bc8e7c83e7ced4552c63a9a6affa4388df096e1c9e227518526f8b4",
+  "businessQueriesAtCall" : 0,
+  "rawJson" : "{\"topics\":[{\"index\":0,\"queries\":[]}]}",
+  "status" : "RESPONDED",
+  "usageComplete" : false,
+  "reply" : {
+    "topics" : [ {
+      "index" : 0,
+      "queries" : [ ]
+    } ]
+  },
+  "model" : "ISOLATED_TEST_DOUBLE",
+  "usage" : {
+    "inputTokens" : null,
+    "outputTokens" : null,
+    "cachedInputTokens" : null
+  },
+  "elapsedMs" : 0
+}, {
+  "source" : "TEST_DOUBLE",
+  "stage" : "RAG_RERANK",
+  "at" : "2026-10-12T14:03:19.616567600Z",
+  "schemaHash" : "7bbbaf6f962c2143431e7612dc8867decb424ab4763e604a3a8181056a2e06f9",
+  "inputHash" : "f87359752068347dc72000308534c5fa8279430b92e9919b87a4592763aa2271",
+  "businessQueriesAtCall" : 0,
+  "rawJson" : "{\"topics\":[{\"index\":0,\"sourceIds\":[\"c0\",\"c1\",\"c2\",\"c3\"]}]}",
+  "status" : "RESPONDED",
+  "usageComplete" : false,
+  "reply" : {
+    "topics" : [ {
+      "index" : 0,
+      "sourceIds" : [ "c0", "c1", "c2", "c3" ]
+    } ]
+  },
+  "model" : "ISOLATED_TEST_DOUBLE",
+  "usage" : {
+    "inputTokens" : null,
+    "outputTokens" : null,
+    "cachedInputTokens" : null
+  },
+  "elapsedMs" : 0
+}, {
+  "source" : "TEST_DOUBLE",
+  "stage" : "PLAN",
+  "at" : "2026-10-12T14:03:19.681980Z",
+  "schemaHash" : "ac0e041064ae224dc98f3d3988930d7c854728ccf1dfbf90e3c4442b3982eb9e",
+  "inputHash" : "e272b7d0ff9e80e55113135cfc680424fb318171d8707951e73864014d39ac72",
+  "rawJson" : "{\"mode\":\"EXECUTE\",\"objective\":\"核对业务术语\",\"clarification\":null,\"steps\":[{\"action\":\"KNOWLEDGE\",\"source\":null,\"other\":null,\"query\":null,\"analysis\":null,\"rank\":null,\"knowledgeQuestion\":\"booked value\"}]}",
+  "status" : "RESPONDED",
+  "usageComplete" : false,
+  "reply" : {
+    "mode" : "EXECUTE",
+    "objective" : "核对业务术语",
+    "clarification" : null,
+    "steps" : [ {
+      "action" : "KNOWLEDGE",
+      "source" : null,
+      "other" : null,
+      "query" : null,
+      "analysis" : null,
+      "rank" : null,
+      "knowledgeQuestion" : "booked value"
+    } ]
+  },
+  "model" : "ISOLATED_TEST_DOUBLE",
+  "usage" : {
+    "inputTokens" : null,
+    "outputTokens" : null,
+    "cachedInputTokens" : null
+  },
+  "elapsedMs" : 0
+}, {
+  "source" : "TEST_DOUBLE",
+  "stage" : "PLAN_REVIEW",
+  "at" : "2026-10-12T14:03:19.706420200Z",
+  "schemaHash" : "45c04bc41a4d7f4e30d82d7c125be115725d60612b96ad0b9eb9115aca079817",
+  "inputHash" : "9108ecc727e30295a8670c40d073f6662da5dbeebbc7f86e474427a20fb55e8a",
+  "rawJson" : "{\"approved\":true,\"reason\":\"隔离状态机测试标签已核对，真实模型另外执行\"}",
+  "status" : "RESPONDED",
+  "usageComplete" : false,
+  "reply" : {
+    "approved" : true,
+    "reason" : "隔离状态机测试标签已核对，真实模型另外执行"
+  },
+  "model" : "ISOLATED_TEST_DOUBLE",
+  "usage" : {
+    "inputTokens" : null,
+    "outputTokens" : null,
+    "cachedInputTokens" : null
+  },
+  "elapsedMs" : 0
+}, {
+  "source" : "TEST_DOUBLE",
+  "stage" : "RAG_REWRITE",
+  "at" : "2026-10-12T14:03:19.740478600Z",
+  "schemaHash" : "a0b9f87586cd1c2a22d52a183b356928327592186c93aec46067b244b8ef2386",
+  "inputHash" : "319f8dee1bc8e7c83e7ced4552c63a9a6affa4388df096e1c9e227518526f8b4",
+  "businessQueriesAtCall" : 0,
+  "rawJson" : "{\"topics\":[{\"index\":0,\"queries\":[]}]}",
+  "status" : "RESPONDED",
+  "usageComplete" : false,
+  "reply" : {
+    "topics" : [ {
+      "index" : 0,
+      "queries" : [ ]
+    } ]
+  },
+  "model" : "ISOLATED_TEST_DOUBLE",
+  "usage" : {
+    "inputTokens" : null,
+    "outputTokens" : null,
+    "cachedInputTokens" : null
+  },
+  "elapsedMs" : 0
+}, {
+  "source" : "TEST_DOUBLE",
+  "stage" : "RAG_RERANK",
+  "at" : "2026-10-12T14:03:19.764737400Z",
+  "schemaHash" : "7bbbaf6f962c2143431e7612dc8867decb424ab4763e604a3a8181056a2e06f9",
+  "inputHash" : "f87359752068347dc72000308534c5fa8279430b92e9919b87a4592763aa2271",
+  "businessQueriesAtCall" : 0,
+  "rawJson" : "{\"topics\":[{\"index\":0,\"sourceIds\":[\"c0\",\"c1\",\"c2\",\"c3\"]}]}",
+  "status" : "RESPONDED",
+  "usageComplete" : false,
+  "reply" : {
+    "topics" : [ {
+      "index" : 0,
+      "sourceIds" : [ "c0", "c1", "c2", "c3" ]
+    } ]
+  },
+  "model" : "ISOLATED_TEST_DOUBLE",
+  "usage" : {
+    "inputTokens" : null,
+    "outputTokens" : null,
+    "cachedInputTokens" : null
+  },
+  "elapsedMs" : 0
+}, {
+  "source" : "TEST_DOUBLE",
+  "stage" : "ANSWER",
+  "at" : "2026-10-12T14:03:19.811072800Z",
+  "schemaHash" : "d3f347a491f4c4466adc85a46cf40cc85e120cc8a541805160336050c2ede726",
+  "inputHash" : "862a2a8fddb73ffbf436c029b805dcccfa8dc8fa954f9750f7ea44fac64a8756",
+  "rawJson" : "{\"status\":\"ANSWERED\",\"claims\":[{\"text\":\"结果来自所引用的当前授权依据。\",\"sourceIds\":[\"dictionary-2993f621b7360e5b-p1\"]}],\"limitations\":[]}",
+  "status" : "RESPONDED",
+  "usageComplete" : false,
+  "knowledgeCoverage" : {
+    "performed" : true,
+    "truncated" : false,
+    "expansionTruncated" : false,
+    "steps" : [ {
+      "matchedSources" : 4,
+      "searchedSources" : 4,
+      "stepNumber" : 1,
+      "expansionTruncated" : false,
+      "searchedFragments" : 4,
+      "truncated" : false,
+      "matchedFragments" : 4,
+      "returnedSources" : 4,
+      "returnedFragments" : 4
+    } ]
+  },
+  "reply" : {
+    "status" : "ANSWERED",
+    "claims" : [ {
+      "text" : "结果来自所引用的当前授权依据。",
+      "sourceIds" : [ "dictionary-2993f621b7360e5b-p1" ]
+    } ],
+    "limitations" : [ ]
+  },
+  "model" : "ISOLATED_TEST_DOUBLE",
+  "usage" : {
+    "inputTokens" : null,
+    "outputTokens" : null,
+    "cachedInputTokens" : null
+  },
+  "elapsedMs" : 0
+}, {
+  "source" : "TEST_DOUBLE",
+  "stage" : "ANSWER_REVIEW",
+  "at" : "2026-10-12T14:03:19.834508400Z",
+  "schemaHash" : "45c04bc41a4d7f4e30d82d7c125be115725d60612b96ad0b9eb9115aca079817",
+  "inputHash" : "0a68827f2aa108e8faa3450fabfa1e5d5aa8acbb61f00a6890321602672dde94",
+  "rawJson" : "{\"approved\":true,\"reason\":\"隔离状态机测试标签已核对，真实模型另外执行\"}",
+  "status" : "RESPONDED",
+  "usageComplete" : false,
+  "knowledgeCoverage" : {
+    "performed" : true,
+    "truncated" : false,
+    "expansionTruncated" : false,
+    "steps" : [ {
+      "matchedSources" : 4,
+      "searchedSources" : 4,
+      "stepNumber" : 1,
+      "expansionTruncated" : false,
+      "searchedFragments" : 4,
+      "truncated" : false,
+      "matchedFragments" : 4,
+      "returnedSources" : 4,
+      "returnedFragments" : 4
+    } ]
+  },
+  "reply" : {
+    "approved" : true,
+    "reason" : "隔离状态机测试标签已核对，真实模型另外执行"
+  },
+  "model" : "ISOLATED_TEST_DOUBLE",
+  "usage" : {
+    "inputTokens" : null,
+    "outputTokens" : null,
+    "cachedInputTokens" : null
+  },
+  "elapsedMs" : 0
+}, {
+  "source" : "TEST_DOUBLE",
+  "stage" : "PLAN",
+  "at" : "2026-10-12T14:03:20.929627200Z",
+  "schemaHash" : "ac0e041064ae224dc98f3d3988930d7c854728ccf1dfbf90e3c4442b3982eb9e",
+  "inputHash" : "723f84c217742905d0ce3783a88d79475dbd2d53fd5c9a21f63b2f7686727564",
+  "rawJson" : "{\"mode\":\"EXECUTE\",\"objective\":\"词典版本测试\",\"clarification\":null,\"steps\":[{\"action\":\"KNOWLEDGE\",\"source\":null,\"other\":null,\"query\":null,\"analysis\":null,\"rank\":null,\"knowledgeQuestion\":\"booked\"}]}",
+  "status" : "RESPONDED",
+  "usageComplete" : false,
+  "reply" : {
+    "mode" : "EXECUTE",
+    "objective" : "词典版本测试",
+    "clarification" : null,
+    "steps" : [ {
+      "action" : "KNOWLEDGE",
+      "source" : null,
+      "other" : null,
+      "query" : null,
+      "analysis" : null,
+      "rank" : null,
+      "knowledgeQuestion" : "booked"
+    } ]
+  },
+  "model" : "ISOLATED_TEST_DOUBLE",
+  "usage" : {
+    "inputTokens" : null,
+    "outputTokens" : null,
+    "cachedInputTokens" : null
+  },
+  "elapsedMs" : 0
+}, {
+  "source" : "TEST_DOUBLE",
+  "stage" : "PLAN_REVIEW",
+  "at" : "2026-10-12T14:03:20.953171500Z",
+  "schemaHash" : "45c04bc41a4d7f4e30d82d7c125be115725d60612b96ad0b9eb9115aca079817",
+  "inputHash" : "f71ce062e99c5e836f46e6202468e56bf3215c594834d52048816cf9682039be",
+  "rawJson" : "{\"approved\":true,\"reason\":\"隔离状态机测试标签已核对，真实模型另外执行\"}",
+  "status" : "RESPONDED",
+  "usageComplete" : false,
+  "reply" : {
+    "approved" : true,
+    "reason" : "隔离状态机测试标签已核对，真实模型另外执行"
+  },
+  "model" : "ISOLATED_TEST_DOUBLE",
+  "usage" : {
+    "inputTokens" : null,
+    "outputTokens" : null,
+    "cachedInputTokens" : null
+  },
+  "elapsedMs" : 0
+}, {
+  "source" : "TEST_DOUBLE",
+  "stage" : "RAG_REWRITE",
+  "at" : "2026-10-12T14:03:20.985920500Z",
+  "schemaHash" : "a0b9f87586cd1c2a22d52a183b356928327592186c93aec46067b244b8ef2386",
+  "inputHash" : "e0c47f50aa264c3b12d8a29b2e31eec6cf99a5127a6af6f04719d9005b4c0124",
+  "businessQueriesAtCall" : 0,
+  "rawJson" : "{\"topics\":[{\"index\":0,\"queries\":[]}]}",
+  "status" : "RESPONDED",
+  "usageComplete" : false,
+  "reply" : {
+    "topics" : [ {
+      "index" : 0,
+      "queries" : [ ]
+    } ]
+  },
+  "model" : "ISOLATED_TEST_DOUBLE",
+  "usage" : {
+    "inputTokens" : null,
+    "outputTokens" : null,
+    "cachedInputTokens" : null
+  },
+  "elapsedMs" : 0
+}, {
+  "source" : "TEST_DOUBLE",
+  "stage" : "RAG_RERANK",
+  "at" : "2026-10-12T14:03:21.007255400Z",
+  "schemaHash" : "7bbbaf6f962c2143431e7612dc8867decb424ab4763e604a3a8181056a2e06f9",
+  "inputHash" : "a93786193517e8daeba5208031d5ab9febbc833b3e01727d9052f8bfb0bc3253",
+  "businessQueriesAtCall" : 0,
+  "rawJson" : "{\"topics\":[{\"index\":0,\"sourceIds\":[\"c0\",\"c1\",\"c2\",\"c3\"]}]}",
+  "status" : "RESPONDED",
+  "usageComplete" : false,
+  "reply" : {
+    "topics" : [ {
+      "index" : 0,
+      "sourceIds" : [ "c0", "c1", "c2", "c3" ]
+    } ]
+  },
+  "model" : "ISOLATED_TEST_DOUBLE",
+  "usage" : {
+    "inputTokens" : null,
+    "outputTokens" : null,
+    "cachedInputTokens" : null
+  },
+  "elapsedMs" : 0
+}, {
+  "source" : "TEST_DOUBLE",
+  "stage" : "ANSWER",
+  "at" : "2026-10-12T14:03:21.047745500Z",
+  "schemaHash" : "b5ffaaeb0e135b87bd9f7cef859cf386f5a68e3cfd75e56aafcd28a0f28d9741",
+  "inputHash" : "cac0b260efae45d2cc7f7290a4b2196b3a07157736fa865ccfe036555408fc06",
+  "rawJson" : "{\"status\":\"ANSWERED\",\"claims\":[{\"text\":\"结果来自所引用的当前授权依据。\",\"sourceIds\":[\"dictionary-21a7a13586f7fa85-p1\"]}],\"limitations\":[]}",
+  "status" : "RESPONDED",
+  "usageComplete" : false,
+  "knowledgeCoverage" : {
+    "performed" : true,
+    "truncated" : false,
+    "expansionTruncated" : false,
+    "steps" : [ {
+      "matchedSources" : 4,
+      "searchedSources" : 4,
+      "stepNumber" : 1,
+      "expansionTruncated" : false,
+      "searchedFragments" : 4,
+      "truncated" : false,
+      "matchedFragments" : 4,
+      "returnedSources" : 4,
+      "returnedFragments" : 4
+    } ]
+  },
+  "reply" : {
+    "status" : "ANSWERED",
+    "claims" : [ {
+      "text" : "结果来自所引用的当前授权依据。",
+      "sourceIds" : [ "dictionary-21a7a13586f7fa85-p1" ]
+    } ],
+    "limitations" : [ ]
+  },
+  "model" : "ISOLATED_TEST_DOUBLE",
+  "usage" : {
+    "inputTokens" : null,
+    "outputTokens" : null,
+    "cachedInputTokens" : null
+  },
+  "elapsedMs" : 0
+}, {
+  "source" : "TEST_DOUBLE",
+  "stage" : "ANSWER_REVIEW",
+  "at" : "2026-10-12T14:03:21.074438Z",
+  "schemaHash" : "45c04bc41a4d7f4e30d82d7c125be115725d60612b96ad0b9eb9115aca079817",
+  "inputHash" : "37e6ff985bdf6213bf3fd8f5de1457d058edaa3387d2dd7bfc0255785eea984a",
+  "rawJson" : "{\"approved\":true,\"reason\":\"隔离状态机测试标签已核对，真实模型另外执行\"}",
+  "status" : "RESPONDED",
+  "usageComplete" : false,
+  "knowledgeCoverage" : {
+    "performed" : true,
+    "truncated" : false,
+    "expansionTruncated" : false,
+    "steps" : [ {
+      "matchedSources" : 4,
+      "searchedSources" : 4,
+      "stepNumber" : 1,
+      "expansionTruncated" : false,
+      "searchedFragments" : 4,
+      "truncated" : false,
+      "matchedFragments" : 4,
+      "returnedSources" : 4,
+      "returnedFragments" : 4
+    } ]
+  },
+  "reply" : {
+    "approved" : true,
+    "reason" : "隔离状态机测试标签已核对，真实模型另外执行"
+  },
+  "model" : "ISOLATED_TEST_DOUBLE",
+  "usage" : {
+    "inputTokens" : null,
+    "outputTokens" : null,
+    "cachedInputTokens" : null
+  },
+  "elapsedMs" : 0
+}, {
+  "source" : "TEST_DOUBLE",
+  "stage" : "PLAN",
+  "at" : "2026-10-12T14:03:26.489421500Z",
+  "schemaHash" : "ac0e041064ae224dc98f3d3988930d7c854728ccf1dfbf90e3c4442b3982eb9e",
+  "inputHash" : "92aa65378d18ae0db06533057ffef9e72d47cfe85fde552d6e7071857b6cb1f9",
+  "rawJson" : "{\"mode\":\"EXECUTE\",\"objective\":\"读取有限知识候选\",\"clarification\":null,\"steps\":[{\"action\":\"KNOWLEDGE\",\"source\":null,\"other\":null,\"query\":null,\"analysis\":null,\"rank\":null,\"knowledgeQuestion\":\"amount税额\"}]}",
+  "status" : "RESPONDED",
+  "usageComplete" : false,
+  "reply" : {
+    "mode" : "EXECUTE",
+    "objective" : "读取有限知识候选",
+    "clarification" : null,
+    "steps" : [ {
+      "action" : "KNOWLEDGE",
+      "source" : null,
+      "other" : null,
+      "query" : null,
+      "analysis" : null,
+      "rank" : null,
+      "knowledgeQuestion" : "amount税额"
+    } ]
+  },
+  "model" : "ISOLATED_TEST_DOUBLE",
+  "usage" : {
+    "inputTokens" : null,
+    "outputTokens" : null,
+    "cachedInputTokens" : null
+  },
+  "elapsedMs" : 0
+}, {
+  "source" : "TEST_DOUBLE",
+  "stage" : "PLAN_REVIEW",
+  "at" : "2026-10-12T14:03:26.544669500Z",
+  "schemaHash" : "45c04bc41a4d7f4e30d82d7c125be115725d60612b96ad0b9eb9115aca079817",
+  "inputHash" : "4fd759f0cb0ca914b4a652ce93849d51620ba831fb91b0c3d617c27dc27efdbb",
+  "rawJson" : "{\"approved\":true,\"reason\":\"隔离状态机测试标签已核对，真实模型另外执行\"}",
+  "status" : "RESPONDED",
+  "usageComplete" : false,
+  "reply" : {
+    "approved" : true,
+    "reason" : "隔离状态机测试标签已核对，真实模型另外执行"
+  },
+  "model" : "ISOLATED_TEST_DOUBLE",
+  "usage" : {
+    "inputTokens" : null,
+    "outputTokens" : null,
+    "cachedInputTokens" : null
+  },
+  "elapsedMs" : 0
+}, {
+  "source" : "TEST_DOUBLE",
+  "stage" : "RAG_REWRITE",
+  "at" : "2026-10-12T14:03:26.624201700Z",
+  "schemaHash" : "a0b9f87586cd1c2a22d52a183b356928327592186c93aec46067b244b8ef2386",
+  "inputHash" : "b01015eb862dea4205da3f72bd141e7997dc4e289647c4e8e6e6a9f08a25da49",
+  "businessQueriesAtCall" : 0,
+  "rawJson" : "{\"topics\":[{\"index\":0,\"queries\":[]}]}",
+  "status" : "RESPONDED",
+  "usageComplete" : false,
+  "reply" : {
+    "topics" : [ {
+      "index" : 0,
+      "queries" : [ ]
+    } ]
+  },
+  "model" : "ISOLATED_TEST_DOUBLE",
+  "usage" : {
+    "inputTokens" : null,
+    "outputTokens" : null,
+    "cachedInputTokens" : null
+  },
+  "elapsedMs" : 0
+}, {
+  "source" : "TEST_DOUBLE",
+  "stage" : "RAG_RERANK",
+  "at" : "2026-10-12T14:03:26.681128300Z",
+  "schemaHash" : "dc17433e16d61b57168935e1ef8d14d7e6295dfa29d1879320584e5912e7e966",
+  "inputHash" : "6929167fd8c269ef405be107f2112ccf0061a58881b174b5223881875966428b",
+  "businessQueriesAtCall" : 0,
+  "rawJson" : "{\"topics\":[{\"index\":0,\"sourceIds\":[\"c0\",\"c1\",\"c2\",\"c3\",\"c4\",\"c5\",\"c6\",\"c7\",\"c8\",\"c9\",\"c10\",\"c11\",\"c12\",\"c13\",\"c14\",\"c15\",\"c16\",\"c17\",\"c18\",\"c19\",\"c20\",\"c21\"]}]}",
+  "status" : "RESPONDED",
+  "usageComplete" : false,
+  "reply" : {
+    "topics" : [ {
+      "index" : 0,
+      "sourceIds" : [ "c0", "c1", "c2", "c3", "c4", "c5", "c6", "c7", "c8", "c9", "c10", "c11", "c12", "c13", "c14", "c15", "c16", "c17", "c18", "c19", "c20", "c21" ]
+    } ]
+  },
+  "model" : "ISOLATED_TEST_DOUBLE",
+  "usage" : {
+    "inputTokens" : null,
+    "outputTokens" : null,
+    "cachedInputTokens" : null
+  },
+  "elapsedMs" : 0
+}, {
+  "source" : "TEST_DOUBLE",
+  "stage" : "ANSWER",
+  "at" : "2026-10-12T14:03:26.792063600Z",
+  "schemaHash" : "a2bf32a5ddfee6434338c1e0f84f4690b74975bf4fe96ea6d92bc65f4571ef89",
+  "inputHash" : "dd14c2fe8adb0394488004332c7d81cc7d3b103462c2e3da675a1ff92f4737e4",
+  "rawJson" : "{\"status\":\"ANSWERED\",\"claims\":[{\"text\":\"结果来自所引用的当前授权依据。\",\"sourceIds\":[\"document-3c04b9353b3f47aca1d4d73e9c4fbd0b-v2-p1\"]}],\"limitations\":[]}",
+  "status" : "RESPONDED",
+  "usageComplete" : false,
+  "knowledgeCoverage" : {
+    "performed" : true,
+    "truncated" : true,
+    "expansionTruncated" : false,
+    "steps" : [ {
+      "matchedSources" : 4,
+      "searchedSources" : 5,
+      "stepNumber" : 1,
+      "expansionTruncated" : false,
+      "searchedFragments" : 23,
+      "truncated" : true,
+      "matchedFragments" : 22,
+      "returnedSources" : 4,
+      "returnedFragments" : 12
+    } ]
+  },
+  "reply" : {
+    "status" : "ANSWERED",
+    "claims" : [ {
+      "text" : "结果来自所引用的当前授权依据。",
+      "sourceIds" : [ "document-3c04b9353b3f47aca1d4d73e9c4fbd0b-v2-p1" ]
+    } ],
+    "limitations" : [ ]
+  },
+  "model" : "ISOLATED_TEST_DOUBLE",
+  "usage" : {
+    "inputTokens" : null,
+    "outputTokens" : null,
+    "cachedInputTokens" : null
+  },
+  "elapsedMs" : 0
+}, {
+  "source" : "TEST_DOUBLE",
+  "stage" : "ANSWER",
+  "at" : "2026-10-12T14:03:26.871021Z",
+  "schemaHash" : "a2bf32a5ddfee6434338c1e0f84f4690b74975bf4fe96ea6d92bc65f4571ef89",
+  "inputHash" : "425dfd2af745e35598f273e9d88a23a4ef50eda066251857fc0ec815296b443a",
+  "rawJson" : "{\"status\":\"ANSWERED\",\"claims\":[{\"text\":\"结果来自所引用的当前授权依据。\",\"sourceIds\":[\"document-3c04b9353b3f47aca1d4d73e9c4fbd0b-v2-p1\"]}],\"limitations\":[]}",
+  "status" : "RESPONDED",
+  "usageComplete" : false,
+  "knowledgeCoverage" : {
+    "performed" : true,
+    "truncated" : true,
+    "expansionTruncated" : false,
+    "steps" : [ {
+      "matchedSources" : 4,
+      "searchedSources" : 5,
+      "stepNumber" : 1,
+      "expansionTruncated" : false,
+      "searchedFragments" : 23,
+      "truncated" : true,
+      "matchedFragments" : 22,
+      "returnedSources" : 4,
+      "returnedFragments" : 12
+    } ]
+  },
+  "reply" : {
+    "status" : "ANSWERED",
+    "claims" : [ {
+      "text" : "结果来自所引用的当前授权依据。",
+      "sourceIds" : [ "document-3c04b9353b3f47aca1d4d73e9c4fbd0b-v2-p1" ]
+    } ],
+    "limitations" : [ ]
+  },
+  "model" : "ISOLATED_TEST_DOUBLE",
+  "usage" : {
+    "inputTokens" : null,
+    "outputTokens" : null,
+    "cachedInputTokens" : null
+  },
+  "elapsedMs" : 0
+}, {
+  "source" : "TEST_DOUBLE",
+  "stage" : "RAG_REWRITE",
+  "at" : "2026-10-12T14:03:59.078866300Z",
+  "schemaHash" : "a0b9f87586cd1c2a22d52a183b356928327592186c93aec46067b244b8ef2386",
+  "inputHash" : "6929fc38dc5e2007b923769f5f59f3dce23f784119328306d1efb63b2cedd899",
+  "businessQueriesAtCall" : 0,
+  "rawJson" : "{\"topics\":[{\"index\":0,\"queries\":[\"tax\",\"ragforbidden\"]}]}",
+  "status" : "RESPONDED",
+  "usageComplete" : false,
+  "reply" : {
+    "topics" : [ {
+      "index" : 0,
+      "queries" : [ "tax", "ragforbidden" ]
+    } ]
+  },
+  "model" : "ISOLATED_TEST_DOUBLE",
+  "usage" : {
+    "inputTokens" : null,
+    "outputTokens" : null,
+    "cachedInputTokens" : null
+  },
+  "elapsedMs" : 0
+}, {
+  "source" : "TEST_DOUBLE",
+  "stage" : "RAG_RERANK",
+  "at" : "2026-10-12T14:03:59.087141100Z",
+  "schemaHash" : "90625f3806ea3ebf992f29cc6b9fe4b6b2bf542eeb6f91a5ea3938f82f39e475",
+  "inputHash" : "6db5d97955371b1eea796208eaf702ebc7c1efd99b82e042b98d43619eb1f859",
+  "businessQueriesAtCall" : 0,
+  "rawJson" : "{\"topics\":[{\"index\":0,\"sourceIds\":[\"c0\"]}]}",
+  "status" : "RESPONDED",
+  "usageComplete" : false,
+  "reply" : {
+    "topics" : [ {
+      "index" : 0,
+      "sourceIds" : [ "c0" ]
+    } ]
+  },
+  "model" : "ISOLATED_TEST_DOUBLE",
+  "usage" : {
+    "inputTokens" : null,
+    "outputTokens" : null,
+    "cachedInputTokens" : null
+  },
+  "elapsedMs" : 0
+}, {
+  "source" : "TEST_DOUBLE",
+  "stage" : "PLAN",
+  "at" : "2026-10-12T14:04:00.032635100Z",
+  "schemaHash" : "ac0e041064ae224dc98f3d3988930d7c854728ccf1dfbf90e3c4442b3982eb9e",
+  "inputHash" : "2798a8ab9e511042110ce53ee4bfbc6fe6ee9a9533b9bb666a83a687906a8293",
+  "rawJson" : "{\"mode\":\"EXECUTE\",\"objective\":\"一次核对六个知识子问题\",\"clarification\":null,\"steps\":[{\"action\":\"KNOWLEDGE\",\"source\":null,\"other\":null,\"query\":null,\"analysis\":null,\"rank\":null,\"knowledgeQuestion\":\"tax topic 0\"},{\"action\":\"KNOWLEDGE\",\"source\":null,\"other\":null,\"query\":null,\"analysis\":null,\"rank\":null,\"knowledgeQuestion\":\"tax topic 1\"},{\"action\":\"KNOWLEDGE\",\"source\":null,\"other\":null,\"query\":null,\"analysis\":null,\"rank\":null,\"knowledgeQuestion\":\"tax topic 2\"},{\"action\":\"KNOWLEDGE\",\"source\":null,\"other\":null,\"query\":null,\"analysis\":null,\"rank\":null,\"knowledgeQuestion\":\"tax topic 3\"},{\"action\":\"KNOWLEDGE\",\"source\":null,\"other\":null,\"query\":null,\"analysis\":null,\"rank\":null,\"knowledgeQuestion\":\"tax topic 4\"},{\"action\":\"KNOWLEDGE\",\"source\":null,\"other\":null,\"query\":null,\"analysis\":null,\"rank\":null,\"knowledgeQuestion\":\"tax topic 5\"}]}",
+  "status" : "RESPONDED",
+  "usageComplete" : false,
+  "reply" : {
+    "mode" : "EXECUTE",
+    "objective" : "一次核对六个知识子问题",
+    "clarification" : null,
+    "steps" : [ {
+      "action" : "KNOWLEDGE",
+      "source" : null,
+      "other" : null,
+      "query" : null,
+      "analysis" : null,
+      "rank" : null,
+      "knowledgeQuestion" : "tax topic 0"
+    }, {
+      "action" : "KNOWLEDGE",
+      "source" : null,
+      "other" : null,
+      "query" : null,
+      "analysis" : null,
+      "rank" : null,
+      "knowledgeQuestion" : "tax topic 1"
+    }, {
+      "action" : "KNOWLEDGE",
+      "source" : null,
+      "other" : null,
+      "query" : null,
+      "analysis" : null,
+      "rank" : null,
+      "knowledgeQuestion" : "tax topic 2"
+    }, {
+      "action" : "KNOWLEDGE",
+      "source" : null,
+      "other" : null,
+      "query" : null,
+      "analysis" : null,
+      "rank" : null,
+      "knowledgeQuestion" : "tax topic 3"
+    }, {
+      "action" : "KNOWLEDGE",
+      "source" : null,
+      "other" : null,
+      "query" : null,
+      "analysis" : null,
+      "rank" : null,
+      "knowledgeQuestion" : "tax topic 4"
+    }, {
+      "action" : "KNOWLEDGE",
+      "source" : null,
+      "other" : null,
+      "query" : null,
+      "analysis" : null,
+      "rank" : null,
+      "knowledgeQuestion" : "tax topic 5"
+    } ]
+  },
+  "model" : "ISOLATED_TEST_DOUBLE",
+  "usage" : {
+    "inputTokens" : null,
+    "outputTokens" : null,
+    "cachedInputTokens" : null
+  },
+  "elapsedMs" : 0
+}, {
+  "source" : "TEST_DOUBLE",
+  "stage" : "PLAN_REVIEW",
+  "at" : "2026-10-12T14:04:00.053850300Z",
+  "schemaHash" : "45c04bc41a4d7f4e30d82d7c125be115725d60612b96ad0b9eb9115aca079817",
+  "inputHash" : "7b3ee078f1d09da70ba752323acaf0127f6706317b2a06ffcf1dab7a76bfaae3",
+  "rawJson" : "{\"approved\":true,\"reason\":\"隔离状态机测试标签已核对，真实模型另外执行\"}",
+  "status" : "RESPONDED",
+  "usageComplete" : false,
+  "reply" : {
+    "approved" : true,
+    "reason" : "隔离状态机测试标签已核对，真实模型另外执行"
+  },
+  "model" : "ISOLATED_TEST_DOUBLE",
+  "usage" : {
+    "inputTokens" : null,
+    "outputTokens" : null,
+    "cachedInputTokens" : null
+  },
+  "elapsedMs" : 0
+}, {
+  "source" : "TEST_DOUBLE",
+  "stage" : "RAG_REWRITE",
+  "at" : "2026-10-12T14:04:00.084172200Z",
+  "schemaHash" : "2a89525ffa82f6be99f7652238d01f4722230dc6f2c72bd490bf62498722a90b",
+  "inputHash" : "f55f840fdbd2e18e0da2208f88c5cc91ffe5561d402c740e07af8c95b0d80ceb",
+  "businessQueriesAtCall" : 0,
+  "rawJson" : "{\"topics\":[{\"index\":0,\"queries\":[]},{\"index\":1,\"queries\":[]},{\"index\":2,\"queries\":[]},{\"index\":3,\"queries\":[]},{\"index\":4,\"queries\":[]},{\"index\":5,\"queries\":[]}]}",
+  "status" : "RESPONDED",
+  "usageComplete" : false,
+  "reply" : {
+    "topics" : [ {
+      "index" : 0,
+      "queries" : [ ]
+    }, {
+      "index" : 1,
+      "queries" : [ ]
+    }, {
+      "index" : 2,
+      "queries" : [ ]
+    }, {
+      "index" : 3,
+      "queries" : [ ]
+    }, {
+      "index" : 4,
+      "queries" : [ ]
+    }, {
+      "index" : 5,
+      "queries" : [ ]
+    } ]
+  },
+  "model" : "ISOLATED_TEST_DOUBLE",
+  "usage" : {
+    "inputTokens" : null,
+    "outputTokens" : null,
+    "cachedInputTokens" : null
+  },
+  "elapsedMs" : 0
+}, {
+  "source" : "TEST_DOUBLE",
+  "stage" : "RAG_RERANK",
+  "at" : "2026-10-12T14:04:00.109553700Z",
+  "schemaHash" : "f3013e3a8b440873207ee5920816bdd2c34b5984589c7e396a2acc320d737ae2",
+  "inputHash" : "c97886efcef7c3da3af468e8e704fd059076af262b253804f87b97aef745dce7",
+  "businessQueriesAtCall" : 0,
+  "rawJson" : "{\"topics\":[{\"index\":0,\"sourceIds\":[\"c0\"]},{\"index\":1,\"sourceIds\":[\"c0\"]},{\"index\":2,\"sourceIds\":[\"c0\"]},{\"index\":3,\"sourceIds\":[\"c0\"]},{\"index\":4,\"sourceIds\":[\"c0\"]},{\"index\":5,\"sourceIds\":[\"c0\"]}]}",
+  "status" : "RESPONDED",
+  "usageComplete" : false,
+  "reply" : {
+    "topics" : [ {
+      "index" : 0,
+      "sourceIds" : [ "c0" ]
+    }, {
+      "index" : 1,
+      "sourceIds" : [ "c0" ]
+    }, {
+      "index" : 2,
+      "sourceIds" : [ "c0" ]
+    }, {
+      "index" : 3,
+      "sourceIds" : [ "c0" ]
+    }, {
+      "index" : 4,
+      "sourceIds" : [ "c0" ]
+    }, {
+      "index" : 5,
+      "sourceIds" : [ "c0" ]
+    } ]
+  },
+  "model" : "ISOLATED_TEST_DOUBLE",
+  "usage" : {
+    "inputTokens" : null,
+    "outputTokens" : null,
+    "cachedInputTokens" : null
+  },
+  "elapsedMs" : 0
+}, {
+  "source" : "TEST_DOUBLE",
+  "stage" : "ANSWER",
+  "at" : "2026-10-12T14:04:00.256960700Z",
+  "schemaHash" : "31d4230c50bf1009ed5d9aa947f14da2592e1bd67ee066e10621b68fc5dd9cb7",
+  "inputHash" : "60c2f00173f1fcb243bf933608c736c11f859c6a4da945864bd4206540ddb17d",
+  "rawJson" : "{\"status\":\"ANSWERED\",\"claims\":[{\"text\":\"结果来自所引用的当前授权依据。\",\"sourceIds\":[\"document-56462b4babc448558ea06b1ae4cda50d-v2-p1\"]}],\"limitations\":[]}",
+  "status" : "RESPONDED",
+  "usageComplete" : false,
+  "knowledgeCoverage" : {
+    "performed" : true,
+    "truncated" : false,
+    "expansionTruncated" : false,
+    "steps" : [ {
+      "matchedSources" : 1,
+      "searchedSources" : 4,
+      "stepNumber" : 1,
+      "expansionTruncated" : false,
+      "searchedFragments" : 4,
+      "truncated" : false,
+      "matchedFragments" : 1,
+      "returnedSources" : 1,
+      "returnedFragments" : 1
+    }, {
+      "matchedSources" : 1,
+      "searchedSources" : 4,
+      "stepNumber" : 2,
+      "expansionTruncated" : false,
+      "searchedFragments" : 4,
+      "truncated" : false,
+      "matchedFragments" : 1,
+      "returnedSources" : 1,
+      "returnedFragments" : 1
+    }, {
+      "matchedSources" : 1,
+      "searchedSources" : 4,
+      "stepNumber" : 3,
+      "expansionTruncated" : false,
+      "searchedFragments" : 4,
+      "truncated" : false,
+      "matchedFragments" : 1,
+      "returnedSources" : 1,
+      "returnedFragments" : 1
+    }, {
+      "matchedSources" : 1,
+      "searchedSources" : 4,
+      "stepNumber" : 4,
+      "expansionTruncated" : false,
+      "searchedFragments" : 4,
+      "truncated" : false,
+      "matchedFragments" : 1,
+      "returnedSources" : 1,
+      "returnedFragments" : 1
+    }, {
+      "matchedSources" : 1,
+      "searchedSources" : 4,
+      "stepNumber" : 5,
+      "expansionTruncated" : false,
+      "searchedFragments" : 4,
+      "truncated" : false,
+      "matchedFragments" : 1,
+      "returnedSources" : 1,
+      "returnedFragments" : 1
+    }, {
+      "matchedSources" : 1,
+      "searchedSources" : 4,
+      "stepNumber" : 6,
+      "expansionTruncated" : false,
+      "searchedFragments" : 4,
+      "truncated" : false,
+      "matchedFragments" : 1,
+      "returnedSources" : 1,
+      "returnedFragments" : 1
+    } ]
+  },
+  "reply" : {
+    "status" : "ANSWERED",
+    "claims" : [ {
+      "text" : "结果来自所引用的当前授权依据。",
+      "sourceIds" : [ "document-56462b4babc448558ea06b1ae4cda50d-v2-p1" ]
+    } ],
+    "limitations" : [ ]
+  },
+  "model" : "ISOLATED_TEST_DOUBLE",
+  "usage" : {
+    "inputTokens" : null,
+    "outputTokens" : null,
+    "cachedInputTokens" : null
+  },
+  "elapsedMs" : 0
+}, {
+  "source" : "TEST_DOUBLE",
+  "stage" : "ANSWER_REVIEW",
+  "at" : "2026-10-12T14:04:00.279279400Z",
+  "schemaHash" : "45c04bc41a4d7f4e30d82d7c125be115725d60612b96ad0b9eb9115aca079817",
+  "inputHash" : "2188de38c4a023cc26283349661d79aff0e9d015283268e663f1a347318cf164",
+  "rawJson" : "{\"approved\":true,\"reason\":\"隔离状态机测试标签已核对，真实模型另外执行\"}",
+  "status" : "RESPONDED",
+  "usageComplete" : false,
+  "knowledgeCoverage" : {
+    "performed" : true,
+    "truncated" : false,
+    "expansionTruncated" : false,
+    "steps" : [ {
+      "matchedSources" : 1,
+      "searchedSources" : 4,
+      "stepNumber" : 1,
+      "expansionTruncated" : false,
+      "searchedFragments" : 4,
+      "truncated" : false,
+      "matchedFragments" : 1,
+      "returnedSources" : 1,
+      "returnedFragments" : 1
+    }, {
+      "matchedSources" : 1,
+      "searchedSources" : 4,
+      "stepNumber" : 2,
+      "expansionTruncated" : false,
+      "searchedFragments" : 4,
+      "truncated" : false,
+      "matchedFragments" : 1,
+      "returnedSources" : 1,
+      "returnedFragments" : 1
+    }, {
+      "matchedSources" : 1,
+      "searchedSources" : 4,
+      "stepNumber" : 3,
+      "expansionTruncated" : false,
+      "searchedFragments" : 4,
+      "truncated" : false,
+      "matchedFragments" : 1,
+      "returnedSources" : 1,
+      "returnedFragments" : 1
+    }, {
+      "matchedSources" : 1,
+      "searchedSources" : 4,
+      "stepNumber" : 4,
+      "expansionTruncated" : false,
+      "searchedFragments" : 4,
+      "truncated" : false,
+      "matchedFragments" : 1,
+      "returnedSources" : 1,
+      "returnedFragments" : 1
+    }, {
+      "matchedSources" : 1,
+      "searchedSources" : 4,
+      "stepNumber" : 5,
+      "expansionTruncated" : false,
+      "searchedFragments" : 4,
+      "truncated" : false,
+      "matchedFragments" : 1,
+      "returnedSources" : 1,
+      "returnedFragments" : 1
+    }, {
+      "matchedSources" : 1,
+      "searchedSources" : 4,
+      "stepNumber" : 6,
+      "expansionTruncated" : false,
+      "searchedFragments" : 4,
+      "truncated" : false,
+      "matchedFragments" : 1,
+      "returnedSources" : 1,
+      "returnedFragments" : 1
+    } ]
+  },
+  "reply" : {
+    "approved" : true,
+    "reason" : "隔离状态机测试标签已核对，真实模型另外执行"
+  },
+  "model" : "ISOLATED_TEST_DOUBLE",
+  "usage" : {
+    "inputTokens" : null,
+    "outputTokens" : null,
+    "cachedInputTokens" : null
+  },
+  "elapsedMs" : 0
+}, {
+  "source" : "TEST_DOUBLE",
+  "stage" : "PLAN",
+  "at" : "2026-10-12T14:04:01.245049400Z",
+  "schemaHash" : "ac0e041064ae224dc98f3d3988930d7c854728ccf1dfbf90e3c4442b3982eb9e",
+  "inputHash" : "2ad67a7e7a71d88551ab9f5f062b223106c183f8216d5df3462214e29405e749",
+  "rawJson" : "{\"mode\":\"EXECUTE\",\"objective\":\"读取后解释两项知识\",\"clarification\":null,\"steps\":[{\"action\":\"QUERY\",\"source\":null,\"other\":null,\"query\":{\"domain\":\"REPORT\",\"view\":\"LIST\",\"reportIds\":[\"rpt-sales-order\"],\"companyCode\":\"A\",\"conditions\":[],\"sortField\":\"amount\",\"descending\":true,\"page\":1,\"size\":20,\"groupBy\":null},\"analysis\":null,\"rank\":null,\"knowledgeQuestion\":null},{\"action\":\"KNOWLEDGE\",\"source\":null,\"other\":null,\"query\":null,\"analysis\":null,\"rank\":null,\"knowledgeQuestion\":\"tax definition\"},{\"action\":\"GROUP\",\"source\":0,\"other\":null,\"query\":null,\"analysis\":{\"dimensions\":[\"productName\"],\"dateField\":null,\"bucket\":\"NONE\",\"compareMonth\":null},\"rank\":null,\"knowledgeQuestion\":null},{\"action\":\"KNOWLEDGE\",\"source\":null,\"other\":null,\"query\":null,\"analysis\":null,\"rank\":null,\"knowledgeQuestion\":\"tax policy\"}]}",
+  "status" : "RESPONDED",
+  "usageComplete" : false,
+  "reply" : {
+    "mode" : "EXECUTE",
+    "objective" : "读取后解释两项知识",
+    "clarification" : null,
+    "steps" : [ {
+      "action" : "QUERY",
+      "source" : null,
+      "other" : null,
+      "query" : {
+        "domain" : "REPORT",
+        "view" : "LIST",
+        "reportIds" : [ "rpt-sales-order" ],
+        "companyCode" : "A",
+        "conditions" : [ ],
+        "sortField" : "amount",
+        "descending" : true,
+        "page" : 1,
+        "size" : 20,
+        "groupBy" : null
+      },
+      "analysis" : null,
+      "rank" : null,
+      "knowledgeQuestion" : null
+    }, {
+      "action" : "KNOWLEDGE",
+      "source" : null,
+      "other" : null,
+      "query" : null,
+      "analysis" : null,
+      "rank" : null,
+      "knowledgeQuestion" : "tax definition"
+    }, {
+      "action" : "GROUP",
+      "source" : 0,
+      "other" : null,
+      "query" : null,
+      "analysis" : {
+        "dimensions" : [ "productName" ],
+        "dateField" : null,
+        "bucket" : "NONE",
+        "compareMonth" : null
+      },
+      "rank" : null,
+      "knowledgeQuestion" : null
+    }, {
+      "action" : "KNOWLEDGE",
+      "source" : null,
+      "other" : null,
+      "query" : null,
+      "analysis" : null,
+      "rank" : null,
+      "knowledgeQuestion" : "tax policy"
+    } ]
+  },
+  "model" : "ISOLATED_TEST_DOUBLE",
+  "usage" : {
+    "inputTokens" : null,
+    "outputTokens" : null,
+    "cachedInputTokens" : null
+  },
+  "elapsedMs" : 0
+}, {
+  "source" : "TEST_DOUBLE",
+  "stage" : "PLAN_REVIEW",
+  "at" : "2026-10-12T14:04:01.268586400Z",
+  "schemaHash" : "45c04bc41a4d7f4e30d82d7c125be115725d60612b96ad0b9eb9115aca079817",
+  "inputHash" : "2be3408ca0bd8566385bf3234f3fd1b6c9cd9089cc92fb3146350d5964b23dc7",
+  "rawJson" : "{\"approved\":true,\"reason\":\"隔离状态机测试标签已核对，真实模型另外执行\"}",
+  "status" : "RESPONDED",
+  "usageComplete" : false,
+  "reply" : {
+    "approved" : true,
+    "reason" : "隔离状态机测试标签已核对，真实模型另外执行"
+  },
+  "model" : "ISOLATED_TEST_DOUBLE",
+  "usage" : {
+    "inputTokens" : null,
+    "outputTokens" : null,
+    "cachedInputTokens" : null
+  },
+  "elapsedMs" : 0
+}, {
+  "source" : "TEST_DOUBLE",
+  "stage" : "RAG_REWRITE",
+  "at" : "2026-10-12T14:04:01.298374200Z",
+  "schemaHash" : "db74c3cff4fa04f73698fc116c9b8444f437e37850e5a72f717cfb54e6e7ffd9",
+  "inputHash" : "4965eb5c61f7a8296ccefa30c87880882ee290dcd90d082095bc7d7ec786f713",
+  "businessQueriesAtCall" : 0,
+  "rawJson" : "{\"topics\":[{\"index\":1,\"queries\":[]},{\"index\":3,\"queries\":[]}]}",
+  "status" : "RESPONDED",
+  "usageComplete" : false,
+  "reply" : {
+    "topics" : [ {
+      "index" : 1,
+      "queries" : [ ]
+    }, {
+      "index" : 3,
+      "queries" : [ ]
+    } ]
+  },
+  "model" : "ISOLATED_TEST_DOUBLE",
+  "usage" : {
+    "inputTokens" : null,
+    "outputTokens" : null,
+    "cachedInputTokens" : null
+  },
+  "elapsedMs" : 0
+}, {
+  "source" : "TEST_DOUBLE",
+  "stage" : "RAG_RERANK",
+  "at" : "2026-10-12T14:04:01.320795100Z",
+  "schemaHash" : "ac946931c0d3f8175c15a1f55d05ae8274b340ddaa182877c8a7cd1363e7a054",
+  "inputHash" : "d45fa934856675ce53601392dc1d7c86d8d96acf1b11831b8d118de2d0162c0e",
+  "businessQueriesAtCall" : 0,
+  "rawJson" : "{\"topics\":[{\"index\":1,\"sourceIds\":[\"c0\",\"c2\",\"c1\",\"c3\"]},{\"index\":3,\"sourceIds\":[\"c0\",\"c1\",\"c3\",\"c2\"]}]}",
+  "status" : "RESPONDED",
+  "usageComplete" : false,
+  "reply" : {
+    "topics" : [ {
+      "index" : 1,
+      "sourceIds" : [ "c0", "c2", "c1", "c3" ]
+    }, {
+      "index" : 3,
+      "sourceIds" : [ "c0", "c1", "c3", "c2" ]
+    } ]
+  },
+  "model" : "ISOLATED_TEST_DOUBLE",
+  "usage" : {
+    "inputTokens" : null,
+    "outputTokens" : null,
+    "cachedInputTokens" : null
+  },
+  "elapsedMs" : 0
+}, {
+  "source" : "TEST_DOUBLE",
+  "stage" : "ANSWER",
+  "at" : "2026-10-12T14:04:01.489278600Z",
+  "schemaHash" : "60b0eb2ac4ce33bbecda381b8fa5e8bce8de00fcd7536a43062b9ab48082ccfc",
+  "inputHash" : "7fd8c704e643aef7841ba80a9ef42a0568fa804fbbfa1c3c14539abceddb947f",
+  "rawJson" : "{\"status\":\"ANSWERED\",\"claims\":[{\"text\":\"结果来自所引用的当前授权依据。\",\"sourceIds\":[\"step-1-q1\"]}],\"limitations\":[]}",
+  "status" : "RESPONDED",
+  "usageComplete" : false,
+  "knowledgeCoverage" : {
+    "performed" : true,
+    "truncated" : false,
+    "expansionTruncated" : false,
+    "steps" : [ {
+      "matchedSources" : 4,
+      "searchedSources" : 4,
+      "stepNumber" : 2,
+      "expansionTruncated" : false,
+      "searchedFragments" : 4,
+      "truncated" : false,
+      "matchedFragments" : 4,
+      "returnedSources" : 4,
+      "returnedFragments" : 4
+    }, {
+      "matchedSources" : 4,
+      "searchedSources" : 4,
+      "stepNumber" : 4,
+      "expansionTruncated" : false,
+      "searchedFragments" : 4,
+      "truncated" : false,
+      "matchedFragments" : 4,
+      "returnedSources" : 4,
+      "returnedFragments" : 4
+    } ]
+  },
+  "reply" : {
+    "status" : "ANSWERED",
+    "claims" : [ {
+      "text" : "结果来自所引用的当前授权依据。",
+      "sourceIds" : [ "step-1-q1" ]
+    } ],
+    "limitations" : [ ]
+  },
+  "model" : "ISOLATED_TEST_DOUBLE",
+  "usage" : {
+    "inputTokens" : null,
+    "outputTokens" : null,
+    "cachedInputTokens" : null
+  },
+  "elapsedMs" : 0
+}, {
+  "source" : "TEST_DOUBLE",
+  "stage" : "ANSWER_REVIEW",
+  "at" : "2026-10-12T14:04:01.515732600Z",
+  "schemaHash" : "45c04bc41a4d7f4e30d82d7c125be115725d60612b96ad0b9eb9115aca079817",
+  "inputHash" : "71e41a9797442d1722432e72c4638128d07805b9f8a2f0abaa3ae57163a5f622",
+  "rawJson" : "{\"approved\":true,\"reason\":\"隔离状态机测试标签已核对，真实模型另外执行\"}",
+  "status" : "RESPONDED",
+  "usageComplete" : false,
+  "knowledgeCoverage" : {
+    "performed" : true,
+    "truncated" : false,
+    "expansionTruncated" : false,
+    "steps" : [ {
+      "matchedSources" : 4,
+      "searchedSources" : 4,
+      "stepNumber" : 2,
+      "expansionTruncated" : false,
+      "searchedFragments" : 4,
+      "truncated" : false,
+      "matchedFragments" : 4,
+      "returnedSources" : 4,
+      "returnedFragments" : 4
+    }, {
+      "matchedSources" : 4,
+      "searchedSources" : 4,
+      "stepNumber" : 4,
+      "expansionTruncated" : false,
+      "searchedFragments" : 4,
+      "truncated" : false,
+      "matchedFragments" : 4,
+      "returnedSources" : 4,
+      "returnedFragments" : 4
+    } ]
+  },
+  "reply" : {
+    "approved" : true,
+    "reason" : "隔离状态机测试标签已核对，真实模型另外执行"
+  },
+  "model" : "ISOLATED_TEST_DOUBLE",
+  "usage" : {
+    "inputTokens" : null,
+    "outputTokens" : null,
+    "cachedInputTokens" : null
+  },
+  "elapsedMs" : 0
+}, {
+  "source" : "TEST_DOUBLE",
+  "stage" : "RAG_REWRITE",
+  "at" : "2026-10-12T14:04:02.559044400Z",
+  "schemaHash" : "a0b9f87586cd1c2a22d52a183b356928327592186c93aec46067b244b8ef2386",
+  "inputHash" : "5230128cc8003bfc59bac366570ecc8bfad8418ffecdc6eb80912f5f2d929ce9",
+  "businessQueriesAtCall" : 0,
+  "rawJson" : "{\"topics\":[{\"index\":0,\"queries\":[\"levy\",\" TAX \"]}]}",
+  "status" : "RESPONDED",
+  "usageComplete" : false,
+  "reply" : {
+    "topics" : [ {
+      "index" : 0,
+      "queries" : [ "levy", " TAX " ]
+    } ]
+  },
+  "model" : "ISOLATED_TEST_DOUBLE",
+  "usage" : {
+    "inputTokens" : null,
+    "outputTokens" : null,
+    "cachedInputTokens" : null
+  },
+  "elapsedMs" : 0
+}, {
+  "source" : "TEST_DOUBLE",
+  "stage" : "RAG_RERANK",
+  "at" : "2026-10-12T14:04:02.567289500Z",
+  "schemaHash" : "90625f3806ea3ebf992f29cc6b9fe4b6b2bf542eeb6f91a5ea3938f82f39e475",
+  "inputHash" : "6470e8e4388a2146f24caf688ab1ae898f0a51388d9dbe9c37b04c77bb32cc09",
+  "businessQueriesAtCall" : 0,
+  "rawJson" : "{\"topics\":[{\"index\":0,\"sourceIds\":[\"c0\"]}]}",
+  "status" : "RESPONDED",
+  "usageComplete" : false,
+  "reply" : {
+    "topics" : [ {
+      "index" : 0,
+      "sourceIds" : [ "c0" ]
+    } ]
+  },
+  "model" : "ISOLATED_TEST_DOUBLE",
+  "usage" : {
+    "inputTokens" : null,
+    "outputTokens" : null,
+    "cachedInputTokens" : null
+  },
+  "elapsedMs" : 0
+}, {
+  "source" : "TEST_DOUBLE",
+  "stage" : "RAG_REWRITE",
+  "at" : "2026-10-12T14:04:03.616937900Z",
+  "schemaHash" : "a0b9f87586cd1c2a22d52a183b356928327592186c93aec46067b244b8ef2386",
+  "inputHash" : "79eaffd4f806259798322e709362f20d672d62cd1045d8c6eb0f5c3c42a1d20f",
+  "businessQueriesAtCall" : 0,
+  "rawJson" : "{\"topics\":[{\"index\":0,\"queries\":[\"unlistedquasarupperlimit\"]}]}",
+  "status" : "RESPONDED",
+  "usageComplete" : false,
+  "reply" : {
+    "topics" : [ {
+      "index" : 0,
+      "queries" : [ "unlistedquasarupperlimit" ]
+    } ]
+  },
+  "model" : "ISOLATED_TEST_DOUBLE",
+  "usage" : {
+    "inputTokens" : null,
+    "outputTokens" : null,
+    "cachedInputTokens" : null
+  },
+  "elapsedMs" : 0
+}, {
+  "source" : "TEST_DOUBLE",
+  "stage" : "RAG_REWRITE",
+  "at" : "2026-10-12T14:04:04.619728200Z",
+  "schemaHash" : "a0b9f87586cd1c2a22d52a183b356928327592186c93aec46067b244b8ef2386",
+  "inputHash" : "5230128cc8003bfc59bac366570ecc8bfad8418ffecdc6eb80912f5f2d929ce9",
+  "businessQueriesAtCall" : 0,
+  "rawJson" : "{\"topics\":[{\"index\":0,\"queries\":[]}]}",
+  "status" : "RESPONDED",
+  "usageComplete" : false,
+  "reply" : {
+    "topics" : [ {
+      "index" : 0,
+      "queries" : [ ]
+    } ]
+  },
+  "model" : "ISOLATED_TEST_DOUBLE",
+  "usage" : {
+    "inputTokens" : null,
+    "outputTokens" : null,
+    "cachedInputTokens" : null
+  },
+  "elapsedMs" : 0
+}, {
+  "source" : "TEST_DOUBLE",
+  "stage" : "RAG_RERANK",
+  "at" : "2026-10-12T14:04:04.626728100Z",
+  "schemaHash" : "90625f3806ea3ebf992f29cc6b9fe4b6b2bf542eeb6f91a5ea3938f82f39e475",
+  "inputHash" : "9898f140a844b955075e7ba51d63c3eab32dc13629652cf4fd05f516c152b55f",
+  "businessQueriesAtCall" : 0,
+  "rawJson" : "{\"topics\":[{\"index\":0,\"sourceIds\":[\"c0\"]}]}",
+  "status" : "RESPONDED",
+  "usageComplete" : false,
+  "reply" : {
+    "topics" : [ {
+      "index" : 0,
+      "sourceIds" : [ "c0" ]
+    } ]
+  },
+  "model" : "ISOLATED_TEST_DOUBLE",
+  "usage" : {
+    "inputTokens" : null,
+    "outputTokens" : null,
+    "cachedInputTokens" : null
+  },
+  "elapsedMs" : 0
+}, {
+  "source" : "TEST_DOUBLE",
+  "stage" : "RAG_REWRITE",
+  "at" : "2026-10-12T14:04:04.757094Z",
+  "schemaHash" : "a0b9f87586cd1c2a22d52a183b356928327592186c93aec46067b244b8ef2386",
+  "inputHash" : "5230128cc8003bfc59bac366570ecc8bfad8418ffecdc6eb80912f5f2d929ce9",
+  "businessQueriesAtCall" : 0,
+  "rawJson" : "{\"topics\":[]}",
+  "status" : "RESPONDED",
+  "usageComplete" : false,
+  "reply" : {
+    "topics" : [ ]
+  },
+  "model" : "ISOLATED_TEST_DOUBLE",
+  "usage" : {
+    "inputTokens" : null,
+    "outputTokens" : null,
+    "cachedInputTokens" : null
+  },
+  "elapsedMs" : 0
+}, {
+  "source" : "TEST_DOUBLE",
+  "stage" : "RAG_REWRITE",
+  "at" : "2026-10-12T14:04:04.784389200Z",
+  "schemaHash" : "a0b9f87586cd1c2a22d52a183b356928327592186c93aec46067b244b8ef2386",
+  "inputHash" : "5230128cc8003bfc59bac366570ecc8bfad8418ffecdc6eb80912f5f2d929ce9",
+  "businessQueriesAtCall" : 0,
+  "rawJson" : "{\"topics\":[{\"index\":0,\"queries\":[]},{\"index\":0,\"queries\":[]}]}",
+  "status" : "RESPONDED",
+  "usageComplete" : false,
+  "reply" : {
+    "topics" : [ {
+      "index" : 0,
+      "queries" : [ ]
+    }, {
+      "index" : 0,
+      "queries" : [ ]
+    } ]
+  },
+  "model" : "ISOLATED_TEST_DOUBLE",
+  "usage" : {
+    "inputTokens" : null,
+    "outputTokens" : null,
+    "cachedInputTokens" : null
+  },
+  "elapsedMs" : 0
+}, {
+  "source" : "TEST_DOUBLE",
+  "stage" : "RAG_REWRITE",
+  "at" : "2026-10-12T14:04:04.812553300Z",
+  "schemaHash" : "a0b9f87586cd1c2a22d52a183b356928327592186c93aec46067b244b8ef2386",
+  "inputHash" : "5230128cc8003bfc59bac366570ecc8bfad8418ffecdc6eb80912f5f2d929ce9",
+  "businessQueriesAtCall" : 0,
+  "rawJson" : "{\"topics\":[{\"index\":999,\"queries\":[]}]}",
+  "status" : "RESPONDED",
+  "usageComplete" : false,
+  "reply" : {
+    "topics" : [ {
+      "index" : 999,
+      "queries" : [ ]
+    } ]
+  },
+  "model" : "ISOLATED_TEST_DOUBLE",
+  "usage" : {
+    "inputTokens" : null,
+    "outputTokens" : null,
+    "cachedInputTokens" : null
+  },
+  "elapsedMs" : 0
+}, {
+  "source" : "TEST_DOUBLE",
+  "stage" : "RAG_REWRITE",
+  "at" : "2026-10-12T14:04:04.845907200Z",
+  "schemaHash" : "a0b9f87586cd1c2a22d52a183b356928327592186c93aec46067b244b8ef2386",
+  "inputHash" : "5230128cc8003bfc59bac366570ecc8bfad8418ffecdc6eb80912f5f2d929ce9",
+  "businessQueriesAtCall" : 0,
+  "rawJson" : "{\"topics\":[{\"index\":\"0\",\"queries\":[]}]}",
+  "status" : "RESPONDED",
+  "usageComplete" : false,
+  "reply" : {
+    "topics" : [ {
+      "index" : "0",
+      "queries" : [ ]
+    } ]
+  },
+  "model" : "ISOLATED_TEST_DOUBLE",
+  "usage" : {
+    "inputTokens" : null,
+    "outputTokens" : null,
+    "cachedInputTokens" : null
+  },
+  "elapsedMs" : 0
+}, {
+  "source" : "TEST_DOUBLE",
+  "stage" : "RAG_REWRITE",
+  "at" : "2026-10-12T14:04:04.873355700Z",
+  "schemaHash" : "a0b9f87586cd1c2a22d52a183b356928327592186c93aec46067b244b8ef2386",
+  "inputHash" : "5230128cc8003bfc59bac366570ecc8bfad8418ffecdc6eb80912f5f2d929ce9",
+  "businessQueriesAtCall" : 0,
+  "rawJson" : "{\"topics\":[{\"index\":0,\"queries\":\"not-an-array\"}]}",
+  "status" : "RESPONDED",
+  "usageComplete" : false,
+  "reply" : {
+    "topics" : [ {
+      "index" : 0,
+      "queries" : "not-an-array"
+    } ]
+  },
+  "model" : "ISOLATED_TEST_DOUBLE",
+  "usage" : {
+    "inputTokens" : null,
+    "outputTokens" : null,
+    "cachedInputTokens" : null
+  },
+  "elapsedMs" : 0
+}, {
+  "source" : "TEST_DOUBLE",
+  "stage" : "RAG_REWRITE",
+  "at" : "2026-10-12T14:04:04.903667100Z",
+  "schemaHash" : "a0b9f87586cd1c2a22d52a183b356928327592186c93aec46067b244b8ef2386",
+  "inputHash" : "5230128cc8003bfc59bac366570ecc8bfad8418ffecdc6eb80912f5f2d929ce9",
+  "businessQueriesAtCall" : 0,
+  "rawJson" : "{\"topics\":[],\"topics\":[{\"index\":0,\"queries\":[]}]}",
+  "status" : "RESPONDED",
+  "usageComplete" : false,
+  "reply" : {
+    "topics" : [ {
+      "index" : 0,
+      "queries" : [ ]
+    } ]
+  },
+  "model" : "ISOLATED_TEST_DOUBLE",
+  "usage" : {
+    "inputTokens" : null,
+    "outputTokens" : null,
+    "cachedInputTokens" : null
+  },
+  "elapsedMs" : 0
+}, {
+  "source" : "TEST_DOUBLE",
+  "stage" : "RAG_REWRITE",
+  "at" : "2026-10-12T14:04:04.933012500Z",
+  "schemaHash" : "a0b9f87586cd1c2a22d52a183b356928327592186c93aec46067b244b8ef2386",
+  "inputHash" : "5230128cc8003bfc59bac366570ecc8bfad8418ffecdc6eb80912f5f2d929ce9",
+  "businessQueriesAtCall" : 0,
+  "rawJson" : "{\"topics\":[{\"index\":0,\"queries\":[\"   \"]}]}",
+  "status" : "RESPONDED",
+  "usageComplete" : false,
+  "reply" : {
+    "topics" : [ {
+      "index" : 0,
+      "queries" : [ "   " ]
+    } ]
+  },
+  "model" : "ISOLATED_TEST_DOUBLE",
+  "usage" : {
+    "inputTokens" : null,
+    "outputTokens" : null,
+    "cachedInputTokens" : null
+  },
+  "elapsedMs" : 0
+}, {
+  "source" : "TEST_DOUBLE",
+  "stage" : "RAG_REWRITE",
+  "at" : "2026-10-12T14:04:04.961049400Z",
+  "schemaHash" : "a0b9f87586cd1c2a22d52a183b356928327592186c93aec46067b244b8ef2386",
+  "inputHash" : "5230128cc8003bfc59bac366570ecc8bfad8418ffecdc6eb80912f5f2d929ce9",
+  "businessQueriesAtCall" : 0,
+  "rawJson" : "{\"topics\":[{\"index\":0,\"queries\":[\"one\",\"two\",\"three\"]}]}",
+  "status" : "RESPONDED",
+  "usageComplete" : false,
+  "reply" : {
+    "topics" : [ {
+      "index" : 0,
+      "queries" : [ "one", "two", "three" ]
+    } ]
+  },
+  "model" : "ISOLATED_TEST_DOUBLE",
+  "usage" : {
+    "inputTokens" : null,
+    "outputTokens" : null,
+    "cachedInputTokens" : null
+  },
+  "elapsedMs" : 0
+}, {
+  "source" : "TEST_DOUBLE",
+  "stage" : "RAG_REWRITE",
+  "at" : "2026-10-12T14:04:04.989742400Z",
+  "schemaHash" : "a0b9f87586cd1c2a22d52a183b356928327592186c93aec46067b244b8ef2386",
+  "inputHash" : "5230128cc8003bfc59bac366570ecc8bfad8418ffecdc6eb80912f5f2d929ce9",
+  "businessQueriesAtCall" : 0,
+  "rawJson" : "{\"topics\":[{\"index\":0,\"queries\":[],\"sql\":\"SELECT 1\"}]}",
+  "status" : "RESPONDED",
+  "usageComplete" : false,
+  "reply" : {
+    "topics" : [ {
+      "index" : 0,
+      "queries" : [ ],
+      "sql" : "SELECT 1"
+    } ]
+  },
+  "model" : "ISOLATED_TEST_DOUBLE",
+  "usage" : {
+    "inputTokens" : null,
+    "outputTokens" : null,
+    "cachedInputTokens" : null
+  },
+  "elapsedMs" : 0
+}, {
+  "source" : "TEST_DOUBLE",
+  "stage" : "RAG_REWRITE",
+  "at" : "2026-10-12T14:04:05.986841500Z",
+  "schemaHash" : "a0b9f87586cd1c2a22d52a183b356928327592186c93aec46067b244b8ef2386",
+  "inputHash" : "5230128cc8003bfc59bac366570ecc8bfad8418ffecdc6eb80912f5f2d929ce9",
+  "businessQueriesAtCall" : 0,
+  "rawJson" : "{\"topics\":[{\"index\":0,\"queries\":[]}]}",
+  "status" : "RESPONDED",
+  "usageComplete" : false,
+  "reply" : {
+    "topics" : [ {
+      "index" : 0,
+      "queries" : [ ]
+    } ]
+  },
+  "model" : "ISOLATED_TEST_DOUBLE",
+  "usage" : {
+    "inputTokens" : null,
+    "outputTokens" : null,
+    "cachedInputTokens" : null
+  },
+  "elapsedMs" : 0
+}, {
+  "source" : "TEST_DOUBLE",
+  "stage" : "RAG_RERANK",
+  "at" : "2026-10-12T14:04:05.993841400Z",
+  "schemaHash" : "90625f3806ea3ebf992f29cc6b9fe4b6b2bf542eeb6f91a5ea3938f82f39e475",
+  "inputHash" : "b8cc1048e24d764c8913acc259bd38ff9b032f101525544b2599ba2574b62158",
+  "businessQueriesAtCall" : 0,
+  "rawJson" : "{\"topics\":[{\"index\":0,\"sourceIds\":[\"c0\"]}]}",
+  "status" : "RESPONDED",
+  "usageComplete" : false,
+  "reply" : {
+    "topics" : [ {
+      "index" : 0,
+      "sourceIds" : [ "c0" ]
+    } ]
+  },
+  "model" : "ISOLATED_TEST_DOUBLE",
+  "usage" : {
+    "inputTokens" : null,
+    "outputTokens" : null,
+    "cachedInputTokens" : null
+  },
+  "elapsedMs" : 0
+}, {
+  "source" : "TEST_DOUBLE",
+  "stage" : "RAG_REWRITE",
+  "at" : "2026-10-12T14:04:06.123618400Z",
+  "schemaHash" : "a0b9f87586cd1c2a22d52a183b356928327592186c93aec46067b244b8ef2386",
+  "inputHash" : "5230128cc8003bfc59bac366570ecc8bfad8418ffecdc6eb80912f5f2d929ce9",
+  "businessQueriesAtCall" : 0,
+  "rawJson" : "{\"topics\":[{\"index\":0,\"queries\":[]}]}",
+  "status" : "RESPONDED",
+  "usageComplete" : false,
+  "reply" : {
+    "topics" : [ {
+      "index" : 0,
+      "queries" : [ ]
+    } ]
+  },
+  "model" : "ISOLATED_TEST_DOUBLE",
+  "usage" : {
+    "inputTokens" : null,
+    "outputTokens" : null,
+    "cachedInputTokens" : null
+  },
+  "elapsedMs" : 0
+}, {
+  "source" : "TEST_DOUBLE",
+  "stage" : "RAG_RERANK",
+  "at" : "2026-10-12T14:04:06.130618100Z",
+  "schemaHash" : "90625f3806ea3ebf992f29cc6b9fe4b6b2bf542eeb6f91a5ea3938f82f39e475",
+  "inputHash" : "b8cc1048e24d764c8913acc259bd38ff9b032f101525544b2599ba2574b62158",
+  "businessQueriesAtCall" : 0,
+  "rawJson" : "{\"topics\":[]}",
+  "status" : "RESPONDED",
+  "usageComplete" : false,
+  "reply" : {
+    "topics" : [ ]
+  },
+  "model" : "ISOLATED_TEST_DOUBLE",
+  "usage" : {
+    "inputTokens" : null,
+    "outputTokens" : null,
+    "cachedInputTokens" : null
+  },
+  "elapsedMs" : 0
+}, {
+  "source" : "TEST_DOUBLE",
+  "stage" : "RAG_REWRITE",
+  "at" : "2026-10-12T14:04:06.156799900Z",
+  "schemaHash" : "a0b9f87586cd1c2a22d52a183b356928327592186c93aec46067b244b8ef2386",
+  "inputHash" : "5230128cc8003bfc59bac366570ecc8bfad8418ffecdc6eb80912f5f2d929ce9",
+  "businessQueriesAtCall" : 0,
+  "rawJson" : "{\"topics\":[{\"index\":0,\"queries\":[]}]}",
+  "status" : "RESPONDED",
+  "usageComplete" : false,
+  "reply" : {
+    "topics" : [ {
+      "index" : 0,
+      "queries" : [ ]
+    } ]
+  },
+  "model" : "ISOLATED_TEST_DOUBLE",
+  "usage" : {
+    "inputTokens" : null,
+    "outputTokens" : null,
+    "cachedInputTokens" : null
+  },
+  "elapsedMs" : 0
+}, {
+  "source" : "TEST_DOUBLE",
+  "stage" : "RAG_RERANK",
+  "at" : "2026-10-12T14:04:06.164238700Z",
+  "schemaHash" : "90625f3806ea3ebf992f29cc6b9fe4b6b2bf542eeb6f91a5ea3938f82f39e475",
+  "inputHash" : "b8cc1048e24d764c8913acc259bd38ff9b032f101525544b2599ba2574b62158",
+  "businessQueriesAtCall" : 0,
+  "rawJson" : "{\"topics\":[{\"index\":0,\"sourceIds\":[\"c0\"]},{\"index\":0,\"sourceIds\":[\"c0\"]}]}",
+  "status" : "RESPONDED",
+  "usageComplete" : false,
+  "reply" : {
+    "topics" : [ {
+      "index" : 0,
+      "sourceIds" : [ "c0" ]
+    }, {
+      "index" : 0,
+      "sourceIds" : [ "c0" ]
+    } ]
+  },
+  "model" : "ISOLATED_TEST_DOUBLE",
+  "usage" : {
+    "inputTokens" : null,
+    "outputTokens" : null,
+    "cachedInputTokens" : null
+  },
+  "elapsedMs" : 0
+}, {
+  "source" : "TEST_DOUBLE",
+  "stage" : "RAG_REWRITE",
+  "at" : "2026-10-12T14:04:06.193417400Z",
+  "schemaHash" : "a0b9f87586cd1c2a22d52a183b356928327592186c93aec46067b244b8ef2386",
+  "inputHash" : "5230128cc8003bfc59bac366570ecc8bfad8418ffecdc6eb80912f5f2d929ce9",
+  "businessQueriesAtCall" : 0,
+  "rawJson" : "{\"topics\":[{\"index\":0,\"queries\":[]}]}",
+  "status" : "RESPONDED",
+  "usageComplete" : false,
+  "reply" : {
+    "topics" : [ {
+      "index" : 0,
+      "queries" : [ ]
+    } ]
+  },
+  "model" : "ISOLATED_TEST_DOUBLE",
+  "usage" : {
+    "inputTokens" : null,
+    "outputTokens" : null,
+    "cachedInputTokens" : null
+  },
+  "elapsedMs" : 0
+}, {
+  "source" : "TEST_DOUBLE",
+  "stage" : "RAG_RERANK",
+  "at" : "2026-10-12T14:04:06.200635800Z",
+  "schemaHash" : "90625f3806ea3ebf992f29cc6b9fe4b6b2bf542eeb6f91a5ea3938f82f39e475",
+  "inputHash" : "b8cc1048e24d764c8913acc259bd38ff9b032f101525544b2599ba2574b62158",
+  "businessQueriesAtCall" : 0,
+  "rawJson" : "{\"topics\":[{\"index\":999,\"sourceIds\":[\"c0\"]}]}",
+  "status" : "RESPONDED",
+  "usageComplete" : false,
+  "reply" : {
+    "topics" : [ {
+      "index" : 999,
+      "sourceIds" : [ "c0" ]
+    } ]
+  },
+  "model" : "ISOLATED_TEST_DOUBLE",
+  "usage" : {
+    "inputTokens" : null,
+    "outputTokens" : null,
+    "cachedInputTokens" : null
+  },
+  "elapsedMs" : 0
+}, {
+  "source" : "TEST_DOUBLE",
+  "stage" : "RAG_REWRITE",
+  "at" : "2026-10-12T14:04:06.226844500Z",
+  "schemaHash" : "a0b9f87586cd1c2a22d52a183b356928327592186c93aec46067b244b8ef2386",
+  "inputHash" : "5230128cc8003bfc59bac366570ecc8bfad8418ffecdc6eb80912f5f2d929ce9",
+  "businessQueriesAtCall" : 0,
+  "rawJson" : "{\"topics\":[{\"index\":0,\"queries\":[]}]}",
+  "status" : "RESPONDED",
+  "usageComplete" : false,
+  "reply" : {
+    "topics" : [ {
+      "index" : 0,
+      "queries" : [ ]
+    } ]
+  },
+  "model" : "ISOLATED_TEST_DOUBLE",
+  "usage" : {
+    "inputTokens" : null,
+    "outputTokens" : null,
+    "cachedInputTokens" : null
+  },
+  "elapsedMs" : 0
+}, {
+  "source" : "TEST_DOUBLE",
+  "stage" : "RAG_RERANK",
+  "at" : "2026-10-12T14:04:06.233845100Z",
+  "schemaHash" : "90625f3806ea3ebf992f29cc6b9fe4b6b2bf542eeb6f91a5ea3938f82f39e475",
+  "inputHash" : "b8cc1048e24d764c8913acc259bd38ff9b032f101525544b2599ba2574b62158",
+  "businessQueriesAtCall" : 0,
+  "rawJson" : "{\"topics\":[{\"index\":\"0\",\"sourceIds\":[\"c0\"]}]}",
+  "status" : "RESPONDED",
+  "usageComplete" : false,
+  "reply" : {
+    "topics" : [ {
+      "index" : "0",
+      "sourceIds" : [ "c0" ]
+    } ]
+  },
+  "model" : "ISOLATED_TEST_DOUBLE",
+  "usage" : {
+    "inputTokens" : null,
+    "outputTokens" : null,
+    "cachedInputTokens" : null
+  },
+  "elapsedMs" : 0
+}, {
+  "source" : "TEST_DOUBLE",
+  "stage" : "RAG_REWRITE",
+  "at" : "2026-10-12T14:04:06.271921900Z",
+  "schemaHash" : "a0b9f87586cd1c2a22d52a183b356928327592186c93aec46067b244b8ef2386",
+  "inputHash" : "5230128cc8003bfc59bac366570ecc8bfad8418ffecdc6eb80912f5f2d929ce9",
+  "businessQueriesAtCall" : 0,
+  "rawJson" : "{\"topics\":[{\"index\":0,\"queries\":[]}]}",
+  "status" : "RESPONDED",
+  "usageComplete" : false,
+  "reply" : {
+    "topics" : [ {
+      "index" : 0,
+      "queries" : [ ]
+    } ]
+  },
+  "model" : "ISOLATED_TEST_DOUBLE",
+  "usage" : {
+    "inputTokens" : null,
+    "outputTokens" : null,
+    "cachedInputTokens" : null
+  },
+  "elapsedMs" : 0
+}, {
+  "source" : "TEST_DOUBLE",
+  "stage" : "RAG_RERANK",
+  "at" : "2026-10-12T14:04:06.278643500Z",
+  "schemaHash" : "90625f3806ea3ebf992f29cc6b9fe4b6b2bf542eeb6f91a5ea3938f82f39e475",
+  "inputHash" : "b8cc1048e24d764c8913acc259bd38ff9b032f101525544b2599ba2574b62158",
+  "businessQueriesAtCall" : 0,
+  "rawJson" : "{\"topics\":[{\"index\":0,\"sourceIds\":\"not-an-array\"}]}",
+  "status" : "RESPONDED",
+  "usageComplete" : false,
+  "reply" : {
+    "topics" : [ {
+      "index" : 0,
+      "sourceIds" : "not-an-array"
+    } ]
+  },
+  "model" : "ISOLATED_TEST_DOUBLE",
+  "usage" : {
+    "inputTokens" : null,
+    "outputTokens" : null,
+    "cachedInputTokens" : null
+  },
+  "elapsedMs" : 0
+}, {
+  "source" : "TEST_DOUBLE",
+  "stage" : "RAG_REWRITE",
+  "at" : "2026-10-12T14:04:06.306330500Z",
+  "schemaHash" : "a0b9f87586cd1c2a22d52a183b356928327592186c93aec46067b244b8ef2386",
+  "inputHash" : "5230128cc8003bfc59bac366570ecc8bfad8418ffecdc6eb80912f5f2d929ce9",
+  "businessQueriesAtCall" : 0,
+  "rawJson" : "{\"topics\":[{\"index\":0,\"queries\":[]}]}",
+  "status" : "RESPONDED",
+  "usageComplete" : false,
+  "reply" : {
+    "topics" : [ {
+      "index" : 0,
+      "queries" : [ ]
+    } ]
+  },
+  "model" : "ISOLATED_TEST_DOUBLE",
+  "usage" : {
+    "inputTokens" : null,
+    "outputTokens" : null,
+    "cachedInputTokens" : null
+  },
+  "elapsedMs" : 0
+}, {
+  "source" : "TEST_DOUBLE",
+  "stage" : "RAG_RERANK",
+  "at" : "2026-10-12T14:04:06.313829200Z",
+  "schemaHash" : "90625f3806ea3ebf992f29cc6b9fe4b6b2bf542eeb6f91a5ea3938f82f39e475",
+  "inputHash" : "b8cc1048e24d764c8913acc259bd38ff9b032f101525544b2599ba2574b62158",
+  "businessQueriesAtCall" : 0,
+  "rawJson" : "{\"topics\":[],\"topics\":[{\"index\":0,\"sourceIds\":[\"c0\"]}]}",
+  "status" : "RESPONDED",
+  "usageComplete" : false,
+  "reply" : {
+    "topics" : [ {
+      "index" : 0,
+      "sourceIds" : [ "c0" ]
+    } ]
+  },
+  "model" : "ISOLATED_TEST_DOUBLE",
+  "usage" : {
+    "inputTokens" : null,
+    "outputTokens" : null,
+    "cachedInputTokens" : null
+  },
+  "elapsedMs" : 0
+}, {
+  "source" : "TEST_DOUBLE",
+  "stage" : "RAG_REWRITE",
+  "at" : "2026-10-12T14:04:06.341072100Z",
+  "schemaHash" : "a0b9f87586cd1c2a22d52a183b356928327592186c93aec46067b244b8ef2386",
+  "inputHash" : "5230128cc8003bfc59bac366570ecc8bfad8418ffecdc6eb80912f5f2d929ce9",
+  "businessQueriesAtCall" : 0,
+  "rawJson" : "{\"topics\":[{\"index\":0,\"queries\":[]}]}",
+  "status" : "RESPONDED",
+  "usageComplete" : false,
+  "reply" : {
+    "topics" : [ {
+      "index" : 0,
+      "queries" : [ ]
+    } ]
+  },
+  "model" : "ISOLATED_TEST_DOUBLE",
+  "usage" : {
+    "inputTokens" : null,
+    "outputTokens" : null,
+    "cachedInputTokens" : null
+  },
+  "elapsedMs" : 0
+}, {
+  "source" : "TEST_DOUBLE",
+  "stage" : "RAG_RERANK",
+  "at" : "2026-10-12T14:04:06.348167200Z",
+  "schemaHash" : "90625f3806ea3ebf992f29cc6b9fe4b6b2bf542eeb6f91a5ea3938f82f39e475",
+  "inputHash" : "b8cc1048e24d764c8913acc259bd38ff9b032f101525544b2599ba2574b62158",
+  "businessQueriesAtCall" : 0,
+  "rawJson" : "{\"topics\":[{\"index\":0,\"sourceIds\":[]}]}",
+  "status" : "RESPONDED",
+  "usageComplete" : false,
+  "reply" : {
+    "topics" : [ {
+      "index" : 0,
+      "sourceIds" : [ ]
+    } ]
+  },
+  "model" : "ISOLATED_TEST_DOUBLE",
+  "usage" : {
+    "inputTokens" : null,
+    "outputTokens" : null,
+    "cachedInputTokens" : null
+  },
+  "elapsedMs" : 0
+}, {
+  "source" : "TEST_DOUBLE",
+  "stage" : "RAG_REWRITE",
+  "at" : "2026-10-12T14:04:06.374258300Z",
+  "schemaHash" : "a0b9f87586cd1c2a22d52a183b356928327592186c93aec46067b244b8ef2386",
+  "inputHash" : "5230128cc8003bfc59bac366570ecc8bfad8418ffecdc6eb80912f5f2d929ce9",
+  "businessQueriesAtCall" : 0,
+  "rawJson" : "{\"topics\":[{\"index\":0,\"queries\":[]}]}",
+  "status" : "RESPONDED",
+  "usageComplete" : false,
+  "reply" : {
+    "topics" : [ {
+      "index" : 0,
+      "queries" : [ ]
+    } ]
+  },
+  "model" : "ISOLATED_TEST_DOUBLE",
+  "usage" : {
+    "inputTokens" : null,
+    "outputTokens" : null,
+    "cachedInputTokens" : null
+  },
+  "elapsedMs" : 0
+}, {
+  "source" : "TEST_DOUBLE",
+  "stage" : "RAG_RERANK",
+  "at" : "2026-10-12T14:04:06.381309600Z",
+  "schemaHash" : "90625f3806ea3ebf992f29cc6b9fe4b6b2bf542eeb6f91a5ea3938f82f39e475",
+  "inputHash" : "b8cc1048e24d764c8913acc259bd38ff9b032f101525544b2599ba2574b62158",
+  "businessQueriesAtCall" : 0,
+  "rawJson" : "{\"topics\":[{\"index\":0,\"sourceIds\":[\"c0\",\"c0\"]}]}",
+  "status" : "RESPONDED",
+  "usageComplete" : false,
+  "reply" : {
+    "topics" : [ {
+      "index" : 0,
+      "sourceIds" : [ "c0", "c0" ]
+    } ]
+  },
+  "model" : "ISOLATED_TEST_DOUBLE",
+  "usage" : {
+    "inputTokens" : null,
+    "outputTokens" : null,
+    "cachedInputTokens" : null
+  },
+  "elapsedMs" : 0
+}, {
+  "source" : "TEST_DOUBLE",
+  "stage" : "RAG_REWRITE",
+  "at" : "2026-10-12T14:04:06.409787300Z",
+  "schemaHash" : "a0b9f87586cd1c2a22d52a183b356928327592186c93aec46067b244b8ef2386",
+  "inputHash" : "5230128cc8003bfc59bac366570ecc8bfad8418ffecdc6eb80912f5f2d929ce9",
+  "businessQueriesAtCall" : 0,
+  "rawJson" : "{\"topics\":[{\"index\":0,\"queries\":[]}]}",
+  "status" : "RESPONDED",
+  "usageComplete" : false,
+  "reply" : {
+    "topics" : [ {
+      "index" : 0,
+      "queries" : [ ]
+    } ]
+  },
+  "model" : "ISOLATED_TEST_DOUBLE",
+  "usage" : {
+    "inputTokens" : null,
+    "outputTokens" : null,
+    "cachedInputTokens" : null
+  },
+  "elapsedMs" : 0
+}, {
+  "source" : "TEST_DOUBLE",
+  "stage" : "RAG_RERANK",
+  "at" : "2026-10-12T14:04:06.417342Z",
+  "schemaHash" : "90625f3806ea3ebf992f29cc6b9fe4b6b2bf542eeb6f91a5ea3938f82f39e475",
+  "inputHash" : "b8cc1048e24d764c8913acc259bd38ff9b032f101525544b2599ba2574b62158",
+  "businessQueriesAtCall" : 0,
+  "rawJson" : "{\"topics\":[{\"index\":0,\"sourceIds\":[\"c0\",\"forged-source\"]}]}",
+  "status" : "RESPONDED",
+  "usageComplete" : false,
+  "reply" : {
+    "topics" : [ {
+      "index" : 0,
+      "sourceIds" : [ "c0", "forged-source" ]
+    } ]
+  },
+  "model" : "ISOLATED_TEST_DOUBLE",
+  "usage" : {
+    "inputTokens" : null,
+    "outputTokens" : null,
+    "cachedInputTokens" : null
+  },
+  "elapsedMs" : 0
+}, {
+  "source" : "TEST_DOUBLE",
+  "stage" : "RAG_REWRITE",
+  "at" : "2026-10-12T14:04:06.444985700Z",
+  "schemaHash" : "a0b9f87586cd1c2a22d52a183b356928327592186c93aec46067b244b8ef2386",
+  "inputHash" : "5230128cc8003bfc59bac366570ecc8bfad8418ffecdc6eb80912f5f2d929ce9",
+  "businessQueriesAtCall" : 0,
+  "rawJson" : "{\"topics\":[{\"index\":0,\"queries\":[]}]}",
+  "status" : "RESPONDED",
+  "usageComplete" : false,
+  "reply" : {
+    "topics" : [ {
+      "index" : 0,
+      "queries" : [ ]
+    } ]
+  },
+  "model" : "ISOLATED_TEST_DOUBLE",
+  "usage" : {
+    "inputTokens" : null,
+    "outputTokens" : null,
+    "cachedInputTokens" : null
+  },
+  "elapsedMs" : 0
+}, {
+  "source" : "TEST_DOUBLE",
+  "stage" : "RAG_RERANK",
+  "at" : "2026-10-12T14:04:06.452516700Z",
+  "schemaHash" : "90625f3806ea3ebf992f29cc6b9fe4b6b2bf542eeb6f91a5ea3938f82f39e475",
+  "inputHash" : "b8cc1048e24d764c8913acc259bd38ff9b032f101525544b2599ba2574b62158",
+  "businessQueriesAtCall" : 0,
+  "rawJson" : "{\"topics\":[{\"index\":0,\"sourceIds\":[\"c0\"],\"sql\":\"SELECT 1\"}]}",
+  "status" : "RESPONDED",
+  "usageComplete" : false,
+  "reply" : {
+    "topics" : [ {
+      "index" : 0,
+      "sourceIds" : [ "c0" ],
+      "sql" : "SELECT 1"
+    } ]
+  },
+  "model" : "ISOLATED_TEST_DOUBLE",
+  "usage" : {
+    "inputTokens" : null,
+    "outputTokens" : null,
+    "cachedInputTokens" : null
+  },
+  "elapsedMs" : 0
+}, {
+  "source" : "TEST_DOUBLE",
+  "stage" : "PLAN",
+  "at" : "2026-10-12T14:04:59.603390100Z",
+  "schemaHash" : "ac0e041064ae224dc98f3d3988930d7c854728ccf1dfbf90e3c4442b3982eb9e",
+  "inputHash" : "425b84fe26c247228179eea2bb0faa1b07e98fa603913d26097a257cc0c4035d",
+  "rawJson" : "{\"mode\":\"EXECUTE\",\"objective\":\"核对当前授权知识\",\"clarification\":null,\"steps\":[{\"action\":\"KNOWLEDGE\",\"source\":null,\"other\":null,\"query\":null,\"analysis\":null,\"rank\":null,\"knowledgeQuestion\":\"tax policy\"}]}",
+  "status" : "RESPONDED",
+  "usageComplete" : false,
+  "reply" : {
+    "mode" : "EXECUTE",
+    "objective" : "核对当前授权知识",
+    "clarification" : null,
+    "steps" : [ {
+      "action" : "KNOWLEDGE",
+      "source" : null,
+      "other" : null,
+      "query" : null,
+      "analysis" : null,
+      "rank" : null,
+      "knowledgeQuestion" : "tax policy"
+    } ]
+  },
+  "model" : "ISOLATED_TEST_DOUBLE",
+  "usage" : {
+    "inputTokens" : null,
+    "outputTokens" : null,
+    "cachedInputTokens" : null
+  },
+  "elapsedMs" : 0
+}, {
+  "source" : "TEST_DOUBLE",
+  "stage" : "PLAN_REVIEW",
+  "at" : "2026-10-12T14:04:59.625335800Z",
+  "schemaHash" : "45c04bc41a4d7f4e30d82d7c125be115725d60612b96ad0b9eb9115aca079817",
+  "inputHash" : "8f9503cf905892d7327616fbef8bbfb50221e2c6c2dc55065aa82eac0efae4a0",
+  "rawJson" : "{\"approved\":true,\"reason\":\"隔离状态机测试标签已核对，真实模型另外执行\"}",
+  "status" : "RESPONDED",
+  "usageComplete" : false,
+  "reply" : {
+    "approved" : true,
+    "reason" : "隔离状态机测试标签已核对，真实模型另外执行"
+  },
+  "model" : "ISOLATED_TEST_DOUBLE",
+  "usage" : {
+    "inputTokens" : null,
+    "outputTokens" : null,
+    "cachedInputTokens" : null
+  },
+  "elapsedMs" : 0
+}, {
+  "source" : "TEST_DOUBLE",
+  "stage" : "RAG_REWRITE",
+  "at" : "2026-10-12T14:04:59.654696600Z",
+  "schemaHash" : "a0b9f87586cd1c2a22d52a183b356928327592186c93aec46067b244b8ef2386",
+  "inputHash" : "a66a7c6a79971d06ad3f94d2d1b18ecce9972d5545283a3eb570a4526903db4d",
+  "businessQueriesAtCall" : 0,
+  "rawJson" : "{\"topics\":[{\"index\":0,\"queries\":[]}]}",
+  "status" : "RESPONDED",
+  "usageComplete" : false,
+  "reply" : {
+    "topics" : [ {
+      "index" : 0,
+      "queries" : [ ]
+    } ]
+  },
+  "model" : "ISOLATED_TEST_DOUBLE",
+  "usage" : {
+    "inputTokens" : null,
+    "outputTokens" : null,
+    "cachedInputTokens" : null
+  },
+  "elapsedMs" : 9
+}, {
+  "source" : "TEST_DOUBLE",
+  "stage" : "PLAN",
+  "at" : "2026-10-12T14:05:00.761437200Z",
+  "schemaHash" : "ac0e041064ae224dc98f3d3988930d7c854728ccf1dfbf90e3c4442b3982eb9e",
+  "inputHash" : "75c684aeb26212d66a9a3fd21cad6a58646392617cedd066ce33168783a12635",
+  "rawJson" : "{\"mode\":\"EXECUTE\",\"objective\":\"核对当前授权知识\",\"clarification\":null,\"steps\":[{\"action\":\"KNOWLEDGE\",\"source\":null,\"other\":null,\"query\":null,\"analysis\":null,\"rank\":null,\"knowledgeQuestion\":\"tax policy\"}]}",
+  "status" : "RESPONDED",
+  "usageComplete" : false,
+  "reply" : {
+    "mode" : "EXECUTE",
+    "objective" : "核对当前授权知识",
+    "clarification" : null,
+    "steps" : [ {
+      "action" : "KNOWLEDGE",
+      "source" : null,
+      "other" : null,
+      "query" : null,
+      "analysis" : null,
+      "rank" : null,
+      "knowledgeQuestion" : "tax policy"
+    } ]
+  },
+  "model" : "ISOLATED_TEST_DOUBLE",
+  "usage" : {
+    "inputTokens" : null,
+    "outputTokens" : null,
+    "cachedInputTokens" : null
+  },
+  "elapsedMs" : 0
+}, {
+  "source" : "TEST_DOUBLE",
+  "stage" : "PLAN_REVIEW",
+  "at" : "2026-10-12T14:05:00.784042900Z",
+  "schemaHash" : "45c04bc41a4d7f4e30d82d7c125be115725d60612b96ad0b9eb9115aca079817",
+  "inputHash" : "f9fa8e19133c194f8c6c90f1b4d51f9b4e71c9706e01eae72c7e21eeb0af66ff",
+  "rawJson" : "{\"approved\":true,\"reason\":\"隔离状态机测试标签已核对，真实模型另外执行\"}",
+  "status" : "RESPONDED",
+  "usageComplete" : false,
+  "reply" : {
+    "approved" : true,
+    "reason" : "隔离状态机测试标签已核对，真实模型另外执行"
+  },
+  "model" : "ISOLATED_TEST_DOUBLE",
+  "usage" : {
+    "inputTokens" : null,
+    "outputTokens" : null,
+    "cachedInputTokens" : null
+  },
+  "elapsedMs" : 0
+}, {
+  "source" : "TEST_DOUBLE",
+  "stage" : "RAG_REWRITE",
+  "at" : "2026-10-12T14:05:00.815044900Z",
+  "schemaHash" : "a0b9f87586cd1c2a22d52a183b356928327592186c93aec46067b244b8ef2386",
+  "inputHash" : "a66a7c6a79971d06ad3f94d2d1b18ecce9972d5545283a3eb570a4526903db4d",
+  "businessQueriesAtCall" : 0,
+  "rawJson" : "{\"topics\":[{\"index\":0,\"queries\":[]}]}",
+  "status" : "RESPONDED",
+  "usageComplete" : false,
+  "reply" : {
+    "topics" : [ {
+      "index" : 0,
+      "queries" : [ ]
+    } ]
+  },
+  "model" : "ISOLATED_TEST_DOUBLE",
+  "usage" : {
+    "inputTokens" : null,
+    "outputTokens" : null,
+    "cachedInputTokens" : null
+  },
+  "elapsedMs" : 0
+}, {
+  "source" : "TEST_DOUBLE",
+  "stage" : "RAG_RERANK",
+  "at" : "2026-10-12T14:05:00.836043Z",
+  "schemaHash" : "90625f3806ea3ebf992f29cc6b9fe4b6b2bf542eeb6f91a5ea3938f82f39e475",
+  "inputHash" : "3d8c0bed8046eede20ba678d47f1e166c1e2567fff3d8444ce014dc1db53ca43",
+  "businessQueriesAtCall" : 0,
+  "rawJson" : "{\"topics\":[{\"index\":0,\"sourceIds\":[\"c0\"]}]}",
+  "status" : "RESPONDED",
+  "usageComplete" : false,
+  "reply" : {
+    "topics" : [ {
+      "index" : 0,
+      "sourceIds" : [ "c0" ]
+    } ]
+  },
+  "model" : "ISOLATED_TEST_DOUBLE",
+  "usage" : {
+    "inputTokens" : null,
+    "outputTokens" : null,
+    "cachedInputTokens" : null
+  },
+  "elapsedMs" : 9
+}, {
+  "source" : "TEST_DOUBLE",
+  "stage" : "PLAN",
+  "at" : "2026-10-12T14:05:01.814131300Z",
+  "schemaHash" : "ac0e041064ae224dc98f3d3988930d7c854728ccf1dfbf90e3c4442b3982eb9e",
+  "inputHash" : "fb39cfda236bb451dba62149aad60d057813a22568ed0a5f051c3be88b6e725b",
+  "rawJson" : "{\"mode\":\"EXECUTE\",\"objective\":\"核对当前授权知识\",\"clarification\":null,\"steps\":[{\"action\":\"KNOWLEDGE\",\"source\":null,\"other\":null,\"query\":null,\"analysis\":null,\"rank\":null,\"knowledgeQuestion\":\"tax policy\"}]}",
+  "status" : "RESPONDED",
+  "usageComplete" : false,
+  "reply" : {
+    "mode" : "EXECUTE",
+    "objective" : "核对当前授权知识",
+    "clarification" : null,
+    "steps" : [ {
+      "action" : "KNOWLEDGE",
+      "source" : null,
+      "other" : null,
+      "query" : null,
+      "analysis" : null,
+      "rank" : null,
+      "knowledgeQuestion" : "tax policy"
+    } ]
+  },
+  "model" : "ISOLATED_TEST_DOUBLE",
+  "usage" : {
+    "inputTokens" : null,
+    "outputTokens" : null,
+    "cachedInputTokens" : null
+  },
+  "elapsedMs" : 0
+}, {
+  "source" : "TEST_DOUBLE",
+  "stage" : "PLAN_REVIEW",
+  "at" : "2026-10-12T14:05:01.834894900Z",
+  "schemaHash" : "45c04bc41a4d7f4e30d82d7c125be115725d60612b96ad0b9eb9115aca079817",
+  "inputHash" : "279c7ebfeb24dee7a7486ca795cd39654c5a42e668f4fadb8f289b56658dbe92",
+  "rawJson" : "{\"approved\":true,\"reason\":\"隔离状态机测试标签已核对，真实模型另外执行\"}",
+  "status" : "RESPONDED",
+  "usageComplete" : false,
+  "reply" : {
+    "approved" : true,
+    "reason" : "隔离状态机测试标签已核对，真实模型另外执行"
+  },
+  "model" : "ISOLATED_TEST_DOUBLE",
+  "usage" : {
+    "inputTokens" : null,
+    "outputTokens" : null,
+    "cachedInputTokens" : null
+  },
+  "elapsedMs" : 0
+}, {
+  "source" : "TEST_DOUBLE",
+  "stage" : "RAG_REWRITE",
+  "at" : "2026-10-12T14:05:01.862923300Z",
+  "schemaHash" : "a0b9f87586cd1c2a22d52a183b356928327592186c93aec46067b244b8ef2386",
+  "inputHash" : "a66a7c6a79971d06ad3f94d2d1b18ecce9972d5545283a3eb570a4526903db4d",
+  "businessQueriesAtCall" : 0,
+  "rawJson" : "{\"topics\":[{\"index\":0,\"queries\":[]}]}",
+  "status" : "RESPONDED",
+  "usageComplete" : false,
+  "reply" : {
+    "topics" : [ {
+      "index" : 0,
+      "queries" : [ ]
+    } ]
+  },
+  "model" : "ISOLATED_TEST_DOUBLE",
+  "usage" : {
+    "inputTokens" : null,
+    "outputTokens" : null,
+    "cachedInputTokens" : null
+  },
+  "elapsedMs" : 0
+}, {
+  "source" : "TEST_DOUBLE",
+  "stage" : "RAG_RERANK",
+  "at" : "2026-10-12T14:05:01.883985400Z",
+  "schemaHash" : "90625f3806ea3ebf992f29cc6b9fe4b6b2bf542eeb6f91a5ea3938f82f39e475",
+  "inputHash" : "12a30a0ab3dcf1f0d429666fbb5f23bb8071191dbb151c8511d29f67b026d23c",
+  "businessQueriesAtCall" : 0,
+  "rawJson" : "{\"topics\":[{\"index\":0,\"sourceIds\":[\"c0\"]}]}",
+  "status" : "RESPONDED",
+  "usageComplete" : false,
+  "reply" : {
+    "topics" : [ {
+      "index" : 0,
+      "sourceIds" : [ "c0" ]
+    } ]
+  },
+  "model" : "ISOLATED_TEST_DOUBLE",
+  "usage" : {
+    "inputTokens" : null,
+    "outputTokens" : null,
+    "cachedInputTokens" : null
+  },
+  "elapsedMs" : 11
+}, {
+  "source" : "TEST_DOUBLE",
+  "stage" : "PLAN",
+  "at" : "2026-10-12T14:05:02.870174Z",
+  "schemaHash" : "ac0e041064ae224dc98f3d3988930d7c854728ccf1dfbf90e3c4442b3982eb9e",
+  "inputHash" : "ba9b637ab23aa2bf1163d587032c7ebf267328d4d5161e9f8c5046df08c97bd1",
+  "rawJson" : "{\"mode\":\"EXECUTE\",\"objective\":\"核对当前授权知识\",\"clarification\":null,\"steps\":[{\"action\":\"KNOWLEDGE\",\"source\":null,\"other\":null,\"query\":null,\"analysis\":null,\"rank\":null,\"knowledgeQuestion\":\"tax policy\"}]}",
+  "status" : "RESPONDED",
+  "usageComplete" : false,
+  "reply" : {
+    "mode" : "EXECUTE",
+    "objective" : "核对当前授权知识",
+    "clarification" : null,
+    "steps" : [ {
+      "action" : "KNOWLEDGE",
+      "source" : null,
+      "other" : null,
+      "query" : null,
+      "analysis" : null,
+      "rank" : null,
+      "knowledgeQuestion" : "tax policy"
+    } ]
+  },
+  "model" : "ISOLATED_TEST_DOUBLE",
+  "usage" : {
+    "inputTokens" : null,
+    "outputTokens" : null,
+    "cachedInputTokens" : null
+  },
+  "elapsedMs" : 0
+}, {
+  "source" : "TEST_DOUBLE",
+  "stage" : "PLAN_REVIEW",
+  "at" : "2026-10-12T14:05:02.892164100Z",
+  "schemaHash" : "45c04bc41a4d7f4e30d82d7c125be115725d60612b96ad0b9eb9115aca079817",
+  "inputHash" : "c305b2d08e84d08a915543aadc2725d30549f0ce856b00874e9b7841a5c06708",
+  "rawJson" : "{\"approved\":true,\"reason\":\"隔离状态机测试标签已核对，真实模型另外执行\"}",
+  "status" : "RESPONDED",
+  "usageComplete" : false,
+  "reply" : {
+    "approved" : true,
+    "reason" : "隔离状态机测试标签已核对，真实模型另外执行"
+  },
+  "model" : "ISOLATED_TEST_DOUBLE",
+  "usage" : {
+    "inputTokens" : null,
+    "outputTokens" : null,
+    "cachedInputTokens" : null
+  },
+  "elapsedMs" : 0
+}, {
+  "source" : "TEST_DOUBLE",
+  "stage" : "RAG_REWRITE",
+  "at" : "2026-10-12T14:05:02.921009300Z",
+  "schemaHash" : "a0b9f87586cd1c2a22d52a183b356928327592186c93aec46067b244b8ef2386",
+  "inputHash" : "a66a7c6a79971d06ad3f94d2d1b18ecce9972d5545283a3eb570a4526903db4d",
+  "businessQueriesAtCall" : 0,
+  "rawJson" : "{\"topics\":[{\"index\":0,\"queries\":[]}]}",
+  "status" : "RESPONDED",
+  "usageComplete" : false,
+  "reply" : {
+    "topics" : [ {
+      "index" : 0,
+      "queries" : [ ]
+    } ]
+  },
+  "model" : "ISOLATED_TEST_DOUBLE",
+  "usage" : {
+    "inputTokens" : null,
+    "outputTokens" : null,
+    "cachedInputTokens" : null
+  },
+  "elapsedMs" : 6
+}, {
+  "source" : "TEST_DOUBLE",
+  "stage" : "PLAN",
+  "at" : "2026-10-12T14:05:03.899444500Z",
+  "schemaHash" : "ac0e041064ae224dc98f3d3988930d7c854728ccf1dfbf90e3c4442b3982eb9e",
+  "inputHash" : "9ffe292c1770d84654ff8de9fae3170c917d67de2be634cd5d024eaf19027fa6",
+  "rawJson" : "{\"mode\":\"EXECUTE\",\"objective\":\"核对当前授权知识\",\"clarification\":null,\"steps\":[{\"action\":\"KNOWLEDGE\",\"source\":null,\"other\":null,\"query\":null,\"analysis\":null,\"rank\":null,\"knowledgeQuestion\":\"tax policy\"}]}",
+  "status" : "RESPONDED",
+  "usageComplete" : false,
+  "reply" : {
+    "mode" : "EXECUTE",
+    "objective" : "核对当前授权知识",
+    "clarification" : null,
+    "steps" : [ {
+      "action" : "KNOWLEDGE",
+      "source" : null,
+      "other" : null,
+      "query" : null,
+      "analysis" : null,
+      "rank" : null,
+      "knowledgeQuestion" : "tax policy"
+    } ]
+  },
+  "model" : "ISOLATED_TEST_DOUBLE",
+  "usage" : {
+    "inputTokens" : null,
+    "outputTokens" : null,
+    "cachedInputTokens" : null
+  },
+  "elapsedMs" : 0
+}, {
+  "source" : "TEST_DOUBLE",
+  "stage" : "PLAN_REVIEW",
+  "at" : "2026-10-12T14:05:03.923576400Z",
+  "schemaHash" : "45c04bc41a4d7f4e30d82d7c125be115725d60612b96ad0b9eb9115aca079817",
+  "inputHash" : "97771437a1acba7c8ba3cf57c3e8c6e1b2b028668344805fa2463b56caa1c961",
+  "rawJson" : "{\"approved\":true,\"reason\":\"隔离状态机测试标签已核对，真实模型另外执行\"}",
+  "status" : "RESPONDED",
+  "usageComplete" : false,
+  "reply" : {
+    "approved" : true,
+    "reason" : "隔离状态机测试标签已核对，真实模型另外执行"
+  },
+  "model" : "ISOLATED_TEST_DOUBLE",
+  "usage" : {
+    "inputTokens" : null,
+    "outputTokens" : null,
+    "cachedInputTokens" : null
+  },
+  "elapsedMs" : 0
+}, {
+  "source" : "TEST_DOUBLE",
+  "stage" : "RAG_REWRITE",
+  "at" : "2026-10-12T14:05:03.953732500Z",
+  "schemaHash" : "a0b9f87586cd1c2a22d52a183b356928327592186c93aec46067b244b8ef2386",
+  "inputHash" : "a66a7c6a79971d06ad3f94d2d1b18ecce9972d5545283a3eb570a4526903db4d",
+  "businessQueriesAtCall" : 0,
+  "rawJson" : "{\"topics\":[{\"index\":0,\"queries\":[]}]}",
+  "status" : "RESPONDED",
+  "usageComplete" : false,
+  "reply" : {
+    "topics" : [ {
+      "index" : 0,
+      "queries" : [ ]
+    } ]
+  },
+  "model" : "ISOLATED_TEST_DOUBLE",
+  "usage" : {
+    "inputTokens" : null,
+    "outputTokens" : null,
+    "cachedInputTokens" : null
+  },
+  "elapsedMs" : 0
+}, {
+  "source" : "TEST_DOUBLE",
+  "stage" : "RAG_RERANK",
+  "at" : "2026-10-12T14:05:03.972195700Z",
+  "schemaHash" : "90625f3806ea3ebf992f29cc6b9fe4b6b2bf542eeb6f91a5ea3938f82f39e475",
+  "inputHash" : "07f4cce55f9958ab0271f149f3353d9f869a302697e68a70f910e53efce771bd",
+  "businessQueriesAtCall" : 0,
+  "rawJson" : "{\"topics\":[{\"index\":0,\"sourceIds\":[\"c0\"]}]}",
+  "status" : "RESPONDED",
+  "usageComplete" : false,
+  "reply" : {
+    "topics" : [ {
+      "index" : 0,
+      "sourceIds" : [ "c0" ]
+    } ]
+  },
+  "model" : "ISOLATED_TEST_DOUBLE",
+  "usage" : {
+    "inputTokens" : null,
+    "outputTokens" : null,
+    "cachedInputTokens" : null
+  },
+  "elapsedMs" : 9
+}, {
+  "source" : "TEST_DOUBLE",
+  "stage" : "RAG_REWRITE",
+  "at" : "2026-10-12T14:05:05.014165600Z",
+  "schemaHash" : "a0b9f87586cd1c2a22d52a183b356928327592186c93aec46067b244b8ef2386",
+  "inputHash" : "5230128cc8003bfc59bac366570ecc8bfad8418ffecdc6eb80912f5f2d929ce9",
+  "businessQueriesAtCall" : 0,
+  "rawJson" : "{\"topics\":[{\"index\":0,\"queries\":[]}]}",
+  "status" : "RESPONDED",
+  "usageComplete" : false,
+  "reply" : {
+    "topics" : [ {
+      "index" : 0,
+      "queries" : [ ]
+    } ]
+  },
+  "model" : "ISOLATED_TEST_DOUBLE",
+  "usage" : {
+    "inputTokens" : null,
+    "outputTokens" : null,
+    "cachedInputTokens" : null
+  },
+  "elapsedMs" : 0
+}, {
+  "source" : "TEST_DOUBLE",
+  "stage" : "RAG_RERANK",
+  "at" : "2026-10-12T14:05:05.020671400Z",
+  "schemaHash" : "90625f3806ea3ebf992f29cc6b9fe4b6b2bf542eeb6f91a5ea3938f82f39e475",
+  "inputHash" : "d1d8ff9e6fcbe10d12b39285accf1e5d6f27fa039961addbb4d60b56cb8ede9c",
+  "businessQueriesAtCall" : 0,
+  "rawJson" : "{\"topics\":[{\"index\":0,\"sourceIds\":[\"c0\"]}]}",
+  "status" : "RESPONDED",
+  "usageComplete" : false,
+  "reply" : {
+    "topics" : [ {
+      "index" : 0,
+      "sourceIds" : [ "c0" ]
+    } ]
+  },
+  "model" : "ISOLATED_TEST_DOUBLE",
+  "usage" : {
+    "inputTokens" : null,
+    "outputTokens" : null,
+    "cachedInputTokens" : null
+  },
+  "elapsedMs" : 5
+}, {
+  "source" : "TEST_DOUBLE",
+  "stage" : "RAG_REWRITE",
+  "at" : "2026-10-12T14:05:06.028768300Z",
+  "schemaHash" : "a0b9f87586cd1c2a22d52a183b356928327592186c93aec46067b244b8ef2386",
+  "inputHash" : "5230128cc8003bfc59bac366570ecc8bfad8418ffecdc6eb80912f5f2d929ce9",
+  "businessQueriesAtCall" : 0,
+  "rawJson" : "{\"topics\":[{\"index\":0,\"queries\":[]}]}",
+  "status" : "RESPONDED",
+  "usageComplete" : false,
+  "reply" : {
+    "topics" : [ {
+      "index" : 0,
+      "queries" : [ ]
+    } ]
+  },
+  "model" : "ISOLATED_TEST_DOUBLE",
+  "usage" : {
+    "inputTokens" : null,
+    "outputTokens" : null,
+    "cachedInputTokens" : null
+  },
+  "elapsedMs" : 0
+}, {
+  "source" : "TEST_DOUBLE",
+  "stage" : "RAG_RERANK",
+  "at" : "2026-10-12T14:05:06.035817400Z",
+  "schemaHash" : "90625f3806ea3ebf992f29cc6b9fe4b6b2bf542eeb6f91a5ea3938f82f39e475",
+  "inputHash" : "181b2f58927c4d658ec265cabf47780e61f72bf413bd9bdf583d67f4c38b67b6",
+  "businessQueriesAtCall" : 0,
+  "rawJson" : "{\"topics\":[{\"index\":0,\"sourceIds\":[\"c0\"]}]}",
+  "status" : "RESPONDED",
+  "usageComplete" : false,
+  "reply" : {
+    "topics" : [ {
+      "index" : 0,
+      "sourceIds" : [ "c0" ]
+    } ]
+  },
+  "model" : "ISOLATED_TEST_DOUBLE",
+  "usage" : {
+    "inputTokens" : null,
+    "outputTokens" : null,
+    "cachedInputTokens" : null
+  },
+  "elapsedMs" : 9
+}, {
+  "source" : "TEST_DOUBLE",
+  "stage" : "PLAN",
+  "at" : "2026-10-12T14:05:08.134710300Z",
+  "schemaHash" : "ac0e041064ae224dc98f3d3988930d7c854728ccf1dfbf90e3c4442b3982eb9e",
+  "inputHash" : "74ea3b75c3e2d4f9aeb704e8c152facceff06c3f6c7690b29ada6ae6ce72e4db",
+  "rawJson" : "{\"mode\":\"EXECUTE\",\"objective\":\"核对当前授权知识\",\"clarification\":null,\"steps\":[{\"action\":\"KNOWLEDGE\",\"source\":null,\"other\":null,\"query\":null,\"analysis\":null,\"rank\":null,\"knowledgeQuestion\":\"tax\"}]}",
+  "status" : "RESPONDED",
+  "usageComplete" : false,
+  "reply" : {
+    "mode" : "EXECUTE",
+    "objective" : "核对当前授权知识",
+    "clarification" : null,
+    "steps" : [ {
+      "action" : "KNOWLEDGE",
+      "source" : null,
+      "other" : null,
+      "query" : null,
+      "analysis" : null,
+      "rank" : null,
+      "knowledgeQuestion" : "tax"
+    } ]
+  },
+  "model" : "ISOLATED_TEST_DOUBLE",
+  "usage" : {
+    "inputTokens" : null,
+    "outputTokens" : null,
+    "cachedInputTokens" : null
+  },
+  "elapsedMs" : 0
+}, {
+  "source" : "TEST_DOUBLE",
+  "stage" : "PLAN_REVIEW",
+  "at" : "2026-10-12T14:05:08.167965Z",
+  "schemaHash" : "45c04bc41a4d7f4e30d82d7c125be115725d60612b96ad0b9eb9115aca079817",
+  "inputHash" : "023af3d199408134b303861c56561240782b44d122cb697cebd1d7ce2a95f9ed",
+  "rawJson" : "{\"approved\":true,\"reason\":\"隔离状态机测试标签已核对，真实模型另外执行\"}",
+  "status" : "RESPONDED",
+  "usageComplete" : false,
+  "reply" : {
+    "approved" : true,
+    "reason" : "隔离状态机测试标签已核对，真实模型另外执行"
+  },
+  "model" : "ISOLATED_TEST_DOUBLE",
+  "usage" : {
+    "inputTokens" : null,
+    "outputTokens" : null,
+    "cachedInputTokens" : null
+  },
+  "elapsedMs" : 0
+}, {
+  "source" : "TEST_DOUBLE",
+  "stage" : "RAG_REWRITE",
+  "at" : "2026-10-12T14:05:08.198230900Z",
+  "schemaHash" : "a0b9f87586cd1c2a22d52a183b356928327592186c93aec46067b244b8ef2386",
+  "inputHash" : "5230128cc8003bfc59bac366570ecc8bfad8418ffecdc6eb80912f5f2d929ce9",
+  "businessQueriesAtCall" : 0,
+  "rawJson" : "{\"topics\":[{\"index\":0,\"queries\":[]}]}",
+  "status" : "RESPONDED",
+  "usageComplete" : false,
+  "reply" : {
+    "topics" : [ {
+      "index" : 0,
+      "queries" : [ ]
+    } ]
+  },
+  "model" : "ISOLATED_TEST_DOUBLE",
+  "usage" : {
+    "inputTokens" : null,
+    "outputTokens" : null,
+    "cachedInputTokens" : null
+  },
+  "elapsedMs" : 0
+}, {
+  "source" : "TEST_DOUBLE",
+  "stage" : "RAG_RERANK",
+  "at" : "2026-10-12T14:05:08.218672800Z",
+  "schemaHash" : "90625f3806ea3ebf992f29cc6b9fe4b6b2bf542eeb6f91a5ea3938f82f39e475",
+  "inputHash" : "3936a1d26c3b34ec9d5d9833b2c32d0badd80bdfb8b66d267975d07997299e9e",
+  "businessQueriesAtCall" : 0,
+  "rawJson" : "{\"topics\":[{\"index\":0,\"sourceIds\":[\"c0\"]}]}",
+  "status" : "RESPONDED",
+  "usageComplete" : false,
+  "reply" : {
+    "topics" : [ {
+      "index" : 0,
+      "sourceIds" : [ "c0" ]
+    } ]
+  },
+  "model" : "ISOLATED_TEST_DOUBLE",
+  "usage" : {
+    "inputTokens" : null,
+    "outputTokens" : null,
+    "cachedInputTokens" : null
+  },
+  "elapsedMs" : 0
+}, {
+  "source" : "TEST_DOUBLE",
+  "stage" : "ANSWER",
+  "at" : "2026-10-12T14:05:08.259923800Z",
+  "schemaHash" : "7c1ccbc04893814adee8e870a2b043d29c8cdfe07931bb8f50173071ae2e8bfc",
+  "inputHash" : "2287f04938808f54f82c4c222cc0f9680aaa320926f90a19183908a32b3d23b1",
+  "rawJson" : "{\"status\":\"ANSWERED\",\"claims\":[{\"text\":\"结果来自所引用的当前授权依据。\",\"sourceIds\":[\"document-cc7481c2866f4c3e8188617d852e13b5-v2-p1\"]}],\"limitations\":[]}",
+  "status" : "RESPONDED",
+  "usageComplete" : false,
+  "knowledgeCoverage" : {
+    "performed" : true,
+    "truncated" : false,
+    "expansionTruncated" : false,
+    "steps" : [ {
+      "matchedSources" : 1,
+      "searchedSources" : 4,
+      "stepNumber" : 1,
+      "expansionTruncated" : false,
+      "searchedFragments" : 4,
+      "truncated" : false,
+      "matchedFragments" : 1,
+      "returnedSources" : 1,
+      "returnedFragments" : 1
+    } ]
+  },
+  "reply" : {
+    "status" : "ANSWERED",
+    "claims" : [ {
+      "text" : "结果来自所引用的当前授权依据。",
+      "sourceIds" : [ "document-cc7481c2866f4c3e8188617d852e13b5-v2-p1" ]
+    } ],
+    "limitations" : [ ]
+  },
+  "model" : "ISOLATED_TEST_DOUBLE",
+  "usage" : {
+    "inputTokens" : null,
+    "outputTokens" : null,
+    "cachedInputTokens" : null
+  },
+  "elapsedMs" : 0
+}, {
+  "source" : "TEST_DOUBLE",
+  "stage" : "ANSWER_REVIEW",
+  "at" : "2026-10-12T14:05:08.281387500Z",
+  "schemaHash" : "45c04bc41a4d7f4e30d82d7c125be115725d60612b96ad0b9eb9115aca079817",
+  "inputHash" : "77ec8afc0d3d26f0b083439fee737d63c8c47b26ef1d3dfc990c4df68d2afad6",
+  "rawJson" : "{\"approved\":true,\"reason\":\"隔离状态机测试标签已核对，真实模型另外执行\"}",
+  "status" : "RESPONDED",
+  "usageComplete" : false,
+  "knowledgeCoverage" : {
+    "performed" : true,
+    "truncated" : false,
+    "expansionTruncated" : false,
+    "steps" : [ {
+      "matchedSources" : 1,
+      "searchedSources" : 4,
+      "stepNumber" : 1,
+      "expansionTruncated" : false,
+      "searchedFragments" : 4,
+      "truncated" : false,
+      "matchedFragments" : 1,
+      "returnedSources" : 1,
+      "returnedFragments" : 1
+    } ]
+  },
+  "reply" : {
+    "approved" : true,
+    "reason" : "隔离状态机测试标签已核对，真实模型另外执行"
+  },
+  "model" : "ISOLATED_TEST_DOUBLE",
+  "usage" : {
+    "inputTokens" : null,
+    "outputTokens" : null,
+    "cachedInputTokens" : null
+  },
+  "elapsedMs" : 0
+}, {
+  "source" : "TEST_DOUBLE",
+  "stage" : "PLAN",
+  "at" : "2026-10-12T14:05:08.475303300Z",
+  "schemaHash" : "ac0e041064ae224dc98f3d3988930d7c854728ccf1dfbf90e3c4442b3982eb9e",
+  "inputHash" : "5572abe6a1606fad328bb51de0d8d787c1058b2a01163c4472531ef07768a0bf",
+  "rawJson" : "{\"mode\":\"EXECUTE\",\"objective\":\"读取并解释税额\",\"clarification\":null,\"steps\":[{\"action\":\"QUERY\",\"source\":null,\"other\":null,\"query\":{\"domain\":\"REPORT\",\"view\":\"LIST\",\"reportIds\":[\"rpt-sales-order\"],\"companyCode\":\"A\",\"conditions\":[],\"sortField\":\"amount\",\"descending\":true,\"page\":1,\"size\":20,\"groupBy\":null},\"analysis\":null,\"rank\":null,\"knowledgeQuestion\":null},{\"action\":\"KNOWLEDGE\",\"source\":null,\"other\":null,\"query\":null,\"analysis\":null,\"rank\":null,\"knowledgeQuestion\":\"tax\"}]}",
+  "status" : "RESPONDED",
+  "usageComplete" : false,
+  "reply" : {
+    "mode" : "EXECUTE",
+    "objective" : "读取并解释税额",
+    "clarification" : null,
+    "steps" : [ {
+      "action" : "QUERY",
+      "source" : null,
+      "other" : null,
+      "query" : {
+        "domain" : "REPORT",
+        "view" : "LIST",
+        "reportIds" : [ "rpt-sales-order" ],
+        "companyCode" : "A",
+        "conditions" : [ ],
+        "sortField" : "amount",
+        "descending" : true,
+        "page" : 1,
+        "size" : 20,
+        "groupBy" : null
+      },
+      "analysis" : null,
+      "rank" : null,
+      "knowledgeQuestion" : null
+    }, {
+      "action" : "KNOWLEDGE",
+      "source" : null,
+      "other" : null,
+      "query" : null,
+      "analysis" : null,
+      "rank" : null,
+      "knowledgeQuestion" : "tax"
+    } ]
+  },
+  "model" : "ISOLATED_TEST_DOUBLE",
+  "usage" : {
+    "inputTokens" : null,
+    "outputTokens" : null,
+    "cachedInputTokens" : null
+  },
+  "elapsedMs" : 0
+}, {
+  "source" : "TEST_DOUBLE",
+  "stage" : "PLAN_REVIEW",
+  "at" : "2026-10-12T14:05:08.495925800Z",
+  "schemaHash" : "45c04bc41a4d7f4e30d82d7c125be115725d60612b96ad0b9eb9115aca079817",
+  "inputHash" : "455d1e731232e994af0d304f89e7839a26b4c1071c8b6677013cf6fca49c3b53",
+  "rawJson" : "{\"approved\":true,\"reason\":\"隔离状态机测试标签已核对，真实模型另外执行\"}",
+  "status" : "RESPONDED",
+  "usageComplete" : false,
+  "reply" : {
+    "approved" : true,
+    "reason" : "隔离状态机测试标签已核对，真实模型另外执行"
+  },
+  "model" : "ISOLATED_TEST_DOUBLE",
+  "usage" : {
+    "inputTokens" : null,
+    "outputTokens" : null,
+    "cachedInputTokens" : null
+  },
+  "elapsedMs" : 0
+}, {
+  "source" : "TEST_DOUBLE",
+  "stage" : "RAG_REWRITE",
+  "at" : "2026-10-12T14:05:08.524697400Z",
+  "schemaHash" : "aac1c8603d523d91b949059d657ea59781419b8587271d9f5c57f5730da87819",
+  "inputHash" : "7060b4a9dec22b2d50f549beceacdd29e54a16d7b4cb44e9b1531b8e25b8f4a1",
+  "businessQueriesAtCall" : 0,
+  "rawJson" : "{\"topics\":[{\"index\":1,\"queries\":[]}]}",
+  "status" : "RESPONDED",
+  "usageComplete" : false,
+  "reply" : {
+    "topics" : [ {
+      "index" : 1,
+      "queries" : [ ]
+    } ]
+  },
+  "model" : "ISOLATED_TEST_DOUBLE",
+  "usage" : {
+    "inputTokens" : null,
+    "outputTokens" : null,
+    "cachedInputTokens" : null
+  },
+  "elapsedMs" : 0
+}, {
+  "source" : "TEST_DOUBLE",
+  "stage" : "RAG_RERANK",
+  "at" : "2026-10-12T14:05:08.546999900Z",
+  "schemaHash" : "329e7765041432f733fc08eed44d74af5d7289354fa8ab8e7653727698c9bdc3",
+  "inputHash" : "28147b20bcaadc6d42dd5190cbcb923e3abc579d300f8d81e65e19e55918e93b",
+  "businessQueriesAtCall" : 0,
+  "rawJson" : "{\"topics\":[{\"index\":1,\"sourceIds\":[\"c0\",\"c1\",\"c2\",\"c3\",\"forged-source\"]}]}",
+  "status" : "RESPONDED",
+  "usageComplete" : false,
+  "reply" : {
+    "topics" : [ {
+      "index" : 1,
+      "sourceIds" : [ "c0", "c1", "c2", "c3", "forged-source" ]
+    } ]
+  },
+  "model" : "ISOLATED_TEST_DOUBLE",
+  "usage" : {
+    "inputTokens" : null,
+    "outputTokens" : null,
+    "cachedInputTokens" : null
+  },
+  "elapsedMs" : 0
+} ]

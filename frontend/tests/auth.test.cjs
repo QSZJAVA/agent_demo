@@ -72,7 +72,7 @@ for (const mode of ['http', 'business']) {
     context.saveSession('new-session', { userId: 'new-user' })
     const reject = config => mode === 'http'
       ? failure({ config, response: { status: 401 }, message: 'expired' })
-      : success({ config, data: { code: 401, message: 'expired' } })
+      : success({ config, data: { code: 401, message: 'expired', data: null } })
     await assert.rejects(reject(old))
     assert.equal(context.getSessionToken(), 'new-session'); assert.deepEqual(events, [])
     await assert.rejects(reject(request({ headers: {} })))

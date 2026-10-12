@@ -1,0 +1,252 @@
+{
+  "id" : "4b4c25c452bf45e982f5a49dce1d173a",
+  "status" : "COMPLETED",
+  "stage" : "FINISHED",
+  "reason" : null,
+  "message" : "分析与依据核验已完成",
+  "version" : 18,
+  "request" : {
+    "question" : "公司跨境出差住宿费每日上限是多少？请引用制度。",
+    "reportId" : "rpt-sales-order",
+    "snapshotId" : null,
+    "companyCode" : "A"
+  },
+  "created_at" : "2026-10-12T17:30:18.945Z",
+  "started_at" : "2026-10-12T17:30:18.959Z",
+  "finished_at" : "2026-10-12T17:30:36.148Z",
+  "expires_at" : "2026-10-13T17:30:18.945Z",
+  "plan" : {
+    "mode" : "EXECUTE",
+    "steps" : [ {
+      "rank" : null,
+      "other" : null,
+      "query" : null,
+      "action" : "KNOWLEDGE",
+      "source" : null,
+      "analysis" : null,
+      "knowledgeQuestion" : "公司跨境出差住宿费每日上限是多少？引用制度。"
+    } ],
+    "objective" : "在已选公司A与销售报表授权范围内检索跨境出差住宿费每日上限制度，并引用制度依据给出答案；不读取业务数据。",
+    "clarification" : null
+  },
+  "steps" : [ {
+    "index" : 0,
+    "action" : "KNOWLEDGE",
+    "result" : {
+      "hits" : [ {
+        "sourceId" : "document-93a5fbd0aa864a909a0b936ed174d80f-v2-p1",
+        "aliasTerms" : [ ],
+        "directTerms" : [ "制度" ]
+      }, {
+        "sourceId" : "catalog-1-p1",
+        "aliasTerms" : [ ],
+        "directTerms" : [ "公司" ]
+      } ],
+      "kind" : "KNOWLEDGE",
+      "matched" : 2,
+      "sources" : [ {
+        "id" : "document-93a5fbd0aa864a909a0b936ed174d80f-v2-p1",
+        "kind" : "KNOWLEDGE",
+        "text" : "来源标题：销售口径（隔离验收合成制度）\n来源版本：2\n适用范围：A / rpt-sales-order\n时间说明：生效 2026-01-01；失效 未指定\n原文位置：脱敏后来源全文第1至2行；UTF-16字符[0,50)。\n片段编号：1\n正文片段：\n来源：本仓库隔离验收合成资料\n销售金额以元为单位，币种为CNY；表示销售单的订单金额，不等于已收款。",
+        "scope" : "A / rpt-sales-order",
+        "title" : "销售口径（隔离验收合成制度）",
+        "version" : "2",
+        "originId" : "document-93a5fbd0aa864a909a0b936ed174d80f-v2",
+        "observedAt" : "生效 2026-01-01；失效 未指定",
+        "contentOffset" : 125
+      }, {
+        "id" : "catalog-1-p1",
+        "kind" : "KNOWLEDGE",
+        "text" : "来源标题：销售报表：目录与字段\n来源版本：1\n适用范围：A / rpt-sales-order\n时间说明：当前目录；观测日期 2026-10-13\n原文位置：脱敏后来源全文第1至3行；UTF-16字符[0,959)。\n片段编号：1\n正文片段：\n报表名称：销售报表\n用途：销售订单台账：按订单统计金额与派单状态\n字段定义：[{\"name\":\"reportId\",\"type\":\"string\",\"description\":\"报表稳定标识\"},{\"name\":\"reportName\",\"type\":\"string\",\"description\":\"报表名称\"},{\"name\":\"companyCode\",\"type\":\"string\",\"description\":\"所属公司代码\"},{\"name\":\"docNo\",\"type\":\"string\",\"description\":\"来源单据号\"},{\"name\":\"amount\",\"type\":\"decimal\",\"description\":\"来源金额，币种见 currency；空值表示未提供\"},{\"name\":\"currency\",\"type\":\"string\",\"description\":\"来源声明币种；空值表示未声明，不能跨币种合计\"},{\"name\":\"date\",\"type\":\"date\",\"description\":\"业务日期；空值表示未配置\"},{\"name\":\"status\",\"type\":\"string\",\"description\":\"报表派单状态：未派单/已派单\"},{\"name\":\"orderNo\",\"type\":\"string\",\"description\":\"订单号\"},{\"name\":\"productName\",\"type\":\"string\",\"description\":\"产品名称\"},{\"name\":\"saleDate\",\"type\":\"date\",\"description\":\"销售日期，字符串 yyyy-MM-dd\"},{\"name\":\"daysSinceSale\",\"type\":\"long\",\"description\":\"距销售日期的天数（派生）\"},{\"name\":\"dispatched\",\"type\":\"boolean\",\"description\":\"来源记录是否已派单；true为已派单，false为未派单，不代表满足派单规则\"},{\"name\":\"recordId\",\"type\":\"string\",\"description\":\"报表内稳定记录标识\"}]",
+        "scope" : "A / rpt-sales-order",
+        "title" : "销售报表：目录与字段",
+        "version" : "1",
+        "originId" : "catalog-1",
+        "observedAt" : "当前目录；观测日期 2026-10-13",
+        "contentOffset" : 122
+      } ],
+      "coverage" : {
+        "matchedSources" : 2,
+        "returnedSources" : 2,
+        "searchedSources" : 4
+      },
+      "searched" : 4,
+      "retrieval" : {
+        "mode" : "SEMANTIC_RAG",
+        "routes" : [ {
+          "index" : 0,
+          "expansions" : [ ],
+          "queryTerms" : [ "公司", "司跨", "跨境", "境出", "出差", "差住", "住宿", "宿费", "费每", "每日", "日上", "上限", "限是", "是多", "多少", "公司跨", "司跨境", "跨境出", "境出差", "出差住", "差住宿", "住宿费", "宿费每", "费每日", "每日上", "日上限", "上限是", "限是多", "是多少", "请引", "引用", "用制", "制度", "请引用", "引用制", "用制度" ],
+          "matchedSources" : 2,
+          "matchedFragments" : 2,
+          "expansionTruncated" : false
+        }, {
+          "index" : 1,
+          "expansions" : [ ],
+          "queryTerms" : [ "公司", "司跨", "跨境", "境出", "出差", "差住", "住宿", "宿费", "费每", "每日", "日上", "上限", "限是", "是多", "多少", "公司跨", "司跨境", "跨境出", "境出差", "出差住", "差住宿", "住宿费", "宿费每", "费每日", "每日上", "日上限", "上限是", "限是多", "是多少", "引用", "用制", "制度", "引用制", "用制度" ],
+          "matchedSources" : 2,
+          "matchedFragments" : 2,
+          "expansionTruncated" : false
+        }, {
+          "index" : 2,
+          "expansions" : [ ],
+          "queryTerms" : [ "跨境", "境出", "出差", "跨境出", "境出差", "住宿", "宿费", "住宿费", "每日", "日上", "上限", "每日上", "日上限", "制度" ],
+          "matchedSources" : 1,
+          "matchedFragments" : 1,
+          "expansionTruncated" : false
+        }, {
+          "index" : 3,
+          "expansions" : [ ],
+          "queryTerms" : [ "境外", "外差", "差旅", "境外差", "外差旅", "住宿", "宿费", "费标", "标准", "住宿费", "宿费标", "费标准", "报销", "销制", "制度", "报销制", "销制度" ],
+          "matchedSources" : 1,
+          "matchedFragments" : 1,
+          "expansionTruncated" : false
+        } ],
+        "queries" : [ {
+          "kind" : "ORIGINAL",
+          "text" : "公司跨境出差住宿费每日上限是多少？请引用制度。"
+        }, {
+          "kind" : "FOCUSED",
+          "text" : "公司跨境出差住宿费每日上限是多少？引用制度。"
+        }, {
+          "kind" : "REWRITE",
+          "text" : "跨境出差 住宿费 每日上限 制度"
+        }, {
+          "kind" : "REWRITE",
+          "text" : "境外差旅 住宿费标准 报销制度"
+        } ],
+        "ranking" : [ {
+          "rank" : 1,
+          "routes" : [ 0, 1, 2, 3 ],
+          "sourceId" : "document-93a5fbd0aa864a909a0b936ed174d80f-v2-p1"
+        }, {
+          "rank" : 2,
+          "routes" : [ 0, 1 ],
+          "sourceId" : "catalog-1-p1"
+        } ],
+        "version" : "semantic-rag-2",
+        "reranked" : true,
+        "contextTruncated" : false,
+        "rerankedFragments" : 2,
+        "candidateFragments" : 2
+      },
+      "truncated" : false,
+      "expansions" : [ ],
+      "queryTerms" : [ "公司", "司跨", "跨境", "境出", "出差", "差住", "住宿", "宿费", "费每", "每日", "日上", "上限", "限是", "是多", "多少", "公司跨", "司跨境", "跨境出", "境出差", "出差住", "差住宿", "住宿费", "宿费每", "费每日", "每日上", "日上限", "上限是", "限是多", "是多少", "请引", "引用", "用制", "制度", "请引用", "引用制", "用制度" ],
+      "expansionTruncated" : false
+    },
+    "status" : "COMPLETED",
+    "sources" : [ {
+      "id" : "document-93a5fbd0aa864a909a0b936ed174d80f-v2-p1",
+      "kind" : "KNOWLEDGE",
+      "text" : "来源标题：销售口径（隔离验收合成制度）\n来源版本：2\n适用范围：A / rpt-sales-order\n时间说明：生效 2026-01-01；失效 未指定\n原文位置：脱敏后来源全文第1至2行；UTF-16字符[0,50)。\n片段编号：1\n正文片段：\n来源：本仓库隔离验收合成资料\n销售金额以元为单位，币种为CNY；表示销售单的订单金额，不等于已收款。",
+      "scope" : "A / rpt-sales-order",
+      "title" : "销售口径（隔离验收合成制度）",
+      "version" : "2",
+      "originId" : "document-93a5fbd0aa864a909a0b936ed174d80f-v2",
+      "observedAt" : "生效 2026-01-01；失效 未指定",
+      "contentOffset" : 125
+    }, {
+      "id" : "catalog-1-p1",
+      "kind" : "KNOWLEDGE",
+      "text" : "来源标题：销售报表：目录与字段\n来源版本：1\n适用范围：A / rpt-sales-order\n时间说明：当前目录；观测日期 2026-10-13\n原文位置：脱敏后来源全文第1至3行；UTF-16字符[0,959)。\n片段编号：1\n正文片段：\n报表名称：销售报表\n用途：销售订单台账：按订单统计金额与派单状态\n字段定义：[{\"name\":\"reportId\",\"type\":\"string\",\"description\":\"报表稳定标识\"},{\"name\":\"reportName\",\"type\":\"string\",\"description\":\"报表名称\"},{\"name\":\"companyCode\",\"type\":\"string\",\"description\":\"所属公司代码\"},{\"name\":\"docNo\",\"type\":\"string\",\"description\":\"来源单据号\"},{\"name\":\"amount\",\"type\":\"decimal\",\"description\":\"来源金额，币种见 currency；空值表示未提供\"},{\"name\":\"currency\",\"type\":\"string\",\"description\":\"来源声明币种；空值表示未声明，不能跨币种合计\"},{\"name\":\"date\",\"type\":\"date\",\"description\":\"业务日期；空值表示未配置\"},{\"name\":\"status\",\"type\":\"string\",\"description\":\"报表派单状态：未派单/已派单\"},{\"name\":\"orderNo\",\"type\":\"string\",\"description\":\"订单号\"},{\"name\":\"productName\",\"type\":\"string\",\"description\":\"产品名称\"},{\"name\":\"saleDate\",\"type\":\"date\",\"description\":\"销售日期，字符串 yyyy-MM-dd\"},{\"name\":\"daysSinceSale\",\"type\":\"long\",\"description\":\"距销售日期的天数（派生）\"},{\"name\":\"dispatched\",\"type\":\"boolean\",\"description\":\"来源记录是否已派单；true为已派单，false为未派单，不代表满足派单规则\"},{\"name\":\"recordId\",\"type\":\"string\",\"description\":\"报表内稳定记录标识\"}]",
+      "scope" : "A / rpt-sales-order",
+      "title" : "销售报表：目录与字段",
+      "version" : "1",
+      "originId" : "catalog-1",
+      "observedAt" : "当前目录；观测日期 2026-10-13",
+      "contentOffset" : 122
+    }, {
+      "id" : "knowledge-coverage-1",
+      "kind" : "DATA",
+      "text" : "第1步已执行当前授权范围内的知识检索。\n已搜索 4 份来源、4 个片段；命中 2 份来源、2 个片段；返回 2 份来源、2 个片段。\n本次命中的片段已全部返回；这不证明授权资料之外不存在其他制度。\n本次没有因字段别名扩展预算省略检索表达。\n本说明仅记录知识检索情况，不是制度正文，不是业务明细，也不证明任何业务写入已经执行。",
+      "scope" : "A / rpt-sales-order",
+      "title" : "第1步知识检索范围说明",
+      "version" : "3175cd0a8661b02775d3e053ea461e91896f8fbe8abc015e7c67ca75b3354978",
+      "originId" : "knowledge-coverage-1",
+      "observedAt" : "2026-10-12T17:30:18.967728400Z",
+      "contentOffset" : 0
+    } ]
+  } ],
+  "answer" : {
+    "claims" : [ {
+      "text" : "本次知识检索覆盖A公司、销售报表范围内4份来源、4个片段，命中并返回2份来源、2个片段；命中的片段已全部返回，但检索范围有限，不能据此判断授权资料之外是否还有有关规定。",
+      "citations" : [ {
+        "quote" : "第1步已执行当前授权范围内的知识检索。\n已搜索 4 份来源、4 个片段；命中 2 份来源、2 个片段；返回 2 份来源、2 个片段。\n本次命中的片段已全部返回；这不证明授权资料之外不存在其他制度。\n本次没有因字段别名扩展预算省略检索表达。\n本说明仅记录知识检索情况，不是制度正文，不是业务明细，也不证明任何业务写入已经执行。",
+        "sourceId" : "knowledge-coverage-1"
+      } ]
+    }, {
+      "text" : "当前命中的制度片段涉及销售口径和销售报表目录，其中销售金额以元为单位、币种为CNY；未见跨境出差住宿费每日上限的规定。",
+      "citations" : [ {
+        "quote" : "来源标题：销售口径（隔离验收合成制度）\n来源版本：2\n适用范围：A / rpt-sales-order\n时间说明：生效 2026-01-01；失效 未指定\n原文位置：脱敏后来源全文第1至2行；UTF-16字符[0,50)。\n片段编号：1\n正文片段：\n来源：本仓库隔离验收合成资料\n销售金额以元为单位，币种为CNY；表示销售单的订单金额，不等于已收款。",
+        "sourceId" : "document-93a5fbd0aa864a909a0b936ed174d80f-v2-p1"
+      }, {
+        "quote" : "来源标题：销售报表：目录与字段\n来源版本：1\n适用范围：A / rpt-sales-order\n时间说明：当前目录；观测日期 2026-10-13\n原文位置：脱敏后来源全文第1至3行；UTF-16字符[0,959)。\n片段编号：1\n正文片段：\n报表名称：销售报表\n用途：销售订单台账：按订单统计金额与派单状态\n字段定义：[{\"name\":\"reportId\",\"type\":\"string\",\"description\":\"报表稳定标识\"},{\"name\":\"reportName\",\"type\":\"string\",\"description\":\"报表名称\"},{\"name\":\"companyCode\",\"type\":\"string\",\"description\":\"所属公司代码\"},{\"name\":\"docNo\",\"type\":\"string\",\"description\":\"来源单据号\"},{\"name\":\"amount\",\"type\":\"decimal\",\"description\":\"来源金额，币种见 currency；空值表示未提供\"},{\"name\":\"currency\",\"type\":\"string\",\"description\":\"来源声明币种；空值表示未声明，不能跨币种合计\"},{\"name\":\"date\",\"type\":\"date\",\"description\":\"业务日期；空值表示未配置\"},{\"name\":\"status\",\"type\":\"string\",\"description\":\"报表派单状态：未派单/已派单\"},{\"name\":\"orderNo\",\"type\":\"string\",\"description\":\"订单号\"},{\"name\":\"productName\",\"type\":\"string\",\"description\":\"产品名称\"},{\"name\":\"saleDate\",\"type\":\"date\",\"description\":\"销售日期，字符串 yyyy-MM-dd\"},{\"name\":\"daysSinceSale\",\"type\":\"long\",\"description\":\"距销售日期的天数（派生）\"},{\"name\":\"dispatched\",\"type\":\"boolean\",\"description\":\"来源记录是否已派单；true为已派单，false为未派单，不代表满足派单规则\"},{\"name\":\"recordId\",\"type\":\"string\",\"description\":\"报表内稳定记录标识\"}]",
+        "sourceId" : "catalog-1-p1"
+      } ]
+    } ],
+    "status" : "INSUFFICIENT",
+    "limitations" : [ "本次检索命中的制度片段仅涉及销售金额与销售报表口径，未提供跨境出差住宿费每日上限的依据，该问题暂时无法回答。", "检索范围仅覆盖当前授权资料，不排除授权范围之外还有其他制度。" ]
+  },
+  "usage" : [ {
+    "model" : "deepseek-v4.1-flash",
+    "stage" : "PLAN",
+    "number" : 1,
+    "status" : "RESPONDED",
+    "elapsedMs" : 2800,
+    "inputTokens" : 3553,
+    "outputTokens" : 93,
+    "usageComplete" : true,
+    "cachedInputTokens" : 1920
+  }, {
+    "model" : "deepseek-v4.1-flash",
+    "stage" : "PLAN_REVIEW",
+    "number" : 2,
+    "status" : "RESPONDED",
+    "elapsedMs" : 3378,
+    "inputTokens" : 2586,
+    "outputTokens" : 56,
+    "usageComplete" : true,
+    "cachedInputTokens" : 1024
+  }, {
+    "model" : "deepseek-v4.1-flash",
+    "stage" : "RAG_REWRITE",
+    "number" : 3,
+    "status" : "RESPONDED",
+    "elapsedMs" : 2078,
+    "inputTokens" : 470,
+    "outputTokens" : 39,
+    "usageComplete" : true,
+    "cachedInputTokens" : 128
+  }, {
+    "model" : "deepseek-v4.1-flash",
+    "stage" : "RAG_RERANK",
+    "number" : 4,
+    "status" : "RESPONDED",
+    "elapsedMs" : 3034,
+    "inputTokens" : 1190,
+    "outputTokens" : 21,
+    "usageComplete" : true,
+    "cachedInputTokens" : 128
+  }, {
+    "model" : "deepseek-v4.1-flash",
+    "stage" : "ANSWER",
+    "number" : 5,
+    "status" : "RESPONDED",
+    "elapsedMs" : 3221,
+    "inputTokens" : 2716,
+    "outputTokens" : 248,
+    "usageComplete" : true,
+    "cachedInputTokens" : 896
+  }, {
+    "model" : "deepseek-v4.1-flash",
+    "stage" : "ANSWER_REVIEW",
+    "number" : 6,
+    "status" : "RESPONDED",
+    "elapsedMs" : 2406,
+    "inputTokens" : 2577,
+    "outputTokens" : 41,
+    "usageComplete" : true,
+    "cachedInputTokens" : 768
+  } ]
+}

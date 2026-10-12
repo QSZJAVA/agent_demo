@@ -1,0 +1,2083 @@
+{
+  "schemaVersion": 1,
+  "recordedAt": "2026-10-12T16:37:32.805Z",
+  "scope": "恢复、丢响应和导入发布的文件证据审计；断言结果由已保存检查点计算。浏览器问答、后5例金标和整轮准入不由本文件自动判为通过。",
+  "assertionSummary": {
+    "total": 36,
+    "passed": 36,
+    "failed": 0
+  },
+  "assertions": [
+    {
+      "name": "initialFixtureRunIsAnExistingCancelledRun",
+      "passed": true,
+      "observed": "CANCELLED",
+      "expected": "CANCELLED",
+      "evidence": [
+        ".runtime/rag-2026-10-12-browser/browser-check-recovery-before-refill.json"
+      ]
+    },
+    {
+      "name": "oneDistinctCurrentTerminalRunIsAvailableForRefill",
+      "passed": true,
+      "observed": 1,
+      "expected": 1,
+      "evidence": [
+        ".runtime/rag-2026-10-12-browser/browser-check-recovery-before-refill.json"
+      ]
+    },
+    {
+      "name": "currentTerminalRunUsesTheOriginalSnapshot",
+      "passed": true,
+      "observed": "56dd5af7a40342f88f4b9bd599b7469b",
+      "expected": "56dd5af7a40342f88f4b9bd599b7469b",
+      "evidence": [
+        ".runtime/rag-2026-10-12-browser/browser-check-recovery-before-refill.json"
+      ]
+    },
+    {
+      "name": "refillDoesNotCreateOrReplaceTasks",
+      "passed": true,
+      "observed": [
+        "13934bd56abe431bb62057f51cc17261",
+        "638084c6f9244a76a041de5e26c76266"
+      ],
+      "expected": [
+        "13934bd56abe431bb62057f51cc17261",
+        "638084c6f9244a76a041de5e26c76266"
+      ],
+      "evidence": [
+        ".runtime/rag-2026-10-12-browser/browser-check-recovery-before-refill.json",
+        ".runtime/rag-2026-10-12-browser/browser-check-recovery-after-refill.json"
+      ]
+    },
+    {
+      "name": "refillDoesNotCallTheModel",
+      "passed": true,
+      "observed": 204,
+      "expected": 204,
+      "evidence": [
+        ".runtime/rag-2026-10-12-browser/browser-check-recovery-before-refill.json",
+        ".runtime/rag-2026-10-12-browser/browser-check-recovery-after-refill.json"
+      ]
+    },
+    {
+      "name": "oneShotResponseLossWasArmed",
+      "passed": true,
+      "observed": true,
+      "expected": true,
+      "evidence": [
+        ".runtime/rag-2026-10-12-browser/browser-check-recovery-after-refill.json"
+      ]
+    },
+    {
+      "name": "oneNewTaskWasPersistedBeforeResponseLoss",
+      "passed": true,
+      "observed": [
+        "b2c93330e2a84e06b2314abfe9839994"
+      ],
+      "expected": [
+        "b2c93330e2a84e06b2314abfe9839994"
+      ],
+      "evidence": [
+        ".runtime/rag-2026-10-12-browser/browser-check-recovery-after-refill.json",
+        ".runtime/rag-2026-10-12-browser/browser-check-recovery-lost-before-refresh.json"
+      ]
+    },
+    {
+      "name": "onlyOneNewResponseLossEventWasRecorded",
+      "passed": true,
+      "observed": [
+        "b2c93330e2a84e06b2314abfe9839994"
+      ],
+      "expected": [
+        "b2c93330e2a84e06b2314abfe9839994"
+      ],
+      "evidence": [
+        ".runtime/rag-2026-10-12-browser/browser-check-recovery-after-refill.json",
+        ".runtime/rag-2026-10-12-browser/browser-check-recovery-lost-before-refresh.json"
+      ]
+    },
+    {
+      "name": "successfulControllerResponseWasReplacedWith503",
+      "passed": true,
+      "observed": [
+        [
+          200,
+          503
+        ]
+      ],
+      "expected": [
+        [
+          200,
+          503
+        ]
+      ],
+      "evidence": [
+        ".runtime/rag-2026-10-12-browser/browser-check-recovery-lost-before-refresh.json"
+      ]
+    },
+    {
+      "name": "responseLossWasConsumed",
+      "passed": true,
+      "observed": false,
+      "expected": false,
+      "evidence": [
+        ".runtime/rag-2026-10-12-browser/browser-check-recovery-lost-before-refresh.json"
+      ]
+    },
+    {
+      "name": "refreshAndReturnDoNotCreateAnotherTask",
+      "passed": true,
+      "observed": [
+        "13934bd56abe431bb62057f51cc17261",
+        "638084c6f9244a76a041de5e26c76266",
+        "b2c93330e2a84e06b2314abfe9839994"
+      ],
+      "expected": [
+        "13934bd56abe431bb62057f51cc17261",
+        "638084c6f9244a76a041de5e26c76266",
+        "b2c93330e2a84e06b2314abfe9839994"
+      ],
+      "evidence": [
+        ".runtime/rag-2026-10-12-browser/browser-check-recovery-lost-before-refresh.json",
+        ".runtime/rag-2026-10-12-browser/browser-check-recovery-refreshed-returned.json"
+      ]
+    },
+    {
+      "name": "unknownRequestPayloadRemainsIdentical",
+      "passed": true,
+      "observed": {
+        "question": "按界面选定快照统计产品金额，取金额最高的两组并展开单据。",
+        "reportId": "rpt-sales-order",
+        "snapshotId": "56dd5af7a40342f88f4b9bd599b7469b",
+        "companyCode": "A"
+      },
+      "expected": {
+        "question": "按界面选定快照统计产品金额，取金额最高的两组并展开单据。",
+        "reportId": "rpt-sales-order",
+        "snapshotId": "56dd5af7a40342f88f4b9bd599b7469b",
+        "companyCode": "A"
+      },
+      "evidence": [
+        ".runtime/rag-2026-10-12-browser/browser-check-recovery-lost-before-refresh.json",
+        ".runtime/rag-2026-10-12-browser/browser-check-recovery-refreshed-returned.json"
+      ]
+    },
+    {
+      "name": "runWasTerminalBeforeExplicitReconciliation",
+      "passed": true,
+      "observed": "COMPLETED",
+      "expected": "COMPLETED",
+      "evidence": [
+        ".runtime/rag-2026-10-12-browser/browser-check-recovery-refreshed-returned.json"
+      ]
+    },
+    {
+      "name": "explicitReconciliationKeepsTheSameTaskSet",
+      "passed": true,
+      "observed": [
+        "13934bd56abe431bb62057f51cc17261",
+        "638084c6f9244a76a041de5e26c76266",
+        "b2c93330e2a84e06b2314abfe9839994"
+      ],
+      "expected": [
+        "13934bd56abe431bb62057f51cc17261",
+        "638084c6f9244a76a041de5e26c76266",
+        "b2c93330e2a84e06b2314abfe9839994"
+      ],
+      "evidence": [
+        ".runtime/rag-2026-10-12-browser/browser-check-recovery-refreshed-returned.json",
+        ".runtime/rag-2026-10-12-browser/browser-check-recovery-confirmed.json"
+      ]
+    },
+    {
+      "name": "stableReconciliationModelCallsRemain209",
+      "passed": true,
+      "observed": [
+        209,
+        209
+      ],
+      "expected": [
+        209,
+        209
+      ],
+      "evidence": [
+        ".runtime/rag-2026-10-12-browser/browser-check-recovery-refreshed-returned.json",
+        ".runtime/rag-2026-10-12-browser/browser-check-recovery-confirmed.json"
+      ]
+    },
+    {
+      "name": "stableReconciliationKeepsTheSameTaskUsage",
+      "passed": true,
+      "observed": [
+        {
+          "model": "deepseek-v4.1-flash",
+          "stage": "PLAN",
+          "number": 1,
+          "status": "RESPONDED",
+          "elapsedMs": 3216,
+          "inputTokens": 4118,
+          "outputTokens": 202,
+          "usageComplete": true,
+          "cachedInputTokens": 3968
+        },
+        {
+          "model": "deepseek-v4.1-flash",
+          "stage": "PLAN_REVIEW",
+          "number": 2,
+          "status": "RESPONDED",
+          "elapsedMs": 2927,
+          "inputTokens": 3305,
+          "outputTokens": 47,
+          "usageComplete": true,
+          "cachedInputTokens": 2816
+        },
+        {
+          "model": "deepseek-v4.1-flash",
+          "stage": "ANSWER",
+          "number": 3,
+          "reason": "claims[3]的数字2没有被该条引用支持；请补充包含该数字的原文引用，或删去这项说明",
+          "status": "RESPONDED",
+          "elapsedMs": 4415,
+          "validation": "REJECTED",
+          "inputTokens": 10778,
+          "outputTokens": 371,
+          "usageComplete": true,
+          "cachedInputTokens": 10624
+        },
+        {
+          "model": "deepseek-v4.1-flash",
+          "stage": "ANSWER",
+          "number": 4,
+          "status": "RESPONDED",
+          "elapsedMs": 3947,
+          "inputTokens": 11256,
+          "outputTokens": 340,
+          "usageComplete": true,
+          "cachedInputTokens": 10752
+        },
+        {
+          "model": "deepseek-v4.1-flash",
+          "stage": "ANSWER_REVIEW",
+          "number": 5,
+          "status": "RESPONDED",
+          "elapsedMs": 4378,
+          "inputTokens": 10767,
+          "outputTokens": 82,
+          "usageComplete": true,
+          "cachedInputTokens": 10240
+        }
+      ],
+      "expected": [
+        {
+          "model": "deepseek-v4.1-flash",
+          "stage": "PLAN",
+          "number": 1,
+          "status": "RESPONDED",
+          "elapsedMs": 3216,
+          "inputTokens": 4118,
+          "outputTokens": 202,
+          "usageComplete": true,
+          "cachedInputTokens": 3968
+        },
+        {
+          "model": "deepseek-v4.1-flash",
+          "stage": "PLAN_REVIEW",
+          "number": 2,
+          "status": "RESPONDED",
+          "elapsedMs": 2927,
+          "inputTokens": 3305,
+          "outputTokens": 47,
+          "usageComplete": true,
+          "cachedInputTokens": 2816
+        },
+        {
+          "model": "deepseek-v4.1-flash",
+          "stage": "ANSWER",
+          "number": 3,
+          "reason": "claims[3]的数字2没有被该条引用支持；请补充包含该数字的原文引用，或删去这项说明",
+          "status": "RESPONDED",
+          "elapsedMs": 4415,
+          "validation": "REJECTED",
+          "inputTokens": 10778,
+          "outputTokens": 371,
+          "usageComplete": true,
+          "cachedInputTokens": 10624
+        },
+        {
+          "model": "deepseek-v4.1-flash",
+          "stage": "ANSWER",
+          "number": 4,
+          "status": "RESPONDED",
+          "elapsedMs": 3947,
+          "inputTokens": 11256,
+          "outputTokens": 340,
+          "usageComplete": true,
+          "cachedInputTokens": 10752
+        },
+        {
+          "model": "deepseek-v4.1-flash",
+          "stage": "ANSWER_REVIEW",
+          "number": 5,
+          "status": "RESPONDED",
+          "elapsedMs": 4378,
+          "inputTokens": 10767,
+          "outputTokens": 82,
+          "usageComplete": true,
+          "cachedInputTokens": 10240
+        }
+      ],
+      "evidence": [
+        ".runtime/rag-2026-10-12-browser/browser-check-recovery-refreshed-returned.json",
+        ".runtime/rag-2026-10-12-browser/browser-check-recovery-confirmed.json"
+      ]
+    },
+    {
+      "name": "stableReconciliationKeepsTheSameRequestPayload",
+      "passed": true,
+      "observed": {
+        "question": "按界面选定快照统计产品金额，取金额最高的两组并展开单据。",
+        "reportId": "rpt-sales-order",
+        "snapshotId": "56dd5af7a40342f88f4b9bd599b7469b",
+        "companyCode": "A"
+      },
+      "expected": {
+        "question": "按界面选定快照统计产品金额，取金额最高的两组并展开单据。",
+        "reportId": "rpt-sales-order",
+        "snapshotId": "56dd5af7a40342f88f4b9bd599b7469b",
+        "companyCode": "A"
+      },
+      "evidence": [
+        ".runtime/rag-2026-10-12-browser/browser-check-recovery-refreshed-returned.json",
+        ".runtime/rag-2026-10-12-browser/browser-check-recovery-confirmed.json"
+      ]
+    },
+    {
+      "name": "stableReconciliationDoesNotCreateAnotherLossEvent",
+      "passed": true,
+      "observed": [
+        {
+          "at": "2026-10-12T15:54:14.001642500Z",
+          "originalHttpStatus": 200,
+          "runId": "6843220d34ac49099fe994c39f8a7cec",
+          "event": "SUBMIT_RESPONSE_LOST",
+          "replacementHttpStatus": 503,
+          "requestKeyHash": "031f21b32fe3b3f76166085cd5e2076d5e4839ec9ba1e0d0060c69af7f32b20a",
+          "schema": "analysis_knowledge_it_220e9a16dbf8449f895b1f3b7312bd56"
+        },
+        {
+          "at": "2026-10-12T16:17:28.779857600Z",
+          "originalHttpStatus": 200,
+          "runId": "b2c93330e2a84e06b2314abfe9839994",
+          "event": "SUBMIT_RESPONSE_LOST",
+          "replacementHttpStatus": 503,
+          "requestKeyHash": "56f375a560908b3954ec09ba3c05e46e3a6603ac477f6050c708d933ef1f09a2",
+          "schema": "analysis_knowledge_it_220e9a16dbf8449f895b1f3b7312bd56"
+        }
+      ],
+      "expected": [
+        {
+          "at": "2026-10-12T15:54:14.001642500Z",
+          "originalHttpStatus": 200,
+          "runId": "6843220d34ac49099fe994c39f8a7cec",
+          "event": "SUBMIT_RESPONSE_LOST",
+          "replacementHttpStatus": 503,
+          "requestKeyHash": "031f21b32fe3b3f76166085cd5e2076d5e4839ec9ba1e0d0060c69af7f32b20a",
+          "schema": "analysis_knowledge_it_220e9a16dbf8449f895b1f3b7312bd56"
+        },
+        {
+          "at": "2026-10-12T16:17:28.779857600Z",
+          "originalHttpStatus": 200,
+          "runId": "b2c93330e2a84e06b2314abfe9839994",
+          "event": "SUBMIT_RESPONSE_LOST",
+          "replacementHttpStatus": 503,
+          "requestKeyHash": "56f375a560908b3954ec09ba3c05e46e3a6603ac477f6050c708d933ef1f09a2",
+          "schema": "analysis_knowledge_it_220e9a16dbf8449f895b1f3b7312bd56"
+        }
+      ],
+      "evidence": [
+        ".runtime/rag-2026-10-12-browser/browser-check-recovery-refreshed-returned.json",
+        ".runtime/rag-2026-10-12-browser/browser-check-recovery-confirmed.json"
+      ]
+    },
+    {
+      "name": "oneNewCancelledRunIsDistinctFromInitialCrossDayFixture",
+      "passed": true,
+      "observed": 1,
+      "expected": 1,
+      "evidence": [
+        ".runtime/rag-2026-10-12-browser/browser-check-recovery-confirmed.json",
+        ".runtime/rag-2026-10-12-browser/browser-check-recovery-cancelled.json"
+      ]
+    },
+    {
+      "name": "newCancellationIsNotTheOldFixtureRun",
+      "passed": true,
+      "observed": true,
+      "expected": true,
+      "evidence": [
+        ".runtime/rag-2026-10-12-browser/browser-check-recovery-cancelled.json"
+      ]
+    },
+    {
+      "name": "newCancellationHasNoPublishedAnswer",
+      "passed": true,
+      "observed": null,
+      "expected": null,
+      "evidence": [
+        ".runtime/rag-2026-10-12-browser/browser-check-recovery-cancelled.json"
+      ]
+    },
+    {
+      "name": "newCancellationKeepsOriginalSnapshot",
+      "passed": true,
+      "observed": "56dd5af7a40342f88f4b9bd599b7469b",
+      "expected": "56dd5af7a40342f88f4b9bd599b7469b",
+      "evidence": [
+        ".runtime/rag-2026-10-12-browser/browser-check-recovery-cancelled.json"
+      ]
+    },
+    {
+      "name": "allCheckpointsKeepOneBusinessSnapshot",
+      "passed": true,
+      "observed": [
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1
+      ],
+      "expected": [
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1
+      ],
+      "evidence": [
+        ".runtime/rag-2026-10-12-browser/browser-check-recovery-before-refill.json",
+        ".runtime/rag-2026-10-12-browser/browser-check-recovery-after-refill.json",
+        ".runtime/rag-2026-10-12-browser/browser-check-recovery-lost-before-refresh.json",
+        ".runtime/rag-2026-10-12-browser/browser-check-recovery-refreshed-returned.json",
+        ".runtime/rag-2026-10-12-browser/browser-check-recovery-confirmed.json",
+        ".runtime/rag-2026-10-12-browser/browser-check-recovery-cancelled.json",
+        ".runtime/rag-2026-10-12-browser/browser-check-import-filled-only.json",
+        ".runtime/rag-2026-10-12-browser/browser-check-import-draft-saved.json",
+        ".runtime/rag-2026-10-12-browser/browser-check-import-published.json"
+      ]
+    },
+    {
+      "name": "allCheckpointsHaveZeroDispatchRequests",
+      "passed": true,
+      "observed": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "expected": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "evidence": [
+        ".runtime/rag-2026-10-12-browser/browser-check-recovery-before-refill.json",
+        ".runtime/rag-2026-10-12-browser/browser-check-recovery-after-refill.json",
+        ".runtime/rag-2026-10-12-browser/browser-check-recovery-lost-before-refresh.json",
+        ".runtime/rag-2026-10-12-browser/browser-check-recovery-refreshed-returned.json",
+        ".runtime/rag-2026-10-12-browser/browser-check-recovery-confirmed.json",
+        ".runtime/rag-2026-10-12-browser/browser-check-recovery-cancelled.json",
+        ".runtime/rag-2026-10-12-browser/browser-check-import-filled-only.json",
+        ".runtime/rag-2026-10-12-browser/browser-check-import-draft-saved.json",
+        ".runtime/rag-2026-10-12-browser/browser-check-import-published.json"
+      ]
+    },
+    {
+      "name": "ninePublishedDocumentsExistBeforeImport",
+      "passed": true,
+      "observed": [
+        [
+          "PUBLISHED",
+          2,
+          2
+        ],
+        [
+          "PUBLISHED",
+          2,
+          2
+        ],
+        [
+          "PUBLISHED",
+          2,
+          2
+        ],
+        [
+          "PUBLISHED",
+          2,
+          2
+        ],
+        [
+          "PUBLISHED",
+          2,
+          2
+        ],
+        [
+          "PUBLISHED",
+          2,
+          2
+        ],
+        [
+          "PUBLISHED",
+          2,
+          2
+        ],
+        [
+          "PUBLISHED",
+          2,
+          2
+        ],
+        [
+          "PUBLISHED",
+          2,
+          2
+        ]
+      ],
+      "expected": [
+        [
+          "PUBLISHED",
+          2,
+          2
+        ],
+        [
+          "PUBLISHED",
+          2,
+          2
+        ],
+        [
+          "PUBLISHED",
+          2,
+          2
+        ],
+        [
+          "PUBLISHED",
+          2,
+          2
+        ],
+        [
+          "PUBLISHED",
+          2,
+          2
+        ],
+        [
+          "PUBLISHED",
+          2,
+          2
+        ],
+        [
+          "PUBLISHED",
+          2,
+          2
+        ],
+        [
+          "PUBLISHED",
+          2,
+          2
+        ],
+        [
+          "PUBLISHED",
+          2,
+          2
+        ]
+      ],
+      "evidence": [
+        ".runtime/rag-2026-10-12-browser/browser-check-import-filled-only.json"
+      ]
+    },
+    {
+      "name": "importOnlyFillDoesNotCreateOrModifyDocuments",
+      "passed": true,
+      "observed": [
+        {
+          "id": "0308193b849d4c078be0802ef9b49c05",
+          "row_version": 2,
+          "published_version": 2,
+          "status": "PUBLISHED"
+        },
+        {
+          "id": "052b3029399440b2ac4aa1b3f7550924",
+          "row_version": 2,
+          "published_version": 2,
+          "status": "PUBLISHED"
+        },
+        {
+          "id": "16d3f1be65c14b7e9ebc6e228e4d0c41",
+          "row_version": 2,
+          "published_version": 2,
+          "status": "PUBLISHED"
+        },
+        {
+          "id": "5ddc525e13ae4b7fbae4965fa793a1ec",
+          "row_version": 2,
+          "published_version": 2,
+          "status": "PUBLISHED"
+        },
+        {
+          "id": "65cd6016a801431f97b74cf846ed3c7c",
+          "row_version": 2,
+          "published_version": 2,
+          "status": "PUBLISHED"
+        },
+        {
+          "id": "a757bf7892d34ffc9101cb8c99747ca1",
+          "row_version": 2,
+          "published_version": 2,
+          "status": "PUBLISHED"
+        },
+        {
+          "id": "b446079c53844c53925aaab3f72c3202",
+          "row_version": 2,
+          "published_version": 2,
+          "status": "PUBLISHED"
+        },
+        {
+          "id": "c28d7011fc584e84ac8f5a63037f2a29",
+          "row_version": 2,
+          "published_version": 2,
+          "status": "PUBLISHED"
+        },
+        {
+          "id": "f7f480e95bf444d488137500db67a193",
+          "row_version": 2,
+          "published_version": 2,
+          "status": "PUBLISHED"
+        }
+      ],
+      "expected": [
+        {
+          "id": "0308193b849d4c078be0802ef9b49c05",
+          "row_version": 2,
+          "published_version": 2,
+          "status": "PUBLISHED"
+        },
+        {
+          "id": "052b3029399440b2ac4aa1b3f7550924",
+          "row_version": 2,
+          "published_version": 2,
+          "status": "PUBLISHED"
+        },
+        {
+          "id": "16d3f1be65c14b7e9ebc6e228e4d0c41",
+          "row_version": 2,
+          "published_version": 2,
+          "status": "PUBLISHED"
+        },
+        {
+          "id": "5ddc525e13ae4b7fbae4965fa793a1ec",
+          "row_version": 2,
+          "published_version": 2,
+          "status": "PUBLISHED"
+        },
+        {
+          "id": "65cd6016a801431f97b74cf846ed3c7c",
+          "row_version": 2,
+          "published_version": 2,
+          "status": "PUBLISHED"
+        },
+        {
+          "id": "a757bf7892d34ffc9101cb8c99747ca1",
+          "row_version": 2,
+          "published_version": 2,
+          "status": "PUBLISHED"
+        },
+        {
+          "id": "b446079c53844c53925aaab3f72c3202",
+          "row_version": 2,
+          "published_version": 2,
+          "status": "PUBLISHED"
+        },
+        {
+          "id": "c28d7011fc584e84ac8f5a63037f2a29",
+          "row_version": 2,
+          "published_version": 2,
+          "status": "PUBLISHED"
+        },
+        {
+          "id": "f7f480e95bf444d488137500db67a193",
+          "row_version": 2,
+          "published_version": 2,
+          "status": "PUBLISHED"
+        }
+      ],
+      "evidence": [
+        ".runtime/rag-2026-10-12-browser/browser-check-recovery-cancelled.json",
+        ".runtime/rag-2026-10-12-browser/browser-check-import-filled-only.json"
+      ]
+    },
+    {
+      "name": "importOnlyFillDoesNotCallTheModel",
+      "passed": true,
+      "observed": 210,
+      "expected": 210,
+      "evidence": [
+        ".runtime/rag-2026-10-12-browser/browser-check-recovery-cancelled.json",
+        ".runtime/rag-2026-10-12-browser/browser-check-import-filled-only.json"
+      ]
+    },
+    {
+      "name": "savingCreatesExactlyOneNewDocument",
+      "passed": true,
+      "observed": 1,
+      "expected": 1,
+      "evidence": [
+        ".runtime/rag-2026-10-12-browser/browser-check-import-filled-only.json",
+        ".runtime/rag-2026-10-12-browser/browser-check-import-draft-saved.json"
+      ]
+    },
+    {
+      "name": "savedDocumentIsUnpublishedVersionOne",
+      "passed": true,
+      "observed": [
+        "DRAFT",
+        1,
+        null
+      ],
+      "expected": [
+        "DRAFT",
+        1,
+        null
+      ],
+      "evidence": [
+        ".runtime/rag-2026-10-12-browser/browser-check-import-draft-saved.json"
+      ]
+    },
+    {
+      "name": "draftSaveKeepsTheOtherNineDocuments",
+      "passed": true,
+      "observed": [
+        {
+          "id": "0308193b849d4c078be0802ef9b49c05",
+          "row_version": 2,
+          "published_version": 2,
+          "status": "PUBLISHED"
+        },
+        {
+          "id": "052b3029399440b2ac4aa1b3f7550924",
+          "row_version": 2,
+          "published_version": 2,
+          "status": "PUBLISHED"
+        },
+        {
+          "id": "16d3f1be65c14b7e9ebc6e228e4d0c41",
+          "row_version": 2,
+          "published_version": 2,
+          "status": "PUBLISHED"
+        },
+        {
+          "id": "5ddc525e13ae4b7fbae4965fa793a1ec",
+          "row_version": 2,
+          "published_version": 2,
+          "status": "PUBLISHED"
+        },
+        {
+          "id": "65cd6016a801431f97b74cf846ed3c7c",
+          "row_version": 2,
+          "published_version": 2,
+          "status": "PUBLISHED"
+        },
+        {
+          "id": "a757bf7892d34ffc9101cb8c99747ca1",
+          "row_version": 2,
+          "published_version": 2,
+          "status": "PUBLISHED"
+        },
+        {
+          "id": "b446079c53844c53925aaab3f72c3202",
+          "row_version": 2,
+          "published_version": 2,
+          "status": "PUBLISHED"
+        },
+        {
+          "id": "c28d7011fc584e84ac8f5a63037f2a29",
+          "row_version": 2,
+          "published_version": 2,
+          "status": "PUBLISHED"
+        },
+        {
+          "id": "f7f480e95bf444d488137500db67a193",
+          "row_version": 2,
+          "published_version": 2,
+          "status": "PUBLISHED"
+        }
+      ],
+      "expected": [
+        {
+          "id": "0308193b849d4c078be0802ef9b49c05",
+          "row_version": 2,
+          "published_version": 2,
+          "status": "PUBLISHED"
+        },
+        {
+          "id": "052b3029399440b2ac4aa1b3f7550924",
+          "row_version": 2,
+          "published_version": 2,
+          "status": "PUBLISHED"
+        },
+        {
+          "id": "16d3f1be65c14b7e9ebc6e228e4d0c41",
+          "row_version": 2,
+          "published_version": 2,
+          "status": "PUBLISHED"
+        },
+        {
+          "id": "5ddc525e13ae4b7fbae4965fa793a1ec",
+          "row_version": 2,
+          "published_version": 2,
+          "status": "PUBLISHED"
+        },
+        {
+          "id": "65cd6016a801431f97b74cf846ed3c7c",
+          "row_version": 2,
+          "published_version": 2,
+          "status": "PUBLISHED"
+        },
+        {
+          "id": "a757bf7892d34ffc9101cb8c99747ca1",
+          "row_version": 2,
+          "published_version": 2,
+          "status": "PUBLISHED"
+        },
+        {
+          "id": "b446079c53844c53925aaab3f72c3202",
+          "row_version": 2,
+          "published_version": 2,
+          "status": "PUBLISHED"
+        },
+        {
+          "id": "c28d7011fc584e84ac8f5a63037f2a29",
+          "row_version": 2,
+          "published_version": 2,
+          "status": "PUBLISHED"
+        },
+        {
+          "id": "f7f480e95bf444d488137500db67a193",
+          "row_version": 2,
+          "published_version": 2,
+          "status": "PUBLISHED"
+        }
+      ],
+      "evidence": [
+        ".runtime/rag-2026-10-12-browser/browser-check-import-filled-only.json",
+        ".runtime/rag-2026-10-12-browser/browser-check-import-draft-saved.json"
+      ]
+    },
+    {
+      "name": "publicationKeepsTheSameTenDocumentIds",
+      "passed": true,
+      "observed": [
+        "0308193b849d4c078be0802ef9b49c05",
+        "052b3029399440b2ac4aa1b3f7550924",
+        "16d3f1be65c14b7e9ebc6e228e4d0c41",
+        "5ddc525e13ae4b7fbae4965fa793a1ec",
+        "65cd6016a801431f97b74cf846ed3c7c",
+        "a757bf7892d34ffc9101cb8c99747ca1",
+        "b446079c53844c53925aaab3f72c3202",
+        "c28d7011fc584e84ac8f5a63037f2a29",
+        "d549d8e2df054f39b98d966436cd0ebc",
+        "f7f480e95bf444d488137500db67a193"
+      ],
+      "expected": [
+        "0308193b849d4c078be0802ef9b49c05",
+        "052b3029399440b2ac4aa1b3f7550924",
+        "16d3f1be65c14b7e9ebc6e228e4d0c41",
+        "5ddc525e13ae4b7fbae4965fa793a1ec",
+        "65cd6016a801431f97b74cf846ed3c7c",
+        "a757bf7892d34ffc9101cb8c99747ca1",
+        "b446079c53844c53925aaab3f72c3202",
+        "c28d7011fc584e84ac8f5a63037f2a29",
+        "d549d8e2df054f39b98d966436cd0ebc",
+        "f7f480e95bf444d488137500db67a193"
+      ],
+      "evidence": [
+        ".runtime/rag-2026-10-12-browser/browser-check-import-draft-saved.json",
+        ".runtime/rag-2026-10-12-browser/browser-check-import-published.json"
+      ]
+    },
+    {
+      "name": "sameImportedDocumentPublishesVersionTwo",
+      "passed": true,
+      "observed": [
+        "d549d8e2df054f39b98d966436cd0ebc",
+        "PUBLISHED",
+        2,
+        2
+      ],
+      "expected": [
+        "d549d8e2df054f39b98d966436cd0ebc",
+        "PUBLISHED",
+        2,
+        2
+      ],
+      "evidence": [
+        ".runtime/rag-2026-10-12-browser/browser-check-import-draft-saved.json",
+        ".runtime/rag-2026-10-12-browser/browser-check-import-published.json"
+      ]
+    },
+    {
+      "name": "publicationKeepsTheOtherNineDocumentsUnchanged",
+      "passed": true,
+      "observed": [
+        {
+          "id": "0308193b849d4c078be0802ef9b49c05",
+          "row_version": 2,
+          "published_version": 2,
+          "status": "PUBLISHED"
+        },
+        {
+          "id": "052b3029399440b2ac4aa1b3f7550924",
+          "row_version": 2,
+          "published_version": 2,
+          "status": "PUBLISHED"
+        },
+        {
+          "id": "16d3f1be65c14b7e9ebc6e228e4d0c41",
+          "row_version": 2,
+          "published_version": 2,
+          "status": "PUBLISHED"
+        },
+        {
+          "id": "5ddc525e13ae4b7fbae4965fa793a1ec",
+          "row_version": 2,
+          "published_version": 2,
+          "status": "PUBLISHED"
+        },
+        {
+          "id": "65cd6016a801431f97b74cf846ed3c7c",
+          "row_version": 2,
+          "published_version": 2,
+          "status": "PUBLISHED"
+        },
+        {
+          "id": "a757bf7892d34ffc9101cb8c99747ca1",
+          "row_version": 2,
+          "published_version": 2,
+          "status": "PUBLISHED"
+        },
+        {
+          "id": "b446079c53844c53925aaab3f72c3202",
+          "row_version": 2,
+          "published_version": 2,
+          "status": "PUBLISHED"
+        },
+        {
+          "id": "c28d7011fc584e84ac8f5a63037f2a29",
+          "row_version": 2,
+          "published_version": 2,
+          "status": "PUBLISHED"
+        },
+        {
+          "id": "f7f480e95bf444d488137500db67a193",
+          "row_version": 2,
+          "published_version": 2,
+          "status": "PUBLISHED"
+        }
+      ],
+      "expected": [
+        {
+          "id": "0308193b849d4c078be0802ef9b49c05",
+          "row_version": 2,
+          "published_version": 2,
+          "status": "PUBLISHED"
+        },
+        {
+          "id": "052b3029399440b2ac4aa1b3f7550924",
+          "row_version": 2,
+          "published_version": 2,
+          "status": "PUBLISHED"
+        },
+        {
+          "id": "16d3f1be65c14b7e9ebc6e228e4d0c41",
+          "row_version": 2,
+          "published_version": 2,
+          "status": "PUBLISHED"
+        },
+        {
+          "id": "5ddc525e13ae4b7fbae4965fa793a1ec",
+          "row_version": 2,
+          "published_version": 2,
+          "status": "PUBLISHED"
+        },
+        {
+          "id": "65cd6016a801431f97b74cf846ed3c7c",
+          "row_version": 2,
+          "published_version": 2,
+          "status": "PUBLISHED"
+        },
+        {
+          "id": "a757bf7892d34ffc9101cb8c99747ca1",
+          "row_version": 2,
+          "published_version": 2,
+          "status": "PUBLISHED"
+        },
+        {
+          "id": "b446079c53844c53925aaab3f72c3202",
+          "row_version": 2,
+          "published_version": 2,
+          "status": "PUBLISHED"
+        },
+        {
+          "id": "c28d7011fc584e84ac8f5a63037f2a29",
+          "row_version": 2,
+          "published_version": 2,
+          "status": "PUBLISHED"
+        },
+        {
+          "id": "f7f480e95bf444d488137500db67a193",
+          "row_version": 2,
+          "published_version": 2,
+          "status": "PUBLISHED"
+        }
+      ],
+      "evidence": [
+        ".runtime/rag-2026-10-12-browser/browser-check-import-filled-only.json",
+        ".runtime/rag-2026-10-12-browser/browser-check-import-published.json"
+      ]
+    },
+    {
+      "name": "initialDocumentSetContainsAllEightMappedACorpusDocuments",
+      "passed": true,
+      "observed": 8,
+      "expected": 8,
+      "evidence": [
+        ".runtime/rag-2026-10-12-browser/browser-check-import-filled-only.json"
+      ]
+    },
+    {
+      "name": "initialDocumentSetHasOneAdditionalFixtureDocument",
+      "passed": true,
+      "observed": 1,
+      "expected": 1,
+      "evidence": [
+        ".runtime/rag-2026-10-12-browser/browser-check-import-filled-only.json"
+      ]
+    },
+    {
+      "name": "publishedImportIsVisibleAsVersionTwoInSavedDom",
+      "passed": true,
+      "observed": "      - row \"月度档案命名规范（合成验收资料） 本仓库隔离浏览器验收合成 Markdown 已发布 2 2 编辑 发布 停用 历史\":",
+      "expected": "导入资料行显示已发布、编辑版本2、发布版本2",
+      "evidence": [
+        ".runtime/rag-2026-10-12-browser/browser-import-published.txt"
+      ]
+    }
+  ],
+  "checkpointSummary": [
+    {
+      "name": "recovery-before-refill",
+      "evidence": ".runtime/rag-2026-10-12-browser/browser-check-recovery-before-refill.json",
+      "tasks": [
+        {
+          "id": "13934bd56abe431bb62057f51cc17261",
+          "status": "COMPLETED",
+          "stage": "FINISHED"
+        },
+        {
+          "id": "638084c6f9244a76a041de5e26c76266",
+          "status": "CANCELLED",
+          "stage": "FINISHED"
+        }
+      ],
+      "documentCount": 9,
+      "modelCalls": 204,
+      "businessSnapshotCount": 1,
+      "dispatchRequestCount": 0
+    },
+    {
+      "name": "recovery-after-refill",
+      "evidence": ".runtime/rag-2026-10-12-browser/browser-check-recovery-after-refill.json",
+      "tasks": [
+        {
+          "id": "13934bd56abe431bb62057f51cc17261",
+          "status": "COMPLETED",
+          "stage": "FINISHED"
+        },
+        {
+          "id": "638084c6f9244a76a041de5e26c76266",
+          "status": "CANCELLED",
+          "stage": "FINISHED"
+        }
+      ],
+      "documentCount": 9,
+      "modelCalls": 204,
+      "businessSnapshotCount": 1,
+      "dispatchRequestCount": 0
+    },
+    {
+      "name": "recovery-lost-before-refresh",
+      "evidence": ".runtime/rag-2026-10-12-browser/browser-check-recovery-lost-before-refresh.json",
+      "tasks": [
+        {
+          "id": "13934bd56abe431bb62057f51cc17261",
+          "status": "COMPLETED",
+          "stage": "FINISHED"
+        },
+        {
+          "id": "638084c6f9244a76a041de5e26c76266",
+          "status": "CANCELLED",
+          "stage": "FINISHED"
+        },
+        {
+          "id": "b2c93330e2a84e06b2314abfe9839994",
+          "status": "RUNNING",
+          "stage": "ANSWER"
+        }
+      ],
+      "documentCount": 9,
+      "modelCalls": 207,
+      "businessSnapshotCount": 1,
+      "dispatchRequestCount": 0
+    },
+    {
+      "name": "recovery-refreshed-returned",
+      "evidence": ".runtime/rag-2026-10-12-browser/browser-check-recovery-refreshed-returned.json",
+      "tasks": [
+        {
+          "id": "13934bd56abe431bb62057f51cc17261",
+          "status": "COMPLETED",
+          "stage": "FINISHED"
+        },
+        {
+          "id": "638084c6f9244a76a041de5e26c76266",
+          "status": "CANCELLED",
+          "stage": "FINISHED"
+        },
+        {
+          "id": "b2c93330e2a84e06b2314abfe9839994",
+          "status": "COMPLETED",
+          "stage": "FINISHED"
+        }
+      ],
+      "documentCount": 9,
+      "modelCalls": 209,
+      "businessSnapshotCount": 1,
+      "dispatchRequestCount": 0
+    },
+    {
+      "name": "recovery-confirmed",
+      "evidence": ".runtime/rag-2026-10-12-browser/browser-check-recovery-confirmed.json",
+      "tasks": [
+        {
+          "id": "13934bd56abe431bb62057f51cc17261",
+          "status": "COMPLETED",
+          "stage": "FINISHED"
+        },
+        {
+          "id": "638084c6f9244a76a041de5e26c76266",
+          "status": "CANCELLED",
+          "stage": "FINISHED"
+        },
+        {
+          "id": "b2c93330e2a84e06b2314abfe9839994",
+          "status": "COMPLETED",
+          "stage": "FINISHED"
+        }
+      ],
+      "documentCount": 9,
+      "modelCalls": 209,
+      "businessSnapshotCount": 1,
+      "dispatchRequestCount": 0
+    },
+    {
+      "name": "recovery-cancelled",
+      "evidence": ".runtime/rag-2026-10-12-browser/browser-check-recovery-cancelled.json",
+      "tasks": [
+        {
+          "id": "13934bd56abe431bb62057f51cc17261",
+          "status": "COMPLETED",
+          "stage": "FINISHED"
+        },
+        {
+          "id": "638084c6f9244a76a041de5e26c76266",
+          "status": "CANCELLED",
+          "stage": "FINISHED"
+        },
+        {
+          "id": "a015db00b85341be828a78dd6daaacfd",
+          "status": "CANCELLED",
+          "stage": "FINISHED"
+        },
+        {
+          "id": "b2c93330e2a84e06b2314abfe9839994",
+          "status": "COMPLETED",
+          "stage": "FINISHED"
+        }
+      ],
+      "documentCount": 9,
+      "modelCalls": 210,
+      "businessSnapshotCount": 1,
+      "dispatchRequestCount": 0
+    },
+    {
+      "name": "import-filled-only",
+      "evidence": ".runtime/rag-2026-10-12-browser/browser-check-import-filled-only.json",
+      "tasks": [
+        {
+          "id": "13934bd56abe431bb62057f51cc17261",
+          "status": "COMPLETED",
+          "stage": "FINISHED"
+        },
+        {
+          "id": "638084c6f9244a76a041de5e26c76266",
+          "status": "CANCELLED",
+          "stage": "FINISHED"
+        },
+        {
+          "id": "a015db00b85341be828a78dd6daaacfd",
+          "status": "CANCELLED",
+          "stage": "FINISHED"
+        },
+        {
+          "id": "b2c93330e2a84e06b2314abfe9839994",
+          "status": "COMPLETED",
+          "stage": "FINISHED"
+        }
+      ],
+      "documentCount": 9,
+      "modelCalls": 210,
+      "businessSnapshotCount": 1,
+      "dispatchRequestCount": 0
+    },
+    {
+      "name": "import-draft-saved",
+      "evidence": ".runtime/rag-2026-10-12-browser/browser-check-import-draft-saved.json",
+      "tasks": [
+        {
+          "id": "13934bd56abe431bb62057f51cc17261",
+          "status": "COMPLETED",
+          "stage": "FINISHED"
+        },
+        {
+          "id": "638084c6f9244a76a041de5e26c76266",
+          "status": "CANCELLED",
+          "stage": "FINISHED"
+        },
+        {
+          "id": "a015db00b85341be828a78dd6daaacfd",
+          "status": "CANCELLED",
+          "stage": "FINISHED"
+        },
+        {
+          "id": "b2c93330e2a84e06b2314abfe9839994",
+          "status": "COMPLETED",
+          "stage": "FINISHED"
+        }
+      ],
+      "documentCount": 10,
+      "modelCalls": 210,
+      "businessSnapshotCount": 1,
+      "dispatchRequestCount": 0
+    },
+    {
+      "name": "import-published",
+      "evidence": ".runtime/rag-2026-10-12-browser/browser-check-import-published.json",
+      "tasks": [
+        {
+          "id": "13934bd56abe431bb62057f51cc17261",
+          "status": "COMPLETED",
+          "stage": "FINISHED"
+        },
+        {
+          "id": "638084c6f9244a76a041de5e26c76266",
+          "status": "CANCELLED",
+          "stage": "FINISHED"
+        },
+        {
+          "id": "a015db00b85341be828a78dd6daaacfd",
+          "status": "CANCELLED",
+          "stage": "FINISHED"
+        },
+        {
+          "id": "b2c93330e2a84e06b2314abfe9839994",
+          "status": "COMPLETED",
+          "stage": "FINISHED"
+        }
+      ],
+      "documentCount": 10,
+      "modelCalls": 212,
+      "businessSnapshotCount": 1,
+      "dispatchRequestCount": 0
+    }
+  ],
+  "recovery": {
+    "originalSnapshotId": "56dd5af7a40342f88f4b9bd599b7469b",
+    "initialCrossDayCancelledRunId": "638084c6f9244a76a041de5e26c76266",
+    "currentTerminalRefillRunId": "13934bd56abe431bb62057f51cc17261",
+    "currentTerminalStatus": "COMPLETED",
+    "newBrowserCancelledRunId": "a015db00b85341be828a78dd6daaacfd",
+    "crossDayExplanation": "旧夹具在上海日期变更前创建；KnowledgeService.snapshot把上海day纳入scope_hash。跨日失效UI事实由根任务验收保留，此处仅核对旧run与新run身份，不修改运行库或放宽指纹。",
+    "refillModelCalls": [
+      204,
+      204
+    ],
+    "loss": {
+      "runId": "b2c93330e2a84e06b2314abfe9839994",
+      "event": {
+        "at": "2026-10-12T16:17:28.779857600Z",
+        "originalHttpStatus": 200,
+        "runId": "b2c93330e2a84e06b2314abfe9839994",
+        "event": "SUBMIT_RESPONSE_LOST",
+        "replacementHttpStatus": 503,
+        "requestKeyHash": "56f375a560908b3954ec09ba3c05e46e3a6603ac477f6050c708d933ef1f09a2",
+        "schema": "analysis_knowledge_it_220e9a16dbf8449f895b1f3b7312bd56"
+      },
+      "baselineHistoricalEvents": [
+        {
+          "runId": "6843220d34ac49099fe994c39f8a7cec",
+          "at": "2026-10-12T15:54:14.001642500Z"
+        }
+      ],
+      "taskCounts": [
+        2,
+        3,
+        3,
+        3
+      ],
+      "modelCalls": [
+        207,
+        209,
+        209
+      ],
+      "finalUsageCalls": 5,
+      "finalUsageStages": [
+        {
+          "number": 1,
+          "stage": "PLAN",
+          "status": "RESPONDED",
+          "validation": null
+        },
+        {
+          "number": 2,
+          "stage": "PLAN_REVIEW",
+          "status": "RESPONDED",
+          "validation": null
+        },
+        {
+          "number": 3,
+          "stage": "ANSWER",
+          "status": "RESPONDED",
+          "validation": "REJECTED"
+        },
+        {
+          "number": 4,
+          "stage": "ANSWER",
+          "status": "RESPONDED",
+          "validation": null
+        },
+        {
+          "number": 5,
+          "stage": "ANSWER_REVIEW",
+          "status": "RESPONDED",
+          "validation": null
+        }
+      ],
+      "rejectedAnswerAttempts": 1,
+      "note": "207到209发生于同一原任务从RUNNING完成，含一次ANSWER拒绝后的有界修正；显式核对开始前任务已经稳定终态，209到209且usage不变才能证明核对未重复执行。"
+    }
+  },
+  "importPublication": {
+    "documentCounts": [
+      9,
+      9,
+      10,
+      10
+    ],
+    "initialMappedACorpusDocuments": 8,
+    "initialOtherDocumentIds": [
+      "0308193b849d4c078be0802ef9b49c05"
+    ],
+    "initialScopeAttribution": {
+      "a": 8,
+      "b": 1,
+      "evidence": "business-service/src/test/java/com/example/business/AnalysisKnowledgeIntegrationTest.java:415；browser-rag-fixture.json映射8份A资料，夹具随后发布1份B资料。检查点documents不含company_code，范围归属来自夹具构造与ID映射，不冒充直接读取范围字段。"
+    },
+    "importedDocumentId": "d549d8e2df054f39b98d966436cd0ebc",
+    "draft": {
+      "id": "d549d8e2df054f39b98d966436cd0ebc",
+      "row_version": 1,
+      "published_version": null,
+      "status": "DRAFT"
+    },
+    "published": {
+      "id": "d549d8e2df054f39b98d966436cd0ebc",
+      "row_version": 2,
+      "published_version": 2,
+      "status": "PUBLISHED"
+    },
+    "localImportFile": {
+      "path": ".runtime/rag-2026-10-12-browser/synthetic-archive-policy.md",
+      "bytes": 405,
+      "sha256": "525a77fb1c6fbb4a4540940e1878344f284e72e9bbd4eb046643415280755c93"
+    },
+    "publicationDomRow": "      - row \"月度档案命名规范（合成验收资料） 本仓库隔离浏览器验收合成 Markdown 已发布 2 2 编辑 发布 停用 历史\":",
+    "publishedScreenshot": ".runtime/rag-2026-10-12-browser/browser-import-published.jpg",
+    "modelCallsAtFilledDraftPublished": [
+      210,
+      210,
+      212
+    ],
+    "note": "草稿到发布检查点之间模型调用210到212；检查点没有把这两次调用绑定到具体操作，须以根任务UI及最终模型阶段记录核对；不能据此声称发布接口自动调用模型。",
+    "savedDomSemanticPreviewCalls": null,
+    "interveningModelCallDelta": 2,
+    "previewCallsVerifiedAfterCompletion": [
+      {
+        "stage": "RAG_REWRITE",
+        "status": "RESPONDED",
+        "usage": {
+          "inputTokens": 465,
+          "outputTokens": 50,
+          "cachedInputTokens": 128
+        },
+        "elapsedMs": 2243
+      },
+      {
+        "stage": "RAG_RERANK",
+        "status": "RESPONDED",
+        "usage": {
+          "inputTokens": 2574,
+          "outputTokens": 39,
+          "cachedInputTokens": 128
+        },
+        "elapsedMs": 2430
+      }
+    ]
+  },
+  "evidenceLimits": [
+    "后端检查点证明任务/文档/用量与幂等结果变化；原问题在浏览器表单中的恢复、控件禁用、刷新与导航动作由根任务实际UI记录证明，本文件不从数据库反推操作画面。",
+    "全局modelCalls包括本类此前147次程序替身与已有真实调用，不能把209或212当作本次浏览器真实调用次数；最终计费按model-evidence的source标签去重统计。",
+    "仅对已经读取的发布DOM文本做可见状态核对；JPEG保存并校验文件摘要，不在本子任务重新操作浏览器。"
+  ],
+  "readiness": {
+    "observedAt": "2026-10-12T16:37:32.805Z",
+    "browserModelEvidenceExists": false,
+    "goldObservationsExist": false,
+    "goldEvaluationExists": false,
+    "databaseLifecycle": [
+      {
+        "evidence": ".runtime/rag-2026-10-12-browser/databases-analysis_knowledge_it_220e9a16dbf8449f895b1f3b7312bd56.json",
+        "events": [
+          {
+            "event": "before",
+            "schema": "analysis_knowledge_it_220e9a16dbf8449f895b1f3b7312bd56",
+            "at": "2026-10-12T15:51:53.678863100Z"
+          },
+          {
+            "event": "created",
+            "schema": "analysis_knowledge_it_220e9a16dbf8449f895b1f3b7312bd56",
+            "at": "2026-10-12T15:51:53.802708600Z"
+          }
+        ]
+      }
+    ],
+    "allCreatedDatabasesRemoved": false
+  },
+  "artifacts": [
+    {
+      "path": ".runtime/rag-2026-10-12-browser/browser-check-recovery-before-refill.json",
+      "sha256": "5a5275fef77418077ec739b952c7dad82343e9bcb32f46e1740296098bdd3dea",
+      "bytes": 80028,
+      "fileModifiedAt": "2026-10-12T16:12:34.862Z"
+    },
+    {
+      "path": ".runtime/rag-2026-10-12-browser/browser-check-recovery-after-refill.json",
+      "sha256": "327f5e904373341218c10e3e31cc06cd100bdaa19596bd90207892c5ccec4bed",
+      "bytes": 80027,
+      "fileModifiedAt": "2026-10-12T16:14:43.634Z"
+    },
+    {
+      "path": ".runtime/rag-2026-10-12-browser/browser-check-recovery-lost-before-refresh.json",
+      "sha256": "cfc34f9a110287866796cbc2e8bbcafde122a037b79049e176087fd9b25c116a",
+      "bytes": 139666,
+      "fileModifiedAt": "2026-10-12T16:17:41.229Z"
+    },
+    {
+      "path": ".runtime/rag-2026-10-12-browser/browser-check-recovery-refreshed-returned.json",
+      "sha256": "ac094524fbc4451ca7441ce040033dc157c6c50a26fc68d1810541e1ef2791db",
+      "bytes": 155730,
+      "fileModifiedAt": "2026-10-12T16:19:19.535Z"
+    },
+    {
+      "path": ".runtime/rag-2026-10-12-browser/browser-check-recovery-confirmed.json",
+      "sha256": "ac094524fbc4451ca7441ce040033dc157c6c50a26fc68d1810541e1ef2791db",
+      "bytes": 155730,
+      "fileModifiedAt": "2026-10-12T16:20:22.967Z"
+    },
+    {
+      "path": ".runtime/rag-2026-10-12-browser/browser-check-recovery-cancelled.json",
+      "sha256": "5ef66be270b81bcb339045f0889e71c9f46d82da5269bc14f316a60ca312aa9d",
+      "bytes": 156249,
+      "fileModifiedAt": "2026-10-12T16:22:36.382Z"
+    },
+    {
+      "path": ".runtime/rag-2026-10-12-browser/browser-check-import-filled-only.json",
+      "sha256": "5ef66be270b81bcb339045f0889e71c9f46d82da5269bc14f316a60ca312aa9d",
+      "bytes": 156249,
+      "fileModifiedAt": "2026-10-12T16:25:52.533Z"
+    },
+    {
+      "path": ".runtime/rag-2026-10-12-browser/browser-check-import-draft-saved.json",
+      "sha256": "0dc84063caddf4ef329c14ff97e78afb75002990a89879cd11a425f3ad6b3d8c",
+      "bytes": 156386,
+      "fileModifiedAt": "2026-10-12T16:27:33.109Z"
+    },
+    {
+      "path": ".runtime/rag-2026-10-12-browser/browser-check-import-published.json",
+      "sha256": "14d4923195dfa49d194fc561948b3f7d30c57bc093e6c51fd50d0ca194f84140",
+      "bytes": 156387,
+      "fileModifiedAt": "2026-10-12T16:29:49.113Z"
+    },
+    {
+      "path": ".runtime/rag-2026-10-12-browser/browser-rag-fixture.json",
+      "sha256": "6fd97cc0a341aa107a9ab9c0015e24ab3e0c7bf764a29ec39cab7f25db2dc882",
+      "bytes": 2770,
+      "fileModifiedAt": "2026-10-12T15:57:36.036Z"
+    },
+    {
+      "path": ".runtime/rag-2026-10-12-browser/browser-import-published.txt",
+      "sha256": "42774f7997400ab4dbffea7db38be641f3bad7d879ef5ac8343c5794a2f9086e",
+      "bytes": 9979,
+      "fileModifiedAt": "2026-10-12T16:31:29.017Z"
+    },
+    {
+      "path": ".runtime/rag-2026-10-12-browser/browser-import-published.jpg",
+      "sha256": "9fd8e489d5581e7fbb874183378eee77fd75701015d2f37eb45a6639f721f54b",
+      "bytes": 72469,
+      "fileModifiedAt": "2026-10-12T16:31:29.034Z"
+    },
+    {
+      "path": ".runtime/rag-2026-10-12-browser/synthetic-archive-policy.md",
+      "sha256": "525a77fb1c6fbb4a4540940e1878344f284e72e9bbd4eb046643415280755c93",
+      "bytes": 405,
+      "fileModifiedAt": "2026-10-12T15:23:02.556Z"
+    },
+    {
+      "path": ".runtime/rag-2026-10-12-browser/databases-analysis_knowledge_it_220e9a16dbf8449f895b1f3b7312bd56.json",
+      "sha256": "c70bcd645ebe2835f31b26b06487c248566c99daae82088d60efce1ed380912c",
+      "bytes": 750,
+      "fileModifiedAt": "2026-10-12T16:49:55.868Z",
+      "previousObservation": {
+        "sha256": "7e337df0eadc791e3a085bf254a9b7c60610c76528be136ef8ebdc83dcb82dd3",
+        "bytes": 432,
+        "fileModifiedAt": "2026-10-12T15:51:53.804Z"
+      },
+      "updatedAtCompletion": true
+    }
+  ],
+  "runAccountingBoundary": {
+    "recordedAt": "2026-10-12T15:57:34.917832700Z",
+    "finishedCasesBeforeBrowser": 55,
+    "cumulativeCallsBeforeBrowser": 200,
+    "realModelCallsBeforeBrowser": 53,
+    "testDoubleCallsBeforeBrowser": 147,
+    "realResponsesBeforeBrowser": 52,
+    "realFailedCallsBeforeBrowser": 1,
+    "knownInputTokensBeforeBrowser": 208410,
+    "knownOutputTokensBeforeBrowser": 6733,
+    "unknownUsageBeforeBrowser": 1,
+    "canonicalRecordedModelPrefixSha256": "f37d68e3555f7016f6e4629bd908e2b4e6fa258d5dfbb2d5c871f10e8c91ea7e",
+    "evidenceFiles": [
+      ".runtime/rag-2026-10-12-browser/integration-results.json",
+      ".runtime/rag-2026-10-12-browser/model-evidence.json"
+    ],
+    "note": "该两文件会在后续测试结束时覆盖为累积结果。最终可用model-evidence前200条的规范序列化摘要核对此基线；browser-model-evidence也是累积前缀，不能全量重复加到总数。"
+  },
+  "completion": {
+    "recordedAt": "2026-10-12T16:55:24.653Z",
+    "evidence": ".runtime/rag-2026-10-12-browser/browser-final-evidence-summary.json",
+    "acceptanceStatus": "FAILED",
+    "browserFixturePassed": false,
+    "compiledCodeScope": "本轮浏览器/专项运行已结束并清库，使用覆盖解释修正前的已编译AnalysisEngine。之后在磁盘上修改的FACT_RULES及retrievalEvidence不视为已在本轮验证。",
+    "results": {
+      "executed": 61,
+      "passed": 58,
+      "failed": 3,
+      "program": {
+        "executed": 45,
+        "passed": 45,
+        "failed": 0
+      },
+      "realModel": {
+        "executed": 15,
+        "passed": 13,
+        "failed": 2
+      },
+      "browser": {
+        "executed": 1,
+        "passed": 0,
+        "failed": 1
+      },
+      "failures": [
+        {
+          "test": "realModelBoundedAnalysisUsesActualHttpFactsAndCitations()",
+          "reason": "HTTP_503",
+          "message": "真实模型调用未完成，请核对端点、鉴权、Schema能力和超时配置",
+          "errorSha256": "3b232f31a4b054f05f98d09d1f00f9c7e4c8d5fa66873702d2fa1e69590aab6d",
+          "evidence": ".runtime/rag-2026-10-12-browser/integration-results.json"
+        },
+        {
+          "test": "realModelReusesSelectedSnapshotWithoutReadingNewFacts()",
+          "reason": "HTTP_422",
+          "message": "claims[0]的数字12没有被该条引用支持；请补充包含该数字的原文引用，或删去这项说明",
+          "errorSha256": "82c5299b91bc7063603ca9506a85d2ebf7e52dd8ef49254058477d91a0c2f94a",
+          "evidence": ".runtime/rag-2026-10-12-browser/integration-results.json"
+        },
+        {
+          "test": "browserSemanticRagImportAndRecovery()",
+          "reason": null,
+          "message": "真实浏览器未明确完成验收或已中止，不能计为通过 ==> expected: <true> but was: <false>",
+          "errorSha256": "a66e5d6cb6a2b3683fb39f65fddaaba84e17c83581016b5f1b7f2191aff1f650",
+          "evidence": ".runtime/rag-2026-10-12-browser/integration-results.json"
+        }
+      ]
+    },
+    "modelPrefixChecks": {
+      "preUiPrefixMatchesSavedBaseline": true,
+      "browserLedgerMatchesFullPrefix": true,
+      "goldSuffixMatchesObservationCalls": true,
+      "partitionLengthMatchesFull": true
+    },
+    "modelAccounting": {
+      "full": {
+        "attempts": 115,
+        "responses": 112,
+        "failedCalls": 3,
+        "testDoubleCalls": 147,
+        "usage": {
+          "complete": false,
+          "measuredCalls": 112,
+          "unknownUsageCalls": 3,
+          "knownInputTokens": 405756,
+          "knownOutputTokens": 12960,
+          "fullInputTokens": null,
+          "fullOutputTokens": null,
+          "cost": null,
+          "costComplete": false
+        },
+        "latencyMs": {
+          "samples": 115,
+          "missing": 0,
+          "min": 13,
+          "p50": 3119,
+          "p95": 5679,
+          "p99": 6402,
+          "max": 6455,
+          "sum": 381790
+        },
+        "stages": {
+          "ANSWER": {
+            "calls": 21,
+            "responses": 21,
+            "failures": 0,
+            "latencyMs": {
+              "samples": 21,
+              "missing": 0,
+              "min": 2656,
+              "p50": 3947,
+              "p95": 6022,
+              "p99": 6455,
+              "max": 6455,
+              "sum": 90265
+            }
+          },
+          "ANSWER_REVIEW": {
+            "calls": 18,
+            "responses": 18,
+            "failures": 0,
+            "latencyMs": {
+              "samples": 18,
+              "missing": 0,
+              "min": 2341,
+              "p50": 3323,
+              "p95": 4699,
+              "p99": 4699,
+              "max": 4699,
+              "sum": 61469
+            }
+          },
+          "PLAN": {
+            "calls": 24,
+            "responses": 22,
+            "failures": 2,
+            "latencyMs": {
+              "samples": 24,
+              "missing": 0,
+              "min": 13,
+              "p50": 3151,
+              "p95": 5611,
+              "p99": 5679,
+              "max": 5679,
+              "sum": 79816
+            }
+          },
+          "PLAN_REVIEW": {
+            "calls": 22,
+            "responses": 22,
+            "failures": 0,
+            "latencyMs": {
+              "samples": 22,
+              "missing": 0,
+              "min": 2247,
+              "p50": 2927,
+              "p95": 3971,
+              "p99": 6402,
+              "max": 6402,
+              "sum": 69171
+            }
+          },
+          "RAG_RERANK": {
+            "calls": 14,
+            "responses": 13,
+            "failures": 1,
+            "latencyMs": {
+              "samples": 14,
+              "missing": 0,
+              "min": 2090,
+              "p50": 2468,
+              "p95": 5009,
+              "p99": 5009,
+              "max": 5009,
+              "sum": 40999
+            }
+          },
+          "RAG_REWRITE": {
+            "calls": 16,
+            "responses": 16,
+            "failures": 0,
+            "latencyMs": {
+              "samples": 16,
+              "missing": 0,
+              "min": 2106,
+              "p50": 2307,
+              "p95": 3289,
+              "p99": 3289,
+              "max": 3289,
+              "sum": 40070
+            }
+          }
+        }
+      },
+      "browserIncrement": {
+        "attempts": 33,
+        "responses": 31,
+        "failedCalls": 2,
+        "testDoubleCalls": 0,
+        "usage": {
+          "complete": false,
+          "measuredCalls": 31,
+          "unknownUsageCalls": 2,
+          "knownInputTokens": 126269,
+          "knownOutputTokens": 3639,
+          "fullInputTokens": null,
+          "fullOutputTokens": null,
+          "cost": null,
+          "costComplete": false
+        },
+        "latencyMs": {
+          "samples": 33,
+          "missing": 0,
+          "min": 13,
+          "p50": 2927,
+          "p95": 5656,
+          "p99": 5913,
+          "max": 5913,
+          "sum": 102408
+        },
+        "stages": {
+          "ANSWER": {
+            "calls": 6,
+            "responses": 6,
+            "failures": 0,
+            "latencyMs": {
+              "samples": 6,
+              "missing": 0,
+              "min": 2676,
+              "p50": 3947,
+              "p95": 5913,
+              "p99": 5913,
+              "max": 5913,
+              "sum": 25680
+            }
+          },
+          "ANSWER_REVIEW": {
+            "calls": 5,
+            "responses": 5,
+            "failures": 0,
+            "latencyMs": {
+              "samples": 5,
+              "missing": 0,
+              "min": 2362,
+              "p50": 3105,
+              "p95": 4378,
+              "p99": 4378,
+              "max": 4378,
+              "sum": 16152
+            }
+          },
+          "PLAN": {
+            "calls": 7,
+            "responses": 6,
+            "failures": 1,
+            "latencyMs": {
+              "samples": 7,
+              "missing": 0,
+              "min": 13,
+              "p50": 3043,
+              "p95": 4504,
+              "p99": 4504,
+              "max": 4504,
+              "sum": 19515
+            }
+          },
+          "PLAN_REVIEW": {
+            "calls": 6,
+            "responses": 6,
+            "failures": 0,
+            "latencyMs": {
+              "samples": 6,
+              "missing": 0,
+              "min": 2247,
+              "p50": 2532,
+              "p95": 3443,
+              "p99": 3443,
+              "max": 3443,
+              "sum": 16228
+            }
+          },
+          "RAG_RERANK": {
+            "calls": 4,
+            "responses": 3,
+            "failures": 1,
+            "latencyMs": {
+              "samples": 4,
+              "missing": 0,
+              "min": 2375,
+              "p50": 2430,
+              "p95": 5009,
+              "p99": 5009,
+              "max": 5009,
+              "sum": 12538
+            }
+          },
+          "RAG_REWRITE": {
+            "calls": 5,
+            "responses": 5,
+            "failures": 0,
+            "latencyMs": {
+              "samples": 5,
+              "missing": 0,
+              "min": 2132,
+              "p50": 2281,
+              "p95": 3289,
+              "p99": 3289,
+              "max": 3289,
+              "sum": 12295
+            }
+          }
+        }
+      },
+      "goldIncrement": {
+        "attempts": 29,
+        "responses": 29,
+        "failedCalls": 0,
+        "testDoubleCalls": 0,
+        "usage": {
+          "complete": true,
+          "measuredCalls": 29,
+          "unknownUsageCalls": 0,
+          "knownInputTokens": 71077,
+          "knownOutputTokens": 2588,
+          "fullInputTokens": 71077,
+          "fullOutputTokens": 2588,
+          "cost": null,
+          "costComplete": false
+        },
+        "latencyMs": {
+          "samples": 29,
+          "missing": 0,
+          "min": 2090,
+          "p50": 2931,
+          "p95": 5741,
+          "p99": 6022,
+          "max": 6022,
+          "sum": 92093
+        },
+        "stages": {
+          "ANSWER": {
+            "calls": 5,
+            "responses": 5,
+            "failures": 0,
+            "latencyMs": {
+              "samples": 5,
+              "missing": 0,
+              "min": 2656,
+              "p50": 4449,
+              "p95": 6022,
+              "p99": 6022,
+              "max": 6022,
+              "sum": 22503
+            }
+          },
+          "ANSWER_REVIEW": {
+            "calls": 5,
+            "responses": 5,
+            "failures": 0,
+            "latencyMs": {
+              "samples": 5,
+              "missing": 0,
+              "min": 2341,
+              "p50": 2978,
+              "p95": 4522,
+              "p99": 4522,
+              "max": 4522,
+              "sum": 16548
+            }
+          },
+          "PLAN": {
+            "calls": 5,
+            "responses": 5,
+            "failures": 0,
+            "latencyMs": {
+              "samples": 5,
+              "missing": 0,
+              "min": 2447,
+              "p50": 2977,
+              "p95": 5611,
+              "p99": 5611,
+              "max": 5611,
+              "sum": 16735
+            }
+          },
+          "PLAN_REVIEW": {
+            "calls": 5,
+            "responses": 5,
+            "failures": 0,
+            "latencyMs": {
+              "samples": 5,
+              "missing": 0,
+              "min": 2408,
+              "p50": 2560,
+              "p95": 3135,
+              "p99": 3135,
+              "max": 3135,
+              "sum": 13709
+            }
+          },
+          "RAG_RERANK": {
+            "calls": 4,
+            "responses": 4,
+            "failures": 0,
+            "latencyMs": {
+              "samples": 4,
+              "missing": 0,
+              "min": 2090,
+              "p50": 2140,
+              "p95": 2468,
+              "p99": 2468,
+              "max": 2468,
+              "sum": 9113
+            }
+          },
+          "RAG_REWRITE": {
+            "calls": 5,
+            "responses": 5,
+            "failures": 0,
+            "latencyMs": {
+              "samples": 5,
+              "missing": 0,
+              "min": 2106,
+              "p50": 2931,
+              "p95": 3155,
+              "p99": 3155,
+              "max": 3155,
+              "sum": 13485
+            }
+          }
+        }
+      }
+    },
+    "coverageWordingFailure": {
+      "runId": "9ad50883243c4b879d21c4b069bee863",
+      "serverStatus": "COMPLETED",
+      "answerStatus": "INSUFFICIENT",
+      "actualRetrieval": {
+        "searched": 12,
+        "matched": 0,
+        "returned": 0,
+        "truncated": false,
+        "expansionTruncated": false,
+        "reranked": false,
+        "contextTruncated": false,
+        "retrievalVersion": "semantic-rag-2"
+      },
+      "checks": [
+        {
+          "name": "falseExpansionTruncationDoesNotSupportBudgetInsufficiencyInference",
+          "passed": false,
+          "observedQuote": "本次字段别名扩展未达到预算，因此本轮检索依据有限。",
+          "evidenceFlag": false
+        },
+        {
+          "name": "noHitIsNotProofThatExistingDocumentsContainNoRule",
+          "passed": false,
+          "observedQuote": "现有资料中没有关于声学设备蓝鲸探测频带上限的制度或定义，无法确定该上限数值。",
+          "evidenceMatched": 0
+        }
+      ],
+      "domContainsBothObservedDefects": true,
+      "lastBrowserReview": {
+        "approved": true,
+        "reason": "答案状态为INSUFFICIENT，与知识检索0命中一致；检索计数、来源与片段单位、别名扩展截断说明均与原始事实相符，未把未执行写成无命中，也未就不足事项编造结论。"
+      },
+      "artifacts": [
+        ".runtime/rag-2026-10-12-browser/browser-insufficient-first.txt",
+        ".runtime/rag-2026-10-12-browser/browser-insufficient-first.jpg",
+        ".runtime/rag-2026-10-12-browser/browser-check-browser-coverage-wording-abort.json"
+      ],
+      "scope": "服务器状态COMPLETED且ANSWER_REVIEW批准，实际UI验收发现上述解释错误；故browser夹具显式abort并记失败。不能因INSUFFICIENT状态或金标引用覆盖通过而掩盖此缺陷。"
+    },
+    "goldStatusAndCitationScore": {
+      "passed": 5,
+      "failed": 0,
+      "doesNotOverrideBrowserFailure": true
+    },
+    "databases": [
+      {
+        "evidence": ".runtime/rag-2026-10-12-browser/databases-analysis_knowledge_it_220e9a16dbf8449f895b1f3b7312bd56.json",
+        "name": "analysis_knowledge_it_220e9a16dbf8449f895b1f3b7312bd56",
+        "createdAt": "2026-10-12T15:51:53.802708600Z",
+        "removedAt": "2026-10-12T16:49:55.867974600Z",
+        "removed": true,
+        "preexistingPreserved": true,
+        "reportDemoPreserved": true
+      }
+    ]
+  }
+}

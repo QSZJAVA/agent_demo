@@ -1,0 +1,53 @@
+{
+  "id" : "edc4dc00fa914bbc948965205a17b0b4",
+  "status" : "FAILED",
+  "stage" : "FINISHED",
+  "reason" : "HTTP_503",
+  "message" : "真实模型调用未完成，请核对端点、鉴权、Schema能力和超时配置",
+  "version" : 10,
+  "request" : {
+    "question" : "查询A公司2026年9月的销售报表，按产品汇总销售金额，取金额最高的两个产品，展开它们的全部相关单据，再根据现有业务知识说明销售金额是否等于已收款。",
+    "reportId" : "rpt-sales-order",
+    "snapshotId" : null,
+    "companyCode" : "A"
+  },
+  "created_at" : "2026-10-12T15:54:16.058Z",
+  "started_at" : "2026-10-12T15:54:16.068Z",
+  "finished_at" : "2026-10-12T15:54:27.782Z",
+  "expires_at" : "2026-10-13T15:54:16.058Z",
+  "plan" : null,
+  "steps" : [ ],
+  "answer" : null,
+  "usage" : [ {
+    "model" : "deepseek-v4.1-flash",
+    "stage" : "PLAN",
+    "number" : 1,
+    "status" : "RESPONDED",
+    "elapsedMs" : 4087,
+    "inputTokens" : 4127,
+    "outputTokens" : 382,
+    "usageComplete" : true,
+    "cachedInputTokens" : 896
+  }, {
+    "model" : "deepseek-v4.1-flash",
+    "stage" : "PLAN_REVIEW",
+    "number" : 2,
+    "reason" : "独立计划复核未通过：计划不完整：用户要求“取金额最高的两个产品，展开它们的全部相关单据”，但缺少DRILLDOWN展开步骤。现有步骤3却对source 0按productName排名取2，这不是金额最高产品的展开，无法得到这两个产品的全部明细单据。应保留QUERY→GROUP(productName)→RANK(sum,desc,2)，并以该RANK为other、以步骤0为source添加DRILLDOWN展开入选产品；同时删除无意义的按productName排名步骤。",
+    "status" : "RESPONDED",
+    "elapsedMs" : 3971,
+    "validation" : "REJECTED",
+    "inputTokens" : 3449,
+    "outputTokens" : 113,
+    "usageComplete" : true,
+    "cachedInputTokens" : 1024
+  }, {
+    "stage" : "PLAN",
+    "number" : 3,
+    "status" : "FAILED",
+    "elapsedMs" : 3545,
+    "inputTokens" : null,
+    "outputTokens" : null,
+    "usageComplete" : false,
+    "cachedInputTokens" : null
+  } ]
+}

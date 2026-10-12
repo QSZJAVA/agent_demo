@@ -1,0 +1,96 @@
+{
+  "id" : "c5f9f185872a446e91d4dec1287e9a82",
+  "status" : "FAILED",
+  "stage" : "FINISHED",
+  "reason" : "HTTP_422",
+  "message" : "模型知识重排必须完整保留本题候选，不能删改、重复或跨题引用",
+  "version" : 14,
+  "request" : {
+    "question" : "先读取销售再解释tax",
+    "reportId" : "rpt-sales-order",
+    "snapshotId" : null,
+    "companyCode" : "A"
+  },
+  "created_at" : "2026-10-12T15:54:12.928Z",
+  "started_at" : "2026-10-12T15:54:12.938Z",
+  "finished_at" : "2026-10-12T15:54:13.067Z",
+  "expires_at" : "2026-10-13T15:54:12.928Z",
+  "plan" : {
+    "mode" : "EXECUTE",
+    "steps" : [ {
+      "rank" : null,
+      "other" : null,
+      "query" : {
+        "page" : 1,
+        "size" : 20,
+        "view" : "LIST",
+        "domain" : "REPORT",
+        "groupBy" : null,
+        "reportIds" : [ "rpt-sales-order" ],
+        "sortField" : "amount",
+        "conditions" : [ ],
+        "descending" : true,
+        "companyCode" : "A"
+      },
+      "action" : "QUERY",
+      "source" : null,
+      "analysis" : null,
+      "knowledgeQuestion" : null
+    }, {
+      "rank" : null,
+      "other" : null,
+      "query" : null,
+      "action" : "KNOWLEDGE",
+      "source" : null,
+      "analysis" : null,
+      "knowledgeQuestion" : "tax"
+    } ],
+    "objective" : "读取并解释税额",
+    "clarification" : null
+  },
+  "steps" : [ ],
+  "answer" : null,
+  "usage" : [ {
+    "model" : "ISOLATED_TEST_DOUBLE",
+    "stage" : "PLAN",
+    "number" : 1,
+    "status" : "RESPONDED",
+    "elapsedMs" : 0,
+    "inputTokens" : null,
+    "outputTokens" : null,
+    "usageComplete" : false,
+    "cachedInputTokens" : null
+  }, {
+    "model" : "ISOLATED_TEST_DOUBLE",
+    "stage" : "PLAN_REVIEW",
+    "number" : 2,
+    "status" : "RESPONDED",
+    "elapsedMs" : 0,
+    "inputTokens" : null,
+    "outputTokens" : null,
+    "usageComplete" : false,
+    "cachedInputTokens" : null
+  }, {
+    "model" : "ISOLATED_TEST_DOUBLE",
+    "stage" : "RAG_REWRITE",
+    "number" : 3,
+    "status" : "RESPONDED",
+    "elapsedMs" : 0,
+    "inputTokens" : null,
+    "outputTokens" : null,
+    "usageComplete" : false,
+    "cachedInputTokens" : null
+  }, {
+    "model" : "ISOLATED_TEST_DOUBLE",
+    "stage" : "RAG_RERANK",
+    "number" : 4,
+    "reason" : "模型知识重排必须完整保留本题候选，不能删改、重复或跨题引用",
+    "status" : "RESPONDED",
+    "elapsedMs" : 0,
+    "validation" : "REJECTED",
+    "inputTokens" : null,
+    "outputTokens" : null,
+    "usageComplete" : false,
+    "cachedInputTokens" : null
+  } ]
+}

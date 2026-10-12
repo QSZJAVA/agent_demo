@@ -1,0 +1,305 @@
+{
+  "id" : "6c3bffb59de04424bfc21049d4cd27eb",
+  "status" : "COMPLETED",
+  "stage" : "FINISHED",
+  "reason" : null,
+  "message" : "分析与依据核验已完成",
+  "version" : 18,
+  "request" : {
+    "question" : "发票开出那天就算确认收入了吗？请按当前制度说明两者关系。",
+    "reportId" : "rpt-sales-order",
+    "snapshotId" : null,
+    "companyCode" : "A"
+  },
+  "created_at" : "2026-10-12T16:48:58.856Z",
+  "started_at" : "2026-10-12T16:48:58.866Z",
+  "finished_at" : "2026-10-12T16:49:15.386Z",
+  "expires_at" : "2026-10-13T16:48:58.856Z",
+  "plan" : {
+    "mode" : "EXECUTE",
+    "steps" : [ {
+      "rank" : null,
+      "other" : null,
+      "query" : null,
+      "action" : "KNOWLEDGE",
+      "source" : null,
+      "analysis" : null,
+      "knowledgeQuestion" : "开票日期是否等同于收入确认日期？收入确认应以什么时点为准？"
+    } ],
+    "objective" : "按当前制度说明开票日期与收入确认日期的关系，明确发票开出日是否等于收入确认日。",
+    "clarification" : null
+  },
+  "steps" : [ {
+    "index" : 0,
+    "action" : "KNOWLEDGE",
+    "result" : {
+      "hits" : [ {
+        "sourceId" : "document-f32b508e6b984933999a0e00f807634b-v2-p1",
+        "aliasTerms" : [ ],
+        "directTerms" : [ "为准", "于收", "于收入", "入确", "入确认", "发票", "发票开", "同于", "同于收", "开票", "开票日", "收入", "收入确", "日期", "日期是", "时点", "时点为", "期是", "点为", "点为准", "确认", "确认收", "确认日", "票开", "票日", "票日期", "等同", "等同于", "认收", "认收入", "认日", "认日期" ]
+      }, {
+        "sourceId" : "document-76070a41a80541c4bbf008a9cc513e2e-v2-p1",
+        "aliasTerms" : [ ],
+        "directTerms" : [ ]
+      }, {
+        "sourceId" : "document-f156b94b8a9343719c22f81aeba042b1-v2-p1",
+        "aliasTerms" : [ ],
+        "directTerms" : [ "确认" ]
+      }, {
+        "sourceId" : "catalog-6-p1",
+        "aliasTerms" : [ ],
+        "directTerms" : [ "日期" ]
+      } ],
+      "kind" : "KNOWLEDGE",
+      "matched" : 4,
+      "sources" : [ {
+        "id" : "document-f32b508e6b984933999a0e00f807634b-v2-p1",
+        "kind" : "KNOWLEDGE",
+        "text" : "来源标题：开票日期与确认收入\n来源版本：2\n适用范围：A / rpt-sales-order\n时间说明：生效 2026-01-01；失效 未指定\n原文位置：脱敏后来源全文第1至2行；UTF-16字符[0,67)。\n片段编号：1\n正文片段：\n来源：本仓库隔离验收合成资料\n开票日期是发票开具日期，不等同于收入确认日期。收入确认以合同履约条件满足时点为准，不能仅据开票时间推断。",
+        "scope" : "A / rpt-sales-order",
+        "title" : "开票日期与确认收入",
+        "version" : "2",
+        "originId" : "document-f32b508e6b984933999a0e00f807634b-v2",
+        "observedAt" : "生效 2026-01-01；失效 未指定",
+        "contentOffset" : 120
+      }, {
+        "id" : "document-76070a41a80541c4bbf008a9cc513e2e-v2-p1",
+        "kind" : "KNOWLEDGE",
+        "text" : "来源标题：销售单金额与收款的区别\n来源版本：2\n适用范围：A / rpt-sales-order\n时间说明：生效 2026-01-01；失效 未指定\n原文位置：脱敏后来源全文第1至2行；UTF-16字符[0,59)。\n片段编号：1\n正文片段：\n来源：本仓库隔离验收合成资料\n销售金额按订单约定的应收价款登记；它不等于客户已经支付的款项。收款需以到账流水单独证明。",
+        "scope" : "A / rpt-sales-order",
+        "title" : "销售单金额与收款的区别",
+        "version" : "2",
+        "originId" : "document-76070a41a80541c4bbf008a9cc513e2e-v2",
+        "observedAt" : "生效 2026-01-01；失效 未指定",
+        "contentOffset" : 122
+      }, {
+        "id" : "document-f156b94b8a9343719c22f81aeba042b1-v2-p1",
+        "kind" : "KNOWLEDGE",
+        "text" : "来源标题：收款事实确认\n来源版本：2\n适用范围：A / rpt-sales-order\n时间说明：生效 2026-01-01；失效 未指定\n原文位置：脱敏后来源全文第1至2行；UTF-16字符[0,54)。\n片段编号：1\n正文片段：\n来源：本仓库隔离验收合成资料\n只有实际到账记录才能认定已经收款；销售单金额是订单价款，不能代替银行到账记录。",
+        "scope" : "A / rpt-sales-order",
+        "title" : "收款事实确认",
+        "version" : "2",
+        "originId" : "document-f156b94b8a9343719c22f81aeba042b1-v2",
+        "observedAt" : "生效 2026-01-01；失效 未指定",
+        "contentOffset" : 117
+      }, {
+        "id" : "catalog-6-p1",
+        "kind" : "KNOWLEDGE",
+        "text" : "来源标题：销售报表：目录与字段\n来源版本：6\n适用范围：A / rpt-sales-order\n时间说明：当前目录；观测日期 2026-10-13\n原文位置：脱敏后来源全文第1至3行；UTF-16字符[0,959)。\n片段编号：1\n正文片段：\n报表名称：销售报表\n用途：销售订单台账：按订单统计金额与派单状态\n字段定义：[{\"name\":\"reportId\",\"type\":\"string\",\"description\":\"报表稳定标识\"},{\"name\":\"reportName\",\"type\":\"string\",\"description\":\"报表名称\"},{\"name\":\"companyCode\",\"type\":\"string\",\"description\":\"所属公司代码\"},{\"name\":\"docNo\",\"type\":\"string\",\"description\":\"来源单据号\"},{\"name\":\"amount\",\"type\":\"decimal\",\"description\":\"来源金额，币种见 currency；空值表示未提供\"},{\"name\":\"currency\",\"type\":\"string\",\"description\":\"来源声明币种；空值表示未声明，不能跨币种合计\"},{\"name\":\"date\",\"type\":\"date\",\"description\":\"业务日期；空值表示未配置\"},{\"name\":\"status\",\"type\":\"string\",\"description\":\"报表派单状态：未派单/已派单\"},{\"name\":\"orderNo\",\"type\":\"string\",\"description\":\"订单号\"},{\"name\":\"productName\",\"type\":\"string\",\"description\":\"产品名称\"},{\"name\":\"saleDate\",\"type\":\"date\",\"description\":\"销售日期，字符串 yyyy-MM-dd\"},{\"name\":\"daysSinceSale\",\"type\":\"long\",\"description\":\"距销售日期的天数（派生）\"},{\"name\":\"dispatched\",\"type\":\"boolean\",\"description\":\"来源记录是否已派单；true为已派单，false为未派单，不代表满足派单规则\"},{\"name\":\"recordId\",\"type\":\"string\",\"description\":\"报表内稳定记录标识\"}]",
+        "scope" : "A / rpt-sales-order",
+        "title" : "销售报表：目录与字段",
+        "version" : "6",
+        "originId" : "catalog-6",
+        "observedAt" : "当前目录；观测日期 2026-10-13",
+        "contentOffset" : 122
+      } ],
+      "coverage" : {
+        "matchedSources" : 4,
+        "returnedSources" : 4,
+        "searchedSources" : 11
+      },
+      "searched" : 11,
+      "retrieval" : {
+        "mode" : "SEMANTIC_RAG",
+        "routes" : [ {
+          "index" : 0,
+          "expansions" : [ ],
+          "queryTerms" : [ "发票", "票开", "开出", "出那", "那天", "天就", "就算", "算确", "确认", "认收", "收入", "入了", "了吗", "发票开", "票开出", "开出那", "出那天", "那天就", "天就算", "就算确", "算确认", "确认收", "认收入", "收入了", "入了吗", "请按", "按当", "前制", "制度", "度说", "说明", "明两", "两者", "者关", "关系", "请按当", "按当前", "当前制", "前制度", "制度说", "度说明", "说明两", "明两者", "两者关", "者关系" ],
+          "matchedSources" : 2,
+          "matchedFragments" : 2,
+          "expansionTruncated" : false
+        }, {
+          "index" : 1,
+          "expansions" : [ ],
+          "queryTerms" : [ "开票", "票日", "日期", "期是", "否等", "等同", "同于", "于收", "收入", "入确", "确认", "认日", "开票日", "票日期", "日期是", "期是否", "是否等", "否等同", "等同于", "同于收", "于收入", "收入确", "入确认", "确认日", "认日期", "认应", "应以", "以什", "么时", "时点", "点为", "为准", "确认应", "认应以", "应以什", "以什么", "什么时", "么时点", "时点为", "点为准" ],
+          "matchedSources" : 3,
+          "matchedFragments" : 3,
+          "expansionTruncated" : false
+        }, {
+          "index" : 2,
+          "expansions" : [ ],
+          "queryTerms" : [ "开票", "票日", "日期", "开票日", "票日期", "收入", "入确", "确认", "认日", "收入确", "入确认", "确认日", "认日期", "两者", "者关", "关系", "两者关", "者关系", "会计", "计准", "准则", "会计准", "计准则" ],
+          "matchedSources" : 3,
+          "matchedFragments" : 3,
+          "expansionTruncated" : false
+        }, {
+          "index" : 3,
+          "expansions" : [ ],
+          "queryTerms" : [ "收入", "入确", "确认", "认时", "时点", "收入确", "入确认", "确认时", "认时点", "发票", "票开", "开具", "发票开", "票开具", "区别", "前制", "制度", "当前制", "前制度" ],
+          "matchedSources" : 3,
+          "matchedFragments" : 3,
+          "expansionTruncated" : false
+        } ],
+        "queries" : [ {
+          "kind" : "ORIGINAL",
+          "text" : "发票开出那天就算确认收入了吗？请按当前制度说明两者关系。"
+        }, {
+          "kind" : "FOCUSED",
+          "text" : "开票日期是否等同于收入确认日期？收入确认应以什么时点为准？"
+        }, {
+          "kind" : "REWRITE",
+          "text" : "开票日期 收入确认日期 两者关系 会计准则"
+        }, {
+          "kind" : "REWRITE",
+          "text" : "收入确认时点 发票开具 区别 当前制度"
+        } ],
+        "ranking" : [ {
+          "rank" : 1,
+          "routes" : [ 0, 1, 2, 3 ],
+          "sourceId" : "document-f32b508e6b984933999a0e00f807634b-v2-p1"
+        }, {
+          "rank" : 2,
+          "routes" : [ 3 ],
+          "sourceId" : "document-76070a41a80541c4bbf008a9cc513e2e-v2-p1"
+        }, {
+          "rank" : 3,
+          "routes" : [ 0, 1, 2, 3 ],
+          "sourceId" : "document-f156b94b8a9343719c22f81aeba042b1-v2-p1"
+        }, {
+          "rank" : 4,
+          "routes" : [ 1, 2 ],
+          "sourceId" : "catalog-6-p1"
+        } ],
+        "version" : "semantic-rag-2",
+        "reranked" : true,
+        "contextTruncated" : false,
+        "rerankedFragments" : 4,
+        "candidateFragments" : 4
+      },
+      "truncated" : false,
+      "expansions" : [ ],
+      "queryTerms" : [ "发票", "票开", "开出", "出那", "那天", "天就", "就算", "算确", "确认", "认收", "收入", "入了", "了吗", "发票开", "票开出", "开出那", "出那天", "那天就", "天就算", "就算确", "算确认", "确认收", "认收入", "收入了", "入了吗", "请按", "按当", "前制", "制度", "度说", "说明", "明两", "两者", "者关", "关系", "请按当", "按当前", "当前制", "前制度", "制度说", "度说明", "说明两", "明两者", "两者关", "者关系", "开票", "票日", "日期", "期是", "否等", "等同", "同于", "于收", "入确", "认日", "开票日", "票日期", "日期是", "期是否", "是否等", "否等同", "等同于", "同于收", "于收入", "收入确", "入确认", "确认日", "认日期", "认应", "应以", "以什", "么时", "时点", "点为", "为准", "确认应", "认应以", "应以什", "以什么", "什么时", "么时点", "时点为", "点为准" ],
+      "expansionTruncated" : false
+    },
+    "status" : "COMPLETED",
+    "sources" : [ {
+      "id" : "document-f32b508e6b984933999a0e00f807634b-v2-p1",
+      "kind" : "KNOWLEDGE",
+      "text" : "来源标题：开票日期与确认收入\n来源版本：2\n适用范围：A / rpt-sales-order\n时间说明：生效 2026-01-01；失效 未指定\n原文位置：脱敏后来源全文第1至2行；UTF-16字符[0,67)。\n片段编号：1\n正文片段：\n来源：本仓库隔离验收合成资料\n开票日期是发票开具日期，不等同于收入确认日期。收入确认以合同履约条件满足时点为准，不能仅据开票时间推断。",
+      "scope" : "A / rpt-sales-order",
+      "title" : "开票日期与确认收入",
+      "version" : "2",
+      "originId" : "document-f32b508e6b984933999a0e00f807634b-v2",
+      "observedAt" : "生效 2026-01-01；失效 未指定",
+      "contentOffset" : 120
+    }, {
+      "id" : "document-76070a41a80541c4bbf008a9cc513e2e-v2-p1",
+      "kind" : "KNOWLEDGE",
+      "text" : "来源标题：销售单金额与收款的区别\n来源版本：2\n适用范围：A / rpt-sales-order\n时间说明：生效 2026-01-01；失效 未指定\n原文位置：脱敏后来源全文第1至2行；UTF-16字符[0,59)。\n片段编号：1\n正文片段：\n来源：本仓库隔离验收合成资料\n销售金额按订单约定的应收价款登记；它不等于客户已经支付的款项。收款需以到账流水单独证明。",
+      "scope" : "A / rpt-sales-order",
+      "title" : "销售单金额与收款的区别",
+      "version" : "2",
+      "originId" : "document-76070a41a80541c4bbf008a9cc513e2e-v2",
+      "observedAt" : "生效 2026-01-01；失效 未指定",
+      "contentOffset" : 122
+    }, {
+      "id" : "document-f156b94b8a9343719c22f81aeba042b1-v2-p1",
+      "kind" : "KNOWLEDGE",
+      "text" : "来源标题：收款事实确认\n来源版本：2\n适用范围：A / rpt-sales-order\n时间说明：生效 2026-01-01；失效 未指定\n原文位置：脱敏后来源全文第1至2行；UTF-16字符[0,54)。\n片段编号：1\n正文片段：\n来源：本仓库隔离验收合成资料\n只有实际到账记录才能认定已经收款；销售单金额是订单价款，不能代替银行到账记录。",
+      "scope" : "A / rpt-sales-order",
+      "title" : "收款事实确认",
+      "version" : "2",
+      "originId" : "document-f156b94b8a9343719c22f81aeba042b1-v2",
+      "observedAt" : "生效 2026-01-01；失效 未指定",
+      "contentOffset" : 117
+    }, {
+      "id" : "catalog-6-p1",
+      "kind" : "KNOWLEDGE",
+      "text" : "来源标题：销售报表：目录与字段\n来源版本：6\n适用范围：A / rpt-sales-order\n时间说明：当前目录；观测日期 2026-10-13\n原文位置：脱敏后来源全文第1至3行；UTF-16字符[0,959)。\n片段编号：1\n正文片段：\n报表名称：销售报表\n用途：销售订单台账：按订单统计金额与派单状态\n字段定义：[{\"name\":\"reportId\",\"type\":\"string\",\"description\":\"报表稳定标识\"},{\"name\":\"reportName\",\"type\":\"string\",\"description\":\"报表名称\"},{\"name\":\"companyCode\",\"type\":\"string\",\"description\":\"所属公司代码\"},{\"name\":\"docNo\",\"type\":\"string\",\"description\":\"来源单据号\"},{\"name\":\"amount\",\"type\":\"decimal\",\"description\":\"来源金额，币种见 currency；空值表示未提供\"},{\"name\":\"currency\",\"type\":\"string\",\"description\":\"来源声明币种；空值表示未声明，不能跨币种合计\"},{\"name\":\"date\",\"type\":\"date\",\"description\":\"业务日期；空值表示未配置\"},{\"name\":\"status\",\"type\":\"string\",\"description\":\"报表派单状态：未派单/已派单\"},{\"name\":\"orderNo\",\"type\":\"string\",\"description\":\"订单号\"},{\"name\":\"productName\",\"type\":\"string\",\"description\":\"产品名称\"},{\"name\":\"saleDate\",\"type\":\"date\",\"description\":\"销售日期，字符串 yyyy-MM-dd\"},{\"name\":\"daysSinceSale\",\"type\":\"long\",\"description\":\"距销售日期的天数（派生）\"},{\"name\":\"dispatched\",\"type\":\"boolean\",\"description\":\"来源记录是否已派单；true为已派单，false为未派单，不代表满足派单规则\"},{\"name\":\"recordId\",\"type\":\"string\",\"description\":\"报表内稳定记录标识\"}]",
+      "scope" : "A / rpt-sales-order",
+      "title" : "销售报表：目录与字段",
+      "version" : "6",
+      "originId" : "catalog-6",
+      "observedAt" : "当前目录；观测日期 2026-10-13",
+      "contentOffset" : 122
+    }, {
+      "id" : "knowledge-coverage-1",
+      "kind" : "DATA",
+      "text" : "第1步已执行当前授权范围内的知识检索。\n已搜索 11 份来源、11 个片段；命中 4 份来源、4 个片段；返回 4 份来源、4 个片段。\n本次命中的片段已全部返回；这不证明授权资料之外不存在其他制度。\n本次字段别名扩展未达到预算。\n本说明仅记录知识检索情况，不是制度正文，不是业务明细，也不证明任何业务写入已经执行。",
+      "scope" : "A / rpt-sales-order",
+      "title" : "第1步知识检索范围说明",
+      "version" : "dcfbb284c397a23a593cd97fed3de69d4d173128bdc056068081d4e501cbbaad",
+      "originId" : "knowledge-coverage-1",
+      "observedAt" : "2026-10-12T16:48:58.873137600Z",
+      "contentOffset" : 0
+    } ]
+  } ],
+  "answer" : {
+    "claims" : [ {
+      "text" : "根据当前制度，开票日期是发票开具日期，不等同于收入确认日期；收入确认以合同履约条件满足时点为准，不能仅据开票时间推断。",
+      "citations" : [ {
+        "quote" : "来源标题：开票日期与确认收入\n来源版本：2\n适用范围：A / rpt-sales-order\n时间说明：生效 2026-01-01；失效 未指定\n原文位置：脱敏后来源全文第1至2行；UTF-16字符[0,67)。\n片段编号：1\n正文片段：\n来源：本仓库隔离验收合成资料\n开票日期是发票开具日期，不等同于收入确认日期。收入确认以合同履约条件满足时点为准，不能仅据开票时间推断。",
+        "sourceId" : "document-f32b508e6b984933999a0e00f807634b-v2-p1"
+      } ]
+    }, {
+      "text" : "本次已执行授权范围内的知识检索：搜索11份来源、11个片段，命中并返回4份来源、4个片段。该结果不证明授权资料之外不存在其他制度。",
+      "citations" : [ {
+        "quote" : "第1步已执行当前授权范围内的知识检索。\n已搜索 11 份来源、11 个片段；命中 4 份来源、4 个片段；返回 4 份来源、4 个片段。\n本次命中的片段已全部返回；这不证明授权资料之外不存在其他制度。\n本次字段别名扩展未达到预算。\n本说明仅记录知识检索情况，不是制度正文，不是业务明细，也不证明任何业务写入已经执行。",
+        "sourceId" : "knowledge-coverage-1"
+      } ]
+    } ],
+    "status" : "ANSWERED",
+    "limitations" : [ "本次知识检索未发现将开票日期直接等同于收入确认日期的规定；若授权范围外另有制度，本次结果未覆盖。" ]
+  },
+  "usage" : [ {
+    "model" : "deepseek-v4.1-flash",
+    "stage" : "PLAN",
+    "number" : 1,
+    "status" : "RESPONDED",
+    "elapsedMs" : 2447,
+    "inputTokens" : 3211,
+    "outputTokens" : 92,
+    "usageComplete" : true,
+    "cachedInputTokens" : 1920
+  }, {
+    "model" : "deepseek-v4.1-flash",
+    "stage" : "PLAN_REVIEW",
+    "number" : 2,
+    "status" : "RESPONDED",
+    "elapsedMs" : 2408,
+    "inputTokens" : 2243,
+    "outputTokens" : 51,
+    "usageComplete" : true,
+    "cachedInputTokens" : 1024
+  }, {
+    "model" : "deepseek-v4.1-flash",
+    "stage" : "RAG_REWRITE",
+    "number" : 3,
+    "status" : "RESPONDED",
+    "elapsedMs" : 2215,
+    "inputTokens" : 478,
+    "outputTokens" : 43,
+    "usageComplete" : true,
+    "cachedInputTokens" : 128
+  }, {
+    "model" : "deepseek-v4.1-flash",
+    "stage" : "RAG_RERANK",
+    "number" : 4,
+    "status" : "RESPONDED",
+    "elapsedMs" : 2140,
+    "inputTokens" : 1606,
+    "outputTokens" : 27,
+    "usageComplete" : true,
+    "cachedInputTokens" : 128
+  }, {
+    "model" : "deepseek-v4.1-flash",
+    "stage" : "ANSWER",
+    "number" : 5,
+    "status" : "RESPONDED",
+    "elapsedMs" : 4449,
+    "inputTokens" : 3106,
+    "outputTokens" : 168,
+    "usageComplete" : true,
+    "cachedInputTokens" : 896
+  }, {
+    "model" : "deepseek-v4.1-flash",
+    "stage" : "ANSWER_REVIEW",
+    "number" : 6,
+    "status" : "RESPONDED",
+    "elapsedMs" : 2654,
+    "inputTokens" : 2897,
+    "outputTokens" : 56,
+    "usageComplete" : true,
+    "cachedInputTokens" : 1024
+  } ]
+}

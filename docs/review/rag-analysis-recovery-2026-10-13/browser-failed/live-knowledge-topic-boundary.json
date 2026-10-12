@@ -1,0 +1,305 @@
+{
+  "id" : "8586e38fef344be99986bee84052544d",
+  "status" : "COMPLETED",
+  "stage" : "FINISHED",
+  "reason" : null,
+  "message" : "分析与依据核验已完成",
+  "version" : 18,
+  "request" : {
+    "question" : "请说明当前已发布资料中的差旅住宿补助定义，引用原文，不需要查询报表记录。",
+    "reportId" : "rpt-sales-order",
+    "snapshotId" : null,
+    "companyCode" : "A"
+  },
+  "created_at" : "2026-10-12T15:57:15.533Z",
+  "started_at" : "2026-10-12T15:57:15.543Z",
+  "finished_at" : "2026-10-12T15:57:34.780Z",
+  "expires_at" : "2026-10-13T15:57:15.533Z",
+  "plan" : {
+    "mode" : "EXECUTE",
+    "steps" : [ {
+      "rank" : null,
+      "other" : null,
+      "query" : null,
+      "action" : "KNOWLEDGE",
+      "source" : null,
+      "analysis" : null,
+      "knowledgeQuestion" : "当前已发布资料中差旅住宿补助的定义是什么？请引用原文。"
+    } ],
+    "objective" : "在已选公司A与销售报表授权范围内，检索并说明当前已发布资料中“差旅住宿补助”的定义，并引用原文，不查询报表记录。",
+    "clarification" : null
+  },
+  "steps" : [ {
+    "index" : 0,
+    "action" : "KNOWLEDGE",
+    "result" : {
+      "hits" : [ {
+        "sourceId" : "document-f678c37e32a44831b19c916bc91658b6-v2-p1",
+        "aliasTerms" : [ ],
+        "directTerms" : [ "住宿", "住宿补", "定义", "宿补", "宿补助", "差旅", "差旅住", "旅住", "旅住宿", "补助", "资料" ]
+      }, {
+        "sourceId" : "catalog-6-p1",
+        "aliasTerms" : [ ],
+        "directTerms" : [ "定义", "报表", "记录" ]
+      }, {
+        "sourceId" : "rule-1-1-p1",
+        "aliasTerms" : [ ],
+        "directTerms" : [ "报表", "需要" ]
+      }, {
+        "sourceId" : "dictionary-c195d75d400d5e72-p1",
+        "aliasTerms" : [ ],
+        "directTerms" : [ "报表" ]
+      } ],
+      "kind" : "KNOWLEDGE",
+      "matched" : 4,
+      "sources" : [ {
+        "id" : "document-f678c37e32a44831b19c916bc91658b6-v2-p1",
+        "kind" : "KNOWLEDGE",
+        "text" : "来源标题：差旅住宿定义（隔离合成制度）\n来源版本：2\n适用范围：A / rpt-sales-order\n时间说明：生效 2026-01-01；失效 未指定\n原文位置：脱敏后来源全文第1至2行；UTF-16字符[0,62)。\n片段编号：1\n正文片段：\n来源：本仓库隔离验收合成资料\n差旅住宿补助按现行审批制度核定；本资料仅解释定义，没有规定每日上限，也不证明任何报销已被批准。",
+        "scope" : "A / rpt-sales-order",
+        "title" : "差旅住宿定义（隔离合成制度）",
+        "version" : "2",
+        "originId" : "document-f678c37e32a44831b19c916bc91658b6-v2",
+        "observedAt" : "生效 2026-01-01；失效 未指定",
+        "contentOffset" : 125
+      }, {
+        "id" : "catalog-6-p1",
+        "kind" : "KNOWLEDGE",
+        "text" : "来源标题：销售报表：目录与字段\n来源版本：6\n适用范围：A / rpt-sales-order\n时间说明：当前目录；观测日期 2026-10-12\n原文位置：脱敏后来源全文第1至3行；UTF-16字符[0,959)。\n片段编号：1\n正文片段：\n报表名称：销售报表\n用途：销售订单台账：按订单统计金额与派单状态\n字段定义：[{\"name\":\"reportId\",\"type\":\"string\",\"description\":\"报表稳定标识\"},{\"name\":\"reportName\",\"type\":\"string\",\"description\":\"报表名称\"},{\"name\":\"companyCode\",\"type\":\"string\",\"description\":\"所属公司代码\"},{\"name\":\"docNo\",\"type\":\"string\",\"description\":\"来源单据号\"},{\"name\":\"amount\",\"type\":\"decimal\",\"description\":\"来源金额，币种见 currency；空值表示未提供\"},{\"name\":\"currency\",\"type\":\"string\",\"description\":\"来源声明币种；空值表示未声明，不能跨币种合计\"},{\"name\":\"date\",\"type\":\"date\",\"description\":\"业务日期；空值表示未配置\"},{\"name\":\"status\",\"type\":\"string\",\"description\":\"报表派单状态：未派单/已派单\"},{\"name\":\"orderNo\",\"type\":\"string\",\"description\":\"订单号\"},{\"name\":\"productName\",\"type\":\"string\",\"description\":\"产品名称\"},{\"name\":\"saleDate\",\"type\":\"date\",\"description\":\"销售日期，字符串 yyyy-MM-dd\"},{\"name\":\"daysSinceSale\",\"type\":\"long\",\"description\":\"距销售日期的天数（派生）\"},{\"name\":\"dispatched\",\"type\":\"boolean\",\"description\":\"来源记录是否已派单；true为已派单，false为未派单，不代表满足派单规则\"},{\"name\":\"recordId\",\"type\":\"string\",\"description\":\"报表内稳定记录标识\"}]",
+        "scope" : "A / rpt-sales-order",
+        "title" : "销售报表：目录与字段",
+        "version" : "6",
+        "originId" : "catalog-6",
+        "observedAt" : "当前目录；观测日期 2026-10-12",
+        "contentOffset" : 122
+      }, {
+        "id" : "rule-1-1-p1",
+        "kind" : "KNOWLEDGE",
+        "text" : "来源标题：销售报表：当前派单规则\n来源版本：1\n适用范围：A / rpt-sales-order\n时间说明：当前生效规则；观测日期 2026-10-12\n原文位置：脱敏后来源全文第1至2行；UTF-16字符[0,167)。\n片段编号：1\n正文片段：\n仅解释已配置的规则，不证明任意单据符合规则或已被派单。\n{\"id\":1,\"version\":1,\"companyCode\":\"*\",\"expression\":\"amount > 20\",\"description\":\"销售订单金额大于 20 元需要派单\",\"effectiveFrom\":null,\"effectiveTo\":null}",
+        "scope" : "A / rpt-sales-order",
+        "title" : "销售报表：当前派单规则",
+        "version" : "1",
+        "originId" : "rule-1-1",
+        "observedAt" : "当前生效规则；观测日期 2026-10-12",
+        "contentOffset" : 125
+      }, {
+        "id" : "dictionary-c195d75d400d5e72-p1",
+        "kind" : "KNOWLEDGE",
+        "text" : "来源标题：销售报表：业务词典\n来源版本：c195d75d400d5e72538359bef2ff9b7c6764040c0971b0280b2ee95a8fd2b82c\n适用范围：A / rpt-sales-order\n时间说明：当前词典；观测日期 2026-10-12\n原文位置：脱敏后来源全文第1至1行；UTF-16字符[0,214)。\n片段编号：1\n正文片段：\n{\"scope\":{\"domain\":\"REPORT\",\"companyCode\":\"A\",\"reportId\":\"rpt-sales-order\"},\"version\":0,\"definition\":{\"companyName\":\"\",\"companyAliases\":[],\"timeZone\":\"Asia/Shanghai\",\"fiscalStartMonth\":1,\"holidays\":[],\"fields\":[]}}",
+        "scope" : "A / rpt-sales-order",
+        "title" : "销售报表：业务词典",
+        "version" : "c195d75d400d5e72538359bef2ff9b7c6764040c0971b0280b2ee95a8fd2b82c",
+        "originId" : "dictionary-c195d75d400d5e72",
+        "observedAt" : "当前词典；观测日期 2026-10-12",
+        "contentOffset" : 184
+      } ],
+      "coverage" : {
+        "matchedSources" : 4,
+        "returnedSources" : 4,
+        "searchedSources" : 4
+      },
+      "searched" : 4,
+      "retrieval" : {
+        "mode" : "SEMANTIC_RAG",
+        "routes" : [ {
+          "index" : 0,
+          "expansions" : [ ],
+          "queryTerms" : [ "请说", "说明", "明当", "前已", "已发", "发布", "布资", "资料", "料中", "中的", "的差", "差旅", "旅住", "住宿", "宿补", "补助", "助定", "定义", "请说明", "说明当", "明当前", "当前已", "前已发", "已发布", "发布资", "布资料", "资料中", "料中的", "中的差", "的差旅", "差旅住", "旅住宿", "住宿补", "宿补助", "补助定", "助定义", "引用", "用原", "原文", "引用原", "用原文", "不需", "需要", "要查", "查询", "询报", "报表", "表记", "记录", "不需要", "需要查", "要查询", "查询报", "询报表", "报表记", "表记录" ],
+          "matchedSources" : 4,
+          "matchedFragments" : 4,
+          "expansionTruncated" : false
+        }, {
+          "index" : 1,
+          "expansions" : [ ],
+          "queryTerms" : [ "前已", "已发", "发布", "布资", "资料", "料中", "中差", "差旅", "旅住", "住宿", "宿补", "补助", "助的", "的定", "定义", "义是", "是什", "当前已", "前已发", "已发布", "发布资", "布资料", "资料中", "料中差", "中差旅", "差旅住", "旅住宿", "住宿补", "宿补助", "补助的", "助的定", "的定义", "定义是", "义是什", "是什么", "请引", "引用", "用原", "原文", "请引用", "引用原", "用原文" ],
+          "matchedSources" : 2,
+          "matchedFragments" : 2,
+          "expansionTruncated" : false
+        }, {
+          "index" : 2,
+          "expansions" : [ ],
+          "queryTerms" : [ "差旅", "旅住", "住宿", "宿补", "补助", "差旅住", "旅住宿", "住宿补", "宿补助", "定义", "原文" ],
+          "matchedSources" : 2,
+          "matchedFragments" : 2,
+          "expansionTruncated" : false
+        }, {
+          "index" : 3,
+          "expansions" : [ ],
+          "queryTerms" : [ "差旅", "旅住", "住宿", "宿补", "补助", "差旅住", "旅住宿", "住宿补", "宿补助", "费用", "用标", "标准", "费用标", "用标准", "解释" ],
+          "matchedSources" : 2,
+          "matchedFragments" : 2,
+          "expansionTruncated" : false
+        } ],
+        "queries" : [ {
+          "kind" : "ORIGINAL",
+          "text" : "请说明当前已发布资料中的差旅住宿补助定义，引用原文，不需要查询报表记录。"
+        }, {
+          "kind" : "FOCUSED",
+          "text" : "当前已发布资料中差旅住宿补助的定义是什么？请引用原文。"
+        }, {
+          "kind" : "REWRITE",
+          "text" : "差旅住宿补助 定义 原文"
+        }, {
+          "kind" : "REWRITE",
+          "text" : "差旅住宿补助 费用标准 解释"
+        } ],
+        "ranking" : [ {
+          "rank" : 1,
+          "routes" : [ 0, 1, 2, 3 ],
+          "sourceId" : "document-f678c37e32a44831b19c916bc91658b6-v2-p1"
+        }, {
+          "rank" : 2,
+          "routes" : [ 0, 1, 2 ],
+          "sourceId" : "catalog-6-p1"
+        }, {
+          "rank" : 3,
+          "routes" : [ 0, 3 ],
+          "sourceId" : "rule-1-1-p1"
+        }, {
+          "rank" : 4,
+          "routes" : [ 0 ],
+          "sourceId" : "dictionary-c195d75d400d5e72-p1"
+        } ],
+        "version" : "semantic-rag-2",
+        "reranked" : true,
+        "contextTruncated" : false,
+        "rerankedFragments" : 4,
+        "candidateFragments" : 4
+      },
+      "truncated" : false,
+      "expansions" : [ ],
+      "queryTerms" : [ "请说", "说明", "明当", "前已", "已发", "发布", "布资", "资料", "料中", "中的", "的差", "差旅", "旅住", "住宿", "宿补", "补助", "助定", "定义", "请说明", "说明当", "明当前", "当前已", "前已发", "已发布", "发布资", "布资料", "资料中", "料中的", "中的差", "的差旅", "差旅住", "旅住宿", "住宿补", "宿补助", "补助定", "助定义", "引用", "用原", "原文", "引用原", "用原文", "不需", "需要", "要查", "查询", "询报", "报表", "表记", "记录", "不需要", "需要查", "要查询", "查询报", "询报表", "报表记", "表记录", "中差", "助的", "的定", "义是", "是什", "料中差", "中差旅", "补助的", "助的定", "的定义", "定义是", "义是什", "是什么", "请引", "请引用" ],
+      "expansionTruncated" : false
+    },
+    "status" : "COMPLETED",
+    "sources" : [ {
+      "id" : "document-f678c37e32a44831b19c916bc91658b6-v2-p1",
+      "kind" : "KNOWLEDGE",
+      "text" : "来源标题：差旅住宿定义（隔离合成制度）\n来源版本：2\n适用范围：A / rpt-sales-order\n时间说明：生效 2026-01-01；失效 未指定\n原文位置：脱敏后来源全文第1至2行；UTF-16字符[0,62)。\n片段编号：1\n正文片段：\n来源：本仓库隔离验收合成资料\n差旅住宿补助按现行审批制度核定；本资料仅解释定义，没有规定每日上限，也不证明任何报销已被批准。",
+      "scope" : "A / rpt-sales-order",
+      "title" : "差旅住宿定义（隔离合成制度）",
+      "version" : "2",
+      "originId" : "document-f678c37e32a44831b19c916bc91658b6-v2",
+      "observedAt" : "生效 2026-01-01；失效 未指定",
+      "contentOffset" : 125
+    }, {
+      "id" : "catalog-6-p1",
+      "kind" : "KNOWLEDGE",
+      "text" : "来源标题：销售报表：目录与字段\n来源版本：6\n适用范围：A / rpt-sales-order\n时间说明：当前目录；观测日期 2026-10-12\n原文位置：脱敏后来源全文第1至3行；UTF-16字符[0,959)。\n片段编号：1\n正文片段：\n报表名称：销售报表\n用途：销售订单台账：按订单统计金额与派单状态\n字段定义：[{\"name\":\"reportId\",\"type\":\"string\",\"description\":\"报表稳定标识\"},{\"name\":\"reportName\",\"type\":\"string\",\"description\":\"报表名称\"},{\"name\":\"companyCode\",\"type\":\"string\",\"description\":\"所属公司代码\"},{\"name\":\"docNo\",\"type\":\"string\",\"description\":\"来源单据号\"},{\"name\":\"amount\",\"type\":\"decimal\",\"description\":\"来源金额，币种见 currency；空值表示未提供\"},{\"name\":\"currency\",\"type\":\"string\",\"description\":\"来源声明币种；空值表示未声明，不能跨币种合计\"},{\"name\":\"date\",\"type\":\"date\",\"description\":\"业务日期；空值表示未配置\"},{\"name\":\"status\",\"type\":\"string\",\"description\":\"报表派单状态：未派单/已派单\"},{\"name\":\"orderNo\",\"type\":\"string\",\"description\":\"订单号\"},{\"name\":\"productName\",\"type\":\"string\",\"description\":\"产品名称\"},{\"name\":\"saleDate\",\"type\":\"date\",\"description\":\"销售日期，字符串 yyyy-MM-dd\"},{\"name\":\"daysSinceSale\",\"type\":\"long\",\"description\":\"距销售日期的天数（派生）\"},{\"name\":\"dispatched\",\"type\":\"boolean\",\"description\":\"来源记录是否已派单；true为已派单，false为未派单，不代表满足派单规则\"},{\"name\":\"recordId\",\"type\":\"string\",\"description\":\"报表内稳定记录标识\"}]",
+      "scope" : "A / rpt-sales-order",
+      "title" : "销售报表：目录与字段",
+      "version" : "6",
+      "originId" : "catalog-6",
+      "observedAt" : "当前目录；观测日期 2026-10-12",
+      "contentOffset" : 122
+    }, {
+      "id" : "rule-1-1-p1",
+      "kind" : "KNOWLEDGE",
+      "text" : "来源标题：销售报表：当前派单规则\n来源版本：1\n适用范围：A / rpt-sales-order\n时间说明：当前生效规则；观测日期 2026-10-12\n原文位置：脱敏后来源全文第1至2行；UTF-16字符[0,167)。\n片段编号：1\n正文片段：\n仅解释已配置的规则，不证明任意单据符合规则或已被派单。\n{\"id\":1,\"version\":1,\"companyCode\":\"*\",\"expression\":\"amount > 20\",\"description\":\"销售订单金额大于 20 元需要派单\",\"effectiveFrom\":null,\"effectiveTo\":null}",
+      "scope" : "A / rpt-sales-order",
+      "title" : "销售报表：当前派单规则",
+      "version" : "1",
+      "originId" : "rule-1-1",
+      "observedAt" : "当前生效规则；观测日期 2026-10-12",
+      "contentOffset" : 125
+    }, {
+      "id" : "dictionary-c195d75d400d5e72-p1",
+      "kind" : "KNOWLEDGE",
+      "text" : "来源标题：销售报表：业务词典\n来源版本：c195d75d400d5e72538359bef2ff9b7c6764040c0971b0280b2ee95a8fd2b82c\n适用范围：A / rpt-sales-order\n时间说明：当前词典；观测日期 2026-10-12\n原文位置：脱敏后来源全文第1至1行；UTF-16字符[0,214)。\n片段编号：1\n正文片段：\n{\"scope\":{\"domain\":\"REPORT\",\"companyCode\":\"A\",\"reportId\":\"rpt-sales-order\"},\"version\":0,\"definition\":{\"companyName\":\"\",\"companyAliases\":[],\"timeZone\":\"Asia/Shanghai\",\"fiscalStartMonth\":1,\"holidays\":[],\"fields\":[]}}",
+      "scope" : "A / rpt-sales-order",
+      "title" : "销售报表：业务词典",
+      "version" : "c195d75d400d5e72538359bef2ff9b7c6764040c0971b0280b2ee95a8fd2b82c",
+      "originId" : "dictionary-c195d75d400d5e72",
+      "observedAt" : "当前词典；观测日期 2026-10-12",
+      "contentOffset" : 184
+    }, {
+      "id" : "knowledge-coverage-1",
+      "kind" : "DATA",
+      "text" : "第1步已执行当前授权范围内的知识检索。\n已搜索 4 份来源、4 个片段；命中 4 份来源、4 个片段；返回 4 份来源、4 个片段。\n本次命中的片段已全部返回；这不证明授权资料之外不存在其他制度。\n本次字段别名扩展未达到预算。\n本说明仅记录知识检索情况，不是制度正文，不是业务明细，也不证明任何业务写入已经执行。",
+      "scope" : "A / rpt-sales-order",
+      "title" : "第1步知识检索范围说明",
+      "version" : "d41dbc3cde009e31f0ab61a22cf136f5d5b8cd1aeb415bcc52aad8ba07dcfba3",
+      "originId" : "knowledge-coverage-1",
+      "observedAt" : "2026-10-12T15:57:15.550845300Z",
+      "contentOffset" : 0
+    } ]
+  } ],
+  "answer" : {
+    "claims" : [ {
+      "text" : "已发布的差旅住宿定义资料（版本2，适用范围A/rpt-sales-order，生效日期2026-01-01，未设失效日期）说明：差旅住宿补助按现行审批制度核定；该资料仅解释定义，没有规定每日上限，也不证明任何报销已被批准。",
+      "citations" : [ {
+        "quote" : "来源标题：差旅住宿定义（隔离合成制度）\n来源版本：2\n适用范围：A / rpt-sales-order\n时间说明：生效 2026-01-01；失效 未指定\n原文位置：脱敏后来源全文第1至2行；UTF-16字符[0,62)。\n片段编号：1\n正文片段：\n来源：本仓库隔离验收合成资料\n差旅住宿补助按现行审批制度核定；本资料仅解释定义，没有规定每日上限，也不证明任何报销已被批准。",
+        "sourceId" : "document-f678c37e32a44831b19c916bc91658b6-v2-p1"
+      } ]
+    }, {
+      "text" : "本次已执行当前授权范围内的知识检索，共搜索4份来源、4个片段，命中4份来源、4个片段，命中的片段已全部返回；这不证明授权资料之外不存在其他制度。",
+      "citations" : [ {
+        "quote" : "第1步已执行当前授权范围内的知识检索。\n已搜索 4 份来源、4 个片段；命中 4 份来源、4 个片段；返回 4 份来源、4 个片段。\n本次命中的片段已全部返回；这不证明授权资料之外不存在其他制度。\n本次字段别名扩展未达到预算。\n本说明仅记录知识检索情况，不是制度正文，不是业务明细，也不证明任何业务写入已经执行。",
+        "sourceId" : "knowledge-coverage-1"
+      } ]
+    } ],
+    "status" : "ANSWERED",
+    "limitations" : [ "当前资料仅解释差旅住宿补助的定义口径，未规定每日补助上限等具体标准，也未涉及任何实际报销是否已批准。", "本次检索范围限于当前授权资料，未覆盖范围外的其他制度，因此不能据此断言企业知识库中不存在其他相关规定。" ]
+  },
+  "usage" : [ {
+    "model" : "deepseek-v4.1-flash",
+    "stage" : "PLAN",
+    "number" : 1,
+    "status" : "RESPONDED",
+    "elapsedMs" : 3088,
+    "inputTokens" : 4111,
+    "outputTokens" : 102,
+    "usageComplete" : true,
+    "cachedInputTokens" : 1920
+  }, {
+    "model" : "deepseek-v4.1-flash",
+    "stage" : "PLAN_REVIEW",
+    "number" : 2,
+    "status" : "RESPONDED",
+    "elapsedMs" : 2652,
+    "inputTokens" : 3153,
+    "outputTokens" : 52,
+    "usageComplete" : true,
+    "cachedInputTokens" : 1408
+  }, {
+    "model" : "deepseek-v4.1-flash",
+    "stage" : "RAG_REWRITE",
+    "number" : 3,
+    "status" : "RESPONDED",
+    "elapsedMs" : 2200,
+    "inputTokens" : 482,
+    "outputTokens" : 36,
+    "usageComplete" : true,
+    "cachedInputTokens" : 128
+  }, {
+    "model" : "deepseek-v4.1-flash",
+    "stage" : "RAG_RERANK",
+    "number" : 4,
+    "status" : "RESPONDED",
+    "elapsedMs" : 3709,
+    "inputTokens" : 1745,
+    "outputTokens" : 27,
+    "usageComplete" : true,
+    "cachedInputTokens" : 128
+  }, {
+    "model" : "deepseek-v4.1-flash",
+    "stage" : "ANSWER",
+    "number" : 5,
+    "status" : "RESPONDED",
+    "elapsedMs" : 3884,
+    "inputTokens" : 3204,
+    "outputTokens" : 226,
+    "usageComplete" : true,
+    "cachedInputTokens" : 896
+  }, {
+    "model" : "deepseek-v4.1-flash",
+    "stage" : "ANSWER_REVIEW",
+    "number" : 6,
+    "status" : "RESPONDED",
+    "elapsedMs" : 3505,
+    "inputTokens" : 3081,
+    "outputTokens" : 90,
+    "usageComplete" : true,
+    "cachedInputTokens" : 1024
+  } ]
+}

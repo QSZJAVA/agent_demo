@@ -158,7 +158,7 @@ public class KnowledgeService {
     /** 获取授权范围内的当前依据；发布版本而非草稿进入检索，未生效/过期资料不进入模型上下文。 */
     public Snapshot snapshot(CurrentUser user,String company,String reportId) {
         var report=scope(user,company,reportId);Instant at=Instant.now();LocalDate day=at.atZone(ZoneId.of("Asia/Shanghai")).toLocalDate();String range=company+" / "+reportId;
-        var sources=new ArrayList<AnalysisEvidence.Source>();var fingerprint=new ArrayList<Object>();fingerprint.add(QuerySnapshotStore.definitionHash(List.of(report)));fingerprint.add(day.toString());
+        var sources=new ArrayList<AnalysisEvidence.Source>();var fingerprint=new ArrayList<Object>();fingerprint.add(QuerySnapshotStore.definitionHash(List.of(report)));fingerprint.add(day.toString());fingerprint.add(KnowledgeChunks.VERSION);fingerprint.add(AnalysisEvidence.SOURCE_VERSION);
         var dictionary=(SemanticDictionaryService.Entry)dictionaries.read(user,new SemanticDictionary.Scope(BusinessQuery.Domain.REPORT,company,reportId)).get("entry");
         dictionary.definition().validate(BusinessFields.forDomain(BusinessQuery.Domain.REPORT,report.fields()));fingerprint.add(dictionary);
         add(sources,"catalog-"+report.catalogVersion(),report.reportName()+"：目录与字段",Long.toString(report.catalogVersion()),range,"当前目录；观测日期 "+day,
@@ -181,16 +181,16 @@ public class KnowledgeService {
         if(sources.size()>1600)throw new ApiException(422,"知识片段超过范围预算");current(user);
         return new Snapshot(report,dictionary,List.copyOf(sources),com.example.report.investigation.InvestigationJson.hash(fingerprint),at);
     }
-    /** 分块按原始字符范围进行且每块明确编号，片段不是资料完整性承诺；检索结果另标记召回截断。 */
+    /** 分块优先保持段落和句子，以原文位置说明有限上下文；头部也受引用上限约束，不再次拆开引用元数据与正文。 */
     private static void add(List<AnalysisEvidence.Source> out,String id,String title,String version,String scope,String at,String content) {
-        String safe=AnalysisEvidence.safeText(content);
-        for(int start=0,index=1;start<safe.length();index++) {
-            int end=Math.min(start+1800,safe.length());if(end<safe.length()&&Character.isHighSurrogate(safe.charAt(end-1)))end--;
-            String partTitle=title+"（片段"+index+"）";
-            // 来源元数据也是引用依据。生成可信标题/版本/范围前缀，保持quote始终来自text的单一严格规则。
-            String header=AnalysisEvidence.safeText("来源标题："+partTitle+"\n来源版本："+version+"\n适用范围："+scope+"\n时间说明："+at+"\n正文片段：\n");
-            // 检索前完成引用切片，返回预算按实际可引用片段计算；切片均保留原始来源，不依赖编号后缀推断归属。
-            out.addAll(AnalysisEvidence.parts(new AnalysisEvidence.Source(id+"-p"+index,id,"KNOWLEDGE",partTitle,version,scope,at,header+safe.substring(start,end))));start=end;
+        String safe=AnalysisEvidence.safeText(content);title=AnalysisEvidence.safeText(title);
+        String header=AnalysisEvidence.safeText("来源标题："+title+"\n来源版本："+version+"\n适用范围："+scope+"\n时间说明："+at+"\n");
+        int budget=Math.min(1400,2000-header.length()-160);
+        for(var chunk:KnowledgeChunks.split(safe,budget)) {
+            String location="原文位置：脱敏后来源全文第"+chunk.startLine()+"至"+chunk.endLine()+"行；UTF-16字符["+chunk.start()+","+chunk.end()+")。\n片段编号："+chunk.index()+"\n正文片段：\n";
+            String text=header+location+chunk.text();if(text.length()>2000)throw new ApiException(422,"知识元数据与正文超过单片引用预算");
+            // 标题参与词项匹配，只保留实际资料标题；生成的片段编号放在引用元数据中，不能制造新的检索主题。
+            out.add(new AnalysisEvidence.Source(id+"-p"+chunk.index(),id,"KNOWLEDGE",title,version,scope,at,text,header.length()+location.length()));
         }
     }
 }

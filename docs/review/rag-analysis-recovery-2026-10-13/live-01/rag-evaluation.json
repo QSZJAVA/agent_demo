@@ -1,0 +1,1216 @@
+{
+  "corpusVersion": "knowledge-rag-2026-10-12-v1",
+  "corpusSha256": "343d023eb915fa38836fdeee430d8c3a207c80bf7c0366777cc9184934c9df4a",
+  "scorerSha256": "cd9228f708b1b2267dd5c12648988b1b8fb4c50e9b4a9e214d49f6b498125a01",
+  "topK": 12,
+  "evidenceScope": "仅统计输入文件中完整记录的执行；工程编写的独立来源金标，非业务盲测，不推断未提供的历史尝试",
+  "summary": {
+    "expectedCases": 5,
+    "observedCases": 5,
+    "attempts": 5,
+    "passed": 3,
+    "failed": 2,
+    "firstPass": 3,
+    "firstPassRate": 0.6,
+    "realModelCases": 3,
+    "lexical": {
+      "recallAt12": 1,
+      "meanReciprocalRankAt12": 0.7083333333333333,
+      "opposingRecallAt12": 1,
+      "noMatchAccuracy": 1
+    },
+    "semantic": {
+      "recallAt12": 0.75,
+      "meanReciprocalRankAt12": 0.75,
+      "opposingRecallAt12": 1,
+      "noMatchAccuracy": 1
+    },
+    "latencyMs": {
+      "samples": 5,
+      "p50": 21258,
+      "p95": 28467,
+      "p99": 28467
+    },
+    "modelCalls": 23,
+    "testDoubleCalls": 0,
+    "stages": {
+      "ANSWER": {
+        "calls": 4,
+        "failures": 0,
+        "latencyMs": {
+          "samples": 4,
+          "p50": 3795,
+          "p95": 4470,
+          "p99": 4470
+        }
+      },
+      "ANSWER_REVIEW": {
+        "calls": 4,
+        "failures": 1,
+        "latencyMs": {
+          "samples": 4,
+          "p50": 3104,
+          "p95": 11534,
+          "p99": 11534
+        }
+      },
+      "PLAN": {
+        "calls": 4,
+        "failures": 0,
+        "latencyMs": {
+          "samples": 4,
+          "p50": 4356,
+          "p95": 5907,
+          "p99": 5907
+        }
+      },
+      "PLAN_REVIEW": {
+        "calls": 4,
+        "failures": 0,
+        "latencyMs": {
+          "samples": 4,
+          "p50": 3065,
+          "p95": 3669,
+          "p99": 3669
+        }
+      },
+      "RAG_RERANK": {
+        "calls": 3,
+        "failures": 0,
+        "latencyMs": {
+          "samples": 3,
+          "p50": 3819,
+          "p95": 4060,
+          "p99": 4060
+        }
+      },
+      "RAG_REWRITE": {
+        "calls": 4,
+        "failures": 0,
+        "latencyMs": {
+          "samples": 4,
+          "p50": 2339,
+          "p95": 3195,
+          "p99": 3195
+        }
+      }
+    },
+    "usage": {
+      "complete": false,
+      "measuredCalls": 22,
+      "totalCalls": 23,
+      "inputTokens": null,
+      "outputTokens": null,
+      "cost": null,
+      "costComplete": false
+    }
+  },
+  "cases": [
+    {
+      "caseId": "cross-language-no-alias",
+      "firstPass": false,
+      "attempts": [
+        {
+          "caseId": "cross-language-no-alias",
+          "attempt": 1,
+          "category": "CROSS_LANGUAGE",
+          "source": "MODEL",
+          "passed": false,
+          "errors": [
+            "跨语言验收必须先证实相关原文没有词法命中 ==> expected: <true> but was: <false>",
+            "SEMANTIC_RESULT_MISSING_OR_FAILED",
+            "RELEVANT_SOURCE_MISSING",
+            "LEXICAL_MISS_PRECONDITION_FAILED",
+            "ANSWER_STATUS_MISMATCH",
+            "EXPECTED_CITATION_MISSING",
+            "REAL_MODEL_EVIDENCE_INCOMPLETE"
+          ],
+          "lexical": {
+            "available": true,
+            "retrievedFragments": 11,
+            "retrievedSources": 11,
+            "recallAt12": 1,
+            "firstRelevantRank": 3,
+            "reciprocalRank": 0.3333333333333333,
+            "opposingRecallAt12": null,
+            "noMatchCorrect": null,
+            "relevantRetrieved": [
+              "sales-basis",
+              "cash-receipt"
+            ],
+            "opposingRetrieved": []
+          },
+          "semantic": {
+            "available": false,
+            "retrievedFragments": 0,
+            "retrievedSources": 0,
+            "recallAt12": 0,
+            "firstRelevantRank": null,
+            "reciprocalRank": 0,
+            "opposingRecallAt12": null,
+            "noMatchCorrect": null,
+            "relevantRetrieved": [],
+            "opposingRetrieved": []
+          },
+          "realModelVerified": false,
+          "repaired": false,
+          "answer": {
+            "statusCorrect": false,
+            "citationCoverageCorrect": false,
+            "scope": "仅核对最终状态与实际引用覆盖；业务结论仍须审阅"
+          },
+          "durationMs": 8,
+          "calls": {
+            "modelCalls": 0,
+            "testDoubleCalls": 0,
+            "stages": {},
+            "usage": {
+              "complete": false,
+              "measuredCalls": 0,
+              "totalCalls": 0,
+              "inputTokens": null,
+              "outputTokens": null,
+              "cost": null,
+              "costComplete": false
+            }
+          }
+        }
+      ],
+      "final": {
+        "caseId": "cross-language-no-alias",
+        "attempt": 1,
+        "category": "CROSS_LANGUAGE",
+        "source": "MODEL",
+        "passed": false,
+        "errors": [
+          "跨语言验收必须先证实相关原文没有词法命中 ==> expected: <true> but was: <false>",
+          "SEMANTIC_RESULT_MISSING_OR_FAILED",
+          "RELEVANT_SOURCE_MISSING",
+          "LEXICAL_MISS_PRECONDITION_FAILED",
+          "ANSWER_STATUS_MISMATCH",
+          "EXPECTED_CITATION_MISSING",
+          "REAL_MODEL_EVIDENCE_INCOMPLETE"
+        ],
+        "lexical": {
+          "available": true,
+          "retrievedFragments": 11,
+          "retrievedSources": 11,
+          "recallAt12": 1,
+          "firstRelevantRank": 3,
+          "reciprocalRank": 0.3333333333333333,
+          "opposingRecallAt12": null,
+          "noMatchCorrect": null,
+          "relevantRetrieved": [
+            "sales-basis",
+            "cash-receipt"
+          ],
+          "opposingRetrieved": []
+        },
+        "semantic": {
+          "available": false,
+          "retrievedFragments": 0,
+          "retrievedSources": 0,
+          "recallAt12": 0,
+          "firstRelevantRank": null,
+          "reciprocalRank": 0,
+          "opposingRecallAt12": null,
+          "noMatchCorrect": null,
+          "relevantRetrieved": [],
+          "opposingRetrieved": []
+        },
+        "realModelVerified": false,
+        "repaired": false,
+        "answer": {
+          "statusCorrect": false,
+          "citationCoverageCorrect": false,
+          "scope": "仅核对最终状态与实际引用覆盖；业务结论仍须审阅"
+        },
+        "durationMs": 8,
+        "calls": {
+          "modelCalls": 0,
+          "testDoubleCalls": 0,
+          "stages": {},
+          "usage": {
+            "complete": false,
+            "measuredCalls": 0,
+            "totalCalls": 0,
+            "inputTokens": null,
+            "outputTokens": null,
+            "cost": null,
+            "costComplete": false
+          }
+        }
+      }
+    },
+    {
+      "caseId": "negation-and-exception",
+      "firstPass": true,
+      "attempts": [
+        {
+          "caseId": "negation-and-exception",
+          "attempt": 1,
+          "category": "NEGATION_EXCEPTION",
+          "source": "MODEL",
+          "passed": true,
+          "errors": [],
+          "lexical": {
+            "available": true,
+            "retrievedFragments": 2,
+            "retrievedSources": 2,
+            "recallAt12": 1,
+            "firstRelevantRank": 1,
+            "reciprocalRank": 1,
+            "opposingRecallAt12": null,
+            "noMatchCorrect": null,
+            "relevantRetrieved": [
+              "lodging-exception"
+            ],
+            "opposingRetrieved": []
+          },
+          "semantic": {
+            "available": true,
+            "retrievedFragments": 11,
+            "retrievedSources": 11,
+            "recallAt12": 1,
+            "firstRelevantRank": 1,
+            "reciprocalRank": 1,
+            "opposingRecallAt12": null,
+            "noMatchCorrect": null,
+            "relevantRetrieved": [
+              "lodging-exception"
+            ],
+            "opposingRetrieved": []
+          },
+          "realModelVerified": true,
+          "repaired": false,
+          "answer": {
+            "statusCorrect": true,
+            "citationCoverageCorrect": true,
+            "scope": "仅核对最终状态与实际引用覆盖；业务结论仍须审阅"
+          },
+          "durationMs": 21258,
+          "calls": {
+            "modelCalls": 6,
+            "testDoubleCalls": 0,
+            "stages": {
+              "ANSWER": {
+                "calls": 1,
+                "failures": 0,
+                "latencyMs": {
+                  "samples": 1,
+                  "p50": 3835,
+                  "p95": 3835,
+                  "p99": 3835
+                }
+              },
+              "ANSWER_REVIEW": {
+                "calls": 1,
+                "failures": 0,
+                "latencyMs": {
+                  "samples": 1,
+                  "p50": 3104,
+                  "p95": 3104,
+                  "p99": 3104
+                }
+              },
+              "PLAN": {
+                "calls": 1,
+                "failures": 0,
+                "latencyMs": {
+                  "samples": 1,
+                  "p50": 3965,
+                  "p95": 3965,
+                  "p99": 3965
+                }
+              },
+              "PLAN_REVIEW": {
+                "calls": 1,
+                "failures": 0,
+                "latencyMs": {
+                  "samples": 1,
+                  "p50": 3657,
+                  "p95": 3657,
+                  "p99": 3657
+                }
+              },
+              "RAG_RERANK": {
+                "calls": 1,
+                "failures": 0,
+                "latencyMs": {
+                  "samples": 1,
+                  "p50": 4060,
+                  "p95": 4060,
+                  "p99": 4060
+                }
+              },
+              "RAG_REWRITE": {
+                "calls": 1,
+                "failures": 0,
+                "latencyMs": {
+                  "samples": 1,
+                  "p50": 2339,
+                  "p95": 2339,
+                  "p99": 2339
+                }
+              }
+            },
+            "usage": {
+              "complete": true,
+              "measuredCalls": 6,
+              "totalCalls": 6,
+              "inputTokens": 18480,
+              "outputTokens": 571,
+              "cost": null,
+              "costComplete": false
+            }
+          }
+        }
+      ],
+      "final": {
+        "caseId": "negation-and-exception",
+        "attempt": 1,
+        "category": "NEGATION_EXCEPTION",
+        "source": "MODEL",
+        "passed": true,
+        "errors": [],
+        "lexical": {
+          "available": true,
+          "retrievedFragments": 2,
+          "retrievedSources": 2,
+          "recallAt12": 1,
+          "firstRelevantRank": 1,
+          "reciprocalRank": 1,
+          "opposingRecallAt12": null,
+          "noMatchCorrect": null,
+          "relevantRetrieved": [
+            "lodging-exception"
+          ],
+          "opposingRetrieved": []
+        },
+        "semantic": {
+          "available": true,
+          "retrievedFragments": 11,
+          "retrievedSources": 11,
+          "recallAt12": 1,
+          "firstRelevantRank": 1,
+          "reciprocalRank": 1,
+          "opposingRecallAt12": null,
+          "noMatchCorrect": null,
+          "relevantRetrieved": [
+            "lodging-exception"
+          ],
+          "opposingRetrieved": []
+        },
+        "realModelVerified": true,
+        "repaired": false,
+        "answer": {
+          "statusCorrect": true,
+          "citationCoverageCorrect": true,
+          "scope": "仅核对最终状态与实际引用覆盖；业务结论仍须审阅"
+        },
+        "durationMs": 21258,
+        "calls": {
+          "modelCalls": 6,
+          "testDoubleCalls": 0,
+          "stages": {
+            "ANSWER": {
+              "calls": 1,
+              "failures": 0,
+              "latencyMs": {
+                "samples": 1,
+                "p50": 3835,
+                "p95": 3835,
+                "p99": 3835
+              }
+            },
+            "ANSWER_REVIEW": {
+              "calls": 1,
+              "failures": 0,
+              "latencyMs": {
+                "samples": 1,
+                "p50": 3104,
+                "p95": 3104,
+                "p99": 3104
+              }
+            },
+            "PLAN": {
+              "calls": 1,
+              "failures": 0,
+              "latencyMs": {
+                "samples": 1,
+                "p50": 3965,
+                "p95": 3965,
+                "p99": 3965
+              }
+            },
+            "PLAN_REVIEW": {
+              "calls": 1,
+              "failures": 0,
+              "latencyMs": {
+                "samples": 1,
+                "p50": 3657,
+                "p95": 3657,
+                "p99": 3657
+              }
+            },
+            "RAG_RERANK": {
+              "calls": 1,
+              "failures": 0,
+              "latencyMs": {
+                "samples": 1,
+                "p50": 4060,
+                "p95": 4060,
+                "p99": 4060
+              }
+            },
+            "RAG_REWRITE": {
+              "calls": 1,
+              "failures": 0,
+              "latencyMs": {
+                "samples": 1,
+                "p50": 2339,
+                "p95": 2339,
+                "p99": 2339
+              }
+            }
+          },
+          "usage": {
+            "complete": true,
+            "measuredCalls": 6,
+            "totalCalls": 6,
+            "inputTokens": 18480,
+            "outputTokens": 571,
+            "cost": null,
+            "costComplete": false
+          }
+        }
+      }
+    },
+    {
+      "caseId": "similar-concept-distinction",
+      "firstPass": true,
+      "attempts": [
+        {
+          "caseId": "similar-concept-distinction",
+          "attempt": 1,
+          "category": "SIMILAR_CONCEPT",
+          "source": "MODEL",
+          "passed": true,
+          "errors": [],
+          "lexical": {
+            "available": true,
+            "retrievedFragments": 11,
+            "retrievedSources": 11,
+            "recallAt12": 1,
+            "firstRelevantRank": 1,
+            "reciprocalRank": 1,
+            "opposingRecallAt12": null,
+            "noMatchCorrect": null,
+            "relevantRetrieved": [
+              "invoice-recognition"
+            ],
+            "opposingRetrieved": []
+          },
+          "semantic": {
+            "available": true,
+            "retrievedFragments": 11,
+            "retrievedSources": 11,
+            "recallAt12": 1,
+            "firstRelevantRank": 1,
+            "reciprocalRank": 1,
+            "opposingRecallAt12": null,
+            "noMatchCorrect": null,
+            "relevantRetrieved": [
+              "invoice-recognition"
+            ],
+            "opposingRetrieved": []
+          },
+          "realModelVerified": true,
+          "repaired": false,
+          "answer": {
+            "statusCorrect": true,
+            "citationCoverageCorrect": true,
+            "scope": "仅核对最终状态与实际引用覆盖；业务结论仍须审阅"
+          },
+          "durationMs": 22573,
+          "calls": {
+            "modelCalls": 6,
+            "testDoubleCalls": 0,
+            "stages": {
+              "ANSWER": {
+                "calls": 1,
+                "failures": 0,
+                "latencyMs": {
+                  "samples": 1,
+                  "p50": 3551,
+                  "p95": 3551,
+                  "p99": 3551
+                }
+              },
+              "ANSWER_REVIEW": {
+                "calls": 1,
+                "failures": 0,
+                "latencyMs": {
+                  "samples": 1,
+                  "p50": 3064,
+                  "p95": 3064,
+                  "p99": 3064
+                }
+              },
+              "PLAN": {
+                "calls": 1,
+                "failures": 0,
+                "latencyMs": {
+                  "samples": 1,
+                  "p50": 5907,
+                  "p95": 5907,
+                  "p99": 5907
+                }
+              },
+              "PLAN_REVIEW": {
+                "calls": 1,
+                "failures": 0,
+                "latencyMs": {
+                  "samples": 1,
+                  "p50": 3669,
+                  "p95": 3669,
+                  "p99": 3669
+                }
+              },
+              "RAG_RERANK": {
+                "calls": 1,
+                "failures": 0,
+                "latencyMs": {
+                  "samples": 1,
+                  "p50": 3819,
+                  "p95": 3819,
+                  "p99": 3819
+                }
+              },
+              "RAG_REWRITE": {
+                "calls": 1,
+                "failures": 0,
+                "latencyMs": {
+                  "samples": 1,
+                  "p50": 2292,
+                  "p95": 2292,
+                  "p99": 2292
+                }
+              }
+            },
+            "usage": {
+              "complete": true,
+              "measuredCalls": 6,
+              "totalCalls": 6,
+              "inputTokens": 20080,
+              "outputTokens": 520,
+              "cost": null,
+              "costComplete": false
+            }
+          }
+        }
+      ],
+      "final": {
+        "caseId": "similar-concept-distinction",
+        "attempt": 1,
+        "category": "SIMILAR_CONCEPT",
+        "source": "MODEL",
+        "passed": true,
+        "errors": [],
+        "lexical": {
+          "available": true,
+          "retrievedFragments": 11,
+          "retrievedSources": 11,
+          "recallAt12": 1,
+          "firstRelevantRank": 1,
+          "reciprocalRank": 1,
+          "opposingRecallAt12": null,
+          "noMatchCorrect": null,
+          "relevantRetrieved": [
+            "invoice-recognition"
+          ],
+          "opposingRetrieved": []
+        },
+        "semantic": {
+          "available": true,
+          "retrievedFragments": 11,
+          "retrievedSources": 11,
+          "recallAt12": 1,
+          "firstRelevantRank": 1,
+          "reciprocalRank": 1,
+          "opposingRecallAt12": null,
+          "noMatchCorrect": null,
+          "relevantRetrieved": [
+            "invoice-recognition"
+          ],
+          "opposingRetrieved": []
+        },
+        "realModelVerified": true,
+        "repaired": false,
+        "answer": {
+          "statusCorrect": true,
+          "citationCoverageCorrect": true,
+          "scope": "仅核对最终状态与实际引用覆盖；业务结论仍须审阅"
+        },
+        "durationMs": 22573,
+        "calls": {
+          "modelCalls": 6,
+          "testDoubleCalls": 0,
+          "stages": {
+            "ANSWER": {
+              "calls": 1,
+              "failures": 0,
+              "latencyMs": {
+                "samples": 1,
+                "p50": 3551,
+                "p95": 3551,
+                "p99": 3551
+              }
+            },
+            "ANSWER_REVIEW": {
+              "calls": 1,
+              "failures": 0,
+              "latencyMs": {
+                "samples": 1,
+                "p50": 3064,
+                "p95": 3064,
+                "p99": 3064
+              }
+            },
+            "PLAN": {
+              "calls": 1,
+              "failures": 0,
+              "latencyMs": {
+                "samples": 1,
+                "p50": 5907,
+                "p95": 5907,
+                "p99": 5907
+              }
+            },
+            "PLAN_REVIEW": {
+              "calls": 1,
+              "failures": 0,
+              "latencyMs": {
+                "samples": 1,
+                "p50": 3669,
+                "p95": 3669,
+                "p99": 3669
+              }
+            },
+            "RAG_RERANK": {
+              "calls": 1,
+              "failures": 0,
+              "latencyMs": {
+                "samples": 1,
+                "p50": 3819,
+                "p95": 3819,
+                "p99": 3819
+              }
+            },
+            "RAG_REWRITE": {
+              "calls": 1,
+              "failures": 0,
+              "latencyMs": {
+                "samples": 1,
+                "p50": 2292,
+                "p95": 2292,
+                "p99": 2292
+              }
+            }
+          },
+          "usage": {
+            "complete": true,
+            "measuredCalls": 6,
+            "totalCalls": 6,
+            "inputTokens": 20080,
+            "outputTokens": 520,
+            "cost": null,
+            "costComplete": false
+          }
+        }
+      }
+    },
+    {
+      "caseId": "opposing-tax-policy",
+      "firstPass": false,
+      "attempts": [
+        {
+          "caseId": "opposing-tax-policy",
+          "attempt": 1,
+          "category": "CONFLICT",
+          "source": "MODEL",
+          "passed": false,
+          "errors": [
+            "{id=83d6ffd4d7da40e19ae02411d72f633e, status=PARTIAL, stage=FINISHED, reason=HTTP_503, message=真实模型调用未完成，请核对端点、鉴权、Schema能力和超时配置, version=18, request={question=现行资料对销售金额是否含税有一致结论吗？请列出相反依据。, reportId=rpt-sales-order, snapshotId=null, companyCode=A}, created_at=2026-10-12T14:17:47.733Z, started_at=2026-10-12T14:17:47.744Z, finished_at=2026-10-12T14:18:16.169Z, expires_at=2026-10-13T14:17:47.733Z, plan={mode=EXECUTE, steps=[{rank=null, other=null, query=null, action=KNOWLEDGE, source=null, analysis=null, knowledgeQuestion=现行资料对销售金额是否含税是否有一致结论？是否存在相反依据？请列明销售金额含销项税额与不含销项税额的相关规定。}], objective=在已授权的A公司销售报表范围内检索现行资料，确认销售金额是否含税是否存在一致结论，并列出相互对立的依据。, clarification=null}, steps=[{index=0, action=KNOWLEDGE, result={hits=[{sourceId=document-324fcfe1e6cd4d76ac87711d1a018040-v2-p1, aliasTerms=[], directTerms=[售金, 售金额, 税额, 资料, 金额, 销售, 销售金, 销项, 销项税, 项税, 项税额]}, {sourceId=document-780688b4a33b46c2a84a204c74029f5c-v2-p1, aliasTerms=[], directTerms=[售金, 售金额, 税额, 资料, 金额, 销售, 销售金, 销项, 销项税, 项税, 项税额]}, {sourceId=document-ab2f280008434fa4a32eb99ac4c2ddb5-v2-p1, aliasTerms=[], directTerms=[售金, 售金额, 资料, 金额, 销售, 销售金, 额与]}, {sourceId=document-dd0835cc1c9a4a9b84f6c8e067516f26-v2-p1, aliasTerms=[], directTerms=[资料, 金额, 金额是, 销售, 额是]}, {sourceId=document-df4d7784394c4086bd6a25d12a69cbf2-v2-p1, aliasTerms=[], directTerms=[资料]}, {sourceId=catalog-6-p1, aliasTerms=[], directTerms=[金额, 销售, 额与]}, {sourceId=rule-1-1-p1, aliasTerms=[], directTerms=[金额, 销售]}, {sourceId=dictionary-c195d75d400d5e72-p1, aliasTerms=[], directTerms=[销售]}, {sourceId=document-7ef12f378fc04171a4c33be127f308ef-v2-p1, aliasTerms=[], directTerms=[资料]}, {sourceId=document-a408145009e442d99e0754aac808d45d-v2-p1, aliasTerms=[], directTerms=[资料]}, {sourceId=document-bb5a1b67fdae4a80abe41ecdc9a021cd-v2-p1, aliasTerms=[], directTerms=[资料]}], kind=KNOWLEDGE, matched=11, sources=[{id=document-324fcfe1e6cd4d76ac87711d1a018040-v2-p1, kind=KNOWLEDGE, text=来源标题：订单价款税额口径甲\n来源版本：2\n适用范围：A / rpt-sales-order\n时间说明：生效 2026-01-01；失效 未指定\n原文位置：脱敏后来源全文第1至2行；UTF-16字符[0,26)。\n片段编号：1\n正文片段：\n来源：本仓库隔离验收合成资料\n销售金额包括销项税额。, scope=A / rpt-sales-order, title=订单价款税额口径甲（片段1）, version=2, originId=document-324fcfe1e6cd4d76ac87711d1a018040-v2, observedAt=生效 2026-01-01；失效 未指定}, {id=document-780688b4a33b46c2a84a204c74029f5c-v2-p1, kind=KNOWLEDGE, text=来源标题：订单价款税额口径乙\n来源版本：2\n适用范围：A / rpt-sales-order\n时间说明：生效 2026-01-01；失效 未指定\n原文位置：脱敏后来源全文第1至2行；UTF-16字符[0,27)。\n片段编号：1\n正文片段：\n来源：本仓库隔离验收合成资料\n销售金额不包括销项税额。, scope=A / rpt-sales-order, title=订单价款税额口径乙（片段1）, version=2, originId=document-780688b4a33b46c2a84a204c74029f5c-v2, observedAt=生效 2026-01-01；失效 未指定}, {id=document-ab2f280008434fa4a32eb99ac4c2ddb5-v2-p1, kind=KNOWLEDGE, text=来源标题：销售单金额与收款的区别\n来源版本：2\n适用范围：A / rpt-sales-order\n时间说明：生效 2026-01-01；失效 未指定\n原文位置：脱敏后来源全文第1至2行；UTF-16字符[0,59)。\n片段编号：1\n正文片段：\n来源：本仓库隔离验收合成资料\n销售金额按订单约定的应收价款登记；它不等于客户已经支付的款项。收款需以到账流水单独证明。, scope=A / rpt-sales-order, title=销售单金额与收款的区别（片段1）, version=2, originId=document-ab2f280008434fa4a32eb99ac4c2ddb5-v2, observedAt=生效 2026-01-01；失效 未指定}, {id=document-dd0835cc1c9a4a9b84f6c8e067516f26-v2-p1, kind=KNOWLEDGE, text=来源标题：收款事实确认\n来源版本：2\n适用范围：A / rpt-sales-order\n时间说明：生效 2026-01-01；失效 未指定\n原文位置：脱敏后来源全文第1至2行；UTF-16字符[0,54)。\n片段编号：1\n正文片段：\n来源：本仓库隔离验收合成资料\n只有实际到账记录才能认定已经收款；销售单金额是订单价款，不能代替银行到账记录。, scope=A / rpt-sales-order, title=收款事实确认（片段1）, version=2, originId=document-dd0835cc1c9a4a9b84f6c8e067516f26-v2, observedAt=生效 2026-01-01；失效 未指定}, {id=document-df4d7784394c4086bd6a25d12a69cbf2-v2-p1, kind=KNOWLEDGE, text=来源标题：开票日期与确认收入\n来源版本：2\n适用范围：A / rpt-sales-order\n时间说明：生效 2026-01-01；失效 未指定\n原文位置：脱敏后来源全文第1至2行；UTF-16字符[0,67)。\n片段编号：1\n正文片段：\n来源：本仓库隔离验收合成资料\n开票日期是发票开具日期，不等同于收入确认日期。收入确认以合同履约条件满足时点为准，不能仅据开票时间推断。, scope=A / rpt-sales-order, title=开票日期与确认收入（片段1）, version=2, originId=document-df4d7784394c4086bd6a25d12a69cbf2-v2, observedAt=生效 2026-01-01；失效 未指定}, {id=catalog-6-p1, kind=KNOWLEDGE, text=来源标题：销售报表：目录与字段\n来源版本：6\n适用范围：A / rpt-sales-order\n时间说明：当前目录；观测日期 2026-10-12\n原文位置：脱敏后来源全文第1至3行；UTF-16字符[0,959)。\n片段编号：1\n正文片段：\n报表名称：销售报表\n用途：销售订单台账：按订单统计金额与派单状态\n字段定义：[{\"name\":\"reportId\",\"type\":\"string\",\"description\":\"报表稳定标识\"},{\"name\":\"reportName\",\"type\":\"string\",\"description\":\"报表名称\"},{\"name\":\"companyCode\",\"type\":\"string\",\"description\":\"所属公司代码\"},{\"name\":\"docNo\",\"type\":\"string\",\"description\":\"来源单据号\"},{\"name\":\"amount\",\"type\":\"decimal\",\"description\":\"来源金额，币种见 currency；空值表示未提供\"},{\"name\":\"currency\",\"type\":\"string\",\"description\":\"来源声明币种；空值表示未声明，不能跨币种合计\"},{\"name\":\"date\",\"type\":\"date\",\"description\":\"业务日期；空值表示未配置\"},{\"name\":\"status\",\"type\":\"string\",\"description\":\"报表派单状态：未派单/已派单\"},{\"name\":\"orderNo\",\"type\":\"string\",\"description\":\"订单号\"},{\"name\":\"productName\",\"type\":\"string\",\"description\":\"产品名称\"},{\"name\":\"saleDate\",\"type\":\"date\",\"description\":\"销售日期，字符串 yyyy-MM-dd\"},{\"name\":\"daysSinceSale\",\"type\":\"long\",\"description\":\"距销售日期的天数（派生）\"},{\"name\":\"dispatched\",\"type\":\"boolean\",\"description\":\"来源记录是否已派单；true为已派单，false为未派单，不代表满足派单规则\"},{\"name\":\"recordId\",\"type\":\"string\",\"description\":\"报表内稳定记录标识\"}], scope=A / rpt-sales-order, title=销售报表：目录与字段（片段1）, version=6, originId=catalog-6, observedAt=当前目录；观测日期 2026-10-12}, {id=rule-1-1-p1, kind=KNOWLEDGE, text=来源标题：销售报表：当前派单规则\n来源版本：1\n适用范围：A / rpt-sales-order\n时间说明：当前生效规则；观测日期 2026-10-12\n原文位置：脱敏后来源全文第1至2行；UTF-16字符[0,167)。\n片段编号：1\n正文片段：\n仅解释已配置的规则，不证明任意单据符合规则或已被派单。\n{\"id\":1,\"version\":1,\"companyCode\":\"*\",\"expression\":\"amount > 20\",\"description\":\"销售订单金额大于 20 元需要派单\",\"effectiveFrom\":null,\"effectiveTo\":null}, scope=A / rpt-sales-order, title=销售报表：当前派单规则（片段1）, version=1, originId=rule-1-1, observedAt=当前生效规则；观测日期 2026-10-12}, {id=dictionary-c195d75d400d5e72-p1, kind=KNOWLEDGE, text=来源标题：销售报表：业务词典\n来源版本：c195d75d400d5e72538359bef2ff9b7c6764040c0971b0280b2ee95a8fd2b82c\n适用范围：A / rpt-sales-order\n时间说明：当前词典；观测日期 2026-10-12\n原文位置：脱敏后来源全文第1至1行；UTF-16字符[0,214)。\n片段编号：1\n正文片段：\n{\"scope\":{\"domain\":\"REPORT\",\"companyCode\":\"A\",\"reportId\":\"rpt-sales-order\"},\"version\":0,\"definition\":{\"companyName\":\"\",\"companyAliases\":[],\"timeZone\":\"Asia/Shanghai\",\"fiscalStartMonth\":1,\"holidays\":[],\"fields\":[]}}, scope=A / rpt-sales-order, title=销售报表：业务词典（片段1）, version=c195d75d400d5e72538359bef2ff9b7c6764040c0971b0280b2ee95a8fd2b82c, originId=dictionary-c195d75d400d5e72, observedAt=当前词典；观测日期 2026-10-12}, {id=document-7ef12f378fc04171a4c33be127f308ef-v2-p1, kind=KNOWLEDGE, text=来源标题：Expression syntax guide\n来源版本：2\n适用范围：A / rpt-sales-order\n时间说明：生效 2026-01-01；失效 未指定\n原文位置：脱敏后来源全文第1至2行；UTF-16字符[0,122)。\n片段编号：1\n正文片段：\n来源：本仓库隔离验收合成资料\nThe syntax parser validates expression grammar. This document defines neither taxation nor cash collection., scope=A / rpt-sales-order, title=Expression syntax guide（片段1）, version=2, originId=document-7ef12f378fc04171a4c33be127f308ef-v2, observedAt=生效 2026-01-01；失效 未指定}, {id=document-a408145009e442d99e0754aac808d45d-v2-p1, kind=KNOWLEDGE, text=来源标题：通勤交通补助适用范围\n来源版本：2\n适用范围：A / rpt-sales-order\n时间说明：生效 2026-01-01；失效 未指定\n原文位置：脱敏后来源全文第1至2行；UTF-16字符[0,52)。\n片段编号：1\n正文片段：\n来源：本仓库隔离验收合成资料\n通勤交通补助适用于常驻工作地往返；其标准和住宿补助分别管理，不能相互推导。, scope=A / rpt-sales-order, title=通勤交通补助适用范围（片段1）, version=2, originId=document-a408145009e442d99e0754aac808d45d-v2, observedAt=生效 2026-01-01；失效 未指定}, {id=document-bb5a1b67fdae4a80abe41ecdc9a021cd-v2-p1, kind=KNOWLEDGE, text=来源标题：差旅住宿补助适用范围\n来源版本：2\n适用范围：A / rpt-sales-order\n时间说明：生效 2026-01-01；失效 未指定\n原文位置：脱敏后来源全文第1至2行；UTF-16字符[0,77)。\n片段编号：1\n正文片段：\n来源：本仓库隔离验收合成资料\n短期出差住宿补助仅适用于因公前往常驻地以外的员工；本地驻点工作不适用。经过事前书面批准的跨地支援，按批准期间纳入该补助范围。, scope=A / rpt-sales-order, title=差旅住宿补助适用范围（片段1）, version=2, originId=document-bb5a1b67fdae4a80abe41ecdc9a021cd-v2, observedAt=生效 2026-01-01；失效 未指定}], coverage={matchedSources=11, returnedSources=11, searchedSources=11}, searched=11, retrieval={mode=SEMANTIC_RAG, routes=[{index=0, expansions=[], queryTerms=[现行, 行资, 资料, 料对, 对销, 销售, 售金, 金额, 额是, 否含, 含税, 税有, 有一, 一致, 致结, 结论, 论吗, 现行资, 行资料, 资料对, 料对销, 对销售, 销售金, 售金额, 金额是, 额是否, 是否含, 否含税, 含税有, 税有一, 有一致, 一致结, 致结论, 结论吗, 请列, 列出, 出相, 相反, 反依, 依据, 请列出, 列出相, 出相反, 相反依, 反依据], matchedSources=11, matchedFragments=11, expansionTruncated=false}, {index=1, expansions=[], queryTerms=[现行, 行资, 资料, 料对, 对销, 销售, 售金, 金额, 额是, 否含, 含税, 税是, 否有, 有一, 一致, 致结, 结论, 现行资, 行资料, 资料对, 料对销, 对销售, 销售金, 售金额, 金额是, 额是否, 是否含, 否含税, 含税是, 税是否, 是否有, 否有一, 有一致, 一致结, 致结论, 否存, 存在, 在相, 相反, 反依, 依据, 是否存, 否存在, 存在相, 在相反, 相反依, 反依据, 请列, 列明, 明销, 额含, 含销, 销项, 项税, 税额, 额与, 与不, 不含, 额的, 的相, 关规, 规定, 请列明, 列明销, 明销售, 金额含, 额含销, 含销项, 销项税, 项税额, 税额与, 额与不, 与不含, 不含销, 税额的, 额的相, 的相关, 相关规, 关规定], matchedSources=11, matchedFragments=11, expansionTruncated=false}, {index=2, expansions=[], queryTerms=[销售, 售金, 金额, 销售金, 售金额, 含税, 不含, 不含税, 销项, 项税, 税额, 销项税, 项税额, 规定, 结论], matchedSources=7, matchedFragments=7, expansionTruncated=false}, {index=3, expansions=[], queryTerms=[销售, 售收, 收入, 销售收, 售收入, 含税, 不含, 不含税, 依据, 相反, 规定], matchedSources=8, matchedFragments=8, expansionTruncated=false}], queries=[{kind=ORIGINAL, text=现行资料对销售金额是否含税有一致结论吗？请列出相反依据。}, {kind=FOCUSED, text=现行资料对销售金额是否含税是否有一致结论？是否存在相反依据？请列明销售金额含销项税额与不含销项税额的相关规定。}, {kind=REWRITE, text=销售金额 含税 不含税 销项税额 规定 结论}, {kind=REWRITE, text=销售收入 含税 不含税 依据 相反 规定}], ranking=[{rank=1, routes=[0, 1, 2, 3], sourceId=document-324fcfe1e6cd4d76ac87711d1a018040-v2-p1}, {rank=2, routes=[0, 1, 2, 3], sourceId=document-780688b4a33b46c2a84a204c74029f5c-v2-p1}, {rank=3, routes=[0, 1, 2, 3], sourceId=document-ab2f280008434fa4a32eb99ac4c2ddb5-v2-p1}, {rank=4, routes=[0, 1, 2, 3], sourceId=document-dd0835cc1c9a4a9b84f6c8e067516f26-v2-p1}, {rank=5, routes=[0, 1, 3], sourceId=document-df4d7784394c4086bd6a25d12a69cbf2-v2-p1}, {rank=6, routes=[0, 1, 2, 3], sourceId=catalog-6-p1}, {rank=7, routes=[0, 1, 2, 3], sourceId=rule-1-1-p1}, {rank=8, routes=[0, 1, 2, 3], sourceId=dictionary-c195d75d400d5e72-p1}, {rank=9, routes=[0, 1], sourceId=document-7ef12f378fc04171a4c33be127f308ef-v2-p1}, {rank=10, routes=[0, 1], sourceId=document-a408145009e442d99e0754aac808d45d-v2-p1}, {rank=11, routes=[0, 1], sourceId=document-bb5a1b67fdae4a80abe41ecdc9a021cd-v2-p1}], version=semantic-rag-1, reranked=true, contextTruncated=false, rerankedFragments=11, candidateFragments=11}, truncated=false, expansions=[], queryTerms=[现行, 行资, 资料, 料对, 对销, 销售, 售金, 金额, 额是, 否含, 含税, 税有, 有一, 一致, 致结, 结论, 论吗, 现行资, 行资料, 资料对, 料对销, 对销售, 销售金, 售金额, 金额是, 额是否, 是否含, 否含税, 含税有, 税有一, 有一致, 一致结, 致结论, 结论吗, 请列, 列出, 出相, 相反, 反依, 依据, 请列出, 列出相, 出相反, 相反依, 反依据, 税是, 否有, 含税是, 税是否, 是否有, 否有一, 否存, 存在, 在相, 是否存, 否存在, 存在相, 在相反, 列明, 明销, 额含, 含销, 销项, 项税, 税额, 额与, 与不, 不含, 额的, 的相, 关规, 规定, 请列明, 列明销, 明销售, 金额含, 额含销, 含销项, 销项税, 项税额, 税额与, 额与不, 与不含, 不含销, 税额的, 额的相, 的相关, 相关规, 关规定], expansionTruncated=false}, status=COMPLETED, sources=[{id=document-324fcfe1e6cd4d76ac87711d1a018040-v2-p1, kind=KNOWLEDGE, text=来源标题：订单价款税额口径甲\n来源版本：2\n适用范围：A / rpt-sales-order\n时间说明：生效 2026-01-01；失效 未指定\n原文位置：脱敏后来源全文第1至2行；UTF-16字符[0,26)。\n片段编号：1\n正文片段：\n来源：本仓库隔离验收合成资料\n销售金额包括销项税额。, scope=A / rpt-sales-order, title=订单价款税额口径甲（片段1）, version=2, originId=document-324fcfe1e6cd4d76ac87711d1a018040-v2, observedAt=生效 2026-01-01；失效 未指定}, {id=document-780688b4a33b46c2a84a204c74029f5c-v2-p1, kind=KNOWLEDGE, text=来源标题：订单价款税额口径乙\n来源版本：2\n适用范围：A / rpt-sales-order\n时间说明：生效 2026-01-01；失效 未指定\n原文位置：脱敏后来源全文第1至2行；UTF-16字符[0,27)。\n片段编号：1\n正文片段：\n来源：本仓库隔离验收合成资料\n销售金额不包括销项税额。, scope=A / rpt-sales-order, title=订单价款税额口径乙（片段1）, version=2, originId=document-780688b4a33b46c2a84a204c74029f5c-v2, observedAt=生效 2026-01-01；失效 未指定}, {id=document-ab2f280008434fa4a32eb99ac4c2ddb5-v2-p1, kind=KNOWLEDGE, text=来源标题：销售单金额与收款的区别\n来源版本：2\n适用范围：A / rpt-sales-order\n时间说明：生效 2026-01-01；失效 未指定\n原文位置：脱敏后来源全文第1至2行；UTF-16字符[0,59)。\n片段编号：1\n正文片段：\n来源：本仓库隔离验收合成资料\n销售金额按订单约定的应收价款登记；它不等于客户已经支付的款项。收款需以到账流水单独证明。, scope=A / rpt-sales-order, title=销售单金额与收款的区别（片段1）, version=2, originId=document-ab2f280008434fa4a32eb99ac4c2ddb5-v2, observedAt=生效 2026-01-01；失效 未指定}, {id=document-dd0835cc1c9a4a9b84f6c8e067516f26-v2-p1, kind=KNOWLEDGE, text=来源标题：收款事实确认\n来源版本：2\n适用范围：A / rpt-sales-order\n时间说明：生效 2026-01-01；失效 未指定\n原文位置：脱敏后来源全文第1至2行；UTF-16字符[0,54)。\n片段编号：1\n正文片段：\n来源：本仓库隔离验收合成资料\n只有实际到账记录才能认定已经收款；销售单金额是订单价款，不能代替银行到账记录。, scope=A / rpt-sales-order, title=收款事实确认（片段1）, version=2, originId=document-dd0835cc1c9a4a9b84f6c8e067516f26-v2, observedAt=生效 2026-01-01；失效 未指定}, {id=document-df4d7784394c4086bd6a25d12a69cbf2-v2-p1, kind=KNOWLEDGE, text=来源标题：开票日期与确认收入\n来源版本：2\n适用范围：A / rpt-sales-order\n时间说明：生效 2026-01-01；失效 未指定\n原文位置：脱敏后来源全文第1至2行；UTF-16字符[0,67)。\n片段编号：1\n正文片段：\n来源：本仓库隔离验收合成资料\n开票日期是发票开具日期，不等同于收入确认日期。收入确认以合同履约条件满足时点为准，不能仅据开票时间推断。, scope=A / rpt-sales-order, title=开票日期与确认收入（片段1）, version=2, originId=document-df4d7784394c4086bd6a25d12a69cbf2-v2, observedAt=生效 2026-01-01；失效 未指定}, {id=catalog-6-p1, kind=KNOWLEDGE, text=来源标题：销售报表：目录与字段\n来源版本：6\n适用范围：A / rpt-sales-order\n时间说明：当前目录；观测日期 2026-10-12\n原文位置：脱敏后来源全文第1至3行；UTF-16字符[0,959)。\n片段编号：1\n正文片段：\n报表名称：销售报表\n用途：销售订单台账：按订单统计金额与派单状态\n字段定义：[{\"name\":\"reportId\",\"type\":\"string\",\"description\":\"报表稳定标识\"},{\"name\":\"reportName\",\"type\":\"string\",\"description\":\"报表名称\"},{\"name\":\"companyCode\",\"type\":\"string\",\"description\":\"所属公司代码\"},{\"name\":\"docNo\",\"type\":\"string\",\"description\":\"来源单据号\"},{\"name\":\"amount\",\"type\":\"decimal\",\"description\":\"来源金额，币种见 currency；空值表示未提供\"},{\"name\":\"currency\",\"type\":\"string\",\"description\":\"来源声明币种；空值表示未声明，不能跨币种合计\"},{\"name\":\"date\",\"type\":\"date\",\"description\":\"业务日期；空值表示未配置\"},{\"name\":\"status\",\"type\":\"string\",\"description\":\"报表派单状态：未派单/已派单\"},{\"name\":\"orderNo\",\"type\":\"string\",\"description\":\"订单号\"},{\"name\":\"productName\",\"type\":\"string\",\"description\":\"产品名称\"},{\"name\":\"saleDate\",\"type\":\"date\",\"description\":\"销售日期，字符串 yyyy-MM-dd\"},{\"name\":\"daysSinceSale\",\"type\":\"long\",\"description\":\"距销售日期的天数（派生）\"},{\"name\":\"dispatched\",\"type\":\"boolean\",\"description\":\"来源记录是否已派单；true为已派单，false为未派单，不代表满足派单规则\"},{\"name\":\"recordId\",\"type\":\"string\",\"description\":\"报表内稳定记录标识\"}], scope=A / rpt-sales-order, title=销售报表：目录与字段（片段1）, version=6, originId=catalog-6, observedAt=当前目录；观测日期 2026-10-12}, {id=rule-1-1-p1, kind=KNOWLEDGE, text=来源标题：销售报表：当前派单规则\n来源版本：1\n适用范围：A / rpt-sales-order\n时间说明：当前生效规则；观测日期 2026-10-12\n原文位置：脱敏后来源全文第1至2行；UTF-16字符[0,167)。\n片段编号：1\n正文片段：\n仅解释已配置的规则，不证明任意单据符合规则或已被派单。\n{\"id\":1,\"version\":1,\"companyCode\":\"*\",\"expression\":\"amount > 20\",\"description\":\"销售订单金额大于 20 元需要派单\",\"effectiveFrom\":null,\"effectiveTo\":null}, scope=A / rpt-sales-order, title=销售报表：当前派单规则（片段1）, version=1, originId=rule-1-1, observedAt=当前生效规则；观测日期 2026-10-12}, {id=dictionary-c195d75d400d5e72-p1, kind=KNOWLEDGE, text=来源标题：销售报表：业务词典\n来源版本：c195d75d400d5e72538359bef2ff9b7c6764040c0971b0280b2ee95a8fd2b82c\n适用范围：A / rpt-sales-order\n时间说明：当前词典；观测日期 2026-10-12\n原文位置：脱敏后来源全文第1至1行；UTF-16字符[0,214)。\n片段编号：1\n正文片段：\n{\"scope\":{\"domain\":\"REPORT\",\"companyCode\":\"A\",\"reportId\":\"rpt-sales-order\"},\"version\":0,\"definition\":{\"companyName\":\"\",\"companyAliases\":[],\"timeZone\":\"Asia/Shanghai\",\"fiscalStartMonth\":1,\"holidays\":[],\"fields\":[]}}, scope=A / rpt-sales-order, title=销售报表：业务词典（片段1）, version=c195d75d400d5e72538359bef2ff9b7c6764040c0971b0280b2ee95a8fd2b82c, originId=dictionary-c195d75d400d5e72, observedAt=当前词典；观测日期 2026-10-12}, {id=document-7ef12f378fc04171a4c33be127f308ef-v2-p1, kind=KNOWLEDGE, text=来源标题：Expression syntax guide\n来源版本：2\n适用范围：A / rpt-sales-order\n时间说明：生效 2026-01-01；失效 未指定\n原文位置：脱敏后来源全文第1至2行；UTF-16字符[0,122)。\n片段编号：1\n正文片段：\n来源：本仓库隔离验收合成资料\nThe syntax parser validates expression grammar. This document defines neither taxation nor cash collection., scope=A / rpt-sales-order, title=Expression syntax guide（片段1）, version=2, originId=document-7ef12f378fc04171a4c33be127f308ef-v2, observedAt=生效 2026-01-01；失效 未指定}, {id=document-a408145009e442d99e0754aac808d45d-v2-p1, kind=KNOWLEDGE, text=来源标题：通勤交通补助适用范围\n来源版本：2\n适用范围：A / rpt-sales-order\n时间说明：生效 2026-01-01；失效 未指定\n原文位置：脱敏后来源全文第1至2行；UTF-16字符[0,52)。\n片段编号：1\n正文片段：\n来源：本仓库隔离验收合成资料\n通勤交通补助适用于常驻工作地往返；其标准和住宿补助分别管理，不能相互推导。, scope=A / rpt-sales-order, title=通勤交通补助适用范围（片段1）, version=2, originId=document-a408145009e442d99e0754aac808d45d-v2, observedAt=生效 2026-01-01；失效 未指定}, {id=document-bb5a1b67fdae4a80abe41ecdc9a021cd-v2-p1, kind=KNOWLEDGE, text=来源标题：差旅住宿补助适用范围\n来源版本：2\n适用范围：A / rpt-sales-order\n时间说明：生效 2026-01-01；失效 未指定\n原文位置：脱敏后来源全文第1至2行；UTF-16字符[0,77)。\n片段编号：1\n正文片段：\n来源：本仓库隔离验收合成资料\n短期出差住宿补助仅适用于因公前往常驻地以外的员工；本地驻点工作不适用。经过事前书面批准的跨地支援，按批准期间纳入该补助范围。, scope=A / rpt-sales-order, title=差旅住宿补助适用范围（片段1）, version=2, originId=document-bb5a1b67fdae4a80abe41ecdc9a021cd-v2, observedAt=生效 2026-01-01；失效 未指定}, {id=knowledge-coverage-1, kind=DATA, text=第1步已执行当前授权范围内的知识检索。\n已搜索 11 份来源、11 个片段；命中 11 份来源、11 个片段；返回 11 份来源、11 个片段。\n本次命中的片段已全部返回；这不证明授权资料之外不存在其他制度。\n本次字段别名扩展未达到预算。\n本说明仅记录知识检索情况，不是制度正文，不是业务明细，也不证明任何业务写入已经执行。, scope=A / rpt-sales-order, title=第1步知识检索范围说明, version=7a94779952e1d9d7cea4af44fcf8a3cd21b20661d19368a05c466ef57aed344e, originId=knowledge-coverage-1, observedAt=2026-10-12T14:17:47.750208400Z}]}], answer=null, usage=[{model=deepseek-v4.1-flash, stage=PLAN, number=1, status=RESPONDED, elapsedMs=4356, inputTokens=3608, outputTokens=111, usageComplete=true, cachedInputTokens=1920}, {model=deepseek-v4.1-flash, stage=PLAN_REVIEW, number=2, status=RESPONDED, elapsedMs=2354, inputTokens=2659, outputTokens=52, usageComplete=true, cachedInputTokens=896}, {model=deepseek-v4.1-flash, stage=RAG_REWRITE, number=3, status=RESPONDED, elapsedMs=3195, inputTokens=441, outputTokens=45, usageComplete=true, cachedInputTokens=128}, {model=deepseek-v4.1-flash, stage=RAG_RERANK, number=4, status=RESPONDED, elapsedMs=2286, inputTokens=3127, outputTokens=48, usageComplete=true, cachedInputTokens=128}, {model=deepseek-v4.1-flash, stage=ANSWER, number=5, status=RESPONDED, elapsedMs=4470, inputTokens=4850, outputTokens=305, usageComplete=true, cachedInputTokens=896}, {stage=ANSWER_REVIEW, number=6, status=FAILED, elapsedMs=11534, inputTokens=null, outputTokens=null, usageComplete=false, cachedInputTokens=null}]} ==> expected: <COMPLETED> but was: <PARTIAL>",
+            "ANSWER_STATUS_MISMATCH",
+            "EXPECTED_CITATION_MISSING",
+            "REAL_MODEL_EVIDENCE_INCOMPLETE"
+          ],
+          "lexical": {
+            "available": true,
+            "retrievedFragments": 11,
+            "retrievedSources": 11,
+            "recallAt12": 1,
+            "firstRelevantRank": 2,
+            "reciprocalRank": 0.5,
+            "opposingRecallAt12": 1,
+            "noMatchCorrect": null,
+            "relevantRetrieved": [
+              "tax-inclusive",
+              "tax-exclusive"
+            ],
+            "opposingRetrieved": [
+              "tax-exclusive"
+            ]
+          },
+          "semantic": {
+            "available": true,
+            "retrievedFragments": 11,
+            "retrievedSources": 11,
+            "recallAt12": 1,
+            "firstRelevantRank": 1,
+            "reciprocalRank": 1,
+            "opposingRecallAt12": 1,
+            "noMatchCorrect": null,
+            "relevantRetrieved": [
+              "tax-inclusive",
+              "tax-exclusive"
+            ],
+            "opposingRetrieved": [
+              "tax-exclusive"
+            ]
+          },
+          "realModelVerified": false,
+          "repaired": false,
+          "answer": {
+            "statusCorrect": false,
+            "citationCoverageCorrect": false,
+            "scope": "仅核对最终状态与实际引用覆盖；业务结论仍须审阅"
+          },
+          "durationMs": 28467,
+          "calls": {
+            "modelCalls": 6,
+            "testDoubleCalls": 0,
+            "stages": {
+              "ANSWER": {
+                "calls": 1,
+                "failures": 0,
+                "latencyMs": {
+                  "samples": 1,
+                  "p50": 4470,
+                  "p95": 4470,
+                  "p99": 4470
+                }
+              },
+              "ANSWER_REVIEW": {
+                "calls": 1,
+                "failures": 1,
+                "latencyMs": {
+                  "samples": 1,
+                  "p50": 11534,
+                  "p95": 11534,
+                  "p99": 11534
+                }
+              },
+              "PLAN": {
+                "calls": 1,
+                "failures": 0,
+                "latencyMs": {
+                  "samples": 1,
+                  "p50": 4356,
+                  "p95": 4356,
+                  "p99": 4356
+                }
+              },
+              "PLAN_REVIEW": {
+                "calls": 1,
+                "failures": 0,
+                "latencyMs": {
+                  "samples": 1,
+                  "p50": 2354,
+                  "p95": 2354,
+                  "p99": 2354
+                }
+              },
+              "RAG_RERANK": {
+                "calls": 1,
+                "failures": 0,
+                "latencyMs": {
+                  "samples": 1,
+                  "p50": 2286,
+                  "p95": 2286,
+                  "p99": 2286
+                }
+              },
+              "RAG_REWRITE": {
+                "calls": 1,
+                "failures": 0,
+                "latencyMs": {
+                  "samples": 1,
+                  "p50": 3195,
+                  "p95": 3195,
+                  "p99": 3195
+                }
+              }
+            },
+            "usage": {
+              "complete": false,
+              "measuredCalls": 5,
+              "totalCalls": 6,
+              "inputTokens": null,
+              "outputTokens": null,
+              "cost": null,
+              "costComplete": false
+            }
+          }
+        }
+      ],
+      "final": {
+        "caseId": "opposing-tax-policy",
+        "attempt": 1,
+        "category": "CONFLICT",
+        "source": "MODEL",
+        "passed": false,
+        "errors": [
+          "{id=83d6ffd4d7da40e19ae02411d72f633e, status=PARTIAL, stage=FINISHED, reason=HTTP_503, message=真实模型调用未完成，请核对端点、鉴权、Schema能力和超时配置, version=18, request={question=现行资料对销售金额是否含税有一致结论吗？请列出相反依据。, reportId=rpt-sales-order, snapshotId=null, companyCode=A}, created_at=2026-10-12T14:17:47.733Z, started_at=2026-10-12T14:17:47.744Z, finished_at=2026-10-12T14:18:16.169Z, expires_at=2026-10-13T14:17:47.733Z, plan={mode=EXECUTE, steps=[{rank=null, other=null, query=null, action=KNOWLEDGE, source=null, analysis=null, knowledgeQuestion=现行资料对销售金额是否含税是否有一致结论？是否存在相反依据？请列明销售金额含销项税额与不含销项税额的相关规定。}], objective=在已授权的A公司销售报表范围内检索现行资料，确认销售金额是否含税是否存在一致结论，并列出相互对立的依据。, clarification=null}, steps=[{index=0, action=KNOWLEDGE, result={hits=[{sourceId=document-324fcfe1e6cd4d76ac87711d1a018040-v2-p1, aliasTerms=[], directTerms=[售金, 售金额, 税额, 资料, 金额, 销售, 销售金, 销项, 销项税, 项税, 项税额]}, {sourceId=document-780688b4a33b46c2a84a204c74029f5c-v2-p1, aliasTerms=[], directTerms=[售金, 售金额, 税额, 资料, 金额, 销售, 销售金, 销项, 销项税, 项税, 项税额]}, {sourceId=document-ab2f280008434fa4a32eb99ac4c2ddb5-v2-p1, aliasTerms=[], directTerms=[售金, 售金额, 资料, 金额, 销售, 销售金, 额与]}, {sourceId=document-dd0835cc1c9a4a9b84f6c8e067516f26-v2-p1, aliasTerms=[], directTerms=[资料, 金额, 金额是, 销售, 额是]}, {sourceId=document-df4d7784394c4086bd6a25d12a69cbf2-v2-p1, aliasTerms=[], directTerms=[资料]}, {sourceId=catalog-6-p1, aliasTerms=[], directTerms=[金额, 销售, 额与]}, {sourceId=rule-1-1-p1, aliasTerms=[], directTerms=[金额, 销售]}, {sourceId=dictionary-c195d75d400d5e72-p1, aliasTerms=[], directTerms=[销售]}, {sourceId=document-7ef12f378fc04171a4c33be127f308ef-v2-p1, aliasTerms=[], directTerms=[资料]}, {sourceId=document-a408145009e442d99e0754aac808d45d-v2-p1, aliasTerms=[], directTerms=[资料]}, {sourceId=document-bb5a1b67fdae4a80abe41ecdc9a021cd-v2-p1, aliasTerms=[], directTerms=[资料]}], kind=KNOWLEDGE, matched=11, sources=[{id=document-324fcfe1e6cd4d76ac87711d1a018040-v2-p1, kind=KNOWLEDGE, text=来源标题：订单价款税额口径甲\n来源版本：2\n适用范围：A / rpt-sales-order\n时间说明：生效 2026-01-01；失效 未指定\n原文位置：脱敏后来源全文第1至2行；UTF-16字符[0,26)。\n片段编号：1\n正文片段：\n来源：本仓库隔离验收合成资料\n销售金额包括销项税额。, scope=A / rpt-sales-order, title=订单价款税额口径甲（片段1）, version=2, originId=document-324fcfe1e6cd4d76ac87711d1a018040-v2, observedAt=生效 2026-01-01；失效 未指定}, {id=document-780688b4a33b46c2a84a204c74029f5c-v2-p1, kind=KNOWLEDGE, text=来源标题：订单价款税额口径乙\n来源版本：2\n适用范围：A / rpt-sales-order\n时间说明：生效 2026-01-01；失效 未指定\n原文位置：脱敏后来源全文第1至2行；UTF-16字符[0,27)。\n片段编号：1\n正文片段：\n来源：本仓库隔离验收合成资料\n销售金额不包括销项税额。, scope=A / rpt-sales-order, title=订单价款税额口径乙（片段1）, version=2, originId=document-780688b4a33b46c2a84a204c74029f5c-v2, observedAt=生效 2026-01-01；失效 未指定}, {id=document-ab2f280008434fa4a32eb99ac4c2ddb5-v2-p1, kind=KNOWLEDGE, text=来源标题：销售单金额与收款的区别\n来源版本：2\n适用范围：A / rpt-sales-order\n时间说明：生效 2026-01-01；失效 未指定\n原文位置：脱敏后来源全文第1至2行；UTF-16字符[0,59)。\n片段编号：1\n正文片段：\n来源：本仓库隔离验收合成资料\n销售金额按订单约定的应收价款登记；它不等于客户已经支付的款项。收款需以到账流水单独证明。, scope=A / rpt-sales-order, title=销售单金额与收款的区别（片段1）, version=2, originId=document-ab2f280008434fa4a32eb99ac4c2ddb5-v2, observedAt=生效 2026-01-01；失效 未指定}, {id=document-dd0835cc1c9a4a9b84f6c8e067516f26-v2-p1, kind=KNOWLEDGE, text=来源标题：收款事实确认\n来源版本：2\n适用范围：A / rpt-sales-order\n时间说明：生效 2026-01-01；失效 未指定\n原文位置：脱敏后来源全文第1至2行；UTF-16字符[0,54)。\n片段编号：1\n正文片段：\n来源：本仓库隔离验收合成资料\n只有实际到账记录才能认定已经收款；销售单金额是订单价款，不能代替银行到账记录。, scope=A / rpt-sales-order, title=收款事实确认（片段1）, version=2, originId=document-dd0835cc1c9a4a9b84f6c8e067516f26-v2, observedAt=生效 2026-01-01；失效 未指定}, {id=document-df4d7784394c4086bd6a25d12a69cbf2-v2-p1, kind=KNOWLEDGE, text=来源标题：开票日期与确认收入\n来源版本：2\n适用范围：A / rpt-sales-order\n时间说明：生效 2026-01-01；失效 未指定\n原文位置：脱敏后来源全文第1至2行；UTF-16字符[0,67)。\n片段编号：1\n正文片段：\n来源：本仓库隔离验收合成资料\n开票日期是发票开具日期，不等同于收入确认日期。收入确认以合同履约条件满足时点为准，不能仅据开票时间推断。, scope=A / rpt-sales-order, title=开票日期与确认收入（片段1）, version=2, originId=document-df4d7784394c4086bd6a25d12a69cbf2-v2, observedAt=生效 2026-01-01；失效 未指定}, {id=catalog-6-p1, kind=KNOWLEDGE, text=来源标题：销售报表：目录与字段\n来源版本：6\n适用范围：A / rpt-sales-order\n时间说明：当前目录；观测日期 2026-10-12\n原文位置：脱敏后来源全文第1至3行；UTF-16字符[0,959)。\n片段编号：1\n正文片段：\n报表名称：销售报表\n用途：销售订单台账：按订单统计金额与派单状态\n字段定义：[{\"name\":\"reportId\",\"type\":\"string\",\"description\":\"报表稳定标识\"},{\"name\":\"reportName\",\"type\":\"string\",\"description\":\"报表名称\"},{\"name\":\"companyCode\",\"type\":\"string\",\"description\":\"所属公司代码\"},{\"name\":\"docNo\",\"type\":\"string\",\"description\":\"来源单据号\"},{\"name\":\"amount\",\"type\":\"decimal\",\"description\":\"来源金额，币种见 currency；空值表示未提供\"},{\"name\":\"currency\",\"type\":\"string\",\"description\":\"来源声明币种；空值表示未声明，不能跨币种合计\"},{\"name\":\"date\",\"type\":\"date\",\"description\":\"业务日期；空值表示未配置\"},{\"name\":\"status\",\"type\":\"string\",\"description\":\"报表派单状态：未派单/已派单\"},{\"name\":\"orderNo\",\"type\":\"string\",\"description\":\"订单号\"},{\"name\":\"productName\",\"type\":\"string\",\"description\":\"产品名称\"},{\"name\":\"saleDate\",\"type\":\"date\",\"description\":\"销售日期，字符串 yyyy-MM-dd\"},{\"name\":\"daysSinceSale\",\"type\":\"long\",\"description\":\"距销售日期的天数（派生）\"},{\"name\":\"dispatched\",\"type\":\"boolean\",\"description\":\"来源记录是否已派单；true为已派单，false为未派单，不代表满足派单规则\"},{\"name\":\"recordId\",\"type\":\"string\",\"description\":\"报表内稳定记录标识\"}], scope=A / rpt-sales-order, title=销售报表：目录与字段（片段1）, version=6, originId=catalog-6, observedAt=当前目录；观测日期 2026-10-12}, {id=rule-1-1-p1, kind=KNOWLEDGE, text=来源标题：销售报表：当前派单规则\n来源版本：1\n适用范围：A / rpt-sales-order\n时间说明：当前生效规则；观测日期 2026-10-12\n原文位置：脱敏后来源全文第1至2行；UTF-16字符[0,167)。\n片段编号：1\n正文片段：\n仅解释已配置的规则，不证明任意单据符合规则或已被派单。\n{\"id\":1,\"version\":1,\"companyCode\":\"*\",\"expression\":\"amount > 20\",\"description\":\"销售订单金额大于 20 元需要派单\",\"effectiveFrom\":null,\"effectiveTo\":null}, scope=A / rpt-sales-order, title=销售报表：当前派单规则（片段1）, version=1, originId=rule-1-1, observedAt=当前生效规则；观测日期 2026-10-12}, {id=dictionary-c195d75d400d5e72-p1, kind=KNOWLEDGE, text=来源标题：销售报表：业务词典\n来源版本：c195d75d400d5e72538359bef2ff9b7c6764040c0971b0280b2ee95a8fd2b82c\n适用范围：A / rpt-sales-order\n时间说明：当前词典；观测日期 2026-10-12\n原文位置：脱敏后来源全文第1至1行；UTF-16字符[0,214)。\n片段编号：1\n正文片段：\n{\"scope\":{\"domain\":\"REPORT\",\"companyCode\":\"A\",\"reportId\":\"rpt-sales-order\"},\"version\":0,\"definition\":{\"companyName\":\"\",\"companyAliases\":[],\"timeZone\":\"Asia/Shanghai\",\"fiscalStartMonth\":1,\"holidays\":[],\"fields\":[]}}, scope=A / rpt-sales-order, title=销售报表：业务词典（片段1）, version=c195d75d400d5e72538359bef2ff9b7c6764040c0971b0280b2ee95a8fd2b82c, originId=dictionary-c195d75d400d5e72, observedAt=当前词典；观测日期 2026-10-12}, {id=document-7ef12f378fc04171a4c33be127f308ef-v2-p1, kind=KNOWLEDGE, text=来源标题：Expression syntax guide\n来源版本：2\n适用范围：A / rpt-sales-order\n时间说明：生效 2026-01-01；失效 未指定\n原文位置：脱敏后来源全文第1至2行；UTF-16字符[0,122)。\n片段编号：1\n正文片段：\n来源：本仓库隔离验收合成资料\nThe syntax parser validates expression grammar. This document defines neither taxation nor cash collection., scope=A / rpt-sales-order, title=Expression syntax guide（片段1）, version=2, originId=document-7ef12f378fc04171a4c33be127f308ef-v2, observedAt=生效 2026-01-01；失效 未指定}, {id=document-a408145009e442d99e0754aac808d45d-v2-p1, kind=KNOWLEDGE, text=来源标题：通勤交通补助适用范围\n来源版本：2\n适用范围：A / rpt-sales-order\n时间说明：生效 2026-01-01；失效 未指定\n原文位置：脱敏后来源全文第1至2行；UTF-16字符[0,52)。\n片段编号：1\n正文片段：\n来源：本仓库隔离验收合成资料\n通勤交通补助适用于常驻工作地往返；其标准和住宿补助分别管理，不能相互推导。, scope=A / rpt-sales-order, title=通勤交通补助适用范围（片段1）, version=2, originId=document-a408145009e442d99e0754aac808d45d-v2, observedAt=生效 2026-01-01；失效 未指定}, {id=document-bb5a1b67fdae4a80abe41ecdc9a021cd-v2-p1, kind=KNOWLEDGE, text=来源标题：差旅住宿补助适用范围\n来源版本：2\n适用范围：A / rpt-sales-order\n时间说明：生效 2026-01-01；失效 未指定\n原文位置：脱敏后来源全文第1至2行；UTF-16字符[0,77)。\n片段编号：1\n正文片段：\n来源：本仓库隔离验收合成资料\n短期出差住宿补助仅适用于因公前往常驻地以外的员工；本地驻点工作不适用。经过事前书面批准的跨地支援，按批准期间纳入该补助范围。, scope=A / rpt-sales-order, title=差旅住宿补助适用范围（片段1）, version=2, originId=document-bb5a1b67fdae4a80abe41ecdc9a021cd-v2, observedAt=生效 2026-01-01；失效 未指定}], coverage={matchedSources=11, returnedSources=11, searchedSources=11}, searched=11, retrieval={mode=SEMANTIC_RAG, routes=[{index=0, expansions=[], queryTerms=[现行, 行资, 资料, 料对, 对销, 销售, 售金, 金额, 额是, 否含, 含税, 税有, 有一, 一致, 致结, 结论, 论吗, 现行资, 行资料, 资料对, 料对销, 对销售, 销售金, 售金额, 金额是, 额是否, 是否含, 否含税, 含税有, 税有一, 有一致, 一致结, 致结论, 结论吗, 请列, 列出, 出相, 相反, 反依, 依据, 请列出, 列出相, 出相反, 相反依, 反依据], matchedSources=11, matchedFragments=11, expansionTruncated=false}, {index=1, expansions=[], queryTerms=[现行, 行资, 资料, 料对, 对销, 销售, 售金, 金额, 额是, 否含, 含税, 税是, 否有, 有一, 一致, 致结, 结论, 现行资, 行资料, 资料对, 料对销, 对销售, 销售金, 售金额, 金额是, 额是否, 是否含, 否含税, 含税是, 税是否, 是否有, 否有一, 有一致, 一致结, 致结论, 否存, 存在, 在相, 相反, 反依, 依据, 是否存, 否存在, 存在相, 在相反, 相反依, 反依据, 请列, 列明, 明销, 额含, 含销, 销项, 项税, 税额, 额与, 与不, 不含, 额的, 的相, 关规, 规定, 请列明, 列明销, 明销售, 金额含, 额含销, 含销项, 销项税, 项税额, 税额与, 额与不, 与不含, 不含销, 税额的, 额的相, 的相关, 相关规, 关规定], matchedSources=11, matchedFragments=11, expansionTruncated=false}, {index=2, expansions=[], queryTerms=[销售, 售金, 金额, 销售金, 售金额, 含税, 不含, 不含税, 销项, 项税, 税额, 销项税, 项税额, 规定, 结论], matchedSources=7, matchedFragments=7, expansionTruncated=false}, {index=3, expansions=[], queryTerms=[销售, 售收, 收入, 销售收, 售收入, 含税, 不含, 不含税, 依据, 相反, 规定], matchedSources=8, matchedFragments=8, expansionTruncated=false}], queries=[{kind=ORIGINAL, text=现行资料对销售金额是否含税有一致结论吗？请列出相反依据。}, {kind=FOCUSED, text=现行资料对销售金额是否含税是否有一致结论？是否存在相反依据？请列明销售金额含销项税额与不含销项税额的相关规定。}, {kind=REWRITE, text=销售金额 含税 不含税 销项税额 规定 结论}, {kind=REWRITE, text=销售收入 含税 不含税 依据 相反 规定}], ranking=[{rank=1, routes=[0, 1, 2, 3], sourceId=document-324fcfe1e6cd4d76ac87711d1a018040-v2-p1}, {rank=2, routes=[0, 1, 2, 3], sourceId=document-780688b4a33b46c2a84a204c74029f5c-v2-p1}, {rank=3, routes=[0, 1, 2, 3], sourceId=document-ab2f280008434fa4a32eb99ac4c2ddb5-v2-p1}, {rank=4, routes=[0, 1, 2, 3], sourceId=document-dd0835cc1c9a4a9b84f6c8e067516f26-v2-p1}, {rank=5, routes=[0, 1, 3], sourceId=document-df4d7784394c4086bd6a25d12a69cbf2-v2-p1}, {rank=6, routes=[0, 1, 2, 3], sourceId=catalog-6-p1}, {rank=7, routes=[0, 1, 2, 3], sourceId=rule-1-1-p1}, {rank=8, routes=[0, 1, 2, 3], sourceId=dictionary-c195d75d400d5e72-p1}, {rank=9, routes=[0, 1], sourceId=document-7ef12f378fc04171a4c33be127f308ef-v2-p1}, {rank=10, routes=[0, 1], sourceId=document-a408145009e442d99e0754aac808d45d-v2-p1}, {rank=11, routes=[0, 1], sourceId=document-bb5a1b67fdae4a80abe41ecdc9a021cd-v2-p1}], version=semantic-rag-1, reranked=true, contextTruncated=false, rerankedFragments=11, candidateFragments=11}, truncated=false, expansions=[], queryTerms=[现行, 行资, 资料, 料对, 对销, 销售, 售金, 金额, 额是, 否含, 含税, 税有, 有一, 一致, 致结, 结论, 论吗, 现行资, 行资料, 资料对, 料对销, 对销售, 销售金, 售金额, 金额是, 额是否, 是否含, 否含税, 含税有, 税有一, 有一致, 一致结, 致结论, 结论吗, 请列, 列出, 出相, 相反, 反依, 依据, 请列出, 列出相, 出相反, 相反依, 反依据, 税是, 否有, 含税是, 税是否, 是否有, 否有一, 否存, 存在, 在相, 是否存, 否存在, 存在相, 在相反, 列明, 明销, 额含, 含销, 销项, 项税, 税额, 额与, 与不, 不含, 额的, 的相, 关规, 规定, 请列明, 列明销, 明销售, 金额含, 额含销, 含销项, 销项税, 项税额, 税额与, 额与不, 与不含, 不含销, 税额的, 额的相, 的相关, 相关规, 关规定], expansionTruncated=false}, status=COMPLETED, sources=[{id=document-324fcfe1e6cd4d76ac87711d1a018040-v2-p1, kind=KNOWLEDGE, text=来源标题：订单价款税额口径甲\n来源版本：2\n适用范围：A / rpt-sales-order\n时间说明：生效 2026-01-01；失效 未指定\n原文位置：脱敏后来源全文第1至2行；UTF-16字符[0,26)。\n片段编号：1\n正文片段：\n来源：本仓库隔离验收合成资料\n销售金额包括销项税额。, scope=A / rpt-sales-order, title=订单价款税额口径甲（片段1）, version=2, originId=document-324fcfe1e6cd4d76ac87711d1a018040-v2, observedAt=生效 2026-01-01；失效 未指定}, {id=document-780688b4a33b46c2a84a204c74029f5c-v2-p1, kind=KNOWLEDGE, text=来源标题：订单价款税额口径乙\n来源版本：2\n适用范围：A / rpt-sales-order\n时间说明：生效 2026-01-01；失效 未指定\n原文位置：脱敏后来源全文第1至2行；UTF-16字符[0,27)。\n片段编号：1\n正文片段：\n来源：本仓库隔离验收合成资料\n销售金额不包括销项税额。, scope=A / rpt-sales-order, title=订单价款税额口径乙（片段1）, version=2, originId=document-780688b4a33b46c2a84a204c74029f5c-v2, observedAt=生效 2026-01-01；失效 未指定}, {id=document-ab2f280008434fa4a32eb99ac4c2ddb5-v2-p1, kind=KNOWLEDGE, text=来源标题：销售单金额与收款的区别\n来源版本：2\n适用范围：A / rpt-sales-order\n时间说明：生效 2026-01-01；失效 未指定\n原文位置：脱敏后来源全文第1至2行；UTF-16字符[0,59)。\n片段编号：1\n正文片段：\n来源：本仓库隔离验收合成资料\n销售金额按订单约定的应收价款登记；它不等于客户已经支付的款项。收款需以到账流水单独证明。, scope=A / rpt-sales-order, title=销售单金额与收款的区别（片段1）, version=2, originId=document-ab2f280008434fa4a32eb99ac4c2ddb5-v2, observedAt=生效 2026-01-01；失效 未指定}, {id=document-dd0835cc1c9a4a9b84f6c8e067516f26-v2-p1, kind=KNOWLEDGE, text=来源标题：收款事实确认\n来源版本：2\n适用范围：A / rpt-sales-order\n时间说明：生效 2026-01-01；失效 未指定\n原文位置：脱敏后来源全文第1至2行；UTF-16字符[0,54)。\n片段编号：1\n正文片段：\n来源：本仓库隔离验收合成资料\n只有实际到账记录才能认定已经收款；销售单金额是订单价款，不能代替银行到账记录。, scope=A / rpt-sales-order, title=收款事实确认（片段1）, version=2, originId=document-dd0835cc1c9a4a9b84f6c8e067516f26-v2, observedAt=生效 2026-01-01；失效 未指定}, {id=document-df4d7784394c4086bd6a25d12a69cbf2-v2-p1, kind=KNOWLEDGE, text=来源标题：开票日期与确认收入\n来源版本：2\n适用范围：A / rpt-sales-order\n时间说明：生效 2026-01-01；失效 未指定\n原文位置：脱敏后来源全文第1至2行；UTF-16字符[0,67)。\n片段编号：1\n正文片段：\n来源：本仓库隔离验收合成资料\n开票日期是发票开具日期，不等同于收入确认日期。收入确认以合同履约条件满足时点为准，不能仅据开票时间推断。, scope=A / rpt-sales-order, title=开票日期与确认收入（片段1）, version=2, originId=document-df4d7784394c4086bd6a25d12a69cbf2-v2, observedAt=生效 2026-01-01；失效 未指定}, {id=catalog-6-p1, kind=KNOWLEDGE, text=来源标题：销售报表：目录与字段\n来源版本：6\n适用范围：A / rpt-sales-order\n时间说明：当前目录；观测日期 2026-10-12\n原文位置：脱敏后来源全文第1至3行；UTF-16字符[0,959)。\n片段编号：1\n正文片段：\n报表名称：销售报表\n用途：销售订单台账：按订单统计金额与派单状态\n字段定义：[{\"name\":\"reportId\",\"type\":\"string\",\"description\":\"报表稳定标识\"},{\"name\":\"reportName\",\"type\":\"string\",\"description\":\"报表名称\"},{\"name\":\"companyCode\",\"type\":\"string\",\"description\":\"所属公司代码\"},{\"name\":\"docNo\",\"type\":\"string\",\"description\":\"来源单据号\"},{\"name\":\"amount\",\"type\":\"decimal\",\"description\":\"来源金额，币种见 currency；空值表示未提供\"},{\"name\":\"currency\",\"type\":\"string\",\"description\":\"来源声明币种；空值表示未声明，不能跨币种合计\"},{\"name\":\"date\",\"type\":\"date\",\"description\":\"业务日期；空值表示未配置\"},{\"name\":\"status\",\"type\":\"string\",\"description\":\"报表派单状态：未派单/已派单\"},{\"name\":\"orderNo\",\"type\":\"string\",\"description\":\"订单号\"},{\"name\":\"productName\",\"type\":\"string\",\"description\":\"产品名称\"},{\"name\":\"saleDate\",\"type\":\"date\",\"description\":\"销售日期，字符串 yyyy-MM-dd\"},{\"name\":\"daysSinceSale\",\"type\":\"long\",\"description\":\"距销售日期的天数（派生）\"},{\"name\":\"dispatched\",\"type\":\"boolean\",\"description\":\"来源记录是否已派单；true为已派单，false为未派单，不代表满足派单规则\"},{\"name\":\"recordId\",\"type\":\"string\",\"description\":\"报表内稳定记录标识\"}], scope=A / rpt-sales-order, title=销售报表：目录与字段（片段1）, version=6, originId=catalog-6, observedAt=当前目录；观测日期 2026-10-12}, {id=rule-1-1-p1, kind=KNOWLEDGE, text=来源标题：销售报表：当前派单规则\n来源版本：1\n适用范围：A / rpt-sales-order\n时间说明：当前生效规则；观测日期 2026-10-12\n原文位置：脱敏后来源全文第1至2行；UTF-16字符[0,167)。\n片段编号：1\n正文片段：\n仅解释已配置的规则，不证明任意单据符合规则或已被派单。\n{\"id\":1,\"version\":1,\"companyCode\":\"*\",\"expression\":\"amount > 20\",\"description\":\"销售订单金额大于 20 元需要派单\",\"effectiveFrom\":null,\"effectiveTo\":null}, scope=A / rpt-sales-order, title=销售报表：当前派单规则（片段1）, version=1, originId=rule-1-1, observedAt=当前生效规则；观测日期 2026-10-12}, {id=dictionary-c195d75d400d5e72-p1, kind=KNOWLEDGE, text=来源标题：销售报表：业务词典\n来源版本：c195d75d400d5e72538359bef2ff9b7c6764040c0971b0280b2ee95a8fd2b82c\n适用范围：A / rpt-sales-order\n时间说明：当前词典；观测日期 2026-10-12\n原文位置：脱敏后来源全文第1至1行；UTF-16字符[0,214)。\n片段编号：1\n正文片段：\n{\"scope\":{\"domain\":\"REPORT\",\"companyCode\":\"A\",\"reportId\":\"rpt-sales-order\"},\"version\":0,\"definition\":{\"companyName\":\"\",\"companyAliases\":[],\"timeZone\":\"Asia/Shanghai\",\"fiscalStartMonth\":1,\"holidays\":[],\"fields\":[]}}, scope=A / rpt-sales-order, title=销售报表：业务词典（片段1）, version=c195d75d400d5e72538359bef2ff9b7c6764040c0971b0280b2ee95a8fd2b82c, originId=dictionary-c195d75d400d5e72, observedAt=当前词典；观测日期 2026-10-12}, {id=document-7ef12f378fc04171a4c33be127f308ef-v2-p1, kind=KNOWLEDGE, text=来源标题：Expression syntax guide\n来源版本：2\n适用范围：A / rpt-sales-order\n时间说明：生效 2026-01-01；失效 未指定\n原文位置：脱敏后来源全文第1至2行；UTF-16字符[0,122)。\n片段编号：1\n正文片段：\n来源：本仓库隔离验收合成资料\nThe syntax parser validates expression grammar. This document defines neither taxation nor cash collection., scope=A / rpt-sales-order, title=Expression syntax guide（片段1）, version=2, originId=document-7ef12f378fc04171a4c33be127f308ef-v2, observedAt=生效 2026-01-01；失效 未指定}, {id=document-a408145009e442d99e0754aac808d45d-v2-p1, kind=KNOWLEDGE, text=来源标题：通勤交通补助适用范围\n来源版本：2\n适用范围：A / rpt-sales-order\n时间说明：生效 2026-01-01；失效 未指定\n原文位置：脱敏后来源全文第1至2行；UTF-16字符[0,52)。\n片段编号：1\n正文片段：\n来源：本仓库隔离验收合成资料\n通勤交通补助适用于常驻工作地往返；其标准和住宿补助分别管理，不能相互推导。, scope=A / rpt-sales-order, title=通勤交通补助适用范围（片段1）, version=2, originId=document-a408145009e442d99e0754aac808d45d-v2, observedAt=生效 2026-01-01；失效 未指定}, {id=document-bb5a1b67fdae4a80abe41ecdc9a021cd-v2-p1, kind=KNOWLEDGE, text=来源标题：差旅住宿补助适用范围\n来源版本：2\n适用范围：A / rpt-sales-order\n时间说明：生效 2026-01-01；失效 未指定\n原文位置：脱敏后来源全文第1至2行；UTF-16字符[0,77)。\n片段编号：1\n正文片段：\n来源：本仓库隔离验收合成资料\n短期出差住宿补助仅适用于因公前往常驻地以外的员工；本地驻点工作不适用。经过事前书面批准的跨地支援，按批准期间纳入该补助范围。, scope=A / rpt-sales-order, title=差旅住宿补助适用范围（片段1）, version=2, originId=document-bb5a1b67fdae4a80abe41ecdc9a021cd-v2, observedAt=生效 2026-01-01；失效 未指定}, {id=knowledge-coverage-1, kind=DATA, text=第1步已执行当前授权范围内的知识检索。\n已搜索 11 份来源、11 个片段；命中 11 份来源、11 个片段；返回 11 份来源、11 个片段。\n本次命中的片段已全部返回；这不证明授权资料之外不存在其他制度。\n本次字段别名扩展未达到预算。\n本说明仅记录知识检索情况，不是制度正文，不是业务明细，也不证明任何业务写入已经执行。, scope=A / rpt-sales-order, title=第1步知识检索范围说明, version=7a94779952e1d9d7cea4af44fcf8a3cd21b20661d19368a05c466ef57aed344e, originId=knowledge-coverage-1, observedAt=2026-10-12T14:17:47.750208400Z}]}], answer=null, usage=[{model=deepseek-v4.1-flash, stage=PLAN, number=1, status=RESPONDED, elapsedMs=4356, inputTokens=3608, outputTokens=111, usageComplete=true, cachedInputTokens=1920}, {model=deepseek-v4.1-flash, stage=PLAN_REVIEW, number=2, status=RESPONDED, elapsedMs=2354, inputTokens=2659, outputTokens=52, usageComplete=true, cachedInputTokens=896}, {model=deepseek-v4.1-flash, stage=RAG_REWRITE, number=3, status=RESPONDED, elapsedMs=3195, inputTokens=441, outputTokens=45, usageComplete=true, cachedInputTokens=128}, {model=deepseek-v4.1-flash, stage=RAG_RERANK, number=4, status=RESPONDED, elapsedMs=2286, inputTokens=3127, outputTokens=48, usageComplete=true, cachedInputTokens=128}, {model=deepseek-v4.1-flash, stage=ANSWER, number=5, status=RESPONDED, elapsedMs=4470, inputTokens=4850, outputTokens=305, usageComplete=true, cachedInputTokens=896}, {stage=ANSWER_REVIEW, number=6, status=FAILED, elapsedMs=11534, inputTokens=null, outputTokens=null, usageComplete=false, cachedInputTokens=null}]} ==> expected: <COMPLETED> but was: <PARTIAL>",
+          "ANSWER_STATUS_MISMATCH",
+          "EXPECTED_CITATION_MISSING",
+          "REAL_MODEL_EVIDENCE_INCOMPLETE"
+        ],
+        "lexical": {
+          "available": true,
+          "retrievedFragments": 11,
+          "retrievedSources": 11,
+          "recallAt12": 1,
+          "firstRelevantRank": 2,
+          "reciprocalRank": 0.5,
+          "opposingRecallAt12": 1,
+          "noMatchCorrect": null,
+          "relevantRetrieved": [
+            "tax-inclusive",
+            "tax-exclusive"
+          ],
+          "opposingRetrieved": [
+            "tax-exclusive"
+          ]
+        },
+        "semantic": {
+          "available": true,
+          "retrievedFragments": 11,
+          "retrievedSources": 11,
+          "recallAt12": 1,
+          "firstRelevantRank": 1,
+          "reciprocalRank": 1,
+          "opposingRecallAt12": 1,
+          "noMatchCorrect": null,
+          "relevantRetrieved": [
+            "tax-inclusive",
+            "tax-exclusive"
+          ],
+          "opposingRetrieved": [
+            "tax-exclusive"
+          ]
+        },
+        "realModelVerified": false,
+        "repaired": false,
+        "answer": {
+          "statusCorrect": false,
+          "citationCoverageCorrect": false,
+          "scope": "仅核对最终状态与实际引用覆盖；业务结论仍须审阅"
+        },
+        "durationMs": 28467,
+        "calls": {
+          "modelCalls": 6,
+          "testDoubleCalls": 0,
+          "stages": {
+            "ANSWER": {
+              "calls": 1,
+              "failures": 0,
+              "latencyMs": {
+                "samples": 1,
+                "p50": 4470,
+                "p95": 4470,
+                "p99": 4470
+              }
+            },
+            "ANSWER_REVIEW": {
+              "calls": 1,
+              "failures": 1,
+              "latencyMs": {
+                "samples": 1,
+                "p50": 11534,
+                "p95": 11534,
+                "p99": 11534
+              }
+            },
+            "PLAN": {
+              "calls": 1,
+              "failures": 0,
+              "latencyMs": {
+                "samples": 1,
+                "p50": 4356,
+                "p95": 4356,
+                "p99": 4356
+              }
+            },
+            "PLAN_REVIEW": {
+              "calls": 1,
+              "failures": 0,
+              "latencyMs": {
+                "samples": 1,
+                "p50": 2354,
+                "p95": 2354,
+                "p99": 2354
+              }
+            },
+            "RAG_RERANK": {
+              "calls": 1,
+              "failures": 0,
+              "latencyMs": {
+                "samples": 1,
+                "p50": 2286,
+                "p95": 2286,
+                "p99": 2286
+              }
+            },
+            "RAG_REWRITE": {
+              "calls": 1,
+              "failures": 0,
+              "latencyMs": {
+                "samples": 1,
+                "p50": 3195,
+                "p95": 3195,
+                "p99": 3195
+              }
+            }
+          },
+          "usage": {
+            "complete": false,
+            "measuredCalls": 5,
+            "totalCalls": 6,
+            "inputTokens": null,
+            "outputTokens": null,
+            "cost": null,
+            "costComplete": false
+          }
+        }
+      }
+    },
+    {
+      "caseId": "unrelated-no-match",
+      "firstPass": true,
+      "attempts": [
+        {
+          "caseId": "unrelated-no-match",
+          "attempt": 1,
+          "category": "NO_MATCH",
+          "source": "MODEL",
+          "passed": true,
+          "errors": [],
+          "lexical": {
+            "available": true,
+            "retrievedFragments": 0,
+            "retrievedSources": 0,
+            "recallAt12": null,
+            "firstRelevantRank": null,
+            "reciprocalRank": null,
+            "opposingRecallAt12": null,
+            "noMatchCorrect": true,
+            "relevantRetrieved": [],
+            "opposingRetrieved": []
+          },
+          "semantic": {
+            "available": true,
+            "retrievedFragments": 0,
+            "retrievedSources": 0,
+            "recallAt12": null,
+            "firstRelevantRank": null,
+            "reciprocalRank": null,
+            "opposingRecallAt12": null,
+            "noMatchCorrect": true,
+            "relevantRetrieved": [],
+            "opposingRetrieved": []
+          },
+          "realModelVerified": true,
+          "repaired": false,
+          "answer": {
+            "statusCorrect": true,
+            "citationCoverageCorrect": true,
+            "scope": "仅核对最终状态与实际引用覆盖；业务结论仍须审阅"
+          },
+          "durationMs": 17745,
+          "calls": {
+            "modelCalls": 5,
+            "testDoubleCalls": 0,
+            "stages": {
+              "ANSWER": {
+                "calls": 1,
+                "failures": 0,
+                "latencyMs": {
+                  "samples": 1,
+                  "p50": 3795,
+                  "p95": 3795,
+                  "p99": 3795
+                }
+              },
+              "ANSWER_REVIEW": {
+                "calls": 1,
+                "failures": 0,
+                "latencyMs": {
+                  "samples": 1,
+                  "p50": 3566,
+                  "p95": 3566,
+                  "p99": 3566
+                }
+              },
+              "PLAN": {
+                "calls": 1,
+                "failures": 0,
+                "latencyMs": {
+                  "samples": 1,
+                  "p50": 4572,
+                  "p95": 4572,
+                  "p99": 4572
+                }
+              },
+              "PLAN_REVIEW": {
+                "calls": 1,
+                "failures": 0,
+                "latencyMs": {
+                  "samples": 1,
+                  "p50": 3065,
+                  "p95": 3065,
+                  "p99": 3065
+                }
+              },
+              "RAG_REWRITE": {
+                "calls": 1,
+                "failures": 0,
+                "latencyMs": {
+                  "samples": 1,
+                  "p50": 2386,
+                  "p95": 2386,
+                  "p99": 2386
+                }
+              }
+            },
+            "usage": {
+              "complete": true,
+              "measuredCalls": 5,
+              "totalCalls": 5,
+              "inputTokens": 8435,
+              "outputTokens": 410,
+              "cost": null,
+              "costComplete": false
+            }
+          }
+        }
+      ],
+      "final": {
+        "caseId": "unrelated-no-match",
+        "attempt": 1,
+        "category": "NO_MATCH",
+        "source": "MODEL",
+        "passed": true,
+        "errors": [],
+        "lexical": {
+          "available": true,
+          "retrievedFragments": 0,
+          "retrievedSources": 0,
+          "recallAt12": null,
+          "firstRelevantRank": null,
+          "reciprocalRank": null,
+          "opposingRecallAt12": null,
+          "noMatchCorrect": true,
+          "relevantRetrieved": [],
+          "opposingRetrieved": []
+        },
+        "semantic": {
+          "available": true,
+          "retrievedFragments": 0,
+          "retrievedSources": 0,
+          "recallAt12": null,
+          "firstRelevantRank": null,
+          "reciprocalRank": null,
+          "opposingRecallAt12": null,
+          "noMatchCorrect": true,
+          "relevantRetrieved": [],
+          "opposingRetrieved": []
+        },
+        "realModelVerified": true,
+        "repaired": false,
+        "answer": {
+          "statusCorrect": true,
+          "citationCoverageCorrect": true,
+          "scope": "仅核对最终状态与实际引用覆盖；业务结论仍须审阅"
+        },
+        "durationMs": 17745,
+        "calls": {
+          "modelCalls": 5,
+          "testDoubleCalls": 0,
+          "stages": {
+            "ANSWER": {
+              "calls": 1,
+              "failures": 0,
+              "latencyMs": {
+                "samples": 1,
+                "p50": 3795,
+                "p95": 3795,
+                "p99": 3795
+              }
+            },
+            "ANSWER_REVIEW": {
+              "calls": 1,
+              "failures": 0,
+              "latencyMs": {
+                "samples": 1,
+                "p50": 3566,
+                "p95": 3566,
+                "p99": 3566
+              }
+            },
+            "PLAN": {
+              "calls": 1,
+              "failures": 0,
+              "latencyMs": {
+                "samples": 1,
+                "p50": 4572,
+                "p95": 4572,
+                "p99": 4572
+              }
+            },
+            "PLAN_REVIEW": {
+              "calls": 1,
+              "failures": 0,
+              "latencyMs": {
+                "samples": 1,
+                "p50": 3065,
+                "p95": 3065,
+                "p99": 3065
+              }
+            },
+            "RAG_REWRITE": {
+              "calls": 1,
+              "failures": 0,
+              "latencyMs": {
+                "samples": 1,
+                "p50": 2386,
+                "p95": 2386,
+                "p99": 2386
+              }
+            }
+          },
+          "usage": {
+            "complete": true,
+            "measuredCalls": 5,
+            "totalCalls": 5,
+            "inputTokens": 8435,
+            "outputTokens": 410,
+            "cost": null,
+            "costComplete": false
+          }
+        }
+      }
+    }
+  ]
+}

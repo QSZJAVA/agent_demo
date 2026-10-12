@@ -1,0 +1,93 @@
+{
+  "companyCode" : "A",
+  "reportId" : "rpt-sales-order",
+  "question" : "tax",
+  "referenceTime" : "2026-10-12T15:53:07.965158400Z",
+  "fingerprint" : "79e2890829690f66a89d38c440a12fd44ce7c8216accdad87d4305ee92d7f526",
+  "result" : {
+    "kind" : "KNOWLEDGE",
+    "sources" : [ {
+      "id" : "document-7ba10c2eefce45e2932f1e6d1d879993-v2-p1",
+      "originId" : "document-7ba10c2eefce45e2932f1e6d1d879993-v2",
+      "kind" : "KNOWLEDGE",
+      "title" : "Tax policy",
+      "version" : "2",
+      "scope" : "A / rpt-sales-order",
+      "observedAt" : "生效 2026-01-01；失效 未指定",
+      "text" : "来源标题：Tax policy\n来源版本：2\n适用范围：A / rpt-sales-order\n时间说明：生效 2026-01-01；失效 未指定\n原文位置：脱敏后来源全文第1至2行；UTF-16字符[0,47)。\n片段编号：1\n正文片段：\n来源：本仓库隔离验收合成资料\ntax levy applies to this policy.",
+      "contentOffset" : 121
+    } ],
+    "matched" : 1,
+    "searched" : 4,
+    "truncated" : false,
+    "coverage" : {
+      "searchedSources" : 4,
+      "matchedSources" : 1,
+      "returnedSources" : 1
+    },
+    "queryTerms" : [ "tax" ],
+    "expansions" : [ ],
+    "expansionTruncated" : false,
+    "hits" : [ {
+      "sourceId" : "document-7ba10c2eefce45e2932f1e6d1d879993-v2-p1",
+      "directTerms" : [ "tax" ],
+      "aliasTerms" : [ ]
+    } ],
+    "retrieval" : {
+      "mode" : "SEMANTIC_RAG",
+      "queries" : [ {
+        "kind" : "ORIGINAL",
+        "text" : "tax"
+      }, {
+        "kind" : "REWRITE",
+        "text" : "levy"
+      } ],
+      "candidateFragments" : 1,
+      "rerankedFragments" : 1,
+      "contextTruncated" : false,
+      "reranked" : true,
+      "ranking" : [ {
+        "sourceId" : "document-7ba10c2eefce45e2932f1e6d1d879993-v2-p1",
+        "routes" : [ 0, 1 ],
+        "rank" : 1
+      } ],
+      "version" : "semantic-rag-2",
+      "routes" : [ {
+        "index" : 0,
+        "matchedFragments" : 1,
+        "matchedSources" : 1,
+        "queryTerms" : [ "tax" ],
+        "expansions" : [ ],
+        "expansionTruncated" : false
+      }, {
+        "index" : 1,
+        "matchedFragments" : 1,
+        "matchedSources" : 1,
+        "queryTerms" : [ "levy" ],
+        "expansions" : [ ],
+        "expansionTruncated" : false
+      } ]
+    }
+  },
+  "usage" : [ {
+    "number" : 1,
+    "stage" : "RAG_REWRITE",
+    "status" : "RESPONDED",
+    "model" : "ISOLATED_TEST_DOUBLE",
+    "elapsedMs" : 0,
+    "inputTokens" : null,
+    "outputTokens" : null,
+    "cachedInputTokens" : null,
+    "usageComplete" : false
+  }, {
+    "number" : 2,
+    "stage" : "RAG_RERANK",
+    "status" : "RESPONDED",
+    "model" : "ISOLATED_TEST_DOUBLE",
+    "elapsedMs" : 0,
+    "inputTokens" : null,
+    "outputTokens" : null,
+    "cachedInputTokens" : null,
+    "usageComplete" : false
+  } ]
+}

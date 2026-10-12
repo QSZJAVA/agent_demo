@@ -9,7 +9,7 @@ import static org.junit.jupiter.api.Assertions.*;
 /** 知识召回的独立行为回归；验证词界、来源覆盖和词典边界，不把排序当成答案真实性证明。 */
 class KnowledgeSearchTest {
     static AnalysisEvidence.Source source(String id,String origin,String title,String text) {
-        return new AnalysisEvidence.Source(id,origin,"KNOWLEDGE",title,"1","A / rpt-sales-order","当前有效",text);
+        return new AnalysisEvidence.Source(id,origin,"KNOWLEDGE",title,"1","A / rpt-sales-order","当前有效",text,0);
     }
     static SemanticDictionary.Field field(String name,List<String> aliases,String meaning) {
         return new SemanticDictionary.Field(name,aliases,meaning,"","",List.of(),List.of());

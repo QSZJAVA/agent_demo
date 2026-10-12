@@ -1,0 +1,23 @@
+{
+  "version": "knowledge-rag-2026-10-12-v1",
+  "partition": "regression",
+  "businessReviewed": false,
+  "provenance": "工程独立编写来源金标和语料；真实模型只接收问题与授权正文，不接收金标。用于多查询RAG专项，不表示真实企业制度或业务盲测。",
+  "documents": [
+    {"id":"sales-basis","title":"销售单金额与收款的区别","body":"销售金额按订单约定的应收价款登记；它不等于客户已经支付的款项。收款需以到账流水单独证明。"},
+    {"id":"cash-receipt","title":"收款事实确认","body":"只有实际到账记录才能认定已经收款；销售单金额是订单价款，不能代替银行到账记录。"},
+    {"id":"lodging-exception","title":"差旅住宿补助适用范围","body":"短期出差住宿补助仅适用于因公前往常驻地以外的员工；本地驻点工作不适用。经过事前书面批准的跨地支援，按批准期间纳入该补助范围。"},
+    {"id":"commuting","title":"通勤交通补助适用范围","body":"通勤交通补助适用于常驻工作地往返；其标准和住宿补助分别管理，不能相互推导。"},
+    {"id":"invoice-recognition","title":"开票日期与确认收入","body":"开票日期是发票开具日期，不等同于收入确认日期。收入确认以合同履约条件满足时点为准，不能仅据开票时间推断。"},
+    {"id":"tax-inclusive","title":"订单价款税额口径甲","body":"销售金额包括销项税额。"},
+    {"id":"tax-exclusive","title":"订单价款税额口径乙","body":"销售金额不包括销项税额。"},
+    {"id":"expression-syntax","title":"Expression syntax guide","body":"The syntax parser validates expression grammar. This document defines neither taxation nor cash collection."}
+  ],
+  "cases": [
+    {"id":"cross-language-no-alias","category":"CROSS_LANGUAGE","question":"Do booked sales prove that customer funds have arrived?","relevantSourceIds":["sales-basis","cash-receipt"],"opposingSourceIds":[],"requiredCitationSourceIds":[],"expectedAnswerStatus":"ANSWERED","expectLexicalMiss":true},
+    {"id":"negation-and-exception","category":"NEGATION_EXCEPTION","question":"常驻地驻点工作能领差旅住宿补助吗？事前书面批准的跨地支援是否例外？","relevantSourceIds":["lodging-exception"],"opposingSourceIds":[],"requiredCitationSourceIds":["lodging-exception"],"expectedAnswerStatus":"ANSWERED"},
+    {"id":"similar-concept-distinction","category":"SIMILAR_CONCEPT","question":"发票开出那天就算确认收入了吗？请按当前制度说明两者关系。","relevantSourceIds":["invoice-recognition"],"opposingSourceIds":[],"requiredCitationSourceIds":["invoice-recognition"],"expectedAnswerStatus":"ANSWERED"},
+    {"id":"opposing-tax-policy","category":"CONFLICT","question":"现行资料对销售金额是否含税有一致结论吗？请列出相反依据。","relevantSourceIds":["tax-inclusive","tax-exclusive"],"opposingSourceIds":["tax-exclusive"],"requiredCitationSourceIds":["tax-inclusive","tax-exclusive"],"expectedAnswerStatus":"CONFLICTING"},
+    {"id":"unrelated-no-match","category":"NO_MATCH","question":"声学设备蓝鲸探测频带上限究竟是多少？","relevantSourceIds":[],"opposingSourceIds":[],"requiredCitationSourceIds":[],"expectedAnswerStatus":"INSUFFICIENT"}
+  ]
+}

@@ -15,7 +15,7 @@ class KnowledgePreviewTest {
     static final KnowledgeService.SearchRequest REQUEST=new KnowledgeService.SearchRequest("A","rpt-sales-order","tax");
     static KnowledgeService.Snapshot snapshot(String fingerprint) {
         var entry=new SemanticDictionaryService.Entry(new SemanticDictionary.Scope(BusinessQuery.Domain.REPORT,"A","rpt-sales-order"),0,SemanticDictionary.Definition.empty());
-        return new KnowledgeService.Snapshot(null,entry,List.of(new AnalysisEvidence.Source("doc","doc","KNOWLEDGE","Tax","1","A / rpt-sales-order","有效","tax applies")),fingerprint,Instant.parse("2026-10-11T17:00:00Z"));
+        return new KnowledgeService.Snapshot(null,entry,List.of(new AnalysisEvidence.Source("doc","doc","KNOWLEDGE","Tax","1","A / rpt-sales-order","有效","tax applies",0)),fingerprint,Instant.parse("2026-10-11T17:00:00Z"));
     }
     static KnowledgeService service() {
         var permissions=mock(PermissionService.class);when(permissions.resolve(ADMIN.userId())).thenReturn(ADMIN);

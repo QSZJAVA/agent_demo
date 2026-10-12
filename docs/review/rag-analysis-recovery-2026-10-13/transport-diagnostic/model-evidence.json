@@ -1,0 +1,753 @@
+[ {
+  "source" : "TEST_DOUBLE",
+  "stage" : "PLAN",
+  "at" : "2026-10-12T14:51:25.216627800Z",
+  "schemaHash" : "4753a31b9a5e8135357815aedc0a0ab37a9c362584a4c5c59a4e90c3e6942451",
+  "inputHash" : "b8692e537cc1ed62345d769472790c153f2f3383b3c5247e2472cf94b39be748",
+  "rawJson" : "{\"mode\":\"EXECUTE\",\"objective\":\"按产品统计、排名并展开明细\",\"clarification\":null,\"steps\":[{\"action\":\"QUERY\",\"source\":null,\"other\":null,\"query\":{\"domain\":\"REPORT\",\"view\":\"LIST\",\"reportIds\":[\"rpt-sales-order\"],\"companyCode\":\"A\",\"conditions\":[],\"sortField\":\"amount\",\"descending\":true,\"page\":1,\"size\":20,\"groupBy\":null},\"analysis\":null,\"rank\":null,\"knowledgeQuestion\":null},{\"action\":\"GROUP\",\"source\":0,\"other\":null,\"query\":null,\"analysis\":{\"dimensions\":[\"productName\"],\"dateField\":null,\"bucket\":\"NONE\",\"compareMonth\":null},\"rank\":null,\"knowledgeQuestion\":null},{\"action\":\"RANK\",\"source\":1,\"other\":null,\"query\":null,\"analysis\":null,\"rank\":{\"field\":\"sum\",\"descending\":true,\"count\":2},\"knowledgeQuestion\":null},{\"action\":\"DRILLDOWN\",\"source\":0,\"other\":2,\"query\":null,\"analysis\":null,\"rank\":null,\"knowledgeQuestion\":null}]}",
+  "status" : "RESPONDED",
+  "usageComplete" : false,
+  "reply" : {
+    "mode" : "EXECUTE",
+    "objective" : "按产品统计、排名并展开明细",
+    "clarification" : null,
+    "steps" : [ {
+      "action" : "QUERY",
+      "source" : null,
+      "other" : null,
+      "query" : {
+        "domain" : "REPORT",
+        "view" : "LIST",
+        "reportIds" : [ "rpt-sales-order" ],
+        "companyCode" : "A",
+        "conditions" : [ ],
+        "sortField" : "amount",
+        "descending" : true,
+        "page" : 1,
+        "size" : 20,
+        "groupBy" : null
+      },
+      "analysis" : null,
+      "rank" : null,
+      "knowledgeQuestion" : null
+    }, {
+      "action" : "GROUP",
+      "source" : 0,
+      "other" : null,
+      "query" : null,
+      "analysis" : {
+        "dimensions" : [ "productName" ],
+        "dateField" : null,
+        "bucket" : "NONE",
+        "compareMonth" : null
+      },
+      "rank" : null,
+      "knowledgeQuestion" : null
+    }, {
+      "action" : "RANK",
+      "source" : 1,
+      "other" : null,
+      "query" : null,
+      "analysis" : null,
+      "rank" : {
+        "field" : "sum",
+        "descending" : true,
+        "count" : 2
+      },
+      "knowledgeQuestion" : null
+    }, {
+      "action" : "DRILLDOWN",
+      "source" : 0,
+      "other" : 2,
+      "query" : null,
+      "analysis" : null,
+      "rank" : null,
+      "knowledgeQuestion" : null
+    } ]
+  },
+  "model" : "ISOLATED_TEST_DOUBLE",
+  "usage" : {
+    "inputTokens" : null,
+    "outputTokens" : null,
+    "cachedInputTokens" : null
+  },
+  "elapsedMs" : 4
+}, {
+  "source" : "TEST_DOUBLE",
+  "stage" : "PLAN_REVIEW",
+  "at" : "2026-10-12T14:51:25.261796800Z",
+  "schemaHash" : "45c04bc41a4d7f4e30d82d7c125be115725d60612b96ad0b9eb9115aca079817",
+  "inputHash" : "2d01966ac425da99b56f26e1d2a2fc262ad558345b2fd71693bdcfc6ba678c0e",
+  "rawJson" : "{\"approved\":true,\"reason\":\"隔离状态机测试标签已核对，真实模型另外执行\"}",
+  "status" : "RESPONDED",
+  "usageComplete" : false,
+  "reply" : {
+    "approved" : true,
+    "reason" : "隔离状态机测试标签已核对，真实模型另外执行"
+  },
+  "model" : "ISOLATED_TEST_DOUBLE",
+  "usage" : {
+    "inputTokens" : null,
+    "outputTokens" : null,
+    "cachedInputTokens" : null
+  },
+  "elapsedMs" : 1
+}, {
+  "source" : "TEST_DOUBLE",
+  "stage" : "ANSWER",
+  "at" : "2026-10-12T14:51:25.660063300Z",
+  "schemaHash" : "57390e2af9dfeb0130979f6d14bfc3475313f19223849786ff806b25de711584",
+  "inputHash" : "389fd42e848c030a3ead466fa5f184d998c19ba9ab46d2e661a294d5d9955c90",
+  "rawJson" : "{\"status\":\"ANSWERED\",\"claims\":[{\"text\":\"结果来自所引用的当前授权依据。\",\"sourceIds\":[\"step-1-q1\"]}],\"limitations\":[]}",
+  "status" : "RESPONDED",
+  "usageComplete" : false,
+  "knowledgeCoverage" : {
+    "performed" : false,
+    "truncated" : false,
+    "expansionTruncated" : false,
+    "steps" : [ ]
+  },
+  "reply" : {
+    "status" : "ANSWERED",
+    "claims" : [ {
+      "text" : "结果来自所引用的当前授权依据。",
+      "sourceIds" : [ "step-1-q1" ]
+    } ],
+    "limitations" : [ ]
+  },
+  "model" : "ISOLATED_TEST_DOUBLE",
+  "usage" : {
+    "inputTokens" : null,
+    "outputTokens" : null,
+    "cachedInputTokens" : null
+  },
+  "elapsedMs" : 4
+}, {
+  "source" : "TEST_DOUBLE",
+  "stage" : "ANSWER_REVIEW",
+  "at" : "2026-10-12T14:51:25.703232300Z",
+  "schemaHash" : "45c04bc41a4d7f4e30d82d7c125be115725d60612b96ad0b9eb9115aca079817",
+  "inputHash" : "5663877aea8e16d3f09cf61afd23065c2adda70583c24e33aa0eeea2fc91f32a",
+  "rawJson" : "{\"approved\":true,\"reason\":\"隔离状态机测试标签已核对，真实模型另外执行\"}",
+  "status" : "RESPONDED",
+  "usageComplete" : false,
+  "knowledgeCoverage" : {
+    "performed" : false,
+    "truncated" : false,
+    "expansionTruncated" : false,
+    "steps" : [ ]
+  },
+  "reply" : {
+    "approved" : true,
+    "reason" : "隔离状态机测试标签已核对，真实模型另外执行"
+  },
+  "model" : "ISOLATED_TEST_DOUBLE",
+  "usage" : {
+    "inputTokens" : null,
+    "outputTokens" : null,
+    "cachedInputTokens" : null
+  },
+  "elapsedMs" : 1
+}, {
+  "source" : "MODEL",
+  "stage" : "PLAN",
+  "at" : "2026-10-12T14:51:27.718255400Z",
+  "schemaHash" : "4753a31b9a5e8135357815aedc0a0ab37a9c362584a4c5c59a4e90c3e6942451",
+  "inputHash" : "deb104c46b782a4b61cb7f30cd37f7fd59673975db211c06a464232c7d02383d",
+  "rawJson" : "{\"mode\":\"EXECUTE\",\"objective\":\"查询A公司2026年9月销售报表，按产品汇总销售金额并取金额最高的两个产品，展开这两个产品的全部明细单据；同时依据现有业务知识说明销售金额是否等于已收款。\",\"clarification\":null,\"steps\":[{\"action\":\"QUERY\",\"source\":null,\"other\":null,\"query\":{\"domain\":\"REPORT\",\"view\":\"LIST\",\"reportIds\":[\"rpt-sales-order\"],\"companyCode\":\"A\",\"conditions\":[{\"allOf\":[{\"field\":\"saleDate\",\"operator\":\"GTE\",\"values\":[\"2026-09-01\"]},{\"field\":\"saleDate\",\"operator\":\"LTE\",\"values\":[\"2026-09-30\"]}]}],\"sortField\":null,\"descending\":false,\"page\":1,\"size\":20,\"groupBy\":null},\"analysis\":null,\"rank\":null,\"knowledgeQuestion\":null},{\"action\":\"GROUP\",\"source\":0,\"other\":null,\"query\":null,\"analysis\":{\"dimensions\":[\"productName\"],\"dateField\":null,\"bucket\":\"NONE\",\"compareMonth\":null},\"rank\":null,\"knowledgeQuestion\":null},{\"action\":\"RANK\",\"source\":1,\"other\":null,\"query\":null,\"analysis\":null,\"rank\":{\"field\":\"sum\",\"descending\":true,\"count\":2},\"knowledgeQuestion\":null},{\"action\":\"DRILLDOWN\",\"source\":0,\"other\":2,\"query\":null,\"analysis\":null,\"rank\":null,\"knowledgeQuestion\":null},{\"action\":\"KNOWLEDGE\",\"source\":null,\"other\":null,\"query\":null,\"analysis\":null,\"rank\":null,\"knowledgeQuestion\":\"在A公司销售报表范围内，销售金额是否等于已收款？销售金额的业务口径是什么？\"}]}",
+  "status" : "RESPONDED",
+  "usageComplete" : true,
+  "reply" : {
+    "mode" : "EXECUTE",
+    "objective" : "查询A公司2026年9月销售报表，按产品汇总销售金额并取金额最高的两个产品，展开这两个产品的全部明细单据；同时依据现有业务知识说明销售金额是否等于已收款。",
+    "clarification" : null,
+    "steps" : [ {
+      "action" : "QUERY",
+      "source" : null,
+      "other" : null,
+      "query" : {
+        "domain" : "REPORT",
+        "view" : "LIST",
+        "reportIds" : [ "rpt-sales-order" ],
+        "companyCode" : "A",
+        "conditions" : [ {
+          "allOf" : [ {
+            "field" : "saleDate",
+            "operator" : "GTE",
+            "values" : [ "2026-09-01" ]
+          }, {
+            "field" : "saleDate",
+            "operator" : "LTE",
+            "values" : [ "2026-09-30" ]
+          } ]
+        } ],
+        "sortField" : null,
+        "descending" : false,
+        "page" : 1,
+        "size" : 20,
+        "groupBy" : null
+      },
+      "analysis" : null,
+      "rank" : null,
+      "knowledgeQuestion" : null
+    }, {
+      "action" : "GROUP",
+      "source" : 0,
+      "other" : null,
+      "query" : null,
+      "analysis" : {
+        "dimensions" : [ "productName" ],
+        "dateField" : null,
+        "bucket" : "NONE",
+        "compareMonth" : null
+      },
+      "rank" : null,
+      "knowledgeQuestion" : null
+    }, {
+      "action" : "RANK",
+      "source" : 1,
+      "other" : null,
+      "query" : null,
+      "analysis" : null,
+      "rank" : {
+        "field" : "sum",
+        "descending" : true,
+        "count" : 2
+      },
+      "knowledgeQuestion" : null
+    }, {
+      "action" : "DRILLDOWN",
+      "source" : 0,
+      "other" : 2,
+      "query" : null,
+      "analysis" : null,
+      "rank" : null,
+      "knowledgeQuestion" : null
+    }, {
+      "action" : "KNOWLEDGE",
+      "source" : null,
+      "other" : null,
+      "query" : null,
+      "analysis" : null,
+      "rank" : null,
+      "knowledgeQuestion" : "在A公司销售报表范围内，销售金额是否等于已收款？销售金额的业务口径是什么？"
+    } ]
+  },
+  "model" : "deepseek-v4.1-flash",
+  "usage" : {
+    "inputTokens" : 4151,
+    "outputTokens" : 369,
+    "cachedInputTokens" : 896
+  },
+  "elapsedMs" : 4599
+}, {
+  "source" : "MODEL",
+  "stage" : "PLAN_REVIEW",
+  "at" : "2026-10-12T14:51:32.350658800Z",
+  "schemaHash" : "45c04bc41a4d7f4e30d82d7c125be115725d60612b96ad0b9eb9115aca079817",
+  "inputHash" : "c0dab16ed2d111d20b3a738f8bb1557ef4ab4b1db8130f01913dbf9715f22596",
+  "rawJson" : "{\"approved\":true,\"reason\":\"计划完整覆盖用户目标：A公司2026年9月销售报表查询、按产品汇总金额、取金额最高两个产品并展开其全部明细，且就销售金额是否等同已收款执行知识检索。各步骤只读、字段与前序引用合法，日期边界正确，金额排名和展开路径均由程序校验。知识来源明确显示销售金额为订单金额、不等于已收款，未发现不一致。\"}",
+  "status" : "RESPONDED",
+  "usageComplete" : true,
+  "reply" : {
+    "approved" : true,
+    "reason" : "计划完整覆盖用户目标：A公司2026年9月销售报表查询、按产品汇总金额、取金额最高两个产品并展开其全部明细，且就销售金额是否等同已收款执行知识检索。各步骤只读、字段与前序引用合法，日期边界正确，金额排名和展开路径均由程序校验。知识来源明确显示销售金额为订单金额、不等于已收款，未发现不一致。"
+  },
+  "model" : "deepseek-v4.1-flash",
+  "usage" : {
+    "inputTokens" : 3505,
+    "outputTokens" : 95,
+    "cachedInputTokens" : 896
+  },
+  "elapsedMs" : 2051
+}, {
+  "source" : "MODEL",
+  "stage" : "RAG_REWRITE",
+  "at" : "2026-10-12T14:51:34.441357400Z",
+  "schemaHash" : "1281772fd397a5bacc32a7a26259aa609fe4cad8c99693aa1ff831214f8bf6cf",
+  "inputHash" : "e6895887e63db09ffc2bfc98911a20603624f96c6e44dc4ae096d04791c388b3",
+  "businessQueriesAtCall" : 0,
+  "rawJson" : "{\"topics\":[{\"index\":4,\"queries\":[\"A公司销售报表 销售金额与已收款的关系 是否相等\",\"销售金额 业务口径 定义 统计规则\"]}]}",
+  "status" : "RESPONDED",
+  "usageComplete" : true,
+  "reply" : {
+    "topics" : [ {
+      "index" : 4,
+      "queries" : [ "A公司销售报表 销售金额与已收款的关系 是否相等", "销售金额 业务口径 定义 统计规则" ]
+    } ]
+  },
+  "model" : "deepseek-v4.1-flash",
+  "usage" : {
+    "inputTokens" : 454,
+    "outputTokens" : 41,
+    "cachedInputTokens" : 128
+  },
+  "elapsedMs" : 1780
+}, {
+  "source" : "MODEL",
+  "stage" : "RAG_RERANK",
+  "at" : "2026-10-12T14:51:36.261598Z",
+  "schemaHash" : "d2001f30b77bb578f544a3368c669e6a5b908c10bc77c3dfc8db9dc2fed745c8",
+  "inputHash" : "f179d46c0c7b3e26430d4a2da54f216980c5790ae83a6cbd887d113b65299ed5",
+  "businessQueriesAtCall" : 0,
+  "rawJson" : "{\"topics\":[{\"index\":4,\"sourceIds\":[\"c1\",\"c0\",\"c2\",\"c3\"]}]}",
+  "status" : "RESPONDED",
+  "usageComplete" : true,
+  "reply" : {
+    "topics" : [ {
+      "index" : 4,
+      "sourceIds" : [ "c1", "c0", "c2", "c3" ]
+    } ]
+  },
+  "model" : "deepseek-v4.1-flash",
+  "usage" : {
+    "inputTokens" : 1791,
+    "outputTokens" : 27,
+    "cachedInputTokens" : 128
+  },
+  "elapsedMs" : 1684
+}, {
+  "source" : "MODEL",
+  "stage" : "ANSWER",
+  "at" : "2026-10-12T14:51:38.210483900Z",
+  "schemaHash" : "8bdd93e2b72648dc7f77645238f80ef9104dee4056cd6485cffe04b93a7be657",
+  "inputHash" : "2bc04968f4188daeae8c94dc8ee933d26c9fe2a3b163feaa44019df86c484e63",
+  "rawJson" : "{\n  \"status\": \"ANSWERED\",\n  \"claims\": [\n    {\n      \"text\": \"A公司2026年9月销售报表基础查询共匹配120条记录，金额合计7141.20 CNY；页面预览20条，未展示全部明细。\",\n      \"sourceIds\": [\"step-1-q1\", \"step-1-q5\"]\n    },\n    {\n      \"text\": \"按产品汇总共3组：产品“alpha ”金额合计3599.59 CNY（59条）、“Alpha”为3540.60 CNY（60条）、“=1+1”为1.01 CNY（1条）。金额最高的两个产品为“alpha ”和“Alpha”。\",\n      \"sourceIds\": [\"step-2-q1\", \"step-3\"]\n    },\n    {\n      \"text\": \"对金额最高的两个产品展开原快照明细，共119条记录，金额合计7140.19 CNY；明细可通过“查看完整明细”每页20条读取原查询快照，当前页面仅预览20条，未展示全部明细。\",\n      \"sourceIds\": [\"step-4-q1\", \"step-4-q5\"]\n    },\n    {\n      \"text\": \"根据销售口径制度，销售金额以元为单位、币种为CNY，表示销售单的订单金额，不等于已收款。\",\n      \"sourceIds\": [\"document-67067e2b2e0341a1aa26e2a8a8d980b5-v2-p1\"]\n    }\n  ],\n  \"limitations\": [\n    \"“销售金额是否等于已收款”只能依据销售口径说明作答：制度明确销售金额不等于已收款；本次数据中未提供已收款字段，无法进行金额与已收款的逐单比对。\",\n    \"本次知识检索覆盖4份来源、4个片段且均已返回，但不代表授权资料之外不存在其他制度。\"\n  ]\n}",
+  "status" : "RESPONDED",
+  "usageComplete" : true,
+  "knowledgeCoverage" : {
+    "performed" : true,
+    "truncated" : false,
+    "expansionTruncated" : false,
+    "steps" : [ {
+      "searchedFragments" : 4,
+      "expansionTruncated" : false,
+      "stepNumber" : 5,
+      "searchedSources" : 4,
+      "matchedSources" : 4,
+      "returnedFragments" : 4,
+      "returnedSources" : 4,
+      "matchedFragments" : 4,
+      "truncated" : false
+    } ]
+  },
+  "reply" : {
+    "status" : "ANSWERED",
+    "claims" : [ {
+      "text" : "A公司2026年9月销售报表基础查询共匹配120条记录，金额合计7141.20 CNY；页面预览20条，未展示全部明细。",
+      "sourceIds" : [ "step-1-q1", "step-1-q5" ]
+    }, {
+      "text" : "按产品汇总共3组：产品“alpha ”金额合计3599.59 CNY（59条）、“Alpha”为3540.60 CNY（60条）、“=1+1”为1.01 CNY（1条）。金额最高的两个产品为“alpha ”和“Alpha”。",
+      "sourceIds" : [ "step-2-q1", "step-3" ]
+    }, {
+      "text" : "对金额最高的两个产品展开原快照明细，共119条记录，金额合计7140.19 CNY；明细可通过“查看完整明细”每页20条读取原查询快照，当前页面仅预览20条，未展示全部明细。",
+      "sourceIds" : [ "step-4-q1", "step-4-q5" ]
+    }, {
+      "text" : "根据销售口径制度，销售金额以元为单位、币种为CNY，表示销售单的订单金额，不等于已收款。",
+      "sourceIds" : [ "document-67067e2b2e0341a1aa26e2a8a8d980b5-v2-p1" ]
+    } ],
+    "limitations" : [ "“销售金额是否等于已收款”只能依据销售口径说明作答：制度明确销售金额不等于已收款；本次数据中未提供已收款字段，无法进行金额与已收款的逐单比对。", "本次知识检索覆盖4份来源、4个片段且均已返回，但不代表授权资料之外不存在其他制度。" ]
+  },
+  "model" : "deepseek-v4.1-flash",
+  "usage" : {
+    "inputTokens" : 13270,
+    "outputTokens" : 407,
+    "cachedInputTokens" : 896
+  },
+  "elapsedMs" : 4243
+}, {
+  "source" : "MODEL",
+  "stage" : "ANSWER_REVIEW",
+  "at" : "2026-10-12T14:51:42.489975300Z",
+  "schemaHash" : "45c04bc41a4d7f4e30d82d7c125be115725d60612b96ad0b9eb9115aca079817",
+  "inputHash" : "5ccbc94e2bab91dff1e4eb36d5b166fd0989cfef5403b4939c34268320315d99",
+  "rawJson" : "{\"approved\":true,\"reason\":\"核对通过：查询、分组、排名、展开的计数与金额均与来源一致；产品字符串按原值区分（Alpha/alpha / =1+1），取前两名正确；知识检索执行情况、来源/片段单位与返回计数准确；销售金额不等于已收款的制度引用与限制说明一致。\"}",
+  "status" : "RESPONDED",
+  "usageComplete" : true,
+  "knowledgeCoverage" : {
+    "performed" : true,
+    "truncated" : false,
+    "expansionTruncated" : false,
+    "steps" : [ {
+      "searchedFragments" : 4,
+      "expansionTruncated" : false,
+      "stepNumber" : 5,
+      "searchedSources" : 4,
+      "matchedSources" : 4,
+      "returnedFragments" : 4,
+      "returnedSources" : 4,
+      "matchedFragments" : 4,
+      "truncated" : false
+    } ]
+  },
+  "reply" : {
+    "approved" : true,
+    "reason" : "核对通过：查询、分组、排名、展开的计数与金额均与来源一致；产品字符串按原值区分（Alpha/alpha / =1+1），取前两名正确；知识检索执行情况、来源/片段单位与返回计数准确；销售金额不等于已收款的制度引用与限制说明一致。"
+  },
+  "model" : "deepseek-v4.1-flash",
+  "usage" : {
+    "inputTokens" : 13197,
+    "outputTokens" : 75,
+    "cachedInputTokens" : 768
+  },
+  "elapsedMs" : 4273
+}, {
+  "source" : "MODEL",
+  "stage" : "PLAN",
+  "at" : "2026-10-12T14:51:47.800521500Z",
+  "schemaHash" : "4753a31b9a5e8135357815aedc0a0ab37a9c362584a4c5c59a4e90c3e6942451",
+  "inputHash" : "282d67f72f6b189038ee25e595ba41e7f044ac27b4276da0905c3abf24901274",
+  "rawJson" : "{\n  \"mode\": \"EXECUTE\",\n  \"objective\": \"在已选 A 公司销售报表授权范围内，检索并引用当前发布制度中关于“销单值/amount”的业务口径原文。\",\n  \"clarification\": null,\n  \"steps\": [\n    {\n      \"action\": \"KNOWLEDGE\",\n      \"source\": null,\n      \"other\": null,\n      \"query\": null,\n      \"analysis\": null,\n      \"rank\": null,\n      \"knowledgeQuestion\": \"销单值的业务口径是什么？请引用当前发布制度原文说明。\"\n    }\n  ]\n}",
+  "status" : "RESPONDED",
+  "usageComplete" : true,
+  "reply" : {
+    "mode" : "EXECUTE",
+    "objective" : "在已选 A 公司销售报表授权范围内，检索并引用当前发布制度中关于“销单值/amount”的业务口径原文。",
+    "clarification" : null,
+    "steps" : [ {
+      "action" : "KNOWLEDGE",
+      "source" : null,
+      "other" : null,
+      "query" : null,
+      "analysis" : null,
+      "rank" : null,
+      "knowledgeQuestion" : "销单值的业务口径是什么？请引用当前发布制度原文说明。"
+    } ]
+  },
+  "model" : "deepseek-v4.1-flash",
+  "usage" : {
+    "inputTokens" : 4250,
+    "outputTokens" : 127,
+    "cachedInputTokens" : 1920
+  },
+  "elapsedMs" : 2379
+}, {
+  "source" : "MODEL",
+  "stage" : "PLAN_REVIEW",
+  "at" : "2026-10-12T14:51:50.207668700Z",
+  "schemaHash" : "45c04bc41a4d7f4e30d82d7c125be115725d60612b96ad0b9eb9115aca079817",
+  "inputHash" : "c57695bc4c4260dc07fbbbae46310afc007a16b79e6a185f947fc351b8c62f71",
+  "rawJson" : "{\"approved\":true,\"reason\":\"问题为纯知识咨询，计划仅执行KNOWLEDGE且在已选A公司销售报表范围内检索，未虚构字段或跨范围引用，符合要求。\"}",
+  "status" : "RESPONDED",
+  "usageComplete" : true,
+  "reply" : {
+    "approved" : true,
+    "reason" : "问题为纯知识咨询，计划仅执行KNOWLEDGE且在已选A公司销售报表范围内检索，未虚构字段或跨范围引用，符合要求。"
+  },
+  "model" : "deepseek-v4.1-flash",
+  "usage" : {
+    "inputTokens" : 3285,
+    "outputTokens" : 42,
+    "cachedInputTokens" : 896
+  },
+  "elapsedMs" : 2157
+}, {
+  "source" : "MODEL",
+  "stage" : "RAG_REWRITE",
+  "at" : "2026-10-12T14:51:52.410673800Z",
+  "schemaHash" : "2d52765ec0760b43e43e3422fa111ab0a265f738d84471ac8c8d8deb61524f7f",
+  "inputHash" : "f06ebce0fade6e50dfd15dc35fad7bc438e27308167aeed40d427843d3052959",
+  "businessQueriesAtCall" : 0,
+  "rawJson" : "{\"topics\":[{\"index\":0,\"queries\":[\"销单值 业务口径\",\"booked value 业务口径\"]}]}",
+  "status" : "RESPONDED",
+  "usageComplete" : true,
+  "reply" : {
+    "topics" : [ {
+      "index" : 0,
+      "queries" : [ "销单值 业务口径", "booked value 业务口径" ]
+    } ]
+  },
+  "model" : "deepseek-v4.1-flash",
+  "usage" : {
+    "inputTokens" : 472,
+    "outputTokens" : 29,
+    "cachedInputTokens" : 128
+  },
+  "elapsedMs" : 1386
+}, {
+  "source" : "MODEL",
+  "stage" : "RAG_RERANK",
+  "at" : "2026-10-12T14:51:53.831940300Z",
+  "schemaHash" : "30d94495badd6fdaf505b76575f6f6a16f4c2ce62799badbd0cd75e4e039e8da",
+  "inputHash" : "149496d655bb5564ca01725ccdfc42bb8ba9d60dce79741e0c801ee6d95f146c",
+  "businessQueriesAtCall" : 0,
+  "rawJson" : "{\"topics\":[{\"index\":0,\"sourceIds\":[\"c0\",\"c2\",\"c1\",\"c3\"]}]}",
+  "status" : "RESPONDED",
+  "usageComplete" : true,
+  "reply" : {
+    "topics" : [ {
+      "index" : 0,
+      "sourceIds" : [ "c0", "c2", "c1", "c3" ]
+    } ]
+  },
+  "model" : "deepseek-v4.1-flash",
+  "usage" : {
+    "inputTokens" : 1805,
+    "outputTokens" : 27,
+    "cachedInputTokens" : 128
+  },
+  "elapsedMs" : 1615
+}, {
+  "source" : "MODEL",
+  "stage" : "ANSWER",
+  "at" : "2026-10-12T14:51:55.507739400Z",
+  "schemaHash" : "c83f770b620ecdf7da1783ed8fc8939d194424bf9290ba181bb13c29de9c3c69",
+  "inputHash" : "f62dba182eaeca115187e3cdeef6e40b7e53d75a91799ee55c9e46bfc1b94758",
+  "rawJson" : "{\"status\":\"ANSWERED\",\"claims\":[{\"text\":\"在A公司的销售报表（rpt-sales-order）业务词典中，amount字段的别名为“销单值”，其含义是报表金额字段，具体业务口径须查阅当前发布制度。\",\"sourceIds\":[\"dictionary-2993f621b7360e5b-p1\"]},{\"text\":\"当前发布的《订单金额定义（合成制度）》规定：amount表示销售单的订单金额，以元计、币种为CNY；不等于已收款，也不能作为已经收款的凭证。该制度自2026-01-01起生效、未标注失效。\",\"sourceIds\":[\"document-0319185626984d588ec3191275beeb1d-v2-p1\"]},{\"text\":\"销售报表的目录与字段定义中，amount为decimal类型的来源金额，币种见currency字段，空值表示未提供。\",\"sourceIds\":[\"catalog-2-p1\"]},{\"text\":\"本次已执行当前授权范围内的知识检索，搜索并命中4份来源、4个片段，命中片段已全部返回。\",\"sourceIds\":[\"knowledge-coverage-1\"]}],\"limitations\":[\"本次知识检索只覆盖当前授权范围内的资料，不能证明授权资料之外不存在其他相关制度或口径。\",\"订单金额定义制度未标注失效时间，无法从该来源判断当前是否仍为最新有效版本。\"]}",
+  "status" : "RESPONDED",
+  "usageComplete" : true,
+  "knowledgeCoverage" : {
+    "performed" : true,
+    "truncated" : false,
+    "expansionTruncated" : false,
+    "steps" : [ {
+      "searchedFragments" : 4,
+      "expansionTruncated" : false,
+      "stepNumber" : 1,
+      "searchedSources" : 4,
+      "matchedSources" : 4,
+      "returnedFragments" : 4,
+      "returnedSources" : 4,
+      "matchedFragments" : 4,
+      "truncated" : false
+    } ]
+  },
+  "reply" : {
+    "status" : "ANSWERED",
+    "claims" : [ {
+      "text" : "在A公司的销售报表（rpt-sales-order）业务词典中，amount字段的别名为“销单值”，其含义是报表金额字段，具体业务口径须查阅当前发布制度。",
+      "sourceIds" : [ "dictionary-2993f621b7360e5b-p1" ]
+    }, {
+      "text" : "当前发布的《订单金额定义（合成制度）》规定：amount表示销售单的订单金额，以元计、币种为CNY；不等于已收款，也不能作为已经收款的凭证。该制度自2026-01-01起生效、未标注失效。",
+      "sourceIds" : [ "document-0319185626984d588ec3191275beeb1d-v2-p1" ]
+    }, {
+      "text" : "销售报表的目录与字段定义中，amount为decimal类型的来源金额，币种见currency字段，空值表示未提供。",
+      "sourceIds" : [ "catalog-2-p1" ]
+    }, {
+      "text" : "本次已执行当前授权范围内的知识检索，搜索并命中4份来源、4个片段，命中片段已全部返回。",
+      "sourceIds" : [ "knowledge-coverage-1" ]
+    } ],
+    "limitations" : [ "本次知识检索只覆盖当前授权范围内的资料，不能证明授权资料之外不存在其他相关制度或口径。", "订单金额定义制度未标注失效时间，无法从该来源判断当前是否仍为最新有效版本。" ]
+  },
+  "model" : "deepseek-v4.1-flash",
+  "usage" : {
+    "inputTokens" : 3265,
+    "outputTokens" : 297,
+    "cachedInputTokens" : 896
+  },
+  "elapsedMs" : 3176
+}, {
+  "source" : "MODEL",
+  "stage" : "ANSWER_REVIEW",
+  "at" : "2026-10-12T14:51:58.716829300Z",
+  "schemaHash" : "45c04bc41a4d7f4e30d82d7c125be115725d60612b96ad0b9eb9115aca079817",
+  "inputHash" : "f809b490f6592d963ff01f40a842074d1874643e417c5ef54933332ed4591afd",
+  "rawJson" : "{\"approved\":true,\"reason\":\"回答与原始证据一致：销单值别名、amount含义及指向当前发布制度的提示均来自业务词典；订单金额定义的元数据与原文一致；目录字段类型正确；知识检索范围说明的4份来源、4个片段及全部返回均与knowledgeCoverage相符，限制说明也如实反映覆盖边界。\"}",
+  "status" : "RESPONDED",
+  "usageComplete" : true,
+  "knowledgeCoverage" : {
+    "performed" : true,
+    "truncated" : false,
+    "expansionTruncated" : false,
+    "steps" : [ {
+      "searchedFragments" : 4,
+      "expansionTruncated" : false,
+      "stepNumber" : 1,
+      "searchedSources" : 4,
+      "matchedSources" : 4,
+      "returnedFragments" : 4,
+      "returnedSources" : 4,
+      "matchedFragments" : 4,
+      "truncated" : false
+    } ]
+  },
+  "reply" : {
+    "approved" : true,
+    "reason" : "回答与原始证据一致：销单值别名、amount含义及指向当前发布制度的提示均来自业务词典；订单金额定义的元数据与原文一致；目录字段类型正确；知识检索范围说明的4份来源、4个片段及全部返回均与knowledgeCoverage相符，限制说明也如实反映覆盖边界。"
+  },
+  "model" : "deepseek-v4.1-flash",
+  "usage" : {
+    "inputTokens" : 3214,
+    "outputTokens" : 76,
+    "cachedInputTokens" : 640
+  },
+  "elapsedMs" : 2366
+}, {
+  "source" : "MODEL",
+  "stage" : "PLAN",
+  "at" : "2026-10-12T14:52:02.289607200Z",
+  "schemaHash" : "4753a31b9a5e8135357815aedc0a0ab37a9c362584a4c5c59a4e90c3e6942451",
+  "inputHash" : "abf220e00e2e7e19071c7457aa04e3359977375f42a644ff92b29efc8fcc4b79",
+  "rawJson" : "{\"mode\":\"EXECUTE\",\"objective\":\"回答记账销售是否能够证明客户资金已经到账：结合销售报表的知识检索结果，说明记账/派单状态与资金到账之间的关系及所需凭证依据。\",\"clarification\":null,\"steps\":[{\"action\":\"KNOWLEDGE\",\"source\":null,\"other\":null,\"query\":null,\"analysis\":null,\"rank\":null,\"knowledgeQuestion\":\"记账销售或已派单是否代表客户资金已经到账？收入确认、派单状态与应收账款资金到账之间的依据和区别是什么？\"}]}",
+  "status" : "RESPONDED",
+  "usageComplete" : true,
+  "reply" : {
+    "mode" : "EXECUTE",
+    "objective" : "回答记账销售是否能够证明客户资金已经到账：结合销售报表的知识检索结果，说明记账/派单状态与资金到账之间的关系及所需凭证依据。",
+    "clarification" : null,
+    "steps" : [ {
+      "action" : "KNOWLEDGE",
+      "source" : null,
+      "other" : null,
+      "query" : null,
+      "analysis" : null,
+      "rank" : null,
+      "knowledgeQuestion" : "记账销售或已派单是否代表客户资金已经到账？收入确认、派单状态与应收账款资金到账之间的依据和区别是什么？"
+    } ]
+  },
+  "model" : "deepseek-v4.1-flash",
+  "usage" : {
+    "inputTokens" : 3088,
+    "outputTokens" : 117,
+    "cachedInputTokens" : 1920
+  },
+  "elapsedMs" : 2412
+}, {
+  "source" : "MODEL",
+  "stage" : "PLAN_REVIEW",
+  "at" : "2026-10-12T14:52:04.733588400Z",
+  "schemaHash" : "45c04bc41a4d7f4e30d82d7c125be115725d60612b96ad0b9eb9115aca079817",
+  "inputHash" : "623bb694f42d762065a80cbbd0dd257dba977f0cab3b21a30b29ced76b63c434",
+  "rawJson" : "{\"approved\":true,\"reason\":\"用户为纯知识问题，询问记账销售是否证明客户资金到账，未要求数值查询。计划在已选公司A、销售报表范围内执行KNOWLEDGE检索，符合知识问题独立检索规则，无跨范围或虚构字段，正确。\"}",
+  "status" : "RESPONDED",
+  "usageComplete" : true,
+  "reply" : {
+    "approved" : true,
+    "reason" : "用户为纯知识问题，询问记账销售是否证明客户资金到账，未要求数值查询。计划在已选公司A、销售报表范围内执行KNOWLEDGE检索，符合知识问题独立检索规则，无跨范围或虚构字段，正确。"
+  },
+  "model" : "deepseek-v4.1-flash",
+  "usage" : {
+    "inputTokens" : 2145,
+    "outputTokens" : 62,
+    "cachedInputTokens" : 896
+  },
+  "elapsedMs" : 2087
+}, {
+  "source" : "MODEL",
+  "stage" : "RAG_REWRITE",
+  "at" : "2026-10-12T14:52:06.857399800Z",
+  "schemaHash" : "2d52765ec0760b43e43e3422fa111ab0a265f738d84471ac8c8d8deb61524f7f",
+  "inputHash" : "0f3ccbee74c7791f6a159e62b95e8d1d6494579aa7308eedf22a01448411235e",
+  "businessQueriesAtCall" : 0,
+  "rawJson" : "{\"topics\":[{\"index\":0,\"queries\":[\"记账销售 派单 客户资金到账 收入确认 应收账款 区别\",\"booked sales customer funds arrived revenue recognition accounts receivable\"]}]}",
+  "status" : "RESPONDED",
+  "usageComplete" : true,
+  "reply" : {
+    "topics" : [ {
+      "index" : 0,
+      "queries" : [ "记账销售 派单 客户资金到账 收入确认 应收账款 区别", "booked sales customer funds arrived revenue recognition accounts receivable" ]
+    } ]
+  },
+  "model" : "deepseek-v4.1-flash",
+  "usage" : {
+    "inputTokens" : 433,
+    "outputTokens" : 44,
+    "cachedInputTokens" : 128
+  },
+  "elapsedMs" : 3135
+}, {
+  "source" : "MODEL",
+  "stage" : "RAG_RERANK",
+  "at" : "2026-10-12T14:52:10.021131700Z",
+  "schemaHash" : "fa04af64bca084ec2f5bbadda1aba47ba26fb68e4a3be0d6c0039acbf56f02c6",
+  "inputHash" : "dd2e1f16eb4cdb342f5aaccc442b013d6c6c42ced214f3956da241186b3f89fc",
+  "businessQueriesAtCall" : 0,
+  "rawJson" : "{\"topics\":[{\"index\":0,\"sourceIds\":[\"c3\",\"c5\",\"c1\",\"c2\",\"c4\",\"c0\",\"c6\",\"c7\"]}]}",
+  "status" : "RESPONDED",
+  "usageComplete" : true,
+  "reply" : {
+    "topics" : [ {
+      "index" : 0,
+      "sourceIds" : [ "c3", "c5", "c1", "c2", "c4", "c0", "c6", "c7" ]
+    } ]
+  },
+  "model" : "deepseek-v4.1-flash",
+  "usage" : {
+    "inputTokens" : 2559,
+    "outputTokens" : 39,
+    "cachedInputTokens" : 128
+  },
+  "elapsedMs" : 2403
+}, {
+  "source" : "MODEL",
+  "stage" : "ANSWER",
+  "at" : "2026-10-12T14:52:12.476386Z",
+  "schemaHash" : "1ec8d774f9271430e763d8df594084c0ba14e593133827c56b795f03e76ec82d",
+  "inputHash" : "e234a1750664d86810c0a9440b8c8c3c92161b56ba3d02c8f4b951ea9930d720",
+  "rawJson" : "{\"status\":\"ANSWERED\",\"claims\":[{\"text\":\"销售金额按订单约定的应收价款登记，它不等于客户已经支付的款项；收款需以到账流水单独证明。\",\"sourceIds\":[\"document-d829a0dba9584a798d0baf45de6d303b-v2-p1\"]},{\"text\":\"只有实际到账记录才能认定已经收款；销售单金额是订单价款，不能代替银行到账记录。\",\"sourceIds\":[\"document-cd7e56f41a4947e495ca5f496d916b4f-v2-p1\"]},{\"text\":\"本次知识检索已执行，命中并返回制度片段用于回答该问题。\",\"sourceIds\":[\"knowledge-coverage-1\"]}],\"limitations\":[\"销售订单是否已实际收款，需要银行到账记录等收款流水才能认定；仅凭销售报表中的已登记订单，不能证明客户资金已经到账。\",\"本次知识检索虽然已执行且返回的片段已全部返回，但这不证明授权资料之外不存在其他制度。\"]}",
+  "status" : "RESPONDED",
+  "usageComplete" : true,
+  "knowledgeCoverage" : {
+    "performed" : true,
+    "truncated" : false,
+    "expansionTruncated" : false,
+    "steps" : [ {
+      "searchedFragments" : 11,
+      "expansionTruncated" : false,
+      "stepNumber" : 1,
+      "searchedSources" : 11,
+      "matchedSources" : 8,
+      "returnedFragments" : 8,
+      "returnedSources" : 8,
+      "matchedFragments" : 8,
+      "truncated" : false
+    } ]
+  },
+  "reply" : {
+    "status" : "ANSWERED",
+    "claims" : [ {
+      "text" : "销售金额按订单约定的应收价款登记，它不等于客户已经支付的款项；收款需以到账流水单独证明。",
+      "sourceIds" : [ "document-d829a0dba9584a798d0baf45de6d303b-v2-p1" ]
+    }, {
+      "text" : "只有实际到账记录才能认定已经收款；销售单金额是订单价款，不能代替银行到账记录。",
+      "sourceIds" : [ "document-cd7e56f41a4947e495ca5f496d916b4f-v2-p1" ]
+    }, {
+      "text" : "本次知识检索已执行，命中并返回制度片段用于回答该问题。",
+      "sourceIds" : [ "knowledge-coverage-1" ]
+    } ],
+    "limitations" : [ "销售订单是否已实际收款，需要银行到账记录等收款流水才能认定；仅凭销售报表中的已登记订单，不能证明客户资金已经到账。", "本次知识检索虽然已执行且返回的片段已全部返回，但这不证明授权资料之外不存在其他制度。" ]
+  },
+  "model" : "deepseek-v4.1-flash",
+  "usage" : {
+    "inputTokens" : 4168,
+    "outputTokens" : 224,
+    "cachedInputTokens" : 896
+  },
+  "elapsedMs" : 4444
+}, {
+  "source" : "MODEL",
+  "stage" : "ANSWER_REVIEW",
+  "at" : "2026-10-12T14:52:16.947737600Z",
+  "schemaHash" : "45c04bc41a4d7f4e30d82d7c125be115725d60612b96ad0b9eb9115aca079817",
+  "inputHash" : "0202c05884f3109226bad6ac3742866bf148a357e6ee026a9a057fa5ce948baf",
+  "rawJson" : "{\"approved\":true,\"reason\":\"答案忠实于来源：两份制度片段均明确销售金额不等于已收款、收款需银行到账记录证明；检索范围说明如实反映已执行检索、返回计数及未覆盖授权外资料的限制，未将未执行说成无命中，来源与片段计数一致。\"}",
+  "status" : "RESPONDED",
+  "usageComplete" : true,
+  "knowledgeCoverage" : {
+    "performed" : true,
+    "truncated" : false,
+    "expansionTruncated" : false,
+    "steps" : [ {
+      "searchedFragments" : 11,
+      "expansionTruncated" : false,
+      "stepNumber" : 1,
+      "searchedSources" : 11,
+      "matchedSources" : 8,
+      "returnedFragments" : 8,
+      "returnedSources" : 8,
+      "matchedFragments" : 8,
+      "truncated" : false
+    } ]
+  },
+  "reply" : {
+    "approved" : true,
+    "reason" : "答案忠实于来源：两份制度片段均明确销售金额不等于已收款、收款需银行到账记录证明；检索范围说明如实反映已执行检索、返回计数及未覆盖授权外资料的限制，未将未执行说成无命中，来源与片段计数一致。"
+  },
+  "model" : "deepseek-v4.1-flash",
+  "usage" : {
+    "inputTokens" : 3937,
+    "outputTokens" : 66,
+    "cachedInputTokens" : 640
+  },
+  "elapsedMs" : 2170
+} ]

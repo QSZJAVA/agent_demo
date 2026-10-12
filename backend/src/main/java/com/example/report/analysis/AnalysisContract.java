@@ -4,12 +4,13 @@ import com.example.report.assistant.*;
 import com.example.report.catalog.query.FieldInfo;
 import com.example.report.common.*;
 import com.example.report.operations.ModelEgressPolicy;
+import com.example.report.investigation.InvestigationJson;
 import com.example.report.workspace.QueryAnalysis;
 import java.util.*;
 
 /** 有限分析图的唯一外部契约；模型只能组合白名单只读操作，不能提供身份、SQL、执行接口或任意引用。 */
 public final class AnalysisContract {
-    public static final int MAX_STEPS=6, MAX_MODEL_CALLS=8, MAX_QUERIES=2;
+    public static final int MAX_STEPS=6, MAX_MODEL_CALLS=10, MAX_QUERIES=2, RUN_SECONDS=240;
     /** 规划与独立复核共用的操作语义；source/other 始终指向步骤，而不是字段或知识来源编号。 */
     static final String OPERATIONS="""
         步骤引用从0开始，必须指向前序步骤。各操作的必填输入如下，其余参数必须显式为null：
@@ -24,6 +25,16 @@ public final class AnalysisContract {
         分组金额统计固定使用amount和currency，按币种分别计算；金额排名由程序根据实际完整结果检查唯一币种，缺值或跨币种时明确失败，不自动换算或忽略。
         """;
     private AnalysisContract() { }
+
+    /**
+     * 生成执行配置使用的Schema摘要；递归消除对象键序差异，避免不同JVM的Map遍历顺序使未变的契约被误判为版本变化。
+     * @param schema 服务器生成的严格JSON Schema文本，不包含用户正文
+     * @return 规范JSON的SHA-256摘要；数组顺序、字段约束和实际取值变化仍会改变摘要
+     */
+    public static String schemaHash(String schema) {
+        try{return InvestigationJson.hash(JsonUtil.strictMapper().readTree(schema));}
+        catch(Exception invalid){throw new IllegalArgumentException("分析Schema无效",invalid);}
+    }
 
     /**
      * 用户明确选定的单一业务范围，不从知识正文扩大范围。

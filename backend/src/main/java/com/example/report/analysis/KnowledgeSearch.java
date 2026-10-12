@@ -62,12 +62,23 @@ public final class KnowledgeSearch {
      * @return 带真实命中解释、来源覆盖和截断标记的候选，不保证语义蕴含或知识完整性
      */
     public static Result search(String question,List<AnalysisEvidence.Source> corpus,SemanticDictionary.Definition dictionary,int limit) {
+        if(limit<1||limit>12)AnalysisContract.fail("知识返回片段预算须为1至12");
+        return retrieve(question,corpus,dictionary,limit);
+    }
+
+    /** 同一授权语料的完整有界匹配列表，供多路融合精确计算ID并集；不把topK数量当成全量覆盖。 */
+    static Result all(String question,List<AnalysisEvidence.Source> corpus,SemanticDictionary.Definition dictionary) {
+        return retrieve(question,corpus,dictionary,MAX_FRAGMENTS);
+    }
+
+    private static Result retrieve(String question,List<AnalysisEvidence.Source> corpus,SemanticDictionary.Definition dictionary,int limit) {
         AnalysisContract.text(question,2000,"知识检索问题");
-        if(corpus==null||dictionary==null||corpus.size()>MAX_FRAGMENTS||limit<1||limit>12)AnalysisContract.fail("知识检索参数或范围预算无效");
+        if(corpus==null||dictionary==null||corpus.size()>MAX_FRAGMENTS)AnalysisContract.fail("知识检索参数或范围预算无效");
         var ids=new HashSet<String>();var origins=new HashSet<String>();var fragments=new ArrayList<Fragment>();
         for(var source:corpus) {
             if(source==null||!"KNOWLEDGE".equals(source.kind())||source.text().length()>2000||!ids.add(source.id()))AnalysisContract.fail("知识片段类型、编号或引用大小无效");
-            origins.add(source.originId());fragments.add(new Fragment(source,normalize(source.title()),normalize(source.text())));
+            // 引用头部中的范围、时间和片段编号不是正文主题；用服务器建立的边界隔离，避免报表代码命中所有资料。
+            origins.add(source.originId());fragments.add(new Fragment(source,normalize(source.title()),normalize(source.text().substring(source.contentOffset()))));
         }
         var query=query(question,dictionary);var allTerms=new LinkedHashSet<>(query.direct());allTerms.addAll(query.expanded());
         var weights=new HashMap<String,Double>();

@@ -9,6 +9,8 @@ export const cancelAnalysis = id => http.post(`/analysis/runs/${encodeURICompone
 export const analysisRows = (id, step, page) => http.get(`/analysis/runs/${encodeURIComponent(id)}/steps/${step}/rows`, { params: { page } })
 export const knowledgeDocuments = (companyCode, reportId) => http.get('/analysis/knowledge', { params: { companyCode, reportId } })
 export const searchKnowledge = request => http.post('/analysis/knowledge/search', request)
+/** 语义试查会执行真实模型改写与相关性重排；仅延长此请求的等待窗口，不自动重试可能已经执行的模型调用。 */
+export const searchKnowledgeSemantic = request => http.post('/analysis/knowledge/search/semantic', request, { timeout: 100000 })
 export const knowledgeHistory = id => http.get(`/analysis/knowledge/${encodeURIComponent(id)}/history`)
 export const saveKnowledge = (id, data) => id ? http.put(`/analysis/knowledge/${encodeURIComponent(id)}`, data) : http.post('/analysis/knowledge', data)
 export const publishKnowledge = (id, data) => http.post(`/analysis/knowledge/${encodeURIComponent(id)}/publish`, data)

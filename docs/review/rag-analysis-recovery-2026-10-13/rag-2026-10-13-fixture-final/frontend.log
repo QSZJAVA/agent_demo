@@ -1,0 +1,82 @@
+TAP version 13
+# Subtest: 保存只包含请求、key、签名和时间，owner 使用摘要且同一会话可恢复原 key
+ok 1 - 保存只包含请求、key、签名和时间，owner 使用摘要且同一会话可恢复原 key
+  ---
+  duration_ms: 5.887
+  type: 'test'
+  ...
+# Subtest: 用户或令牌变化后旧保存器拒绝继续，新保存器不读取旧问题并丢弃旧记录
+ok 2 - 用户或令牌变化后旧保存器拒绝继续，新保存器不读取旧问题并丢弃旧记录
+  ---
+  duration_ms: 1.431
+  type: 'test'
+  ...
+# Subtest: 记录满24小时即丢弃，未来时间与损坏签名也不能恢复或迁移
+ok 3 - 记录满24小时即丢弃，未来时间与损坏签名也不能恢复或迁移
+  ---
+  duration_ms: 2.2812
+  type: 'test'
+  ...
+# Subtest: 当前请求边界接受最长公司报表问题以及合法的小写快照标识
+ok 4 - 当前请求边界接受最长公司报表问题以及合法的小写快照标识
+  ---
+  duration_ms: 0.8524
+  type: 'test'
+  ...
+# Subtest: 损坏存储的范围和标识即使签名重算一致也按当前后端协议拒绝恢复
+ok 5 - 损坏存储的范围和标识即使签名重算一致也按当前后端协议拒绝恢复
+  ---
+  duration_ms: 4.1089
+  type: 'test'
+  ...
+# Subtest: 损坏JSON只清除分析自己的记录，不触碰会话认证或其他页面数据
+ok 6 - 损坏JSON只清除分析自己的记录，不触碰会话认证或其他页面数据
+  ---
+  duration_ms: 0.5224
+  type: 'test'
+  ...
+# Subtest: 核对前再次检查期限，过期记录不能继续使用旧key发起执行
+ok 7 - 核对前再次检查期限，过期记录不能继续使用旧key发起执行
+  ---
+  duration_ms: 0.6516
+  type: 'test'
+  ...
+# Subtest: 旧确认只清理匹配记录，不能删掉同会话的后续提交
+ok 8 - 旧确认只清理匹配记录，不能删掉同会话的后续提交
+  ---
+  duration_ms: 0.8604
+  type: 'test'
+  ...
+# Subtest: 旧登录迟到的确认不能清理新登录刚保存的请求
+ok 9 - 旧登录迟到的确认不能清理新登录刚保存的请求
+  ---
+  duration_ms: 1.0125
+  type: 'test'
+  ...
+# Subtest: 已有未知提交或并发保存不能被新的请求号覆盖
+ok 10 - 已有未知提交或并发保存不能被新的请求号覆盖
+  ---
+  duration_ms: 1.03
+  type: 'test'
+  ...
+# Subtest: 存储和WebCrypto不可用时明确失败，不返回已保存记录
+ok 11 - 存储和WebCrypto不可用时明确失败，不返回已保存记录
+  ---
+  duration_ms: 1.0052
+  type: 'test'
+  ...
+# Subtest: 身份在摘要计算期间改变时，不写入旧登录的请求正文
+ok 12 - 身份在摘要计算期间改变时，不写入旧登录的请求正文
+  ---
+  duration_ms: 0.768
+  type: 'test'
+  ...
+1..12
+# tests 12
+# suites 0
+# pass 12
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 72.1407

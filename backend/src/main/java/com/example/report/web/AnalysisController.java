@@ -11,8 +11,8 @@ import java.util.Map;
 @RestController
 @RequestMapping("/api/analysis")
 public class AnalysisController {
-    private final PermissionService permissions;private final AnalysisService analysis;private final KnowledgeService knowledge;private final ObjectProvider<AnalysisWorker> workers;
-    public AnalysisController(PermissionService permissions,AnalysisService analysis,KnowledgeService knowledge,ObjectProvider<AnalysisWorker> workers){this.permissions=permissions;this.analysis=analysis;this.knowledge=knowledge;this.workers=workers;}
+    private final PermissionService permissions;private final AnalysisService analysis;private final KnowledgeService knowledge;private final KnowledgeRagPreviewService semantic;private final ObjectProvider<AnalysisWorker> workers;
+    public AnalysisController(PermissionService permissions,AnalysisService analysis,KnowledgeService knowledge,KnowledgeRagPreviewService semantic,ObjectProvider<AnalysisWorker> workers){this.permissions=permissions;this.analysis=analysis;this.knowledge=knowledge;this.semantic=semantic;this.workers=workers;}
     @GetMapping("/catalog") public Result<?> catalog(@RequestHeader(PermissionService.USER_HEADER) String user){return Result.ok(knowledge.catalog(permissions.resolve(user)));}
     @GetMapping("/runs") public Result<?> runs(@RequestHeader(PermissionService.USER_HEADER) String user){return Result.ok(analysis.list(permissions.resolve(user)));}
     @PostMapping("/runs") public Result<?> submit(@RequestHeader(PermissionService.USER_HEADER) String user,@RequestHeader("Idempotency-Key") String key,@RequestBody String input){return Result.ok(analysis.submit(permissions.resolve(user),AnalysisContract.decode(input,AnalysisContract.Request.class),key));}
@@ -22,6 +22,8 @@ public class AnalysisController {
     @GetMapping("/knowledge") public Result<?> documents(@RequestHeader(PermissionService.USER_HEADER) String user,@RequestParam String companyCode,@RequestParam String reportId){return Result.ok(knowledge.list(permissions.resolve(user),companyCode,reportId));}
     /** 试查使用当前维护权限和服务端知识快照；严格拒绝客户端伪造的来源、时间、词典与预算。 */
     @PostMapping("/knowledge/search") public Result<?> search(@RequestHeader(PermissionService.USER_HEADER) String user,@RequestBody String input){return Result.ok(knowledge.preview(permissions.resolve(user),AnalysisContract.decode(input,KnowledgeService.SearchRequest.class)));}
+    /** 语义试查是显式付出真实模型调用的只读操作，不能接受客户端来源、授权或旧版本证据。 */
+    @PostMapping("/knowledge/search/semantic") public Result<?> semanticSearch(@RequestHeader(PermissionService.USER_HEADER) String user,@RequestBody String input){return Result.ok(semantic.preview(permissions.resolve(user),AnalysisContract.decode(input,KnowledgeService.SearchRequest.class)));}
     @GetMapping("/knowledge/{id}/history") public Result<?> history(@RequestHeader(PermissionService.USER_HEADER) String user,@PathVariable String id){return Result.ok(knowledge.history(permissions.resolve(user),id));}
     @PostMapping("/knowledge") public Result<?> create(@RequestHeader(PermissionService.USER_HEADER) String user,@RequestBody String input){return Result.ok(knowledge.save(permissions.resolve(user),null,AnalysisContract.decode(input,KnowledgeService.Change.class)));}
     @PutMapping("/knowledge/{id}") public Result<?> update(@RequestHeader(PermissionService.USER_HEADER) String user,@PathVariable String id,@RequestBody String input){return Result.ok(knowledge.save(permissions.resolve(user),id,AnalysisContract.decode(input,KnowledgeService.Change.class)));}

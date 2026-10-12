@@ -1,0 +1,2431 @@
+{
+  "schemaVersion": 1,
+  "recordedAt": "2026-10-12T15:38:35.105Z",
+  "scope": "仅汇总本文件列出的已归档证据；不运行Maven、模型、数据库或浏览器。多轮结果是历史尝试，不是不同用例或最终源码一次通过率。",
+  "accountingRules": [
+    "真实调用唯一来源为各轮model-evidence.json的source=MODEL；rag-observations与transport.json仅用于解释，不重复加总。",
+    "已知token分别求和，未知调用不按0补齐；任何未知存在时完整token总数为null。费用没有可靠单价或完整用量，保持null。",
+    "各轮重复案例保持失败事实；不同代码版本不跨轮合并计算检索质量收益。",
+    "本汇总不包含浏览器、独立小请求传输探针或未列出的后续轮次。"
+  ],
+  "runs": [
+    {
+      "id": "boundaries",
+      "directory": ".runtime/rag-2026-10-12-boundaries",
+      "recordedAt": "2026-10-12T14:05:08.616649600Z",
+      "scope": "中间程序回归，断言误把隐藏范围资源的404期待为403；只修正断言后单项复测通过。此轮过程中源代码发生变化，不作为最终源码一致验收。",
+      "results": {
+        "executed": 43,
+        "passed": 42,
+        "failed": 1
+      },
+      "programCases": {
+        "executed": 43,
+        "passed": 42,
+        "failed": 1
+      },
+      "realModelCases": {
+        "executed": 0,
+        "passed": 0,
+        "failed": 0
+      },
+      "failures": [
+        {
+          "test": "semanticSearchHttpRejectsUnauthenticatedScopeAndUntrustedClientFields()",
+          "classification": "EXPECTED_STATUS_MISMATCH",
+          "runStatus": null,
+          "runReason": null,
+          "errorSha256": "972acf73b58ab9226f1042964e56bb79c10796df63fe15c1963601233e446fd4",
+          "detailsRemainIn": "integration-results.json"
+        }
+      ],
+      "realModelCalls": {
+        "attempts": 0,
+        "responses": 0,
+        "failedCalls": 0,
+        "otherStatuses": 0,
+        "usage": {
+          "complete": false,
+          "measuredCalls": 0,
+          "unknownUsageCalls": 0,
+          "knownInputTokens": 0,
+          "knownOutputTokens": 0,
+          "inputUnknownCalls": 0,
+          "outputUnknownCalls": 0,
+          "fullInputTokens": 0,
+          "fullOutputTokens": 0,
+          "cost": null,
+          "costComplete": false
+        },
+        "latencyMs": {
+          "samples": 0,
+          "missing": 0,
+          "min": null,
+          "p50": null,
+          "p95": null,
+          "p99": null,
+          "max": null,
+          "sum": null
+        },
+        "stages": {}
+      },
+      "testDoubleCalls": {
+        "attempts": 143,
+        "responses": 143,
+        "failedCalls": 0
+      },
+      "databases": [
+        {
+          "evidence": ".runtime/rag-2026-10-12-boundaries/databases-analysis_knowledge_it_510b40215cdb4bcab48c1b1390b202ed.json",
+          "name": "analysis_knowledge_it_510b40215cdb4bcab48c1b1390b202ed",
+          "created": true,
+          "removed": true,
+          "preexistingPreserved": true,
+          "reportDemoPresentBefore": true,
+          "reportDemoPresentAfter": true,
+          "createdAt": "2026-10-12T14:02:48.516267Z",
+          "removedAt": "2026-10-12T14:05:09.125823700Z"
+        }
+      ],
+      "eligibleForRetrievalGain": false
+    },
+    {
+      "id": "boundaries-recheck",
+      "directory": ".runtime/rag-2026-10-12-boundaries-recheck",
+      "recordedAt": "2026-10-12T14:06:40.159980600Z",
+      "scope": "仅重跑跨公司资源隐藏状态码断言；1项通过，不替代整套程序回归。",
+      "results": {
+        "executed": 1,
+        "passed": 1,
+        "failed": 0
+      },
+      "programCases": {
+        "executed": 1,
+        "passed": 1,
+        "failed": 0
+      },
+      "realModelCases": {
+        "executed": 0,
+        "passed": 0,
+        "failed": 0
+      },
+      "failures": [],
+      "realModelCalls": {
+        "attempts": 0,
+        "responses": 0,
+        "failedCalls": 0,
+        "otherStatuses": 0,
+        "usage": {
+          "complete": false,
+          "measuredCalls": 0,
+          "unknownUsageCalls": 0,
+          "knownInputTokens": 0,
+          "knownOutputTokens": 0,
+          "inputUnknownCalls": 0,
+          "outputUnknownCalls": 0,
+          "fullInputTokens": 0,
+          "fullOutputTokens": 0,
+          "cost": null,
+          "costComplete": false
+        },
+        "latencyMs": {
+          "samples": 0,
+          "missing": 0,
+          "min": null,
+          "p50": null,
+          "p95": null,
+          "p99": null,
+          "max": null,
+          "sum": null
+        },
+        "stages": {}
+      },
+      "testDoubleCalls": {
+        "attempts": 0,
+        "responses": 0,
+        "failedCalls": 0
+      },
+      "databases": [
+        {
+          "evidence": ".runtime/rag-2026-10-12-boundaries-recheck/databases-analysis_knowledge_it_1a22bbe36ab4439aa633d157530bed6f.json",
+          "name": "analysis_knowledge_it_1a22bbe36ab4439aa633d157530bed6f",
+          "created": true,
+          "removed": true,
+          "preexistingPreserved": true,
+          "reportDemoPresentBefore": true,
+          "reportDemoPresentAfter": true,
+          "createdAt": "2026-10-12T14:06:32.829946400Z",
+          "removedAt": "2026-10-12T14:06:40.636806400Z"
+        }
+      ],
+      "eligibleForRetrievalGain": false
+    },
+    {
+      "id": "live-01",
+      "directory": ".runtime/rag-2026-10-12-live-01",
+      "recordedAt": "2026-10-12T14:18:35.008570700Z",
+      "scope": "43项程序与15项真实模型案例；跨语言基线被生成元数据sales污染，本轮词法或语义得分不得用于宣称检索收益。另有4次模型调用失败。",
+      "results": {
+        "executed": 58,
+        "passed": 53,
+        "failed": 5
+      },
+      "programCases": {
+        "executed": 43,
+        "passed": 43,
+        "failed": 0
+      },
+      "realModelCases": {
+        "executed": 15,
+        "passed": 10,
+        "failed": 5
+      },
+      "failures": [
+        {
+          "test": "realModelKnowledgeAnswerAndInsufficiencyDoNotReadBusinessRows()",
+          "classification": "MODEL_CALL_FAILURE",
+          "runStatus": "FAILED",
+          "runReason": "HTTP_503",
+          "errorSha256": "87f3ed0217debd434e4b5239e514cd0595b29fc9173d1e535987a0e0b7e09238",
+          "detailsRemainIn": "integration-results.json"
+        },
+        {
+          "test": "realModelConflictingKnowledgeAndInjectedInstructionAreNotAuthority()",
+          "classification": "MODEL_CALL_FAILURE",
+          "runStatus": "FAILED",
+          "runReason": "HTTP_503",
+          "errorSha256": "694e7959ad317b63ee169cf2b2fa112eea0b05789237d21d71bfe47084e6df3a",
+          "detailsRemainIn": "integration-results.json"
+        },
+        {
+          "test": "realModelUnsupportedWriteRequestClarifiesWithoutExecuting()",
+          "classification": "MODEL_CALL_FAILURE",
+          "runStatus": "FAILED",
+          "runReason": "HTTP_503",
+          "errorSha256": "5b426ca05979924fa16e16fd953d0ee2830abf7c933dcdc4bb408cdbd5249de8",
+          "detailsRemainIn": "integration-results.json"
+        },
+        {
+          "test": "realModelRagCrossLanguageHasNoConfiguredAliasOrLexicalHit()",
+          "classification": "CONTAMINATED_LEXICAL_PRECONDITION",
+          "runStatus": null,
+          "runReason": null,
+          "errorSha256": "955d8c3ea0ae282ea176c8e5f8fd5b824c175c34637cd5fc5e3460cd92592d81",
+          "detailsRemainIn": "integration-results.json"
+        },
+        {
+          "test": "realModelRagKeepsOpposingEvidenceAndCitesBothSides()",
+          "classification": "MODEL_CALL_FAILURE",
+          "runStatus": "PARTIAL",
+          "runReason": "HTTP_503",
+          "errorSha256": "219e124d5deec06631bdfb64b36f90a4ec328343bf279362fdb5db5fbb251369",
+          "detailsRemainIn": "integration-results.json"
+        }
+      ],
+      "realModelCalls": {
+        "attempts": 65,
+        "responses": 61,
+        "failedCalls": 4,
+        "otherStatuses": 0,
+        "usage": {
+          "complete": false,
+          "measuredCalls": 61,
+          "unknownUsageCalls": 4,
+          "knownInputTokens": 257032,
+          "knownOutputTokens": 7932,
+          "inputUnknownCalls": 4,
+          "outputUnknownCalls": 4,
+          "fullInputTokens": null,
+          "fullOutputTokens": null,
+          "cost": null,
+          "costComplete": false
+        },
+        "latencyMs": {
+          "samples": 65,
+          "missing": 0,
+          "min": 2138,
+          "p50": 3826,
+          "p95": 6506,
+          "p99": 11534,
+          "max": 11534,
+          "sum": 264378
+        },
+        "stages": {
+          "ANSWER": {
+            "attempts": 11,
+            "responses": 11,
+            "failedCalls": 0,
+            "usage": {
+              "complete": true,
+              "measuredCalls": 11,
+              "unknownUsageCalls": 0,
+              "knownInputTokens": 74682,
+              "knownOutputTokens": 3035,
+              "inputUnknownCalls": 0,
+              "outputUnknownCalls": 0,
+              "fullInputTokens": 74682,
+              "fullOutputTokens": 3035,
+              "cost": null,
+              "costComplete": false
+            },
+            "latencyMs": {
+              "samples": 11,
+              "missing": 0,
+              "min": 3551,
+              "p50": 3835,
+              "p95": 4813,
+              "p99": 4813,
+              "max": 4813,
+              "sum": 45333
+            }
+          },
+          "ANSWER_REVIEW": {
+            "attempts": 11,
+            "responses": 10,
+            "failedCalls": 1,
+            "usage": {
+              "complete": false,
+              "measuredCalls": 10,
+              "unknownUsageCalls": 1,
+              "knownInputTokens": 68340,
+              "knownOutputTokens": 923,
+              "inputUnknownCalls": 1,
+              "outputUnknownCalls": 1,
+              "fullInputTokens": null,
+              "fullOutputTokens": null,
+              "cost": null,
+              "costComplete": false
+            },
+            "latencyMs": {
+              "samples": 11,
+              "missing": 0,
+              "min": 2802,
+              "p50": 3566,
+              "p95": 11534,
+              "p99": 11534,
+              "max": 11534,
+              "sum": 50845
+            }
+          },
+          "PLAN": {
+            "attempts": 14,
+            "responses": 13,
+            "failedCalls": 1,
+            "usage": {
+              "complete": false,
+              "measuredCalls": 13,
+              "unknownUsageCalls": 1,
+              "knownInputTokens": 49789,
+              "knownOutputTokens": 2530,
+              "inputUnknownCalls": 1,
+              "outputUnknownCalls": 1,
+              "fullInputTokens": null,
+              "fullOutputTokens": null,
+              "cost": null,
+              "costComplete": false
+            },
+            "latencyMs": {
+              "samples": 14,
+              "missing": 0,
+              "min": 2963,
+              "p50": 4356,
+              "p95": 6830,
+              "p99": 6830,
+              "max": 6830,
+              "sum": 64449
+            }
+          },
+          "PLAN_REVIEW": {
+            "attempts": 13,
+            "responses": 12,
+            "failedCalls": 1,
+            "usage": {
+              "complete": false,
+              "measuredCalls": 12,
+              "unknownUsageCalls": 1,
+              "knownInputTokens": 35510,
+              "knownOutputTokens": 784,
+              "inputUnknownCalls": 1,
+              "outputUnknownCalls": 1,
+              "fullInputTokens": null,
+              "fullOutputTokens": null,
+              "cost": null,
+              "costComplete": false
+            },
+            "latencyMs": {
+              "samples": 13,
+              "missing": 0,
+              "min": 2354,
+              "p50": 4198,
+              "p95": 6109,
+              "p99": 6109,
+              "max": 6109,
+              "sum": 53084
+            }
+          },
+          "RAG_RERANK": {
+            "attempts": 7,
+            "responses": 7,
+            "failedCalls": 0,
+            "usage": {
+              "complete": true,
+              "measuredCalls": 7,
+              "unknownUsageCalls": 0,
+              "knownInputTokens": 25158,
+              "knownOutputTokens": 312,
+              "inputUnknownCalls": 0,
+              "outputUnknownCalls": 0,
+              "fullInputTokens": 25158,
+              "fullOutputTokens": 312,
+              "cost": null,
+              "costComplete": false
+            },
+            "latencyMs": {
+              "samples": 7,
+              "missing": 0,
+              "min": 2138,
+              "p50": 2623,
+              "p95": 4060,
+              "p99": 4060,
+              "max": 4060,
+              "sum": 21390
+            }
+          },
+          "RAG_REWRITE": {
+            "attempts": 9,
+            "responses": 8,
+            "failedCalls": 1,
+            "usage": {
+              "complete": false,
+              "measuredCalls": 8,
+              "unknownUsageCalls": 1,
+              "knownInputTokens": 3553,
+              "knownOutputTokens": 348,
+              "inputUnknownCalls": 1,
+              "outputUnknownCalls": 1,
+              "fullInputTokens": null,
+              "fullOutputTokens": null,
+              "cost": null,
+              "costComplete": false
+            },
+            "latencyMs": {
+              "samples": 9,
+              "missing": 0,
+              "min": 2292,
+              "p50": 3195,
+              "p95": 4744,
+              "p99": 4744,
+              "max": 4744,
+              "sum": 29277
+            }
+          }
+        }
+      },
+      "testDoubleCalls": {
+        "attempts": 143,
+        "responses": 143,
+        "failedCalls": 0
+      },
+      "databases": [
+        {
+          "evidence": ".runtime/rag-2026-10-12-live-01/databases-analysis_knowledge_it_d87cfdd6887a4a0f985fbbcde6f193ec.json",
+          "name": "analysis_knowledge_it_d87cfdd6887a4a0f985fbbcde6f193ec",
+          "created": true,
+          "removed": true,
+          "preexistingPreserved": true,
+          "reportDemoPresentBefore": true,
+          "reportDemoPresentAfter": true,
+          "createdAt": "2026-10-12T14:11:32.165164600Z",
+          "removedAt": "2026-10-12T14:18:35.745234800Z"
+        }
+      ],
+      "eligibleForRetrievalGain": false,
+      "excludedQualityReason": "生成元数据造成词法基线污染；不从该轮计算收益或汇总到最终质量。"
+    },
+    {
+      "id": "live-02",
+      "directory": ".runtime/rag-2026-10-12-live-02",
+      "recordedAt": "2026-10-12T14:38:46.836082400Z",
+      "scope": "15项真实模型案例；5次HTTP 400和1次非JSON响应失败，不能根据状态断言根因已经查清。",
+      "results": {
+        "executed": 15,
+        "passed": 9,
+        "failed": 6
+      },
+      "programCases": {
+        "executed": 0,
+        "passed": 0,
+        "failed": 0
+      },
+      "realModelCases": {
+        "executed": 15,
+        "passed": 9,
+        "failed": 6
+      },
+      "failures": [
+        {
+          "test": "realModelBoundedAnalysisUsesActualHttpFactsAndCitations()",
+          "classification": "MODEL_CALL_FAILURE",
+          "runStatus": "FAILED",
+          "runReason": "HTTP_503",
+          "errorSha256": "0b920b43f98f71426558ade1efc8a507717196364f377351a7c77111c03911be",
+          "detailsRemainIn": "integration-results.json"
+        },
+        {
+          "test": "realModelPreservesIntervalNegationAndGroupDrill()",
+          "classification": "MODEL_CALL_FAILURE",
+          "runStatus": "FAILED",
+          "runReason": "HTTP_503",
+          "errorSha256": "ba5790680fa14c9f773e8d25d6fe022c5657c8fcf565fa38f99347d2424b9deb",
+          "detailsRemainIn": "integration-results.json"
+        },
+        {
+          "test": "realModelReusesSelectedSnapshotWithoutReadingNewFacts()",
+          "classification": "MODEL_CALL_FAILURE",
+          "runStatus": "PARTIAL",
+          "runReason": "HTTP_503",
+          "errorSha256": "6161b1e2788823ca2451c1a2dcb5769ef70100b2c51eb01ea90c52e21cd6641b",
+          "detailsRemainIn": "integration-results.json"
+        },
+        {
+          "test": "realModelComparesPeriodsAsDifferentSetsWithExactDelta()",
+          "classification": "MODEL_CALL_FAILURE",
+          "runStatus": "FAILED",
+          "runReason": "HTTP_503",
+          "errorSha256": "0ce4dc9b3a7df383d906871c1896e6ca7bce439e8732ab5ca6b291be91c07add",
+          "detailsRemainIn": "integration-results.json"
+        },
+        {
+          "test": "realModelAnswersAConfiguredAliasWithPublishedEvidence()",
+          "classification": "MODEL_CALL_FAILURE",
+          "runStatus": "FAILED",
+          "runReason": "HTTP_503",
+          "errorSha256": "711b6f6c3534fd299f28dba81eb213abddc153c4fc5a31474dd0b855299ee97c",
+          "detailsRemainIn": "integration-results.json"
+        },
+        {
+          "test": "realModelRagCrossLanguageHasNoConfiguredAliasOrLexicalHit()",
+          "classification": "MODEL_CALL_FAILURE",
+          "runStatus": "FAILED",
+          "runReason": "HTTP_503",
+          "errorSha256": "7a1d4caf994c637106f7a65089f812ef6ea04d8efa74fac7bca8a889a959ceba",
+          "detailsRemainIn": "integration-results.json"
+        }
+      ],
+      "realModelCalls": {
+        "attempts": 68,
+        "responses": 62,
+        "failedCalls": 6,
+        "otherStatuses": 0,
+        "usage": {
+          "complete": false,
+          "measuredCalls": 62,
+          "unknownUsageCalls": 6,
+          "knownInputTokens": 178449,
+          "knownOutputTokens": 7256,
+          "inputUnknownCalls": 6,
+          "outputUnknownCalls": 6,
+          "fullInputTokens": null,
+          "fullOutputTokens": null,
+          "cost": null,
+          "costComplete": false
+        },
+        "latencyMs": {
+          "samples": 68,
+          "missing": 0,
+          "min": 2014,
+          "p50": 3520,
+          "p95": 6501,
+          "p99": 18490,
+          "max": 18490,
+          "sum": 280718
+        },
+        "stages": {
+          "ANSWER": {
+            "attempts": 10,
+            "responses": 9,
+            "failedCalls": 1,
+            "usage": {
+              "complete": false,
+              "measuredCalls": 9,
+              "unknownUsageCalls": 1,
+              "knownInputTokens": 31572,
+              "knownOutputTokens": 2456,
+              "inputUnknownCalls": 1,
+              "outputUnknownCalls": 1,
+              "fullInputTokens": null,
+              "fullOutputTokens": null,
+              "cost": null,
+              "costComplete": false
+            },
+            "latencyMs": {
+              "samples": 10,
+              "missing": 0,
+              "min": 3303,
+              "p50": 4766,
+              "p95": 6857,
+              "p99": 6857,
+              "max": 6857,
+              "sum": 47136
+            }
+          },
+          "ANSWER_REVIEW": {
+            "attempts": 9,
+            "responses": 9,
+            "failedCalls": 0,
+            "usage": {
+              "complete": true,
+              "measuredCalls": 9,
+              "unknownUsageCalls": 0,
+              "knownInputTokens": 30379,
+              "knownOutputTokens": 745,
+              "inputUnknownCalls": 0,
+              "outputUnknownCalls": 0,
+              "fullInputTokens": 30379,
+              "fullOutputTokens": 745,
+              "cost": null,
+              "costComplete": false
+            },
+            "latencyMs": {
+              "samples": 9,
+              "missing": 0,
+              "min": 2552,
+              "p50": 3109,
+              "p95": 6319,
+              "p99": 6319,
+              "max": 6319,
+              "sum": 31528
+            }
+          },
+          "PLAN": {
+            "attempts": 17,
+            "responses": 16,
+            "failedCalls": 1,
+            "usage": {
+              "complete": false,
+              "measuredCalls": 16,
+              "unknownUsageCalls": 1,
+              "knownInputTokens": 59664,
+              "knownOutputTokens": 2701,
+              "inputUnknownCalls": 1,
+              "outputUnknownCalls": 1,
+              "fullInputTokens": null,
+              "fullOutputTokens": null,
+              "cost": null,
+              "costComplete": false
+            },
+            "latencyMs": {
+              "samples": 17,
+              "missing": 0,
+              "min": 2793,
+              "p50": 4885,
+              "p95": 6501,
+              "p99": 6501,
+              "max": 6501,
+              "sum": 78284
+            }
+          },
+          "PLAN_REVIEW": {
+            "attempts": 15,
+            "responses": 11,
+            "failedCalls": 4,
+            "usage": {
+              "complete": false,
+              "measuredCalls": 11,
+              "unknownUsageCalls": 4,
+              "knownInputTokens": 30048,
+              "knownOutputTokens": 714,
+              "inputUnknownCalls": 4,
+              "outputUnknownCalls": 4,
+              "fullInputTokens": null,
+              "fullOutputTokens": null,
+              "cost": null,
+              "costComplete": false
+            },
+            "latencyMs": {
+              "samples": 15,
+              "missing": 0,
+              "min": 2421,
+              "p50": 3568,
+              "p95": 18490,
+              "p99": 18490,
+              "max": 18490,
+              "sum": 74998
+            }
+          },
+          "RAG_RERANK": {
+            "attempts": 8,
+            "responses": 8,
+            "failedCalls": 0,
+            "usage": {
+              "complete": true,
+              "measuredCalls": 8,
+              "unknownUsageCalls": 0,
+              "knownInputTokens": 22893,
+              "knownOutputTokens": 288,
+              "inputUnknownCalls": 0,
+              "outputUnknownCalls": 0,
+              "fullInputTokens": 22893,
+              "fullOutputTokens": 288,
+              "cost": null,
+              "costComplete": false
+            },
+            "latencyMs": {
+              "samples": 8,
+              "missing": 0,
+              "min": 2277,
+              "p50": 2460,
+              "p95": 4683,
+              "p99": 4683,
+              "max": 4683,
+              "sum": 23376
+            }
+          },
+          "RAG_REWRITE": {
+            "attempts": 9,
+            "responses": 9,
+            "failedCalls": 0,
+            "usage": {
+              "complete": true,
+              "measuredCalls": 9,
+              "unknownUsageCalls": 0,
+              "knownInputTokens": 3893,
+              "knownOutputTokens": 352,
+              "inputUnknownCalls": 0,
+              "outputUnknownCalls": 0,
+              "fullInputTokens": 3893,
+              "fullOutputTokens": 352,
+              "cost": null,
+              "costComplete": false
+            },
+            "latencyMs": {
+              "samples": 9,
+              "missing": 0,
+              "min": 2014,
+              "p50": 2670,
+              "p95": 4557,
+              "p99": 4557,
+              "max": 4557,
+              "sum": 25396
+            }
+          }
+        }
+      },
+      "testDoubleCalls": {
+        "attempts": 0,
+        "responses": 0,
+        "failedCalls": 0
+      },
+      "databases": [
+        {
+          "evidence": ".runtime/rag-2026-10-12-live-02/databases-analysis_knowledge_it_d8b5ebdc7909453b88a602fe877fc1f7.json",
+          "name": "analysis_knowledge_it_d8b5ebdc7909453b88a602fe877fc1f7",
+          "created": true,
+          "removed": true,
+          "preexistingPreserved": true,
+          "reportDemoPresentBefore": true,
+          "reportDemoPresentAfter": true,
+          "createdAt": "2026-10-12T14:33:40.303642800Z",
+          "removedAt": "2026-10-12T14:38:47.520547500Z"
+        }
+      ],
+      "eligibleForRetrievalGain": false,
+      "observedFailures": {
+        "http400": 5,
+        "nonJson": 1,
+        "http200ForNonJson": {
+          "value": true,
+          "evidence": ".runtime/rag-2026-10-12-progress.md",
+          "note": "模型账本仅记录非JSON分类；HTTP 200结论来自该轮诊断记录，不从RESPONDED推断。"
+        }
+      }
+    },
+    {
+      "id": "transport-diagnostic",
+      "directory": ".runtime/rag-2026-10-12-transport-diagnostic",
+      "recordedAt": "2026-10-12T14:52:19.266810900Z",
+      "scope": "3项真实模型失败场景通过临时原样转发诊断代理重测，加2项提交响应丢失程序夹具；代理记录不重复计入模型调用，不能宣称已修复之前HTTP 400。",
+      "results": {
+        "executed": 5,
+        "passed": 5,
+        "failed": 0
+      },
+      "programCases": {
+        "executed": 2,
+        "passed": 2,
+        "failed": 0
+      },
+      "realModelCases": {
+        "executed": 3,
+        "passed": 3,
+        "failed": 0
+      },
+      "failures": [],
+      "realModelCalls": {
+        "attempts": 18,
+        "responses": 18,
+        "failedCalls": 0,
+        "otherStatuses": 0,
+        "usage": {
+          "complete": true,
+          "measuredCalls": 18,
+          "unknownUsageCalls": 0,
+          "knownInputTokens": 68989,
+          "knownOutputTokens": 2164,
+          "inputUnknownCalls": 0,
+          "outputUnknownCalls": 0,
+          "fullInputTokens": 68989,
+          "fullOutputTokens": 2164,
+          "cost": null,
+          "costComplete": false
+        },
+        "latencyMs": {
+          "samples": 18,
+          "missing": 0,
+          "min": 1386,
+          "p50": 2366,
+          "p95": 4599,
+          "p99": 4599,
+          "max": 4599,
+          "sum": 48360
+        },
+        "stages": {
+          "ANSWER": {
+            "attempts": 3,
+            "responses": 3,
+            "failedCalls": 0,
+            "usage": {
+              "complete": true,
+              "measuredCalls": 3,
+              "unknownUsageCalls": 0,
+              "knownInputTokens": 20703,
+              "knownOutputTokens": 928,
+              "inputUnknownCalls": 0,
+              "outputUnknownCalls": 0,
+              "fullInputTokens": 20703,
+              "fullOutputTokens": 928,
+              "cost": null,
+              "costComplete": false
+            },
+            "latencyMs": {
+              "samples": 3,
+              "missing": 0,
+              "min": 3176,
+              "p50": 4243,
+              "p95": 4444,
+              "p99": 4444,
+              "max": 4444,
+              "sum": 11863
+            }
+          },
+          "ANSWER_REVIEW": {
+            "attempts": 3,
+            "responses": 3,
+            "failedCalls": 0,
+            "usage": {
+              "complete": true,
+              "measuredCalls": 3,
+              "unknownUsageCalls": 0,
+              "knownInputTokens": 20348,
+              "knownOutputTokens": 217,
+              "inputUnknownCalls": 0,
+              "outputUnknownCalls": 0,
+              "fullInputTokens": 20348,
+              "fullOutputTokens": 217,
+              "cost": null,
+              "costComplete": false
+            },
+            "latencyMs": {
+              "samples": 3,
+              "missing": 0,
+              "min": 2170,
+              "p50": 2366,
+              "p95": 4273,
+              "p99": 4273,
+              "max": 4273,
+              "sum": 8809
+            }
+          },
+          "PLAN": {
+            "attempts": 3,
+            "responses": 3,
+            "failedCalls": 0,
+            "usage": {
+              "complete": true,
+              "measuredCalls": 3,
+              "unknownUsageCalls": 0,
+              "knownInputTokens": 11489,
+              "knownOutputTokens": 613,
+              "inputUnknownCalls": 0,
+              "outputUnknownCalls": 0,
+              "fullInputTokens": 11489,
+              "fullOutputTokens": 613,
+              "cost": null,
+              "costComplete": false
+            },
+            "latencyMs": {
+              "samples": 3,
+              "missing": 0,
+              "min": 2379,
+              "p50": 2412,
+              "p95": 4599,
+              "p99": 4599,
+              "max": 4599,
+              "sum": 9390
+            }
+          },
+          "PLAN_REVIEW": {
+            "attempts": 3,
+            "responses": 3,
+            "failedCalls": 0,
+            "usage": {
+              "complete": true,
+              "measuredCalls": 3,
+              "unknownUsageCalls": 0,
+              "knownInputTokens": 8935,
+              "knownOutputTokens": 199,
+              "inputUnknownCalls": 0,
+              "outputUnknownCalls": 0,
+              "fullInputTokens": 8935,
+              "fullOutputTokens": 199,
+              "cost": null,
+              "costComplete": false
+            },
+            "latencyMs": {
+              "samples": 3,
+              "missing": 0,
+              "min": 2051,
+              "p50": 2087,
+              "p95": 2157,
+              "p99": 2157,
+              "max": 2157,
+              "sum": 6295
+            }
+          },
+          "RAG_RERANK": {
+            "attempts": 3,
+            "responses": 3,
+            "failedCalls": 0,
+            "usage": {
+              "complete": true,
+              "measuredCalls": 3,
+              "unknownUsageCalls": 0,
+              "knownInputTokens": 6155,
+              "knownOutputTokens": 93,
+              "inputUnknownCalls": 0,
+              "outputUnknownCalls": 0,
+              "fullInputTokens": 6155,
+              "fullOutputTokens": 93,
+              "cost": null,
+              "costComplete": false
+            },
+            "latencyMs": {
+              "samples": 3,
+              "missing": 0,
+              "min": 1615,
+              "p50": 1684,
+              "p95": 2403,
+              "p99": 2403,
+              "max": 2403,
+              "sum": 5702
+            }
+          },
+          "RAG_REWRITE": {
+            "attempts": 3,
+            "responses": 3,
+            "failedCalls": 0,
+            "usage": {
+              "complete": true,
+              "measuredCalls": 3,
+              "unknownUsageCalls": 0,
+              "knownInputTokens": 1359,
+              "knownOutputTokens": 114,
+              "inputUnknownCalls": 0,
+              "outputUnknownCalls": 0,
+              "fullInputTokens": 1359,
+              "fullOutputTokens": 114,
+              "cost": null,
+              "costComplete": false
+            },
+            "latencyMs": {
+              "samples": 3,
+              "missing": 0,
+              "min": 1386,
+              "p50": 1780,
+              "p95": 3135,
+              "p99": 3135,
+              "max": 3135,
+              "sum": 6301
+            }
+          }
+        }
+      },
+      "testDoubleCalls": {
+        "attempts": 4,
+        "responses": 4,
+        "failedCalls": 0
+      },
+      "databases": [
+        {
+          "evidence": ".runtime/rag-2026-10-12-transport-diagnostic/databases-analysis_knowledge_it_d14b9c92339641298563227684fedcef.json",
+          "name": "analysis_knowledge_it_d14b9c92339641298563227684fedcef",
+          "created": true,
+          "removed": true,
+          "preexistingPreserved": true,
+          "reportDemoPresentBefore": true,
+          "reportDemoPresentAfter": true,
+          "createdAt": "2026-10-12T14:51:17.936079900Z",
+          "removedAt": "2026-10-12T14:52:19.724501300Z"
+        }
+      ],
+      "eligibleForRetrievalGain": false,
+      "proxyWire": {
+        "observedRequests": 18,
+        "httpStatusCounts": {
+          "200": 18
+        },
+        "jsonResponses": 18,
+        "latencyMs": {
+          "samples": 18,
+          "missing": 0,
+          "min": 1375,
+          "p50": 2354,
+          "p95": 4531,
+          "p99": 4531,
+          "max": 4531,
+          "sum": 48057
+        },
+        "additionalModelCalls": 0
+      }
+    },
+    {
+      "id": "live-03",
+      "directory": ".runtime/rag-2026-10-12-live-03",
+      "recordedAt": "2026-10-12T15:34:12.651391700Z",
+      "scope": "45项程序与15项真实模型案例；相反依据案例在改写阶段返回3条queries，被当前最多2条契约拒绝。旧semantic-rag-1轮次证据；后续协议修正不能将该失败改写为通过。",
+      "results": {
+        "executed": 60,
+        "passed": 59,
+        "failed": 1
+      },
+      "programCases": {
+        "executed": 45,
+        "passed": 45,
+        "failed": 0
+      },
+      "realModelCases": {
+        "executed": 15,
+        "passed": 14,
+        "failed": 1
+      },
+      "failures": [
+        {
+          "test": "realModelRagKeepsOpposingEvidenceAndCitesBothSides()",
+          "classification": "MODEL_REWRITE_CONTRACT_REJECTED",
+          "runStatus": "FAILED",
+          "runReason": "HTTP_422",
+          "errorSha256": "f55abb06b354bfb0813abf671afc962a59f164d1782fb06e5fce83bd1de69808",
+          "detailsRemainIn": "integration-results.json"
+        }
+      ],
+      "realModelCalls": {
+        "attempts": 83,
+        "responses": 83,
+        "failedCalls": 0,
+        "otherStatuses": 0,
+        "usage": {
+          "complete": true,
+          "measuredCalls": 83,
+          "unknownUsageCalls": 0,
+          "knownInputTokens": 296033,
+          "knownOutputTokens": 10134,
+          "inputUnknownCalls": 0,
+          "outputUnknownCalls": 0,
+          "fullInputTokens": 296033,
+          "fullOutputTokens": 10134,
+          "cost": null,
+          "costComplete": false
+        },
+        "latencyMs": {
+          "samples": 83,
+          "missing": 0,
+          "min": 2545,
+          "p50": 3672,
+          "p95": 5183,
+          "p99": 8103,
+          "max": 8103,
+          "sum": 322895
+        },
+        "stages": {
+          "ANSWER": {
+            "attempts": 14,
+            "responses": 14,
+            "failedCalls": 0,
+            "usage": {
+              "complete": true,
+              "measuredCalls": 14,
+              "unknownUsageCalls": 0,
+              "knownInputTokens": 78892,
+              "knownOutputTokens": 4399,
+              "inputUnknownCalls": 0,
+              "outputUnknownCalls": 0,
+              "fullInputTokens": 78892,
+              "fullOutputTokens": 4399,
+              "cost": null,
+              "costComplete": false
+            },
+            "latencyMs": {
+              "samples": 14,
+              "missing": 0,
+              "min": 3311,
+              "p50": 4839,
+              "p95": 8103,
+              "p99": 8103,
+              "max": 8103,
+              "sum": 70541
+            }
+          },
+          "ANSWER_REVIEW": {
+            "attempts": 14,
+            "responses": 14,
+            "failedCalls": 0,
+            "usage": {
+              "complete": true,
+              "measuredCalls": 14,
+              "unknownUsageCalls": 0,
+              "knownInputTokens": 77894,
+              "knownOutputTokens": 1250,
+              "inputUnknownCalls": 0,
+              "outputUnknownCalls": 0,
+              "fullInputTokens": 77894,
+              "fullOutputTokens": 1250,
+              "cost": null,
+              "costComplete": false
+            },
+            "latencyMs": {
+              "samples": 14,
+              "missing": 0,
+              "min": 3266,
+              "p50": 3916,
+              "p95": 4833,
+              "p99": 4833,
+              "max": 4833,
+              "sum": 54592
+            }
+          },
+          "PLAN": {
+            "attempts": 17,
+            "responses": 17,
+            "failedCalls": 0,
+            "usage": {
+              "complete": true,
+              "measuredCalls": 17,
+              "unknownUsageCalls": 0,
+              "knownInputTokens": 63250,
+              "knownOutputTokens": 2657,
+              "inputUnknownCalls": 0,
+              "outputUnknownCalls": 0,
+              "fullInputTokens": 63250,
+              "fullOutputTokens": 2657,
+              "cost": null,
+              "costComplete": false
+            },
+            "latencyMs": {
+              "samples": 17,
+              "missing": 0,
+              "min": 2911,
+              "p50": 3644,
+              "p95": 5183,
+              "p99": 5183,
+              "max": 5183,
+              "sum": 65199
+            }
+          },
+          "PLAN_REVIEW": {
+            "attempts": 16,
+            "responses": 16,
+            "failedCalls": 0,
+            "usage": {
+              "complete": true,
+              "measuredCalls": 16,
+              "unknownUsageCalls": 0,
+              "knownInputTokens": 45268,
+              "knownOutputTokens": 1024,
+              "inputUnknownCalls": 0,
+              "outputUnknownCalls": 0,
+              "fullInputTokens": 45268,
+              "fullOutputTokens": 1024,
+              "cost": null,
+              "costComplete": false
+            },
+            "latencyMs": {
+              "samples": 16,
+              "missing": 0,
+              "min": 3020,
+              "p50": 3968,
+              "p95": 4908,
+              "p99": 4908,
+              "max": 4908,
+              "sum": 63847
+            }
+          },
+          "RAG_RERANK": {
+            "attempts": 10,
+            "responses": 10,
+            "failedCalls": 0,
+            "usage": {
+              "complete": true,
+              "measuredCalls": 10,
+              "unknownUsageCalls": 0,
+              "knownInputTokens": 25477,
+              "knownOutputTokens": 330,
+              "inputUnknownCalls": 0,
+              "outputUnknownCalls": 0,
+              "fullInputTokens": 25477,
+              "fullOutputTokens": 330,
+              "cost": null,
+              "costComplete": false
+            },
+            "latencyMs": {
+              "samples": 10,
+              "missing": 0,
+              "min": 2925,
+              "p50": 3052,
+              "p95": 4105,
+              "p99": 4105,
+              "max": 4105,
+              "sum": 31966
+            }
+          },
+          "RAG_REWRITE": {
+            "attempts": 12,
+            "responses": 12,
+            "failedCalls": 0,
+            "usage": {
+              "complete": true,
+              "measuredCalls": 12,
+              "unknownUsageCalls": 0,
+              "knownInputTokens": 5252,
+              "knownOutputTokens": 474,
+              "inputUnknownCalls": 0,
+              "outputUnknownCalls": 0,
+              "fullInputTokens": 5252,
+              "fullOutputTokens": 474,
+              "cost": null,
+              "costComplete": false
+            },
+            "latencyMs": {
+              "samples": 12,
+              "missing": 0,
+              "min": 2545,
+              "p50": 2881,
+              "p95": 3880,
+              "p99": 3880,
+              "max": 3880,
+              "sum": 36750
+            }
+          }
+        }
+      },
+      "testDoubleCalls": {
+        "attempts": 147,
+        "responses": 147,
+        "failedCalls": 0
+      },
+      "databases": [
+        {
+          "evidence": ".runtime/rag-2026-10-12-live-03/databases-analysis_knowledge_it_cec712b0997542838f67f8031a6ea7a1.json",
+          "name": "analysis_knowledge_it_cec712b0997542838f67f8031a6ea7a1",
+          "created": true,
+          "removed": true,
+          "preexistingPreserved": true,
+          "reportDemoPresentBefore": true,
+          "reportDemoPresentAfter": true,
+          "createdAt": "2026-10-12T15:26:07.765113600Z",
+          "removedAt": "2026-10-12T15:34:13.308364600Z"
+        }
+      ],
+      "eligibleForRetrievalGain": true
+    }
+  ],
+  "aggregate": {
+    "caseAttempts": {
+      "executed": 182,
+      "passed": 169,
+      "failed": 13
+    },
+    "programCaseAttempts": {
+      "executed": 134,
+      "passed": 133,
+      "failed": 1
+    },
+    "realModelCaseAttempts": {
+      "executed": 48,
+      "passed": 36,
+      "failed": 12
+    },
+    "realModelCalls": {
+      "attempts": 234,
+      "responses": 224,
+      "failedCalls": 10,
+      "otherStatuses": 0,
+      "usage": {
+        "complete": false,
+        "measuredCalls": 224,
+        "unknownUsageCalls": 10,
+        "knownInputTokens": 800503,
+        "knownOutputTokens": 27486,
+        "inputUnknownCalls": 10,
+        "outputUnknownCalls": 10,
+        "fullInputTokens": null,
+        "fullOutputTokens": null,
+        "cost": null,
+        "costComplete": false
+      },
+      "latencyMs": {
+        "samples": 234,
+        "missing": 0,
+        "min": 1386,
+        "p50": 3669,
+        "p95": 6109,
+        "p99": 8103,
+        "max": 18490,
+        "sum": 916351
+      },
+      "stages": {
+        "ANSWER": {
+          "attempts": 38,
+          "responses": 37,
+          "failedCalls": 1,
+          "usage": {
+            "complete": false,
+            "measuredCalls": 37,
+            "unknownUsageCalls": 1,
+            "knownInputTokens": 205849,
+            "knownOutputTokens": 10818,
+            "inputUnknownCalls": 1,
+            "outputUnknownCalls": 1,
+            "fullInputTokens": null,
+            "fullOutputTokens": null,
+            "cost": null,
+            "costComplete": false
+          },
+          "latencyMs": {
+            "samples": 38,
+            "missing": 0,
+            "min": 3176,
+            "p50": 4470,
+            "p95": 6857,
+            "p99": 8103,
+            "max": 8103,
+            "sum": 174873
+          }
+        },
+        "ANSWER_REVIEW": {
+          "attempts": 37,
+          "responses": 36,
+          "failedCalls": 1,
+          "usage": {
+            "complete": false,
+            "measuredCalls": 36,
+            "unknownUsageCalls": 1,
+            "knownInputTokens": 196961,
+            "knownOutputTokens": 3135,
+            "inputUnknownCalls": 1,
+            "outputUnknownCalls": 1,
+            "fullInputTokens": null,
+            "fullOutputTokens": null,
+            "cost": null,
+            "costComplete": false
+          },
+          "latencyMs": {
+            "samples": 37,
+            "missing": 0,
+            "min": 2170,
+            "p50": 3566,
+            "p95": 6635,
+            "p99": 11534,
+            "max": 11534,
+            "sum": 145774
+          }
+        },
+        "PLAN": {
+          "attempts": 51,
+          "responses": 49,
+          "failedCalls": 2,
+          "usage": {
+            "complete": false,
+            "measuredCalls": 49,
+            "unknownUsageCalls": 2,
+            "knownInputTokens": 184192,
+            "knownOutputTokens": 8501,
+            "inputUnknownCalls": 2,
+            "outputUnknownCalls": 2,
+            "fullInputTokens": null,
+            "fullOutputTokens": null,
+            "cost": null,
+            "costComplete": false
+          },
+          "latencyMs": {
+            "samples": 51,
+            "missing": 0,
+            "min": 2379,
+            "p50": 4293,
+            "p95": 6501,
+            "p99": 6830,
+            "max": 6830,
+            "sum": 217322
+          }
+        },
+        "PLAN_REVIEW": {
+          "attempts": 47,
+          "responses": 42,
+          "failedCalls": 5,
+          "usage": {
+            "complete": false,
+            "measuredCalls": 42,
+            "unknownUsageCalls": 5,
+            "knownInputTokens": 119761,
+            "knownOutputTokens": 2721,
+            "inputUnknownCalls": 5,
+            "outputUnknownCalls": 5,
+            "fullInputTokens": null,
+            "fullOutputTokens": null,
+            "cost": null,
+            "costComplete": false
+          },
+          "latencyMs": {
+            "samples": 47,
+            "missing": 0,
+            "min": 2051,
+            "p50": 3700,
+            "p95": 6109,
+            "p99": 18490,
+            "max": 18490,
+            "sum": 198224
+          }
+        },
+        "RAG_RERANK": {
+          "attempts": 28,
+          "responses": 28,
+          "failedCalls": 0,
+          "usage": {
+            "complete": true,
+            "measuredCalls": 28,
+            "unknownUsageCalls": 0,
+            "knownInputTokens": 79683,
+            "knownOutputTokens": 1023,
+            "inputUnknownCalls": 0,
+            "outputUnknownCalls": 0,
+            "fullInputTokens": 79683,
+            "fullOutputTokens": 1023,
+            "cost": null,
+            "costComplete": false
+          },
+          "latencyMs": {
+            "samples": 28,
+            "missing": 0,
+            "min": 1615,
+            "p50": 2945,
+            "p95": 4105,
+            "p99": 4683,
+            "max": 4683,
+            "sum": 82434
+          }
+        },
+        "RAG_REWRITE": {
+          "attempts": 33,
+          "responses": 32,
+          "failedCalls": 1,
+          "usage": {
+            "complete": false,
+            "measuredCalls": 32,
+            "unknownUsageCalls": 1,
+            "knownInputTokens": 14057,
+            "knownOutputTokens": 1288,
+            "inputUnknownCalls": 1,
+            "outputUnknownCalls": 1,
+            "fullInputTokens": null,
+            "fullOutputTokens": null,
+            "cost": null,
+            "costComplete": false
+          },
+          "latencyMs": {
+            "samples": 33,
+            "missing": 0,
+            "min": 1386,
+            "p50": 2832,
+            "p95": 4557,
+            "p99": 4744,
+            "max": 4744,
+            "sum": 97724
+          }
+        }
+      }
+    },
+    "nativeTransportRealModelCalls": {
+      "attempts": 216,
+      "responses": 206,
+      "failedCalls": 10,
+      "otherStatuses": 0,
+      "usage": {
+        "complete": false,
+        "measuredCalls": 206,
+        "unknownUsageCalls": 10,
+        "knownInputTokens": 731514,
+        "knownOutputTokens": 25322,
+        "inputUnknownCalls": 10,
+        "outputUnknownCalls": 10,
+        "fullInputTokens": null,
+        "fullOutputTokens": null,
+        "cost": null,
+        "costComplete": false
+      },
+      "latencyMs": {
+        "samples": 216,
+        "missing": 0,
+        "min": 2014,
+        "p50": 3744,
+        "p95": 6319,
+        "p99": 8103,
+        "max": 18490,
+        "sum": 867991
+      },
+      "stages": {
+        "ANSWER": {
+          "attempts": 35,
+          "responses": 34,
+          "failedCalls": 1,
+          "usage": {
+            "complete": false,
+            "measuredCalls": 34,
+            "unknownUsageCalls": 1,
+            "knownInputTokens": 185146,
+            "knownOutputTokens": 9890,
+            "inputUnknownCalls": 1,
+            "outputUnknownCalls": 1,
+            "fullInputTokens": null,
+            "fullOutputTokens": null,
+            "cost": null,
+            "costComplete": false
+          },
+          "latencyMs": {
+            "samples": 35,
+            "missing": 0,
+            "min": 3303,
+            "p50": 4710,
+            "p95": 6857,
+            "p99": 8103,
+            "max": 8103,
+            "sum": 163010
+          }
+        },
+        "ANSWER_REVIEW": {
+          "attempts": 34,
+          "responses": 33,
+          "failedCalls": 1,
+          "usage": {
+            "complete": false,
+            "measuredCalls": 33,
+            "unknownUsageCalls": 1,
+            "knownInputTokens": 176613,
+            "knownOutputTokens": 2918,
+            "inputUnknownCalls": 1,
+            "outputUnknownCalls": 1,
+            "fullInputTokens": null,
+            "fullOutputTokens": null,
+            "cost": null,
+            "costComplete": false
+          },
+          "latencyMs": {
+            "samples": 34,
+            "missing": 0,
+            "min": 2552,
+            "p50": 3566,
+            "p95": 6635,
+            "p99": 11534,
+            "max": 11534,
+            "sum": 136965
+          }
+        },
+        "PLAN": {
+          "attempts": 48,
+          "responses": 46,
+          "failedCalls": 2,
+          "usage": {
+            "complete": false,
+            "measuredCalls": 46,
+            "unknownUsageCalls": 2,
+            "knownInputTokens": 172703,
+            "knownOutputTokens": 7888,
+            "inputUnknownCalls": 2,
+            "outputUnknownCalls": 2,
+            "fullInputTokens": null,
+            "fullOutputTokens": null,
+            "cost": null,
+            "costComplete": false
+          },
+          "latencyMs": {
+            "samples": 48,
+            "missing": 0,
+            "min": 2793,
+            "p50": 4293,
+            "p95": 6501,
+            "p99": 6830,
+            "max": 6830,
+            "sum": 207932
+          }
+        },
+        "PLAN_REVIEW": {
+          "attempts": 44,
+          "responses": 39,
+          "failedCalls": 5,
+          "usage": {
+            "complete": false,
+            "measuredCalls": 39,
+            "unknownUsageCalls": 5,
+            "knownInputTokens": 110826,
+            "knownOutputTokens": 2522,
+            "inputUnknownCalls": 5,
+            "outputUnknownCalls": 5,
+            "fullInputTokens": null,
+            "fullOutputTokens": null,
+            "cost": null,
+            "costComplete": false
+          },
+          "latencyMs": {
+            "samples": 44,
+            "missing": 0,
+            "min": 2354,
+            "p50": 3968,
+            "p95": 6109,
+            "p99": 18490,
+            "max": 18490,
+            "sum": 191929
+          }
+        },
+        "RAG_RERANK": {
+          "attempts": 25,
+          "responses": 25,
+          "failedCalls": 0,
+          "usage": {
+            "complete": true,
+            "measuredCalls": 25,
+            "unknownUsageCalls": 0,
+            "knownInputTokens": 73528,
+            "knownOutputTokens": 930,
+            "inputUnknownCalls": 0,
+            "outputUnknownCalls": 0,
+            "fullInputTokens": 73528,
+            "fullOutputTokens": 930,
+            "cost": null,
+            "costComplete": false
+          },
+          "latencyMs": {
+            "samples": 25,
+            "missing": 0,
+            "min": 2138,
+            "p50": 3011,
+            "p95": 4105,
+            "p99": 4683,
+            "max": 4683,
+            "sum": 76732
+          }
+        },
+        "RAG_REWRITE": {
+          "attempts": 30,
+          "responses": 29,
+          "failedCalls": 1,
+          "usage": {
+            "complete": false,
+            "measuredCalls": 29,
+            "unknownUsageCalls": 1,
+            "knownInputTokens": 12698,
+            "knownOutputTokens": 1174,
+            "inputUnknownCalls": 1,
+            "outputUnknownCalls": 1,
+            "fullInputTokens": null,
+            "fullOutputTokens": null,
+            "cost": null,
+            "costComplete": false
+          },
+          "latencyMs": {
+            "samples": 30,
+            "missing": 0,
+            "min": 2014,
+            "p50": 2832,
+            "p95": 4557,
+            "p99": 4744,
+            "max": 4744,
+            "sum": 91423
+          }
+        }
+      }
+    },
+    "diagnosticProxyRealModelCalls": {
+      "attempts": 18,
+      "responses": 18,
+      "failedCalls": 0,
+      "otherStatuses": 0,
+      "usage": {
+        "complete": true,
+        "measuredCalls": 18,
+        "unknownUsageCalls": 0,
+        "knownInputTokens": 68989,
+        "knownOutputTokens": 2164,
+        "inputUnknownCalls": 0,
+        "outputUnknownCalls": 0,
+        "fullInputTokens": 68989,
+        "fullOutputTokens": 2164,
+        "cost": null,
+        "costComplete": false
+      },
+      "latencyMs": {
+        "samples": 18,
+        "missing": 0,
+        "min": 1386,
+        "p50": 2366,
+        "p95": 4599,
+        "p99": 4599,
+        "max": 4599,
+        "sum": 48360
+      },
+      "stages": {
+        "ANSWER": {
+          "attempts": 3,
+          "responses": 3,
+          "failedCalls": 0,
+          "usage": {
+            "complete": true,
+            "measuredCalls": 3,
+            "unknownUsageCalls": 0,
+            "knownInputTokens": 20703,
+            "knownOutputTokens": 928,
+            "inputUnknownCalls": 0,
+            "outputUnknownCalls": 0,
+            "fullInputTokens": 20703,
+            "fullOutputTokens": 928,
+            "cost": null,
+            "costComplete": false
+          },
+          "latencyMs": {
+            "samples": 3,
+            "missing": 0,
+            "min": 3176,
+            "p50": 4243,
+            "p95": 4444,
+            "p99": 4444,
+            "max": 4444,
+            "sum": 11863
+          }
+        },
+        "ANSWER_REVIEW": {
+          "attempts": 3,
+          "responses": 3,
+          "failedCalls": 0,
+          "usage": {
+            "complete": true,
+            "measuredCalls": 3,
+            "unknownUsageCalls": 0,
+            "knownInputTokens": 20348,
+            "knownOutputTokens": 217,
+            "inputUnknownCalls": 0,
+            "outputUnknownCalls": 0,
+            "fullInputTokens": 20348,
+            "fullOutputTokens": 217,
+            "cost": null,
+            "costComplete": false
+          },
+          "latencyMs": {
+            "samples": 3,
+            "missing": 0,
+            "min": 2170,
+            "p50": 2366,
+            "p95": 4273,
+            "p99": 4273,
+            "max": 4273,
+            "sum": 8809
+          }
+        },
+        "PLAN": {
+          "attempts": 3,
+          "responses": 3,
+          "failedCalls": 0,
+          "usage": {
+            "complete": true,
+            "measuredCalls": 3,
+            "unknownUsageCalls": 0,
+            "knownInputTokens": 11489,
+            "knownOutputTokens": 613,
+            "inputUnknownCalls": 0,
+            "outputUnknownCalls": 0,
+            "fullInputTokens": 11489,
+            "fullOutputTokens": 613,
+            "cost": null,
+            "costComplete": false
+          },
+          "latencyMs": {
+            "samples": 3,
+            "missing": 0,
+            "min": 2379,
+            "p50": 2412,
+            "p95": 4599,
+            "p99": 4599,
+            "max": 4599,
+            "sum": 9390
+          }
+        },
+        "PLAN_REVIEW": {
+          "attempts": 3,
+          "responses": 3,
+          "failedCalls": 0,
+          "usage": {
+            "complete": true,
+            "measuredCalls": 3,
+            "unknownUsageCalls": 0,
+            "knownInputTokens": 8935,
+            "knownOutputTokens": 199,
+            "inputUnknownCalls": 0,
+            "outputUnknownCalls": 0,
+            "fullInputTokens": 8935,
+            "fullOutputTokens": 199,
+            "cost": null,
+            "costComplete": false
+          },
+          "latencyMs": {
+            "samples": 3,
+            "missing": 0,
+            "min": 2051,
+            "p50": 2087,
+            "p95": 2157,
+            "p99": 2157,
+            "max": 2157,
+            "sum": 6295
+          }
+        },
+        "RAG_RERANK": {
+          "attempts": 3,
+          "responses": 3,
+          "failedCalls": 0,
+          "usage": {
+            "complete": true,
+            "measuredCalls": 3,
+            "unknownUsageCalls": 0,
+            "knownInputTokens": 6155,
+            "knownOutputTokens": 93,
+            "inputUnknownCalls": 0,
+            "outputUnknownCalls": 0,
+            "fullInputTokens": 6155,
+            "fullOutputTokens": 93,
+            "cost": null,
+            "costComplete": false
+          },
+          "latencyMs": {
+            "samples": 3,
+            "missing": 0,
+            "min": 1615,
+            "p50": 1684,
+            "p95": 2403,
+            "p99": 2403,
+            "max": 2403,
+            "sum": 5702
+          }
+        },
+        "RAG_REWRITE": {
+          "attempts": 3,
+          "responses": 3,
+          "failedCalls": 0,
+          "usage": {
+            "complete": true,
+            "measuredCalls": 3,
+            "unknownUsageCalls": 0,
+            "knownInputTokens": 1359,
+            "knownOutputTokens": 114,
+            "inputUnknownCalls": 0,
+            "outputUnknownCalls": 0,
+            "fullInputTokens": 1359,
+            "fullOutputTokens": 114,
+            "cost": null,
+            "costComplete": false
+          },
+          "latencyMs": {
+            "samples": 3,
+            "missing": 0,
+            "min": 1386,
+            "p50": 1780,
+            "p95": 3135,
+            "p99": 3135,
+            "max": 3135,
+            "sum": 6301
+          }
+        }
+      }
+    },
+    "testDoubleCalls": 437,
+    "databases": {
+      "created": 6,
+      "removed": 6,
+      "allPreexistingPreserved": true,
+      "allReportDemoPreserved": true
+    }
+  },
+  "regression": {
+    "evidence": ".runtime/rag-2026-10-12-regression/test-summary.json",
+    "declaredTests": 1303,
+    "executedTests": 1211,
+    "passed": 1211,
+    "skipped": 92,
+    "failures": 0,
+    "errors": 0,
+    "exitCode": 0,
+    "modules": [
+      {
+        "module": "backend",
+        "suites": 106,
+        "declaredTests": 1162,
+        "executedTests": 1154,
+        "passed": 1154,
+        "skipped": 8,
+        "failures": 0,
+        "errors": 0
+      },
+      {
+        "module": "business-service",
+        "suites": 9,
+        "declaredTests": 141,
+        "executedTests": 57,
+        "passed": 57,
+        "skipped": 84,
+        "failures": 0,
+        "errors": 0
+      }
+    ],
+    "nodeToolBatches": [
+      {
+        "batch": 1,
+        "tests": 4,
+        "passed": 4,
+        "failed": 0,
+        "cancelled": 0,
+        "skipped": 0,
+        "todo": 0,
+        "durationMs": 1128.9518
+      },
+      {
+        "batch": 2,
+        "tests": 12,
+        "passed": 12,
+        "failed": 0,
+        "cancelled": 0,
+        "skipped": 0,
+        "todo": 0,
+        "durationMs": 71.3601
+      },
+      {
+        "batch": 3,
+        "tests": 5,
+        "passed": 5,
+        "failed": 0,
+        "cancelled": 0,
+        "skipped": 0,
+        "todo": 0,
+        "durationMs": 59.4305
+      },
+      {
+        "batch": 4,
+        "tests": 16,
+        "passed": 16,
+        "failed": 0,
+        "cancelled": 0,
+        "skipped": 0,
+        "todo": 0,
+        "durationMs": 61.8591
+      }
+    ],
+    "nodeToolTests": 37,
+    "nodeToolPassed": 37,
+    "nodeToolFailed": 0,
+    "scope": "Java静态/程序/数据库及HTTP MCP回归按原测试记录；跳过的真实模型与浏览器测试不计已执行。工具Node批次与Java统计单列。",
+    "sourceManifestEvidence": ".runtime/rag-2026-10-12-regression/source-manifest.json"
+  },
+  "frontend": {
+    "directory": ".runtime/rag-2026-10-12-frontend-final",
+    "tests": 272,
+    "passed": 272,
+    "failed": 0,
+    "skipped": 0,
+    "cancelled": 0,
+    "durationMs": 2879.9339,
+    "build": {
+      "succeeded": true,
+      "durationMs": 2220,
+      "largeChunkWarning": true
+    },
+    "scope": "前端逻辑测试与生产构建；不是浏览器端到端验收。"
+  },
+  "live03Quality": {
+    "evidence": ".runtime/rag-2026-10-12-live-03/rag-evaluation.json",
+    "corpusSha256": "343d023eb915fa38836fdeee430d8c3a207c80bf7c0366777cc9184934c9df4a",
+    "scorerSha256": "cd9228f708b1b2267dd5c12648988b1b8fb4c50e9b4a9e214d49f6b498125a01",
+    "topK": 12,
+    "summary": {
+      "expectedCases": 5,
+      "observedCases": 5,
+      "attempts": 5,
+      "passed": 4,
+      "failed": 1,
+      "firstPass": 4,
+      "firstPassRate": 0.8,
+      "realModelCases": 4,
+      "lexical": {
+        "recallAt12": 0.75,
+        "meanReciprocalRankAt12": 0.625,
+        "opposingRecallAt12": 1,
+        "noMatchAccuracy": 1
+      },
+      "semantic": {
+        "recallAt12": 0.75,
+        "meanReciprocalRankAt12": 0.75,
+        "opposingRecallAt12": 0,
+        "noMatchAccuracy": 1
+      },
+      "latencyMs": {
+        "samples": 5,
+        "p50": 22256,
+        "p95": 23011,
+        "p99": 23011
+      },
+      "modelCalls": 26,
+      "testDoubleCalls": 0,
+      "stages": {
+        "ANSWER": {
+          "calls": 4,
+          "failures": 0,
+          "latencyMs": {
+            "samples": 4,
+            "p50": 4725,
+            "p95": 6740,
+            "p99": 6740
+          }
+        },
+        "ANSWER_REVIEW": {
+          "calls": 4,
+          "failures": 0,
+          "latencyMs": {
+            "samples": 4,
+            "p50": 3671,
+            "p95": 4111,
+            "p99": 4111
+          }
+        },
+        "PLAN": {
+          "calls": 5,
+          "failures": 0,
+          "latencyMs": {
+            "samples": 5,
+            "p50": 3591,
+            "p95": 3971,
+            "p99": 3971
+          }
+        },
+        "PLAN_REVIEW": {
+          "calls": 5,
+          "failures": 0,
+          "latencyMs": {
+            "samples": 5,
+            "p50": 4055,
+            "p95": 4209,
+            "p99": 4209
+          }
+        },
+        "RAG_RERANK": {
+          "calls": 3,
+          "failures": 0,
+          "latencyMs": {
+            "samples": 3,
+            "p50": 3011,
+            "p95": 3259,
+            "p99": 3259
+          }
+        },
+        "RAG_REWRITE": {
+          "calls": 5,
+          "failures": 0,
+          "latencyMs": {
+            "samples": 5,
+            "p50": 2832,
+            "p95": 2939,
+            "p99": 2939
+          }
+        }
+      },
+      "usage": {
+        "complete": true,
+        "measuredCalls": 26,
+        "totalCalls": 26,
+        "inputTokens": 55657,
+        "outputTokens": 2524,
+        "cost": null,
+        "costComplete": false
+      }
+    },
+    "cases": [
+      {
+        "caseId": "cross-language-no-alias",
+        "firstPass": true,
+        "passed": true,
+        "realModelVerified": true,
+        "repaired": false,
+        "lexical": {
+          "available": true,
+          "retrievedFragments": 1,
+          "retrievedSources": 1,
+          "recallAt12": 0,
+          "firstRelevantRank": null,
+          "reciprocalRank": 0,
+          "opposingRecallAt12": null,
+          "noMatchCorrect": null,
+          "relevantRetrieved": [],
+          "opposingRetrieved": []
+        },
+        "semantic": {
+          "available": true,
+          "retrievedFragments": 7,
+          "retrievedSources": 7,
+          "recallAt12": 1,
+          "firstRelevantRank": 1,
+          "reciprocalRank": 1,
+          "opposingRecallAt12": null,
+          "noMatchCorrect": null,
+          "relevantRetrieved": [
+            "sales-basis",
+            "cash-receipt"
+          ],
+          "opposingRetrieved": []
+        },
+        "answer": {
+          "statusCorrect": true,
+          "citationCoverageCorrect": true,
+          "scope": "仅核对最终状态与实际引用覆盖；业务结论仍须审阅"
+        },
+        "durationMs": 22256,
+        "scoringErrorCodes": []
+      },
+      {
+        "caseId": "negation-and-exception",
+        "firstPass": true,
+        "passed": true,
+        "realModelVerified": true,
+        "repaired": false,
+        "lexical": {
+          "available": true,
+          "retrievedFragments": 2,
+          "retrievedSources": 2,
+          "recallAt12": 1,
+          "firstRelevantRank": 1,
+          "reciprocalRank": 1,
+          "opposingRecallAt12": null,
+          "noMatchCorrect": null,
+          "relevantRetrieved": [
+            "lodging-exception"
+          ],
+          "opposingRetrieved": []
+        },
+        "semantic": {
+          "available": true,
+          "retrievedFragments": 2,
+          "retrievedSources": 2,
+          "recallAt12": 1,
+          "firstRelevantRank": 1,
+          "reciprocalRank": 1,
+          "opposingRecallAt12": null,
+          "noMatchCorrect": null,
+          "relevantRetrieved": [
+            "lodging-exception"
+          ],
+          "opposingRetrieved": []
+        },
+        "answer": {
+          "statusCorrect": true,
+          "citationCoverageCorrect": true,
+          "scope": "仅核对最终状态与实际引用覆盖；业务结论仍须审阅"
+        },
+        "durationMs": 23011,
+        "scoringErrorCodes": []
+      },
+      {
+        "caseId": "similar-concept-distinction",
+        "firstPass": true,
+        "passed": true,
+        "realModelVerified": true,
+        "repaired": false,
+        "lexical": {
+          "available": true,
+          "retrievedFragments": 2,
+          "retrievedSources": 2,
+          "recallAt12": 1,
+          "firstRelevantRank": 1,
+          "reciprocalRank": 1,
+          "opposingRecallAt12": null,
+          "noMatchCorrect": null,
+          "relevantRetrieved": [
+            "invoice-recognition"
+          ],
+          "opposingRetrieved": []
+        },
+        "semantic": {
+          "available": true,
+          "retrievedFragments": 4,
+          "retrievedSources": 4,
+          "recallAt12": 1,
+          "firstRelevantRank": 1,
+          "reciprocalRank": 1,
+          "opposingRecallAt12": null,
+          "noMatchCorrect": null,
+          "relevantRetrieved": [
+            "invoice-recognition"
+          ],
+          "opposingRetrieved": []
+        },
+        "answer": {
+          "statusCorrect": true,
+          "citationCoverageCorrect": true,
+          "scope": "仅核对最终状态与实际引用覆盖；业务结论仍须审阅"
+        },
+        "durationMs": 22610,
+        "scoringErrorCodes": []
+      },
+      {
+        "caseId": "opposing-tax-policy",
+        "firstPass": false,
+        "passed": false,
+        "realModelVerified": false,
+        "repaired": false,
+        "lexical": {
+          "available": true,
+          "retrievedFragments": 11,
+          "retrievedSources": 11,
+          "recallAt12": 1,
+          "firstRelevantRank": 2,
+          "reciprocalRank": 0.5,
+          "opposingRecallAt12": 1,
+          "noMatchCorrect": null,
+          "relevantRetrieved": [
+            "tax-inclusive",
+            "tax-exclusive"
+          ],
+          "opposingRetrieved": [
+            "tax-exclusive"
+          ]
+        },
+        "semantic": {
+          "available": false,
+          "retrievedFragments": 0,
+          "retrievedSources": 0,
+          "recallAt12": 0,
+          "firstRelevantRank": null,
+          "reciprocalRank": 0,
+          "opposingRecallAt12": 0,
+          "noMatchCorrect": null,
+          "relevantRetrieved": [],
+          "opposingRetrieved": []
+        },
+        "answer": {
+          "statusCorrect": false,
+          "citationCoverageCorrect": false,
+          "scope": "仅核对最终状态与实际引用覆盖；业务结论仍须审阅"
+        },
+        "durationMs": 10330,
+        "scoringErrorCodes": [
+          "SEMANTIC_RESULT_MISSING_OR_FAILED",
+          "RELEVANT_SOURCE_MISSING",
+          "OPPOSING_SOURCE_MISSING",
+          "ANSWER_STATUS_MISMATCH",
+          "EXPECTED_CITATION_MISSING",
+          "REAL_MODEL_EVIDENCE_INCOMPLETE"
+        ]
+      },
+      {
+        "caseId": "unrelated-no-match",
+        "firstPass": true,
+        "passed": true,
+        "realModelVerified": true,
+        "repaired": false,
+        "lexical": {
+          "available": true,
+          "retrievedFragments": 0,
+          "retrievedSources": 0,
+          "recallAt12": null,
+          "firstRelevantRank": null,
+          "reciprocalRank": null,
+          "opposingRecallAt12": null,
+          "noMatchCorrect": true,
+          "relevantRetrieved": [],
+          "opposingRetrieved": []
+        },
+        "semantic": {
+          "available": true,
+          "retrievedFragments": 0,
+          "retrievedSources": 0,
+          "recallAt12": null,
+          "firstRelevantRank": null,
+          "reciprocalRank": null,
+          "opposingRecallAt12": null,
+          "noMatchCorrect": true,
+          "relevantRetrieved": [],
+          "opposingRetrieved": []
+        },
+        "answer": {
+          "statusCorrect": true,
+          "citationCoverageCorrect": true,
+          "scope": "仅核对最终状态与实际引用覆盖；业务结论仍须审阅"
+        },
+        "durationMs": 17637,
+        "scoringErrorCodes": []
+      }
+    ],
+    "unavailableSemanticCase": {
+      "caseId": "opposing-tax-policy",
+      "stage": "RAG_REWRITE",
+      "observedQueries": 3,
+      "permittedQueries": 2,
+      "rerankingExecuted": false,
+      "answerExecuted": false,
+      "reason": "模型返回3条改写，程序按2条契约拒绝；语义结果未产生。"
+    },
+    "interpretation": [
+      "工程编写的8份独立来源、5个合成案例金标；非业务盲测、非生产接入验收。",
+      "RESPONDED仅说明获得模型响应，不代表模型契约或回答语义通过。",
+      "评分器把未产出的语义结果按全案例分母计0且available=false；相反依据0分不能描述成已执行重排丢失依据。",
+      "该轮跨语言例相关来源词法Recall@12=0、语义Recall@12=1；词法返回1份无关来源，不能表述为词法零返回。",
+      "5例评分调用为整个live-03模型账本的子集，不能再加入调用总数。"
+    ]
+  },
+  "artifactHashes": [
+    {
+      "path": ".runtime/rag-2026-10-12-boundaries/integration-results.json",
+      "sha256": "46c54630c700e736e9e1111412f81a4135189bbe55ae4ae5cd0d49ca7d76c43f",
+      "bytes": 5499
+    },
+    {
+      "path": ".runtime/rag-2026-10-12-boundaries/model-evidence.json",
+      "sha256": "f6b7598e22cbdf8244baa936af2f6b7f57def0404f281ede79b20e238b594e9e",
+      "bytes": 156248
+    },
+    {
+      "path": ".runtime/rag-2026-10-12-boundaries/databases-analysis_knowledge_it_510b40215cdb4bcab48c1b1390b202ed.json",
+      "sha256": "6e629a527040f16aa45684a4ce0c18647a840e05d641b2af932893bc5f10f2f7",
+      "bytes": 747
+    },
+    {
+      "path": ".runtime/rag-2026-10-12-boundaries-recheck/integration-results.json",
+      "sha256": "96999034d2acdb4c556e8be089e814cc31a62d0f2a896a9ea84e77a6a1db35e8",
+      "bytes": 283
+    },
+    {
+      "path": ".runtime/rag-2026-10-12-boundaries-recheck/model-evidence.json",
+      "sha256": "5984eac0c5c6d947241e29dd5671b81a1546cedf77e08d38438ac47029969afa",
+      "bytes": 3
+    },
+    {
+      "path": ".runtime/rag-2026-10-12-boundaries-recheck/databases-analysis_knowledge_it_1a22bbe36ab4439aa633d157530bed6f.json",
+      "sha256": "1311361d4bcb0d397b4dd0e2df77cf96b39945fee5e3b417286f0b0ec6d9bef6",
+      "bytes": 750
+    },
+    {
+      "path": ".runtime/rag-2026-10-12-live-01/integration-results.json",
+      "sha256": "ee79d8ef20582ae27578773e9ec0b8402b9e6606c276ea7a918a854783bb9def",
+      "bytes": 37076
+    },
+    {
+      "path": ".runtime/rag-2026-10-12-live-01/model-evidence.json",
+      "sha256": "e48364350a13216414e4637f10b4853ea897dbb3d1219240bab9ebe7e6e657af",
+      "bytes": 264373
+    },
+    {
+      "path": ".runtime/rag-2026-10-12-live-01/databases-analysis_knowledge_it_d87cfdd6887a4a0f985fbbcde6f193ec.json",
+      "sha256": "9a9b7191ddca7a33bffee05d4ba6c70509fcd3dff88e059419a4f03f9a031e7a",
+      "bytes": 750
+    },
+    {
+      "path": ".runtime/rag-2026-10-12-live-02/integration-results.json",
+      "sha256": "06c96809c60aa1b5d5d8c9596b439b96d458cc9ba62542dee54b2ba4bf1ff188",
+      "bytes": 50912
+    },
+    {
+      "path": ".runtime/rag-2026-10-12-live-02/model-evidence.json",
+      "sha256": "0aba617f0f3f4ab1c239794db412700050cb43342a15beaaa76388145236929b",
+      "bytes": 107952
+    },
+    {
+      "path": ".runtime/rag-2026-10-12-live-02/databases-analysis_knowledge_it_d8b5ebdc7909453b88a602fe877fc1f7.json",
+      "sha256": "a1963c8ee3a2f6136955b715e212aa6adf1d7c8cdc0d50489992a921c4e83ebf",
+      "bytes": 750
+    },
+    {
+      "path": ".runtime/rag-2026-10-12-transport-diagnostic/integration-results.json",
+      "sha256": "35f9e533a98b40e5d328070592fee4af09603f4c676ce8be0f9cc63804da3d04",
+      "bytes": 791
+    },
+    {
+      "path": ".runtime/rag-2026-10-12-transport-diagnostic/model-evidence.json",
+      "sha256": "d0c0bf03ba1cc0ffed7bbc52af4426a1cdecd8d0e88e8d0f354999a5062db91d",
+      "bytes": 36605
+    },
+    {
+      "path": ".runtime/rag-2026-10-12-transport-diagnostic/databases-analysis_knowledge_it_d14b9c92339641298563227684fedcef.json",
+      "sha256": "0931ef487d9460c1b43c95ea45a1a18f2d9644191df1660ef7a325baa85f6d82",
+      "bytes": 750
+    },
+    {
+      "path": ".runtime/rag-2026-10-12-transport-diagnostic/transport.json",
+      "sha256": "b7a4eae40807c9a74cded635eaaed429cce61b1746d5143ea41b49714cd374dc",
+      "bytes": 10767
+    },
+    {
+      "path": ".runtime/rag-2026-10-12-live-03/integration-results.json",
+      "sha256": "0dea24064bd3a7ccaf8235410c5ee901f6083f122dcc3ce7df12deb61a33a278",
+      "bytes": 9264
+    },
+    {
+      "path": ".runtime/rag-2026-10-12-live-03/model-evidence.json",
+      "sha256": "1a0f6da0e2edb7b440f9eefb3ff93eb0ed3516cc0883559952d16a6f8f98a454",
+      "bytes": 304217
+    },
+    {
+      "path": ".runtime/rag-2026-10-12-live-03/databases-analysis_knowledge_it_cec712b0997542838f67f8031a6ea7a1.json",
+      "sha256": "1e3660b6b8bd6e56a8b6afb04885cc239b9f3521d5ecff34263f3f02397dbbdb",
+      "bytes": 750
+    },
+    {
+      "path": ".runtime/rag-2026-10-12-live-03/rag-evaluation.json",
+      "sha256": "25aeccde8b68511fe696a7fecb0fb6d127583e7e1c2eb1069a03a5b9a39ae12e",
+      "bytes": 37976
+    },
+    {
+      "path": ".runtime/rag-2026-10-12-live-03/rag-observations.json",
+      "sha256": "458f03a66219f8f9e2338104b0b60a7da96f1875bfdff96f28f8cd73d38f7dc1",
+      "bytes": 53576
+    },
+    {
+      "path": ".runtime/rag-2026-10-12-regression/test-summary.json",
+      "sha256": "6b8fa8a014d88d1668954cf95947b84bc4ce7609c595f93f72d4d8b13bc80fcd",
+      "bytes": 22536
+    },
+    {
+      "path": ".runtime/rag-2026-10-12-regression/regression.log",
+      "sha256": "6dfbf639a3c2243c62901661561c1115b2dbcc3645391a95e2cdda87c5dd6645",
+      "bytes": 693885
+    },
+    {
+      "path": ".runtime/rag-2026-10-12-frontend-final/npm-test.log",
+      "sha256": "6b492343ab419ac3c2f0d00ded6e937ad70793b9ceaca0dc3345abff21105e76",
+      "bytes": 61784
+    },
+    {
+      "path": ".runtime/rag-2026-10-12-frontend-final/npm-build.log",
+      "sha256": "acc0cc69f6f1e66084befc3a5366a0ebece54d42026cf1f6bd3ac3a8beaa0629",
+      "bytes": 3163
+    }
+  ]
+}

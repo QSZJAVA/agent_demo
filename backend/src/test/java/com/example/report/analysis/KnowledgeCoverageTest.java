@@ -27,7 +27,7 @@ class KnowledgeCoverageTest {
         assertEquals(2,value.path("steps").get(1).path("returnedSources").asInt());assertEquals(3,value.path("steps").get(1).path("returnedFragments").asInt());
     }
     @Test void actualCoverageCanBeCitedWithoutAcceptingInventedCounts() {
-        var fragment=new AnalysisEvidence.Source("doc","origin","KNOWLEDGE","制度","v1","A / report","当前有效","制度正文");
+        var fragment=new AnalysisEvidence.Source("doc","origin","KNOWLEDGE","制度","v1","A / report","当前有效","制度正文",0);
         var result=new KnowledgeSearch.Result(Collections.nCopies(12,fragment),18,18,true,new KnowledgeSearch.Coverage(6,6,6),List.of(),List.of(),false,List.of());
         var source=AnalysisEngine.retrievalEvidence(0,"version","A / report","2026-10-12T00:00:00Z",result);
         assertEquals("DATA",source.kind());assertEquals(source.id(),source.originId());

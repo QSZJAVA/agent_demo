@@ -1,0 +1,63 @@
+{
+  "recoveryRunId" : "4ed787b66a254367b3155adc25cbd890",
+  "seededBusinessQueries" : 1,
+  "snapshotId" : "d4baa74a571d4a528ba5b254f4f48640",
+  "documents" : {
+    "sales-basis" : "488dfb01f20b484ab008105576d4d75e",
+    "cash-receipt" : "dc420dd0404d4ea78e525c1e35e4fa2a",
+    "lodging-exception" : "694cb27f40eb472688d78695711544ea",
+    "commuting" : "abd2f94f4c4d462fa5e2f7b6fb870463",
+    "invoice-recognition" : "4b090f217a3843d59aa04edc9b01607c",
+    "tax-inclusive" : "0052cb9b03e8432e9929134ceccdeb24",
+    "tax-exclusive" : "7746cab7f393476a96c71d838d1f3eaa",
+    "expression-syntax" : "1c392296c6d64cddb31d4c7648ced070"
+  },
+  "recoveryRequest" : {
+    "companyCode" : "A",
+    "reportId" : "rpt-sales-order",
+    "question" : "按界面选定快照统计产品金额，取金额最高的两组并展开单据。",
+    "snapshotId" : "d4baa74a571d4a528ba5b254f4f48640"
+  },
+  "cases" : [ {
+    "id" : "cross-language-no-alias",
+    "category" : "CROSS_LANGUAGE",
+    "question" : "Do booked sales prove that customer funds have arrived?",
+    "relevantSourceIds" : [ "sales-basis", "cash-receipt" ],
+    "opposingSourceIds" : [ ],
+    "requiredCitationSourceIds" : [ ],
+    "expectedAnswerStatus" : "ANSWERED",
+    "expectLexicalMiss" : true
+  }, {
+    "id" : "negation-and-exception",
+    "category" : "NEGATION_EXCEPTION",
+    "question" : "常驻地驻点工作能领差旅住宿补助吗？事前书面批准的跨地支援是否例外？",
+    "relevantSourceIds" : [ "lodging-exception" ],
+    "opposingSourceIds" : [ ],
+    "requiredCitationSourceIds" : [ "lodging-exception" ],
+    "expectedAnswerStatus" : "ANSWERED"
+  }, {
+    "id" : "similar-concept-distinction",
+    "category" : "SIMILAR_CONCEPT",
+    "question" : "发票开出那天就算确认收入了吗？请按当前制度说明两者关系。",
+    "relevantSourceIds" : [ "invoice-recognition" ],
+    "opposingSourceIds" : [ ],
+    "requiredCitationSourceIds" : [ "invoice-recognition" ],
+    "expectedAnswerStatus" : "ANSWERED"
+  }, {
+    "id" : "opposing-tax-policy",
+    "category" : "CONFLICT",
+    "question" : "现行资料对销售金额是否含税有一致结论吗？请列出相反依据。",
+    "relevantSourceIds" : [ "tax-inclusive", "tax-exclusive" ],
+    "opposingSourceIds" : [ "tax-exclusive" ],
+    "requiredCitationSourceIds" : [ "tax-inclusive", "tax-exclusive" ],
+    "expectedAnswerStatus" : "CONFLICTING"
+  }, {
+    "id" : "unrelated-no-match",
+    "category" : "NO_MATCH",
+    "question" : "声学设备蓝鲸探测频带上限究竟是多少？",
+    "relevantSourceIds" : [ ],
+    "opposingSourceIds" : [ ],
+    "requiredCitationSourceIds" : [ ],
+    "expectedAnswerStatus" : "INSUFFICIENT"
+  } ]
+}

@@ -1,0 +1,244 @@
+{
+  "cases" : [ {
+    "caseId" : "cross-language-no-alias",
+    "attempt" : 1,
+    "source" : "MODEL",
+    "question" : "Do booked sales prove that customer funds have arrived?",
+    "retrieval" : {
+      "lexical" : {
+        "searches" : [ {
+          "matchedFragments" : 1,
+          "searchedFragments" : 11
+        } ],
+        "sources" : [ {
+          "fragmentId" : "dictionary-c195d75d400d5e72-p1",
+          "sourceId" : "dictionary-c195d75d400d5e72"
+        } ],
+        "status" : "SUCCEEDED",
+        "fingerprint" : "44569d2954fd96311b4c9d1d7deaef7bff104e59524a63fbf2ea47d049b7d6df"
+      },
+      "semantic" : {
+        "status" : "SUCCEEDED",
+        "sources" : [ {
+          "fragmentId" : "document-d829a0dba9584a798d0baf45de6d303b-v2-p1",
+          "sourceId" : "sales-basis"
+        }, {
+          "fragmentId" : "document-cd7e56f41a4947e495ca5f496d916b4f-v2-p1",
+          "sourceId" : "cash-receipt"
+        }, {
+          "fragmentId" : "document-6471b136c1874ac0ac6c795bdfd57ac6-v2-p1",
+          "sourceId" : "invoice-recognition"
+        }, {
+          "fragmentId" : "catalog-2-p1",
+          "sourceId" : "catalog-2"
+        }, {
+          "fragmentId" : "rule-1-1-p1",
+          "sourceId" : "rule-1-1"
+        }, {
+          "fragmentId" : "dictionary-c195d75d400d5e72-p1",
+          "sourceId" : "dictionary-c195d75d400d5e72"
+        }, {
+          "fragmentId" : "document-02a006fd9e6e432e9853068c7a60818c-v2-p1",
+          "sourceId" : "tax-exclusive"
+        }, {
+          "fragmentId" : "document-1328d241b2ad4cc38882452e038c36e5-v2-p1",
+          "sourceId" : "tax-inclusive"
+        } ],
+        "searches" : [ {
+          "index" : 0,
+          "matchedFragments" : 8,
+          "searchedFragments" : 11
+        } ]
+      }
+    },
+    "errors" : [ ],
+    "fingerprint" : "44569d2954fd96311b4c9d1d7deaef7bff104e59524a63fbf2ea47d049b7d6df",
+    "run" : {
+      "status" : "COMPLETED",
+      "answerStatus" : "ANSWERED",
+      "citationSourceIds" : [ "sales-basis", "cash-receipt", "knowledge-coverage-1" ]
+    },
+    "durationMs" : 17059,
+    "calls" : [ {
+      "source" : "MODEL",
+      "stage" : "PLAN",
+      "at" : "2026-10-12T14:52:02.289607200Z",
+      "schemaHash" : "4753a31b9a5e8135357815aedc0a0ab37a9c362584a4c5c59a4e90c3e6942451",
+      "inputHash" : "abf220e00e2e7e19071c7457aa04e3359977375f42a644ff92b29efc8fcc4b79",
+      "rawJson" : "{\"mode\":\"EXECUTE\",\"objective\":\"回答记账销售是否能够证明客户资金已经到账：结合销售报表的知识检索结果，说明记账/派单状态与资金到账之间的关系及所需凭证依据。\",\"clarification\":null,\"steps\":[{\"action\":\"KNOWLEDGE\",\"source\":null,\"other\":null,\"query\":null,\"analysis\":null,\"rank\":null,\"knowledgeQuestion\":\"记账销售或已派单是否代表客户资金已经到账？收入确认、派单状态与应收账款资金到账之间的依据和区别是什么？\"}]}",
+      "status" : "RESPONDED",
+      "usageComplete" : true,
+      "reply" : {
+        "mode" : "EXECUTE",
+        "objective" : "回答记账销售是否能够证明客户资金已经到账：结合销售报表的知识检索结果，说明记账/派单状态与资金到账之间的关系及所需凭证依据。",
+        "clarification" : null,
+        "steps" : [ {
+          "action" : "KNOWLEDGE",
+          "source" : null,
+          "other" : null,
+          "query" : null,
+          "analysis" : null,
+          "rank" : null,
+          "knowledgeQuestion" : "记账销售或已派单是否代表客户资金已经到账？收入确认、派单状态与应收账款资金到账之间的依据和区别是什么？"
+        } ]
+      },
+      "model" : "deepseek-v4.1-flash",
+      "usage" : {
+        "inputTokens" : 3088,
+        "outputTokens" : 117,
+        "cachedInputTokens" : 1920
+      },
+      "elapsedMs" : 2412
+    }, {
+      "source" : "MODEL",
+      "stage" : "PLAN_REVIEW",
+      "at" : "2026-10-12T14:52:04.733588400Z",
+      "schemaHash" : "45c04bc41a4d7f4e30d82d7c125be115725d60612b96ad0b9eb9115aca079817",
+      "inputHash" : "623bb694f42d762065a80cbbd0dd257dba977f0cab3b21a30b29ced76b63c434",
+      "rawJson" : "{\"approved\":true,\"reason\":\"用户为纯知识问题，询问记账销售是否证明客户资金到账，未要求数值查询。计划在已选公司A、销售报表范围内执行KNOWLEDGE检索，符合知识问题独立检索规则，无跨范围或虚构字段，正确。\"}",
+      "status" : "RESPONDED",
+      "usageComplete" : true,
+      "reply" : {
+        "approved" : true,
+        "reason" : "用户为纯知识问题，询问记账销售是否证明客户资金到账，未要求数值查询。计划在已选公司A、销售报表范围内执行KNOWLEDGE检索，符合知识问题独立检索规则，无跨范围或虚构字段，正确。"
+      },
+      "model" : "deepseek-v4.1-flash",
+      "usage" : {
+        "inputTokens" : 2145,
+        "outputTokens" : 62,
+        "cachedInputTokens" : 896
+      },
+      "elapsedMs" : 2087
+    }, {
+      "source" : "MODEL",
+      "stage" : "RAG_REWRITE",
+      "at" : "2026-10-12T14:52:06.857399800Z",
+      "schemaHash" : "2d52765ec0760b43e43e3422fa111ab0a265f738d84471ac8c8d8deb61524f7f",
+      "inputHash" : "0f3ccbee74c7791f6a159e62b95e8d1d6494579aa7308eedf22a01448411235e",
+      "businessQueriesAtCall" : 0,
+      "rawJson" : "{\"topics\":[{\"index\":0,\"queries\":[\"记账销售 派单 客户资金到账 收入确认 应收账款 区别\",\"booked sales customer funds arrived revenue recognition accounts receivable\"]}]}",
+      "status" : "RESPONDED",
+      "usageComplete" : true,
+      "reply" : {
+        "topics" : [ {
+          "index" : 0,
+          "queries" : [ "记账销售 派单 客户资金到账 收入确认 应收账款 区别", "booked sales customer funds arrived revenue recognition accounts receivable" ]
+        } ]
+      },
+      "model" : "deepseek-v4.1-flash",
+      "usage" : {
+        "inputTokens" : 433,
+        "outputTokens" : 44,
+        "cachedInputTokens" : 128
+      },
+      "elapsedMs" : 3135
+    }, {
+      "source" : "MODEL",
+      "stage" : "RAG_RERANK",
+      "at" : "2026-10-12T14:52:10.021131700Z",
+      "schemaHash" : "fa04af64bca084ec2f5bbadda1aba47ba26fb68e4a3be0d6c0039acbf56f02c6",
+      "inputHash" : "dd2e1f16eb4cdb342f5aaccc442b013d6c6c42ced214f3956da241186b3f89fc",
+      "businessQueriesAtCall" : 0,
+      "rawJson" : "{\"topics\":[{\"index\":0,\"sourceIds\":[\"c3\",\"c5\",\"c1\",\"c2\",\"c4\",\"c0\",\"c6\",\"c7\"]}]}",
+      "status" : "RESPONDED",
+      "usageComplete" : true,
+      "reply" : {
+        "topics" : [ {
+          "index" : 0,
+          "sourceIds" : [ "c3", "c5", "c1", "c2", "c4", "c0", "c6", "c7" ]
+        } ]
+      },
+      "model" : "deepseek-v4.1-flash",
+      "usage" : {
+        "inputTokens" : 2559,
+        "outputTokens" : 39,
+        "cachedInputTokens" : 128
+      },
+      "elapsedMs" : 2403
+    }, {
+      "source" : "MODEL",
+      "stage" : "ANSWER",
+      "at" : "2026-10-12T14:52:12.476386Z",
+      "schemaHash" : "1ec8d774f9271430e763d8df594084c0ba14e593133827c56b795f03e76ec82d",
+      "inputHash" : "e234a1750664d86810c0a9440b8c8c3c92161b56ba3d02c8f4b951ea9930d720",
+      "rawJson" : "{\"status\":\"ANSWERED\",\"claims\":[{\"text\":\"销售金额按订单约定的应收价款登记，它不等于客户已经支付的款项；收款需以到账流水单独证明。\",\"sourceIds\":[\"document-d829a0dba9584a798d0baf45de6d303b-v2-p1\"]},{\"text\":\"只有实际到账记录才能认定已经收款；销售单金额是订单价款，不能代替银行到账记录。\",\"sourceIds\":[\"document-cd7e56f41a4947e495ca5f496d916b4f-v2-p1\"]},{\"text\":\"本次知识检索已执行，命中并返回制度片段用于回答该问题。\",\"sourceIds\":[\"knowledge-coverage-1\"]}],\"limitations\":[\"销售订单是否已实际收款，需要银行到账记录等收款流水才能认定；仅凭销售报表中的已登记订单，不能证明客户资金已经到账。\",\"本次知识检索虽然已执行且返回的片段已全部返回，但这不证明授权资料之外不存在其他制度。\"]}",
+      "status" : "RESPONDED",
+      "usageComplete" : true,
+      "knowledgeCoverage" : {
+        "performed" : true,
+        "truncated" : false,
+        "expansionTruncated" : false,
+        "steps" : [ {
+          "searchedFragments" : 11,
+          "expansionTruncated" : false,
+          "stepNumber" : 1,
+          "searchedSources" : 11,
+          "matchedSources" : 8,
+          "returnedFragments" : 8,
+          "returnedSources" : 8,
+          "matchedFragments" : 8,
+          "truncated" : false
+        } ]
+      },
+      "reply" : {
+        "status" : "ANSWERED",
+        "claims" : [ {
+          "text" : "销售金额按订单约定的应收价款登记，它不等于客户已经支付的款项；收款需以到账流水单独证明。",
+          "sourceIds" : [ "document-d829a0dba9584a798d0baf45de6d303b-v2-p1" ]
+        }, {
+          "text" : "只有实际到账记录才能认定已经收款；销售单金额是订单价款，不能代替银行到账记录。",
+          "sourceIds" : [ "document-cd7e56f41a4947e495ca5f496d916b4f-v2-p1" ]
+        }, {
+          "text" : "本次知识检索已执行，命中并返回制度片段用于回答该问题。",
+          "sourceIds" : [ "knowledge-coverage-1" ]
+        } ],
+        "limitations" : [ "销售订单是否已实际收款，需要银行到账记录等收款流水才能认定；仅凭销售报表中的已登记订单，不能证明客户资金已经到账。", "本次知识检索虽然已执行且返回的片段已全部返回，但这不证明授权资料之外不存在其他制度。" ]
+      },
+      "model" : "deepseek-v4.1-flash",
+      "usage" : {
+        "inputTokens" : 4168,
+        "outputTokens" : 224,
+        "cachedInputTokens" : 896
+      },
+      "elapsedMs" : 4444
+    }, {
+      "source" : "MODEL",
+      "stage" : "ANSWER_REVIEW",
+      "at" : "2026-10-12T14:52:16.947737600Z",
+      "schemaHash" : "45c04bc41a4d7f4e30d82d7c125be115725d60612b96ad0b9eb9115aca079817",
+      "inputHash" : "0202c05884f3109226bad6ac3742866bf148a357e6ee026a9a057fa5ce948baf",
+      "rawJson" : "{\"approved\":true,\"reason\":\"答案忠实于来源：两份制度片段均明确销售金额不等于已收款、收款需银行到账记录证明；检索范围说明如实反映已执行检索、返回计数及未覆盖授权外资料的限制，未将未执行说成无命中，来源与片段计数一致。\"}",
+      "status" : "RESPONDED",
+      "usageComplete" : true,
+      "knowledgeCoverage" : {
+        "performed" : true,
+        "truncated" : false,
+        "expansionTruncated" : false,
+        "steps" : [ {
+          "searchedFragments" : 11,
+          "expansionTruncated" : false,
+          "stepNumber" : 1,
+          "searchedSources" : 11,
+          "matchedSources" : 8,
+          "returnedFragments" : 8,
+          "returnedSources" : 8,
+          "matchedFragments" : 8,
+          "truncated" : false
+        } ]
+      },
+      "reply" : {
+        "approved" : true,
+        "reason" : "答案忠实于来源：两份制度片段均明确销售金额不等于已收款、收款需银行到账记录证明；检索范围说明如实反映已执行检索、返回计数及未覆盖授权外资料的限制，未将未执行说成无命中，来源与片段计数一致。"
+      },
+      "model" : "deepseek-v4.1-flash",
+      "usage" : {
+        "inputTokens" : 3937,
+        "outputTokens" : 66,
+        "cachedInputTokens" : 640
+      },
+      "elapsedMs" : 2170
+    } ]
+  } ],
+  "corpusSha256" : "343d023eb915fa38836fdeee430d8c3a207c80bf7c0366777cc9184934c9df4a",
+  "referenceDate" : "2026-10-12"
+}

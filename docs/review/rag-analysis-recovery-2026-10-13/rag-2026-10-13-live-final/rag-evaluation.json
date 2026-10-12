@@ -1,0 +1,1312 @@
+{
+  "corpusVersion": "knowledge-rag-2026-10-12-v1",
+  "corpusSha256": "343d023eb915fa38836fdeee430d8c3a207c80bf7c0366777cc9184934c9df4a",
+  "scorerSha256": "cd9228f708b1b2267dd5c12648988b1b8fb4c50e9b4a9e214d49f6b498125a01",
+  "topK": 12,
+  "evidenceScope": "仅统计输入文件中完整记录的执行；工程编写的独立来源金标，非业务盲测，不推断未提供的历史尝试",
+  "summary": {
+    "expectedCases": 5,
+    "observedCases": 5,
+    "attempts": 5,
+    "passed": 5,
+    "failed": 0,
+    "firstPass": 5,
+    "firstPassRate": 1,
+    "realModelCases": 5,
+    "lexical": {
+      "recallAt12": 0.75,
+      "meanReciprocalRankAt12": 0.625,
+      "opposingRecallAt12": 1,
+      "noMatchAccuracy": 1
+    },
+    "semantic": {
+      "recallAt12": 1,
+      "meanReciprocalRankAt12": 1,
+      "opposingRecallAt12": 1,
+      "noMatchAccuracy": 1
+    },
+    "latencyMs": {
+      "samples": 5,
+      "p50": 21249,
+      "p95": 23351,
+      "p99": 23351
+    },
+    "modelCalls": 29,
+    "testDoubleCalls": 0,
+    "stages": {
+      "ANSWER": {
+        "calls": 5,
+        "failures": 0,
+        "latencyMs": {
+          "samples": 5,
+          "p50": 3961,
+          "p95": 5691,
+          "p99": 5691
+        }
+      },
+      "ANSWER_REVIEW": {
+        "calls": 5,
+        "failures": 0,
+        "latencyMs": {
+          "samples": 5,
+          "p50": 3227,
+          "p95": 3353,
+          "p99": 3353
+        }
+      },
+      "PLAN": {
+        "calls": 5,
+        "failures": 0,
+        "latencyMs": {
+          "samples": 5,
+          "p50": 3193,
+          "p95": 5531,
+          "p99": 5531
+        }
+      },
+      "PLAN_REVIEW": {
+        "calls": 5,
+        "failures": 0,
+        "latencyMs": {
+          "samples": 5,
+          "p50": 4140,
+          "p95": 5355,
+          "p99": 5355
+        }
+      },
+      "RAG_RERANK": {
+        "calls": 4,
+        "failures": 0,
+        "latencyMs": {
+          "samples": 4,
+          "p50": 2417,
+          "p95": 2747,
+          "p99": 2747
+        }
+      },
+      "RAG_REWRITE": {
+        "calls": 5,
+        "failures": 0,
+        "latencyMs": {
+          "samples": 5,
+          "p50": 2559,
+          "p95": 3502,
+          "p99": 3502
+        }
+      }
+    },
+    "usage": {
+      "complete": true,
+      "measuredCalls": 29,
+      "totalCalls": 29,
+      "inputTokens": 72208,
+      "outputTokens": 2960,
+      "cost": null,
+      "costComplete": false
+    }
+  },
+  "cases": [
+    {
+      "caseId": "cross-language-no-alias",
+      "firstPass": true,
+      "attempts": [
+        {
+          "caseId": "cross-language-no-alias",
+          "attempt": 1,
+          "category": "CROSS_LANGUAGE",
+          "source": "MODEL",
+          "passed": true,
+          "errors": [],
+          "lexical": {
+            "available": true,
+            "retrievedFragments": 1,
+            "retrievedSources": 1,
+            "recallAt12": 0,
+            "firstRelevantRank": null,
+            "reciprocalRank": 0,
+            "opposingRecallAt12": null,
+            "noMatchCorrect": null,
+            "relevantRetrieved": [],
+            "opposingRetrieved": []
+          },
+          "semantic": {
+            "available": true,
+            "retrievedFragments": 11,
+            "retrievedSources": 11,
+            "recallAt12": 1,
+            "firstRelevantRank": 1,
+            "reciprocalRank": 1,
+            "opposingRecallAt12": null,
+            "noMatchCorrect": null,
+            "relevantRetrieved": [
+              "sales-basis",
+              "cash-receipt"
+            ],
+            "opposingRetrieved": []
+          },
+          "realModelVerified": true,
+          "repaired": false,
+          "answer": {
+            "statusCorrect": true,
+            "citationCoverageCorrect": true,
+            "scope": "仅核对最终状态与实际引用覆盖；业务结论仍须审阅"
+          },
+          "durationMs": 22324,
+          "calls": {
+            "modelCalls": 6,
+            "testDoubleCalls": 0,
+            "stages": {
+              "ANSWER": {
+                "calls": 1,
+                "failures": 0,
+                "latencyMs": {
+                  "samples": 1,
+                  "p50": 4040,
+                  "p95": 4040,
+                  "p99": 4040
+                }
+              },
+              "ANSWER_REVIEW": {
+                "calls": 1,
+                "failures": 0,
+                "latencyMs": {
+                  "samples": 1,
+                  "p50": 3227,
+                  "p95": 3227,
+                  "p99": 3227
+                }
+              },
+              "PLAN": {
+                "calls": 1,
+                "failures": 0,
+                "latencyMs": {
+                  "samples": 1,
+                  "p50": 3409,
+                  "p95": 3409,
+                  "p99": 3409
+                }
+              },
+              "PLAN_REVIEW": {
+                "calls": 1,
+                "failures": 0,
+                "latencyMs": {
+                  "samples": 1,
+                  "p50": 5085,
+                  "p95": 5085,
+                  "p99": 5085
+                }
+              },
+              "RAG_RERANK": {
+                "calls": 1,
+                "failures": 0,
+                "latencyMs": {
+                  "samples": 1,
+                  "p50": 2747,
+                  "p95": 2747,
+                  "p99": 2747
+                }
+              },
+              "RAG_REWRITE": {
+                "calls": 1,
+                "failures": 0,
+                "latencyMs": {
+                  "samples": 1,
+                  "p50": 3502,
+                  "p95": 3502,
+                  "p99": 3502
+                }
+              }
+            },
+            "usage": {
+              "complete": true,
+              "measuredCalls": 6,
+              "totalCalls": 6,
+              "inputTokens": 18493,
+              "outputTokens": 581,
+              "cost": null,
+              "costComplete": false
+            }
+          }
+        }
+      ],
+      "final": {
+        "caseId": "cross-language-no-alias",
+        "attempt": 1,
+        "category": "CROSS_LANGUAGE",
+        "source": "MODEL",
+        "passed": true,
+        "errors": [],
+        "lexical": {
+          "available": true,
+          "retrievedFragments": 1,
+          "retrievedSources": 1,
+          "recallAt12": 0,
+          "firstRelevantRank": null,
+          "reciprocalRank": 0,
+          "opposingRecallAt12": null,
+          "noMatchCorrect": null,
+          "relevantRetrieved": [],
+          "opposingRetrieved": []
+        },
+        "semantic": {
+          "available": true,
+          "retrievedFragments": 11,
+          "retrievedSources": 11,
+          "recallAt12": 1,
+          "firstRelevantRank": 1,
+          "reciprocalRank": 1,
+          "opposingRecallAt12": null,
+          "noMatchCorrect": null,
+          "relevantRetrieved": [
+            "sales-basis",
+            "cash-receipt"
+          ],
+          "opposingRetrieved": []
+        },
+        "realModelVerified": true,
+        "repaired": false,
+        "answer": {
+          "statusCorrect": true,
+          "citationCoverageCorrect": true,
+          "scope": "仅核对最终状态与实际引用覆盖；业务结论仍须审阅"
+        },
+        "durationMs": 22324,
+        "calls": {
+          "modelCalls": 6,
+          "testDoubleCalls": 0,
+          "stages": {
+            "ANSWER": {
+              "calls": 1,
+              "failures": 0,
+              "latencyMs": {
+                "samples": 1,
+                "p50": 4040,
+                "p95": 4040,
+                "p99": 4040
+              }
+            },
+            "ANSWER_REVIEW": {
+              "calls": 1,
+              "failures": 0,
+              "latencyMs": {
+                "samples": 1,
+                "p50": 3227,
+                "p95": 3227,
+                "p99": 3227
+              }
+            },
+            "PLAN": {
+              "calls": 1,
+              "failures": 0,
+              "latencyMs": {
+                "samples": 1,
+                "p50": 3409,
+                "p95": 3409,
+                "p99": 3409
+              }
+            },
+            "PLAN_REVIEW": {
+              "calls": 1,
+              "failures": 0,
+              "latencyMs": {
+                "samples": 1,
+                "p50": 5085,
+                "p95": 5085,
+                "p99": 5085
+              }
+            },
+            "RAG_RERANK": {
+              "calls": 1,
+              "failures": 0,
+              "latencyMs": {
+                "samples": 1,
+                "p50": 2747,
+                "p95": 2747,
+                "p99": 2747
+              }
+            },
+            "RAG_REWRITE": {
+              "calls": 1,
+              "failures": 0,
+              "latencyMs": {
+                "samples": 1,
+                "p50": 3502,
+                "p95": 3502,
+                "p99": 3502
+              }
+            }
+          },
+          "usage": {
+            "complete": true,
+            "measuredCalls": 6,
+            "totalCalls": 6,
+            "inputTokens": 18493,
+            "outputTokens": 581,
+            "cost": null,
+            "costComplete": false
+          }
+        }
+      }
+    },
+    {
+      "caseId": "negation-and-exception",
+      "firstPass": true,
+      "attempts": [
+        {
+          "caseId": "negation-and-exception",
+          "attempt": 1,
+          "category": "NEGATION_EXCEPTION",
+          "source": "MODEL",
+          "passed": true,
+          "errors": [],
+          "lexical": {
+            "available": true,
+            "retrievedFragments": 2,
+            "retrievedSources": 2,
+            "recallAt12": 1,
+            "firstRelevantRank": 1,
+            "reciprocalRank": 1,
+            "opposingRecallAt12": null,
+            "noMatchCorrect": null,
+            "relevantRetrieved": [
+              "lodging-exception"
+            ],
+            "opposingRetrieved": []
+          },
+          "semantic": {
+            "available": true,
+            "retrievedFragments": 2,
+            "retrievedSources": 2,
+            "recallAt12": 1,
+            "firstRelevantRank": 1,
+            "reciprocalRank": 1,
+            "opposingRecallAt12": null,
+            "noMatchCorrect": null,
+            "relevantRetrieved": [
+              "lodging-exception"
+            ],
+            "opposingRetrieved": []
+          },
+          "realModelVerified": true,
+          "repaired": false,
+          "answer": {
+            "statusCorrect": true,
+            "citationCoverageCorrect": true,
+            "scope": "仅核对最终状态与实际引用覆盖；业务结论仍须审阅"
+          },
+          "durationMs": 17755,
+          "calls": {
+            "modelCalls": 6,
+            "testDoubleCalls": 0,
+            "stages": {
+              "ANSWER": {
+                "calls": 1,
+                "failures": 0,
+                "latencyMs": {
+                  "samples": 1,
+                  "p50": 3961,
+                  "p95": 3961,
+                  "p99": 3961
+                }
+              },
+              "ANSWER_REVIEW": {
+                "calls": 1,
+                "failures": 0,
+                "latencyMs": {
+                  "samples": 1,
+                  "p50": 2879,
+                  "p95": 2879,
+                  "p99": 2879
+                }
+              },
+              "PLAN": {
+                "calls": 1,
+                "failures": 0,
+                "latencyMs": {
+                  "samples": 1,
+                  "p50": 3077,
+                  "p95": 3077,
+                  "p99": 3077
+                }
+              },
+              "PLAN_REVIEW": {
+                "calls": 1,
+                "failures": 0,
+                "latencyMs": {
+                  "samples": 1,
+                  "p50": 2801,
+                  "p95": 2801,
+                  "p99": 2801
+                }
+              },
+              "RAG_RERANK": {
+                "calls": 1,
+                "failures": 0,
+                "latencyMs": {
+                  "samples": 1,
+                  "p50": 2417,
+                  "p95": 2417,
+                  "p99": 2417
+                }
+              },
+              "RAG_REWRITE": {
+                "calls": 1,
+                "failures": 0,
+                "latencyMs": {
+                  "samples": 1,
+                  "p50": 2311,
+                  "p95": 2311,
+                  "p99": 2311
+                }
+              }
+            },
+            "usage": {
+              "complete": true,
+              "measuredCalls": 6,
+              "totalCalls": 6,
+              "inputTokens": 11606,
+              "outputTokens": 653,
+              "cost": null,
+              "costComplete": false
+            }
+          }
+        }
+      ],
+      "final": {
+        "caseId": "negation-and-exception",
+        "attempt": 1,
+        "category": "NEGATION_EXCEPTION",
+        "source": "MODEL",
+        "passed": true,
+        "errors": [],
+        "lexical": {
+          "available": true,
+          "retrievedFragments": 2,
+          "retrievedSources": 2,
+          "recallAt12": 1,
+          "firstRelevantRank": 1,
+          "reciprocalRank": 1,
+          "opposingRecallAt12": null,
+          "noMatchCorrect": null,
+          "relevantRetrieved": [
+            "lodging-exception"
+          ],
+          "opposingRetrieved": []
+        },
+        "semantic": {
+          "available": true,
+          "retrievedFragments": 2,
+          "retrievedSources": 2,
+          "recallAt12": 1,
+          "firstRelevantRank": 1,
+          "reciprocalRank": 1,
+          "opposingRecallAt12": null,
+          "noMatchCorrect": null,
+          "relevantRetrieved": [
+            "lodging-exception"
+          ],
+          "opposingRetrieved": []
+        },
+        "realModelVerified": true,
+        "repaired": false,
+        "answer": {
+          "statusCorrect": true,
+          "citationCoverageCorrect": true,
+          "scope": "仅核对最终状态与实际引用覆盖；业务结论仍须审阅"
+        },
+        "durationMs": 17755,
+        "calls": {
+          "modelCalls": 6,
+          "testDoubleCalls": 0,
+          "stages": {
+            "ANSWER": {
+              "calls": 1,
+              "failures": 0,
+              "latencyMs": {
+                "samples": 1,
+                "p50": 3961,
+                "p95": 3961,
+                "p99": 3961
+              }
+            },
+            "ANSWER_REVIEW": {
+              "calls": 1,
+              "failures": 0,
+              "latencyMs": {
+                "samples": 1,
+                "p50": 2879,
+                "p95": 2879,
+                "p99": 2879
+              }
+            },
+            "PLAN": {
+              "calls": 1,
+              "failures": 0,
+              "latencyMs": {
+                "samples": 1,
+                "p50": 3077,
+                "p95": 3077,
+                "p99": 3077
+              }
+            },
+            "PLAN_REVIEW": {
+              "calls": 1,
+              "failures": 0,
+              "latencyMs": {
+                "samples": 1,
+                "p50": 2801,
+                "p95": 2801,
+                "p99": 2801
+              }
+            },
+            "RAG_RERANK": {
+              "calls": 1,
+              "failures": 0,
+              "latencyMs": {
+                "samples": 1,
+                "p50": 2417,
+                "p95": 2417,
+                "p99": 2417
+              }
+            },
+            "RAG_REWRITE": {
+              "calls": 1,
+              "failures": 0,
+              "latencyMs": {
+                "samples": 1,
+                "p50": 2311,
+                "p95": 2311,
+                "p99": 2311
+              }
+            }
+          },
+          "usage": {
+            "complete": true,
+            "measuredCalls": 6,
+            "totalCalls": 6,
+            "inputTokens": 11606,
+            "outputTokens": 653,
+            "cost": null,
+            "costComplete": false
+          }
+        }
+      }
+    },
+    {
+      "caseId": "similar-concept-distinction",
+      "firstPass": true,
+      "attempts": [
+        {
+          "caseId": "similar-concept-distinction",
+          "attempt": 1,
+          "category": "SIMILAR_CONCEPT",
+          "source": "MODEL",
+          "passed": true,
+          "errors": [],
+          "lexical": {
+            "available": true,
+            "retrievedFragments": 2,
+            "retrievedSources": 2,
+            "recallAt12": 1,
+            "firstRelevantRank": 1,
+            "reciprocalRank": 1,
+            "opposingRecallAt12": null,
+            "noMatchCorrect": null,
+            "relevantRetrieved": [
+              "invoice-recognition"
+            ],
+            "opposingRetrieved": []
+          },
+          "semantic": {
+            "available": true,
+            "retrievedFragments": 4,
+            "retrievedSources": 4,
+            "recallAt12": 1,
+            "firstRelevantRank": 1,
+            "reciprocalRank": 1,
+            "opposingRecallAt12": null,
+            "noMatchCorrect": null,
+            "relevantRetrieved": [
+              "invoice-recognition"
+            ],
+            "opposingRetrieved": []
+          },
+          "realModelVerified": true,
+          "repaired": false,
+          "answer": {
+            "statusCorrect": true,
+            "citationCoverageCorrect": true,
+            "scope": "仅核对最终状态与实际引用覆盖；业务结论仍须审阅"
+          },
+          "durationMs": 23351,
+          "calls": {
+            "modelCalls": 6,
+            "testDoubleCalls": 0,
+            "stages": {
+              "ANSWER": {
+                "calls": 1,
+                "failures": 0,
+                "latencyMs": {
+                  "samples": 1,
+                  "p50": 3765,
+                  "p95": 3765,
+                  "p99": 3765
+                }
+              },
+              "ANSWER_REVIEW": {
+                "calls": 1,
+                "failures": 0,
+                "latencyMs": {
+                  "samples": 1,
+                  "p50": 3276,
+                  "p95": 3276,
+                  "p99": 3276
+                }
+              },
+              "PLAN": {
+                "calls": 1,
+                "failures": 0,
+                "latencyMs": {
+                  "samples": 1,
+                  "p50": 5531,
+                  "p95": 5531,
+                  "p99": 5531
+                }
+              },
+              "PLAN_REVIEW": {
+                "calls": 1,
+                "failures": 0,
+                "latencyMs": {
+                  "samples": 1,
+                  "p50": 5355,
+                  "p95": 5355,
+                  "p99": 5355
+                }
+              },
+              "RAG_RERANK": {
+                "calls": 1,
+                "failures": 0,
+                "latencyMs": {
+                  "samples": 1,
+                  "p50": 2388,
+                  "p95": 2388,
+                  "p99": 2388
+                }
+              },
+              "RAG_REWRITE": {
+                "calls": 1,
+                "failures": 0,
+                "latencyMs": {
+                  "samples": 1,
+                  "p50": 2660,
+                  "p95": 2660,
+                  "p99": 2660
+                }
+              }
+            },
+            "usage": {
+              "complete": true,
+              "measuredCalls": 6,
+              "totalCalls": 6,
+              "inputTokens": 13864,
+              "outputTokens": 540,
+              "cost": null,
+              "costComplete": false
+            }
+          }
+        }
+      ],
+      "final": {
+        "caseId": "similar-concept-distinction",
+        "attempt": 1,
+        "category": "SIMILAR_CONCEPT",
+        "source": "MODEL",
+        "passed": true,
+        "errors": [],
+        "lexical": {
+          "available": true,
+          "retrievedFragments": 2,
+          "retrievedSources": 2,
+          "recallAt12": 1,
+          "firstRelevantRank": 1,
+          "reciprocalRank": 1,
+          "opposingRecallAt12": null,
+          "noMatchCorrect": null,
+          "relevantRetrieved": [
+            "invoice-recognition"
+          ],
+          "opposingRetrieved": []
+        },
+        "semantic": {
+          "available": true,
+          "retrievedFragments": 4,
+          "retrievedSources": 4,
+          "recallAt12": 1,
+          "firstRelevantRank": 1,
+          "reciprocalRank": 1,
+          "opposingRecallAt12": null,
+          "noMatchCorrect": null,
+          "relevantRetrieved": [
+            "invoice-recognition"
+          ],
+          "opposingRetrieved": []
+        },
+        "realModelVerified": true,
+        "repaired": false,
+        "answer": {
+          "statusCorrect": true,
+          "citationCoverageCorrect": true,
+          "scope": "仅核对最终状态与实际引用覆盖；业务结论仍须审阅"
+        },
+        "durationMs": 23351,
+        "calls": {
+          "modelCalls": 6,
+          "testDoubleCalls": 0,
+          "stages": {
+            "ANSWER": {
+              "calls": 1,
+              "failures": 0,
+              "latencyMs": {
+                "samples": 1,
+                "p50": 3765,
+                "p95": 3765,
+                "p99": 3765
+              }
+            },
+            "ANSWER_REVIEW": {
+              "calls": 1,
+              "failures": 0,
+              "latencyMs": {
+                "samples": 1,
+                "p50": 3276,
+                "p95": 3276,
+                "p99": 3276
+              }
+            },
+            "PLAN": {
+              "calls": 1,
+              "failures": 0,
+              "latencyMs": {
+                "samples": 1,
+                "p50": 5531,
+                "p95": 5531,
+                "p99": 5531
+              }
+            },
+            "PLAN_REVIEW": {
+              "calls": 1,
+              "failures": 0,
+              "latencyMs": {
+                "samples": 1,
+                "p50": 5355,
+                "p95": 5355,
+                "p99": 5355
+              }
+            },
+            "RAG_RERANK": {
+              "calls": 1,
+              "failures": 0,
+              "latencyMs": {
+                "samples": 1,
+                "p50": 2388,
+                "p95": 2388,
+                "p99": 2388
+              }
+            },
+            "RAG_REWRITE": {
+              "calls": 1,
+              "failures": 0,
+              "latencyMs": {
+                "samples": 1,
+                "p50": 2660,
+                "p95": 2660,
+                "p99": 2660
+              }
+            }
+          },
+          "usage": {
+            "complete": true,
+            "measuredCalls": 6,
+            "totalCalls": 6,
+            "inputTokens": 13864,
+            "outputTokens": 540,
+            "cost": null,
+            "costComplete": false
+          }
+        }
+      }
+    },
+    {
+      "caseId": "opposing-tax-policy",
+      "firstPass": true,
+      "attempts": [
+        {
+          "caseId": "opposing-tax-policy",
+          "attempt": 1,
+          "category": "CONFLICT",
+          "source": "MODEL",
+          "passed": true,
+          "errors": [],
+          "lexical": {
+            "available": true,
+            "retrievedFragments": 11,
+            "retrievedSources": 11,
+            "recallAt12": 1,
+            "firstRelevantRank": 2,
+            "reciprocalRank": 0.5,
+            "opposingRecallAt12": 1,
+            "noMatchCorrect": null,
+            "relevantRetrieved": [
+              "tax-inclusive",
+              "tax-exclusive"
+            ],
+            "opposingRetrieved": [
+              "tax-exclusive"
+            ]
+          },
+          "semantic": {
+            "available": true,
+            "retrievedFragments": 11,
+            "retrievedSources": 11,
+            "recallAt12": 1,
+            "firstRelevantRank": 1,
+            "reciprocalRank": 1,
+            "opposingRecallAt12": 1,
+            "noMatchCorrect": null,
+            "relevantRetrieved": [
+              "tax-inclusive",
+              "tax-exclusive"
+            ],
+            "opposingRetrieved": [
+              "tax-exclusive"
+            ]
+          },
+          "realModelVerified": true,
+          "repaired": false,
+          "answer": {
+            "statusCorrect": true,
+            "citationCoverageCorrect": true,
+            "scope": "仅核对最终状态与实际引用覆盖；业务结论仍须审阅"
+          },
+          "durationMs": 21249,
+          "calls": {
+            "modelCalls": 6,
+            "testDoubleCalls": 0,
+            "stages": {
+              "ANSWER": {
+                "calls": 1,
+                "failures": 0,
+                "latencyMs": {
+                  "samples": 1,
+                  "p50": 5691,
+                  "p95": 5691,
+                  "p99": 5691
+                }
+              },
+              "ANSWER_REVIEW": {
+                "calls": 1,
+                "failures": 0,
+                "latencyMs": {
+                  "samples": 1,
+                  "p50": 3353,
+                  "p95": 3353,
+                  "p99": 3353
+                }
+              },
+              "PLAN": {
+                "calls": 1,
+                "failures": 0,
+                "latencyMs": {
+                  "samples": 1,
+                  "p50": 3193,
+                  "p95": 3193,
+                  "p99": 3193
+                }
+              },
+              "PLAN_REVIEW": {
+                "calls": 1,
+                "failures": 0,
+                "latencyMs": {
+                  "samples": 1,
+                  "p50": 3506,
+                  "p95": 3506,
+                  "p99": 3506
+                }
+              },
+              "RAG_RERANK": {
+                "calls": 1,
+                "failures": 0,
+                "latencyMs": {
+                  "samples": 1,
+                  "p50": 2571,
+                  "p95": 2571,
+                  "p99": 2571
+                }
+              },
+              "RAG_REWRITE": {
+                "calls": 1,
+                "failures": 0,
+                "latencyMs": {
+                  "samples": 1,
+                  "p50": 2559,
+                  "p95": 2559,
+                  "p99": 2559
+                }
+              }
+            },
+            "usage": {
+              "complete": true,
+              "measuredCalls": 6,
+              "totalCalls": 6,
+              "inputTokens": 19534,
+              "outputTokens": 692,
+              "cost": null,
+              "costComplete": false
+            }
+          }
+        }
+      ],
+      "final": {
+        "caseId": "opposing-tax-policy",
+        "attempt": 1,
+        "category": "CONFLICT",
+        "source": "MODEL",
+        "passed": true,
+        "errors": [],
+        "lexical": {
+          "available": true,
+          "retrievedFragments": 11,
+          "retrievedSources": 11,
+          "recallAt12": 1,
+          "firstRelevantRank": 2,
+          "reciprocalRank": 0.5,
+          "opposingRecallAt12": 1,
+          "noMatchCorrect": null,
+          "relevantRetrieved": [
+            "tax-inclusive",
+            "tax-exclusive"
+          ],
+          "opposingRetrieved": [
+            "tax-exclusive"
+          ]
+        },
+        "semantic": {
+          "available": true,
+          "retrievedFragments": 11,
+          "retrievedSources": 11,
+          "recallAt12": 1,
+          "firstRelevantRank": 1,
+          "reciprocalRank": 1,
+          "opposingRecallAt12": 1,
+          "noMatchCorrect": null,
+          "relevantRetrieved": [
+            "tax-inclusive",
+            "tax-exclusive"
+          ],
+          "opposingRetrieved": [
+            "tax-exclusive"
+          ]
+        },
+        "realModelVerified": true,
+        "repaired": false,
+        "answer": {
+          "statusCorrect": true,
+          "citationCoverageCorrect": true,
+          "scope": "仅核对最终状态与实际引用覆盖；业务结论仍须审阅"
+        },
+        "durationMs": 21249,
+        "calls": {
+          "modelCalls": 6,
+          "testDoubleCalls": 0,
+          "stages": {
+            "ANSWER": {
+              "calls": 1,
+              "failures": 0,
+              "latencyMs": {
+                "samples": 1,
+                "p50": 5691,
+                "p95": 5691,
+                "p99": 5691
+              }
+            },
+            "ANSWER_REVIEW": {
+              "calls": 1,
+              "failures": 0,
+              "latencyMs": {
+                "samples": 1,
+                "p50": 3353,
+                "p95": 3353,
+                "p99": 3353
+              }
+            },
+            "PLAN": {
+              "calls": 1,
+              "failures": 0,
+              "latencyMs": {
+                "samples": 1,
+                "p50": 3193,
+                "p95": 3193,
+                "p99": 3193
+              }
+            },
+            "PLAN_REVIEW": {
+              "calls": 1,
+              "failures": 0,
+              "latencyMs": {
+                "samples": 1,
+                "p50": 3506,
+                "p95": 3506,
+                "p99": 3506
+              }
+            },
+            "RAG_RERANK": {
+              "calls": 1,
+              "failures": 0,
+              "latencyMs": {
+                "samples": 1,
+                "p50": 2571,
+                "p95": 2571,
+                "p99": 2571
+              }
+            },
+            "RAG_REWRITE": {
+              "calls": 1,
+              "failures": 0,
+              "latencyMs": {
+                "samples": 1,
+                "p50": 2559,
+                "p95": 2559,
+                "p99": 2559
+              }
+            }
+          },
+          "usage": {
+            "complete": true,
+            "measuredCalls": 6,
+            "totalCalls": 6,
+            "inputTokens": 19534,
+            "outputTokens": 692,
+            "cost": null,
+            "costComplete": false
+          }
+        }
+      }
+    },
+    {
+      "caseId": "unrelated-no-match",
+      "firstPass": true,
+      "attempts": [
+        {
+          "caseId": "unrelated-no-match",
+          "attempt": 1,
+          "category": "NO_MATCH",
+          "source": "MODEL",
+          "passed": true,
+          "errors": [],
+          "lexical": {
+            "available": true,
+            "retrievedFragments": 0,
+            "retrievedSources": 0,
+            "recallAt12": null,
+            "firstRelevantRank": null,
+            "reciprocalRank": null,
+            "opposingRecallAt12": null,
+            "noMatchCorrect": true,
+            "relevantRetrieved": [],
+            "opposingRetrieved": []
+          },
+          "semantic": {
+            "available": true,
+            "retrievedFragments": 0,
+            "retrievedSources": 0,
+            "recallAt12": null,
+            "firstRelevantRank": null,
+            "reciprocalRank": null,
+            "opposingRecallAt12": null,
+            "noMatchCorrect": true,
+            "relevantRetrieved": [],
+            "opposingRetrieved": []
+          },
+          "realModelVerified": true,
+          "repaired": false,
+          "answer": {
+            "statusCorrect": true,
+            "citationCoverageCorrect": true,
+            "scope": "仅核对最终状态与实际引用覆盖；业务结论仍须审阅"
+          },
+          "durationMs": 15448,
+          "calls": {
+            "modelCalls": 5,
+            "testDoubleCalls": 0,
+            "stages": {
+              "ANSWER": {
+                "calls": 1,
+                "failures": 0,
+                "latencyMs": {
+                  "samples": 1,
+                  "p50": 3196,
+                  "p95": 3196,
+                  "p99": 3196
+                }
+              },
+              "ANSWER_REVIEW": {
+                "calls": 1,
+                "failures": 0,
+                "latencyMs": {
+                  "samples": 1,
+                  "p50": 2416,
+                  "p95": 2416,
+                  "p99": 2416
+                }
+              },
+              "PLAN": {
+                "calls": 1,
+                "failures": 0,
+                "latencyMs": {
+                  "samples": 1,
+                  "p50": 2992,
+                  "p95": 2992,
+                  "p99": 2992
+                }
+              },
+              "PLAN_REVIEW": {
+                "calls": 1,
+                "failures": 0,
+                "latencyMs": {
+                  "samples": 1,
+                  "p50": 4140,
+                  "p95": 4140,
+                  "p99": 4140
+                }
+              },
+              "RAG_REWRITE": {
+                "calls": 1,
+                "failures": 0,
+                "latencyMs": {
+                  "samples": 1,
+                  "p50": 2464,
+                  "p95": 2464,
+                  "p99": 2464
+                }
+              }
+            },
+            "usage": {
+              "complete": true,
+              "measuredCalls": 5,
+              "totalCalls": 5,
+              "inputTokens": 8711,
+              "outputTokens": 494,
+              "cost": null,
+              "costComplete": false
+            }
+          }
+        }
+      ],
+      "final": {
+        "caseId": "unrelated-no-match",
+        "attempt": 1,
+        "category": "NO_MATCH",
+        "source": "MODEL",
+        "passed": true,
+        "errors": [],
+        "lexical": {
+          "available": true,
+          "retrievedFragments": 0,
+          "retrievedSources": 0,
+          "recallAt12": null,
+          "firstRelevantRank": null,
+          "reciprocalRank": null,
+          "opposingRecallAt12": null,
+          "noMatchCorrect": true,
+          "relevantRetrieved": [],
+          "opposingRetrieved": []
+        },
+        "semantic": {
+          "available": true,
+          "retrievedFragments": 0,
+          "retrievedSources": 0,
+          "recallAt12": null,
+          "firstRelevantRank": null,
+          "reciprocalRank": null,
+          "opposingRecallAt12": null,
+          "noMatchCorrect": true,
+          "relevantRetrieved": [],
+          "opposingRetrieved": []
+        },
+        "realModelVerified": true,
+        "repaired": false,
+        "answer": {
+          "statusCorrect": true,
+          "citationCoverageCorrect": true,
+          "scope": "仅核对最终状态与实际引用覆盖；业务结论仍须审阅"
+        },
+        "durationMs": 15448,
+        "calls": {
+          "modelCalls": 5,
+          "testDoubleCalls": 0,
+          "stages": {
+            "ANSWER": {
+              "calls": 1,
+              "failures": 0,
+              "latencyMs": {
+                "samples": 1,
+                "p50": 3196,
+                "p95": 3196,
+                "p99": 3196
+              }
+            },
+            "ANSWER_REVIEW": {
+              "calls": 1,
+              "failures": 0,
+              "latencyMs": {
+                "samples": 1,
+                "p50": 2416,
+                "p95": 2416,
+                "p99": 2416
+              }
+            },
+            "PLAN": {
+              "calls": 1,
+              "failures": 0,
+              "latencyMs": {
+                "samples": 1,
+                "p50": 2992,
+                "p95": 2992,
+                "p99": 2992
+              }
+            },
+            "PLAN_REVIEW": {
+              "calls": 1,
+              "failures": 0,
+              "latencyMs": {
+                "samples": 1,
+                "p50": 4140,
+                "p95": 4140,
+                "p99": 4140
+              }
+            },
+            "RAG_REWRITE": {
+              "calls": 1,
+              "failures": 0,
+              "latencyMs": {
+                "samples": 1,
+                "p50": 2464,
+                "p95": 2464,
+                "p99": 2464
+              }
+            }
+          },
+          "usage": {
+            "complete": true,
+            "measuredCalls": 5,
+            "totalCalls": 5,
+            "inputTokens": 8711,
+            "outputTokens": 494,
+            "cost": null,
+            "costComplete": false
+          }
+        }
+      }
+    }
+  ]
+}

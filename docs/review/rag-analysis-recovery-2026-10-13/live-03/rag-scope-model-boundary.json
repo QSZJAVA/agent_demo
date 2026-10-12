@@ -1,0 +1,103 @@
+{
+  "companyCode" : "A",
+  "reportId" : "rpt-sales-order",
+  "question" : "ragactive",
+  "referenceTime" : "2026-10-12T15:27:17.916302800Z",
+  "fingerprint" : "8fb6f028375684b3f17e0b563179926f6c6f73f01e8c3975271e55c48832b508",
+  "result" : {
+    "kind" : "KNOWLEDGE",
+    "sources" : [ {
+      "id" : "document-df889a034ece462bb7ec8eeb41588a61-v2-p1",
+      "originId" : "document-df889a034ece462bb7ec8eeb41588a61-v2",
+      "kind" : "KNOWLEDGE",
+      "title" : "Active tax policy",
+      "version" : "2",
+      "scope" : "A / rpt-sales-order",
+      "observedAt" : "生效 2026-01-01；失效 未指定",
+      "text" : "来源标题：Active tax policy\n来源版本：2\n适用范围：A / rpt-sales-order\n时间说明：生效 2026-01-01；失效 未指定\n原文位置：脱敏后来源全文第1至2行；UTF-16字符[0,63)。\n片段编号：1\n正文片段：\n来源：本仓库隔离验收合成资料\ntax ragactive applies under the published rules.",
+      "contentOffset" : 128
+    } ],
+    "matched" : 1,
+    "searched" : 4,
+    "truncated" : false,
+    "coverage" : {
+      "searchedSources" : 4,
+      "matchedSources" : 1,
+      "returnedSources" : 1
+    },
+    "queryTerms" : [ "ragactive" ],
+    "expansions" : [ ],
+    "expansionTruncated" : false,
+    "hits" : [ {
+      "sourceId" : "document-df889a034ece462bb7ec8eeb41588a61-v2-p1",
+      "directTerms" : [ "ragactive" ],
+      "aliasTerms" : [ ]
+    } ],
+    "retrieval" : {
+      "mode" : "SEMANTIC_RAG",
+      "queries" : [ {
+        "kind" : "ORIGINAL",
+        "text" : "ragactive"
+      }, {
+        "kind" : "REWRITE",
+        "text" : "tax"
+      }, {
+        "kind" : "REWRITE",
+        "text" : "ragforbidden"
+      } ],
+      "candidateFragments" : 1,
+      "rerankedFragments" : 1,
+      "contextTruncated" : false,
+      "reranked" : true,
+      "ranking" : [ {
+        "sourceId" : "document-df889a034ece462bb7ec8eeb41588a61-v2-p1",
+        "routes" : [ 0, 1 ],
+        "rank" : 1
+      } ],
+      "version" : "semantic-rag-1",
+      "routes" : [ {
+        "index" : 0,
+        "matchedFragments" : 1,
+        "matchedSources" : 1,
+        "queryTerms" : [ "ragactive" ],
+        "expansions" : [ ],
+        "expansionTruncated" : false
+      }, {
+        "index" : 1,
+        "matchedFragments" : 1,
+        "matchedSources" : 1,
+        "queryTerms" : [ "tax" ],
+        "expansions" : [ ],
+        "expansionTruncated" : false
+      }, {
+        "index" : 2,
+        "matchedFragments" : 0,
+        "matchedSources" : 0,
+        "queryTerms" : [ "ragforbidden" ],
+        "expansions" : [ ],
+        "expansionTruncated" : false
+      } ]
+    }
+  },
+  "usage" : [ {
+    "number" : 1,
+    "stage" : "RAG_REWRITE",
+    "status" : "RESPONDED",
+    "model" : "ISOLATED_TEST_DOUBLE",
+    "elapsedMs" : 0,
+    "inputTokens" : null,
+    "outputTokens" : null,
+    "cachedInputTokens" : null,
+    "usageComplete" : false
+  }, {
+    "number" : 2,
+    "stage" : "RAG_RERANK",
+    "status" : "RESPONDED",
+    "model" : "ISOLATED_TEST_DOUBLE",
+    "elapsedMs" : 0,
+    "inputTokens" : null,
+    "outputTokens" : null,
+    "cachedInputTokens" : null,
+    "usageComplete" : false
+  } ]
+}

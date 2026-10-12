@@ -1,0 +1,287 @@
+{
+  "schemaVersion": 1,
+  "recordedAt": "2026-10-12T17:31:34.566Z",
+  "status": "COMPLETED_WITH_TWO_FAILURES_AND_SCOPED_BROWSER_ACCEPTANCE",
+  "scope": "本文件归档已结束的第二轮验收；后续日期范围补修尚待另轮复测，不依据live-final目录名推断全部通过。",
+  "tests": {
+    "executed": 61,
+    "passed": 59,
+    "failed": [
+      "realModelKnowledgeAnswerAndInsufficiencyDoNotReadBusinessRows()",
+      "realModelComparesPeriodsAsDifferentSetsWithExactDelta()"
+    ],
+    "program": {
+      "executed": 45,
+      "passed": 45
+    },
+    "realModel": {
+      "executed": 15,
+      "passed": 13
+    },
+    "browserSupplement": {
+      "executed": 1,
+      "passed": 1,
+      "scope": [
+        "无命中与字段别名预算说明",
+        "ISO观测日期引用与同快照回填"
+      ]
+    }
+  },
+  "model": {
+    "ledgerRows": 236,
+    "modelCalls": 89,
+    "testDoubleCalls": 147,
+    "responded": 88,
+    "failed": 1,
+    "measuredCalls": 88,
+    "unknownUsageCalls": 1,
+    "knownInputTokens": 339730,
+    "knownOutputTokens": 10966,
+    "totalUsageComplete": false,
+    "cost": null,
+    "costComplete": false
+  },
+  "partitions": {
+    "rules": "browser-model-evidence为完整账本的前缀；程序夹具后的11次补充浏览器调用和29次金标调用是不同增量，不重复计数。",
+    "prefixEqual": true,
+    "usageEqualsSuffix": true,
+    "goldEqualsSuffix": true,
+    "beforeBrowser": {
+      "ledgerRows": 196,
+      "modelCalls": 49,
+      "testDoubleCalls": 147,
+      "responded": 48,
+      "failed": 1,
+      "measuredCalls": 48,
+      "unknownUsageCalls": 1,
+      "knownInputTokens": 219504,
+      "knownOutputTokens": 6813,
+      "totalUsageComplete": false,
+      "cost": null,
+      "costComplete": false
+    },
+    "browserIncrement": {
+      "ledgerRows": 11,
+      "modelCalls": 11,
+      "testDoubleCalls": 0,
+      "responded": 11,
+      "failed": 0,
+      "measuredCalls": 11,
+      "unknownUsageCalls": 0,
+      "knownInputTokens": 48018,
+      "knownOutputTokens": 1193,
+      "totalUsageComplete": true,
+      "cost": null,
+      "costComplete": false
+    },
+    "goldSuffix": {
+      "ledgerRows": 29,
+      "modelCalls": 29,
+      "testDoubleCalls": 0,
+      "responded": 29,
+      "failed": 0,
+      "measuredCalls": 29,
+      "unknownUsageCalls": 0,
+      "knownInputTokens": 72208,
+      "knownOutputTokens": 2960,
+      "totalUsageComplete": true,
+      "cost": null,
+      "costComplete": false
+    },
+    "fullRows": 236,
+    "browserPrefixRows": 207,
+    "fullCanonicalSha256": "3745f9c0ed3c2f04ef4b2bb4693fe13f5dfaff6385a13b54f3439f5054054308",
+    "browserPrefixCanonicalSha256": "886f5435bf5676c09a456b1af880bb07275dcd313016dde7ba915ae1a340e26d"
+  },
+  "browser": {
+    "businessQueries": 1,
+    "businessWrites": 0,
+    "tasks": [
+      {
+        "id": "4ed787b66a254367b3155adc25cbd890",
+        "status": "CANCELLED"
+      },
+      {
+        "id": "d04b4968597e46049a84b990bc8c1ca0",
+        "status": "COMPLETED"
+      },
+      {
+        "id": "e09f961a49b545d29f43e5ac2a11c4da",
+        "status": "COMPLETED"
+      }
+    ],
+    "noMatch": {
+      "id": "d04b4968597e46049a84b990bc8c1ca0",
+      "status": "COMPLETED",
+      "answer": {
+        "claims": [],
+        "status": "INSUFFICIENT",
+        "limitations": [
+          "本次知识检索已覆盖当前授权范围内的11份来源、11个片段，但未命中任何相关内容，因此无法确认声学设备蓝鲸探测频带上限的具体数值。",
+          "该结论仅说明本次检索未找到依据，不代表授权资料之外不存在相关规定。"
+        ]
+      },
+      "coverage": {
+        "matchedSources": 0,
+        "returnedSources": 0,
+        "searchedSources": 11
+      },
+      "searched": 11,
+      "matched": 0,
+      "returned": 0,
+      "truncated": false,
+      "expansionTruncated": false,
+      "reranked": false
+    },
+    "snapshot": {
+      "id": "e09f961a49b545d29f43e5ac2a11c4da",
+      "status": "COMPLETED",
+      "snapshotId": "d4baa74a571d4a528ba5b254f4f48640",
+      "answerStatus": "ANSWERED"
+    },
+    "visibleEvidence": [
+      "browser-insufficient-rechecked.txt",
+      "browser-insufficient-rechecked.jpg",
+      "browser-snapshot-date-rechecked.txt",
+      "browser-snapshot-date-rechecked.jpg"
+    ]
+  },
+  "gold": {
+    "expectedCases": 5,
+    "observedCases": 5,
+    "attempts": 5,
+    "passed": 5,
+    "failed": 0,
+    "firstPass": 5,
+    "firstPassRate": 1,
+    "realModelCases": 5,
+    "lexical": {
+      "recallAt12": 0.75,
+      "meanReciprocalRankAt12": 0.625,
+      "opposingRecallAt12": 1,
+      "noMatchAccuracy": 1
+    },
+    "semantic": {
+      "recallAt12": 1,
+      "meanReciprocalRankAt12": 1,
+      "opposingRecallAt12": 1,
+      "noMatchAccuracy": 1
+    },
+    "latencyMs": {
+      "samples": 5,
+      "p50": 21249,
+      "p95": 23351,
+      "p99": 23351
+    },
+    "modelCalls": 29,
+    "testDoubleCalls": 0,
+    "stages": {
+      "ANSWER": {
+        "calls": 5,
+        "failures": 0,
+        "latencyMs": {
+          "samples": 5,
+          "p50": 3961,
+          "p95": 5691,
+          "p99": 5691
+        }
+      },
+      "ANSWER_REVIEW": {
+        "calls": 5,
+        "failures": 0,
+        "latencyMs": {
+          "samples": 5,
+          "p50": 3227,
+          "p95": 3353,
+          "p99": 3353
+        }
+      },
+      "PLAN": {
+        "calls": 5,
+        "failures": 0,
+        "latencyMs": {
+          "samples": 5,
+          "p50": 3193,
+          "p95": 5531,
+          "p99": 5531
+        }
+      },
+      "PLAN_REVIEW": {
+        "calls": 5,
+        "failures": 0,
+        "latencyMs": {
+          "samples": 5,
+          "p50": 4140,
+          "p95": 5355,
+          "p99": 5355
+        }
+      },
+      "RAG_RERANK": {
+        "calls": 4,
+        "failures": 0,
+        "latencyMs": {
+          "samples": 4,
+          "p50": 2417,
+          "p95": 2747,
+          "p99": 2747
+        }
+      },
+      "RAG_REWRITE": {
+        "calls": 5,
+        "failures": 0,
+        "latencyMs": {
+          "samples": 5,
+          "p50": 2559,
+          "p95": 3502,
+          "p99": 3502
+        }
+      }
+    },
+    "usage": {
+      "complete": true,
+      "measuredCalls": 29,
+      "totalCalls": 29,
+      "inputTokens": 72208,
+      "outputTokens": 2960,
+      "cost": null,
+      "costComplete": false
+    }
+  },
+  "database": {
+    "file": "databases-analysis_knowledge_it_41e65168d6a34f499e649812aaf57d07.json",
+    "schema": "analysis_knowledge_it_41e65168d6a34f499e649812aaf57d07",
+    "removedAt": "2026-10-12T17:16:41.461820400Z",
+    "preexistingPreserved": true,
+    "remaining": [
+      "information_schema",
+      "mcp_it_9594cc3f508942e8ac1973eeefcba919",
+      "mysql",
+      "performance_schema",
+      "report_demo",
+      "sys"
+    ]
+  },
+  "failures": [
+    {
+      "test": "realModelKnowledgeAnswerAndInsufficiencyDoNotReadBusinessRows()",
+      "runId": "64442fda945a4166bddbfcd2af6fb597",
+      "stage": "ANSWER",
+      "classification": "SOCKET_IO",
+      "diagnostic": {
+        "httpResponseObserved": false,
+        "observedHttpStatus": null,
+        "capturedBytes": 0,
+        "bodyFormat": "UNOBSERVED",
+        "protocol": "NOT_CHECKED"
+      },
+      "limits": "原始日志httpStatus=0是未观察到响应的哨兵值；不能推断真实HTTP状态、DNS/TLS或上游服务故障根因。"
+    },
+    {
+      "test": "realModelComparesPeriodsAsDifferentSetsWithExactDelta()",
+      "runId": "e037c0ec69c64da484f0050132603061",
+      "stage": "ANSWER",
+      "reason": "HTTP_422",
+      "explanation": "中文同月日期范围省略年月时，数字14被公共数字引用校验误判；后续通用解析修复与复测另行归档。"
+    }
+  ]
+}

@@ -1,0 +1,1515 @@
+{
+  "schemaVersion": 1,
+  "recordedAt": "2026-10-12T16:55:24.653Z",
+  "acceptanceStatus": "FAILED",
+  "scope": "本轮浏览器/专项运行已结束并清库，使用覆盖解释修正前的已编译AnalysisEngine。之后在磁盘上修改的FACT_RULES及retrievalEvidence不视为已在本轮验证。",
+  "results": {
+    "executed": 61,
+    "passed": 58,
+    "failed": 3,
+    "program": {
+      "executed": 45,
+      "passed": 45,
+      "failed": 0
+    },
+    "realModel": {
+      "executed": 15,
+      "passed": 13,
+      "failed": 2
+    },
+    "browser": {
+      "executed": 1,
+      "passed": 0,
+      "failed": 1
+    },
+    "failures": [
+      {
+        "test": "realModelBoundedAnalysisUsesActualHttpFactsAndCitations()",
+        "reason": "HTTP_503",
+        "message": "真实模型调用未完成，请核对端点、鉴权、Schema能力和超时配置",
+        "errorSha256": "3b232f31a4b054f05f98d09d1f00f9c7e4c8d5fa66873702d2fa1e69590aab6d",
+        "evidence": ".runtime/rag-2026-10-12-browser/integration-results.json"
+      },
+      {
+        "test": "realModelReusesSelectedSnapshotWithoutReadingNewFacts()",
+        "reason": "HTTP_422",
+        "message": "claims[0]的数字12没有被该条引用支持；请补充包含该数字的原文引用，或删去这项说明",
+        "errorSha256": "82c5299b91bc7063603ca9506a85d2ebf7e52dd8ef49254058477d91a0c2f94a",
+        "evidence": ".runtime/rag-2026-10-12-browser/integration-results.json"
+      },
+      {
+        "test": "browserSemanticRagImportAndRecovery()",
+        "reason": null,
+        "message": "真实浏览器未明确完成验收或已中止，不能计为通过 ==> expected: <true> but was: <false>",
+        "errorSha256": "a66e5d6cb6a2b3683fb39f65fddaaba84e17c83581016b5f1b7f2191aff1f650",
+        "evidence": ".runtime/rag-2026-10-12-browser/integration-results.json"
+      }
+    ]
+  },
+  "termination": {
+    "commandId": "browser-coverage-wording-abort",
+    "type": "abort",
+    "accepted": false,
+    "browserFixturePassed": false,
+    "controlEvidence": ".runtime/rag-2026-10-12-browser/browser-command.json",
+    "checkpointEvidence": ".runtime/rag-2026-10-12-browser/browser-check-browser-coverage-wording-abort.json"
+  },
+  "modelAccounting": {
+    "fullLedgerRows": 262,
+    "prefixChecks": {
+      "preUiPrefixMatchesSavedBaseline": true,
+      "browserLedgerMatchesFullPrefix": true,
+      "goldSuffixMatchesObservationCalls": true,
+      "partitionLengthMatchesFull": true
+    },
+    "preUiRows": 200,
+    "browserCumulativeRows": 233,
+    "uiIncrementRows": 33,
+    "goldIncrementRows": 29,
+    "full": {
+      "attempts": 115,
+      "responses": 112,
+      "failedCalls": 3,
+      "testDoubleCalls": 147,
+      "usage": {
+        "complete": false,
+        "measuredCalls": 112,
+        "unknownUsageCalls": 3,
+        "knownInputTokens": 405756,
+        "knownOutputTokens": 12960,
+        "fullInputTokens": null,
+        "fullOutputTokens": null,
+        "cost": null,
+        "costComplete": false
+      },
+      "latencyMs": {
+        "samples": 115,
+        "missing": 0,
+        "min": 13,
+        "p50": 3119,
+        "p95": 5679,
+        "p99": 6402,
+        "max": 6455,
+        "sum": 381790
+      },
+      "stages": {
+        "ANSWER": {
+          "calls": 21,
+          "responses": 21,
+          "failures": 0,
+          "latencyMs": {
+            "samples": 21,
+            "missing": 0,
+            "min": 2656,
+            "p50": 3947,
+            "p95": 6022,
+            "p99": 6455,
+            "max": 6455,
+            "sum": 90265
+          }
+        },
+        "ANSWER_REVIEW": {
+          "calls": 18,
+          "responses": 18,
+          "failures": 0,
+          "latencyMs": {
+            "samples": 18,
+            "missing": 0,
+            "min": 2341,
+            "p50": 3323,
+            "p95": 4699,
+            "p99": 4699,
+            "max": 4699,
+            "sum": 61469
+          }
+        },
+        "PLAN": {
+          "calls": 24,
+          "responses": 22,
+          "failures": 2,
+          "latencyMs": {
+            "samples": 24,
+            "missing": 0,
+            "min": 13,
+            "p50": 3151,
+            "p95": 5611,
+            "p99": 5679,
+            "max": 5679,
+            "sum": 79816
+          }
+        },
+        "PLAN_REVIEW": {
+          "calls": 22,
+          "responses": 22,
+          "failures": 0,
+          "latencyMs": {
+            "samples": 22,
+            "missing": 0,
+            "min": 2247,
+            "p50": 2927,
+            "p95": 3971,
+            "p99": 6402,
+            "max": 6402,
+            "sum": 69171
+          }
+        },
+        "RAG_RERANK": {
+          "calls": 14,
+          "responses": 13,
+          "failures": 1,
+          "latencyMs": {
+            "samples": 14,
+            "missing": 0,
+            "min": 2090,
+            "p50": 2468,
+            "p95": 5009,
+            "p99": 5009,
+            "max": 5009,
+            "sum": 40999
+          }
+        },
+        "RAG_REWRITE": {
+          "calls": 16,
+          "responses": 16,
+          "failures": 0,
+          "latencyMs": {
+            "samples": 16,
+            "missing": 0,
+            "min": 2106,
+            "p50": 2307,
+            "p95": 3289,
+            "p99": 3289,
+            "max": 3289,
+            "sum": 40070
+          }
+        }
+      }
+    },
+    "beforeBrowser": {
+      "attempts": 53,
+      "responses": 52,
+      "failedCalls": 1,
+      "testDoubleCalls": 147,
+      "usage": {
+        "complete": false,
+        "measuredCalls": 52,
+        "unknownUsageCalls": 1,
+        "knownInputTokens": 208410,
+        "knownOutputTokens": 6733,
+        "fullInputTokens": null,
+        "fullOutputTokens": null,
+        "cost": null,
+        "costComplete": false
+      },
+      "latencyMs": {
+        "samples": 53,
+        "missing": 0,
+        "min": 2200,
+        "p50": 3505,
+        "p95": 5679,
+        "p99": 6455,
+        "max": 6455,
+        "sum": 187289
+      },
+      "stages": {
+        "ANSWER": {
+          "calls": 10,
+          "responses": 10,
+          "failures": 0,
+          "latencyMs": {
+            "samples": 10,
+            "missing": 0,
+            "min": 3474,
+            "p50": 3739,
+            "p95": 6455,
+            "p99": 6455,
+            "max": 6455,
+            "sum": 42082
+          }
+        },
+        "ANSWER_REVIEW": {
+          "calls": 8,
+          "responses": 8,
+          "failures": 0,
+          "latencyMs": {
+            "samples": 8,
+            "missing": 0,
+            "min": 2940,
+            "p50": 3505,
+            "p95": 4699,
+            "p99": 4699,
+            "max": 4699,
+            "sum": 28769
+          }
+        },
+        "PLAN": {
+          "calls": 12,
+          "responses": 11,
+          "failures": 1,
+          "latencyMs": {
+            "samples": 12,
+            "missing": 0,
+            "min": 2784,
+            "p50": 3498,
+            "p95": 5679,
+            "p99": 5679,
+            "max": 5679,
+            "sum": 43566
+          }
+        },
+        "PLAN_REVIEW": {
+          "calls": 11,
+          "responses": 11,
+          "failures": 0,
+          "latencyMs": {
+            "samples": 11,
+            "missing": 0,
+            "min": 2569,
+            "p50": 3536,
+            "p95": 6402,
+            "p99": 6402,
+            "max": 6402,
+            "sum": 39234
+          }
+        },
+        "RAG_RERANK": {
+          "calls": 6,
+          "responses": 6,
+          "failures": 0,
+          "latencyMs": {
+            "samples": 6,
+            "missing": 0,
+            "min": 2394,
+            "p50": 3082,
+            "p95": 4127,
+            "p99": 4127,
+            "max": 4127,
+            "sum": 19348
+          }
+        },
+        "RAG_REWRITE": {
+          "calls": 6,
+          "responses": 6,
+          "failures": 0,
+          "latencyMs": {
+            "samples": 6,
+            "missing": 0,
+            "min": 2200,
+            "p50": 2307,
+            "p95": 2549,
+            "p99": 2549,
+            "max": 2549,
+            "sum": 14290
+          }
+        }
+      }
+    },
+    "browserIncrement": {
+      "attempts": 33,
+      "responses": 31,
+      "failedCalls": 2,
+      "testDoubleCalls": 0,
+      "usage": {
+        "complete": false,
+        "measuredCalls": 31,
+        "unknownUsageCalls": 2,
+        "knownInputTokens": 126269,
+        "knownOutputTokens": 3639,
+        "fullInputTokens": null,
+        "fullOutputTokens": null,
+        "cost": null,
+        "costComplete": false
+      },
+      "latencyMs": {
+        "samples": 33,
+        "missing": 0,
+        "min": 13,
+        "p50": 2927,
+        "p95": 5656,
+        "p99": 5913,
+        "max": 5913,
+        "sum": 102408
+      },
+      "stages": {
+        "ANSWER": {
+          "calls": 6,
+          "responses": 6,
+          "failures": 0,
+          "latencyMs": {
+            "samples": 6,
+            "missing": 0,
+            "min": 2676,
+            "p50": 3947,
+            "p95": 5913,
+            "p99": 5913,
+            "max": 5913,
+            "sum": 25680
+          }
+        },
+        "ANSWER_REVIEW": {
+          "calls": 5,
+          "responses": 5,
+          "failures": 0,
+          "latencyMs": {
+            "samples": 5,
+            "missing": 0,
+            "min": 2362,
+            "p50": 3105,
+            "p95": 4378,
+            "p99": 4378,
+            "max": 4378,
+            "sum": 16152
+          }
+        },
+        "PLAN": {
+          "calls": 7,
+          "responses": 6,
+          "failures": 1,
+          "latencyMs": {
+            "samples": 7,
+            "missing": 0,
+            "min": 13,
+            "p50": 3043,
+            "p95": 4504,
+            "p99": 4504,
+            "max": 4504,
+            "sum": 19515
+          }
+        },
+        "PLAN_REVIEW": {
+          "calls": 6,
+          "responses": 6,
+          "failures": 0,
+          "latencyMs": {
+            "samples": 6,
+            "missing": 0,
+            "min": 2247,
+            "p50": 2532,
+            "p95": 3443,
+            "p99": 3443,
+            "max": 3443,
+            "sum": 16228
+          }
+        },
+        "RAG_RERANK": {
+          "calls": 4,
+          "responses": 3,
+          "failures": 1,
+          "latencyMs": {
+            "samples": 4,
+            "missing": 0,
+            "min": 2375,
+            "p50": 2430,
+            "p95": 5009,
+            "p99": 5009,
+            "max": 5009,
+            "sum": 12538
+          }
+        },
+        "RAG_REWRITE": {
+          "calls": 5,
+          "responses": 5,
+          "failures": 0,
+          "latencyMs": {
+            "samples": 5,
+            "missing": 0,
+            "min": 2132,
+            "p50": 2281,
+            "p95": 3289,
+            "p99": 3289,
+            "max": 3289,
+            "sum": 12295
+          }
+        }
+      }
+    },
+    "goldIncrement": {
+      "attempts": 29,
+      "responses": 29,
+      "failedCalls": 0,
+      "testDoubleCalls": 0,
+      "usage": {
+        "complete": true,
+        "measuredCalls": 29,
+        "unknownUsageCalls": 0,
+        "knownInputTokens": 71077,
+        "knownOutputTokens": 2588,
+        "fullInputTokens": 71077,
+        "fullOutputTokens": 2588,
+        "cost": null,
+        "costComplete": false
+      },
+      "latencyMs": {
+        "samples": 29,
+        "missing": 0,
+        "min": 2090,
+        "p50": 2931,
+        "p95": 5741,
+        "p99": 6022,
+        "max": 6022,
+        "sum": 92093
+      },
+      "stages": {
+        "ANSWER": {
+          "calls": 5,
+          "responses": 5,
+          "failures": 0,
+          "latencyMs": {
+            "samples": 5,
+            "missing": 0,
+            "min": 2656,
+            "p50": 4449,
+            "p95": 6022,
+            "p99": 6022,
+            "max": 6022,
+            "sum": 22503
+          }
+        },
+        "ANSWER_REVIEW": {
+          "calls": 5,
+          "responses": 5,
+          "failures": 0,
+          "latencyMs": {
+            "samples": 5,
+            "missing": 0,
+            "min": 2341,
+            "p50": 2978,
+            "p95": 4522,
+            "p99": 4522,
+            "max": 4522,
+            "sum": 16548
+          }
+        },
+        "PLAN": {
+          "calls": 5,
+          "responses": 5,
+          "failures": 0,
+          "latencyMs": {
+            "samples": 5,
+            "missing": 0,
+            "min": 2447,
+            "p50": 2977,
+            "p95": 5611,
+            "p99": 5611,
+            "max": 5611,
+            "sum": 16735
+          }
+        },
+        "PLAN_REVIEW": {
+          "calls": 5,
+          "responses": 5,
+          "failures": 0,
+          "latencyMs": {
+            "samples": 5,
+            "missing": 0,
+            "min": 2408,
+            "p50": 2560,
+            "p95": 3135,
+            "p99": 3135,
+            "max": 3135,
+            "sum": 13709
+          }
+        },
+        "RAG_RERANK": {
+          "calls": 4,
+          "responses": 4,
+          "failures": 0,
+          "latencyMs": {
+            "samples": 4,
+            "missing": 0,
+            "min": 2090,
+            "p50": 2140,
+            "p95": 2468,
+            "p99": 2468,
+            "max": 2468,
+            "sum": 9113
+          }
+        },
+        "RAG_REWRITE": {
+          "calls": 5,
+          "responses": 5,
+          "failures": 0,
+          "latencyMs": {
+            "samples": 5,
+            "missing": 0,
+            "min": 2106,
+            "p50": 2931,
+            "p95": 3155,
+            "p99": 3155,
+            "max": 3155,
+            "sum": 13485
+          }
+        }
+      }
+    },
+    "uiFailedCalls": [
+      {
+        "stage": "PLAN",
+        "at": "2026-10-12T16:21:28.875254400Z",
+        "elapsedMs": 13,
+        "failureType": "ApiException",
+        "error": "真实模型调用未完成，请核对端点、鉴权、Schema能力和超时配置",
+        "usageKnown": false,
+        "context": "发生在本次明确取消任务的窗口；保留失败和未知用量，不据此认定外部网络故障"
+      },
+      {
+        "stage": "RAG_RERANK",
+        "at": "2026-10-12T16:35:08.443310700Z",
+        "elapsedMs": 5009,
+        "failureType": "ApiException",
+        "error": "真实模型调用未完成，请核对端点、鉴权、Schema能力和超时配置",
+        "usageKnown": false,
+        "context": "首次冲突问答的RAG_RERANK失败；后续明确创建新任务重试成功，首败仍保留"
+      }
+    ],
+    "rules": [
+      "model-evidence是唯一最终全量账本，source=MODEL作为真实调用尝试。",
+      "browser-model-evidence是前缀，RAG observations是金标后缀；两者用于分段核对，不能再加入全量计费。",
+      "保留取消及首次冲突失败调用，缺失用量保持未知；已知token求和不是完整token账单。"
+    ]
+  },
+  "browser": {
+    "checkpointAudit": ".runtime/rag-2026-10-12-browser/browser-recovery-audit.json",
+    "checkpointAssertions": {
+      "total": 36,
+      "passed": 36,
+      "failed": 0
+    },
+    "runs": [
+      {
+        "id": "0cedbd8fa6184ab1958c385cb5342418",
+        "status": "COMPLETED",
+        "question": "Do booked sales prove that customer funds have arrived?",
+        "snapshotId": null,
+        "answerStatus": "ANSWERED",
+        "usageCalls": 6,
+        "stages": [
+          {
+            "stage": "PLAN",
+            "status": "RESPONDED",
+            "validation": null,
+            "reason": null
+          },
+          {
+            "stage": "PLAN_REVIEW",
+            "status": "RESPONDED",
+            "validation": null,
+            "reason": null
+          },
+          {
+            "stage": "RAG_REWRITE",
+            "status": "RESPONDED",
+            "validation": null,
+            "reason": null
+          },
+          {
+            "stage": "RAG_RERANK",
+            "status": "RESPONDED",
+            "validation": null,
+            "reason": null
+          },
+          {
+            "stage": "ANSWER",
+            "status": "RESPONDED",
+            "validation": null,
+            "reason": null
+          },
+          {
+            "stage": "ANSWER_REVIEW",
+            "status": "RESPONDED",
+            "validation": null,
+            "reason": null
+          }
+        ],
+        "citedSourceIds": [
+          "document-16d3f1be65c14b7e9ebc6e228e4d0c41-v2-p1",
+          "document-a757bf7892d34ffc9101cb8c99747ca1-v2-p1"
+        ],
+        "rejectedAnswerAttempts": 0
+      },
+      {
+        "id": "13934bd56abe431bb62057f51cc17261",
+        "status": "COMPLETED",
+        "question": "按界面选定快照统计产品金额，取金额最高的两组并展开单据。",
+        "snapshotId": "56dd5af7a40342f88f4b9bd599b7469b",
+        "answerStatus": "ANSWERED",
+        "usageCalls": 4,
+        "stages": [
+          {
+            "stage": "PLAN",
+            "status": "RESPONDED",
+            "validation": null,
+            "reason": null
+          },
+          {
+            "stage": "PLAN_REVIEW",
+            "status": "RESPONDED",
+            "validation": null,
+            "reason": null
+          },
+          {
+            "stage": "ANSWER",
+            "status": "RESPONDED",
+            "validation": null,
+            "reason": null
+          },
+          {
+            "stage": "ANSWER_REVIEW",
+            "status": "RESPONDED",
+            "validation": null,
+            "reason": null
+          }
+        ],
+        "citedSourceIds": [
+          "step-1-q1",
+          "step-2",
+          "step-3",
+          "step-4-q1",
+          "step-4-q5"
+        ],
+        "rejectedAnswerAttempts": 0
+      },
+      {
+        "id": "638084c6f9244a76a041de5e26c76266",
+        "status": "CANCELLED",
+        "question": "按界面选定快照统计产品金额，取金额最高的两组并展开单据。",
+        "snapshotId": "56dd5af7a40342f88f4b9bd599b7469b",
+        "answerStatus": null,
+        "usageCalls": 0,
+        "stages": [],
+        "citedSourceIds": [],
+        "rejectedAnswerAttempts": 0
+      },
+      {
+        "id": "8ebb582a05ea4b88919b470f2d4389e3",
+        "status": "FAILED",
+        "question": "现行资料对销售金额是否含税有一致结论吗？请列出相反依据。",
+        "snapshotId": null,
+        "answerStatus": null,
+        "usageCalls": 4,
+        "stages": [
+          {
+            "stage": "PLAN",
+            "status": "RESPONDED",
+            "validation": null,
+            "reason": null
+          },
+          {
+            "stage": "PLAN_REVIEW",
+            "status": "RESPONDED",
+            "validation": null,
+            "reason": null
+          },
+          {
+            "stage": "RAG_REWRITE",
+            "status": "RESPONDED",
+            "validation": null,
+            "reason": null
+          },
+          {
+            "stage": "RAG_RERANK",
+            "status": "FAILED",
+            "validation": null,
+            "reason": null
+          }
+        ],
+        "citedSourceIds": [],
+        "rejectedAnswerAttempts": 0
+      },
+      {
+        "id": "9ad50883243c4b879d21c4b069bee863",
+        "status": "COMPLETED",
+        "question": "声学设备蓝鲸探测频带上限究竟是多少？",
+        "snapshotId": null,
+        "answerStatus": "INSUFFICIENT",
+        "usageCalls": 5,
+        "stages": [
+          {
+            "stage": "PLAN",
+            "status": "RESPONDED",
+            "validation": null,
+            "reason": null
+          },
+          {
+            "stage": "PLAN_REVIEW",
+            "status": "RESPONDED",
+            "validation": null,
+            "reason": null
+          },
+          {
+            "stage": "RAG_REWRITE",
+            "status": "RESPONDED",
+            "validation": null,
+            "reason": null
+          },
+          {
+            "stage": "ANSWER",
+            "status": "RESPONDED",
+            "validation": null,
+            "reason": null
+          },
+          {
+            "stage": "ANSWER_REVIEW",
+            "status": "RESPONDED",
+            "validation": null,
+            "reason": null
+          }
+        ],
+        "citedSourceIds": [
+          "knowledge-coverage-1"
+        ],
+        "rejectedAnswerAttempts": 0
+      },
+      {
+        "id": "a015db00b85341be828a78dd6daaacfd",
+        "status": "CANCELLED",
+        "question": "按界面选定快照统计产品金额，取金额最高的两组并展开单据。",
+        "snapshotId": "56dd5af7a40342f88f4b9bd599b7469b",
+        "answerStatus": null,
+        "usageCalls": 1,
+        "stages": [
+          {
+            "stage": "PLAN",
+            "status": "STARTED",
+            "validation": null,
+            "reason": null
+          }
+        ],
+        "citedSourceIds": [],
+        "rejectedAnswerAttempts": 0
+      },
+      {
+        "id": "b2c93330e2a84e06b2314abfe9839994",
+        "status": "COMPLETED",
+        "question": "按界面选定快照统计产品金额，取金额最高的两组并展开单据。",
+        "snapshotId": "56dd5af7a40342f88f4b9bd599b7469b",
+        "answerStatus": "ANSWERED",
+        "usageCalls": 5,
+        "stages": [
+          {
+            "stage": "PLAN",
+            "status": "RESPONDED",
+            "validation": null,
+            "reason": null
+          },
+          {
+            "stage": "PLAN_REVIEW",
+            "status": "RESPONDED",
+            "validation": null,
+            "reason": null
+          },
+          {
+            "stage": "ANSWER",
+            "status": "RESPONDED",
+            "validation": "REJECTED",
+            "reason": "claims[3]的数字2没有被该条引用支持；请补充包含该数字的原文引用，或删去这项说明"
+          },
+          {
+            "stage": "ANSWER",
+            "status": "RESPONDED",
+            "validation": null,
+            "reason": null
+          },
+          {
+            "stage": "ANSWER_REVIEW",
+            "status": "RESPONDED",
+            "validation": null,
+            "reason": null
+          }
+        ],
+        "citedSourceIds": [
+          "step-2",
+          "step-3",
+          "step-4-q1",
+          "step-4-q5",
+          "step-1-q1",
+          "step-1-q4"
+        ],
+        "rejectedAnswerAttempts": 1
+      },
+      {
+        "id": "bd46b961e4244dad9581fe779ea01ae3",
+        "status": "COMPLETED",
+        "question": "现行资料对销售金额是否含税有一致结论吗？请列出相反依据。",
+        "snapshotId": null,
+        "answerStatus": "CONFLICTING",
+        "usageCalls": 6,
+        "stages": [
+          {
+            "stage": "PLAN",
+            "status": "RESPONDED",
+            "validation": null,
+            "reason": null
+          },
+          {
+            "stage": "PLAN_REVIEW",
+            "status": "RESPONDED",
+            "validation": null,
+            "reason": null
+          },
+          {
+            "stage": "RAG_REWRITE",
+            "status": "RESPONDED",
+            "validation": null,
+            "reason": null
+          },
+          {
+            "stage": "RAG_RERANK",
+            "status": "RESPONDED",
+            "validation": null,
+            "reason": null
+          },
+          {
+            "stage": "ANSWER",
+            "status": "RESPONDED",
+            "validation": null,
+            "reason": null
+          },
+          {
+            "stage": "ANSWER_REVIEW",
+            "status": "RESPONDED",
+            "validation": null,
+            "reason": null
+          }
+        ],
+        "citedSourceIds": [
+          "document-5ddc525e13ae4b7fbae4965fa793a1ec-v2-p1",
+          "document-052b3029399440b2ac4aa1b3f7550924-v2-p1",
+          "knowledge-coverage-1"
+        ],
+        "rejectedAnswerAttempts": 0
+      }
+    ],
+    "conflictAttempts": [
+      {
+        "id": "8ebb582a05ea4b88919b470f2d4389e3",
+        "status": "FAILED",
+        "question": "现行资料对销售金额是否含税有一致结论吗？请列出相反依据。",
+        "snapshotId": null,
+        "answerStatus": null,
+        "usageCalls": 4,
+        "stages": [
+          {
+            "stage": "PLAN",
+            "status": "RESPONDED",
+            "validation": null,
+            "reason": null
+          },
+          {
+            "stage": "PLAN_REVIEW",
+            "status": "RESPONDED",
+            "validation": null,
+            "reason": null
+          },
+          {
+            "stage": "RAG_REWRITE",
+            "status": "RESPONDED",
+            "validation": null,
+            "reason": null
+          },
+          {
+            "stage": "RAG_RERANK",
+            "status": "FAILED",
+            "validation": null,
+            "reason": null
+          }
+        ],
+        "citedSourceIds": [],
+        "rejectedAnswerAttempts": 0
+      },
+      {
+        "id": "bd46b961e4244dad9581fe779ea01ae3",
+        "status": "COMPLETED",
+        "question": "现行资料对销售金额是否含税有一致结论吗？请列出相反依据。",
+        "snapshotId": null,
+        "answerStatus": "CONFLICTING",
+        "usageCalls": 6,
+        "stages": [
+          {
+            "stage": "PLAN",
+            "status": "RESPONDED",
+            "validation": null,
+            "reason": null
+          },
+          {
+            "stage": "PLAN_REVIEW",
+            "status": "RESPONDED",
+            "validation": null,
+            "reason": null
+          },
+          {
+            "stage": "RAG_REWRITE",
+            "status": "RESPONDED",
+            "validation": null,
+            "reason": null
+          },
+          {
+            "stage": "RAG_RERANK",
+            "status": "RESPONDED",
+            "validation": null,
+            "reason": null
+          },
+          {
+            "stage": "ANSWER",
+            "status": "RESPONDED",
+            "validation": null,
+            "reason": null
+          },
+          {
+            "stage": "ANSWER_REVIEW",
+            "status": "RESPONDED",
+            "validation": null,
+            "reason": null
+          }
+        ],
+        "citedSourceIds": [
+          "document-5ddc525e13ae4b7fbae4965fa793a1ec-v2-p1",
+          "document-052b3029399440b2ac4aa1b3f7550924-v2-p1",
+          "knowledge-coverage-1"
+        ],
+        "rejectedAnswerAttempts": 0
+      }
+    ],
+    "coverageWordingFailure": {
+      "runId": "9ad50883243c4b879d21c4b069bee863",
+      "serverStatus": "COMPLETED",
+      "answerStatus": "INSUFFICIENT",
+      "actualRetrieval": {
+        "searched": 12,
+        "matched": 0,
+        "returned": 0,
+        "truncated": false,
+        "expansionTruncated": false,
+        "reranked": false,
+        "contextTruncated": false,
+        "retrievalVersion": "semantic-rag-2"
+      },
+      "checks": [
+        {
+          "name": "falseExpansionTruncationDoesNotSupportBudgetInsufficiencyInference",
+          "passed": false,
+          "observedQuote": "本次字段别名扩展未达到预算，因此本轮检索依据有限。",
+          "evidenceFlag": false
+        },
+        {
+          "name": "noHitIsNotProofThatExistingDocumentsContainNoRule",
+          "passed": false,
+          "observedQuote": "现有资料中没有关于声学设备蓝鲸探测频带上限的制度或定义，无法确定该上限数值。",
+          "evidenceMatched": 0
+        }
+      ],
+      "domContainsBothObservedDefects": true,
+      "lastBrowserReview": {
+        "approved": true,
+        "reason": "答案状态为INSUFFICIENT，与知识检索0命中一致；检索计数、来源与片段单位、别名扩展截断说明均与原始事实相符，未把未执行写成无命中，也未就不足事项编造结论。"
+      },
+      "artifacts": [
+        ".runtime/rag-2026-10-12-browser/browser-insufficient-first.txt",
+        ".runtime/rag-2026-10-12-browser/browser-insufficient-first.jpg",
+        ".runtime/rag-2026-10-12-browser/browser-check-browser-coverage-wording-abort.json"
+      ],
+      "scope": "服务器状态COMPLETED且ANSWER_REVIEW批准，实际UI验收发现上述解释错误；故browser夹具显式abort并记失败。不能因INSUFFICIENT状态或金标引用覆盖通过而掩盖此缺陷。"
+    },
+    "endingBusinessSnapshotCount": 1,
+    "endingDispatchRequestCount": 0,
+    "previewCallsBetweenDraftAndPublished": [
+      {
+        "stage": "RAG_REWRITE",
+        "status": "RESPONDED",
+        "usage": {
+          "inputTokens": 465,
+          "outputTokens": 50,
+          "cachedInputTokens": 128
+        },
+        "elapsedMs": 2243
+      },
+      {
+        "stage": "RAG_RERANK",
+        "status": "RESPONDED",
+        "usage": {
+          "inputTokens": 2574,
+          "outputTokens": 39,
+          "cachedInputTokens": 128
+        },
+        "elapsedMs": 2430
+      }
+    ]
+  },
+  "gold": {
+    "evidence": ".runtime/rag-2026-10-12-browser/rag-evaluation.json",
+    "corpusSha256": "343d023eb915fa38836fdeee430d8c3a207c80bf7c0366777cc9184934c9df4a",
+    "scorerSha256": "cd9228f708b1b2267dd5c12648988b1b8fb4c50e9b4a9e214d49f6b498125a01",
+    "summary": {
+      "expectedCases": 5,
+      "observedCases": 5,
+      "attempts": 5,
+      "passed": 5,
+      "failed": 0,
+      "firstPass": 5,
+      "firstPassRate": 1,
+      "realModelCases": 5,
+      "lexical": {
+        "recallAt12": 0.75,
+        "meanReciprocalRankAt12": 0.625,
+        "opposingRecallAt12": 1,
+        "noMatchAccuracy": 1
+      },
+      "semantic": {
+        "recallAt12": 1,
+        "meanReciprocalRankAt12": 1,
+        "opposingRecallAt12": 1,
+        "noMatchAccuracy": 1
+      },
+      "latencyMs": {
+        "samples": 5,
+        "p50": 17196,
+        "p95": 23637,
+        "p99": 23637
+      },
+      "modelCalls": 29,
+      "testDoubleCalls": 0,
+      "stages": {
+        "ANSWER": {
+          "calls": 5,
+          "failures": 0,
+          "latencyMs": {
+            "samples": 5,
+            "p50": 4449,
+            "p95": 6022,
+            "p99": 6022
+          }
+        },
+        "ANSWER_REVIEW": {
+          "calls": 5,
+          "failures": 0,
+          "latencyMs": {
+            "samples": 5,
+            "p50": 2978,
+            "p95": 4522,
+            "p99": 4522
+          }
+        },
+        "PLAN": {
+          "calls": 5,
+          "failures": 0,
+          "latencyMs": {
+            "samples": 5,
+            "p50": 2977,
+            "p95": 5611,
+            "p99": 5611
+          }
+        },
+        "PLAN_REVIEW": {
+          "calls": 5,
+          "failures": 0,
+          "latencyMs": {
+            "samples": 5,
+            "p50": 2560,
+            "p95": 3135,
+            "p99": 3135
+          }
+        },
+        "RAG_RERANK": {
+          "calls": 4,
+          "failures": 0,
+          "latencyMs": {
+            "samples": 4,
+            "p50": 2140,
+            "p95": 2468,
+            "p99": 2468
+          }
+        },
+        "RAG_REWRITE": {
+          "calls": 5,
+          "failures": 0,
+          "latencyMs": {
+            "samples": 5,
+            "p50": 2931,
+            "p95": 3155,
+            "p99": 3155
+          }
+        }
+      },
+      "usage": {
+        "complete": true,
+        "measuredCalls": 29,
+        "totalCalls": 29,
+        "inputTokens": 71077,
+        "outputTokens": 2588,
+        "cost": null,
+        "costComplete": false
+      }
+    },
+    "cases": [
+      {
+        "caseId": "cross-language-no-alias",
+        "passed": true,
+        "firstPass": true,
+        "lexical": {
+          "available": true,
+          "retrievedFragments": 1,
+          "retrievedSources": 1,
+          "recallAt12": 0,
+          "firstRelevantRank": null,
+          "reciprocalRank": 0,
+          "opposingRecallAt12": null,
+          "noMatchCorrect": null,
+          "relevantRetrieved": [],
+          "opposingRetrieved": []
+        },
+        "semantic": {
+          "available": true,
+          "retrievedFragments": 10,
+          "retrievedSources": 10,
+          "recallAt12": 1,
+          "firstRelevantRank": 1,
+          "reciprocalRank": 1,
+          "opposingRecallAt12": null,
+          "noMatchCorrect": null,
+          "relevantRetrieved": [
+            "sales-basis",
+            "cash-receipt"
+          ],
+          "opposingRetrieved": []
+        },
+        "answer": {
+          "statusCorrect": true,
+          "citationCoverageCorrect": true,
+          "scope": "仅核对最终状态与实际引用覆盖；业务结论仍须审阅"
+        },
+        "durationMs": 22203
+      },
+      {
+        "caseId": "negation-and-exception",
+        "passed": true,
+        "firstPass": true,
+        "lexical": {
+          "available": true,
+          "retrievedFragments": 2,
+          "retrievedSources": 2,
+          "recallAt12": 1,
+          "firstRelevantRank": 1,
+          "reciprocalRank": 1,
+          "opposingRecallAt12": null,
+          "noMatchCorrect": null,
+          "relevantRetrieved": [
+            "lodging-exception"
+          ],
+          "opposingRetrieved": []
+        },
+        "semantic": {
+          "available": true,
+          "retrievedFragments": 3,
+          "retrievedSources": 3,
+          "recallAt12": 1,
+          "firstRelevantRank": 1,
+          "reciprocalRank": 1,
+          "opposingRecallAt12": null,
+          "noMatchCorrect": null,
+          "relevantRetrieved": [
+            "lodging-exception"
+          ],
+          "opposingRetrieved": []
+        },
+        "answer": {
+          "statusCorrect": true,
+          "citationCoverageCorrect": true,
+          "scope": "仅核对最终状态与实际引用覆盖；业务结论仍须审阅"
+        },
+        "durationMs": 17196
+      },
+      {
+        "caseId": "similar-concept-distinction",
+        "passed": true,
+        "firstPass": true,
+        "lexical": {
+          "available": true,
+          "retrievedFragments": 2,
+          "retrievedSources": 2,
+          "recallAt12": 1,
+          "firstRelevantRank": 1,
+          "reciprocalRank": 1,
+          "opposingRecallAt12": null,
+          "noMatchCorrect": null,
+          "relevantRetrieved": [
+            "invoice-recognition"
+          ],
+          "opposingRetrieved": []
+        },
+        "semantic": {
+          "available": true,
+          "retrievedFragments": 4,
+          "retrievedSources": 4,
+          "recallAt12": 1,
+          "firstRelevantRank": 1,
+          "reciprocalRank": 1,
+          "opposingRecallAt12": null,
+          "noMatchCorrect": null,
+          "relevantRetrieved": [
+            "invoice-recognition"
+          ],
+          "opposingRetrieved": []
+        },
+        "answer": {
+          "statusCorrect": true,
+          "citationCoverageCorrect": true,
+          "scope": "仅核对最终状态与实际引用覆盖；业务结论仍须审阅"
+        },
+        "durationMs": 16695
+      },
+      {
+        "caseId": "opposing-tax-policy",
+        "passed": true,
+        "firstPass": true,
+        "lexical": {
+          "available": true,
+          "retrievedFragments": 11,
+          "retrievedSources": 11,
+          "recallAt12": 1,
+          "firstRelevantRank": 2,
+          "reciprocalRank": 0.5,
+          "opposingRecallAt12": 1,
+          "noMatchCorrect": null,
+          "relevantRetrieved": [
+            "tax-inclusive",
+            "tax-exclusive"
+          ],
+          "opposingRetrieved": [
+            "tax-exclusive"
+          ]
+        },
+        "semantic": {
+          "available": true,
+          "retrievedFragments": 11,
+          "retrievedSources": 11,
+          "recallAt12": 1,
+          "firstRelevantRank": 1,
+          "reciprocalRank": 1,
+          "opposingRecallAt12": 1,
+          "noMatchCorrect": null,
+          "relevantRetrieved": [
+            "tax-inclusive",
+            "tax-exclusive"
+          ],
+          "opposingRetrieved": [
+            "tax-exclusive"
+          ]
+        },
+        "answer": {
+          "statusCorrect": true,
+          "citationCoverageCorrect": true,
+          "scope": "仅核对最终状态与实际引用覆盖；业务结论仍须审阅"
+        },
+        "durationMs": 23637
+      },
+      {
+        "caseId": "unrelated-no-match",
+        "passed": true,
+        "firstPass": true,
+        "lexical": {
+          "available": true,
+          "retrievedFragments": 0,
+          "retrievedSources": 0,
+          "recallAt12": null,
+          "firstRelevantRank": null,
+          "reciprocalRank": null,
+          "opposingRecallAt12": null,
+          "noMatchCorrect": true,
+          "relevantRetrieved": [],
+          "opposingRetrieved": []
+        },
+        "semantic": {
+          "available": true,
+          "retrievedFragments": 0,
+          "retrievedSources": 0,
+          "recallAt12": null,
+          "firstRelevantRank": null,
+          "reciprocalRank": null,
+          "opposingRecallAt12": null,
+          "noMatchCorrect": true,
+          "relevantRetrieved": [],
+          "opposingRetrieved": []
+        },
+        "answer": {
+          "statusCorrect": true,
+          "citationCoverageCorrect": true,
+          "scope": "仅核对最终状态与实际引用覆盖；业务结论仍须审阅"
+        },
+        "durationMs": 13901
+      }
+    ],
+    "limits": "5/5仅为此工程合成金标对状态、独立来源召回和引用覆盖的评分；不替代实际业务语义审阅。该分数不能覆盖本轮浏览器已确认的coverage解释失败。"
+  },
+  "databases": [
+    {
+      "evidence": ".runtime/rag-2026-10-12-browser/databases-analysis_knowledge_it_220e9a16dbf8449f895b1f3b7312bd56.json",
+      "name": "analysis_knowledge_it_220e9a16dbf8449f895b1f3b7312bd56",
+      "createdAt": "2026-10-12T15:51:53.802708600Z",
+      "removedAt": "2026-10-12T16:49:55.867974600Z",
+      "removed": true,
+      "preexistingPreserved": true,
+      "reportDemoPreserved": true
+    }
+  ],
+  "historicalAggregateThroughThisRun": {
+    "previousEvidence": ".runtime/rag-2026-10-12-evidence-summary.json",
+    "includedRuns": [
+      "boundaries",
+      "boundaries-recheck",
+      "live-01",
+      "live-02",
+      "transport-diagnostic",
+      "live-03",
+      "browser"
+    ],
+    "realModelCalls": 349,
+    "responses": 336,
+    "failedCalls": 13,
+    "knownInputTokens": 1206259,
+    "knownOutputTokens": 40446,
+    "unknownUsageCalls": 13,
+    "cost": null,
+    "note": "跨版本历史尝试的用量汇总，不是唯一案例数量、当前版本一次通过率或生产质量指标。"
+  },
+  "nextEvidenceRequired": [
+    "新编译代码的受影响回归及真实模型补验，保留本轮3项失败与UI首次冲突失败。",
+    "新编译浏览器无命中回答验证：不能从expansionTruncated=false推断预算不足；不能从本轮0命中断言现有资料没有规定。"
+  ],
+  "artifacts": [
+    {
+      "path": ".runtime/rag-2026-10-12-browser/browser-recovery-audit.json",
+      "bytes": 63036,
+      "sha256": "8431f38a7258e3f83209786af601cf68ef0358031158e34f4f12beafd4a9be07"
+    },
+    {
+      "path": ".runtime/rag-2026-10-12-browser/integration-results.json",
+      "bytes": 54157,
+      "sha256": "c4e67ede5f77e2b41c27986055d8a1e36f71cbd07acdcd21916bf6c014125658"
+    },
+    {
+      "path": ".runtime/rag-2026-10-12-browser/model-evidence.json",
+      "bytes": 351880,
+      "sha256": "2c944d4efca3ca8da41dd15254e1c5af772373832dc82cb696c8d7115aad015f"
+    },
+    {
+      "path": ".runtime/rag-2026-10-12-browser/browser-model-evidence.json",
+      "bytes": 309466,
+      "sha256": "3d3b920a8c55e2cff46dd39a34a4fdede98bc123e8f4329b0fb49cbd971dd76e"
+    },
+    {
+      "path": ".runtime/rag-2026-10-12-browser/rag-observations.json",
+      "bytes": 56824,
+      "sha256": "c4b10b317813c6bbe7f24a1e4e141f85d0e0bc6ba0a18983159556136adbc8a7"
+    },
+    {
+      "path": ".runtime/rag-2026-10-12-browser/rag-evaluation.json",
+      "bytes": 35927,
+      "sha256": "f8295b36acb375ee0933cd443453a61513aa27a3fed040840bff96cc9ddcf47e"
+    },
+    {
+      "path": ".runtime/rag-2026-10-12-browser/browser-rag-fixture.json",
+      "bytes": 2770,
+      "sha256": "6fd97cc0a341aa107a9ab9c0015e24ab3e0c7bf764a29ec39cab7f25db2dc882"
+    },
+    {
+      "path": ".runtime/rag-2026-10-12-browser/browser-check-browser-coverage-wording-abort.json",
+      "bytes": 238171,
+      "sha256": "7c58910e1526dcc6956a1b8e36d0b29a4f1de3f57778958860e614248e4e9c0b"
+    },
+    {
+      "path": ".runtime/rag-2026-10-12-browser/browser-command.json",
+      "bytes": 183,
+      "sha256": "40c26003b29025eb12057486e82eafe4e6887eeb5799fbad6a7563cc7e65ac6c"
+    },
+    {
+      "path": ".runtime/rag-2026-10-12-browser/databases-analysis_knowledge_it_220e9a16dbf8449f895b1f3b7312bd56.json",
+      "bytes": 750,
+      "sha256": "c70bcd645ebe2835f31b26b06487c248566c99daae82088d60efce1ed380912c"
+    },
+    {
+      "path": ".runtime/rag-2026-10-12-browser/browser-insufficient-first.txt",
+      "bytes": 4892,
+      "sha256": "09c5a4d3d6d565d36fc35312031329877ac8e808c5367ca56c3babee7bff5efa"
+    },
+    {
+      "path": ".runtime/rag-2026-10-12-browser/browser-insufficient-first.jpg",
+      "bytes": 71758,
+      "sha256": "aea46b040a47f58c8f58cbe87a44db16bd77370bfeabd963b987c2f0bba67833"
+    },
+    {
+      "path": ".runtime/rag-2026-10-12-browser/browser-conflict-first-failed.txt",
+      "bytes": 3151,
+      "sha256": "8f1dfac58217fe3f241817cb9d3bbd3c3a5de609ecbe7c4c9d7949307fe0ebc7"
+    },
+    {
+      "path": ".runtime/rag-2026-10-12-browser/browser-conflict-answer.txt",
+      "bytes": 6792,
+      "sha256": "0fad4c34df0ea851c82d28f28a87f0a88939be7ced6d05c6fecfdf7911cbceeb"
+    },
+    {
+      "path": ".runtime/rag-2026-10-12-browser/browser-conflict-answer.jpg",
+      "bytes": 63885,
+      "sha256": "17d2f68d684b743d8b2b552d7bcbb023820f5b1f1df7908bbf8471ca48e8452d"
+    },
+    {
+      "path": ".runtime/rag-2026-10-12-browser/browser-cross-language-answer.txt",
+      "bytes": 5694,
+      "sha256": "9f9de585920b64491e20b668faf6f0aca0d406bae2637a9378a26ce6bc05f14f"
+    },
+    {
+      "path": ".runtime/rag-2026-10-12-browser/browser-cross-language-answer.jpg",
+      "bytes": 73492,
+      "sha256": "40aee910fb14715cd484a82b24047149f9e31403dd2ef40d7d3585193828d5f3"
+    },
+    {
+      "path": ".runtime/rag-2026-10-12-browser/browser-cross-language-lexical.txt",
+      "bytes": 9091,
+      "sha256": "68b7012dbb0fc897a301c01b09ce31d15b1c19724e65fcb339b631198df1950a"
+    },
+    {
+      "path": ".runtime/rag-2026-10-12-browser/browser-pending-refreshed.jpg",
+      "bytes": 74092,
+      "sha256": "810ee85bea33f46a39255db9bf6879c264fbb8e9a3de342a568fb5ebe38b5cb9"
+    },
+    {
+      "path": ".runtime/rag-2026-10-12-browser/browser-pending-returned.jpg",
+      "bytes": 64227,
+      "sha256": "26a17620781abc26bccd7a7e18ec7a645dfddfc4b4c965aacd5788f9a066432a"
+    },
+    {
+      "path": ".runtime/rag-2026-10-12-browser/browser-lost-response.jpg",
+      "bytes": 75133,
+      "sha256": "84b6a54e24d95997ecabfbbddceb291a2c6dcb0ad7657356d5c538c2c0a1431d"
+    },
+    {
+      "path": ".runtime/rag-2026-10-12-browser/browser-invalid-snapshot.jpg",
+      "bytes": 53774,
+      "sha256": "a866820860d52643ce2629295b8982d68c68e6e7a53535ac15a7e7bf070979be"
+    },
+    {
+      "path": ".runtime/rag-2026-10-12-browser/browser-cancelled-refill.jpg",
+      "bytes": 74521,
+      "sha256": "b40735c3ce1d06c4de8c7817186093ec4156ac3ab7f6fbf7a2ff6a62dfbfe21a"
+    },
+    {
+      "path": ".runtime/rag-2026-10-12-browser/browser-detail-page2.jpg",
+      "bytes": 73407,
+      "sha256": "aa621bf131f3feb73d8bf25612cd690104aef8d246368a2a8bb1d21c050e0b37"
+    },
+    {
+      "path": ".runtime/rag-2026-10-12-browser/browser-refilled.jpg",
+      "bytes": 76733,
+      "sha256": "95cb2ba0ff76f8324f4a8455904309286541fc10117ff029cd8f5f14f7a6a3fa"
+    },
+    {
+      "path": ".runtime/rag-2026-10-12-browser/browser-recovered.jpg",
+      "bytes": 76171,
+      "sha256": "0efa8c1f2afeb9a93dce8ed5ddec610427726b2e566224ff9787ed1a4d80ab85"
+    },
+    {
+      "path": ".runtime/rag-2026-10-12-browser/browser-semantic-search.jpg",
+      "bytes": 73692,
+      "sha256": "cacaa2bb0cda53eda990f74153ef2d7be93f88ad1c330c8eb1c10b3c8a09af5f"
+    }
+  ]
+}

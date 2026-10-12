@@ -9,6 +9,7 @@ import com.example.report.permission.CurrentUser;
 import com.example.report.workspace.*;
 import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.stereotype.Service;
+import java.math.BigDecimal;
 import java.nio.charset.StandardCharsets;
 import java.time.*;
 import java.util.*;
@@ -54,12 +55,14 @@ public class AnalysisEngine {
         DATA中的“明细查看说明”由程序按照实际完成的步骤生成，是可引用的工作区能力，不能把如实介绍入口当成无依据的外部执行断言。界面的步骤编号从1开始；介绍多个步骤时分别引用对应来源。
         knowledgeCoverage是服务端记录的知识检索执行事实。performed=false表示本次未执行知识检索，不能说成检索无命中，也不能为只要求数据分析的任务追加制度缺失或知识不足。
         performed=true时，steps逐项记录已完成的知识检索；searchedSources/matchedSources/returnedSources的单位为份来源，searchedFragments/matchedFragments/returnedFragments的单位为个片段，必须区分，不能混用或从引用数量估算。
-        候选或别名扩展截断时limitations必须说明本轮依据有限，不能据此宣称全部制度一致或没有规定；不必复述检索计数，复述时必须使用实际数值和明确单位。已执行但没有命中仅表示此次未找到依据。
+        候选或别名扩展截断时limitations必须说明本轮依据有限，不能据此宣称全部制度一致或没有规定；不必复述检索计数，复述时必须使用实际数值和明确单位。已执行但没有命中仅表示此次未找到依据，不能据此断言现行资料或制度中没有该规定。
+        truncated=false和expansionTruncated=false分别表示没有因候选预算或别名扩展预算省略结果，不是“预算不足”，不能当作检索受限的原因。未命中说明缺少本次可引用依据；它与是否发生预算截断是独立事实，回答和限制说明均不能混淆。
+        知识检索包含原问题、已复核知识子问题和模型改写的多路召回，计数是片段和来源的去重并集。改写和相关性排名不是事实、正式词典或答案可信度，不能用它们代替制度原文。
         """;
     static final String ANSWER_RULES=FACT_RULES+"""
         根据原始问题和本轮evidence输出有来源的业务回答，不输出推理过程。
         每条claims.text必须由所选sourceIds的text支持；id只能取给定编号，不能自造编号、引用链接或原文。不输出quote，由服务器回填。
-        某条说明复述其他步骤的总量时，须在这条说明中同时选择支持该总量的片段，其他claims的引用不能代替本条引用。repair.citationCandidates只列数字出现位置，须核对原文语义后显式选择；候选为空时删除无依据数字，不能自行编造。
+        某条说明复述其他步骤的总量时，须在这条说明中同时选择支持该总量的片段，其他claims的引用不能代替本条引用。repair.citationCandidates按kind列出数字或完整日期时间的出现位置，须核对原文语义后显式选择；候选为空时删除无依据说明，不能拼接日期组件、换算时区或自行编造。
         一条说明只包含所选片段覆盖的事实；优先选择含可读摘要的片段，不把仅引用首条记录写成已经引用全部明细。
         回答以简短统计和知识结论为主，通常不超过四条，不重复抄写行列表。每条说明中的全部数字（包括日期条件）都须出现在所选片段或其元数据中。
         claims和limitations都使用面向业务用户的自然语言，不复述JSON键、布尔字面量、内部字段码或“展示契约”等技术词。只有尚未展示所有行时才说明“页面展示部分明细，可查看完整明细”；页面已展示全部行时不能说成仅展示部分。界面已有按钮，通常不需另写一条操作说明。
@@ -107,14 +110,14 @@ public class AnalysisEngine {
     /** 单次执行会话包含有限计量和已完成步骤，临时全集仅存在工作线程中，不存入模型上下文。 */
     public static final class Session {
         final String id,token;final CurrentUser user;final AnalysisContract.Request request;final KnowledgeService.Snapshot source;
-        final Runnable guard;final long started=System.nanoTime();final List<Map<String,Object>> steps=new ArrayList<>(),usage=new ArrayList<>();AnalysisContract.Plan plan;
+        final Runnable guard;final long started=System.nanoTime();final List<Map<String,Object>> steps=new ArrayList<>(),usage=new ArrayList<>();AnalysisContract.Plan plan;Map<Integer,KnowledgeRag.Retrieved> retrieval=Map.of();
         Session(String id,String token,CurrentUser user,AnalysisContract.Request request,KnowledgeService.Snapshot source,Runnable guard){this.id=id;this.token=token;this.user=user;this.request=request;this.source=source;this.guard=guard;}
-        Duration remaining(){long millis=180_000-(System.nanoTime()-started)/1_000_000;if(millis<=0)throw new ApiException(408,"有限分析已达到180秒时限，请缩小任务后重试");return Duration.ofMillis(Math.min(40_000,millis));}
+        Duration remaining(){long millis=AnalysisContract.RUN_SECONDS*1000L-(System.nanoTime()-started)/1_000_000;if(millis<=0)throw new ApiException(408,"有限分析已达到"+AnalysisContract.RUN_SECONDS+"秒时限，请缩小任务后重试");return Duration.ofMillis(Math.min(40_000,millis));}
     }
     /** 模型/Schema/提示和预算一并冻结，排队任务不能静默换模型或扩大执行能力。 */
-    public Map<String,Object> configuration(){var model=models.getIfAvailable();return Map.of("model",model==null?Map.of("configured",false):model.configuration(),
-            "planSchema",Digests.sha256(AnalysisContract.planSchema()),"answerSchema",Digests.sha256(AnalysisEvidence.schema()),"instructions",Digests.sha256(PLAN_RULES+PLAN_REVIEW+ANSWER_RULES+ANSWER_REVIEW),
-            "maxSteps",6,"maxQueries",2,"maxModelCalls",8,"runSeconds",180,"modelSeconds",40,"version","2");}
+    public Map<String,Object> configuration(){var model=models.getIfAvailable();var value=new LinkedHashMap<String,Object>();value.put("model",model==null?Map.of("configured",false):model.configuration());
+        value.put("planSchema",AnalysisContract.schemaHash(AnalysisContract.planSchema()));value.put("answerSchema",AnalysisContract.schemaHash(AnalysisEvidence.schema()));value.put("instructions",Digests.sha256(PLAN_RULES+PLAN_REVIEW+ANSWER_RULES+ANSWER_REVIEW));
+        value.put("maxSteps",AnalysisContract.MAX_STEPS);value.put("maxQueries",AnalysisContract.MAX_QUERIES);value.put("maxModelCalls",AnalysisContract.MAX_MODEL_CALLS);value.put("runSeconds",AnalysisContract.RUN_SECONDS);value.put("modelSeconds",40);value.put("version","5");value.put("retrieval",KnowledgeRag.configuration());value.put("sourceVersion",AnalysisEvidence.SOURCE_VERSION);return Collections.unmodifiableMap(value);}
     public String configurationHash(){return InvestigationJson.hash(configuration());}
 
     /** 执行一次已准入任务；任何阶段失败都不会转而执行其他工具或业务写操作。 */
@@ -137,6 +140,10 @@ public class AnalysisEngine {
         }
         if(plan==null)throw new ApiException(422,"未能形成可靠的有限分析计划");session.plan=plan;checkpoint(session,"STEP");
         if("CLARIFY".equals(plan.mode()))return new Outcome("CLARIFY","NEEDS_CLARIFICATION",plan.clarification(),null);
+        // 整份已复核计划的知识问题共用两次批量模型调用，不能随步骤数倍增费用；检索完成前不读取业务行。
+        var knowledgeTopics=new ArrayList<KnowledgeRag.Topic>();for(int index=0;index<plan.steps().size();index++)if("KNOWLEDGE".equals(plan.steps().get(index).action()))knowledgeTopics.add(new KnowledgeRag.Topic(index,plan.steps().get(index).knowledgeQuestion()));
+        try {session.retrieval=KnowledgeRag.search(session.request.question(),knowledgeTopics,session.source,(stage,instructions,data,schema)->call(session,stage,instructions,data,schema));}
+        catch(ApiException invalid){if(invalid.getCode()==422)markRejected(session,invalid.getMessage());throw invalid;}
         var nodes=new ArrayList<Node>();var evidence=new LinkedHashMap<String,AnalysisEvidence.Source>();
         for(int index=0;index<plan.steps().size();index++) {
             var step=plan.steps().get(index);var stored=new LinkedHashMap<String,Object>();stored.put("index",index);stored.put("action",step.action());stored.put("status","RUNNING");session.steps.add(stored);checkpoint(session,"STEP");
@@ -201,10 +208,14 @@ public class AnalysisEngine {
         input.put("snapshotId",session.request.snapshotId());if(session.request.snapshotId()!=null){var run=workspace.require(session.user,session.request.snapshotId());requireScope(session.request,run);input.put("snapshotQuery",run.result().query());input.put("snapshotSummary",run.result().summary());}return input;}
     /** 每次调用前后都校验租约、权限与当前版本，调用次数在发出请求前计数，失败不能免费重试。 */
     private String call(Session s,String stage,String instructions,Object input,String schema) {
-        s.guard.run();if(s.usage.size()>=AnalysisContract.MAX_MODEL_CALLS)throw new ApiException(422,"本轮模型调用已达到8次上限");var model=models.getIfAvailable();if(model==null)throw new ApiException(503,"真实分析模型未配置");
+        s.guard.run();if(s.usage.size()>=AnalysisContract.MAX_MODEL_CALLS)throw new ApiException(422,"本轮模型调用已达到"+AnalysisContract.MAX_MODEL_CALLS+"次上限");var model=models.getIfAvailable();if(model==null)throw new ApiException(503,"真实分析模型未配置");
         var usage=new LinkedHashMap<String,Object>();usage.put("number",s.usage.size()+1);usage.put("stage",stage);usage.put("status","STARTED");s.usage.add(usage);checkpoint(s,stage);long start=System.nanoTime();
         try {var reply=model.call(instructions,input,schema,s.remaining());usage.put("status","RESPONDED");usage.put("model",reply.model());usage.put("elapsedMs",reply.elapsedMs());usage.put("inputTokens",reply.usage().inputTokens());usage.put("outputTokens",reply.usage().outputTokens());usage.put("cachedInputTokens",reply.usage().cachedInputTokens());usage.put("usageComplete",reply.usage().complete());checkpoint(s,stage);return reply.json();}
-        catch(RuntimeException failure){usage.put("status","FAILED");usage.put("elapsedMs",(System.nanoTime()-start)/1_000_000);usage.put("inputTokens",null);usage.put("outputTokens",null);usage.put("usageComplete",false);throw failure;}
+        catch(RuntimeException failure){
+            // 响应已到达后发生撤权、版本变化或保存失败，实际token费用仍然存在，不能抹掉已知用量。
+            if("RESPONDED".equals(usage.get("status"))){usage.put("validation","REJECTED");usage.put("reason",failure instanceof ApiException api?AnalysisEvidence.safeText(api.getMessage()):"模型响应后的状态核对或保存未完成");}
+            else {usage.put("status","FAILED");usage.put("elapsedMs",(System.nanoTime()-start)/1_000_000);usage.put("inputTokens",null);usage.put("outputTokens",null);usage.put("cachedInputTokens",null);usage.put("usageComplete",false);}
+            throw failure;}
     }
     private void markRejected(Session session,String reason){String stage="PLAN";if(!session.usage.isEmpty()){var last=session.usage.get(session.usage.size()-1);last.put("validation","REJECTED");last.put("reason",AnalysisEvidence.safeText(reason));stage=last.get("stage").toString();}checkpoint(session,stage);}
     private void checkpoint(Session session,String stage){session.guard.run();session.remaining();requireSources(session.user,session.steps,false);repository.progress(session.id,session.token,stage,session.plan,session.steps,session.usage);}
@@ -212,9 +223,8 @@ public class AnalysisEngine {
     @SuppressWarnings("unchecked")
     private Node execute(Session session,AnalysisContract.Step step,List<Node> nodes,Map<String,Object> stored,int index) {
         if("KNOWLEDGE".equals(step.action())) {
-            var result=KnowledgeSearch.search(step.knowledgeQuestion(),session.source.sources(),session.source.dictionary().definition(),12);
-            stored.put("result",Map.of("kind","KNOWLEDGE","matched",result.matched(),"searched",result.searched(),"truncated",result.truncated(),"sources",result.sources(),
-                    "coverage",result.coverage(),"queryTerms",result.queryTerms(),"expansions",result.expansions(),"expansionTruncated",result.expansionTruncated(),"hits",result.hits()));
+            var retrieval=session.retrieval.get(index);if(retrieval==null)throw new ApiException(503,"知识检索阶段没有产生已核验的结果");var result=retrieval.result();
+            stored.put("result",retrieval.view());
             // 覆盖计量独立作为程序执行证据，不占知识片段预算，也不能冒充一份业务制度或业务查询结果。
             var evidence=new ArrayList<>(result.sources());evidence.add(retrievalEvidence(index,session.source.fingerprint(),session.request.companyCode()+" / "+session.request.reportId(),session.source.referenceTime().toString(),result));stored.put("sources",List.copyOf(evidence));
             return new Node(null,List.of(),List.of(),null);
@@ -277,15 +287,15 @@ public class AnalysisEngine {
         String text="第"+(index+1)+"步已执行当前授权范围内的知识检索。\n"
                 +"已搜索 "+coverage.searchedSources()+" 份来源、"+result.searched()+" 个片段；命中 "+coverage.matchedSources()+" 份来源、"+result.matched()+" 个片段；返回 "+coverage.returnedSources()+" 份来源、"+result.sources().size()+" 个片段。\n"
                 +(result.truncated()?"部分命中片段因返回预算未被选中，当前依据覆盖有限。":"本次命中的片段已全部返回；这不证明授权资料之外不存在其他制度。")+"\n"
-                +(result.expansionTruncated()?"字段别名扩展达到预算，部分已配置扩展词未参与本次检索。":"本次字段别名扩展未达到预算。")+"\n"
+                +(result.expansionTruncated()?"字段别名扩展达到预算，部分已配置扩展词未参与本次检索。":"本次没有因字段别名扩展预算省略检索表达。")+"\n"
                 +"本说明仅记录知识检索情况，不是制度正文，不是业务明细，也不证明任何业务写入已经执行。";
-        return new AnalysisEvidence.Source(id,id,"DATA","第"+(index+1)+"步知识检索范围说明",version,scope,observedAt,text);
+        return new AnalysisEvidence.Source(id,id,"DATA","第"+(index+1)+"步知识检索范围说明",version,scope,observedAt,text,0);
     }
     private AnalysisEvidence.Source dataSource(Session s,int index,String action,Map<String,Object> view){var facts=new LinkedHashMap<>(view);facts.remove("columns");facts.remove("selection");facts.put("displayStep",index+1);
         // 证据体积不足时显式省略展示行或分组，但完整计数及确定性汇总保留；模型不能据此补造明细。
         for(String field:List.of("rows","groups","details"))if(facts.get(field) instanceof List<?> list){var bounded=new ArrayList<>(list);while(JsonUtil.toJson(facts).getBytes(StandardCharsets.UTF_8).length>10000&&!bounded.isEmpty()){bounded.remove(bounded.size()-1);facts.put(field,bounded);facts.put("evidencePreviewTruncated",true);}}
         String text=readableFacts(action,facts)+"\n结构化事实：\n"+JsonUtil.toJson(facts);if(text.getBytes(StandardCharsets.UTF_8).length>16000)throw new ApiException(422,"单步回答依据超过预算，请缩小字段或分组");
-        return new AnalysisEvidence.Source("step-"+(index+1),"step-"+(index+1),"DATA","第"+(index+1)+"步 "+action,Digests.sha256(text),s.request.companyCode()+" / "+s.request.reportId(),Objects.toString(view.get("observedAt"),s.source.referenceTime().toString()),text);}
+        return new AnalysisEvidence.Source("step-"+(index+1),"step-"+(index+1),"DATA","第"+(index+1)+"步 "+action,Digests.sha256(text),s.request.companyCode()+" / "+s.request.reportId(),Objects.toString(view.get("observedAt"),s.source.referenceTime().toString()),text,0);}
     /** 可引用短句与结构化事实来自同一确定性结果；不让模型拼接分散JSON片段或自行计算金额。 */
     @SuppressWarnings("unchecked")
     static String readableFacts(String action,Map<String,Object> facts) {
@@ -313,11 +323,21 @@ public class AnalysisEngine {
             text.append("之前查询共").append(before.total()).append("条；之后查询共").append(after.total()).append("条。\n")
                     .append("相对于之前集合：新增").append(facts.get("added")).append("条，移出").append(facts.get("removed")).append("条，字段变化").append(facts.get("changed")).append("条。\n")
                     .append("查询条件及口径相同：").append(facts.get("sameDefinition")).append("；条件不同只描述集合差异，不能据此断言业务增长或删除。\n");
-            ((Map<String,String>)facts.get("amountDeltaByCurrency")).forEach((currency,amount)->text.append("之后减之前的金额差额：").append(amount).append(' ').append(currency).append("。\n"));
+            // 差值和方向幅度都是由完整确定性结果生成的独立可引用事实；不能让模型自行算差或把负数直接当正数使用。
+            appendDifference(text,"记录数",BigDecimal.valueOf((long)after.total()-before.total()),"条");
+            ((Map<String,String>)facts.get("amountDeltaByCurrency")).forEach((currency,amount)->appendDifference(text,"金额",new BigDecimal(amount),currency));
             text.append("之前观测时间：").append(before.observedAt()).append("；之后观测时间：").append(after.observedAt()).append("；不是跨查询全局事务。\n");
         }
         if(Boolean.TRUE.equals(facts.get("evidencePreviewTruncated")))text.append("本证据另有行或分组预览截断，完整计数未截断。\n");
         return text.toString();
+    }
+    /** 将已计算差值同时表达为有符号值与方向幅度，保留精度和币种；只说明集合差异，不推断业务增长或原因。 */
+    private static void appendDifference(StringBuilder text,String measure,BigDecimal difference,String unit) {
+        text.append("之后减之前的").append(measure).append("差额：").append(difference.toPlainString()).append(' ').append(unit).append("。\n");
+        text.append("之后查询集合的").append(measure);
+        if(difference.signum()==0)text.append("与之前查询集合相同，差额为0 ").append(unit);
+        else text.append("比之前查询集合").append(difference.signum()>0?"增加":"减少").append(difference.abs().toPlainString()).append(' ').append(unit);
+        text.append("；这只是两个查询集合的数值差异。\n");
     }
     static void requireScope(AnalysisContract.Request request,QuerySnapshotStore.Run run){var query=run.result().query();if(query.domain()!=BusinessQuery.Domain.REPORT||!query.reportIds().equals(List.of(request.reportId()))||!Objects.equals(query.companyCode(),request.companyCode()))throw new ApiException(422,"选定快照与本次公司和报表范围不一致");}
 

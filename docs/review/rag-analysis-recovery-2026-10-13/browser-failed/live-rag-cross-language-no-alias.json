@@ -1,0 +1,476 @@
+{
+  "id" : "397a6336f4b7484fa7e8b5e8ab11e085",
+  "status" : "COMPLETED",
+  "stage" : "FINISHED",
+  "reason" : null,
+  "message" : "分析与依据核验已完成",
+  "version" : 18,
+  "request" : {
+    "question" : "Do booked sales prove that customer funds have arrived?",
+    "reportId" : "rpt-sales-order",
+    "snapshotId" : null,
+    "companyCode" : "A"
+  },
+  "created_at" : "2026-10-12T16:48:17.387Z",
+  "started_at" : "2026-10-12T16:48:17.396Z",
+  "finished_at" : "2026-10-12T16:48:39.472Z",
+  "expires_at" : "2026-10-13T16:48:17.387Z",
+  "plan" : {
+    "mode" : "EXECUTE",
+    "steps" : [ {
+      "rank" : null,
+      "other" : null,
+      "query" : null,
+      "action" : "KNOWLEDGE",
+      "source" : null,
+      "analysis" : null,
+      "knowledgeQuestion" : "在A公司销售报表范围内，已记账销售或已派单是否代表客户资金已到账？相关制度对销售确认、回款/资金到账的口径与依据是什么？"
+    } ],
+    "objective" : "在已选公司A与销售报表范围内检索已授权制度与业务口径，说明“已记账销售”能否证明客户资金已到账。",
+    "clarification" : null
+  },
+  "steps" : [ {
+    "index" : 0,
+    "action" : "KNOWLEDGE",
+    "result" : {
+      "hits" : [ {
+        "sourceId" : "document-4f8dfc0678554613992e1d4cdb0c7c3b-v2-p1",
+        "aliasTerms" : [ ],
+        "directTerms" : [ "到账", "确认", "销售" ]
+      }, {
+        "sourceId" : "document-5ca62be75a2e4e64ab5612183882434f-v2-p1",
+        "aliasTerms" : [ ],
+        "directTerms" : [ "到账", "客户", "销售" ]
+      }, {
+        "sourceId" : "catalog-6-p1",
+        "aliasTerms" : [ ],
+        "directTerms" : [ "代表", "公司", "售报", "售报表", "已派", "已派单", "报表", "派单", "销售", "销售报" ]
+      }, {
+        "sourceId" : "rule-1-1-p1",
+        "aliasTerms" : [ ],
+        "directTerms" : [ "售报", "售报表", "或已", "报表", "派单", "销售", "销售报" ]
+      }, {
+        "sourceId" : "document-5d034643df534593a5fe9087430f6d81-v2-p1",
+        "aliasTerms" : [ ],
+        "directTerms" : [ "确认" ]
+      }, {
+        "sourceId" : "dictionary-c195d75d400d5e72-p1",
+        "aliasTerms" : [ ],
+        "directTerms" : [ "sales", "售报", "售报表", "报表", "销售", "销售报" ]
+      }, {
+        "sourceId" : "document-60931863155f4cec89d01458220a6ea5-v2-p1",
+        "aliasTerms" : [ ],
+        "directTerms" : [ "口径", "销售" ]
+      }, {
+        "sourceId" : "document-a9eac0d8a72d4cdc9e85dced38d668f4-v2-p1",
+        "aliasTerms" : [ ],
+        "directTerms" : [ "口径", "销售" ]
+      }, {
+        "sourceId" : "document-1ff5afc42e3749819c9d1d3f94ff1a29-v2-p1",
+        "aliasTerms" : [ ],
+        "directTerms" : [ "范围" ]
+      }, {
+        "sourceId" : "document-283c6f6ef2aa4f0ead3e9a91d3b94f5f-v2-p1",
+        "aliasTerms" : [ ],
+        "directTerms" : [ "范围" ]
+      } ],
+      "kind" : "KNOWLEDGE",
+      "matched" : 10,
+      "sources" : [ {
+        "id" : "document-4f8dfc0678554613992e1d4cdb0c7c3b-v2-p1",
+        "kind" : "KNOWLEDGE",
+        "text" : "来源标题：收款事实确认\n来源版本：2\n适用范围：A / rpt-sales-order\n时间说明：生效 2026-01-01；失效 未指定\n原文位置：脱敏后来源全文第1至2行；UTF-16字符[0,54)。\n片段编号：1\n正文片段：\n来源：本仓库隔离验收合成资料\n只有实际到账记录才能认定已经收款；销售单金额是订单价款，不能代替银行到账记录。",
+        "scope" : "A / rpt-sales-order",
+        "title" : "收款事实确认",
+        "version" : "2",
+        "originId" : "document-4f8dfc0678554613992e1d4cdb0c7c3b-v2",
+        "observedAt" : "生效 2026-01-01；失效 未指定",
+        "contentOffset" : 117
+      }, {
+        "id" : "document-5ca62be75a2e4e64ab5612183882434f-v2-p1",
+        "kind" : "KNOWLEDGE",
+        "text" : "来源标题：销售单金额与收款的区别\n来源版本：2\n适用范围：A / rpt-sales-order\n时间说明：生效 2026-01-01；失效 未指定\n原文位置：脱敏后来源全文第1至2行；UTF-16字符[0,59)。\n片段编号：1\n正文片段：\n来源：本仓库隔离验收合成资料\n销售金额按订单约定的应收价款登记；它不等于客户已经支付的款项。收款需以到账流水单独证明。",
+        "scope" : "A / rpt-sales-order",
+        "title" : "销售单金额与收款的区别",
+        "version" : "2",
+        "originId" : "document-5ca62be75a2e4e64ab5612183882434f-v2",
+        "observedAt" : "生效 2026-01-01；失效 未指定",
+        "contentOffset" : 122
+      }, {
+        "id" : "catalog-6-p1",
+        "kind" : "KNOWLEDGE",
+        "text" : "来源标题：销售报表：目录与字段\n来源版本：6\n适用范围：A / rpt-sales-order\n时间说明：当前目录；观测日期 2026-10-13\n原文位置：脱敏后来源全文第1至3行；UTF-16字符[0,959)。\n片段编号：1\n正文片段：\n报表名称：销售报表\n用途：销售订单台账：按订单统计金额与派单状态\n字段定义：[{\"name\":\"reportId\",\"type\":\"string\",\"description\":\"报表稳定标识\"},{\"name\":\"reportName\",\"type\":\"string\",\"description\":\"报表名称\"},{\"name\":\"companyCode\",\"type\":\"string\",\"description\":\"所属公司代码\"},{\"name\":\"docNo\",\"type\":\"string\",\"description\":\"来源单据号\"},{\"name\":\"amount\",\"type\":\"decimal\",\"description\":\"来源金额，币种见 currency；空值表示未提供\"},{\"name\":\"currency\",\"type\":\"string\",\"description\":\"来源声明币种；空值表示未声明，不能跨币种合计\"},{\"name\":\"date\",\"type\":\"date\",\"description\":\"业务日期；空值表示未配置\"},{\"name\":\"status\",\"type\":\"string\",\"description\":\"报表派单状态：未派单/已派单\"},{\"name\":\"orderNo\",\"type\":\"string\",\"description\":\"订单号\"},{\"name\":\"productName\",\"type\":\"string\",\"description\":\"产品名称\"},{\"name\":\"saleDate\",\"type\":\"date\",\"description\":\"销售日期，字符串 yyyy-MM-dd\"},{\"name\":\"daysSinceSale\",\"type\":\"long\",\"description\":\"距销售日期的天数（派生）\"},{\"name\":\"dispatched\",\"type\":\"boolean\",\"description\":\"来源记录是否已派单；true为已派单，false为未派单，不代表满足派单规则\"},{\"name\":\"recordId\",\"type\":\"string\",\"description\":\"报表内稳定记录标识\"}]",
+        "scope" : "A / rpt-sales-order",
+        "title" : "销售报表：目录与字段",
+        "version" : "6",
+        "originId" : "catalog-6",
+        "observedAt" : "当前目录；观测日期 2026-10-13",
+        "contentOffset" : 122
+      }, {
+        "id" : "rule-1-1-p1",
+        "kind" : "KNOWLEDGE",
+        "text" : "来源标题：销售报表：当前派单规则\n来源版本：1\n适用范围：A / rpt-sales-order\n时间说明：当前生效规则；观测日期 2026-10-13\n原文位置：脱敏后来源全文第1至2行；UTF-16字符[0,167)。\n片段编号：1\n正文片段：\n仅解释已配置的规则，不证明任意单据符合规则或已被派单。\n{\"id\":1,\"version\":1,\"companyCode\":\"*\",\"expression\":\"amount > 20\",\"description\":\"销售订单金额大于 20 元需要派单\",\"effectiveFrom\":null,\"effectiveTo\":null}",
+        "scope" : "A / rpt-sales-order",
+        "title" : "销售报表：当前派单规则",
+        "version" : "1",
+        "originId" : "rule-1-1",
+        "observedAt" : "当前生效规则；观测日期 2026-10-13",
+        "contentOffset" : 125
+      }, {
+        "id" : "document-5d034643df534593a5fe9087430f6d81-v2-p1",
+        "kind" : "KNOWLEDGE",
+        "text" : "来源标题：开票日期与确认收入\n来源版本：2\n适用范围：A / rpt-sales-order\n时间说明：生效 2026-01-01；失效 未指定\n原文位置：脱敏后来源全文第1至2行；UTF-16字符[0,67)。\n片段编号：1\n正文片段：\n来源：本仓库隔离验收合成资料\n开票日期是发票开具日期，不等同于收入确认日期。收入确认以合同履约条件满足时点为准，不能仅据开票时间推断。",
+        "scope" : "A / rpt-sales-order",
+        "title" : "开票日期与确认收入",
+        "version" : "2",
+        "originId" : "document-5d034643df534593a5fe9087430f6d81-v2",
+        "observedAt" : "生效 2026-01-01；失效 未指定",
+        "contentOffset" : 120
+      }, {
+        "id" : "dictionary-c195d75d400d5e72-p1",
+        "kind" : "KNOWLEDGE",
+        "text" : "来源标题：销售报表：业务词典\n来源版本：c195d75d400d5e72538359bef2ff9b7c6764040c0971b0280b2ee95a8fd2b82c\n适用范围：A / rpt-sales-order\n时间说明：当前词典；观测日期 2026-10-13\n原文位置：脱敏后来源全文第1至1行；UTF-16字符[0,214)。\n片段编号：1\n正文片段：\n{\"scope\":{\"domain\":\"REPORT\",\"companyCode\":\"A\",\"reportId\":\"rpt-sales-order\"},\"version\":0,\"definition\":{\"companyName\":\"\",\"companyAliases\":[],\"timeZone\":\"Asia/Shanghai\",\"fiscalStartMonth\":1,\"holidays\":[],\"fields\":[]}}",
+        "scope" : "A / rpt-sales-order",
+        "title" : "销售报表：业务词典",
+        "version" : "c195d75d400d5e72538359bef2ff9b7c6764040c0971b0280b2ee95a8fd2b82c",
+        "originId" : "dictionary-c195d75d400d5e72",
+        "observedAt" : "当前词典；观测日期 2026-10-13",
+        "contentOffset" : 184
+      }, {
+        "id" : "document-60931863155f4cec89d01458220a6ea5-v2-p1",
+        "kind" : "KNOWLEDGE",
+        "text" : "来源标题：订单价款税额口径乙\n来源版本：2\n适用范围：A / rpt-sales-order\n时间说明：生效 2026-01-01；失效 未指定\n原文位置：脱敏后来源全文第1至2行；UTF-16字符[0,27)。\n片段编号：1\n正文片段：\n来源：本仓库隔离验收合成资料\n销售金额不包括销项税额。",
+        "scope" : "A / rpt-sales-order",
+        "title" : "订单价款税额口径乙",
+        "version" : "2",
+        "originId" : "document-60931863155f4cec89d01458220a6ea5-v2",
+        "observedAt" : "生效 2026-01-01；失效 未指定",
+        "contentOffset" : 120
+      }, {
+        "id" : "document-a9eac0d8a72d4cdc9e85dced38d668f4-v2-p1",
+        "kind" : "KNOWLEDGE",
+        "text" : "来源标题：订单价款税额口径甲\n来源版本：2\n适用范围：A / rpt-sales-order\n时间说明：生效 2026-01-01；失效 未指定\n原文位置：脱敏后来源全文第1至2行；UTF-16字符[0,26)。\n片段编号：1\n正文片段：\n来源：本仓库隔离验收合成资料\n销售金额包括销项税额。",
+        "scope" : "A / rpt-sales-order",
+        "title" : "订单价款税额口径甲",
+        "version" : "2",
+        "originId" : "document-a9eac0d8a72d4cdc9e85dced38d668f4-v2",
+        "observedAt" : "生效 2026-01-01；失效 未指定",
+        "contentOffset" : 120
+      }, {
+        "id" : "document-1ff5afc42e3749819c9d1d3f94ff1a29-v2-p1",
+        "kind" : "KNOWLEDGE",
+        "text" : "来源标题：差旅住宿补助适用范围\n来源版本：2\n适用范围：A / rpt-sales-order\n时间说明：生效 2026-01-01；失效 未指定\n原文位置：脱敏后来源全文第1至2行；UTF-16字符[0,77)。\n片段编号：1\n正文片段：\n来源：本仓库隔离验收合成资料\n短期出差住宿补助仅适用于因公前往常驻地以外的员工；本地驻点工作不适用。经过事前书面批准的跨地支援，按批准期间纳入该补助范围。",
+        "scope" : "A / rpt-sales-order",
+        "title" : "差旅住宿补助适用范围",
+        "version" : "2",
+        "originId" : "document-1ff5afc42e3749819c9d1d3f94ff1a29-v2",
+        "observedAt" : "生效 2026-01-01；失效 未指定",
+        "contentOffset" : 121
+      }, {
+        "id" : "document-283c6f6ef2aa4f0ead3e9a91d3b94f5f-v2-p1",
+        "kind" : "KNOWLEDGE",
+        "text" : "来源标题：通勤交通补助适用范围\n来源版本：2\n适用范围：A / rpt-sales-order\n时间说明：生效 2026-01-01；失效 未指定\n原文位置：脱敏后来源全文第1至2行；UTF-16字符[0,52)。\n片段编号：1\n正文片段：\n来源：本仓库隔离验收合成资料\n通勤交通补助适用于常驻工作地往返；其标准和住宿补助分别管理，不能相互推导。",
+        "scope" : "A / rpt-sales-order",
+        "title" : "通勤交通补助适用范围",
+        "version" : "2",
+        "originId" : "document-283c6f6ef2aa4f0ead3e9a91d3b94f5f-v2",
+        "observedAt" : "生效 2026-01-01；失效 未指定",
+        "contentOffset" : 121
+      } ],
+      "coverage" : {
+        "matchedSources" : 10,
+        "returnedSources" : 10,
+        "searchedSources" : 11
+      },
+      "searched" : 11,
+      "retrieval" : {
+        "mode" : "SEMANTIC_RAG",
+        "routes" : [ {
+          "index" : 0,
+          "expansions" : [ ],
+          "queryTerms" : [ "do", "booked", "sales", "prove", "that", "customer", "funds", "have", "arrived" ],
+          "matchedSources" : 1,
+          "matchedFragments" : 1,
+          "expansionTruncated" : false
+        }, {
+          "index" : 1,
+          "expansions" : [ ],
+          "queryTerms" : [ "公司", "司销", "销售", "售报", "报表", "表范", "范围", "围内", "公司销", "司销售", "销售报", "售报表", "报表范", "表范围", "范围内", "已记", "记账", "账销", "售或", "或已", "已派", "派单", "单是", "否代", "代表", "表客", "客户", "户资", "资金", "金已", "已到", "到账", "已记账", "记账销", "账销售", "销售或", "售或已", "或已派", "已派单", "派单是", "单是否", "是否代", "否代表", "代表客", "表客户", "客户资", "户资金", "资金已", "金已到", "已到账", "关制", "制度", "度对", "对销", "售确", "确认", "相关制", "关制度", "制度对", "度对销", "对销售", "销售确", "售确认", "回款", "金到", "账的", "的口", "口径", "径与", "与依", "依据", "据是", "是什", "资金到", "金到账", "到账的", "账的口", "的口径", "口径与", "径与依", "与依据", "依据是", "据是什", "是什么" ],
+          "matchedSources" : 10,
+          "matchedFragments" : 10,
+          "expansionTruncated" : false
+        }, {
+          "index" : 2,
+          "expansions" : [ ],
+          "queryTerms" : [ "公司", "销售", "售报", "报表", "销售报", "售报表", "已记", "记账", "账销", "已记账", "记账销", "账销售", "已派", "派单", "已派单", "否等", "等于", "于客", "客户", "户资", "资金", "金已", "已到", "到账", "是否等", "否等于", "等于客", "于客户", "客户资", "户资金", "资金已", "金已到", "已到账", "售确", "确认", "销售确", "售确认", "回款", "款口", "口径", "回款口", "款口径" ],
+          "matchedSources" : 8,
+          "matchedFragments" : 8,
+          "expansionTruncated" : false
+        }, {
+          "index" : 3,
+          "expansions" : [ ],
+          "queryTerms" : [ "销售", "售确", "确认", "销售确", "售确认", "收入", "入确", "收入确", "入确认", "资金", "金到", "到账", "资金到", "金到账", "区别", "回款", "依据", "制度" ],
+          "matchedSources" : 8,
+          "matchedFragments" : 8,
+          "expansionTruncated" : false
+        } ],
+        "queries" : [ {
+          "kind" : "ORIGINAL",
+          "text" : "Do booked sales prove that customer funds have arrived?"
+        }, {
+          "kind" : "FOCUSED",
+          "text" : "在A公司销售报表范围内，已记账销售或已派单是否代表客户资金已到账？相关制度对销售确认、回款/资金到账的口径与依据是什么？"
+        }, {
+          "kind" : "REWRITE",
+          "text" : "A公司 销售报表 已记账销售 已派单 是否等于客户资金已到账 销售确认 回款口径"
+        }, {
+          "kind" : "REWRITE",
+          "text" : "销售确认 收入确认 资金到账 区别 回款 依据 制度"
+        } ],
+        "ranking" : [ {
+          "rank" : 1,
+          "routes" : [ 1, 2, 3 ],
+          "sourceId" : "document-4f8dfc0678554613992e1d4cdb0c7c3b-v2-p1"
+        }, {
+          "rank" : 2,
+          "routes" : [ 1, 2, 3 ],
+          "sourceId" : "document-5ca62be75a2e4e64ab5612183882434f-v2-p1"
+        }, {
+          "rank" : 3,
+          "routes" : [ 1, 2, 3 ],
+          "sourceId" : "catalog-6-p1"
+        }, {
+          "rank" : 4,
+          "routes" : [ 1, 2, 3 ],
+          "sourceId" : "rule-1-1-p1"
+        }, {
+          "rank" : 5,
+          "routes" : [ 1, 2, 3 ],
+          "sourceId" : "document-5d034643df534593a5fe9087430f6d81-v2-p1"
+        }, {
+          "rank" : 6,
+          "routes" : [ 0, 1, 2, 3 ],
+          "sourceId" : "dictionary-c195d75d400d5e72-p1"
+        }, {
+          "rank" : 7,
+          "routes" : [ 1, 2, 3 ],
+          "sourceId" : "document-60931863155f4cec89d01458220a6ea5-v2-p1"
+        }, {
+          "rank" : 8,
+          "routes" : [ 1, 2, 3 ],
+          "sourceId" : "document-a9eac0d8a72d4cdc9e85dced38d668f4-v2-p1"
+        }, {
+          "rank" : 9,
+          "routes" : [ 1 ],
+          "sourceId" : "document-1ff5afc42e3749819c9d1d3f94ff1a29-v2-p1"
+        }, {
+          "rank" : 10,
+          "routes" : [ 1 ],
+          "sourceId" : "document-283c6f6ef2aa4f0ead3e9a91d3b94f5f-v2-p1"
+        } ],
+        "version" : "semantic-rag-2",
+        "reranked" : true,
+        "contextTruncated" : false,
+        "rerankedFragments" : 10,
+        "candidateFragments" : 10
+      },
+      "truncated" : false,
+      "expansions" : [ ],
+      "queryTerms" : [ "do", "booked", "sales", "prove", "that", "customer", "funds", "have", "arrived", "公司", "司销", "销售", "售报", "报表", "表范", "范围", "围内", "公司销", "司销售", "销售报", "售报表", "报表范", "表范围", "范围内", "已记", "记账", "账销", "售或", "或已", "已派", "派单", "单是", "否代", "代表", "表客", "客户", "户资", "资金", "金已", "已到", "到账", "已记账", "记账销", "账销售", "销售或", "售或已", "或已派", "已派单", "派单是", "单是否", "是否代", "否代表", "代表客", "表客户", "客户资", "户资金", "资金已", "金已到", "已到账", "关制", "制度", "度对", "对销", "售确", "确认", "相关制", "关制度", "制度对", "度对销", "对销售", "销售确", "售确认", "回款", "金到", "账的", "的口", "口径", "径与", "与依", "依据", "据是", "是什", "资金到", "金到账", "到账的", "账的口", "的口径", "口径与", "径与依", "与依据", "依据是", "据是什", "是什么" ],
+      "expansionTruncated" : false
+    },
+    "status" : "COMPLETED",
+    "sources" : [ {
+      "id" : "document-4f8dfc0678554613992e1d4cdb0c7c3b-v2-p1",
+      "kind" : "KNOWLEDGE",
+      "text" : "来源标题：收款事实确认\n来源版本：2\n适用范围：A / rpt-sales-order\n时间说明：生效 2026-01-01；失效 未指定\n原文位置：脱敏后来源全文第1至2行；UTF-16字符[0,54)。\n片段编号：1\n正文片段：\n来源：本仓库隔离验收合成资料\n只有实际到账记录才能认定已经收款；销售单金额是订单价款，不能代替银行到账记录。",
+      "scope" : "A / rpt-sales-order",
+      "title" : "收款事实确认",
+      "version" : "2",
+      "originId" : "document-4f8dfc0678554613992e1d4cdb0c7c3b-v2",
+      "observedAt" : "生效 2026-01-01；失效 未指定",
+      "contentOffset" : 117
+    }, {
+      "id" : "document-5ca62be75a2e4e64ab5612183882434f-v2-p1",
+      "kind" : "KNOWLEDGE",
+      "text" : "来源标题：销售单金额与收款的区别\n来源版本：2\n适用范围：A / rpt-sales-order\n时间说明：生效 2026-01-01；失效 未指定\n原文位置：脱敏后来源全文第1至2行；UTF-16字符[0,59)。\n片段编号：1\n正文片段：\n来源：本仓库隔离验收合成资料\n销售金额按订单约定的应收价款登记；它不等于客户已经支付的款项。收款需以到账流水单独证明。",
+      "scope" : "A / rpt-sales-order",
+      "title" : "销售单金额与收款的区别",
+      "version" : "2",
+      "originId" : "document-5ca62be75a2e4e64ab5612183882434f-v2",
+      "observedAt" : "生效 2026-01-01；失效 未指定",
+      "contentOffset" : 122
+    }, {
+      "id" : "catalog-6-p1",
+      "kind" : "KNOWLEDGE",
+      "text" : "来源标题：销售报表：目录与字段\n来源版本：6\n适用范围：A / rpt-sales-order\n时间说明：当前目录；观测日期 2026-10-13\n原文位置：脱敏后来源全文第1至3行；UTF-16字符[0,959)。\n片段编号：1\n正文片段：\n报表名称：销售报表\n用途：销售订单台账：按订单统计金额与派单状态\n字段定义：[{\"name\":\"reportId\",\"type\":\"string\",\"description\":\"报表稳定标识\"},{\"name\":\"reportName\",\"type\":\"string\",\"description\":\"报表名称\"},{\"name\":\"companyCode\",\"type\":\"string\",\"description\":\"所属公司代码\"},{\"name\":\"docNo\",\"type\":\"string\",\"description\":\"来源单据号\"},{\"name\":\"amount\",\"type\":\"decimal\",\"description\":\"来源金额，币种见 currency；空值表示未提供\"},{\"name\":\"currency\",\"type\":\"string\",\"description\":\"来源声明币种；空值表示未声明，不能跨币种合计\"},{\"name\":\"date\",\"type\":\"date\",\"description\":\"业务日期；空值表示未配置\"},{\"name\":\"status\",\"type\":\"string\",\"description\":\"报表派单状态：未派单/已派单\"},{\"name\":\"orderNo\",\"type\":\"string\",\"description\":\"订单号\"},{\"name\":\"productName\",\"type\":\"string\",\"description\":\"产品名称\"},{\"name\":\"saleDate\",\"type\":\"date\",\"description\":\"销售日期，字符串 yyyy-MM-dd\"},{\"name\":\"daysSinceSale\",\"type\":\"long\",\"description\":\"距销售日期的天数（派生）\"},{\"name\":\"dispatched\",\"type\":\"boolean\",\"description\":\"来源记录是否已派单；true为已派单，false为未派单，不代表满足派单规则\"},{\"name\":\"recordId\",\"type\":\"string\",\"description\":\"报表内稳定记录标识\"}]",
+      "scope" : "A / rpt-sales-order",
+      "title" : "销售报表：目录与字段",
+      "version" : "6",
+      "originId" : "catalog-6",
+      "observedAt" : "当前目录；观测日期 2026-10-13",
+      "contentOffset" : 122
+    }, {
+      "id" : "rule-1-1-p1",
+      "kind" : "KNOWLEDGE",
+      "text" : "来源标题：销售报表：当前派单规则\n来源版本：1\n适用范围：A / rpt-sales-order\n时间说明：当前生效规则；观测日期 2026-10-13\n原文位置：脱敏后来源全文第1至2行；UTF-16字符[0,167)。\n片段编号：1\n正文片段：\n仅解释已配置的规则，不证明任意单据符合规则或已被派单。\n{\"id\":1,\"version\":1,\"companyCode\":\"*\",\"expression\":\"amount > 20\",\"description\":\"销售订单金额大于 20 元需要派单\",\"effectiveFrom\":null,\"effectiveTo\":null}",
+      "scope" : "A / rpt-sales-order",
+      "title" : "销售报表：当前派单规则",
+      "version" : "1",
+      "originId" : "rule-1-1",
+      "observedAt" : "当前生效规则；观测日期 2026-10-13",
+      "contentOffset" : 125
+    }, {
+      "id" : "document-5d034643df534593a5fe9087430f6d81-v2-p1",
+      "kind" : "KNOWLEDGE",
+      "text" : "来源标题：开票日期与确认收入\n来源版本：2\n适用范围：A / rpt-sales-order\n时间说明：生效 2026-01-01；失效 未指定\n原文位置：脱敏后来源全文第1至2行；UTF-16字符[0,67)。\n片段编号：1\n正文片段：\n来源：本仓库隔离验收合成资料\n开票日期是发票开具日期，不等同于收入确认日期。收入确认以合同履约条件满足时点为准，不能仅据开票时间推断。",
+      "scope" : "A / rpt-sales-order",
+      "title" : "开票日期与确认收入",
+      "version" : "2",
+      "originId" : "document-5d034643df534593a5fe9087430f6d81-v2",
+      "observedAt" : "生效 2026-01-01；失效 未指定",
+      "contentOffset" : 120
+    }, {
+      "id" : "dictionary-c195d75d400d5e72-p1",
+      "kind" : "KNOWLEDGE",
+      "text" : "来源标题：销售报表：业务词典\n来源版本：c195d75d400d5e72538359bef2ff9b7c6764040c0971b0280b2ee95a8fd2b82c\n适用范围：A / rpt-sales-order\n时间说明：当前词典；观测日期 2026-10-13\n原文位置：脱敏后来源全文第1至1行；UTF-16字符[0,214)。\n片段编号：1\n正文片段：\n{\"scope\":{\"domain\":\"REPORT\",\"companyCode\":\"A\",\"reportId\":\"rpt-sales-order\"},\"version\":0,\"definition\":{\"companyName\":\"\",\"companyAliases\":[],\"timeZone\":\"Asia/Shanghai\",\"fiscalStartMonth\":1,\"holidays\":[],\"fields\":[]}}",
+      "scope" : "A / rpt-sales-order",
+      "title" : "销售报表：业务词典",
+      "version" : "c195d75d400d5e72538359bef2ff9b7c6764040c0971b0280b2ee95a8fd2b82c",
+      "originId" : "dictionary-c195d75d400d5e72",
+      "observedAt" : "当前词典；观测日期 2026-10-13",
+      "contentOffset" : 184
+    }, {
+      "id" : "document-60931863155f4cec89d01458220a6ea5-v2-p1",
+      "kind" : "KNOWLEDGE",
+      "text" : "来源标题：订单价款税额口径乙\n来源版本：2\n适用范围：A / rpt-sales-order\n时间说明：生效 2026-01-01；失效 未指定\n原文位置：脱敏后来源全文第1至2行；UTF-16字符[0,27)。\n片段编号：1\n正文片段：\n来源：本仓库隔离验收合成资料\n销售金额不包括销项税额。",
+      "scope" : "A / rpt-sales-order",
+      "title" : "订单价款税额口径乙",
+      "version" : "2",
+      "originId" : "document-60931863155f4cec89d01458220a6ea5-v2",
+      "observedAt" : "生效 2026-01-01；失效 未指定",
+      "contentOffset" : 120
+    }, {
+      "id" : "document-a9eac0d8a72d4cdc9e85dced38d668f4-v2-p1",
+      "kind" : "KNOWLEDGE",
+      "text" : "来源标题：订单价款税额口径甲\n来源版本：2\n适用范围：A / rpt-sales-order\n时间说明：生效 2026-01-01；失效 未指定\n原文位置：脱敏后来源全文第1至2行；UTF-16字符[0,26)。\n片段编号：1\n正文片段：\n来源：本仓库隔离验收合成资料\n销售金额包括销项税额。",
+      "scope" : "A / rpt-sales-order",
+      "title" : "订单价款税额口径甲",
+      "version" : "2",
+      "originId" : "document-a9eac0d8a72d4cdc9e85dced38d668f4-v2",
+      "observedAt" : "生效 2026-01-01；失效 未指定",
+      "contentOffset" : 120
+    }, {
+      "id" : "document-1ff5afc42e3749819c9d1d3f94ff1a29-v2-p1",
+      "kind" : "KNOWLEDGE",
+      "text" : "来源标题：差旅住宿补助适用范围\n来源版本：2\n适用范围：A / rpt-sales-order\n时间说明：生效 2026-01-01；失效 未指定\n原文位置：脱敏后来源全文第1至2行；UTF-16字符[0,77)。\n片段编号：1\n正文片段：\n来源：本仓库隔离验收合成资料\n短期出差住宿补助仅适用于因公前往常驻地以外的员工；本地驻点工作不适用。经过事前书面批准的跨地支援，按批准期间纳入该补助范围。",
+      "scope" : "A / rpt-sales-order",
+      "title" : "差旅住宿补助适用范围",
+      "version" : "2",
+      "originId" : "document-1ff5afc42e3749819c9d1d3f94ff1a29-v2",
+      "observedAt" : "生效 2026-01-01；失效 未指定",
+      "contentOffset" : 121
+    }, {
+      "id" : "document-283c6f6ef2aa4f0ead3e9a91d3b94f5f-v2-p1",
+      "kind" : "KNOWLEDGE",
+      "text" : "来源标题：通勤交通补助适用范围\n来源版本：2\n适用范围：A / rpt-sales-order\n时间说明：生效 2026-01-01；失效 未指定\n原文位置：脱敏后来源全文第1至2行；UTF-16字符[0,52)。\n片段编号：1\n正文片段：\n来源：本仓库隔离验收合成资料\n通勤交通补助适用于常驻工作地往返；其标准和住宿补助分别管理，不能相互推导。",
+      "scope" : "A / rpt-sales-order",
+      "title" : "通勤交通补助适用范围",
+      "version" : "2",
+      "originId" : "document-283c6f6ef2aa4f0ead3e9a91d3b94f5f-v2",
+      "observedAt" : "生效 2026-01-01；失效 未指定",
+      "contentOffset" : 121
+    }, {
+      "id" : "knowledge-coverage-1",
+      "kind" : "DATA",
+      "text" : "第1步已执行当前授权范围内的知识检索。\n已搜索 11 份来源、11 个片段；命中 10 份来源、10 个片段；返回 10 份来源、10 个片段。\n本次命中的片段已全部返回；这不证明授权资料之外不存在其他制度。\n本次字段别名扩展未达到预算。\n本说明仅记录知识检索情况，不是制度正文，不是业务明细，也不证明任何业务写入已经执行。",
+      "scope" : "A / rpt-sales-order",
+      "title" : "第1步知识检索范围说明",
+      "version" : "777891d705e4c8b365f19867270c6c1dac51d82d55e35017ef0e6477c1b9e982",
+      "originId" : "knowledge-coverage-1",
+      "observedAt" : "2026-10-12T16:48:17.402670300Z",
+      "contentOffset" : 0
+    } ]
+  } ],
+  "answer" : {
+    "claims" : [ {
+      "text" : "已入账的销售金额是订单约定的应收价款，不能等同于客户已经付款；只有实际到账记录才能认定已经收款。",
+      "citations" : [ {
+        "quote" : "来源标题：收款事实确认\n来源版本：2\n适用范围：A / rpt-sales-order\n时间说明：生效 2026-01-01；失效 未指定\n原文位置：脱敏后来源全文第1至2行；UTF-16字符[0,54)。\n片段编号：1\n正文片段：\n来源：本仓库隔离验收合成资料\n只有实际到账记录才能认定已经收款；销售单金额是订单价款，不能代替银行到账记录。",
+        "sourceId" : "document-4f8dfc0678554613992e1d4cdb0c7c3b-v2-p1"
+      }, {
+        "quote" : "来源标题：销售单金额与收款的区别\n来源版本：2\n适用范围：A / rpt-sales-order\n时间说明：生效 2026-01-01；失效 未指定\n原文位置：脱敏后来源全文第1至2行；UTF-16字符[0,59)。\n片段编号：1\n正文片段：\n来源：本仓库隔离验收合成资料\n销售金额按订单约定的应收价款登记；它不等于客户已经支付的款项。收款需以到账流水单独证明。",
+        "sourceId" : "document-5ca62be75a2e4e64ab5612183882434f-v2-p1"
+      } ]
+    }, {
+      "text" : "销售报表是销售订单台账，按订单统计金额与派单状态，其金额字段为来源金额，本身不记录到账流水，因此不能作为客户资金到账的证明。",
+      "citations" : [ {
+        "quote" : "来源标题：销售报表：目录与字段\n来源版本：6\n适用范围：A / rpt-sales-order\n时间说明：当前目录；观测日期 2026-10-13\n原文位置：脱敏后来源全文第1至3行；UTF-16字符[0,959)。\n片段编号：1\n正文片段：\n报表名称：销售报表\n用途：销售订单台账：按订单统计金额与派单状态\n字段定义：[{\"name\":\"reportId\",\"type\":\"string\",\"description\":\"报表稳定标识\"},{\"name\":\"reportName\",\"type\":\"string\",\"description\":\"报表名称\"},{\"name\":\"companyCode\",\"type\":\"string\",\"description\":\"所属公司代码\"},{\"name\":\"docNo\",\"type\":\"string\",\"description\":\"来源单据号\"},{\"name\":\"amount\",\"type\":\"decimal\",\"description\":\"来源金额，币种见 currency；空值表示未提供\"},{\"name\":\"currency\",\"type\":\"string\",\"description\":\"来源声明币种；空值表示未声明，不能跨币种合计\"},{\"name\":\"date\",\"type\":\"date\",\"description\":\"业务日期；空值表示未配置\"},{\"name\":\"status\",\"type\":\"string\",\"description\":\"报表派单状态：未派单/已派单\"},{\"name\":\"orderNo\",\"type\":\"string\",\"description\":\"订单号\"},{\"name\":\"productName\",\"type\":\"string\",\"description\":\"产品名称\"},{\"name\":\"saleDate\",\"type\":\"date\",\"description\":\"销售日期，字符串 yyyy-MM-dd\"},{\"name\":\"daysSinceSale\",\"type\":\"long\",\"description\":\"距销售日期的天数（派生）\"},{\"name\":\"dispatched\",\"type\":\"boolean\",\"description\":\"来源记录是否已派单；true为已派单，false为未派单，不代表满足派单规则\"},{\"name\":\"recordId\",\"type\":\"string\",\"description\":\"报表内稳定记录标识\"}]",
+        "sourceId" : "catalog-6-p1"
+      } ]
+    } ],
+    "status" : "ANSWERED",
+    "limitations" : [ "本次结论基于当前授权范围内的制度与目录资料；这不证明授权资料之外不存在其他制度。" ]
+  },
+  "usage" : [ {
+    "model" : "deepseek-v4.1-flash",
+    "stage" : "PLAN",
+    "number" : 1,
+    "status" : "RESPONDED",
+    "elapsedMs" : 2977,
+    "inputTokens" : 3085,
+    "outputTokens" : 122,
+    "usageComplete" : true,
+    "cachedInputTokens" : 2432
+  }, {
+    "model" : "deepseek-v4.1-flash",
+    "stage" : "PLAN_REVIEW",
+    "number" : 2,
+    "status" : "RESPONDED",
+    "elapsedMs" : 3135,
+    "inputTokens" : 2147,
+    "outputTokens" : 64,
+    "usageComplete" : true,
+    "cachedInputTokens" : 1408
+  }, {
+    "model" : "deepseek-v4.1-flash",
+    "stage" : "RAG_REWRITE",
+    "number" : 3,
+    "status" : "RESPONDED",
+    "elapsedMs" : 3078,
+    "inputTokens" : 495,
+    "outputTokens" : 65,
+    "usageComplete" : true,
+    "cachedInputTokens" : 128
+  }, {
+    "model" : "deepseek-v4.1-flash",
+    "stage" : "RAG_RERANK",
+    "number" : 4,
+    "status" : "RESPONDED",
+    "elapsedMs" : 2415,
+    "inputTokens" : 2977,
+    "outputTokens" : 45,
+    "usageComplete" : true,
+    "cachedInputTokens" : 128
+  }, {
+    "model" : "deepseek-v4.1-flash",
+    "stage" : "ANSWER",
+    "number" : 5,
+    "status" : "RESPONDED",
+    "elapsedMs" : 5741,
+    "inputTokens" : 4662,
+    "outputTokens" : 181,
+    "usageComplete" : true,
+    "cachedInputTokens" : 896
+  }, {
+    "model" : "deepseek-v4.1-flash",
+    "stage" : "ANSWER_REVIEW",
+    "number" : 6,
+    "status" : "RESPONDED",
+    "elapsedMs" : 4522,
+    "inputTokens" : 4327,
+    "outputTokens" : 64,
+    "usageComplete" : true,
+    "cachedInputTokens" : 1024
+  } ]
+}
